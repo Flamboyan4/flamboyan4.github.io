@@ -1697,208 +1697,256 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private #dashboardView>.grid>.section{overflow:visible;scroll-behavior:auto}
  body.f4-bank-app-private #sideNav.side{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 }
-/* Bank Sampah member dashboard — one flat reference-matched grid.
-   ATM, wallet, schedule/price, transactions and instructions are separate surfaces.
-   No shared green hero frame, overlapping shortcut dock or duplicate rules. */
+/* Bank Sampah member dashboard: premium eco-banking composition.
+   A single canonical layout owner; only the card itself has an ATM surface.
+   All information remains connected to the existing application nodes. */
+body.f4-bank-app-member #dashboardView #pageDashboard{
+ box-sizing:border-box;min-width:0;width:100%;max-width:none;
+ margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
+}
+body.f4-bank-app-member #dashboardView>.grid>.section{
+ background:linear-gradient(155deg,#f9fcf6 0%,#fffefa 46%,#f6faf5 100%);
+ min-height:calc(100dvh - 56px)
+}
 #dashboardView #f4BankAppHome[data-bank-role="member"]{
- box-sizing:border-box;display:grid;min-width:0;width:100%;max-width:1160px;margin-inline:auto;
- grid-template-columns:minmax(0,7fr) minmax(0,5fr);
+ --member-deep:#075333;--member-ink:#103d2b;--member-muted:#677f71;
+ --member-line:#e1ece3;--member-card:#fff;
+ box-sizing:border-box;display:grid;min-width:0;width:100%;max-width:1160px;
+ margin:0 auto;gap:17px 19px;align-items:stretch;align-content:start;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr);
  grid-template-areas:
   "card balance"
-  "recent quick"
+  "quick quick"
+  "progress guide"
   "recent info"
-  "progress guide";
- gap:16px 20px;align-items:stretch;align-content:start
 }
-#dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{
- display:none;min-width:0;margin:0;padding:0
-}
+#dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{display:none}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>:is(#f4BankAppAdminHero,#f4BankAppMinis){display:none}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{
- box-sizing:border-box;grid-area:card;position:relative;isolation:isolate;overflow:hidden;
- display:flex;flex-direction:column;justify-content:space-between;gap:12px;
- width:100%;height:245px;min-height:0;min-width:0;max-height:none;aspect-ratio:auto;
- margin:0;padding:24px 28px;border:0;border-radius:26px;
- background:linear-gradient(135deg,#09BCD3 0%,#009788 100%);
- box-shadow:0 12px 27px #007b8630;color:#fff;text-align:left;cursor:pointer
+ grid-area:card;box-sizing:border-box;display:flex;flex-direction:column;
+ justify-content:space-between;gap:9px;position:relative;isolation:isolate;overflow:hidden;
+ width:100%;height:236px;min-height:0;min-width:0;aspect-ratio:auto;margin:0;
+ padding:20px 24px;border:0;border-radius:22px;text-align:left;cursor:pointer;
+ background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%);
+ box-shadow:0 11px 22px #0a59341c;color:#fff
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::before{
- content:"";position:absolute;z-index:0;top:-60px;right:-55px;width:240px;height:220px;
- background:radial-gradient(circle,#ffffff33 0%,#ffffff00 68%);pointer-events:none
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ width:70%;height:125%;left:42%;top:4%;border-radius:60% 10% 60% 10%;
+ transform:rotate(-20deg);
+ background:linear-gradient(145deg,#baf68c25,#2ebe6925 53%,#03683b00)
 }
-#dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::after{content:none}
+#dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::after{
+ content:"";position:absolute;z-index:0;pointer-events:none;
+ right:-18%;bottom:-57%;width:73%;height:98%;border-radius:58% 42% 12% 75%;
+ transform:rotate(-22deg);background:linear-gradient(130deg,#97d84568,#17994c24)
+}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard:focus-visible{
- outline:3px solid #FDC010;outline-offset:3px
+ outline:3px solid #a8e99e;outline-offset:3px
+}
+#dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard .f4-bank-atm-brand-label{
+ font-size:clamp(12px,1.15vw,16px);letter-spacing:.015em;line-height:1.28
+}
+#dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard .f4-bank-atm-number{
+ font-size:clamp(31px,3vw,39px);font-weight:850;letter-spacing:.075em
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance{
- box-sizing:border-box;grid-area:balance;display:flex;flex-direction:column;
- justify-content:center;align-items:flex-start;gap:9px;
- min-width:0;width:100%;height:245px;min-height:0;margin:0;padding:26px;
- border:0;border-radius:26px;background:#FDC010;
- box-shadow:0 9px 22px #b48b1722;color:#192b37;text-align:left;cursor:pointer
+ grid-area:balance;box-sizing:border-box;display:flex;flex-direction:column;
+ justify-content:space-between;align-items:stretch;gap:9px;
+ min-width:0;width:100%;height:236px;min-height:0;margin:0;
+ padding:23px 24px;border:1px solid #dbeed8;border-radius:22px;text-align:left;
+ background:radial-gradient(ellipse at 96% 15%,#d6f0c4 0%,#e9f8e2 29%,transparent 61%),
+  linear-gradient(135deg,#f8fcf4,#eff8e9 87%);
+ box-shadow:0 8px 20px #144c2d12;color:var(--member-ink);cursor:pointer
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-label{
- font-size:14px;line-height:1.3;font-weight:800;letter-spacing:.045em;text-transform:uppercase;color:#273640
+ color:#496c58;font-size:15px;line-height:1.3;font-weight:650;letter-spacing:0;text-transform:none
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-value{
- font-size:clamp(34px,3vw,42px);line-height:1.12;font-weight:900;
- font-variant-numeric:tabular-nums;color:#162a37;overflow-wrap:anywhere
+ display:block;color:#07462e;font-size:clamp(32px,3.3vw,46px);
+ font-weight:900;line-height:1.06;letter-spacing:-.025em;
+ font-variant-numeric:tabular-nums;overflow-wrap:anywhere
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-balance-cta{
- display:inline-flex;justify-content:center;align-items:center;align-self:stretch;
- min-height:46px;margin-top:auto;padding:11px 14px;
- background:#192b37;border-radius:13px;box-shadow:0 5px 10px #192b3733;
- color:#fff;font-size:14px;font-weight:800
+ display:flex;align-items:center;justify-content:center;align-self:stretch;
+ min-height:45px;margin-top:auto;padding:11px 14px;border:0;border-radius:999px;
+ background:linear-gradient(105deg,#067747,#075030);box-shadow:0 5px 11px #02502e21;
+ color:#fff;font-size:14px;line-height:1.2;font-weight:800
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance:focus-visible{
- outline:3px solid #009788;outline-offset:3px
+ outline:3px solid #5cab73;outline-offset:3px
 }
-/* These two quick tiles are the ONLY shortcuts in the dashboard row. */
+/* The two existing live shortcuts share one seamless horizontal banking strip. */
 #dashboardView #f4MemberQuickActions.f4-member-shortcuts{
- box-sizing:border-box;grid-area:quick;display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;
- gap:14px;min-width:0;width:100%;margin:0;padding:0
+ grid-area:quick;box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch;min-width:0;width:100%;gap:0;margin:0;padding:8px 10px;
+ border:1px solid var(--member-line);border-radius:21px;
+ background:linear-gradient(112deg,#fbfdf8,#f0f8ed);
+ box-shadow:0 5px 15px #174e2f09
 }
-#dashboardView #f4MemberQuickActions>.f4-bank-weigh-schedule,
-#dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut{
- box-sizing:border-box;display:flex;flex-direction:column;
- justify-content:center;align-items:flex-start;gap:10px;
- min-width:0;width:100%;min-height:137px;margin:0;padding:17px;
- border:1px solid #e7edf0;border-radius:22px;background:#fff;
- box-shadow:0 5px 16px #142f390b;color:#192b37;text-align:left
+#dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){
+ box-sizing:border-box;display:flex;flex-direction:row;align-items:center;
+ justify-content:flex-start;gap:12px;min-width:0;width:100%;min-height:70px;
+ margin:0;padding:11px 15px;background:transparent;border:0;border-radius:13px;
+ box-shadow:none;font:inherit;color:var(--member-ink);text-align:left;cursor:pointer
 }
-#dashboardView #f4MemberQuickActions>:is(#f4MemberPriceShortcut,#f4BankWeighingSchedule){
- cursor:pointer;font:inherit
+#dashboardView #f4MemberQuickActions>#f4BankWeighingSchedule{
+ border-right:1px solid #d6e7d7;border-radius:0
 }
-#dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut:focus-visible{
- outline:2px solid #009788;outline-offset:2px
+#dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut):focus-visible{
+ outline:2px solid #2c9259;outline-offset:-2px
 }
-#dashboardView #f4MemberQuickActions .f4-bank-weigh-icon,
-#dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-icon{
- box-sizing:border-box;display:grid;place-items:center;flex:0 0 44px;
- width:44px;height:44px;margin:0;border:0;border-radius:50%;
- background:#e9f5ec;color:#24774e
-}
-#dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-icon{
- background:#e9f5ec;color:#24774e
+#dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon,.f4-bank-price-shortcut-icon){
+ box-sizing:border-box;display:grid;place-items:center;flex:0 0 46px;
+ width:46px;height:46px;margin:0;border:0;border-radius:15px;
+ background:#e2f4df;color:#167244
 }
 #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
- display:block;width:23px;height:23px;object-fit:contain
+ display:block;width:25px;height:25px;stroke:currentColor;fill:none
 }
-#dashboardView #f4MemberQuickActions .f4-bank-weigh-copy,
-#dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-copy{
- box-sizing:border-box;display:grid;gap:4px;min-width:0;width:100%;margin:0
+#dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy,.f4-bank-price-shortcut-copy){
+ box-sizing:border-box;display:grid;gap:3px;min-width:0;flex:1;margin:0
 }
 #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy small,.f4-bank-price-shortcut-copy small){
- font-size:10px;line-height:1.3;letter-spacing:.035em;font-weight:750;
- text-transform:uppercase;color:#697985
+ color:#687e70;font-size:11px;line-height:1.2;letter-spacing:0;font-weight:650;
+ text-transform:none
 }
 #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy strong,.f4-bank-price-shortcut-label){
- font-size:clamp(13px,1.15vw,16px);line-height:1.3;font-weight:850;color:#192b37;
- white-space:normal;overflow-wrap:break-word
+ color:#103f2c;font-size:clamp(13px,1.3vw,16px);line-height:1.25;
+ font-weight:850;white-space:normal;overflow-wrap:anywhere
 }
 #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy span{
- font-size:11px;line-height:1.35;color:#71808a
+ color:#75867b;font-size:11px;line-height:1.3
 }
 #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-arrow{display:none}
 #dashboardView #f4MemberContent.f4-member-content{display:contents}
 #dashboardView #f4MemberContent>.v14-panel{
- box-sizing:border-box;grid-area:recent;align-self:stretch;min-width:0;width:100%;height:100%;
- margin:0;padding:22px 25px;border:1px solid #e7edf0;border-radius:25px;
- background:#fff;box-shadow:0 6px 20px #142f390b
+ grid-area:recent;box-sizing:border-box;min-width:0;width:100%;height:100%;
+ margin:0;padding:15px 17px;border:1px solid #e9efe8;border-radius:20px;
+ background:#fff;box-shadow:0 5px 15px #184b270b
 }
 #dashboardView #f4MemberContent .v14-panel-head{
- display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0 0 8px;padding:0 0 10px
+ display:flex;align-items:center;justify-content:space-between;gap:9px;
+ padding:0;margin:0 0 5px
 }
 #dashboardView #f4MemberContent .v14-panel-head h3{
- margin:0;font-size:18px;line-height:1.35;font-weight:850;color:#192b37
+ margin:0;color:var(--member-ink);font-size:16px;line-height:1.3;font-weight:850
+}
+#dashboardView #f4MemberContent #v14Recent{display:grid;gap:0}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent{
+ display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;
+ gap:9px;min-width:0;margin:0;padding:10px 0;background:transparent;
+ border:0;border-bottom:1px solid #edf3ed;border-radius:0;box-shadow:none
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent:last-child{border-bottom:0}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-icon{
+ display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+ background:#e7f6e7;color:#16804b
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-icon svg{
+ display:block;width:19px;height:19px;fill:none;stroke:currentColor
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-icon{
+ background:#fff3dd;color:#996b0d
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy{display:grid;gap:3px;min-width:0}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy strong{
+ color:var(--member-ink);font-size:12px;line-height:1.3;font-weight:800
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy small{
+ color:#718475;font-size:10px;line-height:1.3;font-weight:500
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value{
+ display:grid;justify-items:end;align-content:center;gap:4px;min-width:0;margin:0;text-align:right
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value b{
+ color:#12804b;font-size:14px;line-height:1.25;font-weight:850;
+ white-space:nowrap;font-variant-numeric:tabular-nums
+}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-value b{color:#4e524f}
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value small{
+ color:#84938a;font-size:10px;line-height:1.3;font-weight:550
 }
 #dashboardView #f4MemberAside.f4-member-aside{
  box-sizing:border-box;grid-area:guide;display:block;align-self:stretch;
  min-width:0;width:100%;height:100%;margin:0;padding:0
 }
-#dashboardView #f4MemberAside>.f4-member-flow{margin:0;min-width:0}
+#dashboardView #f4MemberAside>.f4-member-flow{min-width:0;width:100%;margin:0}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberEnvironmentPreview{
- box-sizing:border-box;grid-area:progress;min-width:0;width:100%;height:100%;align-self:stretch
+ grid-area:progress;box-sizing:border-box;min-width:0;width:100%;height:100%;align-self:stretch
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{
- box-sizing:border-box;grid-area:info;min-width:0;width:100%
+ grid-area:info;box-sizing:border-box;min-width:0;width:100%;height:100%;align-self:stretch
 }
-/* Real balance mutations: a single clean bank-statement list. */
-#dashboardView #f4MemberContent #v14Recent{display:grid;gap:0}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent{
- display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;
- gap:12px;min-width:0;margin:0;padding:16px 0;
- background:transparent;border:0;border-bottom:1px solid #edf0f1;border-radius:0;box-shadow:none
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent:last-child{border-bottom:0}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-icon{
- display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
- background:#43A0471c;color:#43A047
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-icon svg{
- display:block;width:21px;height:21px;stroke:currentColor;fill:none
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-icon{
- background:#FDC01029;color:#987000
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy{
- display:grid;gap:5px;min-width:0
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy strong{
- color:#192b37;font-size:14px;line-height:1.25;font-weight:800
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy small{
- color:#71818a;font-size:11px;line-height:1.35;font-weight:500
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value{
- display:grid;justify-items:end;align-content:center;gap:5px;min-width:0;margin:0;text-align:right
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value b{
- color:#43A047;font-size:15px;line-height:1.25;font-weight:850;
- white-space:nowrap;font-variant-numeric:tabular-nums
-}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-value b{color:#192b37}
-#dashboardView #f4MemberContent #v14Recent .f4-member-recent-value small{
- color:#87929a;font-size:11px;line-height:1.35;font-weight:550
-}
-@media(max-width:780px){
+@media(max-width:1023px){
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
-  grid-template-columns:minmax(0,1fr);
-  grid-template-areas:"card" "balance" "quick" "recent" "info" "progress" "guide";
-  gap:15px
+  width:100%;max-width:750px;grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-areas:
+   "card card card"
+   "balance balance balance"
+   "quick quick info"
+   "progress progress progress"
+   "recent recent recent"
+   "guide guide guide";
+  gap:12px 10px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{
-  width:100%;height:auto;aspect-ratio:1.58;min-height:0;padding:19px 22px;border-radius:23px
+  width:100%;height:auto;aspect-ratio:1.83;min-height:0;
+  padding:17px 19px;border-radius:19px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard .f4-bank-atm-brand-label{
+  font-size:clamp(10px,2.8vw,13px)
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard .f4-bank-atm-number{
+  font-size:clamp(26px,8vw,38px)
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance{
-  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:8px;
-  height:auto;min-height:188px;padding:23px 22px;border-radius:23px
+  height:auto;min-height:128px;padding:15px 17px;border-radius:19px;gap:7px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-label{
-  font-size:13px
+  font-size:12px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-value{
-  font-size:clamp(32px,8vw,38px)
+  font-size:clamp(28px,7.4vw,37px)
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-balance-cta{
-  align-self:stretch;margin-top:auto;min-height:44px;padding:10px 13px;
-  white-space:nowrap;font-size:13px
+  min-height:39px;padding:8px 12px;font-size:12px
  }
- #dashboardView #f4MemberQuickActions.f4-member-shortcuts{gap:11px}
- #dashboardView #f4MemberQuickActions>.f4-bank-weigh-schedule,
- #dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut{
-  min-height:130px;padding:14px;border-radius:19px
+ #dashboardView #f4MemberQuickActions.f4-member-shortcuts{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:9px;min-width:0;height:102px;margin:0;padding:0;
+  background:transparent;border:0;border-radius:0;box-shadow:none
  }
- #dashboardView #f4MemberContent>.v14-panel{padding:18px;border-radius:20px}
+ #dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){
+  flex-direction:column;justify-content:center;align-items:center;
+  gap:7px;width:100%;height:102px;min-height:0;padding:8px 5px;
+  border:1px solid #e4eee5;border-radius:17px;background:#fff;
+  box-shadow:0 3px 9px #15482b0b;text-align:center
+ }
+ #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy,
+ #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-copy{
+  flex:0 0 auto;display:grid;justify-items:center;align-content:center;width:100%
+ }
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon,.f4-bank-price-shortcut-icon){
+  flex:0 0 36px;width:36px;height:36px;border-radius:11px
+ }
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
+  width:21px;height:21px
+ }
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy small,.f4-bank-weigh-copy span,.f4-bank-price-shortcut-copy small){
+  display:none
+ }
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy strong,.f4-bank-price-shortcut-label){
+  font-size:11px;line-height:1.18;max-width:100%;font-weight:800
+ }
+ #dashboardView #f4MemberContent>.v14-panel{height:auto;padding:13px;border-radius:17px}
 }
 @media(max-width:380px){
- #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{padding:15px 17px}
- #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance{padding:16px}
- #dashboardView #f4MemberQuickActions>.f4-bank-weigh-schedule,
- #dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut{padding:12px}
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{padding:13px 15px}
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance{padding:13px 14px}
+ #dashboardView #f4MemberQuickActions.f4-member-shortcuts,
+ #dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){height:94px}
 }
-
 /* Responsive Bank Sampah: one sidebar category, submenu tabs in content. */
 @media(min-width:1024px){
  body.f4-bank-app-member #dashboardView>.grid{grid-template-columns:242px minmax(0,1fr);gap:0;align-items:stretch}
