@@ -9,6 +9,8 @@
     /* Only one initial view is revealed, after Cloudflare session resolves. */
     html.f4-bank-auth-pending body>.shell,
     html.f4-bank-auth-pending body>#f4-direct-bar{visibility:hidden}
+    /* Prevent the old dashboard markup flashing before member widgets are mounted. */
+    body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"])){visibility:hidden}
     #f4-bank-startup{display:none}
     html.f4-bank-auth-pending #f4-bank-startup{
       position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;
