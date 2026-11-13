@@ -655,7 +655,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  #dashboardView #f4BankAdminHeroBreakdown>.f4-bank-admin-hero-item:last-child{padding-left:1px}
  #dashboardView #f4BankAdminOperations{gap:12px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{
- order:2
+ order:2;
 display:grid;grid-template-columns:minmax(0,1fr);margin:0
 }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis>.f4-bank-app-mini:not(:last-child){display:none}
