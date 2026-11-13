@@ -859,6 +859,103 @@ async def sale_price_field_proportions(browser):
 
 
 
+async def bank_unified_goods_forms(browser):
+    """Setoran Warga, Stok Bank, Penjualan: identical clean mobile goods rows and add controls."""
+    for width in (360,390):
+        page=await browser.new_page(viewport={"width":width,"height":850})
+        fixture="""<!doctype html><html><head>
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <style>body{margin:0;font-family:system-ui;background:#f7fafb}
+        #dashboardView>.section{padding:14px}</style></head>
+        <body class="f4-bank-app-private f4-bank-app-admin"><div id="dashboardView"><main class="section">
+        <section id="pageSetoran">
+          <form id="setoranForm"><div class="f4-setoran-main">
+            <div class="f4-entry-goods-heading"><div><h3>Rincian sampah</h3></div>
+              <button type="button" class="f4-compact-add" id="f4SetAddKind">Tambah jenis</button></div>
+            <div id="setBarang"><div class="f4-compact-rows"><div class="f4-compact-row">
+             <select><option>Plastik</option></select><div class="f4-compact-entry-group">
+              <input type="number" placeholder="Berat (kg)"><button type="button" class="f4-compact-remove">X</button>
+             </div></div></div></div>
+          </div><div class="f4-entry-right"><div class="f4-setoran-side">
+           <button id="saveSetoranBtn" type="submit">Simpan setoran</button>
+          </div></div></form>
+          <form id="f4BankOwnDepositForm">
+           <p class="f4-bank-own-intro">Stok bank</p>
+           <div class="f4-bank-own-main"><div class="f4-bank-own-detail">
+             <div class="f4-bank-own-detail-head"><strong>Rincian sampah</strong></div>
+             <div id="f4BankOwnLines" class="f4-bank-own-lines f4-compact-rows">
+              <div class="f4-bank-own-line f4-compact-row">
+               <select><option>Logam</option></select><div class="f4-compact-entry-group">
+                <input data-own-weight="1" type="number" placeholder="Berat (kg)">
+                <button type="button" class="f4-compact-remove">X</button>
+               </div>
+              </div>
+             </div>
+             <button type="button" class="f4-compact-add">Tambah jenis</button>
+             <small class="f4-bank-own-weight">Total stok: 0 kg</small>
+           </div></div>
+           <div class="f4-bank-own-side">
+             <div class="f4-bank-own-fields"><label class="f4-bank-own-field">
+              <span>Tanggal</span><input id="f4BankOwnDate" type="date">
+             </label></div>
+             <label class="f4-bank-own-field"><span>Catatan</span><input></label>
+             <button type="submit" class="f4-bank-gold-action">Simpan Setoran Bank</button>
+           </div>
+          </form>
+        </section>
+        <section id="pagePenjualan">
+          <form id="saleForm"><div class="f4-sale-main">
+            <div class="f4-entry-goods-heading"><div><h3>Hasil timbang</h3></div>
+              <button type="button" class="f4-compact-add" id="f4SaleAddKind">Tambah jenis</button></div>
+            <div id="saleItems"><div class="f4-compact-rows">
+              <div class="f4-compact-row f4-compact-sale-row">
+               <select><option>Kardus</option></select>
+               <input type="number" placeholder="Berat (kg)">
+               <div class="f4-compact-entry-group"><input type="number" placeholder="Harga/kg">
+                 <button type="button" class="f4-compact-remove">X</button>
+               </div>
+              </div>
+            </div></div>
+            <div class="summary-box">Total jual</div>
+          </div></form>
+        </section>
+        </main></div></body></html>"""
+        await page.goto(ROOT,wait_until="domcontentloaded")
+        await page.set_content(fixture,wait_until="load")
+        report=await page.evaluate("""() => {
+          const contexts=[
+            ['warga','#setoranForm .f4-setoran-main','#setBarang .f4-compact-row','#f4SetAddKind'],
+            ['bank','#f4BankOwnDepositForm .f4-bank-own-detail','#f4BankOwnLines .f4-compact-row','#f4BankOwnDepositForm .f4-compact-add'],
+            ['jual','#saleForm .f4-sale-main','#saleItems .f4-compact-row','#f4SaleAddKind']
+          ];
+          const box=node=>{const r=node.getBoundingClientRect();
+            return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom}};
+          return {rows:contexts.map(([type,parent,row,add])=>{
+            const c=document.querySelector(parent),r=document.querySelector(row),b=document.querySelector(add);
+            return {type,card:box(c),row:box(r),add:box(b),
+              border:getComputedStyle(b).borderTopStyle,
+              inputHeight:r.querySelector('input').getBoundingClientRect().height,
+              deleteColor:getComputedStyle(r.querySelector('.f4-compact-remove')).backgroundColor};
+          }),
+          ownDate:box(document.querySelector('#f4BankOwnDate')),
+          wargaSave:getComputedStyle(document.querySelector('#saveSetoranBtn')).position,
+          bankSave:getComputedStyle(document.querySelector('#f4BankOwnDepositForm [type=submit]')).position,
+          overflow:document.documentElement.scrollWidth>innerWidth+3};
+        }""")
+        assert not report["overflow"],(width,report)
+        for row in report["rows"]:
+            assert row["inputHeight"]>=44,(width,row)
+            assert row["add"]["w"]>=row["card"]["w"]-55,(width,row)
+            assert row["add"]["y"]>=row["row"]["bottom"]-3,(width,row)
+            assert row["border"]=="dashed",(width,row)
+            assert row["deleteColor"]=="rgb(255, 240, 239)",(width,row)
+        assert report["ownDate"]["bottom"]<report["rows"][1]["row"]["y"],(width,report)
+        assert report["wargaSave"]!="fixed" and report["bankSave"]!="fixed",(width,report)
+        print("BANK_THREE_GOODS_FORMS_UNIFIED_OK",width,report,flush=True)
+        await page.close()
+
+
 async def bank_policy_permission_ui(browser):
     """Admin must never see Superadmin editor, including during API loading."""
     import json
@@ -1326,6 +1423,7 @@ async def main():
         await bank_cash_and_history_tabs(browser)
         await member_price_card_position(browser)
         await sale_price_field_proportions(browser)
+        await bank_unified_goods_forms(browser)
         await note_print_is_visible(browser)
         await member_layout(browser)
         await member_balance_refresh_preserves_design(browser)
