@@ -100,7 +100,10 @@ async def bank_popup_back_and_unified_sheets(browser):
     window.F4TransactionReceipt={close:()=>{document.getElementById('f4-tx-receipt-dialog').hidden=true}};
     window.addEventListener('popstate',()=>window.appBackCount++);
     </script></body></html>"""
-    await page.set_content(cases,wait_until="load")
+    async def serve(route):
+        await route.fulfill(status=200,content_type="text/html",body=cases)
+    await page.route("http://flamboyan-bank.test/*",serve)
+    await page.goto("http://flamboyan-bank.test/")
     await page.add_style_tag(path=str(STYLE))
     await page.add_script_tag(path=str(SCRIPT))
     await page.add_script_tag(path=str(BANK_HISTORY))
@@ -108,7 +111,7 @@ async def bank_popup_back_and_unified_sheets(browser):
     errors=[]
     page.on("pageerror",lambda exc:errors.append(str(exc)))
     async def opens(n):
-        await page.wait_for_function("(count)=>window.F4BankModalHistory.getOpenCount()===count",n)
+        await page.wait_for_function("(count)=>window.F4BankModalHistory.getOpenCount()===count",arg=n)
     await page.evaluate("document.getElementById('v21GalleryModal').classList.remove('hidden')")
     await opens(1)
     await page.evaluate("document.getElementById('v21Lightbox').classList.remove('hidden')")
