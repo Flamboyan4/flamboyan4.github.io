@@ -1,5 +1,5 @@
 /* Pembukuan Flamboyan 4 — navigasi dan form operasional ringkas.
-   Satu pemilik gaya untuk komponen f4-book-*, tanpa !important. */
+   Satu pemilik gaya untuk komponen f4-book-*, tanpa . */
 #group-nav-inputdata.f4-book-tab-shell{display:grid;gap:10px}
 #group-nav-inputdata.f4-book-tab-shell.hidden{display:none}
 .f4-book-sections,.f4-book-subnav{display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
