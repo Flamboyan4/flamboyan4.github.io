@@ -34,7 +34,7 @@ assert(css.includes("background:url('/assets/icons/bank-leaf-watermark.svg") && 
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
 assert(css.includes('#f4MemberQuickActions>button') && css.includes('border:1px solid #e6eef0;border-radius:22px;background:#fff'), 'Price must use one clean shortcut tile');
 assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
-assert(css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)') && css.includes('background:transparent;border:0;'), 'Integrated ATM hero must have coherent gradient');
+assert(css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)') && css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'), 'ATM must have its own cyan-teal gradient inside the existing hero');
 assert(css.includes('#f4MemberHero>.f4-bank-app-member-balance>strong') && css.includes('margin:0;color:#fff;font-size:clamp(28px,3.5vw,44px)'), 'Balance must be white on dark gradient');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
 assert(css.includes('grid-template-areas:"welcome" "hero" "quick" "content" "progress" "info"'), 'Dashboard must have its own six-section layout');
@@ -45,7 +45,10 @@ assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includ
 assert(mobile.includes('quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean))'), 'Four real member actions must exist');
 assert(css.includes('border-top:4px solid #09BCD3'), 'Schedule panel must use new cyan palette');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
-assert(css.includes('filter:brightness(0) invert(1)'), 'Recycling icon should be white on ATM card');
+assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")'), 'ATM contactless graphic must use SVG');
+assert(mobile.includes('number.id="f4BankCardNumber"') && mobile.includes('person.querySelector("strong").id="f4BankCardName"'), 'ATM number and member name must remain bound to the real account');
+assert(mobile.includes('if(personName)personName.id="f4BankProfileName"'), 'Profile clone must not duplicate member name DOM IDs');
+assert(css.includes('f4-bank-atm-center') && css.includes('f4-bank-atm-contactless'), 'ATM must contain shared chip and contactless design');
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
