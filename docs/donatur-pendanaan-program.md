@@ -8,7 +8,7 @@ Status: **cabang pengembangan**, belum dipasang ke database dan Worker produksi.
 Superadmin cukup mengisi nama donatur, username, dan password. Kontak dan email bersifat opsional. Setelah login, donatur melihat seluruh bantuan dan LPJ milik **akun itu sendiri**.
 
 ## Alur
-1. Superadmin membuat akun Donatur (role \`donatur\`) dan profil (tabel \`donor_profiles\`, key = \`accounts.id\`). Satu akun tidak dapat memiliki lebih dari satu profil.
+1. Superadmin membuat akun Donatur (peran sesi \`donatur\`) dan profil (tabel \`donor_profiles\`, key = \`donor_accounts.id\`). Satu akun tidak dapat memiliki lebih dari satu profil.
 2. Program dipilih dari Projek Warga dan dikaitkan ke pos Pusat Keuangan Terpadu yang sudah ada (\`donor_programs\`).
 3. Transaksi pemasukan/pengeluaran **dicatat dan disahkan di Pusat Keuangan Terpadu**, bukan di modul Donatur.
 4. Superadmin memilih jurnal yang sudah disahkan, akun donatur, program, nominal, dan tautan bukti. Referensi saja (\`donor_finance_links\`); tidak menambah jurnal atau saldo baru.
@@ -24,7 +24,7 @@ Superadmin cukup mengisi nama donatur, username, dan password. Kontak dan email 
 - Penampil LPJ mendukung cetak/Simpan PDF menggunakan browser; bukti dan foto saat ini berupa tautan HTTPS, belum upload terproteksi.
 
 ## File penting
-- \`cloudflare/migrations/20261113_donatur_pendanaan.sql\`: profil akun donatur, relasi program-jurnal, progress, audit.
+- \`cloudflare/migrations/20261113_donatur_pendanaan.sql\`: kredensial dan sesi donatur terpisah, profil, relasi program-jurnal, progres, audit.
 - \`cloudflare/worker-terpadu-operasional-teruji.js\`: API dan pembatasan server.
 - \`donatur/index.html\`, \`donatur/donatur.css\`, \`donatur/donatur.js\`: dashboard donatur.
 - \`donatur/admin.html\`, \`donatur/admin.css\`, \`donatur/admin.js\`: pengaturan Superadmin.
@@ -32,7 +32,7 @@ Superadmin cukup mengisi nama donatur, username, dan password. Kontak dan email 
 - \`.github/workflows/donor-module-checks.yml\`: pemeriksaan CI.
 
 ## Langkah aktivasi aman
-1. Periksa schema \`accounts\` di D1 staging: \`SELECT sql FROM sqlite_master WHERE type='table' AND name='accounts';\` dan \`PRAGMA table_info(accounts);\`. Role \`donatur\` harus valid dan \`member_id\` dapat NULL. Bila ada \`CHECK(role)\` lama, perlu migrasi tabel accounts yang aman bagi FK dan sesi; jangan menghapus/rebuild tabel produksi sembarangan.
+1. Verifikasi binding Worker dan database D1 staging melalui pemeriksaan read-only. Pembatasan \`accounts.role\` lama **tidak diubah**: login, sesi, dan profil donatur menggunakan tabel \`donor_accounts\`, \`donor_sessions\`, dan \`donor_profiles\` yang ditambahkan tanpa merombak akun warga.
 2. Terapkan migrasi Donatur di **D1 staging**. Jangan masukkan data contoh ke produksi.
 3. Jalankan \`python qa/verify-donor-module.py\`, pengecekan syntax Node, serta uji akses API (401 tanpa login, 403 untuk role warga/admin, terisolasi antar donatur).
 4. Deploy Worker staging **secara terpisah**; perubahan file GitHub tidak otomatis memperbarui Worker Cloudflare.
