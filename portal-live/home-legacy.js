@@ -2365,16 +2365,27 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             }
           });
 
-          // Urutan status tetap: On Progress → Direncanakan → Selesai.
-          // Di dalam setiap status, tanggal paling baru harus di atas,
-          // bukan sekadar membalik urutan baris spreadsheet.
-          const latestFirst=(a,b)=>{
-            const aDate=/^\d{4}-\d{2}-\d{2}$/.test(a.parsedDate||'')?a.parsedDate:'';
-            const bDate=/^\d{4}-\d{2}-\d{2}$/.test(b.parsedDate||'')?b.parsedDate:'';
-            return bDate.localeCompare(aDate);
+          // Agenda Berikutnya: kegiatan mendatang (termasuk seluruh jadwal
+          // Arisan dari D1) harus urut terdekat dahulu, bukan tahun terjauh.
+          // Status tetap: On Progress → Direncanakan → Selesai.
+          // Rencana yang sudah lewat diletakkan setelah jadwal mendatang.
+          const validAgendaDate=item=>{
+            const value=String(item.parsedDate||'');
+            return /^\d{4}-\d{2}-\d{2}$/.test(value)?value:'';
+          };
+          const latestFirst=(a,b)=>validAgendaDate(b).localeCompare(validAgendaDate(a));
+          const today=new Date();
+          const todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+          const closestUpcoming=(a,b)=>{
+            const ad=validAgendaDate(a),bd=validAgendaDate(b);
+            const af=ad>=todayKey,bf=bd>=todayKey;
+            if(af!==bf)return af?-1:1;
+            // Jadwal mendatang: terdekat lebih dulu. Yang lewat: terbaru lebih dulu.
+            if(af)return ad.localeCompare(bd);
+            return bd.localeCompare(ad);
           };
           onProgressList.sort(latestFirst);
-          direncanakanList.sort(latestFirst);
+          direncanakanList.sort(closestUpcoming);
           selesaiList.sort(latestFirst);
           const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
 
