@@ -76,8 +76,17 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:not(.active):hover{
   background:#f4f8f5;color:#145d3b
  }
+ /* Navigation labels remain legible, while function icons use the supplied palette. */
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item{
+  --member-nav-accent:#43a047
+ }
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="saving"],[data-group="memberdocs"]){--member-nav-accent:#009688}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="withdrawal"],.f4-back-account){--member-nav-accent:#b98b00}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="statement"],[data-group="memberinfo"]){--member-nav-accent:#00a9bf}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item[data-group="memberreport"]{--member-nav-accent:#7aa938}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item svg{
-  display:block;flex:none;width:19px;height:19px;stroke:currentColor;
+  display:block;flex:none;width:19px;height:19px;
+  color:var(--member-nav-accent);stroke:currentColor;
   stroke-width:1.85;fill:none
  }
  body.f4-bank-app-member #dashboardView #sideNav .side-footer{
