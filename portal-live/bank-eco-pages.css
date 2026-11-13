@@ -1733,8 +1733,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  grid-template-areas:
   "card balance"
   "quick quick"
-  "progress guide"
-  "recent info"
+  "progress recent"
+  "guide info"
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{display:none}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>:is(#f4BankAppAdminHero,#f4BankAppMinis){display:none}
