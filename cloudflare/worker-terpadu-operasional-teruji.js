@@ -7217,16 +7217,17 @@ async function donorAdminApi(request,env,who) {
   const db=env.DB;
   if(!await donorReady(db))return safeError("Terapkan migrasi donatur pada D1 terlebih dahulu.",503);
   if(request.method==="GET"){
-    const [organizations,accounts,programs,projects,links,updates,events]=await Promise.all([
+    const [organizations,accounts,programs,projects,links,updates,events,catalog]=await Promise.all([
       list(db,"SELECT id,name,contact_name AS contactName,contact_email AS contactEmail,status,created_at AS createdAt FROM donor_organizations ORDER BY name LIMIT 200"),
       list(db,"SELECT m.account_id AS accountId,m.organization_id AS organizationId,a.username,a.role,a.status FROM donor_account_memberships m JOIN accounts a ON a.id=m.account_id ORDER BY a.username LIMIT 200"),
       list(db,"SELECT p.id,p.project_id AS projectId,p.fund_id AS fundId,p.status,c.title FROM donor_programs p JOIN portal_project_cards c ON c.id=p.project_id ORDER BY c.title LIMIT 200"),
       list(db,"SELECT id,title,project_kind AS kind,active FROM portal_project_cards WHERE active=1 ORDER BY title LIMIT 200"),
       list(db,"SELECT l.id,l.organization_id AS organizationId,l.program_id AS programId,l.treasury_event_id AS treasuryEventId,l.kind,l.amount_rp AS amountRp,l.proof_url AS proofUrl,l.note,e.occurred_on AS occurredOn FROM donor_finance_links l JOIN treasury_events e ON e.id=l.treasury_event_id ORDER BY e.occurred_on DESC LIMIT 500"),
       list(db,"SELECT id,program_id AS programId,title,summary,occurred_on AS occurredOn,progress_percent AS progressPercent,photo_url AS photoUrl,status FROM donor_program_updates ORDER BY occurred_on DESC LIMIT 150"),
-      list(db,"SELECT e.id,e.kind,e.occurred_on AS occurredOn,e.note,t.fund_id AS fundId, SUM(CASE WHEN e.kind='incoming' AND t.amount_rp>0 THEN t.amount_rp WHEN e.kind='outgoing' AND t.amount_rp<0 THEN -t.amount_rp ELSE 0 END) AS amountRp FROM treasury_events e JOIN treasury_entries t ON t.event_id=e.id WHERE e.kind IN ('incoming','outgoing') GROUP BY e.id,e.kind,e.occurred_on,e.note,t.fund_id HAVING amountRp>0 ORDER BY e.occurred_on DESC LIMIT 300")
+      list(db,"SELECT e.id,e.kind,e.occurred_on AS occurredOn,e.note,t.fund_id AS fundId, SUM(CASE WHEN e.kind='incoming' AND t.amount_rp>0 THEN t.amount_rp WHEN e.kind='outgoing' AND t.amount_rp<0 THEN -t.amount_rp ELSE 0 END) AS amountRp FROM treasury_events e JOIN treasury_entries t ON t.event_id=e.id WHERE e.kind IN ('incoming','outgoing') GROUP BY e.id,e.kind,e.occurred_on,e.note,t.fund_id HAVING amountRp>0 ORDER BY e.occurred_on DESC LIMIT 300"),
+      treasuryCatalog(db)
     ]);
-    return json({ok:true,organizations,accounts,programs,projects,links,updates,events,source:"cloudflare-d1"});
+    return json({ok:true,organizations,accounts,programs,projects,links,updates,events,catalog,source:"cloudflare-d1"});
   }
   if(request.method!=="POST")return safeError("Metode tidak tersedia.",405);
   const origin=request.headers.get("origin");
