@@ -140,8 +140,16 @@ async function refreshSession(){
    // Do not turn an authenticated account into a guest on a transient failure.
    // On first load keep protected pages pending until the server responds.
    if(!sessionCheckCompleted){
-    login.hidden=true;
-    if(portal==='book'||portal==='superadmin')document.documentElement.classList.add('f4-auth-pending');
+    // Public Bank Sampah must not be trapped behind the startup overlay
+    // when the first session request times out. Reveal only PUBLIC data;
+    // keep retrying and restore the verified account on reconnect.
+    if(portal==='bank'){
+     login.hidden=false;
+     if(document.documentElement.classList.contains('f4-bank-auth-pending'))notifyRole();
+    }else{
+     login.hidden=true;
+     if(portal==='book'||portal==='superadmin')document.documentElement.classList.add('f4-auth-pending');
+    }
    }
    return;
   }
