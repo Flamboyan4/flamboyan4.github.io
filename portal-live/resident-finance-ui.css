@@ -257,7 +257,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   }
   #keuangan .f4-cash-summary>div:nth-child(2),
   #keuangan .f4-cash-summary>div:nth-child(3) {
-    min-height:151px;overflow:hidden;
+    min-height:112px;overflow:hidden;
   }
   #keuangan .f4-cash-summary #sisa-saldo {
     display:block;line-height:1.18;white-space:normal;overflow-wrap:anywhere;
