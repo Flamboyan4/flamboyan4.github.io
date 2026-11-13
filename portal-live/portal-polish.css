@@ -3,10 +3,10 @@
 /* Finance layout and transaction styles are owned by resident-finance-ui.css.
    Removed the former four-column and preview-only override layer. */
 #keuangan {margin-top:18px}
-#projek #bs-status-badge{border:0!important;border-radius:999px!important}
-#projek [id^=bs-step]{overflow-wrap:break-word!important}
-#projek #bs-step-img{opacity:1!important}
-#projek #bs-step-desc{line-height:1.5!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+#projek #bs-status-badge{border:0;border-radius:999px}
+#projek [id^=bs-step]{overflow-wrap:break-word}
+#projek #bs-step-img{opacity:1}
+#projek #bs-step-desc{line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .f4-bs-project-timeline{
  margin:12px 0 0;border-top:1px solid #e6ebe8;padding:12px 0 0;
  display:grid;gap:10px;font-size:12px;color:#425467
@@ -18,56 +18,56 @@
 .f4-bs-timeline-row small{display:block;font-size:10px;color:#768b81;line-height:1.5;margin-top:2px}
 #container-grid-rapat{gap:var(--f4-grid-gap,16px);align-items:stretch}
 #container-grid-rapat>div,#container-grid-rapat>button{
- overflow:hidden!important;border-radius:17px!important;border:1px solid #e1e5ef!important;
- background:#fff!important;box-shadow:0 2px 12px rgba(43,47,76,.035)!important;
- transition:border-color .15s ease,box-shadow .15s ease!important
+ overflow:hidden;border-radius:17px;border:1px solid #e1e5ef;
+ background:#fff;box-shadow:0 2px 12px rgba(43,47,76,.035);
+ transition:border-color .15s ease,box-shadow .15s ease
 }
-#container-grid-rapat>div:hover,#container-grid-rapat>button:hover{border-color:#b8aae9!important;box-shadow:0 6px 19px rgba(72,61,130,.07)!important}
+#container-grid-rapat>div:hover,#container-grid-rapat>button:hover{border-color:#b8aae9;box-shadow:0 6px 19px rgba(72,61,130,.07)}
 #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{
- background:#f5f6fa!important;aspect-ratio:4/3!important;min-height:145px!important
+ background:#f5f6fa;aspect-ratio:4/3;min-height:145px
 }
-#container-grid-rapat img{object-fit:contain!important;transform:none!important;max-width:100%!important;max-height:100%!important}
-#container-grid-rapat strong{font-size:13px!important;line-height:1.42!important;font-weight:750!important;padding:12px!important}
-body[data-section-page=dokumentasi]{background:#fff!important}
-body[data-section-page=dokumentasi] .page-stack{max-width:1100px!important}
+#container-grid-rapat img{object-fit:contain;transform:none;max-width:100%;max-height:100%}
+#container-grid-rapat strong{font-size:13px;line-height:1.42;font-weight:750;padding:12px}
+body[data-section-page=dokumentasi]{background:#fff}
+body[data-section-page=dokumentasi] .page-stack{max-width:1100px}
 body[data-section-page=dokumentasi] .portal-section-heading{
- color:#29294b!important;font-weight:800!important;letter-spacing:-.7px!important
+ color:#29294b;font-weight:800;letter-spacing:-.7px
 }
-body[data-section-page=dokumentasi] .panel{background:white!important;border:1px solid #e4e5ef!important;border-radius:18px!important;box-shadow:none!important}
-body[data-section-page=dokumentasi] .media-album-grid{gap:12px!important;max-height:none!important;overflow:visible!important;padding-right:0!important}
-body[data-section-page=dokumentasi] .media-inventory-list{max-height:none!important;overflow:visible!important;padding-right:0!important}
+body[data-section-page=dokumentasi] .panel{background:white;border:1px solid #e4e5ef;border-radius:18px;box-shadow:none}
+body[data-section-page=dokumentasi] .media-album-grid{gap:12px;max-height:none;overflow:visible;padding-right:0}
+body[data-section-page=dokumentasi] .media-inventory-list{max-height:none;overflow:visible;padding-right:0}
 body[data-section-page=dokumentasi] .media-album-card{
- border-radius:16px!important;border:1px solid #e3e4ee!important;box-shadow:0 2px 9px rgba(35,35,75,.025)!important;
+ border-radius:16px;border:1px solid #e3e4ee;box-shadow:0 2px 9px rgba(35,35,75,.025);
 }
-body[data-section-page=dokumentasi] .media-album-cover{height:195px!important;background:#f4f3f9!important}
-body[data-section-page=dokumentasi] .media-album-cover img{object-fit:cover!important}
-body[data-section-page=dokumentasi] .media-album-card:hover{border-color:#a898e5!important}
-body[data-section-page=dokumentasi] .media-search{border-radius:12px!important;background:#fff!important}
+body[data-section-page=dokumentasi] .media-album-cover{height:195px;background:#f4f3f9}
+body[data-section-page=dokumentasi] .media-album-cover img{object-fit:cover}
+body[data-section-page=dokumentasi] .media-album-card:hover{border-color:#a898e5}
+body[data-section-page=dokumentasi] .media-search{border-radius:12px;background:#fff}
 @media(max-width:760px){
- #container-grid-rapat{gap:10px!important}
- #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{aspect-ratio:4/3!important;min-height:115px!important}
- #container-grid-rapat strong{font-size:12px!important;padding:10px!important}
- body[data-section-page=dokumentasi] .page-stack{padding:15px 15px 25px!important}
- body[data-section-page=dokumentasi] .media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important}
- body[data-section-page=dokumentasi] .media-album-cover{height:145px!important}
- body[data-section-page=dokumentasi] .media-album-card{border-radius:14px!important}
- body[data-section-page=dokumentasi] .media-album-card .media-album-info{padding:10px!important}
+ #container-grid-rapat{gap:10px}
+ #container-grid-rapat>div>div:first-child,#container-grid-rapat>button>div:first-child{aspect-ratio:4/3;min-height:115px}
+ #container-grid-rapat strong{font-size:12px;padding:10px}
+ body[data-section-page=dokumentasi] .page-stack{padding:15px 15px 25px}
+ body[data-section-page=dokumentasi] .media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ body[data-section-page=dokumentasi] .media-album-cover{height:145px}
+ body[data-section-page=dokumentasi] .media-album-card{border-radius:14px}
+ body[data-section-page=dokumentasi] .media-album-card .media-album-info{padding:10px}
 }
 
 /* Protect document heading and section tabs from the floating utility bar. */
 body[data-section-page=dokumentasi] main.page-stack{
- padding-top:38px!important;scroll-margin-top:80px!important
+ padding-top:38px;scroll-margin-top:80px
 }
 body[data-section-page=dokumentasi] .portal-section-heading{
- position:relative!important;margin:0 0 6px!important;line-height:1.2!important
+ position:relative;margin:0 0 6px;line-height:1.2
 }
 body[data-section-page=dokumentasi] .media-top-tabs{
- position:relative!important;z-index:1!important
+ position:relative;z-index:1
 }
-#container-grid-rapat>div,#container-grid-rapat>button{min-width:0!important}
+#container-grid-rapat>div,#container-grid-rapat>button{min-width:0}
 @media(max-width:760px){
- body[data-section-page=dokumentasi] main.page-stack{padding-top:38px!important}
+ body[data-section-page=dokumentasi] main.page-stack{padding-top:38px}
  body[data-section-page=dokumentasi] #media-albums-section,
- body[data-section-page=dokumentasi] #media-inventory-section{scroll-margin-top:80px!important}
+ body[data-section-page=dokumentasi] #media-inventory-section{scroll-margin-top:80px}
 }
 
