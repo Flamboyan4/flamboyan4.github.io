@@ -318,7 +318,7 @@ async def validate_upload_with_mock_drive(browser):
         await context.close()
 
 async def validate_native_video(browser):
-    """Custom controls only on directly playable media; Drive iframe stays provider-managed."""
+    """Drive gallery clips must use Flamboyan player; inventory embeds remain unchanged."""
     context = await make_context(browser, 390, 844)
     page = await context.new_page()
     try:
@@ -344,18 +344,30 @@ async def validate_native_video(browser):
         assert direct["video"] and direct["controls"] and not direct["nativeControls"], "Direct video player not customized"
         assert direct["progress"] and direct["play"] and direct["volume"] and direct["fullscreen"], "Video controls incomplete"
         assert direct["width"] >= direct["stage"]-3, "Video wrapper does not use full media width"
-        iframe = await page.evaluate("""() => {
-          window.f4MediaGallery.openMediaViewer("Video Drive",[
-            {url:"https://drive.google.com/file/d/1AbcDefGhijkLMnOPQrSTuvw/preview",type:"video"}
-          ]);
-          const root=document.querySelector('.f4p-photo-overlay');
-          return {embed:!!root.querySelector('.f4p-media-frame'),
-                  custom:!!root.querySelector('.f4p-video-controls')}
-        }""")
-        assert iframe["embed"] and not iframe["custom"], "Drive video iframe must keep provider controls"
         await page.keyboard.press("Escape")
         await page.wait_for_function("document.querySelector('.f4p-photo-overlay')?.hidden")
-        return {"directVideoControls":True,"arrowsOverlay":True,"driveEmbedPreserved":True}
+        drive = await page.evaluate("""() => {
+          window.f4MediaGallery.openMediaGallery("Video Drive",[
+            {url:"https://drive.google.com/file/d/1AbcDefGhijkLMnOPQrSTuvw/preview",type:"video"}
+          ], {albumId:"doc-audit-01"});
+          document.querySelector('.f4p-album-tile').click();
+          const root=document.querySelector('.f4p-photo-overlay');
+          const media=root.querySelector('.f4p-media-video');
+          return {embed:!!root.querySelector('.f4p-media-frame'),
+                  custom:!!root.querySelector('.f4p-video-controls'),
+                  native:media?.controls,
+                  proxied:media?.src.startsWith("https://api.flamboyan4.web.id/api/v2/gallery/video/"),
+                  directGoogle:media?.src.includes('drive.google.com'),
+                  originalLink:!!root.querySelector('a.f4p-media-open'),
+                  videoId:media?.src.split('/').pop()}
+        }""")
+        assert drive["custom"] and not drive["embed"] and not drive["native"], "Drive gallery video must use custom UI"
+        assert drive["proxied"] and not drive["directGoogle"], "Drive gallery video must stream through protected Worker"
+        assert not drive["originalLink"], "Original Google Drive link still visible"
+        assert drive["videoId"] == "1AbcDefGhijkLMnOPQrSTuvw"
+        await page.keyboard.press("Escape")
+        await page.wait_for_function("document.querySelector('.f4p-photo-overlay')?.hidden")
+        return {"directVideoControls":True,"arrowsOverlay":True,"driveGalleryProxied":True}
     finally:
         await context.close()
 
