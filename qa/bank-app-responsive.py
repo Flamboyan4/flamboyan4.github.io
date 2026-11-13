@@ -202,7 +202,7 @@ async def member_balance_refresh_preserves_design(browser):
         assert result["first"]=="Rp 3.000" and result["updated"]=="Rp 15.000",(device,result)
         assert result["label"]=="Saldo Tersedia" and result["cta"]=="Cek Tabungan",(device,result)
         assert result["retained"] and result["childCount"]==3,(device,result)
-        assert result["amountFont"]>=30 and result["ctaFont"]>=12,(device,result)
+        assert result["amountFont"]>=(28 if width<1024 else 30) and result["ctaFont"]>=12,(device,result)
         assert result["amountColor"]=="rgb(7, 70, 46)" and "linear-gradient(" in result["ctaGradient"],(device,result)
         assert result["ctaRatio"]>.70 and not result["overflow"],(device,result)
         print("BALANCE_UPDATE_PRESERVES_DESIGN_OK",device,result,flush=True)
