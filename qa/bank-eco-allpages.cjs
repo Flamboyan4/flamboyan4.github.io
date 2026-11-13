@@ -219,6 +219,19 @@ assert(h.includes("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])"),'Dashboa
 const memberRecentPreview=h.split("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])")[1]?.split("const recentBox=$('v14Recent')")[0]||"";
 assert(memberRecentPreview.includes('.sort(') && memberRecentPreview.includes('.slice(0,3)'),
  'Home mutasi must remain limited to the latest three true ledger movements');
+assert(mobile.includes('let memberBalancePrivacy={hidden:false}') &&
+       mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();') &&
+       mobile.includes('memberBalancePrivacy.hidden?"••••••":realAmount') &&
+       mobile.includes('balanceLink.onclick=()=>navigate("pribadi")') &&
+       mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=false;'),
+ 'Saldo hide and unhide must not navigate or overwrite the actual live balance');
+assert(css.includes('width:58px;height:58px;min-width:58px;min-height:58px') &&
+       css.includes('border:3px solid #fff;border-radius:50%') &&
+       css.includes('.f4-bank-balance-head{'),
+ 'Payout must be round with a white outline and the balance has a separate eye');
+assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
+       css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + 8px)'),
+ 'Only one bottom-dock clearance should remain on mobile');
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
 assert(mobile.includes('function loadMemberPublicMini(force=false)') &&
