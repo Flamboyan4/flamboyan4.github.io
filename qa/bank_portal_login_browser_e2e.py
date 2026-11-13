@@ -188,7 +188,7 @@ def verify_portal_login(credentials):
                     }""",timeout=20000)
                     page.evaluate("() => window.openWarga()")
                     superframe=page
-                    superframe.get_by_role("button",name="+ Tambah Rumah").click()
+                    superframe.get_by_role("button",name="Tambah Rumah",exact=True).click()
                     superframe.locator('form.f4-admin-editor [name="rumah"]').fill("QA/998")
                     superframe.locator('form.f4-admin-editor [name="nama_pemilik"]').fill("QA_LOCAL_ONLY")
                     superframe.locator('form.f4-admin-editor .f4-admin-primary').click()
