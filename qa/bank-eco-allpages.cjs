@@ -22,7 +22,7 @@ for(const phrase of ['#v18PublicSide',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
  'max-width:1023px','max-width:760px','--eco-leaf:#318651',
- 'background:var(--bank-brand);border:0']){
+ 'background:linear-gradient(112deg,#11b5b9']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
@@ -30,14 +30,17 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
-assert(css.includes('inset:0;background-image:url(\'/assets/icons/bank-leaf-watermark.svg') && css.includes('background-size:62% auto;background-position:right bottom'), 'Card SVG must stay proportional and anchored inside the card');
+assert(css.includes('inset:0;background-image:url(\'/assets/icons/bank-leaf-watermark.svg') && css.includes('background-size:58% auto;background-position:right bottom'), 'Card SVG must stay proportional and anchored inside the card');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
 assert(css.includes('background:#fff;color:var(--bank-ink,#183d2e)'), 'Price shortcut must use neutral white surface, not solid yellow');
 assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
-assert(css.includes('background:#fff;border:1px solid var(--bank-line);color:var(--bank-ink)'),'Balance must use neutral background');
+assert(css.includes('background:linear-gradient(120deg,#ffc20f,#ffda50)') && css.includes('font-weight:900;line-height:1.12;font-variant-numeric:tabular-nums;color:#172d3d'), 'Balance must use yellow background and dark amount');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
-assert(css.includes('"price schedule"')&&css.includes('"card price"')&&css.includes('"card schedule"'),'Mobile shortcuts must be adjacent while desktop stays full-width');
-assert(css.includes('border-radius:12px;background:var(--bank-brand)'),'Schedule icon must use the same green as the member card');
+assert(css.includes('"schedule price"')&&css.includes('"card price"')&&css.includes('"card schedule"'),'Schedule and tariff must sit beside each other on mobile');
+assert(css.includes('@media(min-width:1280px)')&&css.includes('"card card card card card card card card schedule schedule price price"'),'Widescreen schedule and price must share a row');
+assert(css.includes('border-radius:12px;background:var(--bank-cyan,#13b4c5)'), 'Schedule should use cyan accent');
+assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
+assert(css.includes('filter:brightness(0) invert(1)'), 'Recycling icon should be white on ATM card');
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
