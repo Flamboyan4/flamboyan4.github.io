@@ -3189,6 +3189,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     rows.forEach(r=>{
       const item=document.createElement('article');item.className='f4-recent-item';
       const who=document.createElement('div');
+      const avatar=document.createElement('span');avatar.className='f4-recent-avatar';
+      const words=String(r.namaWarga||r.nama||'').trim().split(/\s+/).filter(Boolean);
+      avatar.textContent=words.length?words.length>1?(words[0][0]+words[words.length-1][0]).toUpperCase():words[0].slice(0,2).toUpperCase():'?';
+      avatar.setAttribute('aria-hidden','true');
       const name=document.createElement('strong');
       name.textContent=r.namaWarga||r.nama||'Nama warga belum tersedia';
       const desc=document.createElement('small');
@@ -3202,7 +3206,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       amount.textContent=confirmed?(r.nilaiSahRp==null?'—':rupiah(r.nilaiSahRp)):rupiah(r.estimasi);
       const hint=document.createElement('span');
       hint.textContent=confirmed?(r.nilaiSahRp==null?'Belum tersedia':'Hasil jual'):'Perkiraan';
-      value.append(amount,hint);item.append(who,value);list.append(item);
+      value.append(amount,hint);item.append(avatar,who,value);list.append(item);
     });
     return list;
   }
