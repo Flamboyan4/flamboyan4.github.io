@@ -180,13 +180,26 @@ function ensureHome(){
   const welcome=el("div","f4-bank-app-personal-greeting");welcome.id="f4BankAppWelcome";
   welcome.append(el("strong","", "Halo!"));
   const card=el("button","f4-bank-member-card");card.id="f4BankMemberCard";card.type="button";card.onclick=()=>navigate("profile");
-  const cardHead=el("span","f4-bank-member-card-head"),logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
-  cardHead.append(logo,el("span","","BANK SAMPAH · FLAMBOYAN 4"),el("span","f4-bank-member-card-chip"));
+  // ATM identity card: only real member fields are shown (no invented account digits).
+  const cardHead=el("span","f4-bank-member-card-head");
+  const brand=el("span","f4-bank-atm-brand"),logo=el("img");
+  logo.src="/assets/logo-flamboyan.svg";logo.alt="";
+  brand.append(logo,el("span","f4-bank-atm-brand-label","BANK SAMPAH FLAMBOYAN 4"));
+  const contactless=el("span","f4-bank-atm-contactless");
+  contactless.setAttribute("aria-hidden","true");
+  contactless.innerHTML='<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 11a8 8 0 0 1 0 10M13 7a13 13 0 0 1 0 18M18 3a19 19 0 0 1 0 26"/></svg>';
+  cardHead.append(brand,contactless);
+  const center=el("span","f4-bank-atm-center");
+  const chip=el("span","f4-bank-member-card-chip");chip.setAttribute("aria-hidden","true");
+  const number=el("strong","f4-bank-atm-number","—");number.id="f4BankCardNumber";
+  center.append(chip,number);
   const identity=el("span","f4-bank-member-card-foot");
-  const box=el("span");box.append(el("small","","NOMOR ANGGOTA"),el("strong","","—"));
-  box.querySelector("strong").id="f4BankCardNumber";box.append(el("small","f4-bank-card-house","Rumah —"));
-  const leaf=el("span","f4-bank-card-leaf");leaf.append(image("bank.svg"));leaf.setAttribute("aria-hidden","true");
-   identity.append(box,leaf);card.append(cardHead,identity);
+  const person=el("span","f4-bank-atm-person");
+  person.append(el("small","","NAMA ANGGOTA"),el("strong","f4-bank-atm-person-name","—"));
+  person.querySelector("strong").id="f4BankCardName";
+  const house=el("span","f4-bank-atm-house");
+  house.append(el("small","","RUMAH"),el("strong","f4-bank-card-house","—"));
+  identity.append(person,house);card.append(cardHead,center,identity);
   const savings=el("button","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";savings.type="button";
   savings.append(el("span","f4-bank-member-balance-label","Saldo terkonfirmasi"),
     el("strong","f4-bank-member-balance-value","—"),bankIconSpan("f4-bank-member-chevron","chevron-right"));
@@ -210,7 +223,7 @@ function ensureHome(){
  }
  memberTopIdentity();adminTopIdentity();
  updateCardNumber();
- const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent="Rumah "+house;
+ const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent=house;
  updateProfileCard();
  // Keep the original live-data nodes in the DOM but out of the visual hierarchy.
  let reservoir=$("f4BankDashboardSource");
@@ -2031,7 +2044,12 @@ function updateCardNumber(){
  text("f4BankCardNumber",id&&id!=="Administrator"?id:"—");
  text("f4BankProfileNumber",id&&id!=="Administrator"?id:"—");
  const house=$("pHome")?.textContent?.trim()||"—";
- if($("f4BankProfileHouse"))$("f4BankProfileHouse").textContent="Rumah "+house;
+ const name=$("pName")?.textContent?.trim()||"—";
+ text("f4BankCardName",name);
+ text("f4BankProfileName",name);
+ const houseNode=$("f4BankAppHome")?.querySelector(".f4-bank-card-house");
+ if(houseNode)houseNode.textContent=house;
+ if($("f4BankProfileHouse"))$("f4BankProfileHouse").textContent=house;
 }
 /* Nama tampilan diedit langsung di Profil Saya, bukan lewat formulir/halaman akun lain.
    Endpoint ini hanya mengubah alias pemilik akun; identitas ledger warga tetap. */
@@ -2078,6 +2096,7 @@ function inlineMemberDisplayName(){
     const welcome=$("welcomeName");if(welcome)welcome.textContent=persisted;
     const mobile=$("f4BankAppHome")?.querySelector(".f4-bank-app-personal-greeting strong");
     if(mobile)mobile.textContent="Halo, "+persisted+"!";
+    updateCardNumber();
     mode(false);
     window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
   }catch(error){
@@ -2103,6 +2122,7 @@ function updateProfileCard(){
   copy.type="button";copy.onclick=null;copy.tabIndex=-1;
   copy.setAttribute("aria-label","Identitas anggota Bank Sampah Flamboyan 4");
   const number=copy.querySelector("#f4BankCardNumber");if(number)number.id="f4BankProfileNumber";
+  const personName=copy.querySelector("#f4BankCardName");if(personName)personName.id="f4BankProfileName";
   const room=copy.querySelector(".f4-bank-card-house");if(room)room.id="f4BankProfileHouse";
   const button=el("button","f4-bank-profile-copy","Salin nomor anggota");button.type="button";
   button.onclick=async()=>{
