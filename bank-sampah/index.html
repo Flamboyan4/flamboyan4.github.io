@@ -4016,7 +4016,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
   function v17SetupPublic(){
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
-    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="#v17Program">Program</a><a href="#v17Perkembangan">Perkembangan</a><a href="#v17Dokumentasi">Dokumentasi</a><a href="#v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
+    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=program" data-bank-section="v17Program">Program</a><a href="?bagian=perkembangan" data-bank-section="v17Perkembangan">Perkembangan</a><a href="?bagian=dokumentasi" data-bank-section="v17Dokumentasi">Dokumentasi</a><a href="?bagian=inventaris" data-bank-section="v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
       <div class="v17-public-main"><div class="v17-public-banner"><div><span class="v14-eyebrow"><img src="/assets/icons/bank.svg" width="18" height="18" alt="" aria-hidden="true"> Bank Sampah</span><h1>Sampah terpilah, lingkungan lebih baik.</h1><p class="f4-impact-intro">Capaian pengelolaan Bank Sampah Flamboyan 4 berdasarkan setoran dan kegiatan yang tercatat.</p></div><button id="v30HeroPhoto" type="button" class="v30-hero-photo" aria-label="Lihat dokumentasi dan inventaris" title="Lihat dokumentasi dan inventaris"></button></div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><span class="f4-bank-program-kicker">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah jadi manfaat</h2></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
@@ -6068,12 +6068,35 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261109-mobile-confirm-v2"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261104-member-price-focus"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
-<script src="/portal-live/direct-shell.js?v=20261113-donor-v1"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script><script defer src="/portal-live/bank-page-history.js?v=20261027-final4"></script>
+<script src="/portal-live/direct-shell.js?v=20261113-donor-v1"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-no-hash-v1"></script>
 <script defer src="/portal-live/bank-policy-admin.js?v=20261104-schedule-editor-v3"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261111-svg-icons-final-v2"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261109-public-finance-v1">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
 
+<script id="f4-bank-public-clean-anchors">
+(()=>{
+ const sections={program:'v17Program',perkembangan:'v17Perkembangan',dokumentasi:'v17Dokumentasi',inventaris:'v17Inventaris'};
+ document.addEventListener('click',event=>{
+  const link=event.target.closest?.('a[data-bank-section]');
+  if(!link)return;
+  const target=document.getElementById(link.dataset.bankSection);
+  if(!target)return;
+  event.preventDefault();
+  const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(x=>sections[x]===target.id));url.hash='';
+  history.pushState({...history.state,f4BankPublicSection:target.id},'',url.pathname+url.search);
+  target.scrollIntoView({behavior:'smooth',block:'start'});
+ });
+ const previous=location.hash.slice(1);
+ if(sections[new URLSearchParams(location.search).get('bagian')]){
+  window.addEventListener('load',()=>document.getElementById(sections[new URLSearchParams(location.search).get('bagian')])?.scrollIntoView({block:'start'}),{once:true});
+ }else if(Object.values(sections).includes(previous)){
+  const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(k=>sections[k]===previous));url.hash='';
+  history.replaceState(history.state,'',url.pathname+url.search);
+  window.addEventListener('load',()=>document.getElementById(previous)?.scrollIntoView({block:'start'}),{once:true});
+ }
+})();
+</script>
 </body>
 </html>

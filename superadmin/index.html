@@ -538,7 +538,8 @@ function f4SaRememberRoute(replace=false){
  const previous=history.state?.f4SaRoute;
  if(previous?.group===route.group&&previous?.kind===route.kind)return;
  const state={...history.state,f4SaDrawer:false,f4SaRoute:route};
- history[replace?'replaceState':'pushState'](state,'','#sa-'+group+(active?'/'+active:''));
+ const url=new URL(location.href);url.searchParams.set('halaman',group+(active?'/'+active:''));url.hash='';
+ history[replace?'replaceState':'pushState'](state,'',url.pathname+url.search);
 }
 window.addEventListener('popstate',()=>{
  const route=history.state?.f4SaRoute;
@@ -1087,7 +1088,7 @@ async function boot(){
   role=String(s?.account?.role||s?.role||'').toLowerCase();
   if(role!=='superadmin')throw Error('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
   document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
-  const own=location.hash.replace(/^#sa-/,'');
+  const own=new URLSearchParams(location.search).get('halaman')||location.hash.replace(/^#sa-/,'');
   let requested=own.split('/')[0],initialModule=own.split('/')[1]||'';
   // Existing bookmarks to the removed duplicate Bagi Hasil open the restored schedule.
   if(requested==='bank'&&initialModule==='bank_split')initialModule='bank_weighing';
@@ -1095,14 +1096,15 @@ async function boot(){
   // immediately replace it with Content/Data Acuan (visible as a flash).
   if(window.parent!==window){
    try{
-    const parentFragment=window.parent.location.hash.match(/^#superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/)?.[1];
+    const parentFragment=new URLSearchParams(window.parent.location.search).get('halaman')||window.parent.location.hash.match(/^#superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/)?.[1];
     if(parentFragment)requested=parentFragment;
    }catch{}
   }
   open(groups.some(x=>x[0]===requested)?requested:'overview',false);
   if(initialModule&&submenu[group]?.some(([key])=>key===initialModule))openEditor(initialModule);
   f4SaNav.ready=true;
-  history.replaceState({...history.state,f4SaDrawer:false,f4SaRoute:{group,kind:active}},'',location.href);
+  const canonical=new URL(location.href);canonical.searchParams.set('halaman',group+(active?'/'+active:''));canonical.hash='';
+   history.replaceState({...history.state,f4SaDrawer:false,f4SaRoute:{group,kind:active}},'',canonical.pathname+canonical.search);
   if(window.parent!==window)window.parent.postMessage({type:'f4:ready',portal:'superadmin'},location.origin);
  }catch(e){guard.replaceChildren(el('h2','Akses Portal Superadmin ditolak'),el('p',safe(e)));guard.append(button('Kembali ke Portal Utama',()=>{
    if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'portal'},location.origin);
