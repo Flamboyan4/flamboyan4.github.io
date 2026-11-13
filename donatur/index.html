@@ -90,6 +90,16 @@
           <p class="fine-print">Laporan menampilkan transaksi yang telah ditautkan dan disahkan pengurus. Dokumen bukti tetap dapat dilihat melalui tautan masing-masing transaksi.</p>
         </div>
       </section>
+      <details class="account-panel">
+        <summary>Keamanan Akun Donatur</summary>
+        <form id="change-password-form">
+          <label>Password sekarang<input type="password" name="currentPassword" autocomplete="current-password" required></label>
+          <label>Password baru<input type="password" name="newPassword" autocomplete="new-password" minlength="8" required></label>
+          <label>Ulangi password baru<input type="password" name="confirmPassword" autocomplete="new-password" minlength="8" required></label>
+          <button class="primary" type="submit">Perbarui Password</button>
+          <p id="password-status" class="form-error" role="status" aria-live="polite"></p>
+        </form>
+      </details>
       <footer class="footer">Flamboyan 4 · Keterbukaan Dana & Perkembangan Program</footer>
     </div>
   </main>
