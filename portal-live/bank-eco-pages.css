@@ -471,13 +471,8 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hi
   border-radius:10px;color:#466651;
   font-size:12px;line-height:1.5;
 }
-#dashboardView #pageProfile #v15PasswordBox{
-  padding:0;margin:0;border:1px solid #d5e7ba;
-  border-radius:14px;background:#f7fbf2;
-}
-#dashboardView #pageProfile #v15PasswordBox form{padding:13px;margin:0;
-  max-width:100%;
-}
+
+
 @media screen and (max-width:760px){
   body.f4-bank-app-member #dashboardView #pageProfile.f4-profile-card:not(.hidden){padding:15px 14px;border-radius:16px}
   #dashboardView #pageProfile .f4-profile-header{padding-bottom:12px}
@@ -635,7 +630,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{gap:13px;align-content:start}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{order:0}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{order:1}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{order:2}
+ 
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:4}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:3}
  #dashboardView #f4BankAppAdminHero{
@@ -660,8 +655,9 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  #dashboardView #f4BankAdminHeroBreakdown>.f4-bank-admin-hero-item:last-child{padding-left:1px}
  #dashboardView #f4BankAdminOperations{gap:12px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis{
-  display:grid;grid-template-columns:minmax(0,1fr);margin:0
- }
+ order:2
+display:grid;grid-template-columns:minmax(0,1fr);margin:0
+}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppMinis>.f4-bank-app-mini:not(:last-child){display:none}
  #dashboardView #f4BankAppHome[data-bank-role="admin"] .f4-bank-admin-members-link{
   display:grid;grid-template-columns:42px minmax(0,1fr) 18px;
@@ -1434,10 +1430,14 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
 .f4-bank-admin-name-form button{min-height:39px}
 .f4-bank-admin-name-status{flex-basis:100%;color:#667c6c}
 #dashboardView #pageProfile #v15PasswordBox{
- margin-top:12px;padding:0;border:1px solid #dce9df;border-radius:11px;background:#fff
+ padding:0;margin:0;border:1px solid #d5e7ba;
+  border-radius:14px;background:#f7fbf2;
+margin-top:12px;padding:0;border:1px solid #dce9df;border-radius:11px;background:#fff
 }
 #dashboardView #pageProfile #v15PasswordBox form{
- display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid #e6eee7
+ padding:13px;margin:0;
+  max-width:100%;
+display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid #e6eee7
 }
 #dashboardView #pageProfile #v15PasswordBox form .field{min-width:0;margin:0}
 #dashboardView #f4BankAppHome[data-bank-role="admin"]>#v17Perkembangan{
