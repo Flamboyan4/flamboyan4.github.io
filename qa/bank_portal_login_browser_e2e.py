@@ -122,14 +122,28 @@ def verify_portal_login(credentials):
                         return doc && doc.querySelectorAll('#inp-warga option').length>1;
                     }""",timeout=18000)
                     book.locator("#inp-warga").select_option(index=1)
-                    book.locator("#inp-tanggal").fill("2026-10-25")
                     book.locator("#inp-catatan").fill("QA_UI_IURAN_LOCAL_ONLY")
-                    book.locator("#inp-bulan").select_option("11")
-                    book.locator("#inp-tahun").fill("2026")
-                    book.locator("#inp-jumlah").select_option("1")
-                    book.locator("#inp-metode").select_option("Cash")
-                    amount=book.locator("#inp-nominal-dibayar").input_value()
-                    if not amount or int(amount)<=0:raise AssertionError("Pembukuan Iuran preview failed: "+repr(amount))
+                    # Choosing a resident asynchronously finds their first UNPAID
+                    # month. November may already be paid, so hardcoding it would
+                    # correctly produce an empty nominal and a false test failure.
+                    # Wait for the real outstanding API and the verified preview.
+                    try:
+                        page.wait_for_function("""() => {
+                          const input=document.querySelector('#inp-nominal-dibayar');
+                          const details=document.querySelector('#preview-detail');
+                          return Number(input?.value||0)>0 && !!details &&
+                            !details.classList.contains('hidden');
+                        }""",timeout=22000)
+                    except:
+                        state=page.evaluate("""() => ({
+                          selected:!!document.querySelector('#inp-warga')?.value,
+                          month:document.querySelector('#inp-bulan')?.value||'',
+                          year:document.querySelector('#inp-tahun')?.value||'',
+                          periodStatus:(document.querySelector('#inp-periode-status')?.textContent||'').slice(0,120),
+                          previewStatus:(document.querySelector('#preview-empty')?.textContent||'').slice(0,160),
+                          previewReady:!document.querySelector('#preview-detail')?.classList.contains('hidden')
+                        })""")
+                        raise AssertionError("Iuran suggested-period or outstanding preview not ready: "+repr(state))
                     before=page.evaluate("""() => {let f=document;
                       let form=f?.querySelector('#form-iuran');
                       return {src:location.pathname,
