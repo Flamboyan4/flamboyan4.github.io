@@ -26,6 +26,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-pa
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading p{font-size:11px;color:#647c6c}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:#009788;font-weight:700}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid #eaf0eb;background:transparent}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-avatar{display:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item):last-child{border-bottom:0}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item) strong{color:#244637;font-size:13px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item) small{color:#687e6c;font-size:11px}
@@ -41,5 +42,49 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary{gap:8px}
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi{min-height:110px;padding:12px}
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panels{grid-template-columns:minmax(0,1fr)}
+ /* Setoran terbaru: daftar kartu ringan seperti referensi, bukan tabel di dalam kartu besar. */
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel{
+  padding:2px 0 0;background:transparent;border:0;border-radius:0;box-shadow:none
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .v14-panel-head{
+  padding:0 2px;align-items:center;margin:0 0 12px
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome #v14Recent{
+  overflow:visible;background:transparent;border:0
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-list{
+  display:grid;gap:10px
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item{
+  display:grid;grid-template-columns:44px minmax(0,1fr) auto;
+  align-items:center;gap:10px;min-width:0;margin:0;padding:12px;
+  border:1px solid #e9f0eb;border-radius:17px;background:#fff;
+  box-shadow:0 3px 12px #17482a0a
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-avatar{
+  display:grid;place-items:center;flex:none;width:44px;height:44px;
+  border-radius:50%;background:#009788;color:#fff;font-size:13px;font-weight:850;line-height:1
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item:nth-child(even) .f4-recent-avatar{
+  background:#09bcd3;color:#174630
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item>div:first-of-type{
+  display:grid;gap:4px;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item>div:first-of-type strong{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#223c2f;font-size:13px
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item>div:first-of-type small{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#7c9185;font-size:10px
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-value{
+  display:grid;gap:3px;align-content:center;min-width:68px
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-value b{
+  display:block;white-space:nowrap;color:#43a047;font-size:13px;font-weight:850
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-value span{
+  display:block;white-space:nowrap;color:#839589;font-size:10px
+ }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{flex-wrap:wrap}
 }
