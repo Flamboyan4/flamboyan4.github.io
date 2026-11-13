@@ -1676,7 +1676,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{grid-area:info;min-width:0;width:100%}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>:is(#f4BankAppAdminHero,#f4BankAppMinis){display:none}
 #dashboardView #f4MemberHero.f4-member-hero{
- position:relative;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(240px,.8fr);
+ box-sizing:border-box;position:relative;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(240px,.8fr);
  align-items:stretch;min-width:0;min-height:246px;overflow:hidden;
  background:linear-gradient(116deg,#0c899b 0%,#119e92 48%,#55b768 100%);
  border:0;border-radius:28px;box-shadow:0 17px 34px #087d8524
@@ -1718,7 +1718,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  outline:3px solid #ffe080;outline-offset:-4px
 }
 #dashboardView #f4MemberQuickActions.f4-member-shortcuts{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;
+ box-sizing:border-box;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;
  gap:15px;min-width:0;position:relative;z-index:3;margin:-43px 27px 0
 }
 #dashboardView #f4MemberQuickActions>button{
@@ -1772,7 +1772,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  align-items:start;gap:19px;min-width:0
 }
 #dashboardView #f4MemberContent>.v14-panel{
- display:block;min-width:0;width:100%;margin:0;padding:21px 23px;
+ box-sizing:border-box;display:block;min-width:0;width:100%;margin:0;padding:21px 23px;
  border:1px solid #e3ebed;border-radius:25px;background:#fff;
  box-shadow:0 8px 28px #143b460c
 }
@@ -1788,7 +1788,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  min-width:0;align-content:start
 }
 #dashboardView #f4MemberAside>.f4-bank-weigh-schedule{
- display:flex;align-items:center;gap:12px;min-width:0;
+ box-sizing:border-box;display:flex;align-items:center;gap:12px;min-width:0;
  width:100%;min-height:136px;margin:0;padding:19px 20px;
  border:1px solid #e0edf0;border-top:4px solid #12b4c5;
  border-radius:22px;background:#fff;box-shadow:0 8px 24px #143b460b
