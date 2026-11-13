@@ -7260,7 +7260,8 @@ async function donorAdminApi(request,env,who) {
     const org=await one(db,"SELECT id FROM donor_organizations WHERE id=? AND status='aktif'",[organizationId]);
     if(!org)return safeError("Perusahaan tidak aktif atau tidak ditemukan.",404);
     const schema=await one(db,"SELECT sql FROM sqlite_master WHERE type='table' AND name='accounts'");
-    if(schema&&/CHECK\s*\(/i.test(schema.sql||"")&&/role/i.test(schema.sql||"")&&!/['\"]donatur['\"]/.test(schema.sql||""))
+    const roleConstraint=String(schema?.sql||"").match(/CHECK\s*\(\s*["']?role["']?\s+IN\s*\(([^)]*)\)/i);
+    if(roleConstraint&&!/['"]donatur['"]/.test(roleConstraint[1]))
       return safeError("Skema akun D1 belum mengizinkan peran Donatur. Migrasikan batasan role sebelum membuat akun.",503);
     const hash=await passwordHash(password),accountId="account:donor_"+crypto.randomUUID();
     try{await db.batch([
