@@ -3097,9 +3097,8 @@ async function identity(request, db) {
   if(!await donorReady(db))return null;
   return db.prepare(
     "SELECT a.id,NULL AS member_id,a.username,'donatur' AS role,a.status,"+
-      "p.donor_name AS display_name,NULL AS household_id,NULL AS house_code "+
+      "a.donor_name AS display_name,NULL AS household_id,NULL AS house_code "+
     "FROM donor_sessions s JOIN donor_accounts a ON a.id=s.account_id "+
-    "JOIN donor_profiles p ON p.account_id=a.id "+
     "WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>CURRENT_TIMESTAMP "+
       "AND a.status='aktif' LIMIT 1").bind(digest).first();
 }
@@ -7221,7 +7220,7 @@ __name(residentsApi, "residentsApi");
 
 // Modul Donatur Eksternal — ledger referensi (tidak menulis saldo atau treasury_entries).
 async function donorReady(db) {
-  return !!await one(db,"SELECT 1 AS present FROM sqlite_master WHERE type='table' AND name='donor_profiles'");
+  return !!await one(db,"SELECT 1 AS present FROM sqlite_master WHERE type='table' AND name='donor_accounts'");
 }
 __name(donorReady,"donorReady");
 async function donorDashboardApi(env,who) {
@@ -7229,7 +7228,7 @@ async function donorDashboardApi(env,who) {
   const db=env.DB;
   if(!await donorReady(db))return safeError("Modul Donatur belum diaktifkan pada database.",503);
   const donor=await one(db,
-    "SELECT account_id AS id,donor_name AS name FROM donor_profiles WHERE account_id=? LIMIT 1",
+    "SELECT id,donor_name AS name FROM donor_accounts WHERE id=? AND status='aktif' LIMIT 1",
     [who.id]);
   if(!donor)return safeError("Profil akun donatur tidak ditemukan.",403);
   const [programs,history,updates]=await Promise.all([
@@ -7249,7 +7248,7 @@ async function donorAdminApi(request,env,who) {
   if(!await donorReady(db))return safeError("Terapkan migrasi donatur pada D1 terlebih dahulu.",503);
   if(request.method==="GET"){
     const [accounts,programs,projects,links,updates,events,catalog]=await Promise.all([
-      list(db,"SELECT p.account_id AS accountId,p.donor_name AS name,p.contact_name AS contactName,p.contact_email AS contactEmail,a.username,'donatur' AS role,a.status FROM donor_profiles p JOIN donor_accounts a ON a.id=p.account_id ORDER BY p.donor_name LIMIT 200"),
+      list(db,"SELECT id AS accountId,donor_name AS name,contact_name AS contactName,contact_email AS contactEmail,username,'donatur' AS role,status FROM donor_accounts ORDER BY donor_name LIMIT 200"),
       list(db,"SELECT p.id,p.project_id AS projectId,p.fund_id AS fundId,p.status,c.title FROM donor_programs p JOIN portal_project_cards c ON c.id=p.project_id ORDER BY c.title LIMIT 200"),
       list(db,"SELECT id,title,project_kind AS kind,active FROM portal_project_cards WHERE active=1 ORDER BY title LIMIT 200"),
       list(db,"SELECT l.id,l.donor_account_id AS donorAccountId,l.program_id AS programId,l.treasury_event_id AS treasuryEventId,l.kind,l.amount_rp AS amountRp,l.proof_url AS proofUrl,l.note,e.occurred_on AS occurredOn FROM donor_finance_links l JOIN treasury_events e ON e.id=l.treasury_event_id ORDER BY e.occurred_on DESC LIMIT 500"),
@@ -7282,8 +7281,7 @@ async function donorAdminApi(request,env,who) {
     if(collision)return safeError("Username sudah digunakan akun lain.",409);
     const hash=await passwordHash(password),accountId="donor:account:"+crypto.randomUUID();
     try{await db.batch([
-      db.prepare("INSERT INTO donor_accounts(id,username,password_hash,password_scheme,status) VALUES(?,? ,?,'pbkdf2-sha256','aktif')").bind(accountId,username,hash),
-      db.prepare("INSERT INTO donor_profiles(account_id,donor_name,contact_name,contact_email) VALUES(?,?,?,?)").bind(accountId,name,contactName,contactEmail),
+      db.prepare("INSERT INTO donor_accounts(id,username,donor_name,contact_name,contact_email,password_hash) VALUES(?,?,?,?,?,?)").bind(accountId,username,name,contactName,contactEmail,hash),
       audit("create-account",accountId,{name,username,contactName,contactEmail})
     ])}catch{return safeError("Akun donatur tidak dapat dibuat. Periksa username dan struktur tabel donatur D1.",409)}
     return json({ok:true,accountId,username},201);
@@ -7311,7 +7309,7 @@ async function donorAdminApi(request,env,who) {
        !Number.isSafeInteger(amountRp)||amountRp<=0||amountRp>100000000000||
        proofUrl.length>1200||(proofUrl&&!urlSafe(proofUrl))||note.length>350||
        /[\x00-\x1f<>]/.test(note))return safeError("Data referensi transaksi tidak valid.",400);
-    const donor=await one(db,"SELECT p.account_id FROM donor_profiles p JOIN donor_accounts a ON a.id=p.account_id WHERE p.account_id=? AND a.status='aktif'",[donorAccountId]);
+    const donor=await one(db,"SELECT id FROM donor_accounts WHERE id=? AND status='aktif'",[donorAccountId]);
     const pr=await one(db,"SELECT id FROM donor_programs WHERE id=? AND status='aktif'",[programId]);
     if(!donor||!pr)return safeError("Donatur atau program tidak aktif.",404);
     const id="donor:link:"+crypto.randomUUID();
