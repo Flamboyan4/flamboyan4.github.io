@@ -703,7 +703,7 @@ function openWeighingSchedule(){
   close.append(bankUiSvg("x"));close.onclick=()=>dialog.close();
   head.append(title,close);
   const visual=el("div","f4-bank-schedule-highlight");
-  const mark=el("span","f4-bank-schedule-symbol");mark.append(image("calendar.svg"));
+  const mark=el("span","f4-bank-schedule-symbol");mark.append(memberMetricIcon("stage"));
   const values=el("span","f4-bank-schedule-values");
   const date=el("strong","f4-bank-schedule-date","—");
   const cycle=el("small","f4-bank-schedule-cycle","—");
@@ -726,7 +726,7 @@ function ensureWeighingSchedule(home){
  if(!card){
   card=el("button","f4-bank-weigh-schedule");card.type="button";card.id="f4BankWeighingSchedule";
   card.setAttribute("aria-label","Lihat jadwal penimbangan");card.onclick=openWeighingSchedule;
-  const icon=el("span","f4-bank-weigh-icon");icon.append(image("calendar.svg"));
+  const icon=el("span","f4-bank-weigh-icon");icon.append(memberMetricIcon("stage"));
   const content=el("span","f4-bank-weigh-copy");
   content.append(el("small","","JADWAL BERIKUTNYA"),el("strong","","—"),el("span","","Memuat jadwal…"));
   card.append(icon,content);home.append(card);
