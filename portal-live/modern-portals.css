@@ -3,7 +3,7 @@
 html:has(#v11Public),html:has(#f4-account-page){background:#fff!important}
 :root{--modern-ink:#20333d;--modern-muted:#63757d;--modern-line:#e3ebee;--modern-green:#087f5b;--modern-purple:#6650cc}
 body:has(#v11Public),body:has(#f4-account-page){background:#fff!important;color:var(--modern-ink);-webkit-font-smoothing:antialiased}
-body:has(#v11Public){--forest:#087f5b;--leaf:#12a578;--sage:#eaf9f2;--cream:#fff;--ink:#20333d;--muted:#63757d;--line:#e1ebe6;--f4-nav:#087f5b;--f4-nav-tint:#eaf9f2}
+body:has(#v11Public){--forest:#43a047;--leaf:#8bc24a;--sage:#e7f7d3;--cream:#fff;--ink:#173d2d;--muted:#556f62;--line:#e1ede5;--f4-nav:#43a047;--f4-nav-tint:#e7f7d3}
 body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#e4e7ef;--muted:#69748b;--work-bg:#fff;--work-accent:#6650cc;--work-tint:#f1edff;--work-line:#e4e7ef;--work-text:#28334b}
 /* Semua submenu Superadmin memakai satu tone ungu; Portal Bank Sampah tetap hijau pada aplikasinya sendiri. */
 /* White content surfaces, colour reserved for icons, navigation and useful status. */
@@ -66,9 +66,12 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v17-feature:nth-child(2) .f4-program-icon{background:#fff0d7}
 #v11Public .v17-feature:nth-child(3) .f4-program-icon{background:#e7f1ff}
 #v18PublicSide button,#sideNav button{border-radius:11px!important;min-height:44px;transition:background .15s}
-#v18PublicSide button svg,#sideNav button svg{box-sizing:content-box;background:#edf8e9;border-radius:11px;padding:6px;width:19px;height:19px;color:#327c49}
-#v18PublicSide button:nth-of-type(3n+2) svg{background:#e7f6f2;color:#108977}
-#v18PublicSide button:nth-of-type(3n) svg{background:#eaf8fa;color:#09849a}
+#v18PublicSide button svg,#sideNav button svg{box-sizing:content-box;background:#e7f7d3;border-radius:11px;padding:6px;width:19px;height:19px;color:#287c46}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="program"],[data-public-menu="docs"],[data-group="saving"],[data-group="sale"],[data-group="deposit"],[data-group="management"]) svg{background:#def8f0;color:#009788}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="progress"],[data-group="statement"],[data-group="progress"],[data-group="memberdocs"]) svg{background:#dff8fb;color:#07819a}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="stock"],[data-group="withdrawal"],[data-group="finance"],[data-group="memberreport"],[data-group="report"]) svg{background:#fff1bf;color:#9a6d00}
+
+
 #dashboardView .summary-box,#dashboardView .details-panel{background:#fff!important;border:1px solid #e2ebe6}
 #dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:14px;min-height:var(--f4-control-height,42px)}
 #dashboardView button{min-height:40px}#dashboardView table th{background:#f8fbf9;color:#5d7367}
@@ -83,7 +86,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
  #f4-account-page .f4-admin-item{align-items:flex-start;flex-wrap:wrap;padding:13px}
  #f4-account-page .f4-admin-action-set{justify-content:flex-start}
    #v11Public .v17-section h2{font-size:18px!important}
- #v11Public .v17-public-banner{border-radius:16px!important}
+ 
 }
 @media(prefers-reduced-motion:reduce){#v18PublicSide button,#sideNav button{transition:none}}
 #v11Public .v27-banner-program #v17Program .v17-feature{background:#fff!important;border:1px solid #e2ebe6!important;padding:9px 12px!important}
@@ -103,8 +106,8 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #dashboardView .v14-kpi:nth-child(4):before{background-color:#f0eaff;background-image:url('/assets/icons/calendar.svg')}
 #dashboardView .v14-kpi strong{font-size:24px;letter-spacing:-.5px;color:#224539}
 #dashboardView .v14-extra small,#dashboardView .v14-kpi small{font-size:12px}
-#sideNav button:nth-of-type(3n+2) svg{background:#e7f6f2;color:#108977}
-#sideNav button:nth-of-type(3n) svg{background:#eaf8fa;color:#09849a}
+
+
 @media(max-width:760px){#dashboardView .v14-head{flex-wrap:wrap;gap:10px}#dashboardView .v14-head h2{font-size:23px}#dashboardView .v14-kpi strong{font-size:21px}}
 
 }
