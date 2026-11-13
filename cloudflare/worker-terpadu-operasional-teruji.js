@@ -2321,8 +2321,8 @@ __name(f4GalleryPublic,"f4GalleryPublic");
    Arsip Drive diperiksa keanggotaan foldernya sebelum disajikan. */
 async function f4GalleryMostLiked(db,env){
  const [uploads,archiveVotes,publicDocs,suppressed]=await Promise.all([
-  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=p.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=p.id AND c.status='aktif') AS commentCount FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY likes DESC,commentCount DESC,p.created_at DESC LIMIT 30"),
-  list(db,"SELECT id,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=ids.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=ids.id AND c.status='aktif') AS commentCount FROM (SELECT target_id AS id FROM f4_gallery_reactions WHERE target_type='photo' AND target_id LIKE 'gdrive:%' UNION SELECT target_id AS id FROM f4_gallery_comments WHERE target_type='photo' AND status='aktif' AND target_id LIKE 'gdrive:%') ids ORDER BY likes DESC,commentCount DESC LIMIT 30"),
+  list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=p.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=p.id AND c.status='aktif') AS commentCount,(SELECT COUNT(DISTINCT c.account_id) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=p.id AND c.status='aktif') AS commenterCount FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY likes DESC,commenterCount DESC,p.created_at DESC LIMIT 30"),
+  list(db,"SELECT id,(SELECT COUNT(*) FROM f4_gallery_reactions r WHERE r.target_type='photo' AND r.target_id=ids.id) AS likes,(SELECT COUNT(*) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=ids.id AND c.status='aktif') AS commentCount,(SELECT COUNT(DISTINCT c.account_id) FROM f4_gallery_comments c WHERE c.target_type='photo' AND c.target_id=ids.id AND c.status='aktif') AS commenterCount FROM (SELECT target_id AS id FROM f4_gallery_reactions WHERE target_type='photo' AND target_id LIKE 'gdrive:%' UNION SELECT target_id AS id FROM f4_gallery_comments WHERE target_type='photo' AND status='aktif' AND target_id LIKE 'gdrive:%') ids ORDER BY likes DESC,commenterCount DESC LIMIT 30"),
   list(db,"SELECT id,title,description,drive_url,event_on FROM portal_documentation WHERE active=1 AND visibility='publik' AND (category IS NULL OR category NOT LIKE 'Bank Sampah:%') LIMIT 300"),
   list(db,"SELECT drive_file_id AS id FROM f4_gallery_photos WHERE status NOT IN ('baru','ditinjau') LIMIT 3000")
  ]);
@@ -2333,7 +2333,7 @@ async function f4GalleryMostLiked(db,env){
   if(folder)byFolder.set(folder,doc);
  }
  const photos=uploads.filter(x=>!deleted.has(x.driveId)).map(x=>({...x,url:f4GalleryImageUrl(x.driveId),
-  likes:Number(x.likes||0),commentCount:Number(x.commentCount||0),comments:[]}));
+  likes:Number(x.likes||0),commentCount:Number(x.commentCount||0),commenterCount:Number(x.commenterCount||0),comments:[]}));
  if(archiveVotes.length&&byFolder.size&&f4GalleryDriveReady(env)){
   try{
    const token=await f4GalleryDriveToken(env);
@@ -2350,14 +2350,14 @@ async function f4GalleryMostLiked(db,env){
      const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[row.id]);
      return {id:row.id,albumId:doc.id,driveId,url:f4GalleryImageUrl(driveId),
       title:doc.title,caption:file.name||doc.title,date:file.createdTime||doc.event_on||"",
-      uploader:"Dokumentasi Flamboyan 4",likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments};
+      uploader:"Dokumentasi Flamboyan 4",likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),commenterCount:Number(row.commenterCount||0),comments};
     }catch{return null;}
    }));
    photos.push(...legacy.filter(Boolean));
   }catch(e){console.warn("Ranking foto arsip tidak dapat dimuat",String(e?.message||""))}
  }
  photos.sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
-  Number(b.commentCount||0)-Number(a.commentCount||0)||
+  Number(b.commenterCount||0)-Number(a.commenterCount||0)||
   String(b.date||"").localeCompare(String(a.date||"")));
  // Dua foto dari album sama boleh sama-sama populer.
  return ok({popular:photos.slice(0,30)});
