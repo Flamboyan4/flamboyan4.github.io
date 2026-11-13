@@ -2118,21 +2118,53 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  body.f4-bank-app-admin #dashboardView :is(#pageSetoran,#pagePenjualan) :is(#setBarang,#saleItems){
   width:100%;max-width:100%;min-width:0
  }
- /* One exact half-width split for all bank-operational entry pages. */
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm){
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px 16px;align-items:start
+ /* PC forms: metadata card spans full width, goods and totals sit in separate aligned cards. */
+ body.f4-bank-app-admin #dashboardView{
+  --bank-input-h:48px;--bank-form-gap:14px
  }
- /* Two independent grid items: growing goods never changes the right column offset. */
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm){
+  grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);
+  gap:17px;align-items:start
+ }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right{
-  display:grid;grid-column:2;grid-row:1;align-self:start;
-  align-content:start;gap:var(--bank-form-gap);min-width:0
+  display:contents
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>.f4-entry-top-fields{
+  box-sizing:border-box;grid-column:1/-1;grid-row:1;
+  padding:21px 23px;border:1px solid #e6efea;
+  border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:first-child{
+  grid-column:span 4
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-setoran-main){
-  grid-column:1;grid-row:1;align-self:start
+  box-sizing:border-box;grid-column:1;grid-row:2;align-self:start;
+  padding:22px 23px;border:1px solid #e6efea;
+  border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
+  grid-column:2;grid-row:2;align-self:start;min-width:0;gap:14px
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side)>:is(.summary-box,.field,.f4-sale-payment-fields,.f4-sale-note-fields){
+  box-sizing:border-box;margin:0;padding:18px 20px;
+  border:1px solid #e6efea;border-radius:21px;
+  background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field{
+  min-width:0
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
-  justify-self:stretch;width:100%
+  justify-self:stretch;width:100%;min-height:50px;margin:2px 0 0;
+  background:#009788;color:#fff;border:0;border-radius:15px;
+  font-size:14px;font-weight:850
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) .f4-entry-goods-heading{
+  min-height:48px;margin-bottom:6px
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) .f4-entry-goods-heading>.f4-compact-add{
+  min-height:43px;border:1px dashed #00978899;border-radius:12px;
+  background:#0097880b;color:#007e71
  }
  body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)
