@@ -340,8 +340,10 @@ function updateDashboard(){
  const map=dashboardMetrics();
  if(role==="member"){
   const button=$("f4BankAppMemberBalance");
-  if(button)button.replaceChildren(el("small","","Saldo terkonfirmasi"),
-    el("strong","",memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—")),bankIconSpan("f4-bank-member-chevron","chevron-right"));
+  // Only update the amount: replacing the card contents destroyed its ATM-style layout,
+  // stripped the balance typography classes and removed the "Cek Tabungan" CTA.
+  const amount=button?.querySelector(".f4-bank-member-balance-value");
+  if(amount)amount.textContent=memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—");
   $("f4BankAppMinis")?.replaceChildren();
  }else{
   const current=adminOverview;
