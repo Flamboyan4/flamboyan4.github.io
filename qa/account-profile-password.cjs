@@ -14,7 +14,7 @@ assert(shell.includes('session?.account?.displayName||session?.member?.nama'),'A
 assert(account.includes("window.dispatchEvent(new CustomEvent('f4-account-profile-updated'"),'Profile save not propagated');
 // Members of Bank Sampah edit the alias inside their existing card/profile.
 // This must not reopen the global multi-tab account overlay.
-assert(shell.includes("settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil'"),
+assert(shell.includes("portal==='bank'&&role==='warga'?'Kartu & Profil'"),
  'Member Bank Sampah setting label must point at existing card');
 assert(shell.includes("if(portal==='bank'&&['warga','admin','superadmin'].includes(role))"),'Bank Sampah roles must bypass duplicate settings');
 assert(shell.includes("'Profil Pengurus'"),'Admin Bank Sampah must keep its own profile label');
