@@ -452,6 +452,33 @@ async def validate_closed_photo_does_not_reopen(browser):
     finally:
         await context.close()
 
+async def validate_like_single_request(browser):
+    """Three rapid clicks on one heart send one account-scoped toggle request."""
+    context = await make_context(browser, 1365, 820)
+    page = await context.new_page()
+    try:
+        await page.goto(HOST + "/dokumentasi/", wait_until="domcontentloaded", timeout=30000)
+        await page.locator("[data-gallery-view=albums]").click()
+        await page.locator(".media-album-card", has_text="Arisan Audit Browser").click()
+        await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
+        await page.locator(".f4p-photo-overlay .f4g-photo-actions button").first.wait_for(timeout=25000)
+        before = sum("/api/v2/gallery/react" in x["url"] for x in MOCK_POSTS)
+        locked = await page.evaluate("""() => {
+            const button = document.querySelector('.f4p-photo-overlay .f4g-photo-actions button');
+            button.click();button.click();button.click();
+            return button.disabled;
+        }""")
+        assert locked, "Like button must lock immediately during the first request"
+        await page.wait_for_function("""() => {
+            const btn=document.querySelector('.f4p-photo-overlay .f4g-photo-actions button');
+            return btn&&!btn.disabled&&btn.getAttribute('aria-pressed')==='true';
+        }""", timeout=12000)
+        after = sum("/api/v2/gallery/react" in x["url"] for x in MOCK_POSTS)
+        assert after-before == 1, "Rapid repeated taps triggered duplicate like requests"
+        return {"likeAccount":True,"rapidTaps":3,"requestCount":1}
+    finally:
+        await context.close()
+
 async def validate_suppression(browser):
     context = await make_context(browser, 1100, 830, suppressed=True)
     page = await context.new_page()
@@ -481,6 +508,7 @@ async def main():
                 results.append(await validate_home(browser))
                 results.append(await validate_legacy_home(browser))
                 results.append(await validate_closed_photo_does_not_reopen(browser))
+                results.append(await validate_like_single_request(browser))
                 results.append(await validate_suppression(browser))
                 results.append(await validate_upload_with_mock_drive(browser))
             finally:
