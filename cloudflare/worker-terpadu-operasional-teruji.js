@@ -3275,10 +3275,13 @@ __name(f4MemberPortalDues,"f4MemberPortalDues");
    session member_id. Never accept payerId from the browser. */
 async function f4MemberPortalFinance(db, memberId, kind) {
   if(!["payments","arisan","fines","loans"].includes(kind))return safeError("Jenis data pribadi tidak tersedia.",404);
-  const payers=await db.prepare("SELECT id FROM bookkeeping_payers WHERE member_id=? AND payer_type='warga' AND active=1 LIMIT 2").bind(memberId).all();
+  // Kolom Keterangan pada master Pembukuan berasal dari profil warga,
+  // bukan dari description pada satu pembayaran.
+  const payers=await db.prepare("SELECT p.id,COALESCE(pro.keterangan,'') AS keteranganWarga FROM bookkeeping_payers p LEFT JOIN resident_directory_profiles pro ON pro.payer_id=p.id WHERE p.member_id=? AND p.payer_type='warga' AND p.active=1 LIMIT 2").bind(memberId).all();
   if((payers.results||[]).length>1)return safeError("Akun terhubung ke lebih dari satu pembayar. Hubungi pengurus.",409);
   const payerId=payers.results?.[0]?.id;
   if(!payerId)return json({ok:true,rows:[],linked:false,readOnly:true,source:"cloudflare-d1"});
+  const keteranganWarga=String(payers.results[0].keteranganWarga||"").trim();
   let records=[];
   if(kind==="payments"){
     const data=await ownPayments(db,memberId);
@@ -3329,6 +3332,9 @@ async function f4MemberPortalFinance(db, memberId, kind) {
     records=rows.results.map(x=>({id:x.id,tanggal:x.loaned_on,status:x.status,nominalRp:Number(x.amount_rp||0),
       dibayarRp:Number(x.repaidRp||0),keterangan:x.note||"Pinjaman"}));
   }
+  // Terapkan keterangan master pada pos iuran/arisan tanpa mengganti
+  // catatan transaksi di kolom keterangan yang tetap tersedia terpisah.
+  if(kind==="payments"||kind==="arisan")records=records.map(row=>({...row,keteranganWarga}));
   return json({ok:true,rows:records,linked:true,readOnly:true,source:"cloudflare-d1"});
 }
 __name(f4MemberPortalFinance,"f4MemberPortalFinance");
