@@ -61,8 +61,14 @@ function roleType(){
 function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
+ const isMemberPayout=dock&&route==="bank-payout";
+ if(isMemberPayout)b.classList.add("is-primary");
  const symbol=el("span","f4-bank-app-action-icon");
- symbol.append(image(asset));
+ if(isMemberPayout){
+  const mark=el("span","f4-bank-currency-mark","Rp");
+  mark.setAttribute("aria-hidden","true");
+  symbol.append(mark);
+ }else symbol.append(image(asset));
  b.append(symbol,el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
 }
@@ -117,13 +123,11 @@ function syncAdminBack(){
 // Compact member identity replaces the oversized greeting on the member dashboard.
 function memberTopIdentity(){
  const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
- let identity=$("f4BankMemberTopIdentity"),brand=$("f4BankMemberTopBrand");
- if(roleType()!=="member"||!bar||!links){identity?.remove();brand?.remove();return;}
- if(!brand){
-  brand=el("span","f4-bank-member-top-brand");brand.id="f4BankMemberTopBrand";
-  const logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
-  brand.append(logo,el("strong","","BANK SAMPAH FLAMBOYAN 4"));bar.insertBefore(brand,links);
- }
+ let identity=$("f4BankMemberTopIdentity");
+ // Member mobile header is intentionally only a greeting and global utilities.
+ // Remove any extra brand from earlier versions, without duplicating it.
+ $("f4BankMemberTopBrand")?.remove();
+ if(roleType()!=="member"||!bar||!links){identity?.remove();return;}
  if(!identity){
   identity=el("span","f4-bank-member-top-identity");identity.id="f4BankMemberTopIdentity";
   bar.insertBefore(identity,links);
