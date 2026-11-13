@@ -541,7 +541,7 @@ assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (
        css.includes('position:static;justify-self:stretch;box-sizing:border-box') &&
        !css.includes('position:fixed;z-index:52;left:16px') &&
        h.includes('<textarea id="setNotes" rows="3" maxlength="300"') &&
-       h.includes("catatan:$(\\'setNotes\\').value") &&
+       h.includes("catatan:$('setNotes').value") &&
        mobile.includes('const row=el("div","f4-bank-own-line f4-compact-row")') &&
        mobile.includes('const amountGroup=el("div","f4-compact-entry-group")') &&
        mobile.includes('detail.append(rows,add);'),
