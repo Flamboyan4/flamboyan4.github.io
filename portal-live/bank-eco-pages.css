@@ -1212,6 +1212,112 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView .section :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
  }
+ /* Mobile Setoran reference: existing live form, four cards and one CTA. */
+ body.f4-bank-app-admin #dashboardView #pageSetoran{
+  --bank-input-h:50px;--bank-form-gap:12px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran>h2{
+  margin:2px 0 4px;font-size:20px;line-height:1.2;letter-spacing:-.025em
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran>.desc{
+  margin:0 0 15px;font-size:11px;color:#72837c
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran :is(#setoranForm,#f4BankOwnDepositForm){
+  gap:14px;padding-bottom:96px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm>.f4-entry-right>.f4-entry-top-fields{
+  box-sizing:border-box;padding:18px;border:1px solid #e9eff0;
+  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-top-fields>.field.f4-field-stack>label{
+  font-size:12px;font-weight:750;color:#627a6e
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-top-fields>.field.f4-field-stack>:is(select,input){
+  padding-inline:13px;border:1px solid #edf2f3;border-radius:14px;background:#f8fafc;
+  color:#263d34;font-size:13px;font-weight:700
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm>.f4-setoran-main{
+  padding:18px;border:1px solid #e9eff0;border-radius:23px;
+  background:#fff;box-shadow:0 4px 15px #133e3310;gap:13px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading{
+  display:contents
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading>div{
+  order:0
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-main .f4-entry-goods-heading h3{
+  font-size:15px;font-weight:850;color:#183a2c
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang{
+  order:1;margin:0;overflow:visible
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-goods-heading>.f4-compact-add{
+  box-sizing:border-box;order:2;justify-self:stretch;width:100%;min-height:48px;
+  margin:0;padding:11px 12px;border:2px dashed #00978866;border-radius:13px;
+  background:#0097880a;color:#007c70;font-size:13px;font-weight:850
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row{
+  grid-template-columns:minmax(0,1fr) minmax(0,140px);gap:8px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-entry-group{
+  grid-template-columns:minmax(0,1fr) 42px;gap:7px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row :is(select,input){
+  min-height:47px;padding:8px 9px;border:1px solid #edf2f3;
+  border-radius:12px;background:#f8fafc;color:#284237;font-size:13px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-remove{
+  min-height:47px;border:0;border-radius:12px;background:#fff0ef;color:#dc6057
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side{
+  gap:14px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.summary-box{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  box-sizing:border-box;margin:0;padding:14px 17px;border:1px solid #e9eff0;
+  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.summary-box>div{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;min-height:45px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.summary-box>div+div{
+  border-top:1px solid #ecf1ee
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.summary-box small{
+  font-size:12px;color:#6a8077;font-weight:700
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.summary-box strong{
+  font-size:18px;color:#009788;font-weight:850;text-align:right;white-space:nowrap
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #previewKg{
+  color:#43a047
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-setoran-side>.field{
+  box-sizing:border-box;display:grid;gap:10px;margin:0;padding:17px 18px;
+  border:1px solid #e9eff0;border-radius:23px;background:#fff;
+  box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setNotes{
+  box-sizing:border-box;display:block;min-height:86px;max-height:none;
+  padding:13px;border:1px solid #edf2f3;border-radius:14px;
+  background:#f8fafc;font-size:13px;font-weight:500;line-height:1.45;resize:vertical
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro,
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm :is(.f4-bank-own-detail,.f4-bank-own-side){
+  box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
+  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran :is(
+  #setoranForm #saveSetoranBtn,
+  #f4BankOwnDepositForm .f4-bank-gold-action[type=submit]){
+  position:fixed;z-index:52;left:16px;bottom:calc(64px + env(safe-area-inset-bottom,0px) + 10px);
+  box-sizing:border-box;width:calc(100% - 32px);max-width:none;
+  min-height:54px;margin:0;padding:13px 17px;border:0;border-radius:17px;
+  background:#009788;color:#fff;font-size:15px;font-weight:850;
+  box-shadow:0 8px 20px #00978848;cursor:pointer
+ }
 }
 @media(max-width:600px){
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
@@ -1416,20 +1522,20 @@ body.f4-bank-app-admin #bank-admin-docs .v22-doc-list{
  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px
 }
 body.f4-bank-app-admin #pageSetoran .f4-bank-own-mode-tabs{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
- margin:0 0 12px;padding:4px;border-radius:12px;background:#edf3ef
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
+ margin:0 0 15px;padding:4px;border-radius:16px;background:#e9eef0
 }
 body.f4-bank-app-admin .f4-bank-own-mode-tabs>button{
- padding:9px 12px;min-height:42px;border:1px solid transparent;border-radius:9px;
- color:#557466;background:#f5f8f6;font-weight:800;opacity:.7;cursor:pointer;
- transition:background-color .15s,opacity .15s
+ padding:9px 12px;min-height:43px;border:1px solid transparent;border-radius:12px;
+ color:#63766d;background:transparent;font-weight:800;opacity:1;cursor:pointer;
+ transition:background-color .15s,color .15s
 }
 body.f4-bank-app-admin .f4-bank-own-mode-tabs>button.is-active{
- background:#087950;color:#fff;opacity:1
+ background:#009788;color:#fff;opacity:1;box-shadow:0 2px 8px #00978826
 }
 body.f4-bank-app-admin .f4-bank-own-mode-tabs>button:not(.is-active):hover,
 body.f4-bank-app-admin .f4-bank-own-mode-tabs>button:focus-visible{
- opacity:1;border-color:#a3c4b0
+ opacity:1;border-color:#00978870
 }
 body.f4-bank-app-admin #pageSetoran #setoranForm[hidden],
 body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm[hidden]{display:none}
@@ -1492,7 +1598,7 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
 }
 .f4-bank-admin-cash-tabs{margin-bottom:2px}
 @media(max-width:520px){
- .f4-compact-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .f4-compact-row{grid-template-columns:minmax(0,1fr) minmax(0,140px);gap:8px}
  .f4-compact-row>select{grid-column:1}
  .f4-compact-row>.f4-compact-entry-group{grid-column:2}
  .f4-compact-sale-row{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)}
