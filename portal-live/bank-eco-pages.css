@@ -1608,17 +1608,18 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
   outline:2px solid #278655;outline-offset:-2px
  }
- /* Large centered gold payout badge; accessible label lives on the button, not below it. */
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary{
+ /* Satu komponen tombol utama untuk Warga dan Pengelola.
+    Posisi, diameter, jarak, garis putih dan interaksi sama; hanya ikon sesuai peran. */
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{
   position:relative;z-index:2;display:block;
   width:100%;height:100%;min-height:0;margin:0;padding:0;
   border:0;border-radius:0;background:transparent;
   color:#5a471c;box-shadow:none;transform:none
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
   background:transparent;color:#5a471c;box-shadow:none
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
   position:absolute;left:50%;bottom:9px;
   display:grid;place-items:center;
   width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px);min-width:0;min-height:0;
@@ -1626,35 +1627,20 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   background:#ffc719;color:#fff;box-shadow:0 6px 15px #856b2433;
   transform:translateX(-50%)
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
   display:block;width:44px;height:44px;fill:#fff;stroke:none
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
   font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
   letter-spacing:-2px;fill:#fff;stroke:none
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:focus-visible{
+ /* Ikon Laporan tetap SVG asli; ukuran dan badge sama dengan Pencairan warga. */
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
+  width:32px;height:32px;
+  filter:brightness(0) saturate(100%) invert(21%) sepia(27%) saturate(762%) hue-rotate(90deg) brightness(94%) contrast(92%)
+ }
+ body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%
- }
- /* Aksi Laporan pengurus: tombol tengah kuning sesuai susunan navigasi pengelola lama. */
- body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary{
-  position:relative;overflow:visible;background:transparent;color:var(--bank-admin-forest);
- }
- body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
-  background:transparent;color:var(--bank-admin-forest)
- }
- body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
-  position:absolute;top:-17px;left:50%;width:53px;height:53px;min-width:53px;
-  border:3px solid #fff;border-radius:17px;background:var(--bank-admin-gold);
-  box-shadow:0 5px 13px #765e2433;transform:translateX(-50%)
- }
- body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
-  width:27px;height:27px;
-  filter:brightness(0) saturate(100%) invert(24%) sepia(18%) saturate(1116%) hue-rotate(90deg) brightness(91%) contrast(93%)
- }
- body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{
-  position:absolute;right:0;bottom:2px;left:0;max-width:none;
-  font-weight:850;color:var(--bank-admin-forest)
  }
 
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
@@ -1672,7 +1658,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   stroke-linecap:round;stroke-linejoin:round;fill:none
  }
 }
-/* Drawer is the manager's complete mobile navigation; members retain their five-button dock. */
+/* Menu tambahan pengelola lewat drawer; kedua peran memakai dock bawah yang sama. */
 @media(max-width:1023px){
  body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
  body.f4-bank-app-private #dashboardView>.grid,
