@@ -46,8 +46,8 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <div id="f4BankAppHome" data-bank-role="member">
 <div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong></div>
 <button class="f4-bank-member-card"><span>BANK SAMPAH</span><span>W017</span></button>
-<button class="f4-bank-app-member-balance"><small>Saldo sah</small><strong>Rp 3.000</strong></button>
-<section class="f4-bank-weigh-schedule"><span>Jadwal timbang</span></section>
+<button class="f4-bank-app-member-balance"><small>Saldo sah</small><strong>Rp 3.000</strong></button>\n<button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut">Daftar Harga</button>
+<section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span>Jadwal timbang</span></section>
 <details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
 <span class="f4-member-flow-icon">✦</span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
 <span class="f4-member-flow-toggle">Lihat alur</span></summary><div class="f4-member-flow-body">
@@ -69,6 +69,8 @@ async def member_layout(browser):
             const steps=[...document.querySelectorAll('#f4MemberFlow .f4-member-flow-steps>li')];
             return {
                 recent:rect('#f4BankAppHome>.v14-panel'),
+                price:rect('#f4MemberPriceShortcut'),
+                schedule:rect('#f4BankWeighingSchedule'),
                 guide:rect('#f4MemberFlow'),
                 steps:steps.map(el=>({x:el.getBoundingClientRect().x,y:el.getBoundingClientRect().y})),
                 guideColor:getComputedStyle(document.querySelector('#f4MemberFlow')).backgroundColor,
@@ -79,9 +81,11 @@ async def member_layout(browser):
         }""")
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceColor"]=="rgb(234, 249, 247)",(device,result)
-        assert all(c=="rgb(255, 255, 255)" for c in result["stepColors"]),(device,result)
+        assert result["balanceColor"]=="rgb(232, 247, 207)",(device,result)
+        assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
         if device=="pc":
+            assert abs(result["price"]["y"]-result["schedule"]["y"])<2,(device,result)
+            assert result["price"]["x"]+result["price"]["w"]<result["schedule"]["x"]+2,(device,result)
             assert result["recent"]["x"]<result["guide"]["x"],result
             assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result

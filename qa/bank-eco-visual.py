@@ -155,12 +155,12 @@ async def main():
             assert state["programWidth"] <= width and state["programNoOverflow"], f"{mode}: program overflows or clips"
             # Columns of the REAL page were verified above; this reduced fixture intentionally omits unrelated inline styles.
             assert state["programNoOverflow"], f"{mode}: program overflows in the fixture"
-            assert state["submenu"] == "rgb(234, 246, 232)", f"{mode}: active tab should use soft green"
-            assert state["firstCard"] == "rgb(238, 248, 233)", f"{mode}: member summary not pale leaf green"
+            assert state["submenu"] == "rgb(228, 246, 213)", f"{mode}: active tab should use soft lime"
+            assert state["firstCard"] == "rgb(232, 247, 212)", f"{mode}: member summary not vivid lime pastel"
             assert state["firstText"] == "rgb(11, 87, 56)", f"{mode}: legacy member summary not deep green"
             assert state["reportColors"] == ["rgb(255, 255, 255)"]*4, f"{mode}: public report cards should be white: {state['reportColors']}"
-            assert state["lastCard"] == "rgb(238, 248, 233)", f"{mode}: final member summary not pale leaf green"
-            assert state["progressBg"] == "rgb(255, 255, 255)", f"{mode}: progress summary still pastel"
+            assert state["lastCard"] == "rgb(255, 242, 184)", f"{mode}: final member summary not yellow"
+            assert state["progressBg"] == "rgb(232, 247, 212)", f"{mode}: progress should use new palette"
             assert not state["horizontalOverflow"], f"{mode}: horizontal overflow"
             if mode == "hp":
                 rect = state["statRects"]
