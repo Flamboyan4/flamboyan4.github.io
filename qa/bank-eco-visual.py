@@ -125,18 +125,22 @@ MEMBER_FIXTURE = """
        </aside>
       </div>
       <section id="f4MemberEnvironmentPreview" class="f4-member-environment-preview">
-       <header class="f4-member-environment-head"><h3>Perkembangan</h3><button>Lihat semua</button></header>
-       <div class="f4-member-environment-stats">
-        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
-         <span><small>Berat sah</small><strong>1,9 kg</strong></span></div>
-        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
-         <span><small>Hasil jual</small><strong>Rp 6.000</strong></span></div>
-        <div class="f4-member-environment-stat"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg>
-         <span><small>Tahap</small><strong>4</strong></span></div>
+       <div class="f4-member-environment-head">
+        <h3>Perkembangan Saya</h3>
+        <div id="f4MemberProgressPeriod" class="f4-member-progress-period" role="group" aria-label="Periode grafik setoran pribadi">
+         <button class="is-active" aria-pressed="true">Per bulan</button><button aria-pressed="false">Per tahun</button>
+        </div>
        </div>
-       <div class="f4-member-impact-share"><span><b>50%</b> Tabungan warga</span>
-       <span><b>50%</b> Lingkungan</span></div>
-       <button class="f4-member-environment-latest"><span><strong>Sosialisasi Bank Sampah</strong></span></button>
+       <div id="f4MemberProgressChart" class="f4-member-progress-chart" role="img" aria-label="Berat sampah pribadi per bulan">
+        <div class="f4-member-progress-bars" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+         <div class="f4-member-progress-column"><strong>—</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:0%"></i></span><small>Jun</small></div>
+         <div class="f4-member-progress-column"><strong>—</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:0%"></i></span><small>Jul</small></div>
+         <div class="f4-member-progress-column"><strong>—</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:0%"></i></span><small>Agu</small></div>
+         <div class="f4-member-progress-column"><strong>—</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:0%"></i></span><small>Sep</small></div>
+         <div class="f4-member-progress-column"><strong>1,9 kg</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:100%"></i></span><small>Okt</small></div>
+         <div class="f4-member-progress-column"><strong>—</strong><span class="f4-member-progress-rail"><i class="f4-member-progress-fill" style="height:0%"></i></span><small>Nov</small></div>
+        </div>
+       </div>
       </section>
       <button id="f4MemberInfoShortcut" class="f4-member-info-shortcut">
        <span class="f4-member-info-icon"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg></span>
@@ -210,14 +214,17 @@ async def check_member_banking_layout(browser, mode, width):
         assert 13<=float(state["navFontSize"].replace("px",""))<=15, state
         assert state["name"]["x"]>=state["sidebar"]["x"]+state["sidebar"]["w"]-2, state
         assert state["name"]["x"]<=state["sidebar"]["x"]+state["sidebar"]["w"]+65, state
-        assert abs(state["progress"]["y"]-state["flow"]["y"])<3, state
-        assert abs(state["recent"]["y"]-state["info"]["y"])<3, state
+        assert abs(state["progress"]["y"]-state["recent"]["y"])<3, state
+        assert abs(state["flow"]["y"]-state["info"]["y"])<3, state
+        assert state["flow"]["y"]>=state["progress"]["y"]+state["progress"]["h"]-2, state
+        assert state["flow"]["h"]<state["progress"]["h"] and state["info"]["h"]<state["progress"]["h"], state
         assert state["quick"]["w"]>=state["atm"]["w"]*1.7, state
     else:
         assert abs(state["schedule"]["y"]-state["price"]["y"])<3, state
         assert abs(state["price"]["y"]-state["info"]["y"])<3, state
         assert state["atm"]["h"]<260 and state["balance"]["h"]<205, state
         assert state["progress"]["y"]>state["quick"]["y"], state
+        assert state["progress"]["y"]<state["recent"]["y"]<state["flow"]["y"], state
         assert 65<=state["headerHeight"]<=72 and state["extraBrand"]=="none", state
     await page.close()
 
