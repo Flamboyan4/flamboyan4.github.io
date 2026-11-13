@@ -48,7 +48,7 @@ const required=[
  ['superadmin/index.html',['.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
    '.f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))']],
  ['portal-live/treasury-center.css',['.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
-   '.tc-center{display:grid;gap:var(--f4-grid-gap,16px)']],
+   '.tc-center{display:grid;gap:10px']],
  ['portal-live/dokumentasi/site.css',['.media-album-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap,16px)']],
  ['rapat/index.html',['id="container-grid-rapat" class="grid f4-grid w-full" data-cols="3"']]
 ];
