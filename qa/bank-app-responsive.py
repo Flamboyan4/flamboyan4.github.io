@@ -139,7 +139,7 @@ async def member_layout(browser):
         assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
         assert len(result["mutationRows"])==2 and all(x["svg"] and x["radius"]=="0px" and x["left"]=="0px" and x["right"]=="0px" for x in result["mutationRows"]),(device,result)
         assert not result["importantMatches"],(device,result["importantMatches"])
-        if device=="pc":
+        if width>780:
             assert abs(result["card"]["y"]-result["balance"]["y"])<3,(device,result)
             assert result["card"]["right"]<=result["balance"]["x"]+3,(device,result)
             assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
