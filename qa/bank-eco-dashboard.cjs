@@ -27,7 +27,7 @@ if(!html.includes("period.missingWeight"))
 // Print borders remain black in the canonical table rule; do not rely on
 // deleted style fragments from the older dashboard revision.
 for(const check of [
-  "#v10Print th,#v10Print td{display:table-cell!important",
+  "#v10Print th,#v10Print td{display:table-cell",
   "border:1px solid #000}",
   "#v27PrintReport th,#v27PrintReport td{border:1px solid #000",
   "@media print{"
