@@ -783,14 +783,18 @@ async def member_price_card_position(browser):
         result=await page.evaluate("""() => {
           const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
           const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
-          return {priceBottom:a.bottom,scheduleY:b.top,priceH:a.height,
+          return {priceBottom:a.bottom,priceRight:a.right,priceY:a.top,scheduleX:b.left,scheduleY:b.top,priceH:a.height,
             border:getComputedStyle(p).borderColor,
             overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""")
-        assert result["priceBottom"]<=result["scheduleY"]+2,(device,result)
+        if device=="pc":
+            assert abs(result["priceY"]-result["scheduleY"])<2,(device,result)
+            assert result["priceRight"]<=result["scheduleX"]+2,(device,result)
+        else:
+            assert result["priceBottom"]<=result["scheduleY"]+2,(device,result)
         assert result["priceH"]>=60 and not result["overflow"],(device,result)
         assert result["border"]!="rgb(215, 230, 218)",(device,result)
-        print("MEMBER_PRICE_ABOVE_SCHEDULE_OK",device,result,flush=True)
+        print("MEMBER_PRICE_SCHEDULE_RESPONSIVE_OK",device,result,flush=True)
         await page.close()
 
 
