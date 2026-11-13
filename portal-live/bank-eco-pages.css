@@ -1863,7 +1863,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent-value small{
  color:#87929a;font-size:11px;line-height:1.35;font-weight:550
 }
-@media(max-width:920px){
+@media(max-width:780px){
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
   grid-template-columns:minmax(0,1fr);
   grid-template-areas:"welcome" "card" "balance" "quick" "recent" "guide" "progress" "info";
