@@ -38,7 +38,7 @@
     .public-hero h1{font-size:28px}.public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-tile h3{margin:0 0 5px;font-size:16px}.public-tile p{color:var(--muted);font-size:13px;margin:4px 0}.public-tile a{color:var(--forest);overflow-wrap:anywhere}.public-image{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:5px 0}.public-section{margin-top:24px}.public-section h2{font-size:19px}@media(max-width:720px){.public-hero h1{font-size:23px}.public-grid{grid-template-columns:1fr}.public-tile{padding:14px}}@media(min-width:721px) and (max-width:900px){.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     /* v13 — gaya Pembukuan: sidebar kompak, konten lapang, hijau daun lembut. */
     :root{
- --forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#fdc010;--white:#fff
+ --forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#fdc010;--white:#fff;
 --forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#fdc010
 }
     
@@ -55,16 +55,16 @@
     .nav-group button{font-weight:550;background:transparent;color:var(--forest)}
     .nav-group button.active{background:var(--forest);color:#fff}
     .card{
- background:white;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 26px rgba(36,78,46,.045)
+ background:white;border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 8px 26px rgba(36,78,46,.045);
 border-radius:16px;box-shadow:0 7px 23px #1f503710;padding:23px
 }
     .stat strong,.metric strong{color:#244f38}
     .toolbar button{white-space:normal}.public-hero{
- background:#e9f0e6;border-radius:20px;padding:26px;margin-bottom:17px
+ background:#e9f0e6;border-radius:20px;padding:26px;margin-bottom:17px;
 background:linear-gradient(115deg,#e6f0e3,#f5f4e6);border:1px solid #dce7d8
 }
     .public-tile{
- background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;overflow:hidden
+ background:#fff;border:1px solid var(--line);border-radius:15px;padding:16px;overflow:hidden;
 box-shadow:0 4px 16px #234d350b
 }.public-tile:hover{box-shadow:0 9px 25px #234d3519}
     .v13-kop{border-bottom:2px solid #356748;padding:0 0 12px;margin-bottom:15px;display:flex;align-items:center;gap:13px}
@@ -72,11 +72,11 @@ box-shadow:0 4px 16px #234d350b
     .v13-kop strong{display:block;font-size:18px;line-height:1.3;color:#235037}.v13-kop small{color:#526858;font-size:11px}
     @media(max-width:720px){
       .card{
- padding:18px;border-radius:15px
+ padding:18px;border-radius:15px;
 padding:16px
 }
       .mobile-nav{
- display:flex;margin:0 0 13px;justify-content:space-between;align-items:center
+ display:flex;margin:0 0 13px;justify-content:space-between;align-items:center;
 position:sticky;top:0;z-index:19;background:#fafbf8;padding:9px 4px;margin:0 0 8px;border-bottom:1px solid var(--line)
 }
       
@@ -92,7 +92,7 @@ position:sticky;top:0;z-index:19;background:#fafbf8;padding:9px 4px;margin:0 0 8
       #v12Private>.toolbar>button{min-width:0;white-space:nowrap}
       #v12Private>.toolbar>button:first-child{grid-column:auto;width:100%;min-width:0;padding-left:0;padding-right:0}
       .public-hero{
- padding:18px
+ padding:18px;
 padding:20px 15px
 }.public-hero .toolbar{align-items:stretch}.public-hero .toolbar button{width:100%}
       .v13-kop strong{font-size:15px}.v13-kop-mark{width:44px;height:44px;font-size:23px}
@@ -100,17 +100,17 @@ padding:20px 15px
     @media print{.v13-kop{display:flex}.v13-kop-mark{background:#fff;border:1px solid #000}#v10Print td,#v10Print th{white-space:normal}#v10Print td{display:table-cell}}
     /* v14: dashboard pengelola mengikuti hierarki referensi, tanpa angka tiruan. */
     .grid{
- display:grid;grid-template-columns:240px 1fr;gap:22px
-grid-template-columns:235px minmax(0,1fr);gap:18px;align-items:start
+ display:grid;grid-template-columns:240px 1fr;gap:22px;
+grid-template-columns:235px minmax(0,1fr);gap:18px;align-items:start;
 grid-template-columns:212px minmax(0,1fr);gap:16px
 }
     .top{
- display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 22px;background:#fff;border-bottom:1px solid var(--line)
-position:sticky;top:0;z-index:20;box-shadow:0 2px 14px #284c3510
+ display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 22px;background:#fff;border-bottom:1px solid var(--line);
+position:sticky;top:0;z-index:20;box-shadow:0 2px 14px #284c3510;
 padding:13px 21px
 }.side button{
- width:100%;margin:4px 0;text-align:left
-padding:10px 12px;margin:2px 0;border-radius:10px;font-size:13px;font-weight:650;min-height:40px
+ width:100%;margin:4px 0;text-align:left;
+padding:10px 12px;margin:2px 0;border-radius:10px;font-size:13px;font-weight:650;min-height:40px;
 font-size:12.5px
 }
     #pageDashboard.v14-home{background:transparent;border:0;box-shadow:none;padding:0}
@@ -146,8 +146,8 @@ font-size:12.5px
     @media(max-width:720px){.grid{
  display:block
 }.top{
- padding:13px 15px
-position:relative
+ padding:13px 15px;
+position:relative;
 padding:12px 14px
 }.v14-head h2{font-size:22px}.v14-head{align-items:flex-start}.v14-action{font-size:12px;padding:10px}
       .v14-hero{min-height:125px}.v14-hero-content{padding:17px}.v14-hero h3{font-size:19px}.v14-hero-art{min-width:90px;width:25%}.v14-hero-art img{width:42px;height:42px}
@@ -159,51 +159,51 @@ padding:12px 14px
     }
     /* v15: halaman hijau muda, seluruh card putih; menu teks biasa. */
     body{
- margin:0;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink)
+ margin:0;font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--cream);color:var(--ink);
 background:#f2f6f0
 }
     .card,.stat,.metric,.v14-kpi,.v14-panel,.v14-extra,.public-tile{background:#fff}
     .stat,.metric{
- background:#edf3eb
+ background:#edf3eb;
 border:1px solid var(--line)
 }
     .v14-extra{
- border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:#f8faf6
+ border:1px solid var(--line);border-radius:11px;padding:13px 15px;background:#f8faf6;
 background:#fff
 }.v14-kpi{
- border:1px solid var(--line);border-radius:12px;padding:16px 15px;min-width:0
+ border:1px solid var(--line);border-radius:12px;padding:16px 15px;min-width:0;
 background:#fff
 }
     .side{
- background:white;border:1px solid var(--line);border-radius:18px;padding:18px;height:max-content
-position:sticky;top:88px;max-height:calc(100vh - 103px);overflow-y:auto;scrollbar-width:thin;padding:12px;border-radius:16px;box-shadow:0 6px 22px #204f3610
-padding:10px
+ background:white;border:1px solid var(--line);border-radius:18px;padding:18px;height:max-content;
+position:sticky;top:88px;max-height:calc(100vh - 103px);overflow-y:auto;scrollbar-width:thin;padding:12px;border-radius:16px;box-shadow:0 6px 22px #204f3610;
+padding:10px;
 display:flex;flex-direction:column;background:#fff;border:1px solid #dce8db;min-height:calc(100vh - 105px);max-height:calc(100vh - 105px)
 }
     .side .brand{
- padding:9px 10px 12px;border-bottom:1px solid var(--line)
-font-size:14px
+ padding:9px 10px 12px;border-bottom:1px solid var(--line);
+font-size:14px;
 margin-bottom:7px
 }
     .side button:not(.active),.nav-group button:not(.active){background:transparent;color:#486955;border-color:transparent;box-shadow:none}
     .side button:not(.active):hover{
- background:#e3ece1;box-shadow:0 2px 8px #2e624711
+ background:#e3ece1;box-shadow:0 2px 8px #2e624711;
 background:#eef4ec;color:#244b35
 }
     .side button.active,.nav-group button.active{background:#e3eee3;color:#21543a;box-shadow:none;border:0;font-weight:800}
     .nav-group{
- margin:5px 0;border:1px solid var(--line);border-radius:12px;background:#f8faf7;overflow:hidden
+ margin:5px 0;border:1px solid var(--line);border-radius:12px;background:#f8faf7;overflow:hidden;
 border:0;background:transparent;margin:2px 0;border-radius:10px
 }
     .nav-group>summary{
- list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:11px 12px;font-weight:800;color:var(--forest)
+ list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;padding:11px 12px;font-weight:800;color:var(--forest);
 color:#708274;font-size:12px;font-weight:750;padding:10px 12px;background:transparent
 }
     .nav-group[open]>summary{
- background:#e8f0e6
+ background:#e8f0e6;
 background:transparent
 }.nav-group-items{
- padding:4px 7px 7px
+ padding:4px 7px 7px;
 padding:0 0 3px 10px;border-left:1px solid #e2eae0;margin-left:13px
 }
     .nav-group-items button{font-size:12.5px;margin:1px 0;padding:9px 10px}
@@ -224,22 +224,22 @@ padding:0 0 3px 10px;border-left:1px solid #e2eae0;margin-left:13px
     
     #v15PasswordBox form{margin-top:12px;max-width:440px}
     @media(max-width:720px){.side{
- display:none;margin-bottom:14px
-position:relative;top:auto;max-height:min(68vh,600px);overflow-y:auto;margin-bottom:13px;padding:12px
+ display:none;margin-bottom:14px;
+position:relative;top:auto;max-height:min(68vh,600px);overflow-y:auto;margin-bottom:13px;padding:12px;
 min-height:0;max-height:min(75vh,680px)
 }.side-footer{position:sticky;bottom:0;margin-top:13px;padding:10px 0 0;background:#fff}
       #v15PhotoPanel{align-items:flex-start;flex-wrap:wrap}#v15PhotoInput{max-width:100%}}
     /* v16: sidebar penuh + navigasi utama dan tab anak seperti Pembukuan. */
     .shell{
- max-width:1100px;margin:auto;min-height:100vh
-max-width:1440px
-max-width:1500px
-background:#f2f6f0
+ max-width:1100px;margin:auto;min-height:100vh;
+max-width:1440px;
+max-width:1500px;
+background:#f2f6f0;
 max-width:none;width:100%
 }.content{
- padding:26px 18px 60px
-padding:20px 20px 48px
-background:#f2f6f0
+ padding:26px 18px 60px;
+padding:20px 20px 48px;
+background:#f2f6f0;
 padding:0;min-height:calc(100vh - 70px)
 }
     #dashboardView>.grid{grid-template-columns:244px minmax(0,1fr);gap:0;align-items:stretch}
@@ -263,8 +263,8 @@ padding:0;min-height:calc(100vh - 70px)
     #sideNav .account-entry{width:auto;min-height:44px}
     @media(max-width:720px){
       #dashboardView>.grid{display:block}.content{
- padding:15px 12px 38px
-padding:12px 10px 35px
+ padding:15px 12px 38px;
+padding:12px 10px 35px;
 padding:0
 }
       
@@ -383,7 +383,7 @@ padding:0
     @media(max-width:720px){
       body.v17-dashboard #dashboardView .mobile-nav{padding:8px 12px;justify-content:flex-start;gap:11px;min-height:61px}
       #dashboardView .section{
- padding:12px 11px 35px
+ padding:12px 11px 35px;
 padding:12px 10px 30px;min-width:0;width:100%
 }
       #dashboardView .section>.card{padding:16px 14px;border-radius:14px;min-width:0}
@@ -409,7 +409,7 @@ padding:12px 10px 30px;min-width:0;width:100%
     }
     /* v19 — portal publik sepenuhnya sidebar; tidak ada header atau navbar. */
     #v11Public.v18-public-shell{
- width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start
+ width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start;
 min-width:0;min-height:100dvh
 }
     #v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%}
@@ -427,27 +427,27 @@ min-width:0;min-height:100dvh
     @media(max-width:720px){
       html,body,body>.shell,body>.shell>.content{width:100%;max-width:100%;min-width:0;overflow-x:clip}
       #v11Public.v18-public-shell{
- display:block
+ display:block;
 display:block;width:100%;min-width:0;max-width:100%;overflow-x:hidden
 }
       #v11Public #v18PublicContent{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-x:hidden}
       #v11Public #v18PublicContent .v17-public-main{width:100%;max-width:100%;min-width:0;padding:66px 10px 32px;margin:0;box-sizing:border-box}
       #v19PublicFloatingMenu{display:grid;position:fixed;z-index:35;top:12px;left:12px;background:#fff;box-shadow:0 3px 14px #183e2624}
             #v11Public .v17-public-banner .emblem{
- font-size:33px
+ font-size:33px;
 display:none
 }
                                           #v11Public .v17-two,#v11Public .v17-albums,#v11Public .v17-inventory{grid-template-columns:minmax(0,1fr);width:100%;min-width:0}
       #v11Public .v17-section{
- margin-top:16px
+ margin-top:16px;
 scroll-margin-top:16px
 }
       #v18PublicSide.open{
- transform:translateX(0);visibility:visible
+ transform:translateX(0);visibility:visible;
 z-index:49
 }
       #v18PublicBackdrop.open{
- display:block;position:fixed;inset:0;background:#102c1c88;z-index:47
+ display:block;position:fixed;inset:0;background:#102c1c88;z-index:47;
 z-index:48
 }
     }
@@ -722,7 +722,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none}
 @media print{
   @page{size:A4 portrait;margin:11mm 12mm}
   body{
- background:white;font:11pt/1.35 Arial,sans-serif
+ background:white;font:11pt/1.35 Arial,sans-serif;
 print-color-adjust:exact;-webkit-print-color-adjust:exact
 }
   body:not(.v27-print-report):not(.v25-print-public) #v10Print{
@@ -733,21 +733,21 @@ print-color-adjust:exact;-webkit-print-color-adjust:exact
     border-bottom:1.5px solid #000;padding:0 0 7px;margin:0 0 9px}
   #v10Print .v29-kop-logo{width:43px;height:43px}
   #v10Print h1{
- font-size:18pt
+ font-size:18pt;
 font-size:16px;line-height:1.2;margin:8px 0 4px
 }
   #v10Print h2{
- font-size:12pt;margin-top:20px;break-after:avoid
+ font-size:12pt;margin-top:20px;break-after:avoid;
 font-size:11px;margin:12px 0 5px;break-after:avoid
 }
   #v10Print p{font-size:9px;line-height:1.3;margin:4px 0 9px}
   #v10Print table{
- min-width:0;width:100%;border-collapse:collapse
+ min-width:0;width:100%;border-collapse:collapse;
 width:100%;max-width:none;min-width:0;
     table-layout:auto;border-collapse:collapse;margin:0 0 9px;font-size:9px
 }
   #v10Print th,#v10Print td{
- font-size:9pt;padding:6px
+ font-size:9pt;padding:6px;
 display:table-cell;padding:4px 5px;height:auto;
     font-size:9px;line-height:1.18;text-align:left;
     white-space:normal;overflow-wrap:anywhere;vertical-align:middle;
@@ -762,19 +762,19 @@ display:table-cell;padding:4px 5px;height:auto;
  display:table-header-group
 }
   #v10Print tr{
- break-inside:avoid
+ break-inside:avoid;
 display:table-row;break-inside:avoid
 }
   #v10Print tbody{
  display:table-row-group
 }
   #v27PrintReport th,#v27PrintReport td{
- border:1px solid #000;padding:6px 5px;text-align:right;overflow-wrap:anywhere
+ border:1px solid #000;padding:6px 5px;text-align:right;overflow-wrap:anywhere;
 font-size:9px;line-height:1.2;
     padding:4px 5px;overflow-wrap:anywhere
 }
   #v27PrintReport thead{
- display:table-header-group
+ display:table-header-group;
 display:table-header-group
 }
   #v27PrintReport tr{break-inside:avoid}
@@ -965,7 +965,7 @@ display:table-header-group
    z-index:240;pointer-events:auto
  }
  html.f4-bank-embedded #v18PublicSide.open{
- transform:translateX(0);visibility:visible
+ transform:translateX(0);visibility:visible;
 z-index:241;pointer-events:auto
 }
  html.f4-bank-embedded #v18PublicBackdrop.open{
@@ -1067,7 +1067,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 
 /* Admin reports: one column grid, shared by screen and PDF (no CSS overrides). */
 #pageLaporan #v10ReportTable{
- margin:10px 0 0;padding:0
+ margin:10px 0 0;padding:0;
 overflow:visible
 }
 #pageLaporan .f4-report-section{min-width:0;margin:14px 0 18px}
