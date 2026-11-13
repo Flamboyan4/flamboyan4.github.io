@@ -1,5 +1,5 @@
 
-/* Beranda · Cerita Warga. Gaya tunggal, tanpa !important. */
+/* Beranda · Cerita Warga. Gaya tunggal, tanpa . */
 .f4g-home{scroll-margin-top:84px}
 .f4g-home[hidden]{display:none}
 .f4g-home-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
