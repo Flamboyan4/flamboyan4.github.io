@@ -201,6 +201,20 @@ assert(dashboard.includes('.f4-eco-kpi'),'Dashboard design missing');
 assert(!dashboard.includes('!important'),'Dashboard legacy sheet must not contain any priority declarations');
 assert(!dashboard.includes('f4-member-recent'),'Dashboard legacy sheet must not own member mutation rows');
 assert(h.includes("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])"),'Dashboard mutasi must read authoritative financial ledger, not deposits');
+const memberRecentPreview=h.split("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])")[1]?.split("const recentBox=$('v14Recent')")[0]||"";
+assert(memberRecentPreview.includes('.sort(') && memberRecentPreview.includes('.slice(0,3)'),
+ 'Home mutasi must remain limited to the latest three true ledger movements');
+assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
+ 'PC member mutasi must not grow beyond its dashboard card');
+assert(mobile.includes('function loadMemberPublicMini(force=false)') &&
+       mobile.includes('api("/api/v2/public/bank/report")') &&
+       mobile.includes('const report=response?.ringkasan||response?.summary;') &&
+       mobile.includes('resetAdminAlerts();resetMemberPublicMini();'),
+ 'Mini summary must use authenticated D1 public report and reset on account change');
+assert(memberNav.includes('#dashboardView #f4MemberPublicMini{display:none}') &&
+       memberNav.includes('@media(min-width:1024px){') &&
+       memberNav.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),
+ 'Public mini summary must be restricted to desktop without affecting HP');
 assert(h.includes("const isDebit=amountOut>0"),'Ledger must include posted withdrawals and credits');
 assert(h.includes("isDebit?'− ':'+ '"),'Ledger amounts must show correct debit and credit signs');
 assert(!h.includes("const recent=active.slice().sort((a,b)=>String(b.tanggal"),'Deposit-only dashboard mutation logic must not return');

@@ -146,6 +146,11 @@ MEMBER_FIXTURE = """
        <span class="f4-member-info-icon"><svg viewBox="0 0 24 24"><path d="M4 8h16"/></svg></span>
        <span class="f4-member-info-copy"><strong>Informasi &amp; Laporan</strong>
         <small>Laporan dan transparansi kegiatan</small></span>
+       <span id="f4MemberPublicMini" class="f4-member-public-mini">
+        <span class="f4-member-public-mini-item"><small>Berat terjual</small><strong>1,9 kg</strong></span>
+        <span class="f4-member-public-mini-item"><small>Hasil jual</small><strong>Rp 6.000</strong></span>
+        <span class="f4-member-public-mini-item"><small>Hak warga</small><strong>Rp 3.000</strong></span>
+       </span>
       </button>
      </section>
     </div>
@@ -177,6 +182,8 @@ async def check_member_banking_layout(browser, mode, width):
         atm:rect('#f4BankMemberCard'),balance:rect('#f4BankAppMemberBalance'),
         quick:rect('#f4MemberQuickActions'),price:rect('#f4MemberPriceShortcut'),
         schedule:rect('#f4BankWeighingSchedule'),info:rect('#f4MemberInfoShortcut'),
+        publicMini:rect('#f4MemberPublicMini'),
+        publicMiniDisplay:css('#f4MemberPublicMini').display,
         progress:rect('#f4MemberEnvironmentPreview'),flow:rect('#f4MemberFlow'),
         recent:rect('#f4MemberContent .v14-panel'),
         page:rect('#pageDashboard'),
@@ -218,12 +225,15 @@ async def check_member_banking_layout(browser, mode, width):
         assert abs(state["flow"]["y"]-state["info"]["y"])<3, state
         assert state["flow"]["y"]>=state["progress"]["y"]+state["progress"]["h"]-2, state
         assert state["flow"]["h"]<state["progress"]["h"] and state["info"]["h"]<state["progress"]["h"], state
+        assert state["publicMiniDisplay"]=="grid" and 0<state["publicMini"]["h"]<=65, state
+        assert state["info"]["h"]<=190, state
         assert state["quick"]["w"]>=state["atm"]["w"]*1.7, state
     else:
         assert abs(state["schedule"]["y"]-state["price"]["y"])<3, state
         assert abs(state["price"]["y"]-state["info"]["y"])<3, state
         assert state["atm"]["h"]<260 and state["balance"]["h"]<205, state
         assert state["progress"]["y"]>state["quick"]["y"], state
+        assert state["publicMiniDisplay"]=="none" and state["publicMini"]["h"]==0, state
         assert state["progress"]["y"]<state["recent"]["y"]<state["flow"]["y"], state
         assert 65<=state["headerHeight"]<=72 and state["extraBrand"]=="none", state
     await page.close()
