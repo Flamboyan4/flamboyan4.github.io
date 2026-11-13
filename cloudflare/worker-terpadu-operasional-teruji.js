@@ -3289,14 +3289,14 @@ async function f4MemberPortalFinance(db, memberId, kind) {
       if(!alokasi.length)return [{
         id:p.id,tanggal:p.tanggal,nominalRp:p.jumlahRp,status:p.status,
         jenis:"TANPA_ALOKASI",periode:null,
-        keterangan:"Pembayaran historis belum memiliki rincian kategori D1"
+        keterangan:String(p.keterangan||"").trim()||"Pembayaran historis belum memiliki rincian kategori D1"
       }];
       return alokasi.map((a,index)=>({
         id:p.id+":"+index,paymentId:p.id,tanggal:p.tanggal,
         nominalRp:Number(a.jumlahRp||0),
         status:p.status==="aktif"&&a.status==="aktif"?"aktif":"dibatalkan",
         jenis:a.jenis,periode:a.tahun+"-"+String(a.bulan).padStart(2,"0"),
-        keterangan:[a.tahun+"-"+String(a.bulan).padStart(2,"0"),p.keterangan].filter(Boolean).join(" • ")
+        keterangan:String(p.keterangan||"").trim()
       }));
     });
   }else if(kind==="arisan"){
@@ -3308,7 +3308,7 @@ async function f4MemberPortalFinance(db, memberId, kind) {
        ORDER BY p.paid_on DESC,p.id DESC LIMIT 501`).bind(payerId).all();
     if(rows.results.length>500)return safeError("Riwayat arisan melebihi batas laporan.",409);
     records=rows.results.map(x=>({id:x.id,tanggal:x.tanggal,status:x.status==="aktif"&&x.alokasiStatus==="aktif"?"aktif":"dibatalkan",
-      nominalRp:Number(x.nominalRp||0),keterangan:"Arisan "+x.tahun+"-"+String(x.bulan).padStart(2,"0")+(x.description?" • "+x.description:"")}));
+      nominalRp:Number(x.nominalRp||0),jenis:"ARISAN",periode:x.tahun+"-"+String(x.bulan).padStart(2,"0"),keterangan:String(x.description||"").trim()}));
   }else if(kind==="fines"){
     const rows=await db.prepare(`SELECT id,event_on,amount_rp,paid_rp,status,note,fine_type
       FROM bookkeeping_fines WHERE payer_id=? ORDER BY event_on DESC,id DESC LIMIT 501`).bind(payerId).all();
@@ -3318,7 +3318,7 @@ async function f4MemberPortalFinance(db, memberId, kind) {
       const raw=String(x.note||"").trim();
       const note=/^20[0-9]{2}-[0-9]{2}-[0-9]{2}(?:[ T][0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]+)?)?$/.test(raw)?"":raw;
       return {id:x.id,tanggal:x.event_on,status:x.status,nominalRp:Number(x.amount_rp||0),
-        dibayarRp:Number(x.paid_rp||0),keterangan:(x.fine_type||"Denda")+(note?" • "+note:"")};
+        dibayarRp:Number(x.paid_rp||0),jenis:x.fine_type||"Denda",keterangan:note};
     });
   }else{
     const rows=await db.prepare(`SELECT l.id,l.loaned_on,l.amount_rp,l.status,l.note,
