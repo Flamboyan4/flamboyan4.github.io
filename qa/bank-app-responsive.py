@@ -1137,6 +1137,66 @@ async def public_portal_real_entry_smoke(browser):
         assert not failed_assets,(device,failed_assets)
         await page.close()
 
+
+async def member_profile_palette_and_tap(browser):
+    """Same member ATM art on both routes; palette and tap selection stay scoped to controls."""
+    for device,width in [("pc",1366),("hp",390)]:
+        page=await browser.new_page(viewport={"width":width,"height":850})
+        await page.set_content(MEMBER_HTML,wait_until="load")
+        value=await page.evaluate("""() => {
+          const home=document.querySelector('#f4BankMemberCard');
+          const host=document.querySelector('#dashboardView .section');
+          const profile=document.createElement('section');
+          profile.id='pageProfile';
+          profile.className='card f4-profile-card';
+          profile.innerHTML='<section id="f4BankProfileDetail" class="f4-bank-profile-detail"><h3>Detail Kartu Anggota</h3></section>'+
+            '<div class="f4-profile-header"><h2>Profil saya</h2></div>'+
+            '<div class="f4-profile-overview"><div class="f4-profile-avatar">HJ</div><div class="f4-profile-identity"><small>Nama anggota</small><strong id="pName">Anggota</strong></div></div>'+
+            '<details id="v15PhotoPanel" class="f4-profile-edit"><summary>Ubah foto profil</summary><div class="f4-profile-photo-form"><button id="v15PhotoSave" class="secondary">Simpan</button></div></details>'+
+            '<input id="f4TestEditable" type="text" value="Bisa diseleksi">'+
+            '<a id="f4TestLink" href="#profil">Profil</a>';
+          host.append(profile);
+          const panel=profile.querySelector('#f4BankProfileDetail');
+          const clone=document.createElement('div');
+          clone.className='f4-bank-member-card f4-bank-profile-card';
+          for(const node of home.childNodes)clone.append(node.cloneNode(true));
+          panel.append(clone);
+          const box=el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}};
+          const computed=el=>getComputedStyle(el);
+          return {
+           homeBackground:computed(home).backgroundImage,
+           cloneBackground:computed(clone).backgroundImage,
+           homeBefore:getComputedStyle(home,'::before').backgroundImage,
+           cloneBefore:getComputedStyle(clone,'::before').backgroundImage,
+           homeAfter:getComputedStyle(home,'::after').backgroundImage,
+           cloneAfter:getComputedStyle(clone,'::after').backgroundImage,
+           homeBox:box(home),cloneBox:box(clone),
+           columns:computed(profile).gridTemplateColumns.trim().split(/\\s+/).length,
+           cyan:computed(profile).getPropertyValue('--profile-cyan').trim(),
+           lime:computed(profile).getPropertyValue('--profile-lime').trim(),
+           gold:computed(profile).getPropertyValue('--profile-yellow').trim(),
+           selectedTap:computed(profile.querySelector('#f4TestLink')).userSelect,
+           selectedButton:computed(profile.querySelector('#v15PhotoSave')).userSelect,
+           editable:computed(profile.querySelector('#f4TestEditable')).userSelect,
+           photoSave:computed(profile.querySelector('#v15PhotoSave')).backgroundColor,
+           overflow:document.documentElement.scrollWidth>innerWidth+3
+          };
+        }""")
+        assert value["homeBackground"]==value["cloneBackground"],(device,value)
+        assert value["homeBefore"]==value["cloneBefore"] and value["homeAfter"]==value["cloneAfter"],(device,value)
+        if device=="pc":
+            assert abs(value["homeBox"]["height"]-value["cloneBox"]["height"])<3,value
+            assert value["columns"]==2,value
+        else:
+            assert value["columns"]==1,value
+            assert abs(value["cloneBox"]["width"]/value["cloneBox"]["height"]-1.83)<.05,value
+        assert value["cyan"]=="#00bcd4" and value["lime"]=="#8bc34a" and value["gold"]=="#ffc411",value
+        assert value["selectedTap"]=="none" and value["selectedButton"]=="none",value
+        assert value["editable"]!="none" and value["photoSave"]=="rgb(0, 150, 136)",value
+        assert not value["overflow"],(device,value)
+        print("MEMBER_PROFILE_ATM_PALETTE_TAP_OK",device,value,flush=True)
+        await page.close()
+
 async def main():
     async with async_playwright() as p:
         browser=await p.chromium.launch(args=["--no-sandbox"])
@@ -1211,6 +1271,7 @@ async def main():
         await public_report_compact(browser)
         await member_profile_inline_name(browser)
         await member_profile_dropdown_chevrons(browser)
+        await member_profile_palette_and_tap(browser)
         await public_portal_real_entry_smoke(browser)
         await browser.close()
 if __name__=="__main__":
