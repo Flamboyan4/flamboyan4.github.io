@@ -1287,9 +1287,9 @@ const adminShortcuts=[
  ["Pencairan","bank-payout-admin","hand-coins"],
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
- ["Dokumentasi","bank-admin-docs","images"],
  ["Saldo Warga","tabungan","coins"],
- ["Laporan","laporan","file-text"]
+ ["Laporan","laporan","file-text"],
+ ["Dokumentasi","bank-admin-docs","images"]
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
@@ -1312,6 +1312,75 @@ function adminShortcut([name,route,iconName]){
  svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
  circle.append(svg);button.append(circle,el("span","",name));
  button.onclick=()=>navigate(route);return button;
+}
+/* Akses Cepat: tujuh tujuan utama dan Lainnya; setiap tujuan memakai rute yang sama dengan sidebar PC. */
+let adminSheetHistory=false,adminSheetRoute=null,adminSheetFocus=null;
+function ensureAdminMenuSheet(){
+ if(role!=="admin")return null;
+ let dialog=$("f4BankAdminMenuSheet");if(dialog)return dialog;
+ dialog=el("dialog","f4-bank-sheet-modal f4-bank-admin-menu-sheet");
+ dialog.id="f4BankAdminMenuSheet";
+ dialog.setAttribute("aria-labelledby","f4BankAdminMenuTitle");
+ const grip=el("div","f4-bank-admin-menu-handle");grip.setAttribute("aria-hidden","true");
+ const head=el("div","f4-bank-modal-heading");
+ const title=el("h2","", "Semua Menu Pengelolaan");title.id="f4BankAdminMenuTitle";
+ const close=el("button","f4-bank-modal-close");close.type="button";
+ close.setAttribute("aria-label","Tutup menu lainnya");close.append(bankUiSvg("x"));
+ close.onclick=()=>closeAdminMenuSheet();
+ head.append(title,close);
+ const grid=el("div","f4-bank-admin-menu-grid");
+ grid.append(...adminShortcuts.map(item=>{
+  const button=adminShortcut(item);
+  button.onclick=()=>closeAdminMenuSheet(item[1]);
+  return button;
+ }));
+ dialog.append(grip,head,grid);
+ dialog.addEventListener("click",event=>{if(event.target===dialog)closeAdminMenuSheet();});
+ dialog.addEventListener("cancel",event=>{event.preventDefault();closeAdminMenuSheet();});
+ document.body.append(dialog);
+ paintAdminAlerts();
+ return dialog;
+}
+function openAdminMenuSheet(){
+ if(role!=="admin"||roleType()!=="admin"||window.matchMedia("(min-width:1024px)").matches)return;
+ const dialog=ensureAdminMenuSheet();
+ if(!dialog||dialog.open)return;
+ adminSheetFocus=document.activeElement;
+ adminSheetRoute=null;
+ dialog.showModal();
+ history.pushState({...history.state,f4BankAdminSheet:true},"",location.href);
+ adminSheetHistory=true;
+}
+function closeAdminMenuSheet(destination=null){
+ const dialog=$("f4BankAdminMenuSheet");
+ if(dialog?.open)dialog.close();
+ if(destination)adminSheetRoute=destination;
+ if(adminSheetHistory){history.back();return;}
+ const route=adminSheetRoute;adminSheetRoute=null;
+ if(route)navigate(route);
+ else if(adminSheetFocus?.isConnected)adminSheetFocus.focus({preventScroll:true});
+ adminSheetFocus=null;
+}
+function handleAdminSheetBack(){
+ if(!adminSheetHistory)return;
+ adminSheetHistory=false;
+ const dialog=$("f4BankAdminMenuSheet");
+ if(dialog?.open)dialog.close();
+ const route=adminSheetRoute;adminSheetRoute=null;
+ if(route)navigate(route);
+ else if(adminSheetFocus?.isConnected)adminSheetFocus.focus({preventScroll:true});
+ adminSheetFocus=null;
+}
+function adminMoreShortcut(){
+ const button=el("button","f4-bank-admin-shortcut f4-bank-admin-more");
+ button.id="f4BankAdminMore";button.type="button";
+ button.setAttribute("aria-label","Buka semua menu pengelolaan");
+ const circle=el("span","f4-bank-admin-shortcut-icon");
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+ svg.innerHTML='<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>';
+ circle.append(svg);button.append(circle,el("span","", "Lainnya"));
+ button.onclick=openAdminMenuSheet;return button;
 }
 /* Satu daftar rute melayani shortcut HP dan sidebar PC; jangan membuat menu duplikat. */
 function ensureDesktopAdminSidebar(){
@@ -1393,11 +1462,12 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  // Dokumentasi tersedia lewat menu hamburger HP dan sidebar PC, bukan Akses Cepat.
-  grid.append(...adminShortcuts.filter(([,route])=>route!=="bank-admin-docs").map(adminShortcut));
+  // Dua tujuan sisanya tetap ada di sheet Lainnya (bersama tujuh tujuan utama).
+  grid.append(...adminShortcuts.slice(0,7).map(adminShortcut),adminMoreShortcut());
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
+ ensureAdminMenuSheet();
  paintAdminAlerts();
  refreshAdminAlerts();
 }
@@ -2069,7 +2139,7 @@ function hideCustom(){
  for(const id of [...custom,...featureRoutes])$(id)?.classList.add("hidden");
 }
 function navigate(route){
- if(route==="menu"){if(roleType()==="admin")$("v18PrivateMenuButton")?.click();return;}
+ if(route==="menu"){if(roleType()==="admin")openAdminMenuSheet();return;}
  if(route==="bank-deposit"){
   window.goPage("dashboard");
   const flow=$("f4MemberFlow");if(flow){flow.open=true;flow.scrollIntoView({behavior:"smooth",block:"start"});}
@@ -2187,6 +2257,8 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
+ if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
+ $("f4BankAdminMenuSheet")?.remove();
  resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
@@ -2416,7 +2488,8 @@ function acceptMemberStatement(event){
 function init(){
  if(ready)return;ready=true;
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
- window.addEventListener("resize",()=>{syncAdminPageFrames();
+ window.addEventListener("popstate",handleAdminSheetBack);
+ window.addEventListener("resize",()=>{if(window.matchMedia("(min-width:1024px)").matches&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();syncAdminPageFrames();
   if(role==="admin")ensureAdminHome();
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
