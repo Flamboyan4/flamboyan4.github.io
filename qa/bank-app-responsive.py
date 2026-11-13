@@ -85,8 +85,8 @@ async def member_layout(browser):
         assert not result["overflow"],(device,result)
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["balanceColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["balanceAmountColor"]=="rgb(0, 151, 136)",(device,result)
-        assert result["priceColor"]=="rgb(253, 192, 16)",(device,result)
+        assert result["balanceAmountColor"]=="rgb(23, 70, 48)",(device,result)
+        assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
         if device=="pc":
