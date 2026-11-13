@@ -8,6 +8,7 @@
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  const panelSelectors=[
   '#f4-direct-dialog > section',
+  '#f4-tx-receipt-dialog[data-scope="bank"] > .f4-tx-card',
   '#f4-superadmin-confirm .f4-sa-confirm-panel',
   '.v21-modal:not(.v21-lightbox) > .v21-modal-card',
   '#credentialModal > .f4-bank-credential-panel',
@@ -32,6 +33,7 @@
  const selector=panelSelectors.join(',');
  const rootSelector=[
   '#f4-direct-dialog','#f4-superadmin-confirm','.v21-modal',
+  '#f4-tx-receipt-dialog',
   '#credentialModal','.v24-edit-overlay','.f4-activity-dialog',
   '.f4-warga-picker-pop','.sa-account-shade','.f4-jersey-print-veil',
   '.tc-date-overlay','.f4-ui-dialog','#f4-work-notice',
@@ -183,6 +185,7 @@
   const closeSelector=
    panel.matches('.f4-bank-credential-panel')?'[onclick*="closeCredential"]':
    panel.matches('.v21-modal-card')?'.v21-close':
+   panel.matches('.f4-tx-card')?'.f4-tx-close':
    panel.matches('.v24-edit-card')?'#v24Close':
    panel.matches('.f4-activity-dialog-panel')?'.f4-activity-dialog-close':
    panel.matches('.f4-jersey-print-dialog')?'.f4-jersey-print-cancel':
