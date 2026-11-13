@@ -17,8 +17,18 @@ function shortcut(home){
  const copy=el("span","f4-bank-price-shortcut-copy");
  copy.append(el("strong","f4-bank-price-shortcut-label","Daftar Harga"),
   el("small","","Tarif warga per kg"));
- b.append(el("span","f4-bank-price-shortcut-icon","♻"),copy,
-  el("span","f4-bank-price-shortcut-arrow","›"));
+ const icon=el("span","f4-bank-price-shortcut-icon");
+ const recycle=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ recycle.setAttribute("viewBox","0 0 24 24");recycle.setAttribute("aria-hidden","true");
+ recycle.innerHTML='<path d="M7 19H4.8a1.8 1.8 0 0 1-1.55-2.7L7.2 9.5m4 9.5h8a1.8 1.8 0 0 0 1.56-2.67l-1.2-2.1M11 16l-3 3 3 3M8.3 13.6 7.2 9.5l-4.1 1.1M9.35 5.8l1.1-1.9a1.8 1.8 0 0 1 3.1-.03l3.9 6.86M13.4 9.6l4.1 1.1 1.1-4.1"/>';
+ recycle.setAttribute("fill","none");recycle.setAttribute("stroke","currentColor");recycle.setAttribute("stroke-width","1.9");recycle.setAttribute("stroke-linecap","round");recycle.setAttribute("stroke-linejoin","round");
+ icon.append(recycle);
+ const arrow=el("span","f4-bank-price-shortcut-arrow");
+ const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ chevron.setAttribute("viewBox","0 0 24 24");chevron.setAttribute("aria-hidden","true");
+ chevron.innerHTML='<path d="m9 18 6-6-6-6"/>';
+ arrow.append(chevron);
+ b.append(icon,copy,arrow);
  b.setAttribute("aria-label","Lihat daftar harga sampah untuk warga");
  b.onclick=()=>window.goPage?.("bank-prices");
  home.append(b);

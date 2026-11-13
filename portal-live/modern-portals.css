@@ -66,10 +66,11 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #v11Public .v17-feature:nth-child(2) .f4-program-icon{background:#fff0d7}
 #v11Public .v17-feature:nth-child(3) .f4-program-icon{background:#e7f1ff}
 #v18PublicSide button,#sideNav button{border-radius:11px!important;min-height:44px;transition:background .15s}
-#v18PublicSide button svg,#sideNav button svg{box-sizing:content-box;background:#e7f7d3;border-radius:11px;padding:6px;width:19px;height:19px;color:#287c46}
-:is(#v18PublicSide,#sideNav) button:is([data-public-menu="program"],[data-public-menu="docs"],[data-group="saving"],[data-group="sale"],[data-group="deposit"],[data-group="management"]) svg{background:#def8f0;color:#009788}
-:is(#v18PublicSide,#sideNav) button:is([data-public-menu="progress"],[data-group="statement"],[data-group="progress"],[data-group="memberdocs"]) svg{background:#dff8fb;color:#07819a}
-:is(#v18PublicSide,#sideNav) button:is([data-public-menu="stock"],[data-group="withdrawal"],[data-group="finance"],[data-group="memberreport"],[data-group="report"]) svg{background:#fff1bf;color:#9a6d00}
+#v18PublicSide button svg,#sideNav button svg{box-sizing:border-box;background:#f1f6f2;border-radius:10px;padding:6px;width:32px;height:32px;color:#328150}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="program"],[data-public-menu="docs"],[data-group="saving"],[data-group="sale"],[data-group="deposit"],[data-group="management"]) svg{background:#f1f6f2;color:#009788}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="progress"],[data-group="statement"],[data-group="progress"],[data-group="memberdocs"]) svg{background:#f1f6f2;color:#07819a}
+:is(#v18PublicSide,#sideNav) button:is([data-public-menu="stock"],[data-group="withdrawal"],[data-group="finance"],[data-group="memberreport"],[data-group="report"]) svg{background:#f1f6f2;color:#a47500}
+:is(#v18PublicSide,#sideNav) button.active svg{background:#e5f5e5;color:#267a45}
 
 
 #dashboardView .summary-box,#dashboardView .details-panel{background:#fff!important;border:1px solid #e2ebe6}
