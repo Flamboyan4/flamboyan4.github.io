@@ -17,6 +17,8 @@ on:
       - cloudflare/migrations/20261103_bank_v3_inventory_policy.sql
       - cloudflare/migrations/20261105_jersey_package_type.sql
       - cloudflare/migrations/20261105_jersey_back_fields.sql
+      - cloudflare/migrations/20261113_donatur_pendanaan.sql
+      - qa/verify-donor-module.py
       - qa/verify-jersey-back-fields.cjs
       - qa/verify_bank_v3_migration.py
       - qa/verify-treasury-bank-approval.py
@@ -52,6 +54,9 @@ jobs:
           python3 qa/verify-treasury-dynamic.py
           python3 qa/verify-treasury-bank-detection.py
           python3 qa/verify-treasury-bank-approval.py
+          python3 qa/verify-donor-module.py
+          node --check donatur/donatur.js
+          node --check donatur/admin.js
       - name: Publish tested source, strictly inherit all production bindings
         env:
           CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -316,6 +321,44 @@ jobs:
           if not {"id","request_key","member_id","amount_rp","method","status","paid_at","ledger_id"}.issubset(payout_cols):
               raise RuntimeError("Payout request table incomplete; deployment blocked")
           print("D1_ADDITIVE_PAYOUT_REQUESTS_OK=1")
+          # Donatur: skema baru yang tidak memodifikasi accounts/sessions atau jurnal keuangan lama.
+          import sqlite3
+          donor_sql=pathlib.Path("cloudflare/migrations/20261113_donatur_pendanaan.sql").read_text()
+          if (donor_sql.upper().count("CREATE TABLE IF NOT EXISTS")!=6
+              or donor_sql.upper().count("CREATE INDEX IF NOT EXISTS")!=5
+              or donor_sql.upper().count("CREATE TRIGGER IF NOT EXISTS")!=3):
+              raise RuntimeError("Unexpected donor schema; deployment aborted")
+          commands=[]; buffer=""
+          for line in donor_sql.splitlines(keepends=True):
+              if line.lstrip().startswith("--"):continue
+              buffer+=line
+              if sqlite3.complete_statement(buffer):
+                  statement=buffer.strip()
+                  if statement:commands.append(statement)
+                  buffer=""
+          if buffer.strip():raise RuntimeError("Donor schema contains incomplete SQL")
+          for statement in commands:
+              if not statement.upper().startswith((
+                  "CREATE TABLE IF NOT EXISTS ","CREATE INDEX IF NOT EXISTS ",
+                  "CREATE TRIGGER IF NOT EXISTS ")):
+                  raise RuntimeError("Donor SQL is not additive")
+              d1query(statement)
+          donor_expected={
+              "donor_accounts":{"id","username","donor_name","password_hash","status"},
+              "donor_sessions":{"id","account_id","token_hash","expires_at","revoked_at"},
+              "donor_programs":{"id","project_id","fund_id","status"},
+              "donor_finance_links":{"id","donor_account_id","program_id","treasury_event_id","kind","amount_rp"},
+              "donor_program_updates":{"id","program_id","title","occurred_on"},
+              "donor_audit":{"id","actor_account_id","action"}
+          }
+          for table,required in donor_expected.items():
+              cols={r.get("name") for r in d1query("PRAGMA table_info("+table+")")}
+              if not required.issubset(cols):raise RuntimeError("Donor schema incomplete: "+table)
+          trigger_names={r.get("name") for r in d1query(
+              "SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='donor_finance_links'")}
+          if not {"donor_finance_guard_insert","donor_finance_no_update","donor_finance_no_delete"}.issubset(trigger_names):
+              raise RuntimeError("Donor ledger safeguards incomplete; deployment aborted")
+          print("D1_DONOR_ADD_ONLY_SCHEMA_OK=1")
           write_flags={k:by_name[k].get("text") for k in by_name if k.endswith("_WRITE_ENABLED")}
           if not write_flags or any(v not in ("true","false") for v in write_flags.values()):
               raise RuntimeError("Missing or unrecognized Worker write flags")

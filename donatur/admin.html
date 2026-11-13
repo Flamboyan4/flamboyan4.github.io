@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Kelola Donatur | Superadmin Flamboyan 4</title>
+<link rel="stylesheet" href="/donatur/donatur.css?v=20261113-v1">
+<link rel="stylesheet" href="/donatur/admin.css?v=20261113-v1">
+</head>
+<body>
+<header class="appbar">
+ <a class="brand" href="/superadmin/">
+   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5V21H3zM9 21v-7h6v7"/></svg>
+   <span><strong>Flamboyan 4</strong><small>Kelola Donatur & Pendanaan</small></span>
+ </a>
+ <a href="/superadmin/" class="back-link">Kembali ke Superadmin</a>
+</header>
+<main class="admin-main">
+ <div class="intro"><div><div class="eyebrow">SUPERADMIN</div><h1>Donatur & Pendanaan Program</h1><p>Kelola akun donatur, alokasi dana, dan perkembangan kegiatan.</p></div></div>
+ <div id="admin-state" class="state-card" role="status">Memeriksa hak akses…</div>
+ <div id="admin-app" hidden>
+   <div class="admin-stats">
+     <div><span>Akun Donatur</span><strong id="count-users">0</strong></div>
+     <div><span>Program Terhubung</span><strong id="count-programs">0</strong></div>
+   </div>
+   <div class="admin-layout">
+    <section class="admin-card">
+      <h2>Akun Donatur</h2>
+      <p>Satu akun untuk setiap donatur, baik perusahaan maupun perorangan.</p>
+      <form id="form-account" class="field-stack">
+       <label>Nama donatur / perusahaan<input name="name" required maxlength="120" placeholder="Nama yang tampil pada laporan"></label>
+       <label>Penanggung jawab (opsional)<input name="contactName" maxlength="100"></label>
+       <label>Email (opsional)<input type="email" name="contactEmail" maxlength="150"></label>
+       <label>Username<input name="username" required minlength="4" maxlength="60" autocomplete="off"></label>
+       <label>Password awal<input name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></label>
+       <button class="primary" type="submit">Buat Akun Donatur</button>
+      </form>
+      <div id="accounts" class="admin-records"></div>
+    </section>
+    <section class="admin-card">
+      <h2>Hubungkan Projek & Pos Dana</h2>
+      <p>Program menunjuk ke Projek serta satu pos Pusat Keuangan, bukan membuat saldo baru.</p>
+      <form id="form-program" class="field-stack">
+       <label>Projek Warga<select name="projectId" id="choose-project" required></select></label>
+       <label>Pos Pusat Keuangan<select name="fundId" id="choose-fund" required></select></label>
+       <button type="submit" class="primary">Hubungkan Program</button>
+      </form>
+      <div id="programs" class="admin-records"></div>
+    </section>
+    <section class="admin-card">
+      <h2>Tautkan Jurnal Dana</h2>
+      <p>Pilih transaksi yang sudah disahkan. Nilai jurnal tidak diubah atau dibukukan ulang.</p>
+      <form id="form-transaction" class="field-stack">
+       <label>Donatur<select name="donorAccountId" class="choose-donor" required></select></label>
+       <label>Program<select name="programId" class="choose-program" required></select></label>
+       <label>Jenis<select id="choose-kind" name="kind" required><option value="incoming">Donasi Masuk</option><option value="outgoing">Penggunaan Dana</option></select></label>
+       <label>Jurnal terkonfirmasi<select id="choose-event" name="treasuryEventId" required></select></label>
+       <label>Alokasi (Rp)<input name="amountRp" id="event-amount" type="number" min="1" step="1" required></label>
+       <label>Bukti nota (tautan HTTPS)<input name="proofUrl" type="url" placeholder="Opsional"></label>
+       <label>Keterangan<textarea name="note" maxlength="350" rows="2"></textarea></label>
+       <button type="submit" class="primary">Tautkan Dana</button>
+      </form>
+    </section>
+    <section class="admin-card">
+      <h2>Perkembangan Program</h2>
+      <p>Publikasi akan terlihat oleh akun donatur yang mendanai program ini.</p>
+      <form id="form-update" class="field-stack">
+       <label>Program<select name="programId" class="choose-program" required></select></label>
+       <label>Tanggal<input name="occurredOn" type="date" required></label>
+       <label>Judul<input name="title" maxlength="160" required></label>
+       <label>Progres (%)<input name="progressPercent" type="number" min="0" max="100" step="1" placeholder="Opsional"></label>
+       <label>Penjelasan<textarea name="summary" rows="3" maxlength="2500"></textarea></label>
+       <label>Foto kegiatan (tautan HTTPS)<input name="photoUrl" type="url" placeholder="Opsional"></label>
+       <button type="submit" class="primary">Terbitkan Perkembangan</button>
+      </form>
+    </section>
+    <section class="admin-card">
+      <h2>Riwayat Alokasi</h2>
+      <p>Riwayat alokasi dari akun donatur ke jurnal Pusat Keuangan.</p>
+      <div id="allocations" class="admin-records"></div>
+    </section>
+   </div>
+  <p class="fine-print">Data hanya disimpan jika server menerima peran Superadmin. Catatan di halaman ini tidak menggantikan transaksi Pusat Keuangan.</p>
+ </div>
+ <p id="feedback" class="admin-feedback" role="status" aria-live="polite" hidden></p>
+</main>
+<script src="/donatur/admin.js?v=20261113-v1" defer></script>
+</body>
+</html>

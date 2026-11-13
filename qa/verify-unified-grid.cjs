@@ -35,7 +35,7 @@ const required=[
    '--f4-grid-gap:16px','--f4-grid-gap-compact:10px','--f4-content-max:1180px',
    '.f4-grid{display:grid;grid-template-columns:repeat(var(--f4-grid-cols,12)',
    '.f4-grid[data-cols="5"]','@media(max-width:640px)']],
- ['index.html',['class="f4-page-width','class="grid f4-grid mb-8','data-cols="3"','data-cols="2"']],
+ ['index.html',['class="f4-page-width','class="f4-cash-overview"','class="f4-cash-summary"','data-cols="2"']],
  ['pembukuan/index.html',['class="grid f4-grid mb-6" data-cols="5"',
    'class="kas-summary grid f4-grid mb-5" data-cols="4"','class="grid f4-grid mb-5" data-cols="4"']],
  ['bank-sampah/index.html',['--f4-public-grid-gap:var(--f4-grid-gap,16px)',
@@ -48,7 +48,7 @@ const required=[
  ['superadmin/index.html',['.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
    '.f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))']],
  ['portal-live/treasury-center.css',['.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
-   '.tc-center{display:grid;gap:var(--f4-grid-gap,16px)']],
+   '.tc-center{display:grid;gap:10px']],
  ['portal-live/dokumentasi/site.css',['.media-album-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap,16px)']],
  ['rapat/index.html',['id="container-grid-rapat" class="grid f4-grid w-full" data-cols="3"']]
 ];
@@ -96,8 +96,8 @@ assert(!memberCss.includes('#dashboardView #pageDashboard.f4-member-dashboard .f
   'Obsolete member note override returned');
 assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
   'Canonical member note is missing');
-assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,1,
-  'Duplicate responsive hidden-row override returned');
+assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,0,
+  'Obsolete responsive hidden-row override returned');
 // CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
 const styleCount=source=>(source.match(/<style\b[^>]*>/gi)||[]).length;
 assert(styleCount(read('pembukuan/index.html'))<=32,'Bookkeeping legacy CSS blocks regressed');

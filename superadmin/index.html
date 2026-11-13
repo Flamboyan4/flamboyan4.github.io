@@ -317,7 +317,7 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261110-superadmin-purple-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261113-donor-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261110-sa-tone-icon-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261111-svg-controls-v1">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
@@ -346,6 +346,9 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 .sa-weighing-actions{grid-column:1/-1;display:flex;gap:10px}
 .sa-weighing-form button{min-height:42px}
 @media(max-width:640px){.sa-weighing-form{grid-template-columns:minmax(0,1fr)}}
+.sa-donor-link{display:flex;align-items:center;gap:11px;padding:12px 13px;margin:3px 0;border-radius:11px;color:var(--navy);font-weight:700;font-size:13px;text-decoration:none}
+.sa-donor-link:hover,.sa-donor-link:focus-visible{background:var(--tint);color:var(--blue);text-decoration:none}
+
 
 </style>
 
@@ -448,6 +451,10 @@ function sidebar(g=group){
   b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
+ side.append(el('strong','MITRA & PENDANAAN','f4-sa-label'));
+ const donorLink=el('a',undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
+ const donorIcon=el('img',undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
+ donorLink.append(donorIcon,el('span','Donatur & Pendanaan'));side.append(donorLink);
  document.body.dataset.saArea=g;
  window.f4SuperadminArea=g;
 
@@ -1112,7 +1119,7 @@ boot();
 <script src="/portal-live/superadmin-editor.js?v=20261111-svg-actions-v1"></script>
 <script src="/portal-live/project-modules.js?v=project-manager-final-20261028"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
-<script src="/portal-live/direct-shell.js?v=20261110-svg-session-close-v2"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script defer src="/portal-live/mobile-cards.js?v=20261027-refresh-guard"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script>
+<script src="/portal-live/direct-shell.js?v=20261113-donor-v1"></script><script src="/portal-live/unified-account.js?v=20261111-svg-return-v1"></script><script defer src="/portal-live/mobile-cards.js?v=20261027-refresh-guard"></script><script defer src="/portal-live/native-controls.js?v=20261110-svg-picker-controls-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
 

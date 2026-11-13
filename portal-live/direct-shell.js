@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const API='https://api.flamboyan4.web.id';
-const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
+const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
 const portal=/^\/bank-sampah(?:\/(?:index\.html)?)?$/i.test(pathname)?'bank':/^\/pembukuan(?:\/(?:index\.html)?)?$/i.test(pathname)?'book':/^\/superadmin(?:\/(?:index\.html)?)?$/i.test(pathname)?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
 document.body.classList.add('f4-direct-'+portal);
@@ -23,8 +23,8 @@ const portalMainLink=navButton('home',paths.portal,'Portal Utama');
 // exactly the globe pictogram used by Bank Sampah; not the Beranda house.
 portalMainLink.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"></path></svg>';
 navButton('bank',paths.bank,'Bank Sampah');
-const bookLink=navButton('book',paths.book,'Pembukuan');const adminLink=navButton('superadmin',paths.superadmin,'Superadmin');
-bookLink.hidden=true;adminLink.hidden=true;
+const bookLink=navButton('book',paths.book,'Pembukuan');const adminLink=navButton('superadmin',paths.superadmin,'Superadmin');const donorLink=navButton('donor',paths.donor,'Laporan Donatur');
+bookLink.hidden=true;adminLink.hidden=true;donorLink.hidden=true;
 const login=el('button','f4-direct-login');login.type='button';login.textContent='LOGIN';
 const avatar=el('button');avatar.id='f4-direct-avatar';avatar.type='button';avatar.innerHTML=svg('user');avatar.hidden=true;avatar.setAttribute('aria-label','Buka menu akun');
 const menu=el('div');menu.id='f4-direct-account-menu';menu.hidden=true;
@@ -106,7 +106,7 @@ function notifyRole(){
 function displayAccountName(){return String(session?.account?.displayName||session?.member?.nama||session?.account?.username||'Pengguna')}
 function updateAccountIdentity(){
  const name=displayAccountName();
- menuName.textContent=name+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':'Publik');
+ menuName.textContent=name+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':role==='donatur'?'Donatur':'Publik');
  avatar.title=name;avatar.setAttribute('aria-label','Buka menu akun: '+name);
 }
 window.addEventListener('f4-account-profile-updated',event=>{
@@ -158,10 +158,10 @@ async function refreshSession(){
  role=String(session?.account?.role||'public').toLowerCase();
  if(role==='anggota')role='warga';
  const authed=!!session?.account;
- login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';
+ login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';donorLink.hidden=role!=='donatur';
  updateAccountIdentity();
- settings.textContent=portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
- if(authed)avatarLoad();
+ settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
+ if(authed&&role!=='donatur')avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){
   if(role!=='superadmin'){
@@ -204,6 +204,7 @@ avatar.onclick=()=>{menu.hidden=!menu.hidden};
 settings.onclick=()=>{
  menu.hidden=true;
  // Bank Sampah hanya memiliki satu profil sesuai peran, tanpa menu akun ganda.
+ if(role==='donatur'){location.assign(paths.donor);return}
  if(portal==='bank'&&['warga','admin','superadmin'].includes(role)){
   window.f4CloseUnifiedAccount?.();
   window.f4OpenBankProfile?.();

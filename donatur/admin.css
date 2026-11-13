@@ -1,0 +1,34 @@
+.admin-main{max-width:1200px}
+.back-link{border:1px solid #dedbf4;background:#fff;color:#5b4bd1;font-weight:750;border-radius:11px;padding:9px 12px;font-size:12px}
+.admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:15px 0 18px}
+.admin-stats>div{background:white;border:1px solid var(--line);border-radius:14px;padding:13px 16px}
+.admin-stats span{color:var(--muted);font-weight:700;font-size:11px;display:block}
+.admin-stats strong{font-size:24px;display:block;line-height:1.4}
+.admin-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.admin-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:19px;min-width:0}
+.admin-card h2{font-size:17px;margin:0 0 5px}
+.admin-card>p{font-size:12px;margin:0 0 16px}
+.field-stack{display:grid;gap:12px}
+.field-stack label{display:grid;gap:5px;font-weight:700;font-size:12px;color:#4c5972;min-width:0}
+.field-stack :is(input,select,textarea){width:100%;min-width:0;padding:10px 11px;background:#fff;border:1px solid #d3dbe9;color:#25324a;border-radius:10px;font:inherit;font-weight:500}
+.field-stack :is(input,select){min-height:42px}
+.field-stack textarea{resize:vertical;min-height:66px;line-height:1.45}
+.field-stack .primary{min-height:42px;justify-self:start}
+.admin-records{display:grid;gap:7px;margin-top:16px;max-height:270px;overflow:auto}
+.admin-record{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #e9eaf1;border-radius:9px;padding:9px 11px}
+.admin-record>div{min-width:0}
+.admin-record strong{display:block;font-size:12px;overflow-wrap:anywhere}
+.admin-record small{display:block;color:#8590a2;font-size:10px;overflow-wrap:anywhere}
+.admin-record .pill{font-size:10px;background:#efedff;color:#6052c9;border-radius:20px;padding:4px 7px;flex:none}
+.fine-print{font-size:11px;color:#818da4;margin-top:18px}
+.admin-feedback{position:fixed;right:14px;bottom:14px;z-index:20;width:min(480px,calc(100vw - 28px));box-shadow:0 11px 35px #27345729;border:1px solid #cdc9f1;border-radius:12px;background:#f8f6ff;color:#493ba5;padding:13px 15px;font-size:12px;font-weight:750}
+@media(max-width:740px){
+ .admin-layout{grid-template-columns:1fr}
+ .admin-card{padding:15px}
+ .admin-stats{gap:7px}
+ .admin-stats>div{padding:10px 11px;border-radius:12px}
+ .admin-stats strong{font-size:20px}
+ .admin-stats span{font-size:10px}
+ .back-link{max-width:140px;text-align:center;font-size:11px;padding:8px}
+ .admin-card>p{margin-bottom:12px}
+}

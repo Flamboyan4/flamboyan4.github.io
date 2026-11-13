@@ -2967,30 +2967,41 @@ __name(future, "future");
 async function login(request, env) {
   if (env.AUTH_ENABLED !== "true") return safeError("Login baru belum diaktifkan dalam fase migrasi.", 503);
   let payload;
-  try {
-    payload = await requestJson(request);
-  } catch {
-    return safeError("Format login tidak valid.", 400);
-  }
+  try { payload = await requestJson(request); }
+  catch { return safeError("Format login tidak valid.", 400); }
   const username = String(payload.username || "").trim().toLowerCase();
   const password = String(payload.password || "");
-  if (!username || username.length > 100 || !password || password.length > 128) return safeError("Akun atau password tidak sesuai.", 401);
-  const account = await env.DB.prepare("SELECT id,password_hash,password_scheme,role,status,failed_attempts,locked_until,must_change_password FROM accounts WHERE username=? LIMIT 1").bind(username).first();
-  if (!account || account.status !== "aktif" || !account.password_hash || account.password_scheme !== "pbkdf2-sha256") return safeError("Akun atau password tidak sesuai.", 401);
-  if (account.locked_until && Date.parse(String(account.locked_until).replace(" ", "T") + "Z") > Date.now()) return safeError("Percobaan login terlalu banyak. Coba lagi nanti.", 429);
-  const good = await verifyPassword(password, account.password_hash);
-  if (!good) {
-    const fail = Number(account.failed_attempts || 0) + 1;
-    await env.DB.prepare("UPDATE accounts SET failed_attempts=?,locked_until=? WHERE id=?").bind(fail >= 8 ? 0 : fail, fail >= 8 ? future(15) : null, account.id).run();
+  if (!username || username.length > 100 || !password || password.length > 128)
+    return safeError("Akun atau password tidak sesuai.", 401);
+  const db=env.DB;
+  let account=await db.prepare("SELECT id,password_hash,password_scheme,role,status,failed_attempts,locked_until,must_change_password FROM accounts WHERE username=? LIMIT 1").bind(username).first();
+  let isDonor=false;
+  // Akun warga tetap dibaca dari accounts. Akun donatur hanya dari tabel kredensial khusus.
+  if(!account && await donorReady(db)){
+    account=await db.prepare("SELECT id,password_hash,password_scheme,'donatur' AS role,status,failed_attempts,locked_until,0 AS must_change_password FROM donor_accounts WHERE username=? LIMIT 1").bind(username).first();
+    isDonor=!!account;
+  }
+  if (!account || account.status !== "aktif" || !account.password_hash || account.password_scheme !== "pbkdf2-sha256")
+    return safeError("Akun atau password tidak sesuai.", 401);
+  if (account.locked_until && Date.parse(String(account.locked_until).replace(" ", "T") + "Z") > Date.now())
+    return safeError("Percobaan login terlalu banyak. Coba lagi nanti.", 429);
+  const good=await verifyPassword(password,account.password_hash);
+  const accountTable=isDonor?"donor_accounts":"accounts";
+  if(!good){
+    const fail=Number(account.failed_attempts||0)+1;
+    await db.prepare("UPDATE "+accountTable+" SET failed_attempts=?,locked_until=? WHERE id=?")
+      .bind(fail>=8?0:fail,fail>=8?future(15):null,account.id).run();
     return safeError("Akun atau password tidak sesuai.", 401);
   }
-  const token = randomToken(), digest = await tokenHash(token);
-  const sessionId = crypto.randomUUID();
-  await env.DB.batch([
-    env.DB.prepare("UPDATE accounts SET failed_attempts=0,locked_until=NULL WHERE id=?").bind(account.id),
-    env.DB.prepare("INSERT INTO sessions(id,account_id,token_hash,expires_at) VALUES (?,?,?,?)").bind(sessionId, account.id, digest, future(1440))
+  const token=randomToken(),digest=await tokenHash(token),sessionId=crypto.randomUUID();
+  const sessionTable=isDonor?"donor_sessions":"sessions";
+  await db.batch([
+    db.prepare("UPDATE "+accountTable+" SET failed_attempts=0,locked_until=NULL WHERE id=?").bind(account.id),
+    db.prepare("INSERT INTO "+sessionTable+"(id,account_id,token_hash,expires_at) VALUES(?,?,?,?)")
+      .bind(sessionId,account.id,digest,future(1440))
   ]);
-  return json({ ok: true, role: account.role, expiresInMinutes: 1440 }, 200, { "set-cookie": `f4_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400` });
+  return json({ok:true,role:isDonor?"donatur":account.role,expiresInMinutes:1440},200,
+    {"set-cookie":"f4_session="+token+"; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400"});
 }
 __name(login, "login");
 async function changePassword(request, env, who) {
@@ -3005,6 +3016,18 @@ async function changePassword(request, env, who) {
   // One minimum for member, admin and superadmin; rate limiting remains enforced at login.
   const min = 4;
   if (next.length < min || next.length > 128) return safeError(`Password minimal ${min} karakter.`, 400);
+  if(who.role==="donatur"){
+    const current=await env.DB.prepare("SELECT password_hash FROM donor_accounts WHERE id=? AND status='aktif'").bind(who.id).first();
+    if(!current||!await verifyPassword(old,current.password_hash))
+      return safeError("Password lama tidak sesuai.",401);
+    const hash=await passwordHash(next);
+    await env.DB.batch([
+      env.DB.prepare("UPDATE donor_accounts SET password_hash=?,password_scheme='pbkdf2-sha256',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(hash,who.id),
+      env.DB.prepare("UPDATE donor_sessions SET revoked_at=CURRENT_TIMESTAMP WHERE account_id=? AND revoked_at IS NULL").bind(who.id)
+    ]);
+    return json({ok:true,message:"Password diperbarui. Silakan login ulang."},200,
+      {"set-cookie":"f4_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"});
+  }
   const current = await env.DB.prepare("SELECT password_hash FROM accounts WHERE id=?").bind(who.id).first();
   if (!current || !await verifyPassword(old, current.password_hash)) return safeError("Password lama tidak sesuai.", 401);
   const hashed = await passwordHash(next);
@@ -3058,19 +3081,26 @@ function memberSavingsPage() {
 }
 __name(memberSavingsPage, "memberSavingsPage");
 async function identity(request, db) {
-  const header = request.headers.get("authorization") || "";
-  const match = /^Bearer ([A-Za-z0-9_-]{32,256})$/.exec(header);
-  const cookie = /\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie") || "");
-  const token = match?.[1] || cookie?.[1];
-  if (!token) return null;
-  const digest = await tokenHash(token);
-  return db.prepare(`SELECT a.id,a.member_id,a.username,a.role,a.status,
-    m.display_name,m.household_id,h.house_code
-    FROM sessions s JOIN accounts a ON a.id=s.account_id
-    LEFT JOIN members m ON m.id=a.member_id
-    LEFT JOIN households h ON h.id=m.household_id
-    WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at > CURRENT_TIMESTAMP
-    AND a.status='aktif' LIMIT 1`).bind(digest).first();
+  const header=request.headers.get("authorization")||"";
+  const bearer=/^Bearer ([A-Za-z0-9_-]{32,256})$/.exec(header);
+  const cookie=/\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie")||"");
+  const token=bearer?.[1]||cookie?.[1];
+  if(!token)return null;
+  const digest=await tokenHash(token);
+  const account=await db.prepare(
+    "SELECT a.id,a.member_id,a.username,a.role,a.status,m.display_name,m.household_id,h.house_code "+
+    "FROM sessions s JOIN accounts a ON a.id=s.account_id "+
+    "LEFT JOIN members m ON m.id=a.member_id LEFT JOIN households h ON h.id=m.household_id "+
+    "WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>CURRENT_TIMESTAMP "+
+    "AND a.status='aktif' LIMIT 1").bind(digest).first();
+  if(account)return account;
+  if(!await donorReady(db))return null;
+  return db.prepare(
+    "SELECT a.id,NULL AS member_id,a.username,'donatur' AS role,a.status,"+
+      "a.donor_name AS display_name,NULL AS household_id,NULL AS house_code "+
+    "FROM donor_sessions s JOIN donor_accounts a ON a.id=s.account_id "+
+    "WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>CURRENT_TIMESTAMP "+
+      "AND a.status='aktif' LIMIT 1").bind(digest).first();
 }
 __name(identity, "identity");
 function requireRole(who, roles) {
@@ -7187,6 +7217,133 @@ async function residentsApi(request, env, who) {
 }
 __name(residentsApi, "residentsApi");
 
+
+// Modul Donatur Eksternal — ledger referensi (tidak menulis saldo atau treasury_entries).
+async function donorReady(db) {
+  return !!await one(db,"SELECT 1 AS present FROM sqlite_master WHERE type='table' AND name='donor_accounts'");
+}
+__name(donorReady,"donorReady");
+async function donorDashboardApi(env,who) {
+  const denied=requireRole(who,["donatur"]);if(denied)return denied;
+  const db=env.DB;
+  if(!await donorReady(db))return safeError("Modul Donatur belum diaktifkan pada database.",503);
+  const donor=await one(db,
+    "SELECT id,donor_name AS name FROM donor_accounts WHERE id=? AND status='aktif' LIMIT 1",
+    [who.id]);
+  if(!donor)return safeError("Profil akun donatur tidak ditemukan.",403);
+  const [programs,history,updates]=await Promise.all([
+    list(db,"SELECT p.id AS programId,c.title AS title,c.description AS description, p.fund_id AS fundId,COALESCE(SUM(CASE WHEN l.kind='incoming' THEN l.amount_rp ELSE 0 END),0) AS receivedRp,COALESCE(SUM(CASE WHEN l.kind='outgoing' THEN l.amount_rp ELSE 0 END),0) AS spentRp FROM donor_finance_links l JOIN donor_programs p ON p.id=l.program_id JOIN portal_project_cards c ON c.id=p.project_id WHERE l.donor_account_id=? GROUP BY p.id,c.title,c.description,p.fund_id ORDER BY c.title LIMIT 100",[donor.id]),
+    list(db,"SELECT l.id,l.program_id AS programId,l.kind,l.amount_rp AS amountRp,l.note,l.proof_url AS proofUrl,e.occurred_on AS occurredOn,e.note AS treasuryNote,c.title AS programTitle FROM donor_finance_links l JOIN treasury_events e ON e.id=l.treasury_event_id JOIN donor_programs p ON p.id=l.program_id JOIN portal_project_cards c ON c.id=p.project_id WHERE l.donor_account_id=? ORDER BY e.occurred_on DESC,l.created_at DESC LIMIT 501",[donor.id]),
+    list(db,"SELECT u.id,u.program_id AS programId,u.title,u.summary,u.occurred_on AS occurredOn,u.progress_percent AS progressPercent,u.photo_url AS photoUrl FROM donor_program_updates u WHERE u.status='terbit' AND EXISTS(SELECT 1 FROM donor_finance_links l WHERE l.donor_account_id=? AND l.program_id=u.program_id AND l.kind='incoming') ORDER BY u.occurred_on DESC,u.created_at DESC LIMIT 100",[donor.id])
+  ]);
+  const receivedRp=programs.reduce((sum,p)=>sum+Number(p.receivedRp||0),0);
+  const spentRp=programs.reduce((sum,p)=>sum+Number(p.spentRp||0),0);
+  return json({ok:true,donor,summary:{receivedRp,spentRp,remainingRp:receivedRp-spentRp,programCount:programs.length},
+    programs,transactions:history.slice(0,500),historyPartial:history.length>500,updates,source:"cloudflare-d1"});
+}
+__name(donorDashboardApi,"donorDashboardApi");
+async function donorAdminApi(request,env,who) {
+  const denied=superadmin(who);if(denied)return denied;
+  const db=env.DB;
+  if(!await donorReady(db))return safeError("Terapkan migrasi donatur pada D1 terlebih dahulu.",503);
+  if(request.method==="GET"){
+    const [accounts,programs,projects,links,updates,events,catalog]=await Promise.all([
+      list(db,"SELECT id AS accountId,donor_name AS name,contact_name AS contactName,contact_email AS contactEmail,username,'donatur' AS role,status FROM donor_accounts ORDER BY donor_name LIMIT 200"),
+      list(db,"SELECT p.id,p.project_id AS projectId,p.fund_id AS fundId,p.status,c.title FROM donor_programs p JOIN portal_project_cards c ON c.id=p.project_id ORDER BY c.title LIMIT 200"),
+      list(db,"SELECT id,title,project_kind AS kind,active FROM portal_project_cards WHERE active=1 ORDER BY title LIMIT 200"),
+      list(db,"SELECT l.id,l.donor_account_id AS donorAccountId,l.program_id AS programId,l.treasury_event_id AS treasuryEventId,l.kind,l.amount_rp AS amountRp,l.proof_url AS proofUrl,l.note,e.occurred_on AS occurredOn FROM donor_finance_links l JOIN treasury_events e ON e.id=l.treasury_event_id ORDER BY e.occurred_on DESC LIMIT 500"),
+      list(db,"SELECT id,program_id AS programId,title,summary,occurred_on AS occurredOn,progress_percent AS progressPercent,photo_url AS photoUrl,status FROM donor_program_updates ORDER BY occurred_on DESC LIMIT 150"),
+      list(db,"SELECT e.id,e.kind,e.occurred_on AS occurredOn,e.note,t.fund_id AS fundId, SUM(CASE WHEN e.kind='incoming' AND t.amount_rp>0 THEN t.amount_rp WHEN e.kind='outgoing' AND t.amount_rp<0 THEN -t.amount_rp ELSE 0 END) AS amountRp FROM treasury_events e JOIN treasury_entries t ON t.event_id=e.id WHERE e.kind IN ('incoming','outgoing') GROUP BY e.id,e.kind,e.occurred_on,e.note,t.fund_id HAVING amountRp>0 ORDER BY e.occurred_on DESC LIMIT 300"),
+      treasuryCatalog(db)
+    ]);
+    return json({ok:true,accounts,programs,projects,links,updates,events,catalog,source:"cloudflare-d1"});
+  }
+  if(request.method!=="POST")return safeError("Metode tidak tersedia.",405);
+  const origin=request.headers.get("origin");
+  if(!origin||!allowedOrigin(request,env))return safeError("Asal permintaan tidak diizinkan.",403);
+  let p;try{p=await body(request)}catch{return safeError("Format isian tidak valid.",400)}
+  const action=String(p.action||"");
+  const audit=(actionName,target,payload)=>db.prepare("INSERT INTO donor_audit(id,actor_account_id,action,target_id,summary_json) VALUES(?,?,?,?,?)")
+    .bind("donor:audit:"+crypto.randomUUID(),who.id,actionName,target,JSON.stringify(payload));
+  if(action==="create-account"){
+    const name=String(p.name||"").trim().replace(/\s+/g," ");
+    const contactName=String(p.contactName||"").trim();
+    const contactEmail=String(p.contactEmail||"").trim().toLowerCase();
+    const username=String(p.username||"").trim().toLowerCase();
+    const password=String(p.password||"");
+    if(name.length<3||name.length>120||contactName.length>100||contactEmail.length>150||
+      (contactEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail))||
+      /[<>\x00-\x1f]/.test(name+contactName+contactEmail)||
+      !/^[a-z0-9._-]{4,60}$/.test(username)||password.length<8||password.length>128)
+      return safeError("Isi nama donatur, username minimal 4 karakter dan password minimal 8 karakter.",400);
+    // Username tidak boleh sama dengan akun warga / pengurus yang sudah ada.
+    const collision=await one(db,"SELECT id FROM accounts WHERE lower(username)=? LIMIT 1",[username]);
+    if(collision)return safeError("Username sudah digunakan akun lain.",409);
+    const hash=await passwordHash(password),accountId="donor:account:"+crypto.randomUUID();
+    try{await db.batch([
+      db.prepare("INSERT INTO donor_accounts(id,username,donor_name,contact_name,contact_email,password_hash) VALUES(?,?,?,?,?,?)").bind(accountId,username,name,contactName,contactEmail,hash),
+      audit("create-account",accountId,{name,username,contactName,contactEmail})
+    ])}catch{return safeError("Akun donatur tidak dapat dibuat. Periksa username dan struktur tabel donatur D1.",409)}
+    return json({ok:true,accountId,username},201);
+  }
+  if(action==="create-program"){
+    const projectId=String(p.projectId||""),fundId=String(p.fundId||"");
+    if(!projectId||projectId.length>150||!fundId||fundId.length>160)return safeError("Pilih projek dan pos dana.",400);
+    const project=await one(db,"SELECT id,title FROM portal_project_cards WHERE id=? AND active=1",[projectId]);
+    const catalog=await treasuryCatalog(db);
+    if(!project||!catalog.funds.some(x=>x.id===fundId&&x.active!==false))
+      return safeError("Projek atau pos dana belum tersedia.",404);
+    const id="donor:program:"+crypto.randomUUID();
+    try{await db.batch([
+      db.prepare("INSERT INTO donor_programs(id,project_id,fund_id,created_by) VALUES(?,?,?,?)").bind(id,projectId,fundId,who.id),
+      audit("create-program",id,{projectId,fundId})
+    ])}catch{return safeError("Projek sudah dihubungkan atau tidak dapat disimpan.",409)}
+    return json({ok:true,id},201);
+  }
+  if(action==="link-transaction"){
+    if(env.FINANCE_WRITE_ENABLED!=="true")return safeError("Pencatatan keuangan belum diaktifkan.",503);
+    const donorAccountId=String(p.donorAccountId||""),programId=String(p.programId||"");
+    const treasuryEventId=String(p.treasuryEventId||""),kind=String(p.kind||"");
+    const amountRp=Number(p.amountRp),proofUrl=String(p.proofUrl||"").trim(),note=String(p.note||"").trim();
+    if(!donorAccountId||!programId||!treasuryEventId||!["incoming","outgoing"].includes(kind)||
+       !Number.isSafeInteger(amountRp)||amountRp<=0||amountRp>100000000000||
+       proofUrl.length>1200||(proofUrl&&!urlSafe(proofUrl))||note.length>350||
+       /[\x00-\x1f<>]/.test(note))return safeError("Data referensi transaksi tidak valid.",400);
+    const donor=await one(db,"SELECT id FROM donor_accounts WHERE id=? AND status='aktif'",[donorAccountId]);
+    const pr=await one(db,"SELECT id FROM donor_programs WHERE id=? AND status='aktif'",[programId]);
+    if(!donor||!pr)return safeError("Donatur atau program tidak aktif.",404);
+    const id="donor:link:"+crypto.randomUUID();
+    try{await db.batch([
+      db.prepare("INSERT INTO donor_finance_links(id,donor_account_id,program_id,treasury_event_id,kind,amount_rp,proof_url,note,linked_by) VALUES(?,?,?,?,?,?,?,?,?)")
+        .bind(id,donorAccountId,programId,treasuryEventId,kind,amountRp,proofUrl,note,who.id),
+      audit("link-transaction",id,{donorAccountId,programId,treasuryEventId,kind,amountRp})
+    ])}catch{return safeError("Transaksi tidak cocok, sudah ditautkan, melebihi dana yang disahkan, atau sisa donasi tidak cukup.",409)}
+    return json({ok:true,id},201);
+  }
+  if(action==="publish-update"){
+    const programId=String(p.programId||""),occurredOn=String(p.occurredOn||"");
+    const title=String(p.title||"").trim(),summary=String(p.summary||"").trim();
+    const photoUrl=String(p.photoUrl||"").trim();
+    const pct=p.progressPercent===""||p.progressPercent==null?null:Number(p.progressPercent);
+    if(!programId||!validDate(occurredOn)||title.length<3||title.length>160||summary.length>2500||
+      photoUrl.length>1200||(photoUrl&&!urlSafe(photoUrl))||
+      (pct!==null&&(!Number.isInteger(pct)||pct<0||pct>100))||
+      /[\x00-\x08\x0b\x0c\x0e-\x1f<>]/.test(title+summary))
+      return safeError("Isi perkembangan program belum valid.",400);
+    const exists=await one(db,"SELECT id FROM donor_programs WHERE id=? AND status='aktif'",[programId]);
+    if(!exists)return safeError("Program tidak aktif.",404);
+    const id="donor:update:"+crypto.randomUUID();
+    try{await db.batch([
+      db.prepare("INSERT INTO donor_program_updates(id,program_id,occurred_on,title,summary,progress_percent,photo_url,created_by) VALUES(?,?,?,?,?,?,?,?)")
+        .bind(id,programId,occurredOn,title,summary,pct,photoUrl,who.id),
+      audit("publish-update",id,{programId,occurredOn,title,progressPercent:pct})
+    ])}catch{return safeError("Perkembangan belum dapat disimpan.",409)}
+    return json({ok:true,id},201);
+  }
+  return safeError("Tindakan Donatur tidak dikenal.",400);
+}
+__name(donorAdminApi,"donorAdminApi");
+
 async function handle(request, env) {
   if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
   const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
@@ -7212,6 +7369,14 @@ async function handle(request, env) {
   if (path === "/api/auth/bootstrap-superadmin" && request.method === "POST") return bootstrapSuperadmin(request, env);
   if (path === "/api/auth/login" && request.method === "POST") return login(request, env);
   const who = await identity(request, env.DB);
+  // Donatur bukan warga: batasi juga endpoint lama yang hanya memeriksa "sudah login".
+  // Ini mencegah akses laporan warga/bank milik anggota melalui URL API langsung.
+  const donorAllowedRoutes=new Set(["/api/donor/dashboard","/api/v2/auth/session","/api/v2/auth/renew",
+    "/api/auth/logout","/api/auth/change-password","/api/v2/public/portal","/api/v2/public/bank"]);
+  if(who?.role==="donatur"&&!donorAllowedRoutes.has(path))
+    return safeError("Akun donatur hanya dapat membuka data donasi perusahaan.",403);
+  if (path === "/api/donor/dashboard" && request.method === "GET") return donorDashboardApi(env,who);
+  if (path === "/api/admin/donors") return donorAdminApi(request,env,who);
   // Only explicit foreground activity renews the current browser's session.
   // Never revoke other devices and never renew an expired/revoked session.
   if (path === "/api/v2/auth/renew" && request.method === "POST") {
@@ -7222,8 +7387,9 @@ async function handle(request, env) {
     const token = cookie?.[1];
     if (!token) return safeError("Sesi cookie tidak tersedia.", 401);
     const digest = await tokenHash(token);
+    const authTable=who.role==="donatur"?"donor_sessions":"sessions";
     const update = await env.DB.prepare(
-      "UPDATE sessions SET expires_at=? WHERE token_hash=? AND account_id=? AND revoked_at IS NULL AND expires_at > CURRENT_TIMESTAMP"
+      "UPDATE "+authTable+" SET expires_at=? WHERE token_hash=? AND account_id=? AND revoked_at IS NULL AND expires_at > CURRENT_TIMESTAMP"
     ).bind(future(1440), digest, who.id).run();
     if (!Number(update.meta?.changes || 0)) return safeError("Sesi tidak valid atau sudah berakhir.", 401);
     return json({ok:true,expiresInMinutes:1440},200,{
@@ -7259,7 +7425,9 @@ async function handle(request, env) {
     const bearer = /^Bearer ([A-Za-z0-9_-]{32,256})$/.exec(request.headers.get("authorization") || "");
     const cookie = /\bf4_session=([A-Za-z0-9_-]{32,256})(?:;|$)/.exec(request.headers.get("cookie") || "");
     const token = bearer?.[1] || cookie?.[1];
-    await env.DB.prepare("UPDATE sessions SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=?").bind(await tokenHash(token)).run();
+    const authTable=who.role==="donatur"?"donor_sessions":"sessions";
+    await env.DB.prepare("UPDATE "+authTable+" SET revoked_at=CURRENT_TIMESTAMP WHERE token_hash=?")
+      .bind(await tokenHash(token)).run();
     return json({ ok: true }, 200, { "set-cookie": "f4_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0" });
   }
   if (path === "/api/member/profile" && request.method === "GET") {
