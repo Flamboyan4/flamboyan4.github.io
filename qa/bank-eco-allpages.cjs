@@ -7,7 +7,6 @@ const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
-const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
