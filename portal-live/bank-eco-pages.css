@@ -1816,6 +1816,15 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
  body.f4-bank-app-member #f4BankAppHome[data-bank-role="member"]>.f4-member-flow{grid-area:flow;min-width:0}
  body.f4-bank-app-member #f4BankAppHome[data-bank-role="member"]>#f4MemberEnvironmentPreview{grid-area:progress;min-width:0}
  body.f4-bank-app-member #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{grid-area:info;min-width:0}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{grid-area:welcome}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-member-card{grid-area:card}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-member-balance{grid-area:balance}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberPriceShortcut{grid-area:price}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-weigh-schedule{grid-area:schedule}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.v14-panel{grid-area:history}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-member-flow{grid-area:flow}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberEnvironmentPreview{grid-area:progress}
+ body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{grid-area:info}
  body.f4-bank-app-member #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberPriceShortcut{
   grid-area:price;min-width:0;min-height:140px;padding:13px;display:flex;flex-direction:column;
   align-items:flex-start;justify-content:flex-start;gap:8px
