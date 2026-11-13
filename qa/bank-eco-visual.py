@@ -190,6 +190,8 @@ async def check_member_banking_layout(browser, mode, width):
         name:rect('#f4BankMemberTopIdentity'),
         header:rect('#f4-direct-bar'),
         headerHeight:rect('#f4-direct-bar').h,
+        extraBrand:css('#f4BankMemberTopBrand').display,
+        nfcTransform:css('#f4BankMemberCard .f4-bank-atm-contactless').transform,
         overflow:document.documentElement.scrollWidth>window.innerWidth+4
       };
     }""")
@@ -199,6 +201,7 @@ async def check_member_banking_layout(browser, mode, width):
     assert state["outerBorder"]=="0px" and state["outerRadius"]=="0px" and state["outerPadding"]=="0px", state
     assert state["sectionBackground"]=="rgb(255, 255, 255)", state
     assert state["walletBackground"]=="rgb(255, 255, 255)", state
+    assert state["nfcTransform"]=="none", state
     assert not state["overflow"], mode + ": unexpected horizontal scroll"
     assert abs(state["atm"]["y"]-state["balance"]["y"]) < 3 if mode=="pc" else state["atm"]["y"]<state["balance"]["y"], state
     if mode=="pc":
@@ -215,7 +218,7 @@ async def check_member_banking_layout(browser, mode, width):
         assert abs(state["price"]["y"]-state["info"]["y"])<3, state
         assert state["atm"]["h"]<260 and state["balance"]["h"]<205, state
         assert state["progress"]["y"]>state["quick"]["y"], state
-        assert state["headerHeight"]>=95, state
+        assert 65<=state["headerHeight"]<=72 and state["extraBrand"]=="none", state
     await page.close()
 
 async def main():
