@@ -22,7 +22,7 @@ for(const phrase of ['#v18PublicSide',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
  'max-width:1023px','max-width:760px','--eco-leaf:#318651',
- 'background:linear-gradient(112deg,#11b5b9']){
+ '#f4MemberHero.f4-member-hero']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
@@ -30,15 +30,20 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
-assert(css.includes('inset:0;background-image:url(\'/assets/icons/bank-leaf-watermark.svg') && css.includes('background-size:58% auto;background-position:right bottom'), 'Card SVG must stay proportional and anchored inside the card');
+assert(css.includes("background:url('/assets/icons/bank-leaf-watermark.svg") && css.includes('background-size:clamp(180px,35%,340px) auto'), 'Hero SVG must stay anchored inside its own layout');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
 assert(css.includes('background:#fff;color:var(--bank-ink,#183d2e)'), 'Price shortcut must use neutral white surface, not solid yellow');
 assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
-assert(css.includes('background:linear-gradient(120deg,#ffc20f,#ffda50)') && css.includes('font-weight:900;line-height:1.12;font-variant-numeric:tabular-nums;color:#172d3d'), 'Balance must use yellow background and dark amount');
+assert(css.includes('background:linear-gradient(116deg,#0c899b 0%,#119e92 48%,#55b768 100%)') && css.includes('background:transparent;border:0;'), 'Integrated ATM hero must have coherent gradient');
+assert(css.includes('#f4MemberHero>.f4-bank-app-member-balance>strong') && css.includes('margin:0;color:#fff;font-size:clamp(28px,3.5vw,44px)'), 'Balance must be white on dark gradient');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
-assert(css.includes('"schedule price"')&&css.includes('"card price"')&&css.includes('"card schedule"'),'Schedule and tariff must sit beside each other on mobile');
-assert(css.includes('@media(min-width:1280px)')&&css.includes('"card card card card card card card card schedule schedule price price"'),'Widescreen schedule and price must share a row');
-assert(css.includes('border-radius:12px;background:var(--bank-cyan,#13b4c5)'), 'Schedule should use cyan accent');
+assert(css.includes('grid-template-areas:"welcome" "hero" "quick" "content" "progress" "info"'), 'Dashboard must have its own six-section layout');
+assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'), 'Four quick actions required on wide screens');
+assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'Two-column quick actions required on phones');
+assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
+assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
+assert(mobile.includes('quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean))'), 'Four real member actions must exist');
+assert(css.includes('border-top:4px solid #12b4c5'), 'Schedule panel should be readable with cyan accent');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
 assert(css.includes('filter:brightness(0) invert(1)'), 'Recycling icon should be white on ATM card');
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
