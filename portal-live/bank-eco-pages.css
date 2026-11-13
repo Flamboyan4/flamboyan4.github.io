@@ -1798,6 +1798,41 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  #dashboardView #bank-payout .f4-bank-request-form{max-width:700px}
  #dashboardView #bank-payout .f4-bank-payout-hero{padding:14px 18px}
 }
+/* Wider desktops follow the ATM reference: large card, wallet, then paired tiles.
+   Tablets keep the existing two-column full-width rows; phones have their own grid. */
+@media(min-width:1280px){
+ #dashboardView #f4BankAppHome[data-bank-role="member"]{
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-template-areas:
+   "welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome"
+   "card card card card card card card card balance balance balance balance"
+   "card card card card card card card card schedule schedule price price"
+   "history history history history history history history history flow flow flow flow"
+   "progress progress progress progress progress progress progress progress progress progress progress progress"
+   "info info info info info info info info info info info info";
+  column-gap:14px;row-gap:14px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-member-card{
+  aspect-ratio:auto;height:236px;min-height:0;max-height:none
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-member-balance{
+  min-height:120px;padding:17px 19px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-weigh-schedule,
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberPriceShortcut{
+  display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:7px;min-height:98px;padding:12px 13px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-weigh-schedule .f4-bank-weigh-copy strong{
+  font-size:14px;line-height:1.25
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberPriceShortcut .f4-bank-price-shortcut-label{
+  font-size:14px
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberPriceShortcut .f4-bank-price-shortcut-arrow{
+  display:none
+ }
+}
 @media(min-width:761px) and (max-width:1023px){
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView>.grid{display:block}
  html.f4-bank-embedded body.f4-bank-app-private #dashboardView .section{padding:18px}
