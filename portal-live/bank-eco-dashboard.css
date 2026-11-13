@@ -29,20 +29,20 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
   grid-template-rows:none!important;grid-template-columns:none!important;
   min-height:140px!important;height:auto!important;width:100%!important;
   padding:15px 16px!important;margin:0!important;border-radius:20px!important;
-  background:#e8f7d4!important;
+  background:#fff!important;
   border:0;box-shadow:0 6px 20px #2c8c3d10!important;
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2){
   --tone:#009788;--edge:#cdebe9;
-  background:#ddf8fc!important
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3){
   --tone:#fdc010;--edge:#f5e2c9;
-  background:#fff2b8!important
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4){
   --tone:#09bcd3;--edge:#cdeef2;
-  background:#e3f9ed!important
+  background:#fff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{
   content:""!important;display:block!important;flex:0 0 36px!important;
@@ -426,7 +426,7 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
   align-items:center!important;justify-content:space-between!important;
   gap:14px!important;min-height:84px!important;margin:0 0 11px!important;
   padding:17px 19px!important;border:1px solid #d7ebdc!important;border-radius:20px!important;
-  background:linear-gradient(115deg,#eef8e8,#e8f8f5)!important;box-shadow:0 5px 18px #166d4d0b!important;overflow:visible!important
+  background:#fff!important;box-shadow:0 5px 18px #166d4d0b!important;overflow:visible!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
   flex:1 1 auto!important;min-width:0!important;max-width:none!important
