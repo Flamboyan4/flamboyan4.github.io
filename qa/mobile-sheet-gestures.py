@@ -98,7 +98,6 @@ async def bank_popup_back_and_unified_sheets(browser):
     <script>
     window.appBackCount=0;
     window.F4TransactionReceipt={close:()=>{document.getElementById('f4-tx-receipt-dialog').hidden=true}};
-    window.addEventListener('popstate',()=>window.appBackCount++);
     </script></body></html>"""
     async def serve(route):
         await route.fulfill(status=200,content_type="text/html",body=cases)
@@ -107,6 +106,8 @@ async def bank_popup_back_and_unified_sheets(browser):
     await page.add_style_tag(path=str(STYLE))
     await page.add_script_tag(path=str(SCRIPT))
     await page.add_script_tag(path=str(BANK_HISTORY))
+    # Legacy gallery/sidebar listener is registered after the early history guard in production.
+    await page.evaluate("window.addEventListener('popstate',()=>window.appBackCount++)")
     await page.wait_for_function("!!window.F4BankModalHistory")
     errors=[]
     page.on("pageerror",lambda exc:errors.append(str(exc)))
