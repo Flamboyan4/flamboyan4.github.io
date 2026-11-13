@@ -86,9 +86,14 @@ assert(mobile.includes('identity.replaceChildren(el("strong","","Halo, "+name)')
        !mobile.includes('brand.id="f4BankMemberTopBrand"') &&
        bankingCss.includes('>.f4-bank-app-personal-greeting{display:none}'),
  'Member greeting must be the only mobile header identity, without a redundant logo/title');
-assert(mobile.includes('tile.append(memberMetricIcon(asset))') &&
-       memberNav.includes('.f4-member-environment-stat svg{'),
- 'Progress indicators must render purposeful SVGs');
+const personalPreview=mobile.split('function progressPreview(){')[1]?.split('function infoShortcut(){')[0];
+assert(personalPreview &&
+       personalPreview.includes('Perkembangan Saya') &&
+       personalPreview.includes('function drawMemberHomeChart(){') &&
+       personalPreview.includes('const deposits=memberBuckets().filter') &&
+       personalPreview.includes('chart.setAttribute("role","img")') &&
+       memberNav.includes('.f4-member-progress-fill{'),
+ 'Member home must show an accessible deposit-weight chart using the private account statement');
 assert(css.includes('grid-area:recent;box-sizing:border-box;min-width:0;width:100%;height:100%') &&
        css.includes('"recent info"'),
  'Mutations and report banner must remain aligned in the desktop bottom row');
@@ -107,10 +112,10 @@ assert(!mobile.includes('brand.id="f4BankMemberTopBrand"') &&
        memberNav.includes('width:226px;height:100dvh') &&
        memberNav.includes('background:#e8f4ea;color:#145d3b'),
  'Mobile header must remove duplicate branding, keep one line, and preserve portal-style desktop sidebar');
-assert(memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
-       mobile.includes('sourceSplit.children') &&
+assert(!mobile.includes('f4MemberImpactShare') &&
+       !memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
        memberPolish.includes('.f4-member-flow-foot{display:none'),
- 'Profit sharing must appear within progress, sourced from live configuration, not duplicated hard-coded text');
+ 'Home progress must not duplicate profit-share badges or activity content');
 assert(memberLegacyTheme.includes('body.f4-direct-bank #dashboardView .section>.card:not(#pageDashboard){') &&
        memberLegacyTheme.includes('body.f4-direct-bank:not(.f4-bank-app-member) #dashboardView .section{'),
  'The legacy forced frame and padding must not apply to the member dashboard');
@@ -133,24 +138,20 @@ assert(css.includes('color:#fff;opacity:.95;transform:none') &&
 assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
        css.includes('margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none'),
  'Remove the enclosing dashboard frame entirely');
-assert(!mobile.includes('values[2]') && !mobile.includes('values[3]'),
- 'Member preview must not use nonexistent DOM metric array positions');
-assert(mobile.includes('new Map(rows.map(node=>[') &&
-       mobile.includes('source.get("tahap kegiatan")') &&
-       mobile.includes('source.get("berat sah")'),
- 'Member preview must map named authoritative metrics');
-assert(mobile.includes('api("/api/v2/public/bank/report")') &&
-       mobile.includes('summary.hasilPenjualan??summary.salesRp??summary.totalPenjualanRp') &&
-       mobile.includes('sales.diterimaRp??sales.receivedRp'),
- 'Confirmed sales must come from the existing Bank Sampah report endpoint');
-assert(mobile.includes('raw==null||raw===""?NaN:Number(raw)') &&
-       mobile.includes('Number.isFinite(number)&&number>=0'),
- 'Missing sale totals must not be silently converted into Rp 0');
-assert(mobile.includes('resetMemberSalesSummary();') &&
-       mobile.includes('if(version!==memberSalesVersion||roleType()!=="member")return;'),
- 'Member report state must reset on account changes and reject stale requests');
-
-
+assert(!mobile.includes('f4MemberEnvironmentStats') &&
+       !mobile.includes('source.get("berat sah")') &&
+       !mobile.includes('api("/api/v2/public/bank/report")'),
+ 'Member home must not reuse public-wide weight or sales totals');
+assert(personalPreview.includes('["month","Per bulan"]') &&
+       personalPreview.includes('["year","Per tahun"]') &&
+       personalPreview.includes('Array.from({length:monthly?6:5}') &&
+       personalPreview.includes('!item.missingWeight')===false &&
+       personalPreview.includes('if(item.missingWeight){unmeasured++;continue;}'),
+ 'Home progress must group actual authenticated deposits by month or year and handle unknown weights');
+assert(mobile.includes('if(!received||!expected||expected==="Administrator"||received!==expected)return;') &&
+       mobile.includes('updateCardNumber();updateDashboard();syncSavings();progressPreview();') &&
+       mobile.includes('memberStatement=null;adminOverview=null;'),
+ 'Member progress must reject stale account statements and reset during account changes');
 assert(css.includes('background:#e2f4df;color:#167244') &&
        css.includes('.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg'),
  'Schedule and price should use matched green icon tokens and true SVGs');
