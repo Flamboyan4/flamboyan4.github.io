@@ -218,6 +218,7 @@ body.f4-account-open #f4-direct-bar{z-index:500!important}
 .f4-svg-cash{-webkit-mask-image:url('/assets/icons/cash.svg');mask-image:url('/assets/icons/cash.svg')}
 .f4-svg-meeting{-webkit-mask-image:url('/assets/icons/meeting.svg');mask-image:url('/assets/icons/meeting.svg')}
 .f4-svg-project{-webkit-mask-image:url('/assets/icons/project.svg');mask-image:url('/assets/icons/project.svg')}
+.f4-svg-donor{-webkit-mask-image:url('/assets/icons/donor.svg');mask-image:url('/assets/icons/donor.svg')}
 .f4-svg-calendar{-webkit-mask-image:url('/assets/icons/calendar.svg');mask-image:url('/assets/icons/calendar.svg')}
 .f4-svg-image{-webkit-mask-image:url('/assets/icons/image.svg');mask-image:url('/assets/icons/image.svg')}
 .f4-svg-inventory{-webkit-mask-image:url('/assets/icons/inventory.svg');mask-image:url('/assets/icons/inventory.svg')}
