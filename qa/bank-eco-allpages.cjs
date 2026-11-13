@@ -105,8 +105,8 @@ assert(personalPreview &&
        memberNav.includes('.f4-member-progress-fill{'),
  'Member home must show an accessible deposit-weight chart using the private account statement');
 assert(css.includes('grid-area:recent;box-sizing:border-box;min-width:0;width:100%;height:100%') &&
-       css.includes('"recent info"'),
- 'Mutations and report banner must remain aligned in the desktop bottom row');
+       css.includes('"progress recent"') && css.includes('"guide info"'),
+ 'Mutations and progress must share the desktop upper row; instruction and report share the lower row');
 for(const step of [2,3,4]){
  assert(memberPolish.includes('.f4-member-flow-steps>li:nth-child('+step+')'),
  'Missing distinct pastel styling for instruction '+step);
