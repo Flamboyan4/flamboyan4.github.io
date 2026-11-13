@@ -5,6 +5,9 @@ on:
     paths:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-dock.css
+      - portal-live/bank-member-navigation.css
+      - qa/css-cascade-ownership.cjs
       - qa/bank-eco-allpages.cjs
       - qa/check-bank-sale-flow.cjs
       - cloudflare/worker-terpadu-operasional-teruji.js
@@ -18,6 +21,9 @@ on:
     paths:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-dock.css
+      - portal-live/bank-member-navigation.css
+      - qa/css-cascade-ownership.cjs
       - qa/bank-eco-allpages.cjs
 permissions:
   contents: read
@@ -32,6 +38,8 @@ jobs:
           node-version: '22'
       - name: Validate full theme and inline JavaScript
         run: node qa/bank-eco-allpages.cjs
+      - name: Reject CSS priority and duplicate owners repository-wide
+        run: node qa/css-cascade-ownership.cjs
       - name: Validate Bank Sampah sale and member workflow
         run: |
           node --check cloudflare/worker-terpadu-operasional-teruji.js
