@@ -65,7 +65,7 @@ def main() -> int:
 
         tables = {r["name"] for r in query(
             "SELECT name FROM sqlite_master WHERE type='table' AND name IN "
-            "('accounts','sessions','treasury_events','treasury_entries','portal_project_cards','donor_organizations')"
+            "('accounts','sessions','treasury_events','treasury_entries','portal_project_cards','donor_profiles')"
         )}
         required = {"accounts", "sessions", "treasury_events", "treasury_entries", "portal_project_cards"}
         if not required.issubset(tables):
@@ -99,7 +99,7 @@ def main() -> int:
             "staging_worker_and_D1_binding_valid": True,
             "member_id_nullable": member_nullable,
             "role_donatur_accepted_by_existing_role_check": bool(donor_allowed),
-            "donor_tables_exist": "donor_organizations" in tables,
+            "donor_tables_exist": "donor_profiles" in tables,
         }
         print("DONOR_STAGING_PREFLIGHT=" + json.dumps(flags, sort_keys=True, separators=(",", ":")))
         if not member_nullable or not donor_allowed:
