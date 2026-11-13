@@ -52,6 +52,7 @@ linked("a-in", "org-a", "income-1", "incoming", 700)
 linked("b-in", "org-b", "income-1", "incoming", 300)
 linked("a-spend", "org-a", "outgoing-1", "outgoing", 500)
 linked("b-spend", "org-b", "outgoing-1", "outgoing", 100)
+db.commit()
 assert db.execute("SELECT SUM(CASE WHEN kind='incoming' THEN amount_rp ELSE -amount_rp END) FROM donor_finance_links WHERE organization_id='org-a'").fetchone()[0] == 200
 
 rejected(lambda: linked("duplicate", "org-a", "income-1", "incoming", 1), "oversubscribed journal")
