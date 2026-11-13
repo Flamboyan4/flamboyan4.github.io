@@ -1,5 +1,5 @@
 'use strict';
-// Read-only regression check for the Bank Sampah compact header and pastel KPI cards.
+// Read-only regression check for one clean Bank Sampah dashboard stylesheet.
 const fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('bank-sampah/index.html','utf8');
 const css=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
@@ -11,9 +11,10 @@ for(const item of ["page.classList.add('v14-home','f4-eco-dashboard')",'id="v14T
 }
 if(html.includes('f4-eco-header-art')||html.includes('bank-eco-reference.webp')||html.includes('bank-eco-header.svg'))throw Error('Forced header illustration returned');
 if(css.includes('f4-eco-header-art')||css.includes('bank-eco-reference.webp')||css.includes('bank-eco-header.svg'))throw Error('Old illustration CSS still present');
-for(const item of ['.v14-head{','.f4-eco-head-copy{','#v14QuickAction{','flex-wrap:wrap!important','grid-template-columns:repeat(2,minmax(0,1fr))','f4-member-dashboard','.f4-eco-icon img','background:#fff!important']){
- if(!css.includes(item))throw Error('Responsive style missing: '+item);
+for(const item of ['.v14-head{','#v14QuickAction{','grid-template-columns:repeat(2,minmax(0,1fr))','.f4-eco-icon img','background:#fff']){
+ if(!css.includes(item))throw Error('Admin dashboard base style missing: '+item);
 }
+if(css.includes('!important')||css.includes('f4-member-dashboard'))throw Error('Legacy priority declarations or member rules remain in dashboard stylesheet');
 if(css.includes('Rp 6.000')||css.includes('33 warga')||css.includes('2 kg'))throw Error('Fake KPI values found in CSS');
 assertChevron();
 if(!html.includes('function v14WeightTrend(rows)')||!html.includes("title.textContent=mode==='nilai'?'Perkembangan nilai setoran':'Berat setoran per bulan'"))
