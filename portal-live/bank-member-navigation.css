@@ -76,8 +76,8 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{
 }
 #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
  min-width:0;display:grid;align-content:start;gap:10px;
- padding:15px 16px;border:1px solid #dce8df;
- border-radius:16px;background:#fff;box-shadow:0 3px 15px #143b2508
+ padding:17px 18px;border:1px solid #e6eee8;
+ border-radius:20px;background:#fff;box-shadow:0 7px 22px #143b250b
 }
 #dashboardView #pagePribadi #f4BankSavingsHistoryPanel>h2{
  margin:0;padding:0 0 10px;border-bottom:1px solid #e2ece5;
@@ -92,8 +92,8 @@ body.f4-bank-app-member #dashboardView :is(
  .f4-bank-form-panel,.f4-bank-request-history-panel,
  .f4-bank-history-panel,.f4-bank-report-panel,.f4-bank-report-transactions){
  min-width:0;display:grid;gap:12px;
- padding:17px;background:#fff;border:1px solid #dce8df;
- border-radius:16px;box-shadow:0 3px 15px #143b2508
+ padding:17px;background:#fff;border:1px solid #e5eee8;
+ border-radius:20px;box-shadow:0 7px 22px #143b250b
 }
 body.f4-bank-app-member #dashboardView :is(.f4-bank-form-panel,.f4-bank-request-history-panel)>.f4-bank-screen-subhead{
  margin:0 0 3px;font-weight:850;color:#184e35
@@ -285,7 +285,7 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
 }
 #dashboardView #bank-member-info :is(#v17Dokumentasi,#v17Inventaris).v17-section{
  margin:0;min-width:0;padding:16px;border:1px solid #dce8df;
- border-radius:16px;background:#fff;box-shadow:0 3px 15px #143b2508
+ border-radius:20px;background:#fff;box-shadow:0 7px 22px #143b250b
 }
 #dashboardView #bank-member-info .v17-section h2{
  margin:0 0 12px;font-size:17px;font-weight:850;color:#1c5137

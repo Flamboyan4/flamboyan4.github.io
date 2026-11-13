@@ -28,21 +28,21 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
   justify-content:center!important;gap:0!important;
   grid-template-rows:none!important;grid-template-columns:none!important;
   min-height:140px!important;height:auto!important;width:100%!important;
-  padding:15px 16px!important;margin:0!important;border-radius:16px!important;
-  background:#fff!important;
-  border:1px solid var(--edge)!important;box-shadow:0 3px 12px #235e2e08!important;
+  padding:15px 16px!important;margin:0!important;border-radius:20px!important;
+  background:#e8f7d4!important;
+  border:0;box-shadow:0 6px 20px #2c8c3d10!important;
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2){
   --tone:#009788;--edge:#cdebe9;
-  background:#eaf9f7!important
+  background:#ddf8fc!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3){
   --tone:#fdc010;--edge:#f5e2c9;
-  background:#fff9e6!important
+  background:#fff2b8!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4){
   --tone:#09bcd3;--edge:#cdeef2;
-  background:#e9faff!important
+  background:#e3f9ed!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{
   content:""!important;display:block!important;flex:0 0 36px!important;
@@ -346,11 +346,11 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
  display:grid!important;place-items:center!important;width:43px!important;height:43px!important;
  border-radius:50%!important;color:#fff!important;margin:0 0 10px!important;
- background:linear-gradient(145deg,#8bc24a,#43a047)!important;flex:none!important;z-index:2!important
+ background:#43a047!important;flex:none!important;z-index:2!important
 }
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#009788,#087b77)!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:linear-gradient(145deg,#fdc010,#e6a607)!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#09bcd3,#009788)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:#009788!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:#fdc010!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:#09bcd3!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon svg{display:block!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:after{
  width:105px!important;height:110px!important;right:-4px!important;bottom:8px!important;

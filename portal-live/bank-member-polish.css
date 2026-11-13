@@ -57,8 +57,8 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
    Desktop dua kolom; HP daftar satu kolom, tanpa pastel. */
 #dashboardView #pageDashboard #f4MemberFlow{display:none}
 #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
- display:block;min-width:0;margin:0;border:1px solid #dce5df;border-radius:14px;
- background:#fff;color:#193d2c;overflow:hidden;box-shadow:0 2px 12px #103d260a
+ display:block;min-width:0;margin:0;border:1px solid #e2eee4;border-radius:20px;
+ background:#fff;color:#193d2c;overflow:hidden;box-shadow:0 6px 20px #103d260b
 }
 #dashboardView #f4MemberFlow>.f4-member-flow-head{
  display:flex;align-items:center;gap:11px;cursor:pointer;list-style:none;
@@ -69,7 +69,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
 #dashboardView #f4MemberFlow>.f4-member-flow-head:focus-visible{outline:2px solid #d6a126;outline-offset:-2px}
 #dashboardView #f4MemberFlow .f4-member-flow-icon{
  display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
- background:#086b48;color:#fff;border-radius:11px
+ background:#009788;color:#fff;border-radius:12px
 }
 #dashboardView #f4MemberFlow .f4-member-flow-copy{display:grid;gap:3px;flex:1;min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-copy strong{font-size:13px;line-height:1.3;font-weight:800;color:#134f35}
@@ -77,7 +77,7 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
 #dashboardView #f4MemberFlow .f4-member-flow-copy small span{color:#d09d1b;padding:0 2px;font-weight:850}
 #dashboardView #f4MemberFlow .f4-member-flow-toggle{
  display:inline-flex;align-items:center;gap:5px;flex:none;padding:7px 8px;
- border-radius:9px;border:1px solid #e6c574;background:#fff;color:#856009;font-size:11px;font-weight:800
+ border-radius:9px;border:1px solid #f0e3a4;background:#fff9e0;color:#705317;font-size:11px;font-weight:800
 }
 #dashboardView #f4MemberFlow .f4-member-flow-toggle svg{transition:transform .16s}
 #dashboardView #f4MemberFlow[open] .f4-member-flow-toggle svg{transform:rotate(180deg)}
@@ -90,19 +90,19 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primar
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
  display:flex;align-items:flex-start;gap:9px;min-width:0;min-height:100px;
- margin:0;padding:12px 10px;border:1px solid #dfe7e0;border-left:3px solid #087850;
- border-radius:10px;background:#fff;box-shadow:none
+ margin:0;padding:12px 10px;border:1px solid #e2eee4;
+ border-radius:15px;background:#f7fcf5;box-shadow:none
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-number{
  display:grid;place-items:center;position:relative;flex:0 0 32px;
- width:32px;height:32px;background:#087850;color:#fff;border-radius:9px
+ width:32px;height:32px;background:#43a047;color:#fff;border-radius:10px
 }
 #dashboardView #f4MemberFlow .f4-member-flow-number svg{width:18px;height:18px}
 #dashboardView #f4MemberFlow .f4-member-flow-number b{
  position:absolute;top:-5px;right:-5px;display:grid;place-items:center;
  width:16px;height:16px;border-radius:50%;border:2px solid #fff;
- background:#e5ad20;color:#173c29;font-size:9px;font-weight:850
+ background:#fdc010;color:#173c29;font-size:9px;font-weight:850
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps strong{
  display:block;color:#14553a;font-size:12px;line-height:1.3;font-weight:800;margin:0 0 4px
