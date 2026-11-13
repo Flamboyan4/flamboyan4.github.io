@@ -81,7 +81,7 @@ assert "path === \"/api/admin/donors\"" in code
 assert 'donor_organizations' not in code
 assert '"donor_sessions"' in code
 assert '"donor_accounts"' in code
-assert '"donatur" AS role' in code
+assert "'donatur' AS role" in code
 assert 'donor_account_memberships' not in code
 
 for name in ("donatur.css","admin.css"):
