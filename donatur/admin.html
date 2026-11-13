@@ -17,31 +17,21 @@
  <a href="/superadmin/" class="back-link">Kembali ke Superadmin</a>
 </header>
 <main class="admin-main">
- <div class="intro"><div><div class="eyebrow">SUPERADMIN</div><h1>Donatur & Pendanaan Program</h1><p>Kelola perusahaan, akses akun, alokasi jurnal dan perkembangan kegiatan.</p></div></div>
+ <div class="intro"><div><div class="eyebrow">SUPERADMIN</div><h1>Donatur & Pendanaan Program</h1><p>Kelola akun donatur, alokasi dana, dan perkembangan kegiatan.</p></div></div>
  <div id="admin-state" class="state-card" role="status">Memeriksa hak akses…</div>
  <div id="admin-app" hidden>
    <div class="admin-stats">
-     <div><span>Perusahaan</span><strong id="count-org">0</strong></div>
      <div><span>Akun Donatur</span><strong id="count-users">0</strong></div>
      <div><span>Program Terhubung</span><strong id="count-programs">0</strong></div>
    </div>
    <div class="admin-layout">
     <section class="admin-card">
-      <h2>Perusahaan Donatur</h2>
-      <p>Setiap perusahaan memiliki identitas terpisah.</p>
-      <form id="form-organization" class="field-stack">
-       <label>Nama perusahaan<input name="name" required maxlength="120" placeholder="Nama resmi perusahaan"></label>
-       <label>Penanggung jawab<input name="contactName" maxlength="100" placeholder="Opsional"></label>
-       <label>Email kontak<input type="email" name="contactEmail" maxlength="150" placeholder="Opsional"></label>
-       <button class="primary" type="submit">Tambah Perusahaan</button>
-      </form>
-      <div id="organizations" class="admin-records"></div>
-    </section>
-    <section class="admin-card">
-      <h2>Akun Perusahaan</h2>
-      <p>Gunakan akun khusus donatur, tanpa akses ke keuangan warga.</p>
+      <h2>Akun Donatur</h2>
+      <p>Satu akun untuk setiap donatur, baik perusahaan maupun perorangan.</p>
       <form id="form-account" class="field-stack">
-       <label>Perusahaan<select name="organizationId" class="choose-org" required></select></label>
+       <label>Nama donatur / perusahaan<input name="name" required maxlength="120" placeholder="Nama yang tampil pada laporan"></label>
+       <label>Penanggung jawab (opsional)<input name="contactName" maxlength="100"></label>
+       <label>Email (opsional)<input type="email" name="contactEmail" maxlength="150"></label>
        <label>Username<input name="username" required minlength="4" maxlength="60" autocomplete="off"></label>
        <label>Password awal<input name="password" type="password" required minlength="8" maxlength="128" autocomplete="new-password"></label>
        <button class="primary" type="submit">Buat Akun Donatur</button>
@@ -62,7 +52,7 @@
       <h2>Tautkan Jurnal Dana</h2>
       <p>Pilih transaksi yang sudah disahkan. Nilai jurnal tidak diubah atau dibukukan ulang.</p>
       <form id="form-transaction" class="field-stack">
-       <label>Donatur<select name="organizationId" class="choose-org" required></select></label>
+       <label>Donatur<select name="donorAccountId" class="choose-donor" required></select></label>
        <label>Program<select name="programId" class="choose-program" required></select></label>
        <label>Jenis<select id="choose-kind" name="kind" required><option value="incoming">Donasi Masuk</option><option value="outgoing">Penggunaan Dana</option></select></label>
        <label>Jurnal terkonfirmasi<select id="choose-event" name="treasuryEventId" required></select></label>
@@ -74,7 +64,7 @@
     </section>
     <section class="admin-card">
       <h2>Perkembangan Program</h2>
-      <p>Publikasi akan terlihat bagi perusahaan yang mendanai program ini.</p>
+      <p>Publikasi akan terlihat oleh akun donatur yang mendanai program ini.</p>
       <form id="form-update" class="field-stack">
        <label>Program<select name="programId" class="choose-program" required></select></label>
        <label>Tanggal<input name="occurredOn" type="date" required></label>
@@ -87,7 +77,7 @@
     </section>
     <section class="admin-card">
       <h2>Riwayat Alokasi</h2>
-      <p>Daftar pencocokan antara donatur dan jurnal Pusat Keuangan.</p>
+      <p>Riwayat alokasi dari akun donatur ke jurnal Pusat Keuangan.</p>
       <div id="allocations" class="admin-records"></div>
     </section>
    </div>
