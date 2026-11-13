@@ -3,7 +3,7 @@
    White card surfaces with green/gold accents for both admin and members. */
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard{
   --eco-ink:#173d32;--eco-muted:#516c60;--eco-line:#dceae1;
-  background:#fff!important;max-width:100%;isolation:isolate
+  background:transparent!important;max-width:100%;isolation:isolate
 }/* Header illustration is decorative and never receives clicks. */
 /* The illustration occupies its own flex lane, never behind the action button. */
 
@@ -22,7 +22,7 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary.v14-pri
   align-items:stretch!important;margin:0 0 14px!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi{
-  --tone:#358e5b;--edge:#d5e9d8;--watermark:'/assets/icons/bank.svg';
+  --tone:#43a047;--edge:#d5e9d8;--watermark:'/assets/icons/bank.svg';
   box-sizing:border-box!important;position:relative!important;overflow:hidden!important;
   display:flex!important;flex-direction:column!important;align-items:flex-start!important;
   justify-content:center!important;gap:0!important;
@@ -33,16 +33,16 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
   border:1px solid var(--edge)!important;box-shadow:0 3px 12px #235e2e08!important;
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2){
-  --tone:#d2a020;--edge:#cdebe9;
-  background:#fff!important
+  --tone:#009788;--edge:#cdebe9;
+  background:#eaf9f7!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3){
-  --tone:#cc7b14;--edge:#f5e2c9;
-  background:#fff!important
+  --tone:#fdc010;--edge:#f5e2c9;
+  background:#fff9e6!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4){
-  --tone:#d2a020;--edge:#e6ddf9;
-  background:#fff!important
+  --tone:#09bcd3;--edge:#cdeef2;
+  background:#e9faff!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:before{
   content:""!important;display:block!important;flex:0 0 36px!important;
@@ -346,11 +346,11 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon{
  display:grid!important;place-items:center!important;width:43px!important;height:43px!important;
  border-radius:50%!important;color:#fff!important;margin:0 0 10px!important;
- background:linear-gradient(145deg,#51b970,#1a8e56)!important;flex:none!important;z-index:2!important
+ background:linear-gradient(145deg,#8bc24a,#43a047)!important;flex:none!important;z-index:2!important
 }
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#0b754c,#044e33)!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:linear-gradient(145deg,#ffc457,#f69a23)!important}
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#eabd2c,#cb9512)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2)>.f4-eco-icon{background:linear-gradient(145deg,#009788,#087b77)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3)>.f4-eco-icon{background:linear-gradient(145deg,#fdc010,#e6a607)!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4)>.f4-eco-icon{background:linear-gradient(145deg,#09bcd3,#009788)!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi>.f4-eco-icon svg{display:block!important}
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14Primary>.f4-eco-kpi:after{
  width:105px!important;height:110px!important;right:-4px!important;bottom:8px!important;
@@ -425,8 +425,8 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
   display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
   align-items:center!important;justify-content:space-between!important;
   gap:14px!important;min-height:84px!important;margin:0 0 11px!important;
-  padding:8px 2px 12px!important;border:0!important;border-radius:0!important;
-  background:#fff!important;box-shadow:none!important;overflow:visible!important
+  padding:17px 19px!important;border:1px solid #d7ebdc!important;border-radius:20px!important;
+  background:linear-gradient(115deg,#eef8e8,#e8f8f5)!important;box-shadow:0 5px 18px #166d4d0b!important;overflow:visible!important
 }
 body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .f4-eco-head-copy{
   flex:1 1 auto!important;min-width:0!important;max-width:none!important
@@ -444,11 +444,11 @@ body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction{
   flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
   min-width:0!important;width:auto!important;min-height:42px!important;
   padding:10px 15px!important;margin:0!important;border-radius:11px!important;
-  border:1px solid #078762!important;background:#078762!important;color:#fff!important;
+  border:1px solid #e9b508!important;background:#fdc010!important;color:#243b29!important;
   box-shadow:0 3px 10px #135f4014!important;font-size:13px!important;
   font-weight:750!important;white-space:nowrap!important
 }
-body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction:hover{background:#067755!important}
+body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard #v14QuickAction:hover{background:#edb70c!important}
 @media(max-width:760px){
   body #dashboardView #pageDashboard.v14-home.f4-eco-dashboard .v14-head{
     flex-wrap:wrap!important;min-height:0!important;gap:9px!important;
