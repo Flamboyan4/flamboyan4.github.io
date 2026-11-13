@@ -329,4 +329,42 @@ assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-ent
        css.includes('grid-column:1;grid-row:1;align-self:start') &&
        !css.includes('grid-row:1 / span 2;align-self:start'),
  'PC Sale and Setoran entry panels must remain independent of right-side controls');
+/* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
+   Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
+function assertBalancedCss(text,label){
+ let depth=0,quote='',comment=false;
+ for(let i=0;i<text.length;i++){
+  const c=text[i],next=text[i+1];
+  if(comment){if(c==='*'&&next==='/'){comment=false;i++;}continue;}
+  if(quote){if(c==='\\'){i++;continue;}if(c===quote)quote='';continue;}
+  if(c==='/'&&next==='*'){comment=true;i++;continue;}
+  if(c==='"'||c==="'"){quote=c;continue;}
+  if(c==='{')depth++;
+  if(c==='}'&&--depth<0)throw Error('Extra CSS closing brace: '+label);
+ }
+ if(depth!==0||quote||comment)throw Error('Unbalanced CSS source '+label+': depth='+depth);
+}
+const styles=[...h.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)];
+styles.forEach((m,i)=>assertBalancedCss(m[1],'bank-sampah:inline-style-'+(i+1)));
+const linkedCss=[...new Set([...h.matchAll(/href=["'](\/portal-live\/[^"'?]+\.css)(?:\?[^"']*)?["']/g)].map(m=>m[1]))];
+for(const href of linkedCss){
+ const file=href.slice(1);
+ assert(fs.existsSync(file),'Bank CSS linked but file missing: '+href);
+ assertBalancedCss(fs.readFileSync(file,'utf8'),file);
+}
+const scripts=[...h.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+let parsedScriptCount=0;
+for(const match of scripts){
+ const src=match[1].match(/\bsrc=["'](\/portal-live\/[^"'?]+\.js)(?:\?[^"']*)?["']/);
+ if(src){
+  const file=src[1].slice(1);
+  assert(fs.existsSync(file),'Bank JS linked but file missing: '+file);
+  new vm.Script(fs.readFileSync(file,'utf8'),{filename:file});
+  parsedScriptCount++;
+ }else if(!/\bsrc\s*=/.test(match[1])&&match[2].trim()){
+  new vm.Script(match[2],{filename:'bank-sampah:inline-script-'+parsedScriptCount});
+  parsedScriptCount++;
+ }
+}
+console.log('F4_BANK_ASSET_SYNTAX_AUDIT_OK',styles.length,linkedCss.length,parsedScriptCount);
 console.log('F4_BANK_CANONICAL_THEME_OK');
