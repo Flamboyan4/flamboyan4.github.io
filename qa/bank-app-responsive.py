@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 ROOT="http://127.0.0.1:8765"
 HTML="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://127.0.0.1:8765/">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
-<style>.hidden{display:none}.section{padding:20px;max-width:100%;box-sizing:border-box}
+<style>*,*::before,*::after{box-sizing:border-box}.hidden{display:none}.section{padding:20px;max-width:100%;box-sizing:border-box}
 @media(min-width:1024px){.section{margin-left:244px}}</style></head>
 <body data-f4-bank-role="admin">
 <div id="dashboardView"><div class="mobile-nav"><button id="v18PrivateMenuButton">☰</button></div>
