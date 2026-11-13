@@ -799,7 +799,9 @@ async def member_price_card_position(browser):
               scheduleParent:s.parentElement.id,scheduleY:b.y,scheduleW:b.width,
               iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
               priceHasSvg:!!p.querySelector('.f4-bank-price-shortcut-icon svg'),
-              noOverflow:document.documentElement.scrollWidth<=innerWidth+3
+              noOverflow:document.documentElement.scrollWidth<=innerWidth+3,
+              docWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,
+              largest:[...document.querySelectorAll('body *')].map(el=>({tag:el.tagName,cls:el.className?.baseVal||el.className||'',r:el.getBoundingClientRect().right})).filter(v=>v.r>innerWidth+3).sort((a,b)=>b.r-a.r).slice(0,6)
             };
         }""")
         assert result["noOverflow"] and result["priceHasSvg"],(device,result)
