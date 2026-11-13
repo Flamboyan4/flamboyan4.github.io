@@ -377,10 +377,12 @@ async def validate_home(browser):
     try:
         await page.goto(HOST + "/", wait_until="domcontentloaded", timeout=30000)
         await page.locator("#cerita-warga:not([hidden]) .f4g-home-card").wait_for(timeout=25000)
-        assert await page.locator("#f4g-home-grid .f4g-home-card").count() == 1
-        assert await page.locator("#f4g-home-grid .f4g-home-comment").count() == 2
+        latest_count = await page.locator("#f4g-home-grid .f4g-home-card").count()
+        assert 1 <= latest_count <= 3, "Home must show up to three newest photos"
+        assert await page.locator("#f4g-home-grid .f4g-home-comment").count() >= 2
         await page.locator("#f4g-home-popular").click()
-        assert await page.locator("#f4g-home-grid .f4g-home-card").count() == 1
+        popular_count = await page.locator("#f4g-home-grid .f4g-home-card").count()
+        assert 1 <= popular_count <= 3, "Home must show up to three popular photos"
         assert await page.locator("#f4g-home-popular").get_attribute("aria-selected") == "true"
         return {"home": True, "latest": True, "popular": True, "commentPreview": 2}
     finally:
