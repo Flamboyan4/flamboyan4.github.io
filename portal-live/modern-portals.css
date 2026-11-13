@@ -8,7 +8,7 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 /* Semua submenu Superadmin memakai satu tone ungu; Portal Bank Sampah tetap hijau pada aplikasinya sendiri. */
 /* White content surfaces, colour reserved for icons, navigation and useful status. */
 #f4-account-page:not([hidden]),#f4-account-page>main,#v11Public,#v18PublicContent,#dashboardView,.shell,.content{background:#fff!important}
-#f4-account-page>aside,#v18PublicSide,#sideNav{background:#fbfcfd!important;border-right:1px solid var(--modern-line)!important;box-shadow:none!important}
+#f4-account-page>aside,#v18PublicSide,body:not(.f4-bank-app-member) #sideNav{background:#fbfcfd!important;border-right:1px solid var(--modern-line)!important;box-shadow:none!important}
 #f4-account-page>aside button{display:flex!important;align-items:center;gap:10px;font-size:13px!important;min-height:46px!important;line-height:1.35!important}
 #f4-account-page>aside button.active{background:var(--tint)!important;color:var(--blue)!important}
 #f4-account-page>aside button:hover{background:#f1f4f8}
