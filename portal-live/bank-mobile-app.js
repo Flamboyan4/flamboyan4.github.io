@@ -1865,6 +1865,9 @@ function visibleMemberRoute(){
 }
 
 function hideCustom(){
+ const schedule=$("f4BankWeighingDialog");
+ if(schedule?.open)schedule.close();
+ window.F4MemberPrices?.close?.();
  for(const id of [...custom,...featureRoutes])$(id)?.classList.add("hidden");
 }
 function navigate(route){
@@ -2021,7 +2024,7 @@ function resetRoleSurface(){
   menu.setAttribute("aria-label","Buka menu halaman");menu.title="Buka menu halaman";
  }
  $("f4BankProfileDetail")?.remove();
- $("f4BankWeighingDialog")?.close();
+ if($("f4BankWeighingDialog")?.open)$("f4BankWeighingDialog").close();
  window.F4MemberPrices?.close?.();
  const history=$("bank-admin-history"),section=$("dashboardView")?.querySelector(".grid > .section");
  for(const id of ["pageRiwayat","pageRiwayatJual"]){
