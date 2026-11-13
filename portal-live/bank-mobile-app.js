@@ -47,6 +47,7 @@ let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let memberHomeChartGroup="month";
+let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
@@ -1849,17 +1850,61 @@ function drawMemberHomeChart(){
   entries.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
  chart.append(bars);
 }
+/* Mini ringkasan PC dari laporan publik transaksi sah D1. */
+function renderMemberPublicMini(){
+ const host=$("f4MemberPublicMini");if(!host)return;
+ const summary=memberPublicMini.data;
+ for(const [key,format] of [["beratKg",f4PrivateKg],["hasilPenjualan",rupiah],["hakWarga",rupiah]]){
+  const n=summary?.[key],valid=n!==null&&n!==undefined&&n!==""&&
+   Number.isFinite(Number(n))&&Number(n)>=0;
+  const display=valid?format(Number(n)):"—";
+  const field=host.querySelector('[data-public-field="'+key+'"] strong');
+  if(field){field.textContent=display;field.title=valid?display:"Data belum tersedia";}
+ }
+}
+function resetMemberPublicMini(){
+ memberPublicMini.version++;memberPublicMini.data=null;
+ memberPublicMini.pending=null;memberPublicMini.loadedAt=0;
+}
+function loadMemberPublicMini(force=false){
+ if(roleType()!=="member"||!window.matchMedia("(min-width:1024px)").matches)return;
+ const s=memberPublicMini;
+ renderMemberPublicMini();
+ if(s.pending||(!force&&s.loadedAt&&Date.now()-s.loadedAt<90000))return;
+ const version=++s.version;
+ s.loadedAt=Date.now();
+ s.pending=api("/api/v2/public/bank/report").then(response=>{
+  if(version!==s.version||roleType()!=="member")return;
+  const report=response?.ringkasan||response?.summary;
+  if(!report||typeof report!=="object"||
+   !["beratKg","hasilPenjualan","hakWarga"].every(key=>
+    report[key]!==null&&report[key]!==undefined&&report[key]!==""&&
+    Number.isFinite(Number(report[key]))&&Number(report[key])>=0))
+    throw Error("Data laporan sah belum lengkap.");
+  s.data=report;renderMemberPublicMini();
+ }).catch(error=>{
+  if(version!==s.version)return;
+  s.data=null;renderMemberPublicMini();
+  console.warn("Bank Sampah: ringkasan publik belum tersedia.",error);
+ }).finally(()=>{if(version===s.version)s.pending=null;});
+}
 function infoShortcut(){
  const home=$("f4BankAppHome");if(roleType()!=="member"||!home)return;
  let link=$("f4MemberInfoShortcut");
  if(!link){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
   const symbol=el("span","f4-member-info-icon");symbol.append(memberMetricIcon("report"));
-  const copy=el("span","f4-member-info-copy");copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
-  link.append(symbol,copy,bankIconSpan("f4-member-next","chevron-right"));
+  const copy=el("span","f4-member-info-copy");
+  copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
+  const mini=el("span","f4-member-public-mini");mini.id="f4MemberPublicMini";
+  for(const [key,label] of [["beratKg","Berat terjual"],["hasilPenjualan","Hasil jual"],["hakWarga","Hak warga"]]){
+   const item=el("span","f4-member-public-mini-item");item.dataset.publicField=key;
+   item.append(el("small","",label),el("strong","","—"));mini.append(item);
+  }
+  link.append(symbol,copy,mini,bankIconSpan("f4-member-next","chevron-right"));
   link.onclick=()=>navigate("bank-member-info");
  }
- home.append(link);
+ home.append(link);loadMemberPublicMini();
 }
 function publicSnapshot(){
  if(roleType()!=="member"||memberSnapshotsLoaded||snapshotBusy||typeof window.v17LoadPublic!=="function")return;
@@ -2063,7 +2108,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
- resetAdminAlerts();
+ resetAdminAlerts();resetMemberPublicMini();
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.
@@ -2294,7 +2339,7 @@ function init(){
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
  window.addEventListener("resize",()=>{syncAdminPageFrames();
   if(role==="admin")ensureAdminHome();
-  if(role==="member")memberSide(true);
+  if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
   if(roleType()!=="member")return;
@@ -2310,8 +2355,9 @@ function init(){
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
  window.addEventListener("f4-bank-data-changed",()=>{
   refreshAdminAlerts(true);
+  if(roleType()==="member")loadMemberPublicMini(true);
  });
- window.addEventListener("focus",()=>refreshAdminAlerts());
+ window.addEventListener("focus",()=>{refreshAdminAlerts();if(roleType()==="member")loadMemberPublicMini();});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAdminAlerts();});
  setInterval(()=>{if(!document.hidden)refreshAdminAlerts();},45000);
  const original=window.goPage;

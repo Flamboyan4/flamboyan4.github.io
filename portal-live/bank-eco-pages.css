@@ -1848,6 +1848,12 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  margin:0;color:var(--member-ink);font-size:16px;line-height:1.3;font-weight:850
 }
 #dashboardView #f4MemberContent #v14Recent{display:grid;gap:0}
+@media(min-width:1024px){
+ #dashboardView #f4MemberContent #v14Recent{
+  max-height:184px;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;scrollbar-width:thin
+ }
+}
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent{
  display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;
  gap:9px;min-width:0;margin:0;padding:10px 0;background:transparent;

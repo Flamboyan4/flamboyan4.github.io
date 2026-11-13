@@ -308,6 +308,37 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
 #dashboardView .f4-member-info-copy strong{font-size:15px;line-height:1.24;color:#164b33;font-weight:850}
 #dashboardView .f4-member-info-copy small{font-size:11px;line-height:1.4;color:#668171;font-weight:550}
 #dashboardView .f4-member-info-shortcut:focus-visible{outline:3px solid #9fdca2;outline-offset:2px}
+/* Ringkasan tambahan khusus PC; kartu HP tetap tanpa angka tambahan. */
+#dashboardView #f4MemberPublicMini{display:none}
+@media(min-width:1024px){
+ #dashboardView #f4MemberInfoShortcut.f4-member-info-shortcut{
+  display:grid;grid-template-columns:43px minmax(0,1fr) 18px;
+  grid-template-rows:auto minmax(0,1fr);
+  align-content:center;align-items:center;gap:9px 12px;
+  min-height:0;padding:12px 16px;overflow:hidden
+ }
+ #dashboardView #f4MemberInfoShortcut .f4-member-info-icon{grid-column:1;grid-row:1}
+ #dashboardView #f4MemberInfoShortcut .f4-member-info-copy{grid-column:2;grid-row:1}
+ #dashboardView #f4MemberInfoShortcut .f4-member-next{grid-column:3;grid-row:1}
+ #dashboardView #f4MemberPublicMini{
+  display:grid;grid-column:1/-1;grid-row:2;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;min-width:0;width:100%;min-height:0
+ }
+ #dashboardView #f4MemberPublicMini .f4-member-public-mini-item{
+  display:grid;align-content:center;gap:4px;min-width:0;
+  padding:8px 10px;border-radius:10px;background:#f1f8f3
+ }
+ #dashboardView #f4MemberPublicMini small{
+  display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:#63816e;font-size:10px;line-height:1.2;font-weight:600
+ }
+ #dashboardView #f4MemberPublicMini strong{
+  display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;color:#116c45;font-size:clamp(11px,1.05vw,14px);
+  line-height:1.2;font-weight:850;font-variant-numeric:tabular-nums
+ }
+}
 @media(max-width:1023px){
  #dashboardView .f4-member-environment-preview{padding:13px 12px;border-radius:18px}
  #dashboardView .f4-member-environment-head h3{font-size:15px}
