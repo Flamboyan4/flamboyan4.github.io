@@ -1803,7 +1803,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-arrow{display:none}
 #dashboardView #f4MemberContent.f4-member-content{display:contents}
 #dashboardView #f4MemberContent>.v14-panel{
- box-sizing:border-box;grid-area:recent;align-self:start;min-width:0;width:100%;
+ box-sizing:border-box;grid-area:recent;align-self:stretch;min-width:0;width:100%;height:100%;
  margin:0;padding:22px 25px;border:1px solid #e7edf0;border-radius:25px;
  background:#fff;box-shadow:0 6px 20px #142f390b
 }
