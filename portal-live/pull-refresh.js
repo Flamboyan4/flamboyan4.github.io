@@ -17,7 +17,7 @@
     '#f4-pull-refresh.ready .mark{transform:rotate(50deg)}',
     '#f4-pull-refresh.loading .mark{animation:f4-pull-spin .75s linear infinite}',
     '@keyframes f4-pull-spin{to{transform:rotate(330deg)}}',
-    '@media(min-width:1024px){#f4-pull-refresh{display:none!important}}',
+    '@media(min-width:1024px){#f4-pull-refresh{display:none}}',
     '@media(prefers-reduced-motion:reduce){#f4-pull-refresh{transition:none}#f4-pull-refresh.loading .mark{animation:none}}'
   ].join('\n');
   document.head.appendChild(style);
