@@ -92,6 +92,7 @@ async def member_layout(browser):
             const amount=document.querySelector('#f4BankAppMemberBalance strong');
             const steps=[...document.querySelectorAll('#f4MemberFlow .f4-member-flow-steps>li')];
             return {
+                pageBounds:rect('.section'),
                 hero:rect('#f4MemberHero'),
                 member:rect('#f4BankMemberCard'),
                 wallet:rect('#f4BankAppMemberBalance'),
@@ -126,6 +127,7 @@ async def member_layout(browser):
             };
         }""")
         assert not result["overflow"],(device,result)
+        assert result["pageBounds"]["right"]<=width+3,(device,result)
         assert "linear-gradient(" in result["heroBackground"],(device,result)
         assert result["amountColor"]=="rgb(255, 255, 255)",(device,result)
         assert "invert(1)" in result["iconFilter"],(device,result)
