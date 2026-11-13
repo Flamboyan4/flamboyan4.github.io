@@ -57,7 +57,7 @@ html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)!impo
 #dashboardView .stat,#dashboardView .metric{background:white!important;border:1px solid #e2ebe6!important;border-radius:16px!important;padding:16px!important;box-shadow:0 3px 12px #17462e04!important;position:relative}
 #dashboardView .stat strong,#dashboardView .metric strong{color:#224539!important;font-size:24px!important;letter-spacing:-.5px}
 #dashboardView .stat small,#dashboardView .metric small{font-size:12px!important;color:#63766d!important}
-#v11Public .v17-panel,#v11Public .v17-feature,#v11Public .v17-album,#v11Public .v17-inventory-card,#dashboardView .card{background:#fff!important;border:1px solid #e2ebe6!important;border-radius:16px!important;box-shadow:none!important}
+#v11Public .v17-panel,#v11Public .v17-feature,#v11Public .v17-album,#v11Public .v17-inventory-card,#dashboardView .card:not(#pageDashboard){background:#fff!important;border:1px solid #e2ebe6!important;border-radius:16px!important;box-shadow:none!important}
 #v11Public .v17-section h2{font-size:20px!important;letter-spacing:-.35px;color:#203d32!important}
 #v11Public .v17-panel h3{font-size:15px!important;color:#284b3e!important}
 #v11Public .v17-subtle{color:#64776e!important;font-size:13px!important}
