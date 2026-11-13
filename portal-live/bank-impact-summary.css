@@ -168,19 +168,7 @@
   font-size:11px;
   color:#6d8275;
 }
-@media(max-width:1020px) {
-  #v11Public .v17-public-main>.v17-public-banner {grid-column:1/-1;min-height:0;padding:10px 4px 14px}
-  #v11Public .v17-public-main>.v17-public-metrics {grid-column:1/-1}
-  #v11Public .v17-public-banner>.v30-hero-photo.has-photo {height:120px}
-  #v11Public .v17-public-banner>.v30-hero-photo img {height:120px}
-}
 @media(max-width:620px) {
-  #v11Public .v17-public-main>.v17-public-banner {padding:6px 2px 8px}
-  #v11Public .v17-public-banner h1 {font-size:26px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric {padding:14px 12px;min-height:92px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child {min-height:103px;padding:16px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong {font-size:19px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong {font-size:28px}
   #f4BankPrivateFinancialSummary .f4-bank-private-finance-grid {grid-template-columns:minmax(0,1fr);gap:8px}
   #f4BankPrivateFinancialSummary .f4-bank-private-finance-card {padding:13px 14px;gap:4px}
   #f4BankPrivateFinancialSummary .f4-bank-private-finance-card strong {font-size:20px}
