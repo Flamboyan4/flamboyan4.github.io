@@ -13,7 +13,7 @@
   display:block;min-width:0
  }
  body.f4-bank-app-member #dashboardView>.grid>.section{
-  display:block;min-width:0;width:calc(100% - 244px);max-width:none;
+  box-sizing:border-box;display:block;min-width:0;width:calc(100% - 244px);max-width:none;
   padding:25px clamp(22px,3vw,48px) 52px;margin:0 0 0 244px
  }
  body.f4-bank-app-member #dashboardView #sideNav.side{
