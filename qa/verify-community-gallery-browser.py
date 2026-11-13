@@ -444,7 +444,8 @@ async def validate_closed_photo_does_not_reopen(browser):
             document.querySelector('.f4p-album-overlay')?.hidden &&
             !new URLSearchParams(location.search).has('album')""", timeout=12000)
         await page.reload(wait_until="domcontentloaded")
-        await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(timeout=25000)
+        # Gallery starts in Foto Terbaru view; album cards remain attached but hidden.
+        await page.locator(".media-album-card", has_text="Arisan Audit Browser").wait_for(state="attached", timeout=25000)
         assert await page.locator(".f4p-album-overlay:not([hidden])").count() == 0, "Closed album reopened after refresh"
         assert await page.locator(".f4p-photo-overlay:not([hidden])").count() == 0
         return {"deepLink":True,"closePhotoRefresh":True,"closeAlbumRefresh":True}
