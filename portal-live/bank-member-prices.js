@@ -18,11 +18,11 @@ function shortcut(home){
  copy.append(el("strong","f4-bank-price-shortcut-label","Daftar Harga"),
   el("small","","Tarif warga per kg"));
  const icon=el("span","f4-bank-price-shortcut-icon");
- const recycle=document.createElementNS("http://www.w3.org/2000/svg","svg");
- recycle.setAttribute("viewBox","0 0 24 24");recycle.setAttribute("aria-hidden","true");
- recycle.innerHTML='<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="8" r="1.2"/>';
- recycle.setAttribute("fill","none");recycle.setAttribute("stroke","currentColor");recycle.setAttribute("stroke-width","1.9");recycle.setAttribute("stroke-linecap","round");recycle.setAttribute("stroke-linejoin","round");
- icon.append(recycle);
+ const priceTag=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ priceTag.setAttribute("viewBox","0 0 24 24");priceTag.setAttribute("aria-hidden","true");
+ priceTag.innerHTML='<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="8" r="1.2"/>';
+ priceTag.setAttribute("fill","none");priceTag.setAttribute("stroke","currentColor");priceTag.setAttribute("stroke-width","1.9");priceTag.setAttribute("stroke-linecap","round");priceTag.setAttribute("stroke-linejoin","round");
+ icon.append(priceTag);
  const arrow=el("span","f4-bank-price-shortcut-arrow");
  const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
  chevron.setAttribute("viewBox","0 0 24 24");chevron.setAttribute("aria-hidden","true");
