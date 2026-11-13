@@ -957,7 +957,11 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-manager-request-actions{display:flex;gap:8px}
 .f4-bank-manager-request-actions button{flex:1}
 /* Pengurus: satu sistem formulir dan aksi, tanpa menimpa scroll. */
-body.f4-bank-app-admin{--bank-sidebar-width:208px}
+body.f4-bank-app-admin{
+ --bank-sidebar-width:208px;
+ --bank-admin-forest:#174630;--bank-admin-leaf:#318651;--bank-admin-lime:#78a45c;
+ --bank-admin-gold:#fdc010;--bank-admin-line:#dce8de
+}
 body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:12px}
 /* Admin page shells have no outer card at any breakpoint; inner cards remain. */
 body.f4-bank-app-admin #dashboardView .section>.f4-bank-admin-unframed,
@@ -1185,15 +1189,15 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  transition:transform .18s ease,color .18s ease
 }
 /* Warna per fungsi agar mudah dibedakan tanpa mengubah susunan navigasi. */
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#43a047}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#286fe2}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#008da7}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#d87b02}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#7c4bce}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#1689c9}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#d25438}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#b53386}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#6b59ba}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#318651}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#5c8542}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#367d67}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#b48a2b}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#6e9855}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#2f795b}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#8c9857}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#437f6d}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#628d4b}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover{
  color:var(--bank-shortcut-accent,#087b54);transform:translateY(-2px)
 }
@@ -1550,8 +1554,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:1023px){
  /* Ukuran dock identik untuk anggota dan pengurus; satu variabel untuk ruang konten. */
  body.f4-bank-app-private{--f4-bank-dock-height:64px}
- body.f4-bank-app-admin{--f4-bank-dock-height:0px}
- body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + 8px)}
+ body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)}
  body.f4-bank-app-private #pageDashboard.f4-member-dashboard{padding:0}
  body.f4-bank-app-private #pageDashboard :is(.v14-head){display:none}
  body.f4-bank-app-admin #f4BankAppHome{gap:12px;margin:0}
@@ -1572,8 +1575,9 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
   box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:55;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  align-items:stretch;gap:3px;height:var(--f4-bank-dock-height);
-  padding:6px 8px;overflow:visible;background:#fffffff5;border-top:1px solid #e4ece5;
+  align-items:stretch;gap:3px;height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px));
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  overflow:visible;background:#fffffff5;border-top:1px solid #e4ece5;
   box-shadow:0 -5px 16px #143c2410;backdrop-filter:blur(12px)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
@@ -1631,6 +1635,26 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%
+ }
+ /* Aksi Setoran milik pengurus: satu tombol tengah kuning, tanpa menyalin dock anggota. */
+ body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary{
+  position:relative;overflow:visible;background:transparent;color:var(--bank-admin-forest);
+ }
+ body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
+  background:transparent;color:var(--bank-admin-forest)
+ }
+ body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
+  position:absolute;top:-17px;left:50%;width:53px;height:53px;min-width:53px;
+  border:3px solid #fff;border-radius:17px;background:var(--bank-admin-gold);
+  box-shadow:0 5px 13px #765e2433;transform:translateX(-50%)
+ }
+ body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
+  width:27px;height:27px;
+  filter:brightness(0) saturate(100%) invert(24%) sepia(18%) saturate(1116%) hue-rotate(90deg) brightness(91%) contrast(93%)
+ }
+ body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{
+  position:absolute;right:0;bottom:2px;left:0;max-width:none;
+  font-weight:850;color:var(--bank-admin-forest)
  }
 
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
