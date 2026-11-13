@@ -2,6 +2,26 @@
 /* Pure static validation: all Bank Sampah portal modes, desktop/mobile, no DB access. */
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const memberBannerBytes=fs.readFileSync('assets/bank-sampah-alur-penimbangan-1600x500.png');
+/* Compact Tabungan history is the only member deposit list; all details live in its receipt. */
+const receiptScope=h.split("const deposits=$('v12Deposits');deposits.replaceChildren();")[1]?.split("if(!deposits.querySelector('.f4-member-tx'))")[0]||'';
+assert(receiptScope.includes("const row=document.createElement('div');row.className='f4-member-tx';") &&
+       receiptScope.includes('summary.append(receipt)') &&
+       receiptScope.includes('f4BankReceiptIcon(s,()=>') &&
+       receiptScope.includes("receipt.setAttribute('aria-label','Lihat resi setoran '+dateText)") &&
+       !receiptScope.includes("document.createElement('details')") &&
+       !receiptScope.includes("document.createElement('summary')") &&
+       !receiptScope.includes('f4-member-tx-chevron') &&
+       !receiptScope.includes('f4-member-tx-detail'),
+ 'Tabungan history must be flat, without an expanding row; the receipt icon opens the real details');
+assert(css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt{') &&
+       css.includes('grid-template-columns:38px minmax(0,1fr) auto 38px') &&
+       !css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-tx-chevron{'),
+ 'Savings history receipt button must sit beside the amount, with no dead chevrons');
+assert(css.includes('linear-gradient(112deg,#009688,#008e80 56%,#43a047)') &&
+       css.includes('.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}') &&
+       css.includes('background:#8bc34a') && css.includes('background:#ffc411'),
+ 'Savings page palette should use new teal, green, lime, yellow and cyan only');
+
 assert(memberBannerBytes.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex')) &&
        memberBannerBytes.readUInt32BE(16)===1600 && memberBannerBytes.readUInt32BE(20)===500,
  'Use the original real 1600 x 500 Bank Sampah image, not a compressed placeholder');
