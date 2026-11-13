@@ -1778,6 +1778,9 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent-icon svg{
  display:block;width:21px;height:21px;stroke:currentColor;fill:none
 }
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-icon{
+ background:color-mix(in srgb,#FDC010 16%,white);color:#987000
+}
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent-copy{
  display:grid;gap:5px;min-width:0
 }
@@ -1793,6 +1796,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent-value b{
  color:#43A047;font-size:15px;line-height:1.25;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums
 }
+#dashboardView #f4MemberContent #v14Recent .f4-member-recent.is-debit .f4-member-recent-value b{color:#183248}
 #dashboardView #f4MemberContent #v14Recent .f4-member-recent-value small{
  color:#87929a;font-size:11px;line-height:1.35;font-weight:550
 }
