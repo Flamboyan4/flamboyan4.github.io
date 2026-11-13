@@ -7,6 +7,7 @@ assert(memberBannerBytes.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','he
  'Use the original real 1600 x 500 Bank Sampah image, not a compressed placeholder');
 const h=fs.readFileSync('bank-sampah/index.html','utf8');
 const css=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
+const dockCss=fs.readFileSync('portal-live/bank-mobile-dock.css','utf8');
 const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
@@ -250,7 +251,7 @@ assert(publicTheme.includes('color:#fff'),'Public hero white foreground missing'
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
 const reportRule=h.match(/#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{([^}]+)\}/);
 assert(reportRule,'Public mobile report source missing');
-assert(css.includes('background:#fff!important;border:1px solid #d8e5dc!important'),'Public report cards must stay white');
+assert(css.includes('background:#fff;border:1px solid #d8e5dc'),'Public report cards must stay white');
 assert(css.includes('#dashboardView #pagePribadi #v12Private>.stats>.stat:last-child'),'Last card sizing not fixed');
 assert(h.includes('aria-label="Muat ulang data tabungan"'),'Icon-only reload changed');
 assert(h.includes('function bankMenuClose()'),'Drawer logic changed');
@@ -297,33 +298,39 @@ assert(!h.includes("const recent=active.slice().sort((a,b)=>String(b.tanggal"),'
 assert(h.includes("document.createElementNS('http://www.w3.org/2000/svg','svg')"),'Mutation icons must be SVG');
 assert(css.includes('border:0;border-bottom:1px solid #edf3ed'), 'Mutation rows must not have separate cards');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'),'Broken legacy member grid returned');
-// Prevent the old compact/underlined dock from reappearing.
-const dockSection=css.split('/* Navigasi bawah tunggal:')[1]?.split('body.f4-bank-drawer-open')[0];
-assert(dockSection,'Canonical mobile dock section missing');
-assert(!dockSection.includes('!important'),'Dock uses priority overrides');
-assert(css.includes('body.f4-bank-app-private{--f4-bank-dock-height:64px}'),'Shared bank dock dimension missing');
-assert(css.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))'),'Dock must use shared height and a single safe-area inset');
-assert(css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),'Page must reserve same compact dock height');
-assert(dockSection.includes('grid-template-rows:27px 15px'),'Icon-label spacing must stay compact');
-assert(dockSection.includes('padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))'),
- 'Safe-area padding must be allocated once, not via competing dock overrides');
-assert((css.match(/\.f4-bank-app-dock-action\{/g)||[]).length===1,'Duplicated dock action rule');
-assert((dockSection.match(/body\.f4-bank-app-private \.f4-bank-app-dock-action\.is-primary\{/g)||[]).length===1 &&
-       !dockSection.includes('body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary') &&
-       !dockSection.includes('body.f4-bank-app-member .f4-bank-app-dock-action.is-primary'),
- 'Member and admin primary dock buttons must share one selector; no role-specific CSS stacks');
-assert(mobile.includes('isAdminReport=dock&&route==="laporan"') &&
+// Only one mobile dock owner: member and manager use the same markup and CSS.
+assert(!css.includes('.f4-bank-app-dock:not([hidden])') &&
+       !css.includes('.f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{'),
+ 'Old embedded nav CSS must be fully removed, not overridden later');
+assert(h.includes('/portal-live/bank-mobile-dock.css?v=') &&
+       !dockCss.includes('!important') &&
+       !css.includes('!important') &&
+       !h.includes('!important'),
+ 'Bank Sampah nav must be loaded separately and all Bank CSS must have no priority declarations');
+assert(dockCss.includes('body.f4-bank-app-private{--f4-bank-dock-height:64px}') &&
+       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)') &&
+       dockCss.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))') &&
+       dockCss.includes('grid-template-rows:27px 15px'),
+ 'Both roles must share a single matching navigation and safe-area layout');
+assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
+       dockCss.includes('border:3px solid #fff;border-radius:50%') &&
+       dockCss.includes('background:#ffc719') &&
+       dockCss.includes('.f4-bank-payout-rp-icon text{') &&
+       !dockCss.includes('transform:translateZ(0)'),
+ 'Native fixed member navigation must be used without extra compositor transformations');
+assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
+       !dockCss.includes('body.f4-bank-app-member .f4-bank-app-dock-action') &&
+       (dockCss.match(/body\\.f4-bank-app-private \\.f4-bank-app-dock-action\\.is-primary\\{/g)||[]).length===1 &&
+       mobile.includes('isAdminReport=dock&&route==="laporan"') &&
        mobile.includes('if(!b.classList.contains("is-primary"))b.append('),
- 'Laporan pengelola must use the identical center button DOM structure as Pencairan warga');
-assert((css.match(/\.f4-bank-app-dock:not\(\[hidden\]\)\{/g)||[]).length===1,'Duplicated dock container rule');
-assert(!css.includes('tinggi 62px'),'Old compact dock returned');
-assert(!css.includes('border-bottom:2px solid #087850'),'Underline-only tab returned');
-assert(!css.includes('@media print'),'Theme must not alter PDFs');
+ 'No role-specific dock styles; only icon and route data can differ');
+assert(!dockCss.includes('@media print') && !css.includes('@media print'),
+ 'Navigation CSS must not modify print output');
 // Public progress is weight-only until authentication; financial value stays private.
 assert((h.match(/id="f4DevChart"/g)||[]).length===1,'Public progress chart must be unique');
 assert(!h.includes('id="v17ValueBars"'),'Legacy value chart must not return');
-assert(h.includes('body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px!important}'), 'The old 64px embedded clearance must explicitly exclude member dashboard cards');
-assert(!h.includes('body.f4-embedded-bank #dashboardView .section{padding-top:64px!important}'), 'Member PC must never inherit the forced 64px top padding');
+assert(h.includes('body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px}'), 'The old 64px embedded clearance must explicitly exclude member dashboard cards');
+assert(!h.includes('body.f4-embedded-bank #dashboardView .section{padding-top:64px}'), 'Member PC must never inherit the forced 64px top padding');
 assert(h.includes('data-dev-mode="berat" aria-pressed="true"'),'Public weight mode missing');
 assert(h.includes('data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden'),
  'Financial value tab must stay hidden for guests');
@@ -335,20 +342,9 @@ assert(h.includes("querySelectorAll('.f4-saldo-row')"),'Roster search must targe
 assert(!h.includes('gulir daftar untuk melihat semuanya'),'Nested scroll instruction returned');
 const modern=fs.readFileSync('portal-live/modern-portals.css','utf8');
 assert(!modern.includes('#v9List{max-height:390px'),'Old capped roster in shared CSS returned');
-assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old roster scrolling returned');
-// Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
-assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
-assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
-       dockSection.includes('position:absolute;left:50%;bottom:9px') &&
-       dockSection.includes('border:3px solid #fff;border-radius:50%') &&
-       dockSection.includes('background:#ffc719') &&
-       !dockSection.includes('0 0 0 1px #d9e4d9') &&
-       !dockSection.includes('.f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{') &&
-       mobile.includes('if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title))') &&
-       dockSection.includes('.f4-bank-payout-rp-icon text{'),
- 'The member and manager center buttons use the same raised gold badge; both remain accessible by aria-label');
-assert(mobile.includes('svg.innerHTML=\'<text x="36" y="45" text-anchor="middle">Rp</text>\''),
- 'Original white Rp wordmark must be restored as SVG, not a stylized line icon');
+assert(!h.includes('max-height:310px;overflow-y:auto'),'Old roster scrolling returned');
+assert(mobile.includes('svg.innerHTML=\\'<text x="36" y="45" text-anchor="middle">Rp</text>\\''),
+ 'Original white Rp logo must remain SVG in the member center button');
 // HP Pengelola: tujuh akses langsung + Lainnya; tidak ada drawer atau hamburger.
 const adminMobile=css.split('/* Pengelola HP: menu tambahan via sheet Lainnya;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
@@ -402,7 +398,7 @@ assert(compactOwner && !compactOwner.includes('#v25ReportMetrics.v26-compact'),
  'Mobile report CSS duplicated instead of sharing the canonical report styling');
 assert(!h.includes('<style id="f4-bank-mobile-3view-fix-20261028">'),
  'Old separate mobile override owner returned');
-assert(!h.includes('min-height:95px!important'),'Old oversized report KPI rule returned');
+assert(!h.includes('min-height:95px'),'Old oversized report KPI rule returned');
 assert(!h.includes("Ringkasan hasil penjualan dan manfaat untuk warga serta lingkungan, berdasarkan pembukuan yang sudah disahkan."),
  'Verbose report introduction returned');
 assert(!h.includes("Nilai sah berasal dari penjualan yang disahkan. Perkiraan menunggu disajikan terpisah dan tidak menambah saldo."),
@@ -469,7 +465,7 @@ assert(!css.includes('body.f4-bank-app-private #dashboardView #pageSetoran .f4-e
 assert(/\/portal-live\/bank-eco-pages\.css\?v=\d{8}-[a-z0-9-]+/.test(h),
  'Bank entry stylesheet requires a current version key');
 const modernCss=fs.readFileSync('portal-live/modern-portals.css','utf8');
-assert(!modernCss.includes('max-width:850px!important') &&
+assert(!modernCss.includes('max-width:850px') &&
        css.includes('#saleForm .f4-sale-note-fields{'),
  'Bank goods must fill the full grid and sale notes must have a single canonical owner');
 assert(!h.includes('.f4-sale-note-fields{display:grid;'),
@@ -497,7 +493,7 @@ assert(h.includes("wrap.className='field f4-field-stack'"),
 const pickerOwner=h.match(/<style id="f4-bank-member-search-style">([\s\S]*?)<\/style>/)?.[1]||'';
 assert(pickerOwner.includes('.f4-warga-picker-open{box-sizing:border-box;') &&
        pickerOwner.includes('height:42px;min-height:42px;max-height:42px;') &&
-       pickerOwner.includes('padding:0 13px!important;'),
+       pickerOwner.includes('padding:0 13px;'),
  'The visible warga picker must match the adjacent 42px date control');
 assert(!pickerOwner.includes('min-height:47px'),'Old 47px warga picker returned');
 assert(h.includes("trigger.className='f4-warga-picker-open'"),
