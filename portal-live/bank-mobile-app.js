@@ -2097,7 +2097,12 @@ function init(){
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAdminAlerts();});
  setInterval(()=>{if(!document.hidden)refreshAdminAlerts();},45000);
  const original=window.goPage;
- if(typeof original==="function")window.goPage=function(route,...args){return handleRoute(route,original,args);};
+ if(typeof original==="function")window.goPage=function(route,...args){
+   window.f4BankPageHistory?.begin?.();
+   try{return handleRoute(route,original,args)}
+   finally{window.f4BankPageHistory?.end?.(screen)}
+  };
+  window.f4BankAppCurrentRoute=()=>screen;
  const view=$("dashboardView");
  if(view)new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:["class"]});
  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["data-f4-bank-role"]});

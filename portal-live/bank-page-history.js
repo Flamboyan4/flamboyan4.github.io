@@ -8,7 +8,7 @@
  let oldHash='';
  try{oldHash=decodeURIComponent(location.hash.match(/^#bs-([^#]+)$/i)?.[1]||'')}catch{}
  const desired=params.get('halaman')||oldHash||'';
- let pending=legal.test(desired)?desired:'',restoring=false,initialized=false,route='';
+ let pending=legal.test(desired)?desired:'',restoring=false,initialized=false,route='',depth=0;
  const cleanUrl=page=>{
    const u=new URL(location.href);
    if(page==='public')u.searchParams.delete('halaman');else u.searchParams.set('halaman',page);
@@ -26,18 +26,19 @@
    history.replaceState({...history.state,f4BankRoute:next},'',cleanUrl(next));
  }
  function record(page,replace=false){
-   if(!page||restoring||page===route)return;
+   if(!page||restoring||(page===route&&new URLSearchParams(location.search).get('halaman')===(page==='public'?null:page)))return;
    route=page;
    const state={...history.state,f4BankRoute:page,f4BankSidebarOverlay:false};
    history[replace||!initialized?'replaceState':'pushState'](state,'',cleanUrl(page));
    initialized=true;
  }
  window.goPage=function(page){
+   if(depth){go(page);return}
    if(!initialized){route=current();initialized=true;
      history.replaceState({...history.state,f4BankRoute:route,f4BankSidebarOverlay:false},'',cleanUrl(pending||route));}
    const before=route;go(page);
    const after=current();
-   if(!restoring&&after!==before)record(after);
+   if(!restoring&&!pending&&after!==before)record(after);
  };
  if(typeof publicFn==='function')window.v11ShowPublic=function(...args){
    if(!initialized){route=current();initialized=true}
@@ -49,7 +50,7 @@
    if(!legal.test(target)||target===route)return;
    restoring=true;
    try{
-     if(target==='public')publicFn?.();else if(!document.getElementById('dashboardView')?.classList.contains('hidden'))go(target);
+     if(target==='public')publicFn?.();else if(!document.getElementById('dashboardView')?.classList.contains('hidden'))window.goPage(target);
      route=target;
    }finally{restoring=false}
  });
@@ -57,7 +58,7 @@
    if(!pending||document.getElementById('dashboardView')?.classList.contains('hidden'))return;
    const target=pending;pending='';
    restoring=true;
-   try{if(target!=='public')window.goPage(target);route=current()}
+   try{if(target!=='public')window.goPage(target);route=window.f4BankAppCurrentRoute?.()||current()}
    finally{restoring=false}
    history.replaceState({...history.state,f4BankRoute:route},'',cleanUrl(route));
  }
@@ -65,5 +66,14 @@
  if(dashboard)new MutationObserver(restoreBookmark).observe(dashboard,{attributes:true,attributeFilter:['class']});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',restoreBookmark,{once:true});
  else restoreBookmark();
- window.f4BankPageHistory={current:()=>route};
+ window.f4BankPageHistory={
+  current:()=>route,
+  begin:()=>{depth++},
+  end:page=>{
+    depth=Math.max(0,depth-1);
+    if(depth||restoring||pending)return;
+    if(!initialized){route=current();initialized=true;history.replaceState({...history.state,f4BankRoute:route},'',cleanUrl(route))}
+    record(page||current());
+  }
+ };
 })();
