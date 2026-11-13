@@ -76,6 +76,34 @@ assert(mobile.includes('identity.replaceChildren(el("strong","","Halo, "+name)')
 assert(mobile.includes('tile.append(memberMetricIcon(asset))') &&
        memberNav.includes('.f4-member-environment-stat svg{'),
  'Progress indicators must render purposeful SVGs');
+assert(css.includes('grid-area:recent;align-self:stretch;min-width:0;width:100%;height:100%'),
+ 'Mutasi Setoran and the right column must finish on the same horizontal line');
+for(const step of [2,3,4]){
+ assert(memberPolish.includes('.f4-member-flow-steps>li:nth-child('+step+')'),
+ 'Missing distinct pastel styling for instruction '+step);
+}
+assert(memberPolish.includes('background:var(--step-bg)') &&
+       memberPolish.includes('background:var(--step-icon);color:var(--step-ink)'),
+ 'Pastel instruction tiles and SVG symbols must use the same scoped color variables');
+assert(memberPolish.includes('.f4-member-flow-share>span:nth-child(2)'),
+ 'Savings and environment split badges must have differentiated color');
+assert(!mobile.includes('values[2]') && !mobile.includes('values[3]'),
+ 'Member preview must not use nonexistent DOM metric array positions');
+assert(mobile.includes('new Map(rows.map(node=>[') &&
+       mobile.includes('source.get("tahap kegiatan")') &&
+       mobile.includes('source.get("berat sah")'),
+ 'Member preview must map named authoritative metrics');
+assert(mobile.includes('api("/api/v2/public/bank/report")') &&
+       mobile.includes('summary.hasilPenjualan??summary.salesRp??summary.totalPenjualanRp') &&
+       mobile.includes('sales.diterimaRp??sales.receivedRp'),
+ 'Confirmed sales must come from the existing Bank Sampah report endpoint');
+assert(mobile.includes('raw==null||raw===""?NaN:Number(raw)') &&
+       mobile.includes('Number.isFinite(number)&&number>=0'),
+ 'Missing sale totals must not be silently converted into Rp 0');
+assert(mobile.includes('resetMemberSalesSummary();') &&
+       mobile.includes('if(version!==memberSalesVersion||roleType()!=="member")return;'),
+ 'Member report state must reset on account changes and reject stale requests');
+
 
 assert(css.includes('background:#e9f5ec;color:#24774e') &&
        css.includes('.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg'),
