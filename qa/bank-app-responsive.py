@@ -1403,6 +1403,11 @@ async def main():
                         background:node?getComputedStyle(node).backgroundColor:null,
                         x:r?.x,y:r?.y,w:r?.width,h:r?.height};
                     })(),
+                    overflowing:[...document.querySelectorAll('body *')].filter(e=>{
+                      const r=e.getBoundingClientRect(),c=getComputedStyle(e);
+                      return r.width>0&&r.right>innerWidth+3&&c.position!=='fixed';
+                    }).slice(0,12).map(e=>({tag:e.tagName,id:e.id,cls:String(e.className).slice(0,80),
+                      left:e.getBoundingClientRect().left,right:e.getBoundingClientRect().right})),
                     overflow:document.documentElement.scrollWidth>window.innerWidth+3
                 };
             }""")
