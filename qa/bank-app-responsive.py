@@ -49,23 +49,18 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <section id="pageDashboard" class="card v14-home f4-member-dashboard">
 <div id="f4BankAppHome" data-bank-role="member" class="f4-bank-app-home">
 <div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong><small>Rumah A5/41</small></div>
-<section id="f4MemberHero" class="f4-member-hero">
- <button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand"><img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span></span><span class="f4-bank-atm-contactless"><svg viewBox="0 0 32 32"><path d="M8 11a8 8 0 0 1 0 10M13 7a13 13 0 0 1 0 18M18 3a19 19 0 0 1 0 26"/></svg></span></span><span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong id="f4BankCardNumber" class="f4-bank-atm-number">W017</strong></span><span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person"><small>NAMA ANGGOTA</small><strong id="f4BankCardName" class="f4-bank-atm-person-name">Heri Juwandi</strong></span><span class="f4-bank-atm-house"><small>RUMAH</small><strong class="f4-bank-card-house">A5/41</strong></span></span></button>
- <button id="f4BankAppMemberBalance" class="f4-bank-app-member-balance"><small>Saldo terkonfirmasi</small><strong>Rp 3.000</strong><span class="f4-bank-member-chevron"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span></button>
+<button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand"><img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span></span><span class="f4-bank-atm-contactless"><svg viewBox="0 0 32 32"><path d="M8 11a8 8 0 0 1 0 10M13 7a13 13 0 0 1 0 18M18 3a19 19 0 0 1 0 26"/></svg></span></span><span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong id="f4BankCardNumber" class="f4-bank-atm-number">W017</strong></span><span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person"><small>NAMA ANGGOTA</small><strong id="f4BankCardName" class="f4-bank-atm-person-name">Heri Juwandi</strong></span><span class="f4-bank-atm-house"><small>RUMAH</small><strong class="f4-bank-card-house">A5/41</strong></span></span></button>
+<button id="f4BankAppMemberBalance" class="f4-bank-app-member-balance"><span class="f4-bank-member-balance-label">Saldo Tersedia</span><strong class="f4-bank-member-balance-value">Rp 3.000</strong><span class="f4-bank-balance-cta">Cek Tabungan</span></button>
+<section id="f4MemberQuickActions" class="f4-member-shortcuts" aria-label="Jadwal dan daftar harga">
+ <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November 2026</strong><span>Setiap 2 minggu</span></span></section>
+ <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut"><span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24"><path d="M7 19l-3-3"/></svg></span><span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong><small>Tarif warga per kg</small></span></button>
 </section>
-<nav id="f4MemberQuickActions" class="f4-member-shortcuts" aria-label="Akses cepat anggota">
- <button id="f4MemberQuickGuide" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-member-shortcut-copy"><strong>Cara Setor</strong><small>Panduan penimbangan</small></span></button>
- <button id="f4MemberQuickPayout" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/pay.svg"></span><span class="f4-member-shortcut-copy"><strong>Pencairan</strong><small>Ajukan pencairan</small></span></button>
- <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut"><span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24"><path d="M7 19l-3-3"/></svg></span><span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong><small>Tarif warga per kg</small></span><span class="f4-bank-price-shortcut-arrow">›</span></button>
- <button id="f4MemberQuickSchedule" class="f4-member-shortcut"><span class="f4-member-shortcut-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-member-shortcut-copy"><strong>Jadwal</strong><small>Penimbangan berikutnya</small></span></button>
-</nav>
 <div id="f4MemberContent" class="f4-member-content">
  <section class="v14-panel"><div class="v14-panel-head"><h3>Mutasi Setoran</h3></div><div id="v14Recent">
  <div class="f4-member-recent"><span class="f4-member-recent-icon"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8"/></svg></span><div class="f4-member-recent-copy"><strong>Setoran Sampah</strong><small>27 Okt 2026 • 1 kg • Sah</small></div><div class="f4-member-recent-value"><b>+ Rp 2.250</b><small>Hasil jual</small></div></div>
  <div class="f4-member-recent"><span class="f4-member-recent-icon"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8"/></svg></span><div class="f4-member-recent-copy"><strong>Setoran Sampah</strong><small>18 Okt 2026 • 0,9 kg • Sah</small></div><div class="f4-member-recent-value"><b>+ Rp 750</b><small>Hasil jual</small></div></div>
  </div></section>
  <aside id="f4MemberAside" class="f4-member-aside">
-  <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November 2026</strong><span>Setiap 2 minggu</span></span></section>
   <details id="f4MemberFlow" class="f4-member-flow" open><summary class="f4-member-flow-head">
    <span class="f4-member-flow-icon"><img src="/assets/icons/bank.svg"></span><span class="f4-member-flow-copy"><strong>Cara setor sampah</strong><small>Pilah → Antar → Timbang → Saldo</small></span>
    <span class="f4-member-flow-toggle">Lihat alur</span></summary><div class="f4-member-flow-body">
@@ -94,87 +89,72 @@ MEMBER_SAVINGS_HTML = MEMBER_HTML.replace(
 ).replace('class="card v14-home f4-member-dashboard"', 'class="v14-home f4-member-dashboard"')
 
 async def member_layout(browser):
-    """Validate real hero, four actions, activity and sidebar at both PC and HP widths."""
-    for device,width in [("pc",1366),("hp",390),("tablet",820)]:
+    """Separate ATM, yellow wallet, two shortcuts, clean mutations and how-to card."""
+    for device,width in [("pc",1366),("tablet",820),("hp",390),("smallhp",360)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.set_content(MEMBER_HTML,wait_until="load")
         result=await page.evaluate("""() => {
-            const rect=sel=>{const r=document.querySelector(sel).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom,right:r.right}};
-            const actions=[...document.querySelectorAll('#f4MemberQuickActions>button')];
-            const amount=document.querySelector('#f4BankAppMemberBalance strong');
-            const steps=[...document.querySelectorAll('#f4MemberFlow .f4-member-flow-steps>li')];
-            return {
-                pageBounds:rect('.section'),
-                hero:rect('#f4MemberHero'),
-                member:rect('#f4BankMemberCard'),
-                wallet:rect('#f4BankAppMemberBalance'),
-                quick:rect('#f4MemberQuickActions'),
-                actions:actions.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}),
-                recent:rect('#f4MemberContent>.v14-panel'),
-                importantMatches:(()=>{
-                 const root=document.querySelector('#pageDashboard'),hits=[];
-                 const walk=rules=>{for(const rule of rules){
-                  if(rule.cssRules){walk(rule.cssRules);continue;}
-                  if(!rule.selectorText||!rule.style)continue;
-                  if(![...rule.style].some(p=>rule.style.getPropertyPriority(p)==='important'))continue;
-                  try{if(root.matches(rule.selectorText)||root.querySelector(rule.selectorText)){
-                   hits.push(rule.selectorText.slice(0,160));
-                  }}catch(e){}
-                 }};
-                 for(const sheet of document.styleSheets){try{walk(sheet.cssRules)}catch(e){}}
-                 return hits.slice(0,30);
-                })(),
-                mutationRows:[...document.querySelectorAll('#v14Recent .f4-member-recent')].map(el=>{
-                 const cs=getComputedStyle(el);return {background:cs.backgroundColor,borderLeft:cs.borderLeftWidth,borderRight:cs.borderRightWidth,radius:cs.borderRadius,bottom:cs.borderBottomWidth,cols:cs.gridTemplateColumns,svg:!!el.querySelector('.f4-member-recent-icon svg')};
-                }),
-                guide:rect('#f4MemberFlow'),
-                schedule:rect('#f4BankWeighingSchedule'),
-                aside:rect('#f4MemberAside'),
-                steps:steps.map(el=>el.getBoundingClientRect().y),
-                heroBackground:getComputedStyle(document.querySelector('#f4MemberHero')).backgroundImage,
-                amountColor:getComputedStyle(amount).color,
-                contactlessIcon:!!document.querySelector('#f4BankMemberCard .f4-bank-atm-contactless svg'),
-                chipVisible:document.querySelector('#f4BankMemberCard .f4-bank-member-card-chip').getBoundingClientRect().width>=35,
-                memberNumber:document.querySelector('#f4BankCardNumber').textContent.trim(),
-                memberName:document.querySelector('#f4BankCardName').textContent.trim(),
-                memberHouse:document.querySelector('#f4BankMemberCard .f4-bank-card-house').textContent.trim(),
-                cardGradient:getComputedStyle(document.querySelector('#f4BankMemberCard')).backgroundImage,
-                scheduleTitle:document.querySelector('#f4BankWeighingSchedule strong').textContent.trim(),
-                overflow:document.documentElement.scrollWidth>window.innerWidth+3
-            };
+          const rect=sel=>{const e=document.querySelector(sel),r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};
+          const card=document.querySelector('#f4BankMemberCard');
+          const bal=document.querySelector('#f4BankAppMemberBalance');
+          const rows=[...document.querySelectorAll('#v14Recent .f4-member-recent')];
+          const root=document.querySelector('#pageDashboard');
+          const priority=[];
+          const walk=rules=>{for(const rule of rules){
+            if(rule.cssRules){walk(rule.cssRules);continue;}
+            if(!rule.selectorText||!rule.style)continue;
+            if(![...rule.style].some(p=>rule.style.getPropertyPriority(p)==='important'))continue;
+            try{if(root.matches(rule.selectorText)||root.querySelector(rule.selectorText))priority.push(rule.selectorText.slice(0,120));}catch(e){}
+          }};
+          for(const sheet of document.styleSheets){try{walk(sheet.cssRules)}catch(e){}}
+          return {
+            card:rect('#f4BankMemberCard'),balance:rect('#f4BankAppMemberBalance'),
+            quick:rect('#f4MemberQuickActions'),
+            schedule:rect('#f4BankWeighingSchedule'),price:rect('#f4MemberPriceShortcut'),
+            recent:rect('#f4MemberContent>.v14-panel'),guide:rect('#f4MemberFlow'),
+            parent:card.parentElement.id,cardBackground:getComputedStyle(card).backgroundImage,
+            walletBackground:getComputedStyle(bal).backgroundColor,
+            walletAmountColor:getComputedStyle(bal.querySelector('strong')).color,
+            walletButton:bal.querySelector('.f4-bank-balance-cta')?.textContent,
+            contactless:!!card.querySelector('.f4-bank-atm-contactless svg'),
+            chipWidth:card.querySelector('.f4-bank-member-card-chip').getBoundingClientRect().width,
+            memberNumber:document.querySelector('#f4BankCardNumber')?.textContent.trim(),
+            memberName:document.querySelector('#f4BankCardName')?.textContent.trim(),
+            memberHouse:card.querySelector('.f4-bank-card-house')?.textContent.trim(),
+            scheduleTitle:document.querySelector('#f4BankWeighingSchedule strong')?.textContent.trim(),
+            mutationRows:rows.map(e=>{const s=getComputedStyle(e);return {radius:s.borderRadius,left:s.borderLeftWidth,right:s.borderRightWidth,svg:!!e.querySelector('svg')}}),
+            importantMatches:priority.slice(0,15),
+            overflow:document.documentElement.scrollWidth>innerWidth+3,
+            pageRight:rect('.section').right
+          };
         }""")
-        assert not result["overflow"],(device,result)
-        assert result["pageBounds"]["right"]<=width+3,(device,result)
-        assert "linear-gradient(" in result["heroBackground"],(device,result)
-        assert result["amountColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["contactlessIcon"] and result["chipVisible"],(device,result)
-        assert result["memberNumber"]=="W017" and result["memberName"]=="Heri Juwandi" and result["memberHouse"]=="A5/41",(device,result)
-        assert "linear-gradient(" in result["cardGradient"],(device,result)
-        assert len(result["actions"])==4,(device,result)
-        assert result["quick"]["y"]<result["hero"]["b"]+4,(device,result)
-        assert result["recent"]["y"]>=result["quick"]["b"]-3,(device,result)
+        assert not result["overflow"] and result["pageRight"]<=width+3,(device,result)
+        assert result["parent"]=="f4BankAppHome",(device,result)
+        assert "linear-gradient(" in result["cardBackground"],(device,result)
+        assert result["walletBackground"]=="rgb(253, 192, 16)",(device,result)
+        assert result["walletAmountColor"]=="rgb(22, 42, 55)",(device,result)
+        assert result["walletButton"]=="Cek Tabungan",(device,result)
+        assert result["contactless"] and result["chipWidth"]>=35,(device,result)
+        assert (result["memberNumber"],result["memberName"],result["memberHouse"])==("W017","Heri Juwandi","A5/41"),(device,result)
         assert result["scheduleTitle"]=="Minggu, 15 November 2026",(device,result)
+        assert len(result["mutationRows"])==2 and all(x["svg"] and x["radius"]=="0px" and x["left"]=="0px" and x["right"]=="0px" for x in result["mutationRows"]),(device,result)
         assert not result["importantMatches"],(device,result["importantMatches"])
-        assert len(result["mutationRows"])==2,(device,result)
-        for row in result["mutationRows"]:
-            assert row["svg"] and row["radius"]=="0px",(device,row)
-            assert row["borderLeft"]=="0px" and row["borderRight"]=="0px",(device,row)
-            assert row["bottom"] in ("0px","1px"),(device,row)
-            assert row["background"]=="rgba(0, 0, 0, 0)",(device,row)
         if device=="pc":
-            assert result["wallet"]["x"]>=result["member"]["right"]-3,(device,result)
-            assert all(abs(t["y"]-result["actions"][0]["y"])<3 for t in result["actions"]),(device,result)
-            assert result["recent"]["right"]<=result["aside"]["x"]+3,(device,result)
-            assert result["recent"]["w"]>result["aside"]["w"],(device,result)
-        elif device=="hp":
-            assert result["wallet"]["y"]>=result["member"]["b"]-3,(device,result)
-            assert abs(result["actions"][0]["y"]-result["actions"][1]["y"])<3,(device,result)
-            assert result["actions"][2]["y"]>result["actions"][0]["y"],(device,result)
-            assert result["schedule"]["y"]>=result["recent"]["b"]-3,(device,result)
+            assert abs(result["card"]["y"]-result["balance"]["y"])<3,(device,result)
+            assert result["card"]["right"]<=result["balance"]["x"]+3,(device,result)
+            assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
+            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
+            assert result["recent"]["right"]<=result["quick"]["x"]+3,(device,result)
+            assert result["recent"]["y"]>=result["card"]["bottom"]-3,(device,result)
+            assert result["guide"]["y"]>=result["quick"]["bottom"]-3,(device,result)
         else:
-            assert result["wallet"]["x"]>=result["member"]["right"]-3,(device,result)
-            assert result["recent"]["b"]<=result["aside"]["y"]+3,(device,result)
-        print("MEMBER_LAYOUT_REDESIGN_OK",device,result,flush=True)
+            assert result["balance"]["y"]>=result["card"]["bottom"]-3,(device,result)
+            assert result["quick"]["y"]>=result["balance"]["bottom"]-3,(device,result)
+            assert abs(result["schedule"]["y"]-result["price"]["y"])<3,(device,result)
+            assert result["schedule"]["right"]<=result["price"]["x"]+3,(device,result)
+            assert result["recent"]["y"]>=result["quick"]["bottom"]-3,(device,result)
+            assert result["guide"]["y"]>=result["recent"]["bottom"]-3,(device,result)
+        print("MEMBER_FLAT_REFERENCE_LAYOUT_OK",device,result,flush=True)
         await page.close()
 
 async def member_mutation_ledger(browser):
@@ -881,31 +861,23 @@ async def bank_cash_and_history_tabs(browser):
 
 
 async def member_price_card_position(browser):
-    """Four quick actions contain the existing price shortcut; full schedule stays readable."""
+    """The real schedule and tariff share one row and have no enclosing green frame."""
     for device,width in [("pc",1366),("hp",390)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.set_content(MEMBER_HTML,wait_until="load")
         result=await page.evaluate("""() => {
-            const p=document.querySelector('#f4MemberPriceShortcut'),
-                  s=document.querySelector('#f4BankWeighingSchedule');
-            const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
-            return {
-              priceParent:p.parentElement.id,priceX:a.x,priceY:a.y,priceW:a.width,
-              scheduleParent:s.parentElement.id,scheduleY:b.y,scheduleW:b.width,
-              iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
-              priceHasSvg:!!p.querySelector('.f4-bank-price-shortcut-icon svg'),
-              noOverflow:document.documentElement.scrollWidth<=innerWidth+3,
-              docWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,
-              largest:[...document.querySelectorAll('body *')].map(el=>({tag:el.tagName,cls:el.className?.baseVal||el.className||'',r:el.getBoundingClientRect().right})).filter(v=>v.r>innerWidth+3).sort((a,b)=>b.r-a.r).slice(0,6)
-            };
+          const s=document.querySelector('#f4BankWeighingSchedule'),p=document.querySelector('#f4MemberPriceShortcut'),
+          a=s.getBoundingClientRect(),b=p.getBoundingClientRect();
+          return {parent:s.parentElement.id,priceParent:p.parentElement.id,
+            y1:a.y,y2:b.y,right1:a.right,left2:b.left,
+            icon:!!p.querySelector('svg'),count:s.parentElement.children.length,
+            overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""")
-        assert result["noOverflow"] and result["priceHasSvg"],(device,result)
-        assert result["priceParent"]=="f4MemberQuickActions",(device,result)
-        assert result["scheduleParent"]=="f4MemberAside",(device,result)
-        assert result["scheduleY"]>result["priceY"],(device,result)
-        assert result["scheduleW"]>=200,(device,result)
-        assert result["iconColor"]=="rgb(9, 188, 211)",(device,result)
-        print("MEMBER_QUICK_ACTIONS_AND_SCHEDULE_OK",device,result,flush=True)
+        assert result["parent"]==result["priceParent"]=="f4MemberQuickActions",(device,result)
+        assert result["count"]==2 and result["icon"],(device,result)
+        assert abs(result["y1"]-result["y2"])<3 and result["right1"]<=result["left2"]+3,(device,result)
+        assert not result["overflow"],(device,result)
+        print("MEMBER_SCHEDULE_PRICE_REFERENCE_OK",device,result,flush=True)
         await page.close()
 
 
