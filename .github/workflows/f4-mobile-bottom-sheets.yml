@@ -4,12 +4,14 @@ on:
     branches: [main]
     paths:
       - portal-live/mobile-bottom-sheets.js
+      - portal-live/bank-modal-history.js
       - portal-live/mobile-bottom-sheets.css
       - qa/mobile-sheet-gestures.py
       - .github/workflows/f4-mobile-bottom-sheets.yml
   pull_request:
     paths:
       - portal-live/mobile-bottom-sheets.js
+      - portal-live/bank-modal-history.js
       - portal-live/mobile-bottom-sheets.css
       - qa/mobile-sheet-gestures.py
       - .github/workflows/f4-mobile-bottom-sheets.yml
@@ -26,10 +28,13 @@ jobs:
         with:
           node-version: '22'
       - name: Check shared mobile gesture JavaScript
-        run: node --check portal-live/mobile-bottom-sheets.js
+        run: |
+          node --check portal-live/mobile-bottom-sheets.js
+          node --check portal-live/bank-modal-history.js
       - name: Install isolated Chromium test runner
         run: |
           python3 -m pip install --quiet playwright
           python3 -m playwright install --with-deps chromium
-      - name: Verify mobile dragging and desktop exclusions
+      - name: Verify sheet gestures and Bank Sampah popup-first Back
+
         run: python3 qa/mobile-sheet-gestures.py
