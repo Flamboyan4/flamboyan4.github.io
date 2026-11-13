@@ -2871,10 +2871,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
           const divider=document.createElement('div');divider.className='f4-member-tx-date';divider.textContent=dateText;
           deposits.appendChild(divider);lastDate=dateKey;
         }
-        const details=document.createElement('details');details.className='f4-member-tx';
-        const summary=document.createElement('summary');summary.className='f4-member-tx-summary';
+        // Riwayat selalu ringkas; rincian hanya ada pada resi transaksi.
+        const row=document.createElement('div');row.className='f4-member-tx';
+        const summary=document.createElement('div');summary.className='f4-member-tx-summary';
         const icon=document.createElement('span');icon.className='f4-member-tx-icon';icon.setAttribute('aria-hidden','true');
-        // Gunakan ikon resmi yang sama dengan menu Setoran; tidak membuat SVG sendiri.
         const iconImage=document.createElement('img');iconImage.src='/assets/icons/bank.svg';iconImage.alt='';
         iconImage.width=21;iconImage.height=21;icon.appendChild(iconImage);
         const copy=document.createElement('span');copy.className='f4-member-tx-copy';
@@ -2889,36 +2889,26 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         const caption=document.createElement('small');
         caption.textContent=confirmed?(info.final==null?'Hasil belum tersedia':'Hasil jual'):'Perkiraan';
         amount.append(nominal,caption);
-        const chevron=document.createElement('span');chevron.className='f4-member-tx-chevron';
-        chevron.setAttribute('aria-hidden','true');
-        summary.append(icon,copy,amount,chevron);details.appendChild(summary);
-        const content=document.createElement('div');content.className='f4-member-tx-detail';
-        const head=document.createElement('div');head.className='f4-member-tx-detail-title';head.textContent='Jenis sampah';
-        content.appendChild(head);
-        (s.rincian||[]).forEach(item=>{
-          const row=document.createElement('div');row.className='f4-member-tx-item';
-          const label=document.createElement('strong');label.textContent=item.barang||'Barang';
-          const initial=document.createElement('span');initial.textContent=v12Kg(item.beratKg)+' ditimbang';
-          row.append(label,initial);content.appendChild(row);
-        });
-        if(confirmed){
-          if(s.beratSahKg==null){
-            const msg=document.createElement('p');msg.className='f4-member-tx-weight-note';
-            msg.textContent='Berat jual akhir belum tersedia.';content.appendChild(msg);
-          }else if(s.beratTimbangKg!=null&&Math.abs(Number(s.beratTimbangKg)-Number(s.beratSahKg))>0.0005){
-            const note=document.createElement('div');note.className='f4-member-tx-weight-note';
-            note.textContent='Timbang '+v12Kg(s.beratTimbangKg)+' → terjual '+v12Kg(s.beratSahKg);
-            content.appendChild(note);
-          }
-        }
+        summary.append(icon,copy,amount);
         if(s.id){
-          const action=f4BankReceiptIcon(s,()=>f4BankDepositReceipt({
-            ...s,estimasi:s.estimasiRp,berat:s.beratKg
-          },{nama:d.nama,rumah:d.rumah}));
-          action.classList.add('f4-member-deposit-receipt');
-          content.appendChild(action);
+          // Reuse the existing D1-backed JPG receipt, not the retired accordion.
+          const receipt=f4BankReceiptIcon(s,()=>{
+            const payload=f4BankDepositReceipt({
+              ...s,estimasi:s.estimasiRp,berat:s.beratKg,
+              namaWarga:d.nama,rumahWarga:d.rumah
+            },{nama:d.nama,rumah:d.rumah});
+            for(const item of s.rincian||[]){
+              payload.details.push([String(item.barang||'Jenis sampah'),
+                item.beratKg==null?'Berat tidak tersedia':v12Kg(item.beratKg)+' ditimbang']);
+            }
+            return payload;
+          });
+          receipt.classList.add('f4-member-deposit-receipt');
+          receipt.setAttribute('aria-label','Lihat resi setoran '+dateText);
+          receipt.title='Lihat rincian dan resi setoran';
+          summary.append(receipt);
         }
-        details.appendChild(content);deposits.appendChild(details);
+        row.append(summary);deposits.appendChild(row);
       });
       if(!deposits.querySelector('.f4-member-tx'))deposits.textContent='Belum ada setoran tercatat.';
       window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:d}));
