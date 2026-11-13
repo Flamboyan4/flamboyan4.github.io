@@ -1092,7 +1092,7 @@ function showForm(record){
    }
    const popular=/^(kas lorong|perbaikan\s*\/\s*fasilitas|donasi)$/i;
    const important=labels.filter(x=>popular.test(x)||x===chosen);
-   const remaining=labels.filter(x=>.includes(x));
+   const remaining=labels.filter(x=>!important.includes(x));
    function refill(expanded){
     category.replaceChildren(new Option('Pilih kategori kas terkait',''));
     for(const item of [...important,...(expanded?remaining:[])])category.add(new Option(item,item));
