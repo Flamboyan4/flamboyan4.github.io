@@ -98,45 +98,46 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   box-sizing:border-box;min-width:0;width:100%;max-width:780px;
   margin-inline:auto;padding:14px 15px 90px;background:#fff
  }
+ /* One clean mobile banking bar: member identity + global actions. */
  body.f4-bank-app-member #f4-direct-bar{
-  box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto auto;
-  grid-template-rows:42px 38px;align-items:center;align-content:center;
-  column-gap:8px;row-gap:1px;height:102px;padding:7px 15px 9px;
-  background:#fff;border-bottom:1px solid #e8eee9;box-shadow:none
+  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+  height:68px;min-height:68px;gap:8px;padding:0 15px;background:#fff;
+  border-bottom:1px solid #e8eee9;box-shadow:none
  }
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-brand{
-  grid-column:1;grid-row:1;display:flex;align-items:center;gap:8px;
-  min-width:0;max-width:100%;color:#174d33
- }
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-brand img{
-  display:block;flex:none;width:34px;height:34px;object-fit:contain
- }
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-brand strong{
-  display:block;max-width:140px;font-size:11px;font-weight:850;
-  line-height:1.2;color:#174d33
- }
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-brand{display:none}
  body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity{
-  grid-column:1/-1;grid-row:2;justify-self:start;align-self:end;
-  max-width:100%;flex:none
+  display:grid;grid-template-rows:auto auto;gap:3px;
+  flex:1 1 auto;max-width:none;min-width:0;margin:0;
+  align-self:center;justify-self:start
  }
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity strong{font-size:17px}
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity strong{
+  color:#153f2c;font-size:16px;line-height:1.18;font-weight:850;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+ }
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity small{
+  font-size:11px;line-height:1.2;color:#658071
+ }
  body.f4-bank-app-member #f4-direct-bar .f4-nav-links{
-  grid-column:2;grid-row:1;display:flex;gap:0;margin:0;justify-self:end;min-width:0
+  display:flex;align-items:center;gap:3px;flex:none;min-width:0;
+  margin:0;padding:0
  }
- body.f4-bank-app-member #f4-direct-bar .f4-nav-links a{width:34px;height:34px}
+ body.f4-bank-app-member #f4-direct-bar .f4-nav-links a{
+  width:35px;height:35px;min-width:35px
+ }
  body.f4-bank-app-member #f4-direct-bar #f4-direct-avatar{
-  grid-column:3;grid-row:1;width:37px;height:37px;margin:0;justify-self:end
+  width:38px;height:38px;flex:none;margin:0
  }
- body.f4-bank-app-member #f4-direct-bar .f4-direct-login{grid-column:3;grid-row:1}
- body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{grid-column:1;grid-row:1}
- body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar .f4-bank-member-top-brand{
-  padding-left:39px
- }
- body.f4-bank-app-member #dashboardView{padding-top:46px}
+ body.f4-bank-app-member #f4-direct-bar .f4-direct-login{flex:none}
+ body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{flex:none}
+ body.f4-bank-app-member #dashboardView{padding-top:12px}
 }
 @media(max-width:380px){
- body.f4-bank-app-member #f4-direct-bar{padding-inline:11px;column-gap:5px}
- body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-brand strong{font-size:10px}
+ body.f4-bank-app-member #f4-direct-bar{padding:0 10px;gap:5px}
+ body.f4-bank-app-member #f4-direct-bar .f4-nav-links{gap:1px}
+ body.f4-bank-app-member #f4-direct-bar .f4-nav-links a{
+  width:32px;height:34px;min-width:32px
+ }
+ body.f4-bank-app-member #f4-direct-bar .f4-bank-member-top-identity strong{font-size:15px}
  body.f4-bank-app-member #dashboardView>.grid>.section{padding-inline:11px}
 }
 
