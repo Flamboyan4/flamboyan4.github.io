@@ -10,8 +10,8 @@
  color:#163d2f
 }
 /* All pages use a WHITE canvas. Only meaningful surfaces carry color. */
-body.f4-direct-bank #dashboardView .section,
-body.f4-bank-embedded #dashboardView .section,
+body.f4-direct-bank:not(.f4-bank-app-member) #dashboardView .section,
+body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 #v11Public #v18PublicContent,#v11Public .v17-public-main{background:#fff!important}
 #dashboardView .card:not(#pageDashboard),
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-savings-panel,.v17-panel,.f4-member-progress-section),
@@ -1690,7 +1690,7 @@ body.f4-bank-app-member #dashboardView #pageDashboard{
  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
 }
 body.f4-bank-app-member #dashboardView>.grid>.section{
- background:linear-gradient(155deg,#f9fcf6 0%,#fffefa 46%,#f6faf5 100%);
+ background:#fff;
  min-height:calc(100dvh - 56px)
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]{
@@ -1712,19 +1712,19 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  justify-content:space-between;gap:9px;position:relative;isolation:isolate;overflow:hidden;
  width:100%;height:236px;min-height:0;min-width:0;aspect-ratio:auto;margin:0;
  padding:20px 24px;border:0;border-radius:22px;text-align:left;cursor:pointer;
- background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%);
+ background:linear-gradient(120deg,#079e8f 0%,#05896e 55%,#087448 100%);
  box-shadow:0 11px 22px #0a59341c;color:#fff
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::before{
  content:"";position:absolute;z-index:0;pointer-events:none;
  width:70%;height:125%;left:42%;top:4%;border-radius:60% 10% 60% 10%;
  transform:rotate(-20deg);
- background:linear-gradient(145deg,#baf68c25,#2ebe6925 53%,#03683b00)
+ background:linear-gradient(145deg,#ffffff1b,#40c3ad0f 58%,#03683b00)
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::after{
  content:"";position:absolute;z-index:0;pointer-events:none;
  right:-18%;bottom:-57%;width:73%;height:98%;border-radius:58% 42% 12% 75%;
- transform:rotate(-22deg);background:linear-gradient(130deg,#97d84568,#17994c24)
+ transform:rotate(-22deg);background:linear-gradient(130deg,#d2ffcd25,#9bddb008)
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard:focus-visible{
  outline:3px solid #a8e99e;outline-offset:3px
@@ -1739,10 +1739,9 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  grid-area:balance;box-sizing:border-box;display:flex;flex-direction:column;
  justify-content:space-between;align-items:stretch;gap:9px;
  min-width:0;width:100%;height:236px;min-height:0;margin:0;
- padding:23px 24px;border:1px solid #dbeed8;border-radius:22px;text-align:left;
- background:radial-gradient(ellipse at 96% 15%,#d6f0c4 0%,#e9f8e2 29%,transparent 61%),
-  linear-gradient(135deg,#f8fcf4,#eff8e9 87%);
- box-shadow:0 8px 20px #144c2d12;color:var(--member-ink);cursor:pointer
+ padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;
+ background:#fff;
+ box-shadow:0 6px 19px #174d2f0e;color:var(--member-ink);cursor:pointer
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-label{
  color:#496c58;font-size:15px;line-height:1.3;font-weight:650;letter-spacing:0;text-transform:none
@@ -1765,9 +1764,9 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 #dashboardView #f4MemberQuickActions.f4-member-shortcuts{
  grid-area:quick;box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  align-items:stretch;min-width:0;width:100%;gap:0;margin:0;padding:8px 10px;
- border:1px solid var(--member-line);border-radius:21px;
- background:linear-gradient(112deg,#fbfdf8,#f0f8ed);
- box-shadow:0 5px 15px #174e2f09
+ border:1px solid #e5ece7;border-radius:21px;
+ background:#fff;
+ box-shadow:0 3px 12px #174e2f09
 }
 #dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){
  box-sizing:border-box;display:flex;flex-direction:row;align-items:center;
