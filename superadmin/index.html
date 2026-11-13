@@ -346,6 +346,9 @@ html.f4-sa-drawer-lock{overflow:hidden!important}
 .sa-weighing-actions{grid-column:1/-1;display:flex;gap:10px}
 .sa-weighing-form button{min-height:42px}
 @media(max-width:640px){.sa-weighing-form{grid-template-columns:minmax(0,1fr)}}
+.sa-donor-link{display:flex;align-items:center;gap:11px;padding:12px 13px;margin:3px 0;border-radius:11px;color:var(--navy);font-weight:700;font-size:13px;text-decoration:none}
+.sa-donor-link:hover,.sa-donor-link:focus-visible{background:var(--tint);color:var(--blue);text-decoration:none}
+
 
 </style>
 
@@ -448,6 +451,10 @@ function sidebar(g=group){
   b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
+ side.append(el('strong','MITRA & PENDANAAN','f4-sa-label'));
+ const donorLink=el('a',undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
+ const donorIcon=el('img',undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
+ donorLink.append(donorIcon,el('span','Donatur & Pendanaan'));side.append(donorLink);
  document.body.dataset.saArea=g;
  window.f4SuperadminArea=g;
 
