@@ -32,9 +32,9 @@ assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Mudd
 assert(css.includes('bank-leaf-watermark.svg'),'Member card SVG leaf watermark missing');
 assert(css.includes("background:url('/assets/icons/bank-leaf-watermark.svg") && css.includes('background-size:clamp(180px,35%,340px) auto'), 'Hero SVG must stay anchored inside its own layout');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
-assert(css.includes('background:#fff;color:var(--bank-ink,#183d2e)'), 'Price shortcut must use neutral white surface, not solid yellow');
+assert(css.includes('#f4MemberQuickActions>button') && css.includes('border:1px solid #e6eef0;border-radius:22px;background:#fff'), 'Price must use one clean shortcut tile');
 assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
-assert(css.includes('background:linear-gradient(116deg,#0c899b 0%,#119e92 48%,#55b768 100%)') && css.includes('background:transparent;border:0;'), 'Integrated ATM hero must have coherent gradient');
+assert(css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)') && css.includes('background:transparent;border:0;'), 'Integrated ATM hero must have coherent gradient');
 assert(css.includes('#f4MemberHero>.f4-bank-app-member-balance>strong') && css.includes('margin:0;color:#fff;font-size:clamp(28px,3.5vw,44px)'), 'Balance must be white on dark gradient');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
 assert(css.includes('grid-template-areas:"welcome" "hero" "quick" "content" "progress" "info"'), 'Dashboard must have its own six-section layout');
@@ -43,7 +43,7 @@ assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'Two-colum
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
 assert(mobile.includes('quick.replaceChildren(...[guide,payout,price,schedule].filter(Boolean))'), 'Four real member actions must exist');
-assert(css.includes('border-top:4px solid #12b4c5'), 'Schedule panel should be readable with cyan accent');
+assert(css.includes('border-top:4px solid #09BCD3'), 'Schedule panel must use new cyan palette');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
 assert(css.includes('filter:brightness(0) invert(1)'), 'Recycling icon should be white on ATM card');
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
@@ -72,6 +72,12 @@ assert(css.includes('#dashboardView #pagePribadi #v12Private>.stats>.stat:last-c
 assert(h.includes('aria-label="Muat ulang data tabungan"'),'Icon-only reload changed');
 assert(h.includes('function bankMenuClose()'),'Drawer logic changed');
 assert(dashboard.includes('.f4-eco-kpi'),'Dashboard design missing');
+assert(!dashboard.includes('!important'),'Dashboard legacy sheet must not contain any priority declarations');
+assert(!dashboard.includes('f4-member-recent'),'Dashboard legacy sheet must not own member mutation rows');
+assert(h.includes("title.textContent='Setoran Sampah'"),'Mutasi must use real source-backed deposit labels');
+assert(h.includes("document.createElementNS('http://www.w3.org/2000/svg','svg')"),'Mutation icons must be SVG');
+assert(css.includes('border:0;border-bottom:1px solid #edf0f1'), 'Mutation rows must not have separate boxes');
+assert(!css.includes('"card card card card card card card card schedule schedule price price"'),'Broken legacy member grid returned');
 // Prevent the old compact/underlined dock from reappearing.
 const dockSection=css.split('/* Navigasi bawah tunggal:')[1]?.split('body.f4-bank-drawer-open')[0];
 assert(dockSection,'Canonical mobile dock section missing');
