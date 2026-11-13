@@ -90,7 +90,7 @@ async def member_layout(browser):
             assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
         else:
-            assert result["guide"]["y"]<result["recent"]["y"],result
+            assert result["recent"]["y"]<result["guide"]["y"],result
             assert result["steps"][1]["y"]>result["steps"][0]["y"],result
         print("MEMBER_LAYOUT_OK",device,result,flush=True)
         await page.close()
