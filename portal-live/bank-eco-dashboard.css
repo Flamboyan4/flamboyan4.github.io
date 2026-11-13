@@ -10,10 +10,10 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primar
 }
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi::before,
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi::after{content:none}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#318651;color:#fff}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2) .f4-eco-icon{background:#5c8542}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:#43A047;color:#fff}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(2) .f4-eco-icon{background:#009788}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(3) .f4-eco-icon{background:#FDC010;color:#244637}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4) .f4-eco-icon{background:#447f67}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi:nth-child(4) .f4-eco-icon{background:#09BCD3;color:#174630}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon :is(svg,img){display:block;width:21px;height:21px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-icon img{filter:brightness(0) invert(1)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary .v14-kpi-label{font-size:12px;font-weight:700;color:#5d7364}
@@ -24,14 +24,14 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:12px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading h3{font-size:16px;color:#174630;font-weight:800}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading p{font-size:11px;color:#647c6c}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:#5c8542;font-weight:700}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:#009788;font-weight:700}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid #eaf0eb;background:transparent}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item):last-child{border-bottom:0}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item) strong{color:#244637;font-size:13px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item) small{color:#687e6c;font-size:11px}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-value{color:#318651;text-align:right}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-value{color:#43A047;text-align:right}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-activity-item{display:block;position:relative;padding:12px 3px;border-bottom:1px solid #eaf0eb}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:grid;place-items:center;color:#5c8542}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:grid;place-items:center;color:#009788}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow svg{width:19px;height:19px;stroke:currentColor;fill:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;margin-bottom:15px;background:#fff;border:1px solid #e2e9e3;border-radius:18px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head h2{font-size:23px;color:#174630}
