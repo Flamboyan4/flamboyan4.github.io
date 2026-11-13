@@ -6,7 +6,7 @@
  border:2px solid currentColor;border-right-color:transparent;
  border-radius:50%;animation:f4-request-spin .75s linear infinite;
 }
-[data-f4-state="success"]{display:none!important;margin:0!important;padding:0!important}
+[data-f4-state="success"]{display:none;margin:0;padding:0}
 [data-f4-state="error"]:not([hidden]){color:#a32432}
 @keyframes f4-request-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){
