@@ -117,8 +117,13 @@ function syncAdminBack(){
 // Compact member identity replaces the oversized greeting on the member dashboard.
 function memberTopIdentity(){
  const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
- let identity=$("f4BankMemberTopIdentity");
- if(roleType()!=="member"||!bar||!links){identity?.remove();return;}
+ let identity=$("f4BankMemberTopIdentity"),brand=$("f4BankMemberTopBrand");
+ if(roleType()!=="member"||!bar||!links){identity?.remove();brand?.remove();return;}
+ if(!brand){
+  brand=el("span","f4-bank-member-top-brand");brand.id="f4BankMemberTopBrand";
+  const logo=el("img");logo.src="/assets/logo-flamboyan.svg";logo.alt="";
+  brand.append(logo,el("strong","","BANK SAMPAH FLAMBOYAN 4"));bar.insertBefore(brand,links);
+ }
  if(!identity){
   identity=el("span","f4-bank-member-top-identity");identity.id="f4BankMemberTopIdentity";
   bar.insertBefore(identity,links);
@@ -254,6 +259,8 @@ function ensureHome(){
   const panels=page.querySelector(".v14-panels");
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
+  const recentHeading=recent?.querySelector(".v14-panel-head h3");
+  if(recentHeading)recentHeading.textContent="Mutasi Setoran Terbaru";
   if(recent&&!hub.contains(recent))hub.append(recent);
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
@@ -1791,7 +1798,8 @@ function progressPreview(){
   const stats=el("div","f4-member-environment-stats");stats.id="f4MemberEnvironmentStats";
   const recent=el("button","f4-member-environment-latest");recent.id="f4MemberEnvironmentLatest";recent.type="button";
   recent.onclick=()=>navigate("bank-member-progress");
-  preview.append(heading,stats,recent);
+  const split=el("div","f4-member-impact-share");split.id="f4MemberImpactShare";
+  preview.append(heading,stats,split,recent);
   const history=$("v14Recent")?.closest(".v14-panel");
   if(history?.parentElement===home)history.before(preview);else home.append(preview);
  }
@@ -1817,6 +1825,14 @@ function progressPreview(){
   tile.append(memberMetricIcon(asset));
   const data=el("span");data.append(el("small","",label),el("strong","",value));tile.append(data);return tile;
  }));
+ // Mirror the real bank policy split, rather than hardcoding percentages.
+ const split=$("f4MemberImpactShare");
+ const sourceSplit=$("f4MemberFlow")?.querySelector(".f4-member-flow-share");
+ if(split){
+  if(sourceSplit)split.replaceChildren(...[...sourceSplit.children].map(node=>node.cloneNode(true)));
+  else split.replaceChildren();
+  split.hidden=!sourceSplit;
+ }
  loadMemberSalesSummary();
  const latest=$("f4MemberEnvironmentLatest"),activity=$("v17Timeline")?.querySelector(".f4-dev-activity");
  latest.replaceChildren();
@@ -2094,7 +2110,7 @@ window.f4BankResetForAccountSwitch=()=>{
  role=null;memberStatement=null;adminOverview=null;
  dock().replaceChildren();
  document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
- $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();
+ $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
  memberSide(false);syncAdminPageFrames();
 };
 window.f4BankReconcileAccount=()=>sync();
@@ -2107,7 +2123,7 @@ function sync(){
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
   memberSide(false);
-  $("f4BankMemberTopIdentity")?.remove();$("f4BankAdminTopIdentity")?.remove();
+  $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
   $("f4BankAdminBack")?.setAttribute("hidden","");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   syncAdminPageFrames();
