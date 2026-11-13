@@ -41,7 +41,7 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css">
-<style>body{margin:0;font-family:system-ui;background:#f7fafb}.grid{display:grid;grid-template-columns:242px minmax(0,1fr)}
+<style>body{margin:0;font-family:system-ui;background:#f7fafb}.grid{display:block}
 .section{min-width:0;padding:20px}#pageDashboard{padding:0}
 @media(max-width:1023px){.grid{display:block}.section{padding:14px}}</style></head>
 <body class="f4-bank-app-private f4-bank-app-member" data-f4-bank-role="warga">
