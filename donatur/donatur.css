@@ -1,6 +1,6 @@
 :root{color-scheme:light;--ink:#17213a;--muted:#67738a;--purple:#5d50df;--line:#e0e5f0;--bg:#f7f8fd;--green:#088765;--red:#d43d59;--radius:17px}
 *{box-sizing:border-box}
-[hidden]{display:none}
+[hidden][hidden]{display:none}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
 button,input{font:inherit}
