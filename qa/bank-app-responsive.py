@@ -821,7 +821,7 @@ async def member_price_card_position(browser):
         assert result["scheduleParent"]=="f4MemberAside",(device,result)
         assert result["scheduleY"]>result["priceY"],(device,result)
         assert result["scheduleW"]>=200,(device,result)
-        assert result["iconColor"]=="rgb(19, 180, 197)",(device,result)
+        assert result["iconColor"]=="rgb(9, 188, 211)",(device,result)
         print("MEMBER_QUICK_ACTIONS_AND_SCHEDULE_OK",device,result,flush=True)
         await page.close()
 
