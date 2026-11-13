@@ -239,75 +239,60 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
 }
 body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report)>.f4-bank-screen-title{margin:2px 0 8px}
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{margin:2px 0 14px}
-/* One integrated savings-progress module; no cards inside cards. */
+/* Member home progress: a single private weight chart, no duplicate metric tiles. */
 #dashboardView .f4-member-environment-preview{
- display:grid;gap:10px;min-width:0;padding:16px 17px;
- border:1px solid #e8efe6;border-radius:20px;background:#fff;
- box-shadow:0 5px 16px #17482a0c
+ display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;min-width:0;
+ padding:16px 17px;border:1px solid #e8efe6;border-radius:20px;
+ background:#fff;box-shadow:0 5px 16px #17482a0c
 }
 #dashboardView .f4-member-environment-head{
- display:flex;align-items:center;justify-content:space-between;gap:9px
+ display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap
 }
 #dashboardView .f4-member-environment-head h3{
  margin:0;color:#103e2b;font-size:17px;line-height:1.25;font-weight:850
 }
-#dashboardView .f4-member-environment-head button{
- min-height:32px;margin:0;padding:5px 0;border:0;background:transparent;
- box-shadow:none;color:#127348;font-size:11px;font-weight:800;white-space:nowrap
+#dashboardView .f4-member-progress-period{
+ display:inline-flex;gap:4px;padding:3px;border:1px solid #e0eee3;
+ border-radius:10px;background:#f2f8f3
 }
-#dashboardView .f4-member-environment-stats{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
- gap:0;min-width:0;padding:12px 10px;border-radius:15px;
- background:#fff
+#dashboardView .f4-member-progress-period button{
+ min-height:30px;margin:0;padding:6px 10px;border:0;border-radius:8px;
+ background:transparent;color:#597864;font-size:11px;font-weight:750;
+ line-height:1.2;box-shadow:none;white-space:nowrap
 }
-#dashboardView .f4-member-environment-stat{
- display:grid;align-content:center;gap:5px;position:relative;min-width:0;
- padding:3px 13px;border:0;border-radius:0;background:transparent
+#dashboardView .f4-member-progress-period button.is-active{
+ background:#fff;color:#086c44;box-shadow:0 1px 4px #134b271a
 }
-#dashboardView .f4-member-environment-stat:not(:last-child)::after{
- content:"";position:absolute;top:10%;bottom:10%;right:0;width:1px;background:#d5e6d7
+#dashboardView .f4-member-progress-period button:focus-visible{
+ outline:2px solid #087a52;outline-offset:1px
 }
-#dashboardView .f4-member-environment-stat svg{
- display:block;width:21px;height:21px;fill:none;stroke:#16824b;
- stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round
+#dashboardView .f4-member-progress-chart{display:grid;align-items:stretch;min-width:0}
+#dashboardView .f4-member-progress-bars{
+ display:grid;gap:11px;min-width:0;width:100%;align-items:end
 }
-#dashboardView .f4-member-environment-stat span{display:grid;gap:4px;min-width:0}
-#dashboardView .f4-member-environment-stat small{
- color:#647d6c;font-size:10px;line-height:1.2;font-weight:650
+#dashboardView .f4-member-progress-column{
+ display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+ min-width:0;gap:7px;align-items:end;text-align:center
 }
-#dashboardView .f4-member-environment-stat strong{
- color:#0b603c;font-size:clamp(14px,2vw,21px);line-height:1.22;
- font-weight:900;font-variant-numeric:tabular-nums;overflow-wrap:anywhere
+#dashboardView .f4-member-progress-column strong{
+ color:#126e46;font-size:12px;line-height:1.2;font-weight:850;
+ font-variant-numeric:tabular-nums;white-space:nowrap
 }
-#dashboardView .f4-member-impact-share{
- display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
- gap:8px;min-width:0;padding:0 1px
+#dashboardView .f4-member-progress-rail{
+ position:relative;display:block;overflow:hidden;width:100%;height:125px;
+ border-radius:8px 8px 5px 5px;background:#f0f7f1
 }
-#dashboardView .f4-member-impact-share[hidden]{display:none}
-#dashboardView .f4-member-impact-share>span{
- display:inline-flex;align-items:center;justify-content:center;gap:5px;
- min-height:29px;padding:5px 11px;border-radius:999px;
- background:#e7f8e6;color:#13603b;font-size:11px;font-weight:700
+#dashboardView .f4-member-progress-fill{
+ display:block;position:absolute;inset:auto 0 0;width:100%;
+ border-radius:7px 7px 4px 4px;background:linear-gradient(180deg,#43a66a,#08744a)
 }
-#dashboardView .f4-member-impact-share>span:nth-child(2){background:#fff0cf;color:#875b0b}
-#dashboardView .f4-member-impact-share b{font-size:12px;color:inherit;font-weight:850}
-#dashboardView .f4-member-environment-latest{
- display:flex;align-items:center;gap:10px;width:100%;min-height:58px;
- padding:9px 0 0;margin:0;border:0;border-top:1px solid #edf1ed;
- border-radius:0;background:transparent;box-shadow:none;text-align:left;color:#183f2c
+#dashboardView .f4-member-progress-column small{
+ color:#65806b;font-size:11px;line-height:1.3;font-weight:700
 }
-#dashboardView .f4-member-environment-latest img{
- width:39px;height:39px;flex:0 0 39px;object-fit:cover;border-radius:10px
+#dashboardView .f4-member-progress-empty{
+ align-self:center;justify-self:center;margin:0;padding:45px 4px;
+ color:#678373;font-size:12px;line-height:1.5;text-align:center
 }
-#dashboardView .f4-member-environment-latest span:not(.f4-member-next){
- flex:1;min-width:0;display:grid;gap:3px
-}
-#dashboardView .f4-member-environment-latest small{color:#718575;font-size:10px}
-#dashboardView .f4-member-environment-latest strong{
- color:#173c2a;font-size:12px;line-height:1.3;font-weight:800;
- display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
-}
-#dashboardView .f4-member-next{display:grid;place-items:center;color:#267b52;line-height:1}
 #dashboardView #f4MemberInfoShortcut.f4-member-info-shortcut{
  box-sizing:border-box;display:flex;align-items:center;gap:13px;
  width:100%;height:100%;min-height:95px;margin:0;padding:17px 21px;
@@ -326,11 +311,9 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
 @media(max-width:1023px){
  #dashboardView .f4-member-environment-preview{padding:13px 12px;border-radius:18px}
  #dashboardView .f4-member-environment-head h3{font-size:15px}
- #dashboardView .f4-member-environment-stats{padding:10px 5px}
- #dashboardView .f4-member-environment-stat{padding:3px 7px}
- #dashboardView .f4-member-environment-stat strong{font-size:clamp(13px,3.8vw,18px)}
- #dashboardView .f4-member-impact-share{justify-content:space-between;gap:5px}
- #dashboardView .f4-member-impact-share>span{padding:5px 8px;font-size:10px}
+ #dashboardView .f4-member-progress-period button{padding:6px 8px;font-size:10px}
+ #dashboardView .f4-member-progress-bars{gap:7px}
+ #dashboardView .f4-member-progress-rail{height:98px}
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut.f4-member-info-shortcut{
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   gap:7px;height:102px;min-height:0;padding:8px 4px;
