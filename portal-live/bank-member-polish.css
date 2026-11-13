@@ -75,18 +75,20 @@
  padding:13px;border-top:1px solid #e6ecee;background:#fff
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;
- gap:9px;list-style:none;margin:0;padding:0
+ display:grid;grid-template-columns:minmax(0,1fr);align-items:start;
+ gap:0;list-style:none;margin:0 0 0 16px;padding:0;
+ border-left:2px solid #e6ecee
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
- display:flex;align-items:flex-start;gap:9px;min-width:0;min-height:100px;
- margin:0;padding:12px 10px;border:1px solid #e5ebed;
- border-radius:15px;background:#f8fbfa;box-shadow:none
+ display:flex;align-items:flex-start;gap:12px;min-width:0;min-height:0;
+ margin:0 0 3px -16px;padding:10px 0;border:0;
+ border-radius:0;background:transparent;box-shadow:none
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-number{
- display:grid;place-items:center;position:relative;flex:0 0 32px;
- width:32px;height:32px;background:#43A047;color:#fff;border-radius:10px
+ display:grid;place-items:center;position:relative;flex:0 0 29px;
+ width:29px;height:29px;background:#e7f5eb;color:#009788;
+ border:2px solid #fff;border-radius:50%
 }
 #dashboardView #f4MemberFlow .f4-member-flow-number svg{width:18px;height:18px}
 #dashboardView #f4MemberFlow .f4-member-flow-number b{
@@ -122,8 +124,7 @@
 @media(max-width:570px){
  #dashboardView #f4MemberFlow>.f4-member-flow-head{padding:11px}
  #dashboardView #f4MemberFlow .f4-member-flow-body{padding:10px}
- #dashboardView #f4MemberFlow .f4-member-flow-steps{grid-template-columns:minmax(0,1fr);gap:7px}
- #dashboardView #f4MemberFlow .f4-member-flow-steps>li{min-height:0;padding:10px}
+ #dashboardView #f4MemberFlow .f4-member-flow-steps>li{padding:9px 0}
  #dashboardView #f4MemberFlow .f4-member-flow-toggle>span{display:none}
 }
 @media screen and (prefers-reduced-motion:reduce){
