@@ -83,9 +83,9 @@ assert(memberNav.includes('#f4MemberInfoShortcut.f4-member-info-shortcut') &&
        mobile.includes('link.onclick=()=>navigate("bank-member-info")'),
  'Informasi dan Laporan needs its own functional shortcut in the right column');
 assert(mobile.includes('identity.replaceChildren(el("strong","","Halo, "+name)') &&
-       mobile.includes('brand.id="f4BankMemberTopBrand"') &&
+       !mobile.includes('brand.id="f4BankMemberTopBrand"') &&
        bankingCss.includes('>.f4-bank-app-personal-greeting{display:none}'),
- 'Member greeting must appear in the branded banking navbar without duplicated home text');
+ 'Member greeting must be the only mobile header identity, without a redundant logo/title');
 assert(mobile.includes('tile.append(memberMetricIcon(asset))') &&
        memberNav.includes('.f4-member-environment-stat svg{'),
  'Progress indicators must render purposeful SVGs');
