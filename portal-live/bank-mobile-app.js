@@ -124,7 +124,7 @@ function memberTopIdentity(){
  }
  const name=$("pName")?.textContent?.trim()||"Anggota";
  const home=$("pHome")?.textContent?.trim()||"—";
- identity.replaceChildren(el("strong","",name),el("small","","Rumah "+home));
+ identity.replaceChildren(el("strong","","Halo, "+name),el("small","","Rumah "+home));
 }
 function adminTopIdentity(){
  const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
@@ -244,7 +244,12 @@ function ensureHome(){
  }
  if(role==="member"){
   const chart=$("f4-member-weight-chart");if(chart&&chart.parentElement!==reservoir)reservoir.append(chart);
-  const flow=$("f4MemberFlow");if(flow){flow.hidden=false;if(!hub.contains(flow))hub.append(flow);}
+  const flow=$("f4MemberFlow");if(flow){
+   flow.hidden=false;flow.open=true;
+   const summary=flow.querySelector("summary");
+   if(summary&&!summary.dataset.f4Static){summary.dataset.f4Static="1";summary.tabIndex=-1;summary.addEventListener("click",event=>event.preventDefault());}
+   if(!hub.contains(flow))hub.append(flow);
+  }
   const panels=page.querySelector(".v14-panels");
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
@@ -665,6 +670,9 @@ function updateWeighingCard(){
  const detail=card.querySelector(".f4-bank-weigh-copy > span:last-child");
  if(detail)detail.textContent=weighingRule.frequency==="biweekly"?"Setiap 2 minggu":
   weighingRule.frequency==="monthly"?"Setiap bulan":"Setiap "+name;
+ const modal=$("f4BankWeighingDialog");
+ if(modal?.open){modal.querySelector(".f4-bank-schedule-date").textContent=next.days===0?"Hari ini • "+name:next.label;
+  modal.querySelector(".f4-bank-schedule-cycle").textContent=detail?.textContent||"";}
 }
 function loadWeighingDay(){
  if(role!=="member")return;
@@ -684,11 +692,40 @@ function loadWeighingDay(){
   weighingLastFetched=Date.now();updateWeighingCard();
  }).catch(()=>{}).finally(()=>{if(seq===weighingRequestId)weighingRequest=null;});
 }
+function openWeighingSchedule(){
+ if(roleType()!=="member")return;
+ let dialog=$("f4BankWeighingDialog");
+ if(!dialog){
+  dialog=el("dialog","f4-bank-sheet-modal f4-bank-schedule-dialog");dialog.id="f4BankWeighingDialog";
+  const head=el("div","f4-bank-modal-heading");
+  const title=el("h2","","Jadwal Penimbangan");
+  const close=el("button","f4-bank-modal-close");close.type="button";close.setAttribute("aria-label","Tutup jadwal");
+  close.append(bankUiSvg("x"));close.onclick=()=>dialog.close();
+  head.append(title,close);
+  const visual=el("div","f4-bank-schedule-highlight");
+  const mark=el("span","f4-bank-schedule-symbol");mark.append(image("calendar.svg"));
+  const values=el("span","f4-bank-schedule-values");
+  const date=el("strong","f4-bank-schedule-date","—");
+  const cycle=el("small","f4-bank-schedule-cycle","—");
+  values.append(date,cycle);visual.append(mark,values);
+  const note=el("p","f4-bank-schedule-note","Bawa plastik, logam, atau kertas yang sudah dipilah.");
+  dialog.append(head,visual,note);
+  dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
+  document.body.append(dialog);
+ }
+ const next=weighingNextDate();
+ dialog.querySelector(".f4-bank-schedule-date").textContent=next.days===0?"Hari ini • "+weighingDayNames[weighingWeekday]:next.label;
+ dialog.querySelector(".f4-bank-schedule-cycle").textContent=
+  weighingRule.frequency==="biweekly"?"Setiap 2 minggu":weighingRule.frequency==="monthly"?"Setiap bulan":"Setiap "+weighingDayNames[weighingWeekday];
+ if(!dialog.open)dialog.showModal();
+ loadWeighingDay();
+}
 function ensureWeighingSchedule(home){
  if(role!=="member"||!home)return;
  let card=$("f4BankWeighingSchedule");
  if(!card){
-  card=el("section","f4-bank-weigh-schedule");card.id="f4BankWeighingSchedule";
+  card=el("button","f4-bank-weigh-schedule");card.type="button";card.id="f4BankWeighingSchedule";
+  card.setAttribute("aria-label","Lihat jadwal penimbangan");card.onclick=openWeighingSchedule;
   const icon=el("span","f4-bank-weigh-icon");icon.append(image("calendar.svg"));
   const content=el("span","f4-bank-weigh-copy");
   content.append(el("small","","JADWAL BERIKUTNYA"),el("strong","","—"),el("span","","Memuat jadwal…"));
@@ -1689,6 +1726,19 @@ function memberSide(enabled){
  document.body.classList.remove("f4-bank-drawer-open");
  document.body.classList.toggle("f4-bank-member-desktop",visible);
 }
+function memberMetricIcon(type){
+ const paths={
+  weight:'<path d="M12 3v18M5 7h14M3 13l3-6 3 6H3Zm12 0 3-6 3 6h-6ZM8 21h8"/>',
+  sales:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 15h3M15 15h3"/>',
+  stage:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 5 3 3 5-5"/>',
+  report:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>'
+ };
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");
+ svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.9");
+ svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+ svg.setAttribute("aria-hidden","true");svg.innerHTML=paths[type]||paths.report;return svg;
+}
 function progressPreview(){
  if(roleType()!=="member")return;
  const home=$("f4BankAppHome");if(!home)return;
@@ -1709,9 +1759,9 @@ function progressPreview(){
  const rows=[...($("f4DevStats")?.querySelectorAll(".f4-dev-stat")||[])];
  const values=rows.map(node=>node.querySelector(".f4-dev-stat-value")?.textContent?.trim()||"—");
  const stats=$("f4MemberEnvironmentStats");
- stats.replaceChildren(...[["Berat sah",values[0]||"—","bank.svg"],["Hasil jual",values[2]||"—","cash.svg"],["Tahap",values[3]||"—","calendar.svg"]].map(([label,value,asset])=>{
+ stats.replaceChildren(...[["Berat sah",values[0]||"—","weight"],["Hasil jual",values[2]||"—","sales"],["Tahap",values[3]||"—","stage"]].map(([label,value,asset])=>{
   const tile=el("div","f4-member-environment-stat");
-  tile.append(image(asset));
+  tile.append(memberMetricIcon(asset));
   const data=el("span");data.append(el("small","",label),el("strong","",value));tile.append(data);return tile;
  }));
  const latest=$("f4MemberEnvironmentLatest"),activity=$("v17Timeline")?.querySelector(".f4-dev-activity");
@@ -1726,7 +1776,9 @@ function infoShortcut(){
  let link=$("f4MemberInfoShortcut");
  if(!link){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
-  link.append(image("book.svg"),el("span","","Informasi & Laporan"),bankIconSpan("f4-member-next","chevron-right"));
+  const symbol=el("span","f4-member-info-icon");symbol.append(memberMetricIcon("report"));
+  const copy=el("span","f4-member-info-copy");copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
+  link.append(symbol,copy,bankIconSpan("f4-member-next","chevron-right"));
   link.onclick=()=>navigate("bank-member-info");
  }
  home.append(link);
@@ -1828,6 +1880,9 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(roleType()==="member"&&route==="bank-prices"){
+  window.F4MemberPrices?.show();return;
+ }
  if(roleType()&&route!==screen&&!returningFromBack){
   routeHistory.push(screen);
   if(routeHistory.length>24)routeHistory.shift();
@@ -1966,6 +2021,8 @@ function resetRoleSurface(){
   menu.setAttribute("aria-label","Buka menu halaman");menu.title="Buka menu halaman";
  }
  $("f4BankProfileDetail")?.remove();
+ $("f4BankWeighingDialog")?.close();
+ window.F4MemberPrices?.close?.();
  const history=$("bank-admin-history"),section=$("dashboardView")?.querySelector(".grid > .section");
  for(const id of ["pageRiwayat","pageRiwayatJual"]){
   const page=$(id);if(page&&history?.contains(page)&&section)section.append(page);
