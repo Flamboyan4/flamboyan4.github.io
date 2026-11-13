@@ -180,8 +180,23 @@ assert(mobile.includes('if(!received||!expected||expected==="Administrator"||rec
 assert(css.includes('background:#e2f4df;color:#167244') &&
        css.includes('.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg'),
  'Schedule and price should use matched green icon tokens and true SVGs');
-assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
+assert(!css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)') &&
+       css.includes('#dashboardView #pageProfile .f4-bank-profile-detail>.f4-bank-profile-card{') &&
+       css.includes('#dashboardView #pageProfile .f4-bank-profile-detail>.f4-bank-profile-card::before') &&
+       css.includes('#dashboardView #pageProfile .f4-bank-profile-detail>.f4-bank-profile-card::after'),
+ 'Profile ATM must inherit the single dashboard gradient, size and both decorative layers');
 assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")'), 'ATM contactless graphic must use SVG');
+assert(mobile.includes('const copy=el("div","f4-bank-member-card f4-bank-profile-card")') &&
+       mobile.includes('for(const node of card.childNodes)copy.append(node.cloneNode(true))'),
+ 'Profile card should clone member ATM content without being a second clickable button');
+assert(css.includes('--profile-yellow:#ffc411;--profile-lime:#8bc34a;--profile-leaf:#43a047;') &&
+       css.includes('--profile-teal:#009688;--profile-cyan:#00bcd4;') &&
+       css.includes('grid-template-columns:minmax(0,1fr) minmax(0,1fr)'),
+ 'Profile uses the supplied five-color palette and responsive financial-app composition');
+assert(css.includes('body :is(button,a,summary,[role="button"],[role="tab"],label[for]){') &&
+       css.includes('-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;') &&
+       !css.includes('body *{user-select:none'),
+ 'Interactive controls suppress selection flash while ordinary reports remain selectable');
 assert(mobile.includes('number.id="f4BankCardNumber"') && mobile.includes('person.querySelector("strong").id="f4BankCardName"'), 'ATM number and member name must remain bound to the real account');
 assert(mobile.includes('if(personName)personName.id="f4BankProfileName"'), 'Profile clone must not duplicate member name DOM IDs');
 assert(css.includes('f4-bank-atm-center') && css.includes('f4-bank-atm-contactless'), 'ATM must contain shared chip and contactless design');
