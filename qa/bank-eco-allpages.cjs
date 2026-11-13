@@ -189,6 +189,12 @@ assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")')
 assert(mobile.includes('const copy=el("div","f4-bank-member-card f4-bank-profile-card")') &&
        mobile.includes('for(const node of card.childNodes)copy.append(node.cloneNode(true))'),
  'Profile card should clone member ATM content without being a second clickable button');
+assert(memberNav.includes('--member-nav-accent:#43a047') &&
+       memberNav.includes('--member-nav-accent:#009688') &&
+       memberNav.includes('--member-nav-accent:#b98b00') &&
+       memberNav.includes('--member-nav-accent:#00a9bf') &&
+       memberNav.includes('--member-nav-accent:#7aa938'),
+ 'Member SVG navigation icon colors must use the selected palette while maintaining dark readable labels');
 assert(css.includes('--profile-yellow:#ffc411;--profile-lime:#8bc34a;--profile-leaf:#43a047;') &&
        css.includes('--profile-teal:#009688;--profile-cyan:#00bcd4;') &&
        css.includes('grid-template-columns:minmax(0,1fr) minmax(0,1fr)'),
