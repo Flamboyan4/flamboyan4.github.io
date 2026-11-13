@@ -458,7 +458,7 @@ async def bank_real_mobile_dock_bidirectional_scroll(browser):
     from pathlib import Path
     import re
     source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    root_rule=re.search(r"html,body,body>\\.shell,body>\\.shell>\\.content\\{[^{}]+\\}",source)
+    root_rule=re.search(r"html,body,body>\.shell,body>\.shell>\.content\{[^{}]+\}",source)
     assert root_rule and "overflow-x:clip" in root_rule.group(0),root_rule
     for role in ("admin","member"):
         context=await browser.new_context(
