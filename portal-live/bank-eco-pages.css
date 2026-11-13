@@ -492,7 +492,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card{
 #dashboardView .f4-bank-app-personal-greeting strong{color:#163f2c;font-weight:850;font-size:20px;letter-spacing:-.035em}
 #dashboardView .f4-bank-app-personal-greeting small{font-size:11px;color:#718376}
 #dashboardView .f4-bank-member-card{position:relative;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:24px;width:100%;aspect-ratio:1.78;max-height:220px;overflow:hidden;text-align:left;padding:17px 19px;background:#43a047;border:0;border-radius:22px;box-shadow:0 12px 28px #208b4330;color:#fff;cursor:pointer}
-#dashboardView .f4-bank-member-card:after{content:"";position:absolute;right:-10px;bottom:-48px;width:min(80%,380px);height:260px;background:url('/assets/icons/bank-leaf-watermark.svg') center/contain no-repeat;opacity:.075;pointer-events:none}
+#dashboardView .f4-bank-member-card:after{content:"";position:absolute;right:-10px;bottom:-48px;width:min(80%,380px);height:260px;background:url('/assets/icons/bank-leaf-watermark.svg?v=20261113-curves-v2') center/contain no-repeat;opacity:.11;pointer-events:none}
 #dashboardView .f4-bank-profile-detail{display:grid;gap:11px;min-width:0;margin-bottom:18px;border-bottom:1px solid #dfebe4;padding-bottom:18px}
 #dashboardView .f4-bank-profile-detail h3{font-size:16px;color:#1c5138;margin:0}
 #dashboardView .f4-bank-profile-detail .f4-bank-profile-card{max-width:410px;pointer-events:none;cursor:default}
