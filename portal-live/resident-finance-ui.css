@@ -1,5 +1,5 @@
 /* Kas Saya (Portal Utama): compact three-column PC layout and mobile sheets.
-   One scoped stylesheet, no !important declarations. */
+   One scoped stylesheet, no  declarations. */
 #keuangan.f4-finance-personal-active .f4-user-finance {
   background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 12px;min-width:0;
 }
