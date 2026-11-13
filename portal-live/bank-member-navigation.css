@@ -32,7 +32,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView>.grid{display:block;min-width:0}
  body.f4-bank-app-member #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;width:calc(100% - 226px);
-  max-width:none;margin:0 0 0 226px;padding:22px clamp(20px,2.5vw,32px) 50px;
+  max-width:none;margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;
   background:#fff
  }
  body.f4-bank-app-member #dashboardView #sideNav.side{

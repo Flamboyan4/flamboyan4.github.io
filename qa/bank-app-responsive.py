@@ -51,8 +51,8 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <div class="f4-bank-app-personal-greeting"><strong>Halo, Anggota!</strong><small>Rumah A5/41</small></div>
 <button id="f4BankMemberCard" class="f4-bank-member-card"><span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand"><img src="/assets/logo-flamboyan.svg"><span class="f4-bank-atm-brand-label">BANK SAMPAH FLAMBOYAN 4</span></span><span class="f4-bank-atm-contactless"><svg viewBox="0 0 32 32"><path d="M8 11a8 8 0 0 1 0 10M13 7a13 13 0 0 1 0 18M18 3a19 19 0 0 1 0 26"/></svg></span></span><span class="f4-bank-atm-center"><span class="f4-bank-member-card-chip"></span><strong id="f4BankCardNumber" class="f4-bank-atm-number">W017</strong></span><span class="f4-bank-member-card-foot"><span class="f4-bank-atm-person"><small>NAMA ANGGOTA</small><strong id="f4BankCardName" class="f4-bank-atm-person-name">Heri Juwandi</strong></span><span class="f4-bank-atm-house"><small>RUMAH</small><strong class="f4-bank-card-house">A5/41</strong></span></span></button>
 <div id="f4BankAppMemberBalance" class="f4-bank-app-member-balance" role="group">
- <div class="f4-bank-balance-head"><span class="f4-bank-member-balance-label">Saldo Tersedia</span><button type="button" class="f4-bank-balance-eye" aria-label="Sembunyikan saldo" aria-pressed="false"><svg viewBox="0 0 24 24"></svg></button></div>
- <strong class="f4-bank-member-balance-value">Rp 3.000</strong><button type="button" class="f4-bank-balance-cta">Cek Tabungan</button></div>
+ <div class="f4-bank-balance-head"><span class="f4-bank-member-balance-label">Saldo Tersedia</span><button type="button" class="f4-bank-balance-eye" aria-label="Tampilkan saldo" aria-pressed="true"><svg viewBox="0 0 24 24"></svg></button></div>
+ <strong class="f4-bank-member-balance-value">••••••</strong><button type="button" class="f4-bank-balance-cta">Cek Tabungan</button></div>
 <section id="f4MemberQuickActions" class="f4-member-shortcuts" aria-label="Jadwal dan daftar harga">
  <section id="f4BankWeighingSchedule" class="f4-bank-weigh-schedule"><span class="f4-bank-weigh-icon"><img src="/assets/icons/calendar.svg"></span><span class="f4-bank-weigh-copy"><small>JADWAL BERIKUTNYA</small><strong>Minggu, 15 November 2026</strong><span>Setiap 2 minggu</span></span></section>
  <button id="f4MemberPriceShortcut" class="f4-bank-price-shortcut"><span class="f4-bank-price-shortcut-icon"><svg viewBox="0 0 24 24"><path d="M7 19l-3-3"/></svg></span><span class="f4-bank-price-shortcut-copy"><strong class="f4-bank-price-shortcut-label">Daftar Harga</strong><small>Tarif warga per kg</small></span></button>
@@ -118,6 +118,7 @@ async def member_layout(browser):
             progress:rect('#f4MemberEnvironmentPreview'),info:rect('#f4MemberInfoShortcut'),
             banner:rect('#f4MemberHowtoBanner'),
             outerBorder:getComputedStyle(root).borderTopWidth,
+            sectionTopPadding:getComputedStyle(document.querySelector('#dashboardView>.grid>.section')).paddingTop,
             sectionBottomPadding:getComputedStyle(document.querySelector('#dashboardView>.grid>.section')).paddingBottom,
             parent:card.parentElement.id,cardBackground:getComputedStyle(card).backgroundImage,
             walletGradient:getComputedStyle(bal).backgroundImage,
@@ -161,6 +162,7 @@ async def member_layout(browser):
             assert abs(result["guide"]["y"]-result["info"]["y"])<3,(device,result)
             assert result["guide"]["right"]<=result["info"]["x"]+3,(device,result)
             assert result["guide"]["h"]<225 and result["info"]["h"]<225,(device,result)
+            assert float(result["sectionTopPadding"].replace("px",""))<=12,(device,result)
             assert result["banner"]["y"]>=result["info"]["bottom"]-3,(device,result)
             assert abs(result["banner"]["w"]/result["banner"]["h"]-3.2)<0.05,(device,result)
         else:
@@ -189,7 +191,7 @@ async def member_balance_refresh_preserves_design(browser):
         await page.set_content(MEMBER_HTML,wait_until="load")
         result=await page.evaluate("""({fn})=>{
           const card=document.querySelector('#f4BankAppMemberBalance');
-          const statement={saldo:3000},privacy={hidden:false};
+          const statement={saldo:3000},privacy={hidden:true};
           const update=new Function('role','memberStatement','$','rupiah','dashboardMetrics','memberBalancePrivacy',
               fn+'return updateDashboard;')(
              'member',statement,id=>document.getElementById(id),
@@ -202,6 +204,8 @@ async def member_balance_refresh_preserves_design(browser):
           const amount=card.querySelector('.f4-bank-member-balance-value');
           const updated=amount?.textContent;
           const eye=card.querySelector('.f4-bank-balance-eye');
+          privacy.hidden=false;update();
+          const revealed=amount?.textContent;
           privacy.hidden=true;update();
           const hidden=amount?.textContent;
           const hiddenPressed=eye?.getAttribute('aria-pressed');
@@ -214,7 +218,7 @@ async def member_balance_refresh_preserves_design(browser):
           const after=card.querySelector('.f4-bank-balance-cta');
           const a=amount.getBoundingClientRect(),b=after.getBoundingClientRect(),
               cardBox=card.getBoundingClientRect();
-          return {first,updated,hidden,hiddenPressed,hiddenLabel,remainsHidden,shownAgain,
+          return {first,updated,revealed,hidden,hiddenPressed,hiddenLabel,remainsHidden,shownAgain,
            eyeTag:eye?.tagName,ctaTag:after?.tagName,eyePressed:eye?.getAttribute('aria-pressed'),
            label:label?.textContent,
            cta:after?.textContent,retained:cta===after,childCount:card.children.length,
@@ -224,7 +228,7 @@ async def member_balance_refresh_preserves_design(browser):
            ctaGradient:getComputedStyle(after).backgroundImage,
            ctaRatio:b.width/cardBox.width,overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""",{"fn":fn})
-        assert result["first"]=="Rp 3.000" and result["updated"]=="Rp 15.000",(device,result)
+        assert result["first"]=="••••••" and result["updated"]=="••••••" and result["revealed"]=="Rp 15.000",(device,result)
         assert result["label"]=="Saldo Tersedia" and result["cta"]=="Cek Tabungan",(device,result)
         assert result["hidden"]=="••••••" and result["remainsHidden"]=="••••••",(device,result)
         assert result["hiddenPressed"]=="true" and result["hiddenLabel"]=="Tampilkan saldo",(device,result)
@@ -316,6 +320,9 @@ async def savings_chart(browser):
       const tile=icon?getComputedStyle(icon):null;
       return {
         route:center?.dataset.bankAppRoute,label:label?.textContent,
+        accessibleLabel:center?.getAttribute('aria-label'),
+        buttonCenterX:center?.getBoundingClientRect().x+(center?.getBoundingClientRect().width||0)/2,
+        iconCenterX:icon?.getBoundingClientRect().x+(icon?.getBoundingClientRect().width||0)/2,
         primary:center?.classList.contains('is-primary'),
         svg:!!svg,word:word?.textContent||null,
         wordFill:word?getComputedStyle(word).fill:null,
@@ -332,12 +339,12 @@ async def savings_chart(browser):
         overflow:document.documentElement.scrollWidth>window.innerWidth+3
       };
     }""")
-    assert money_icon["route"]=="bank-payout" and money_icon["label"]=="Pencairan",money_icon
+    assert money_icon["route"]=="bank-payout" and money_icon["accessibleLabel"]=="Pencairan" and money_icon["label"] is None,money_icon
     assert money_icon["primary"] and money_icon["svg"] and money_icon["word"]=="Rp",money_icon
     assert money_icon["wordFill"]=="rgb(255, 255, 255)" and money_icon["iconBackground"]=="rgb(255, 199, 25)",money_icon
-    assert money_icon["iconTop"]<money_icon["navTop"] and money_icon["iconBottom"]<money_icon["labelTop"],money_icon
-    assert abs(money_icon["labelTop"]-money_icon["firstLabelTop"])<7,money_icon
-    assert 56<=money_icon["iconWidth"]<=60 and 56<=money_icon["iconHeight"]<=60,money_icon
+    assert money_icon["iconTop"]<money_icon["navTop"] and money_icon["iconBottom"]>money_icon["navTop"],money_icon
+    assert abs(money_icon["buttonCenterX"]-money_icon["iconCenterX"])<2,money_icon
+    assert 58<=money_icon["iconWidth"]<=68 and 58<=money_icon["iconHeight"]<=68,money_icon
     assert money_icon["iconRadius"]=="50%" and money_icon["iconBorder"]=="3px" and money_icon["iconBorderColor"]=="rgb(255, 255, 255)",money_icon
     assert not money_icon["overflow"],money_icon
     print("MEMBER_PAYOUT_ORIGINAL_RP_DOCK_OK",money_icon,flush=True)

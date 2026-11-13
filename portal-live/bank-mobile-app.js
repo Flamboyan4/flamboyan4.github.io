@@ -47,7 +47,7 @@ let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let memberHomeChartGroup="month";
-let memberBalancePrivacy={hidden:false};
+let memberBalancePrivacy={hidden:true};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
@@ -75,7 +75,8 @@ function action([title,route,asset],dock=false){
   svg.innerHTML='<text x="36" y="45" text-anchor="middle">Rp</text>';
   symbol.append(svg);
  }else symbol.append(image(asset));
- b.append(symbol,el("span","f4-bank-app-action-name",title));
+ b.append(symbol);
+ if(!isMemberPayout)b.append(el("span","f4-bank-app-action-name",title));
  b.onclick=()=>navigate(route);return b;
 }
 function dock(){
@@ -220,9 +221,9 @@ function ensureHome(){
   savings.setAttribute("role","group");savings.setAttribute("aria-label","Ringkasan saldo Bank Sampah");
   const balanceHead=el("div","f4-bank-balance-head");
   const balanceEye=el("button","f4-bank-balance-eye");balanceEye.type="button";
-  balanceEye.setAttribute("aria-label","Sembunyikan saldo");
-  balanceEye.setAttribute("aria-pressed","false");
-  balanceEye.title="Sembunyikan saldo";
+  balanceEye.setAttribute("aria-label","Tampilkan saldo");
+  balanceEye.setAttribute("aria-pressed","true");
+  balanceEye.title="Tampilkan saldo";
   const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
   balanceEyeSvg.setAttribute("aria-hidden","true");
@@ -231,6 +232,7 @@ function ensureHome(){
   balanceEyeSvg.setAttribute("stroke-width","1.9");
   balanceEyeSvg.setAttribute("stroke-linecap","round");
   balanceEyeSvg.setAttribute("stroke-linejoin","round");
+  balanceEyeSvg.innerHTML='<path d="M3 3l18 18"/><path d="M10.6 5.1A10.7 10.7 0 0 1 12 5c5.4 0 9.2 5.5 9.2 7a15 15 0 0 1-3 3.6"/><path d="M6.6 6.6C4.4 8 2.8 10.5 2.8 12c0 1.6 3.8 7 9.2 7 1.5 0 2.9-.4 4.1-1"/><path d="M10 10a2.8 2.8 0 0 0 4 4"/>';
   balanceEye.append(balanceEyeSvg);
   balanceEye.onclick=event=>{
    event.preventDefault();event.stopPropagation();
@@ -239,9 +241,8 @@ function ensureHome(){
   balanceHead.append(el("span","f4-bank-member-balance-label","Saldo Tersedia"),balanceEye);
   const balanceLink=el("button","f4-bank-balance-cta","Cek Tabungan");balanceLink.type="button";
   balanceLink.onclick=()=>navigate("pribadi");
-  savings.append(balanceHead,el("strong","f4-bank-member-balance-value","—"),balanceLink);
-  // Preserve clicking the card background; the eye and CTA are independent buttons.
-  savings.onclick=event=>{if(!event.target.closest("button"))navigate("pribadi");};
+  savings.append(balanceHead,el("strong","f4-bank-member-balance-value","••••••"),balanceLink);
+  // Only Cek Tabungan navigates; toggling the eye never selects the entire card.
   const hero=el("div","f4-bank-app-hero");hero.id="f4BankAppAdminHero";
   const heading=el("small","","BANK SAMPAH FLAMBOYAN 4"),label=el("strong","f4-bank-app-balance-title","Hasil diterima lapak"),
     amount=el("strong","f4-bank-app-balance","—"),secondary=el("span","f4-bank-app-secondary","Memuat...");
@@ -2156,7 +2157,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
- resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=false;
+ resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.

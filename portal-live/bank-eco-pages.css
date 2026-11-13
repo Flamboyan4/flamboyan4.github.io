@@ -1657,7 +1657,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
   outline:2px solid #278655;outline-offset:-2px
  }
- /* Only the gold badge rises; "Pencairan" stays level with the other labels. */
+ /* Large centered gold payout badge; accessible label lives on the button, not below it. */
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary{
   position:relative;z-index:2;display:block;
   width:100%;height:100%;min-height:0;margin:0;padding:0;
@@ -1668,27 +1668,22 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
   background:transparent;color:#5a471c;box-shadow:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
-  position:absolute;left:50%;bottom:29px;
+  position:absolute;left:50%;bottom:9px;
   display:grid;place-items:center;
-  width:58px;height:58px;min-width:58px;min-height:58px;
+  width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px);min-width:0;min-height:0;
   box-sizing:border-box;padding:0;border:3px solid #fff;border-radius:50%;
-  background:#ffc719;color:#fff;box-shadow:0 0 0 1px #d9e4d9,0 6px 15px #856b2433;
+  background:#ffc719;color:#fff;box-shadow:0 6px 15px #856b2433;
   transform:translateX(-50%)
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
-  display:block;width:38px;height:38px;fill:#fff;stroke:none
+  display:block;width:44px;height:44px;fill:#fff;stroke:none
  }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
   font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
   letter-spacing:-2px;fill:#fff;stroke:none
  }
- body.f4-bank-app-member .f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{
-  position:absolute;left:0;right:0;bottom:6px;
-  display:block;width:100%;color:#594719;
-  font-size:11px;font-weight:850;line-height:1.2;text-align:center
- }
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:focus-visible{
-  outline:2px solid #218a55;outline-offset:3px;border-radius:12px
+  outline:2px solid #218a55;outline-offset:3px;border-radius:50%
  }
 
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
@@ -1773,7 +1768,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  min-width:0;width:100%;height:236px;min-height:0;margin:0;
  padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;
  background:#fff;
- box-shadow:0 6px 19px #174d2f0e;color:var(--member-ink);cursor:pointer
+ box-shadow:0 6px 19px #174d2f0e;color:var(--member-ink);cursor:default
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-member-balance-label{
  color:#496c58;font-size:15px;line-height:1.3;font-weight:650;letter-spacing:0;text-transform:none
@@ -1784,8 +1779,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-balance-eye{
  display:grid;place-items:center;flex:0 0 36px;box-sizing:border-box;
  width:36px;height:36px;min-width:36px;min-height:36px;margin:0;padding:7px;
- border:1px solid #dbe9df;border-radius:50%;background:#f2f8f3;
- color:#237351;box-shadow:none;cursor:pointer
+ border:0;border-radius:0;background:transparent;
+ color:#237351;box-shadow:none;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankAppMemberBalance .f4-bank-balance-eye svg{
  display:block;width:20px;height:20px

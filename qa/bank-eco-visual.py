@@ -86,11 +86,11 @@ MEMBER_FIXTURE = """
       </button>
       <div id="f4BankAppMemberBalance" class="f4-bank-app-member-balance" role="group">
        <div class="f4-bank-balance-head"><span class="f4-bank-member-balance-label">Saldo Tersedia</span>
-        <button type="button" class="f4-bank-balance-eye" aria-label="Sembunyikan saldo" aria-pressed="false">
+        <button type="button" class="f4-bank-balance-eye" aria-label="Tampilkan saldo" aria-pressed="true">
          <svg viewBox="0 0 24 24"><path d="M2.8 12S6.6 5 12 5s9.2 7 9.2 7-3.8 7-9.2 7-9.2-7-9.2-7Z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
        </div>
-       <strong class="f4-bank-member-balance-value">Rp 3.000</strong>
+       <strong class="f4-bank-member-balance-value">••••••</strong>
        <button type="button" class="f4-bank-balance-cta">Cek Tabungan</button>
       </div>
       <section id="f4MemberQuickActions" class="f4-member-shortcuts">

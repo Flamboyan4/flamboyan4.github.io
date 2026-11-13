@@ -219,16 +219,22 @@ assert(h.includes("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])"),'Dashboa
 const memberRecentPreview=h.split("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])")[1]?.split("const recentBox=$('v14Recent')")[0]||"";
 assert(memberRecentPreview.includes('.sort(') && memberRecentPreview.includes('.slice(0,3)'),
  'Home mutasi must remain limited to the latest three true ledger movements');
-assert(mobile.includes('let memberBalancePrivacy={hidden:false}') &&
+assert(mobile.includes('let memberBalancePrivacy={hidden:true}') &&
        mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();') &&
        mobile.includes('memberBalancePrivacy.hidden?"••••••":realAmount') &&
        mobile.includes('balanceLink.onclick=()=>navigate("pribadi")') &&
-       mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=false;'),
+       mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=true;'),
  'Saldo hide and unhide must not navigate or overwrite the actual live balance');
-assert(css.includes('width:58px;height:58px;min-width:58px;min-height:58px') &&
+assert(css.includes('width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px)') &&
        css.includes('border:3px solid #fff;border-radius:50%') &&
        css.includes('.f4-bank-balance-head{'),
  'Payout must be round with a white outline and the balance has a separate eye');
+assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;') &&
+       !mobile.includes('savings.onclick=event=>') &&
+       css.includes('color:var(--member-ink);cursor:default') &&
+       css.includes('border:0;border-radius:0;background:transparent;') &&
+       css.includes('box-shadow:0 6px 15px #856b2433;'),
+ 'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
 assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
        css.includes('padding-bottom:calc(var(--f4-bank-dock-height) + 8px)'),
  'Only one bottom-dock clearance should remain on mobile');
@@ -281,11 +287,14 @@ assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old 
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
 assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
-       dockSection.includes('position:absolute;left:50%;bottom:29px') &&
-       dockSection.includes('position:absolute;left:0;right:0;bottom:6px') &&
+       dockSection.includes('position:absolute;left:50%;bottom:9px') &&
+       dockSection.includes('border:3px solid #fff;border-radius:50%') &&
        dockSection.includes('background:#ffc719') &&
+       !dockSection.includes('0 0 0 1px #d9e4d9') &&
+       !dockSection.includes('.f4-bank-app-dock-action.is-primary .f4-bank-app-action-name{') &&
+       mobile.includes('if(!isMemberPayout)b.append(el("span","f4-bank-app-action-name",title))') &&
        dockSection.includes('.f4-bank-payout-rp-icon text{'),
- 'Only the yellow Rp badge must rise; Pencairan label stays level with sibling dock labels');
+ 'Only the centered yellow Rp badge rises; Pencairan remains accessible without a visible text label');
 assert(mobile.includes('svg.innerHTML=\'<text x="36" y="45" text-anchor="middle">Rp</text>\''),
  'Original white Rp wordmark must be restored as SVG, not a stylized line icon');
 // Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
