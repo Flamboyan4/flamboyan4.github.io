@@ -1704,16 +1704,14 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  box-sizing:border-box;display:grid;min-width:0;width:100%;max-width:1160px;margin-inline:auto;
  grid-template-columns:minmax(0,7fr) minmax(0,5fr);
  grid-template-areas:
-  "welcome welcome"
   "card balance"
   "recent quick"
-  "recent guide"
-  "progress progress"
-  "info info";
- gap:18px 20px;align-items:start;align-content:start
+  "recent info"
+  "progress guide";
+ gap:16px 20px;align-items:stretch;align-content:start
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>.f4-bank-app-personal-greeting{
- grid-area:welcome;min-width:0;padding:0 0 4px;margin:0
+ display:none;min-width:0;margin:0;padding:0
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>:is(#f4BankAppAdminHero,#f4BankAppMinis){display:none}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{
@@ -1769,7 +1767,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  border:1px solid #e7edf0;border-radius:22px;background:#fff;
  box-shadow:0 5px 16px #142f390b;color:#192b37;text-align:left
 }
-#dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut{
+#dashboardView #f4MemberQuickActions>:is(#f4MemberPriceShortcut,#f4BankWeighingSchedule){
  cursor:pointer;font:inherit
 }
 #dashboardView #f4MemberQuickActions>#f4MemberPriceShortcut:focus-visible{
@@ -1779,12 +1777,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-icon{
  box-sizing:border-box;display:grid;place-items:center;flex:0 0 44px;
  width:44px;height:44px;margin:0;border:0;border-radius:50%;
- background:#09BCD326;color:#00889b
+ background:#e9f5ec;color:#24774e
 }
 #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-icon{
- background:#8BC24A2b;color:#43A047
+ background:#e9f5ec;color:#24774e
 }
-#dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon img,.f4-bank-price-shortcut-icon svg){
+#dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
  display:block;width:23px;height:23px;object-fit:contain
 }
 #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy,
@@ -1816,12 +1814,12 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  margin:0;font-size:18px;line-height:1.35;font-weight:850;color:#192b37
 }
 #dashboardView #f4MemberAside.f4-member-aside{
- box-sizing:border-box;grid-area:guide;display:block;align-self:start;
- min-width:0;width:100%;margin:0;padding:0
+ box-sizing:border-box;grid-area:guide;display:block;align-self:stretch;
+ min-width:0;width:100%;height:100%;margin:0;padding:0
 }
 #dashboardView #f4MemberAside>.f4-member-flow{margin:0;min-width:0}
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberEnvironmentPreview{
- box-sizing:border-box;grid-area:progress;min-width:0;width:100%
+ box-sizing:border-box;grid-area:progress;min-width:0;width:100%;height:100%;align-self:stretch
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut{
  box-sizing:border-box;grid-area:info;min-width:0;width:100%
@@ -1867,7 +1865,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 @media(max-width:780px){
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
   grid-template-columns:minmax(0,1fr);
-  grid-template-areas:"welcome" "card" "balance" "quick" "recent" "guide" "progress" "info";
+  grid-template-areas:"card" "balance" "quick" "recent" "info" "progress" "guide";
   gap:15px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard{
@@ -2109,3 +2107,75 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 #dashboardView .f4-member-name-save svg,
 #dashboardView .f4-member-name-cancel svg{display:block;width:18px;height:18px;flex:none}
 
+
+
+/* Dialog warga: satu gaya pop-up untuk jadwal dan tarif, tanpa mengubah navigasi. */
+dialog.f4-bank-sheet-modal{
+ box-sizing:border-box;position:fixed;inset:0;margin:auto;
+ width:min(520px,calc(100vw - 28px));max-width:520px;max-height:min(85dvh,760px);
+ overflow-y:auto;overscroll-behavior:contain;
+ padding:22px;border:1px solid #e0eae4;border-radius:22px;
+ background:#fff;color:#193b2c;box-shadow:0 25px 90px #082d2440;
+ font:inherit
+}
+dialog.f4-bank-sheet-modal:not([open]){display:none}
+dialog.f4-bank-sheet-modal::backdrop{background:#152b2673;backdrop-filter:blur(2px)}
+.f4-bank-sheet-modal .f4-bank-modal-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin:0 0 17px;padding:0 0 13px;border-bottom:1px solid #e7eee9
+}
+.f4-bank-sheet-modal .f4-bank-modal-heading h2{
+ margin:0;color:#193b2c;font-size:20px;line-height:1.25;font-weight:850
+}
+.f4-bank-sheet-modal .f4-bank-modal-close{
+ display:grid;place-items:center;flex:none;width:34px;height:34px;
+ padding:0;border:0;border-radius:10px;background:#f1f6f2;color:#385b47;cursor:pointer
+}
+.f4-bank-sheet-modal .f4-bank-modal-close svg{
+ display:block;width:20px;height:20px;fill:none;stroke:currentColor
+}
+.f4-bank-sheet-modal .f4-bank-modal-close:focus-visible{outline:2px solid #238558;outline-offset:2px}
+.f4-bank-schedule-dialog .f4-bank-schedule-highlight{
+ display:flex;align-items:center;gap:15px;padding:19px 17px;
+ border-radius:16px;background:#f0f8f2
+}
+.f4-bank-schedule-dialog .f4-bank-schedule-symbol{
+ flex:none;display:grid;place-items:center;width:52px;height:52px;
+ border-radius:15px;background:#d7ebdc;color:#22784c
+}
+.f4-bank-schedule-dialog .f4-bank-schedule-symbol svg{width:27px;height:27px;stroke:currentColor;fill:none}
+.f4-bank-schedule-dialog .f4-bank-schedule-values{display:grid;gap:5px;min-width:0}
+.f4-bank-schedule-dialog .f4-bank-schedule-date{
+ color:#154d32;font-size:19px;line-height:1.25;font-weight:850
+}
+.f4-bank-schedule-dialog .f4-bank-schedule-cycle{color:#527561;font-size:12px;font-weight:650}
+.f4-bank-schedule-dialog .f4-bank-schedule-note{font-size:13px;line-height:1.45;color:#5f7467;margin:15px 2px 0}
+.f4-bank-prices-screen .f4-bank-prices-intro{color:#64786d;font-size:12px;margin:0 0 14px;line-height:1.4}
+.f4-bank-prices-screen .f4-bank-price-search{
+ box-sizing:border-box;width:100%;height:43px;padding:10px 12px;margin:0;
+ background:#f7faf8;border:1px solid #dbe8df;border-radius:11px;
+ color:#234632;font:inherit;font-size:13px
+}
+.f4-bank-prices-screen .f4-bank-prices-status{margin:11px 0;color:#6d8275;font-size:11px}
+.f4-bank-prices-screen .f4-bank-prices-groups{
+ display:grid;grid-template-columns:1fr;gap:13px;min-width:0
+}
+.f4-bank-prices-screen .f4-bank-prices-group{
+ margin:0;padding:0;border:0;background:transparent
+}
+.f4-bank-prices-screen .f4-bank-prices-group h3{
+ margin:0 0 7px;font-size:12px;color:#1b6b44;font-weight:850
+}
+.f4-bank-prices-screen .f4-bank-price-row{
+ display:flex;align-items:center;justify-content:space-between;gap:14px;
+ padding:10px 0;margin:0;border:0;border-bottom:1px solid #ecf1ed;
+ font-size:13px;color:#294835;background:transparent
+}
+.f4-bank-prices-screen .f4-bank-price-row strong{
+ flex:none;color:#126b43;font-weight:850;font-variant-numeric:tabular-nums
+}
+@media(max-width:600px){
+ dialog.f4-bank-sheet-modal{width:calc(100vw - 20px);max-height:88dvh;padding:16px;border-radius:17px}
+ .f4-bank-sheet-modal .f4-bank-modal-heading h2{font-size:18px}
+ .f4-bank-schedule-dialog .f4-bank-schedule-date{font-size:17px}
+}
