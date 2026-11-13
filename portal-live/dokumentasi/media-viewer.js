@@ -246,9 +246,27 @@ function ensure(){
  window.addEventListener('popstate',()=>{
   closing=false;
   const layer=history.state?.f4DocOverlay;
-  if(isOpen(photo)&&layer!=='photo'){stopVideo();show(photo,false);view.replaceChildren();if(isOpen(album))lastTile?.focus({preventScroll:true});}
-  if(isOpen(album)&&layer!=='photo'&&layer!=='album')show(album,false);
+  if(isOpen(photo)&&layer!=='photo'){
+   stopVideo();show(photo,false);view.replaceChildren();
+   clearClosedLink('foto');
+   if(isOpen(album))lastTile?.focus({preventScroll:true});
+  }
+  if(isOpen(album)&&layer!=='photo'&&layer!=='album'){
+   show(album,false);
+   clearClosedLink('album');
+  }
  });
+}
+// Hanya URL aktif yang dibersihkan saat penampil DITUTUP.
+// Link yang baru dibagikan tetap membuka foto saat pertama kali dikunjungi.
+function clearClosedLink(level){
+ const url=new URL(location.href);
+ if(level==='foto')url.searchParams.delete('foto');
+ else if(level==='album'){
+  url.searchParams.delete('foto');
+  url.searchParams.delete('album');
+ }
+ if(url.href!==location.href)history.replaceState(history.state,'',url.pathname+url.search+url.hash);
 }
 function closeTop(){
  if(closing)return;
@@ -256,8 +274,14 @@ function closeTop(){
  if((isOpen(photo)&&layer==='photo')||(isOpen(album)&&layer==='album')){
   closing=true;history.back();return;
  }
- if(isOpen(photo)){stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();return;}
- if(isOpen(album))show(album,false);
+ if(isOpen(photo)){
+  stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();
+  clearClosedLink('foto');return;
+ }
+ if(isOpen(album)){
+  show(album,false);
+  clearClosedLink('album');
+ }
 }
 function pushLayer(layer){
  // Independent history entry for each level. Browser Back returns to previous level.
