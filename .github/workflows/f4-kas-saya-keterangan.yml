@@ -1,0 +1,70 @@
+name: F4 Kas Saya Master Keterangan Regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/portal-panels.js
+      - .github/workflows/f4-kas-saya-keterangan.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-master-note:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate syntax
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/portal-panels.js
+      - name: Simulate original D1 master Keterangan lookup
+        run: |
+          python3 - <<'PY'
+          import re,sqlite3,pathlib
+          source=pathlib.Path('cloudflare/worker-terpadu-operasional-teruji.js').read_text()
+          start=source.index('async function f4MemberPortalFinance(')
+          end=source.index('__name(f4MemberPortalFinance',start)
+          member=source[start:end]
+          match=re.search(r'const payers=await db\.prepare\("(SELECT p\.id,[^"]+)"\)\.bind\(memberId\)\.all\(\)',member)
+          assert match, 'Personal finance must read original master note with session memberId'
+          assert 'keteranganWarga' in member and 'records=records.map(row=>({...row,keteranganWarga}))' in member
+          db=sqlite3.connect(':memory:')
+          db.execute('CREATE TABLE bookkeeping_payers(id TEXT,member_id TEXT,payer_type TEXT,active INTEGER)')
+          db.execute('CREATE TABLE resident_directory_profiles(payer_id TEXT,keterangan TEXT)')
+          db.executemany('INSERT INTO bookkeeping_payers VALUES(?,?,?,?)',[
+            ('p1','member-humas','warga',1),('p2','member-rt','warga',1),
+            ('p3','member-kebersihan','warga',1),('p4','member-biasa','warga',1)])
+          db.executemany('INSERT INTO resident_directory_profiles VALUES(?,?)',[
+            ('p1','Humas'),('p2','Ketua RT'),('p3','Kebersihan 2x')])
+          for memberid,expected in [('member-humas','Humas'),('member-rt','Ketua RT'),
+                                    ('member-kebersihan','Kebersihan 2x'),('member-biasa','')]:
+            rows=db.execute(match.group(1),(memberid,)).fetchall()
+            assert len(rows)==1 and rows[0][1]==expected,(memberid,rows)
+          assert db.execute(match.group(1),('unknown-member',)).fetchall()==[]
+          print('MASTER_PAYER_REMARK_FROM_D1_OK')
+          PY
+      - name: Verify headline period plus master note, never transaction description
+        run: |
+          node <<'JS'
+          const fs=require('node:fs');
+          const source=fs.readFileSync('portal-live/portal-panels.js','utf8');
+          const start=source.indexOf("const isIuran=['iuran_rt'");
+          const end=source.indexOf("left.append(el('strong',headline));",start);
+          if(start<0||end<0)throw Error('Kas Saya header block missing');
+          const block=source.slice(start,end);
+          const headline=new Function('row','kind','labels',block+'return headline;');
+          const test=(data,kind,expected)=>{
+            const actual=headline(data,kind,{iuran_rt:'Iuran RT',kebersihan:'Kebersihan',kas_lorong:'Kas Lorong',arisan:'Arisan'});
+            if(actual!==expected)throw Error(JSON.stringify({actual,expected,kind}));
+          };
+          test({periode:'2026-11',keteranganWarga:'Humas',keterangan:'Iuran RT'},'iuran_rt','2026-11 • Humas');
+          test({periode:'2026-10',keteranganWarga:'Humas',keterangan:''},'iuran_rt','2026-10 • Humas');
+          test({periode:'2026-10',keteranganWarga:'Ketua RT',keterangan:'Pembayaran tunai'},'kebersihan','2026-10 • Ketua RT');
+          test({periode:'2026-11',keteranganWarga:'Kebersihan 2x'},'kas_lorong','2026-11 • Kebersihan 2x');
+          test({periode:'2026-11',keteranganWarga:'Humas'},'arisan','2026-11 • Humas');
+          test({periode:'2026-11',keteranganWarga:'',keterangan:'Kas RT'},'iuran_rt','2026-11');
+          test({keterangan:'Denda Gorol'},'fines','Denda Gorol');
+          console.log('KAS_SAYA_PERIOD_PLUS_MASTER_REMARK_OK');
+          JS
