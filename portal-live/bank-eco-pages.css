@@ -78,12 +78,10 @@ body.f4-bank-embedded #dashboardView .section,
 #dashboardView .tablewrap tbody tr:nth-child(even) td{background:#f9fcfa}
 /* Operational summaries: white surfaces, fine border, saturated type. */
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric,.summary-box){
- background:#fff!important;border:1px solid #dae5dd!important;border-left:3px solid #43a047!important;
+ background:#fff!important;border:1px solid #dae5dd!important;
  border-radius:11px!important;box-shadow:none
 }
-#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric):nth-child(2n){
- border-left-color:#fdc010!important
-}
+
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric) strong{color:#075537!important}
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-entry-goods-heading,.f4-savings-panel-title,.v33-report-controls,
  .f4-savings-history,.f4-payout-available){
@@ -92,9 +90,9 @@ body.f4-bank-embedded #dashboardView .section,
 /* Manager finance: remove the four pastel fills, retain one solid accent only in figures. */
 #dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi{
  background:#fff!important;border:1px solid #d8e5dc!important;
- border-left:3px solid #43a047!important;border-radius:11px!important
+ border-radius:17px!important
 }
-#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi:nth-child(2n){border-left-color:#fdc010!important}
+
 #dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi :is(small,strong){color:#164a35!important}
 #dashboardView #v17Finance .v17-bar:not(.out){background:var(--eco-leaf)!important}
 #dashboardView :is(#pageTabungan,#pageBiaya,#pageDokumentasi,#pageInventaris,
@@ -132,9 +130,9 @@ body.f4-bank-embedded #dashboardView .section,
 }
 #v11Public #v25ReportMetrics>.v17-public-metric{
  background:#fff!important;border:1px solid #d8e5dc!important;
- border-left:3px solid #43a047!important;border-radius:12px!important;box-shadow:none!important
+ border-radius:17px!important;box-shadow:none!important
 }
-#v11Public #v25ReportMetrics>.v17-public-metric:nth-child(2n){border-left-color:#d5a018!important}
+
 #v11Public #v25ReportMetrics>.v17-public-metric strong{color:var(--eco-dark)!important}
 #v11Public :is(.v17-section,.v17-panel,.v25-report-card) :is(h2,h3){
  color:var(--eco-dark)!important
@@ -157,17 +155,14 @@ body.f4-bank-embedded #dashboardView .section,
  background:#fff!important;box-shadow:none!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
- background:#eef8e9!important;border-color:#d8e5dd!important;border-left:3px solid #43a047!important
-}
+ background:#eef8e9!important;border-color:#d8e5dd!important;}
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child :is(small,strong){
  color:#0b5738!important
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
- background:#eaf9f7!important;border-color:#d8e5dd!important;border-left:3px solid #009788!important
-}
+ background:#eaf9f7!important;border-color:#d8e5dd!important;}
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
- background:#eef8e9!important;border-color:#d8e5dd!important;border-left:3px solid #43a047!important
-}
+ background:#eef8e9!important;border-color:#d8e5dd!important;}
 #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
  font-size:clamp(18px,2vw,25px)!important;line-height:1.2!important;
  margin:5px 0 0!important;overflow-wrap:anywhere!important
@@ -194,15 +189,13 @@ body.f4-bank-embedded #dashboardView .section,
  gap:9px!important
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
- background:#fff!important;border:1px solid #d8e5dd!important;border-left:3px solid #43a047!important;
- border-radius:12px!important;min-height:83px!important;padding:11px!important
+ background:#fff!important;border:1px solid #d8e5dd!important;
+ border-radius:17px!important;min-height:83px!important;padding:11px!important
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){
- background:#fff!important;border-color:#d8e5dd!important;border-left-color:#fdc010!important
-}
+ background:#fff!important;border-color:#d8e5dd!important;}
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){
- background:#fff!important;border-color:#d8e5dd!important;border-left-color:#43a047!important
-}
+ background:#fff!important;border-color:#d8e5dd!important;}
 #dashboardView #pageProgress :is(h2,h3,.f4-member-progress-stat strong){
  color:var(--eco-dark)!important
 }
@@ -646,7 +639,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 .f4-bank-app-action-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f7e9}
 .f4-bank-app-action-icon img{width:22px;height:22px;object-fit:contain}
 #dashboardView .f4-bank-app-minis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#f0f9ed;border:1px solid #d9e5dc;border-left:3px solid #8bc24a;border-radius:16px}
+#dashboardView .f4-bank-app-mini{display:grid;gap:5px;min-width:0;padding:14px;background:#f0f9ed;border:1px solid #d9e5dc;border-radius:18px}
 .f4-bank-app-mini small{color:#67806e;font-size:11px}
 .f4-bank-app-mini strong{font-size:15px;line-height:1.2;overflow-wrap:anywhere;color:#0c5835}
 #dashboardView #f4BankAppHome>.v14-panel{padding:13px 12px;border:1px solid #e1ece3;border-radius:13px;background:#fff;margin:0}
@@ -663,7 +656,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
 #dashboardView .f4-bank-savings-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin:11px 0 14px}
-.f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#fff;border:1px solid #dbe5dd;border-left:3px solid #43a047;border-radius:12px}
+.f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#fff;border:1px solid #dbe5dd;border-radius:17px}
 .f4-bank-savings-stat:nth-child(2){border-left-color:#009788;background:#eaf9f7}
 .f4-bank-savings-stat small{font-size:11px;color:#6c7d70}
 .f4-bank-savings-stat strong{font-size:17px;line-height:1.2;overflow-wrap:anywhere;color:#19573c;font-variant-numeric:tabular-nums}
@@ -971,7 +964,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
 #dashboardView .f4-bank-report-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 #dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
-.f4-bank-report-tile{display:grid;gap:6px;padding:13px;border-radius:11px;background:#fff;border:1px solid #dce9df;border-left:3px solid #43a047}
+.f4-bank-report-tile{display:grid;gap:6px;padding:13px;border-radius:17px;background:#fff;border:1px solid #dce9df;}
 .f4-bank-report-tile:nth-child(2){border-left-color:#009788;background:#eaf9f7}
 .f4-bank-report-tile:nth-child(3){border-left-color:#09bcd3;background:#e7f9fc}
 .f4-bank-report-tile:nth-child(4){border-left-color:#fdc010;background:#fff8e3}
