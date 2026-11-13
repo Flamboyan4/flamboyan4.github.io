@@ -54,8 +54,8 @@ assert(bankingCss.includes('grid-area:balance') &&
  'Member balance requires white background and working green CTA');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
 assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
-       css.includes('"progress guide"') && css.includes('"recent info"'),
- 'Premium desktop hierarchy must be ATM/saldo, shortcuts, progress/guide, mutasi/laporan');
+       css.includes('"progress recent"') && css.includes('"guide info"'),
+ 'Premium desktop hierarchy must have personal progress beside mutasi and compact steps beside information');
 assert(css.includes('grid-area:quick') && css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),
  'Schedule and price must share the full width banking shortcut strip');
 assert(css.includes('"quick quick info"') && css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),
@@ -64,8 +64,18 @@ assert(!css.includes('"card card card card card card card card schedule schedule
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
 assert(mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'), 'Schedule and tariff must remain real functional nodes');
 assert(css.includes('grid-area:progress') && css.includes('grid-area:guide') &&
+       css.includes('grid-area:recent') && css.includes('grid-area:info') &&
        css.includes('height:100%;align-self:stretch'),
- 'Progress and deposit guide must share a stretched equal-height grid row');
+ 'Desktop grid must place mutasi beside progress, guide beside information');
+assert(css.includes('"quick quick info"') &&
+       css.includes('"progress progress progress"') &&
+       css.includes('"recent recent recent"') &&
+       css.includes('"guide guide guide"'),
+ 'Member mobile card order must remain unchanged');
+assert(memberPolish.includes('@media(min-width:1024px){') &&
+       memberPolish.includes('min-height:86px') &&
+       memberPolish.includes('padding:11px 16px'),
+ 'Instruction card must be shortened exclusively for desktop');
 assert(mobile.includes('flow.hidden=false;flow.open=true;') &&
        memberPolish.includes('grid-template-columns:repeat(4,minmax(0,1fr))') &&
        memberPolish.includes('.f4-member-flow-steps p,'),
