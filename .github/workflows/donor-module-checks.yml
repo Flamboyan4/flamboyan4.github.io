@@ -1,0 +1,41 @@
+name: Donatur module security checks
+on:
+  push:
+    branches:
+      - fitur-donatur-terpadu-20261113
+    paths:
+      - 'donatur/**'
+      - 'cloudflare/migrations/20261113_donatur_pendanaan.sql'
+      - 'cloudflare/worker-terpadu-operasional-teruji.js'
+      - 'qa/verify-donor-module.py'
+      - '.github/workflows/donor-module-checks.yml'
+  pull_request:
+    paths:
+      - 'donatur/**'
+      - 'cloudflare/migrations/20261113_donatur_pendanaan.sql'
+      - 'cloudflare/worker-terpadu-operasional-teruji.js'
+      - 'qa/verify-donor-module.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  donor-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test D1-compatible ledger constraints
+        run: python qa/verify-donor-module.py
+      - name: Check frontend scripts
+        run: |
+          node --check donatur/donatur.js
+          node --check donatur/admin.js
+          node --check portal-live/direct-shell.js
+      - name: Check Worker bundle JavaScript
+        run: node --input-type=module --check < cloudflare/worker-terpadu-operasional-teruji.js
