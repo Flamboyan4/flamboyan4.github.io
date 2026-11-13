@@ -39,9 +39,9 @@
 
 /* Frontend sumber dipertahankan; hanya header & HERO lama dihilangkan karena
  * sekarang sidebar/menu + utility bar berasal dari shell terpadu. */
-body>header, body>section:first-of-type { display:none!important; }
-body {background:#f8f9fc!important}
-body>main {padding-top:20px!important;max-width:1250px!important}
+body>header, body>section:first-of-type { display:none; }
+body {background:#f8f9fc}
+body>main {padding-top:20px;max-width:1250px}
 #banner-slider-container {border-radius:16px}
 
 
@@ -51,29 +51,29 @@ body:not([data-preview-role]),body[data-preview-role="public"] {--f4-public-mode
 body:not([data-preview-role]) #keuangan button[onclick*="openModalCetakKas"],
 body[data-preview-role="public"] #keuangan button[onclick*="openModalCetakKas"],
 body:not([data-preview-role]) #keuangan button[onclick*="openModalKeuangan"],
-body[data-preview-role="public"] #keuangan button[onclick*="openModalKeuangan"]{display:none!important}
+body[data-preview-role="public"] #keuangan button[onclick*="openModalKeuangan"]{display:none}
 body:not([data-preview-role]) #keuangan [onclick*="openModalKeuangan"],
-body[data-preview-role="public"] #keuangan [onclick*="openModalKeuangan"]{cursor:default!important;pointer-events:none!important}
+body[data-preview-role="public"] #keuangan [onclick*="openModalKeuangan"]{cursor:default;pointer-events:none}
 body:not([data-preview-role]) #card-pemasukan,body:not([data-preview-role]) #card-pengeluaran,
-body[data-preview-role="public"] #card-pemasukan,body[data-preview-role="public"] #card-pengeluaran{cursor:default!important}
-footer#pembayaran{scroll-margin-top:70px;padding-bottom:20px!important}
+body[data-preview-role="public"] #card-pemasukan,body[data-preview-role="public"] #card-pengeluaran{cursor:default}
+footer#pembayaran{scroll-margin-top:70px;padding-bottom:20px}
 
 
 
 
 /* Former <style id="f4-footer-tight-20261022">; order preserved. */
 
-html,body{min-height:0!important}
-body>main{flex-grow:0!important}
-footer#pembayaran{height:auto!important;min-height:0!important;max-height:none!important;padding:12px 0 8px!important;margin:0!important;flex:0 0 auto!important}
-footer#pembayaran>div{padding-bottom:0!important}
-footer#pembayaran>div>div:first-child{margin-bottom:6px!important;padding:12px!important}
-footer#pembayaran>div>div:last-child{padding-top:0!important;margin-top:0!important}
+html,body{min-height:0}
+body>main{flex-grow:0}
+footer#pembayaran{height:auto;min-height:0;max-height:none;padding:12px 0 8px;margin:0;flex:0 0 auto}
+footer#pembayaran>div{padding-bottom:0}
+footer#pembayaran>div>div:first-child{margin-bottom:6px;padding:12px}
+footer#pembayaran>div>div:last-child{padding-top:0;margin-top:0}
 /* Riwayat D1 tampil kembali pada panel Laporan Lingkungan.
    Mode Keuangan Saya tetap menyembunyikan semua konten lingkungan via portal-panels.js. */
 body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) #f4-private-transactions{display:block}
 body:not([data-preview-role]) #f4-private-transactions,
-body[data-preview-role="public"] #f4-private-transactions{display:none!important}
+body[data-preview-role="public"] #f4-private-transactions{display:none}
 /* Tombol mengambang memiliki satu aturan posisi di bawah, bukan override bertingkat. */
 
 
@@ -81,14 +81,14 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
 
 @media(max-width:1023px){
  /* Clip hanya arah horizontal tanpa membuat body jadi kontainer scroll tersendiri; lebih cocok untuk screenshot panjang Android. */
- html,body{max-width:100%;overflow-x:clip!important;overflow-y:visible!important}
- body>main{padding:14px 13px 24px!important;max-width:100%!important;min-width:0!important;gap:18px!important}
- body>main>section{min-width:0!important;margin-bottom:0!important}
+ html,body{max-width:100%;overflow-x:clip;overflow-y:visible}
+ body>main{padding:14px 13px 24px;max-width:100%;min-width:0;gap:18px}
+ body>main>section{min-width:0;margin-bottom:0}
  /* Pakai rasio banner sumber 1600:500 agar visual tidak terpotong kiri/kanan. */
- #banner-slider-container{width:100%!important;max-width:100%!important;aspect-ratio:1600/500!important;min-height:0!important;max-height:none!important}
- #banner-track{width:100%!important;height:100%!important;max-width:100%!important}
- #banner-track>a{width:100%!important;min-width:100%!important;max-width:100%!important;flex:0 0 100%!important}
- #banner-track img{display:block!important;object-fit:contain!important;object-position:center!important;width:100%!important;height:100%!important;max-width:100%!important;transform:none!important}
+ #banner-slider-container{width:100%;max-width:100%;aspect-ratio:1600/500;min-height:0;max-height:none}
+ #banner-track{width:100%;height:100%;max-width:100%}
+ #banner-track>a{width:100%;min-width:100%;max-width:100%;flex:0 0 100%}
+ #banner-track img{display:block;object-fit:contain;object-position:center;width:100%;height:100%;max-width:100%;transform:none}
 
 
 
@@ -96,13 +96,13 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
 
  #keuangan .grid strong{max-width:100%}
  #keuangan [id^="saldo"],#keuangan [id^="total"]{overflow-wrap:normal}
- #projek,#arisan,#kegiatan,#rencana,#komentar-warga{scroll-margin-top:74px!important}
- footer#pembayaran{padding:12px 0!important}
- footer#pembayaran>div{padding:0 12px!important}
+ #projek,#arisan,#kegiatan,#rencana,#komentar-warga{scroll-margin-top:74px}
+ footer#pembayaran{padding:12px 0}
+ footer#pembayaran>div{padding:0 12px}
 
 }
 @media(max-width:380px){
- body>main{padding-left:10px!important;padding-right:10px!important}
+ body>main{padding-left:10px;padding-right:10px}
 
 
 }
@@ -111,7 +111,7 @@ body[data-preview-role="public"] #f4-private-transactions{display:none!important
 /* Former <style id="f4-clean-links-floating-footer">; order preserved. */
 
 /* No redundant external-link glyphs inside the portal cards. */
-i[data-lucide="external-link"],svg.lucide-external-link{display:none!important}
+i[data-lucide="external-link"],svg.lucide-external-link{display:none}
 /* Portal Utama floating utilities: one source of truth, below every dialog. */
 #f4-portal-float-actions {
   position:fixed;right:14px;bottom:calc(16px + var(--f4-footer-lift,0px));
