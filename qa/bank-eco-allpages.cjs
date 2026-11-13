@@ -41,9 +41,11 @@ assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
        priceModule.includes('priceTag.innerHTML=\'<path d="m3 12 9-9') &&
        !priceModule.includes('f4-bank-price-shortcut-icon","♻'),
  'Price shortcut must use a clear SVG price-tag icon');
-assert(css.includes('background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%)') &&
-       !css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
- 'Premium member ATM should use the selected deep-leaf gradient');
+const bankingCss=css.split('/* Bank Sampah member dashboard: premium eco-banking composition.')[1]
+ ?.split('/* Responsive Bank Sampah:')[0]||'';
+assert(bankingCss.includes('background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%)') &&
+       !bankingCss.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
+ 'Premium member ATM should use the selected deep-leaf gradient without changing other portal pages');
 assert(css.includes('grid-area:balance') && css.includes('linear-gradient(135deg,#f8fcf4,#eff8e9 87%)') &&
        css.includes('background:linear-gradient(105deg,#067747,#075030)'),
  'Member balance requires its soft mint panel and functional dark green CTA');
