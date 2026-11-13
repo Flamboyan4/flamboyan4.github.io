@@ -7,6 +7,8 @@ const dashboard=fs.readFileSync('portal-live/bank-eco-dashboard.css','utf8');
 const publicTheme=fs.readFileSync('portal-live/bank-impact-summary.css','utf8');
 const mobile=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const priceModule=fs.readFileSync('portal-live/bank-member-prices.js','utf8');
+const memberNav=fs.readFileSync('portal-live/bank-member-navigation.css','utf8');
+const memberPolish=fs.readFileSync('portal-live/bank-member-polish.css','utf8');
 new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
@@ -33,17 +35,51 @@ assert(!css.includes('#f4MemberHero'), 'No green wrapper should surround the ATM
 assert(css.includes('grid-area:card') && css.includes('grid-area:balance'), 'ATM and yellow wallet must be separate grid items');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
 assert(css.includes('#f4MemberQuickActions>#f4MemberPriceShortcut') && css.includes('background:#fff'), 'Price should be a standalone white shortcut card');
-assert(priceModule.includes('recycle.setAttribute("viewBox"')&&!priceModule.includes('f4-bank-price-shortcut-icon","♻'),'Price shortcut must use SVG');
+assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
+       priceModule.includes('priceTag.innerHTML=\'<path d="m3 12 9-9') &&
+       !priceModule.includes('f4-bank-price-shortcut-icon","♻'),
+ 'Price shortcut must use a clear SVG price-tag icon');
 assert(css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)') && !css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)'), 'ATM must stand on its own without the old green gradient frame');
 assert(css.includes('grid-area:balance') && css.includes('border:0;border-radius:26px;background:#FDC010') && css.includes('color:#162a37'), 'Balance must be its own yellow card with dark text');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
-assert(css.includes('"card balance"') && css.includes('"recent quick"') && css.includes('"recent guide"'), 'Desktop grid must match ATM, wallet, schedule and activity reference');
+assert(css.includes('"card balance"') && css.includes('"recent quick"') &&
+       css.includes('"recent info"') && css.includes('"progress guide"'),
+ 'Member desktop grid must show info beside history, then equal-height progress and deposit guide');
 assert(css.includes('grid-area:quick') && css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'The schedule and tariff must share the right column');
 assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'Two-column quick actions required on phones');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
 assert(mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'), 'Schedule and tariff must remain real functional nodes');
-assert(css.includes('background:#09BCD326;color:#00889b'), 'Schedule should use the approved cyan accent');
+assert(css.includes('grid-area:progress') && css.includes('grid-area:guide') &&
+       css.includes('height:100%;align-self:stretch'),
+ 'Progress and deposit guide must share a stretched equal-height grid row');
+assert(mobile.includes('flow.hidden=false;flow.open=true;') &&
+       memberPolish.includes('grid-template-columns:repeat(2,minmax(0,1fr))') &&
+       memberPolish.includes('.f4-member-flow-steps p,'),
+ 'Deposit guide should stay expanded with four compact visual steps');
+assert(mobile.includes('function openWeighingSchedule()') &&
+       mobile.includes('card.setAttribute("aria-label","Lihat jadwal penimbangan")') &&
+       mobile.includes('dialog.showModal()'),
+ 'Schedule card must open an accessible native dialog');
+assert(priceModule.includes('page=el("dialog","f4-bank-prices-screen f4-bank-sheet-modal")') &&
+       priceModule.includes('if(!page.open)page.showModal();') &&
+       priceModule.includes('/api/member/bank/prices'),
+ 'Price card must open a clean dialog and preserve the real member price API');
+assert(memberNav.includes('#f4MemberInfoShortcut.f4-member-info-shortcut') &&
+       memberNav.includes('.f4-member-info-copy strong') &&
+       mobile.includes('link.onclick=()=>navigate("bank-member-info")'),
+ 'Informasi dan Laporan needs its own functional shortcut in the right column');
+assert(mobile.includes('identity.replaceChildren(el("strong","","Halo, "+name)') &&
+       !memberNav.includes('.f4-bank-member-top-identity{display:none}') &&
+       css.includes('>.f4-bank-app-personal-greeting{\n display:none'),
+ 'Member greeting must be in the navbar, not duplicated above the ATM');
+assert(mobile.includes('tile.append(memberMetricIcon(asset))') &&
+       memberNav.includes('.f4-member-environment-stat svg{'),
+ 'Progress indicators must render purposeful SVGs');
+
+assert(css.includes('background:#e9f5ec;color:#24774e') &&
+       css.includes('.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg'),
+ 'Schedule and price should use clear SVG icons with matching leaf accents');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
 assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")'), 'ATM contactless graphic must use SVG');
 assert(mobile.includes('number.id="f4BankCardNumber"') && mobile.includes('person.querySelector("strong").id="f4BankCardName"'), 'ATM number and member name must remain bound to the real account');
