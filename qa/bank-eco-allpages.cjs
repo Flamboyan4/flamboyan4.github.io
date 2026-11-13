@@ -520,6 +520,24 @@ assert(mobile.includes('f4BankAdminOperations') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
  'Task-first entry and eight mobile shortcuts are missing');
+assert(mobile.includes('f4BankAdminHeroBreakdown') &&
+       mobile.includes('text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—")') &&
+       mobile.includes('text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—")') &&
+       mobile.includes('node.onclick=()=>navigate("tabungan")') &&
+       css.includes('#dashboardView #f4BankAdminHeroBreakdown{'),
+ 'Manager reference layout must use live D1 figures and clickable active-member tile, not mocked data');
+assert(css.includes('body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm #setBarang .f4-compact-row{') &&
+       css.includes('#setoranForm #saveSetoranBtn,') &&
+       css.includes('min-height:54px;margin:0;padding:13px 17px') &&
+       css.includes('border:2px dashed #00978866') &&
+       h.includes('<textarea id="setNotes" rows="3" maxlength="300"') &&
+       h.includes("catatan:$(\'setNotes\').value"),
+ 'Mobile setoran reference must preserve live saved form, multiline note, item rows, and floating submit');
+const referenceOwner=css.split('/* Mobile Setoran reference:')[1]?.split('@media(max-width:600px)')[0];
+assert(referenceOwner && !referenceOwner.includes('!important') &&
+       (css.match(/Mobile Setoran reference:/g)||[]).length===1,
+ 'Mobile setoran CSS must have a single owner without priority overrides');
+
 assert(mobile.includes('["Saldo Warga","tabungan","coins"]') &&
        !mobile.includes('["Profil","profile","user-round"]'),
  'Saldo Warga must replace the redundant profile quick access');
