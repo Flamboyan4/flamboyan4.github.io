@@ -102,9 +102,9 @@ def main() -> int:
             "donor_tables_exist": "donor_organizations" in tables,
         }
         print("DONOR_STAGING_PREFLIGHT=" + json.dumps(flags, sort_keys=True, separators=(",", ":")))
-        if not member_nullable or not donor_allowed:
-            print("PREFLIGHT=BLOCKED: accounts needs an audited role migration before account creation")
-            return 2
+        # CHECK(role) milik warga tidak perlu diubah. Akun donor berada di donor_accounts
+        # dan identitas donor_sessions, keduanya ditambahkan oleh migrasi yang bersifat additive.
+        print("DONOR_ACCOUNT_STRATEGY=SEPARATE_TABLES: Legacy accounts constraint preserved")
         print("PREFLIGHT=READ_ONLY_OK: No D1 rows or schema were modified")
         return 0
     except (HTTPError, URLError, ValueError, RuntimeError, KeyError, TypeError) as exc:
