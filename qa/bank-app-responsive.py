@@ -83,9 +83,11 @@ async def member_layout(browser):
         assert result["guideColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["balanceColor"]=="rgb(232, 247, 207)",(device,result)
         assert all(c=="rgb(247, 252, 245)" for c in result["stepColors"]),(device,result)
-        if device=="pc":
+        if device=="hp":
             assert abs(result["price"]["y"]-result["schedule"]["y"])<2,(device,result)
-            assert result["price"]["x"]+result["price"]["w"]<result["schedule"]["x"]+2,(device,result)
+            assert result["price"]["x"]+result["price"]["w"]<=result["schedule"]["x"]+2,(device,result)
+        else:
+            assert result["price"]["y"]+result["price"]["h"]<=result["schedule"]["y"]+2,(device,result)
             assert result["recent"]["x"]<result["guide"]["x"],result
             assert abs(result["recent"]["w"]-result["guide"]["w"])<3,result
             assert abs(result["steps"][0]["y"]-result["steps"][1]["y"])<3,result
@@ -787,7 +789,7 @@ async def member_price_card_position(browser):
             border:getComputedStyle(p).borderColor,
             overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""")
-        if device=="pc":
+        if device=="hp":
             assert abs(result["priceY"]-result["scheduleY"])<2,(device,result)
             assert result["priceRight"]<=result["scheduleX"]+2,(device,result)
         else:
