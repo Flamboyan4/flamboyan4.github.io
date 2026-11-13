@@ -405,7 +405,7 @@ try:
               for z in read_master[1].get("data",[])))
         jersey_created=call(base+"/api/v2/admin/content/jersey","POST",{
           "action":"save","values":{
-            "group_key":"bapak","sort_order":999,"resident":"QA LOKAL/999",
+            "group_key":"bapak","package_type":"atasan","sort_order":999,"resident":"QA LOKAL/999",
             "sleeves":"Pendek","size":"M","printed_name":"QA 999",
             "payment_status":"DP 50000","nominal_rp":90000,"method":"Cash"}},temporary)
         assert_step("jersey_d1_create_from_superadmin_editor_local",
