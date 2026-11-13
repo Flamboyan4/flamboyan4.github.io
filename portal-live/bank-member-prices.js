@@ -20,7 +20,7 @@ function shortcut(home){
  const icon=el("span","f4-bank-price-shortcut-icon");
  const recycle=document.createElementNS("http://www.w3.org/2000/svg","svg");
  recycle.setAttribute("viewBox","0 0 24 24");recycle.setAttribute("aria-hidden","true");
- recycle.innerHTML='<path d="M7 19H4.8a1.8 1.8 0 0 1-1.55-2.7L7.2 9.5m4 9.5h8a1.8 1.8 0 0 0 1.56-2.67l-1.2-2.1M11 16l-3 3 3 3M8.3 13.6 7.2 9.5l-4.1 1.1M9.35 5.8l1.1-1.9a1.8 1.8 0 0 1 3.1-.03l3.9 6.86M13.4 9.6l4.1 1.1 1.1-4.1"/>';
+ recycle.innerHTML='<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="8" r="1.2"/>';
  recycle.setAttribute("fill","none");recycle.setAttribute("stroke","currentColor");recycle.setAttribute("stroke-width","1.9");recycle.setAttribute("stroke-linecap","round");recycle.setAttribute("stroke-linejoin","round");
  icon.append(recycle);
  const arrow=el("span","f4-bank-price-shortcut-arrow");
