@@ -395,7 +395,7 @@ async def savings_chart(browser):
     await page.close()
 
 async def admin_mobile_shell(browser):
-    """Admin retains the shared bottom-dock layout and the separate six-category drawer."""
+    """No manager hamburger or slide drawer; the scrollable page stays beneath the fixed dock."""
     from pathlib import Path
     import re
     page=await browser.new_page(viewport={"width":390,"height":820},device_scale_factor=1)
@@ -406,7 +406,7 @@ async def admin_mobile_shell(browser):
     <link rel="stylesheet" href="/portal-live/direct-shell.css">
     <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
     </head><body class="f4-direct-bank f4-bank-app-private f4-bank-app-admin v17-dashboard">
-    <div id="f4-direct-bar">Pengelola</div>
+    <div id="f4-direct-bar"><button id="f4-mobile-menu">Menu</button>Pengelola</div>
     <div id="dashboardView"><div class="mobile-nav">Legacy</div>
     <div class="grid"><aside id="sideNav" class="side">
       <div id="v16Navigation"><div id="v16NavList">
@@ -417,9 +417,7 @@ async def admin_mobile_shell(browser):
       <button class="v16-item" data-group="management">Pengelolaan</button>
       <button class="v16-item" data-group="report">Laporan</button>
       </div></div></aside>
-      <main class="section" style="min-height:2400px">
-      <button class="f4-bank-admin-back" type="button"><svg viewBox="0 0 24 24"><path d="M19 12H5"/></svg>Kembali</button>
-      Halaman panjang</main>
+      <main class="section" style="min-height:2400px">Halaman panjang</main>
     </div></div>
     <nav id="f4BankAppDock" class="f4-bank-app-dock" hidden></nav>
     </body></html>"""
@@ -427,41 +425,29 @@ async def admin_mobile_shell(browser):
     await page.set_content(html,wait_until="load")
     await page.add_style_tag(content=inline.group(1))
     await page.evaluate("window.scrollTo(0,750)")
-    await page.wait_for_timeout(260)
+    await page.wait_for_timeout(80)
     before=await page.evaluate("""() => {
       const side=document.querySelector("#sideNav"),header=document.querySelector("#f4-direct-bar");
+      const hamburger=document.querySelector("#f4-mobile-menu");
       return {scroll:scrollY,headerTop:header.getBoundingClientRect().top,
         headerPosition:getComputedStyle(header).position,
+        drawer:getComputedStyle(side).display,
+        hamburger:getComputedStyle(hamburger).display,
         dock:getComputedStyle(document.querySelector("#f4BankAppDock")).display,
         padding:getComputedStyle(document.querySelector("#dashboardView")).paddingBottom,
-        drawerVisible:getComputedStyle(side).visibility,
-        nav:[...document.querySelectorAll("#v16NavList .v16-item")]
-          .filter(b=>getComputedStyle(b).display!=="none").map(b=>b.dataset.group),
         overflow:document.documentElement.scrollWidth>innerWidth+3
       };
     }""")
     assert before["scroll"]>500,before
     assert before["headerPosition"]=="fixed" and abs(before["headerTop"])<1,before
     assert before["dock"]=="none" and float(before["padding"].replace("px",""))>=72,before
-    assert before["drawerVisible"]=="hidden",before
-    assert before["nav"]==["home","deposit","sale","finance","management","report"],before
+    assert before["drawer"]=="none" and before["hamburger"]=="none",before
     assert not before["overflow"],before
     await page.evaluate('document.querySelector("#sideNav").classList.add("open")')
-    await page.wait_for_timeout(260)
-    opened=await page.evaluate("""() => {
-      const side=document.querySelector("#sideNav"),b=side.getBoundingClientRect();
-      return {visible:getComputedStyle(side).visibility,top:b.top,left:b.left,width:b.width,
-        height:b.height,direction:getComputedStyle(document.querySelector("#v16NavList")).flexDirection,
-        overflow:document.documentElement.scrollWidth>innerWidth+3};
-    }""")
-    assert opened["visible"]=="visible" and abs(opened["top"]-56)<2,opened
-    assert abs(opened["left"])<2 and 275<=opened["width"]<=301,opened
-    assert opened["direction"]=="column" and not opened["overflow"],opened
-    await page.evaluate('document.querySelector("#sideNav").classList.remove("open")')
-    await page.wait_for_timeout(260)
-    assert await page.evaluate('getComputedStyle(document.querySelector("#sideNav")).visibility')=="hidden"
-    print("ADMIN_SHARED_DOCK_DRAWER_OK",before,opened,flush=True)
+    assert await page.evaluate('getComputedStyle(document.querySelector("#sideNav")).display')=="none"
+    print("ADMIN_NO_HAMBURGER_DRAWER_OK",before,flush=True)
     await page.close()
+
 
 async def public_chart_and_flat_roster(browser):
     """Actual Bank Sampah styles: 33 saldo rows follow page scroll; public chart switches units."""
@@ -1294,6 +1280,40 @@ async def main():
             await page.screenshot(path=f"ops-audit/bank-eco-theme/manager-{device}.png",full_page=True)
             print("MANAGER_RESPONSIVE_OK",device,state,flush=True)
             if device=="hp":
+                quick=page.locator('#f4BankAdminShortcuts .f4-bank-admin-shortcut')
+                assert await quick.count()==8
+                assert await page.locator('#f4BankAdminShortcuts [data-bank-app-route="laporan"]').count()==0
+                assert await page.locator('#f4BankAdminShortcuts [data-bank-app-route="bank-admin-docs"]').count()==0
+                more=page.locator('#f4BankAdminMore')
+                assert await more.is_visible()
+                await more.click()
+                sheet=page.locator('#f4BankAdminMenuSheet')
+                assert await sheet.evaluate("(n)=>n.open")
+                assert await sheet.locator('.f4-bank-admin-menu-grid .f4-bank-admin-shortcut').count()==9
+                assert await sheet.locator('[data-bank-app-route="laporan"]').count()==1
+                assert await sheet.locator('[data-bank-app-route="bank-admin-docs"]').count()==1
+                await page.go_back(wait_until="domcontentloaded")
+                await page.wait_for_timeout(80)
+                assert not await sheet.evaluate("(n)=>n.open"),"Hardware/browser Back must close Lainnya only"
+                await more.click()
+                await sheet.locator('.f4-bank-modal-close').click()
+                await page.wait_for_timeout(80)
+                assert not await sheet.evaluate("(n)=>n.open"),"Close icon must dismiss Lainnya"
+                print("ADMIN_LAINNYA_SHEET_BACK_OK",flush=True)
+                await page.evaluate("""() => {
+                  document.body.style.minHeight='2400px';
+                  window.scrollTo(0,650);
+                }""")
+                dock_state=await page.evaluate("""() => {
+                  const n=document.querySelector('#f4BankAppDock'),r=n.getBoundingClientRect();
+                  return {scroll:scrollY,position:getComputedStyle(n).position,bottom:r.bottom,
+                    viewport:innerHeight,background:getComputedStyle(n).backgroundColor};
+                }""")
+                assert dock_state["scroll"]>400 and dock_state["position"]=="fixed",dock_state
+                assert abs(dock_state["viewport"]-dock_state["bottom"])<2,dock_state
+                assert dock_state["background"]=="rgb(255, 255, 255)",dock_state
+                await page.evaluate("window.scrollTo(0,0)")
+                print("ADMIN_DOCK_STABLE_ON_SCROLL_OK",dock_state,flush=True)
                 direct=page.locator('#f4BankAdminShortcuts [data-bank-app-route="tabungan"]')
                 assert await direct.is_visible() and await direct.inner_text()=="Saldo Warga"
                 assert await page.locator('#f4BankAdminShortcuts [data-bank-app-route="profile"]').count()==0
