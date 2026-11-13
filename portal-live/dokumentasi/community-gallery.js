@@ -164,10 +164,23 @@ async function share(target){
 function socialButtons(host,target,isPhoto,onLoaded){
  host.replaceChildren();
  if(!target?.id)return;
+ // One active request per button; the D1 server enforces one like per account.
+ // Ignore stale initial reads that arrive after a user has already clicked.
+ let pending=false,interacted=false;
  const like=button('0','heart',async()=>{
-  try{await signedIn();const result=await post('/react',{type:target.type,id:target.id});updateSocial(result);onLoaded?.(result)}
-  catch(e){if(user)notice(e.message)}
+  if(pending)return;
+  pending=true;interacted=true;like.disabled=true;
+  try{
+   await signedIn();
+   const result=await post('/react',{type:target.type,id:target.id});
+   if(like.isConnected&&host.contains(like)){updateSocial(result);onLoaded?.(result)}
+  }catch(e){if(user)notice(e.message)}
+  finally{
+   pending=false;
+   if(like.isConnected&&host.contains(like))like.disabled=false;
+  }
  });
+ like.setAttribute('aria-pressed','false');
  const comments=button('0','comment',()=>openComments(target));
  comments.setAttribute('aria-label','Buka komentar '+(target.type==='album'?'album':'foto'));
  const shareBtn=button(isPhoto?'Bagikan':null,'share',()=>share(target));
@@ -177,10 +190,15 @@ function socialButtons(host,target,isPhoto,onLoaded){
  const updateSocial=data=>{
   like.querySelector('span:last-child').textContent=String(data.likes||0);
   like.classList.toggle('f4g-liked',!!data.liked);
+  like.setAttribute('aria-pressed',String(!!data.liked));
   comments.querySelector('span:last-child').textContent=String(data.comments?.length||0);
  };
  get('/social?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))
- .then(data=>{if(host.isConnected){updateSocial(data);onLoaded?.(data)}}).catch(()=>{like.disabled=true;comments.disabled=true});
+ .then(data=>{
+  if(!interacted&&like.isConnected&&host.contains(like)){updateSocial(data);onLoaded?.(data)}
+ }).catch(()=>{
+  if(!interacted&&like.isConnected&&host.contains(like)){like.disabled=true;comments.disabled=true}
+ });
 }
 async function openComments(target){
  const dlg=popup('Komentar '+(target.type==='album'?'Album':'Foto'),false,true);
