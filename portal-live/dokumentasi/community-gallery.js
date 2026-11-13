@@ -143,8 +143,21 @@ function photoLink(target){
  if(target.type==='photo'&&target.id)u.searchParams.set('foto',target.id);
  return u.href;
 }
+// Siapkan link saat album/foto dibuka agar browser HP tetap bisa memakai native share.
+const shareLinks=new Map();
+function prepareShare(target){
+ const original=photoLink(target);
+ if(!target?.id||!target.albumId)return Promise.resolve(original);
+ const key=target.type+':'+target.albumId+':'+(target.type==='photo'?target.id:'');
+ if(!shareLinks.has(key)){
+  const ready=post('/share',{type:target.type,id:target.id,albumId:target.albumId})
+   .then(data=>data.url||original).catch(()=>original);
+  shareLinks.set(key,ready);
+ }
+ return shareLinks.get(key);
+}
 async function share(target){
- const url=photoLink(target);
+ const url=await prepareShare(target);
  if(navigator.share){try{await navigator.share({title:target.title||'Dokumentasi Flamboyan 4',url});return}catch(e){if(e.name==='AbortError')return}}
  try{await navigator.clipboard.writeText(url);toast('Tautan berhasil disalin.')}catch{manualCopy(url)}
 }
@@ -494,6 +507,7 @@ document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=window.f
 document.addEventListener('f4:gallery:album',e=>{
  const target={type:'album',id:e.detail.id,albumId:e.detail.id,title:e.detail.title};
  albumTarget=target;
+ void prepareShare(target);
  const head=document.querySelector('.f4p-album-overlay:not([hidden]) .f4p-album-head');
  if(!head)return;
  let actions=head.querySelector('.f4g-album-actions');
@@ -504,6 +518,7 @@ document.addEventListener('f4:gallery:album',e=>{
 document.addEventListener('f4:gallery:photo',e=>{
  const target={type:'photo',id:e.detail.id,albumId:e.detail.albumId,title:e.detail.title,caption:e.detail.caption};
  photoTarget=target;
+ void prepareShare(target);
  const viewer=document.querySelector('.f4p-photo-overlay');
  if(!viewer)return;
  // Foto tampil penuh, tidak pernah dijadikan bottom sheet.
