@@ -101,11 +101,12 @@ assert(memberPolish.includes('background:var(--step-bg)') &&
  'Pastel instruction tiles and SVG symbols must use the same scoped color variables');
 assert(memberPolish.includes('.f4-member-flow-share>span:nth-child(2)'),
  'Savings and environment split badges must have differentiated color');
-assert(mobile.includes('brand.id="f4BankMemberTopBrand"') &&
-       memberNav.includes('grid-template-rows:42px 38px') &&
+assert(!mobile.includes('brand.id="f4BankMemberTopBrand"') &&
+       mobile.includes('$("f4BankMemberTopBrand")?.remove();') &&
+       memberNav.includes('height:68px;min-height:68px') &&
        memberNav.includes('width:226px;height:100dvh') &&
        memberNav.includes('background:#e8f4ea;color:#145d3b'),
- '226px white sidebar and compact mobile header must match the main portal proportions');
+ 'Mobile header must remove duplicate branding, keep one line, and preserve portal-style desktop sidebar');
 assert(memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
        mobile.includes('sourceSplit.children') &&
        memberPolish.includes('.f4-member-flow-foot{display:none'),
@@ -126,6 +127,9 @@ assert(bankingCss.includes('background:#fff;\n min-height:calc(100dvh - 56px)') 
  'Member dashboard and its report surface need a pure white canvas');
 assert(h.includes('body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"]))'),
  'Legacy dashboard must not flash before member widgets are mounted');
+assert(css.includes('color:#fff;opacity:.95;transform:none') &&
+       !css.includes('color:#fff;opacity:.93;transform:rotate(90deg)'),
+ 'ATM NFC/contactless must face to the right, not downward');
 assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
        css.includes('margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none'),
  'Remove the enclosing dashboard frame entirely');
@@ -223,9 +227,11 @@ assert(!modern.includes('#v9List{max-height:390px'),'Old capped roster in shared
 assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old roster scrolling returned');
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
-assert(!dockSection.includes('translateY(-21px)') &&
-       dockSection.includes('.f4-bank-app-dock-action.is-active'),
- 'Banking dock should use five equal actions with no floating center control');
+assert(dockSection.includes('.f4-bank-app-dock-action.is-primary') &&
+       dockSection.includes('transform:translateY(-17px)') &&
+       dockSection.includes('background:#ffc719') &&
+       dockSection.includes('.f4-bank-payout-rp-icon'),
+ 'Pencairan must be the permanently raised yellow Rp CTA even when Beranda is active');
 // Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
 const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
@@ -304,8 +310,9 @@ assert(/\/portal-live\/bank-eco-pages\.css\?v=\d{8}-[a-z0-9-]+/.test(h),
  'Bank Sampah profile/dock stylesheet must be versioned');
 assert(/\/portal-live\/bank-mobile-app\.js\?v=\d{8}-[a-z0-9-]+/.test(h),
  'Bank Sampah mobile app script must be versioned');
-assert(css.includes('.f4-bank-currency-mark{'),
- 'Rp payout icon must use the canonical bank dock styles');
+assert(css.includes('.f4-bank-payout-rp-icon{') &&
+       mobile.includes('svg.classList.add("f4-bank-payout-rp-icon")'),
+ 'Payout icon must be true Rp SVG, not a generic wallet or text glyph');
 assert(h.includes('id="f4BankPageGreeting"'), 'Manager greeting must be scopeable to the home route');
 assert(mobile.includes('greeting.hidden=roleType()!=="admin"||screen!=="dashboard"'),
  'Manager greeting may only display on Admin Beranda, not after an account switch');
