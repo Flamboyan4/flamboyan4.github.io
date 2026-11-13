@@ -73,7 +73,7 @@ MEMBER_FIXTURE = """
     </div>
    </nav>
    <div class="section">
-    <div id="pageDashboard">
+    <div id="pageDashboard" class="card v14-home">
      <section id="f4BankAppHome" data-bank-role="member">
       <button id="f4BankMemberCard" class="f4-bank-member-card">
        <span class="f4-bank-member-card-head"><span class="f4-bank-atm-brand">
@@ -154,9 +154,10 @@ async def check_member_banking_layout(browser, mode, width):
     page = await browser.new_page(viewport={"width": width, "height": 850}, device_scale_factor=1)
     await page.set_content(MEMBER_FIXTURE, wait_until="load")
     await page.evaluate("""() => {
-      document.body.className = "f4-direct-bank f4-bank-app-member f4-bank-app-private";
+      document.body.className = "f4-direct-bank f4-bank-app-member f4-bank-app-private v17-dashboard";
     }""")
     await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/direct-shell.css")
+    await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/modern-portals.css")
     await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-member-polish.css")
     await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
     await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-member-navigation.css")
@@ -177,17 +178,35 @@ async def check_member_banking_layout(browser, mode, width):
         page:rect('#pageDashboard'),
         cardBg:css('#f4BankMemberCard').backgroundImage,
         outerBorder:css('#pageDashboard').borderTopWidth,
+        outerRadius:css('#pageDashboard').borderTopLeftRadius,
+        outerPadding:css('#pageDashboard').paddingLeft,
+        sectionBackground:css('.section').backgroundColor,
+        walletBackground:css('#f4BankAppMemberBalance').backgroundColor,
+        sidebar:rect('#sideNav'),
+        sidebarBackground:css('#sideNav').backgroundColor,
+        brandLogoWidth:rect('.v16-brand img').w,
+        brandInk:css('.v16-brand strong').color,
+        navFontSize:css('#v16NavList .v16-item').fontSize,
+        name:rect('#f4BankMemberTopIdentity'),
+        header:rect('#f4-direct-bar'),
         headerHeight:rect('#f4-direct-bar').h,
         overflow:document.documentElement.scrollWidth>window.innerWidth+4
       };
     }""")
     await page.screenshot(path=str(DEST / (mode+"-member-banking.png")), full_page=True)
     print("BANK_MEMBER_BANKING_VISUAL",mode,json.dumps(state,ensure_ascii=False),flush=True)
-    assert "linear-gradient" in state["cardBg"] and "6, 154, 132" in state["cardBg"], state
-    assert state["outerBorder"]=="0px", state
+    assert "linear-gradient" in state["cardBg"] and "7, 158, 143" in state["cardBg"], state
+    assert state["outerBorder"]=="0px" and state["outerRadius"]=="0px" and state["outerPadding"]=="0px", state
+    assert state["sectionBackground"]=="rgb(255, 255, 255)", state
+    assert state["walletBackground"]=="rgb(255, 255, 255)", state
     assert not state["overflow"], mode + ": unexpected horizontal scroll"
     assert abs(state["atm"]["y"]-state["balance"]["y"]) < 3 if mode=="pc" else state["atm"]["y"]<state["balance"]["y"], state
     if mode=="pc":
+        assert abs(state["sidebar"]["w"]-226)<2 and state["sidebarBackground"]=="rgb(255, 255, 255)", state
+        assert 40<=state["brandLogoWidth"]<=46 and state["brandInk"]!="rgb(255, 255, 255)", state
+        assert 13<=float(state["navFontSize"].replace("px",""))<=15, state
+        assert state["name"]["x"]>=state["sidebar"]["x"]+state["sidebar"]["w"]-2, state
+        assert state["name"]["x"]<=state["sidebar"]["x"]+state["sidebar"]["w"]+65, state
         assert abs(state["progress"]["y"]-state["flow"]["y"])<3, state
         assert abs(state["recent"]["y"]-state["info"]["y"])<3, state
         assert state["quick"]["w"]>=state["atm"]["w"]*1.7, state
