@@ -823,10 +823,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none!important}
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden!important}
 </style><script src="/portal-live/ui-dialog.js?v=20261109-all-portals-v4"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><style id="f4-bank-private-navigation-fix">
-/* A member dashboard is informational, not a duplicate menu with empty linked panels. */
-#pageDashboard.f4-member-dashboard .v14-panels,
-#pageDashboard.f4-member-dashboard #v14Extra,
-#pageDashboard.f4-member-dashboard #v14Status{display:none!important}
+/* A member dashboard is informational{display:none!important}
 /* The private navigation stays in place while the iframe document scrolls. */
 @media(min-width:1024px){
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid{display:grid!important;grid-template-columns:244px minmax(0,1fr)!important;align-items:start!important}
@@ -1260,42 +1257,16 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 
 /* CSS owner consolidated from #f4-member-dashboard-compact-weight-20261028; prior cascade position preserved */
 
-/* Ringkasan anggota saja: ikon di samping judul, angka dan keterangan lebar penuh.
-   Ukuran tulisan dipertahankan; hanya ruang vertikal yang dipadatkan. */
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary{
+/* Ringkasan anggota saja: ikon di samping judul{
  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
  gap:9px!important;align-items:stretch!important;margin-bottom:12px!important
 }
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary>.v14-kpi{
- display:grid!important;grid-template-columns:33px minmax(0,1fr)!important;
- grid-template-rows:auto auto auto!important;column-gap:9px!important;row-gap:5px!important;
- align-items:center!important;align-content:center!important;
- width:100%!important;min-width:0!important;min-height:0!important;height:auto!important;
- margin:0!important;padding:12px 13px!important;
- border:1px solid #e0eae4!important;border-radius:14px!important;background:#fff!important;
- box-shadow:0 2px 9px rgba(24,69,47,.025)!important
-}
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi:before{
- content:''!important;grid-column:1!important;grid-row:1!important;
- display:block!important;width:33px!important;height:33px!important;
- margin:0!important;border-radius:10px!important;background-size:19px!important
-}
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary .v14-kpi-label{
- grid-column:2!important;grid-row:1!important;align-self:center!important;
- font-size:12px!important;line-height:1.32!important;font-weight:650!important;
- color:#526c5f!important;margin:0!important
-}
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi strong{
- grid-column:1/-1!important;grid-row:2!important;margin:0!important;padding:0!important;
- font-size:22px!important;line-height:1.25!important;letter-spacing:-.3px!important;
- color:#20513b!important
-}
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi small{
- grid-column:1/-1!important;grid-row:3!important;margin:0!important;padding:0!important;
- font-size:11.5px!important;line-height:1.35!important;color:#6c8375!important
-}
-/* Grafik ringkas, dibuat hanya untuk akun anggota dan mengikuti lebar layar. */
-body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member-weight-chart{
+
+
+
+
+
+/* Grafik ringkas{
  display:block!important;min-width:0!important;background:#fff!important;
  border:1px solid #e1eae4!important;border-radius:16px!important;
  padding:15px 16px 13px!important;margin:0 0 12px!important
@@ -1344,13 +1315,9 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
  font-size:12px!important;color:#6e8275!important;padding:15px 0 3px!important
 }
 @media(max-width:760px){
- body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary{gap:8px!important}
- body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary.v14-primary>.v14-kpi{
-  padding:11px 12px!important;column-gap:8px!important;row-gap:4px!important
- }
- body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member-weight-chart{
-  padding:13px 12px 11px!important
- }
+
+
+
  #f4-member-weight-chart .f4-member-chart-bars{gap:5px!important}
  #f4-member-weight-chart .f4-member-chart-column{min-width:38px!important}
  #f4-member-weight-chart .f4-member-chart-track{height:85px!important;width:min(100%,36px)!important}
@@ -1359,52 +1326,35 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
  #f4-member-weight-chart .f4-member-chart-fill{transition:none!important}
 }
 
-/* Dashboard Bank Sampah: satu sumber nominal sah, dua jenis grafik. */
-#dashboardView #pageDashboard .f4-chart-view-toggle,
-#dashboardView #pageDashboard .f4-chart-admin-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-#dashboardView #pageDashboard .f4-chart-admin-head{justify-content:space-between;margin-bottom:6px}
-#dashboardView #pageDashboard .f4-chart-view-toggle{margin-left:auto;padding:3px;background:#eef5ef;border:1px solid #dce9df;border-radius:999px}
-#dashboardView #pageDashboard .f4-chart-toggle-btn{
- appearance:none;min-height:29px!important;min-width:0!important;padding:5px 11px!important;
- margin:0!important;border:0!important;border-radius:999px!important;background:transparent!important;
- color:#4e725d!important;font-size:11.5px!important;font-weight:700!important;white-space:nowrap;box-shadow:none!important;
-}
-#dashboardView #pageDashboard .f4-chart-toggle-btn.active{
- background:#28724d!important;color:#fff!important;box-shadow:0 2px 6px #19502c28!important
-}
-#dashboardView #pageDashboard .f4-member-chart-track,
-#dashboardView #pageDashboard .f4-trend-track{justify-content:flex-start;flex-direction:column-reverse}
-#dashboardView #pageDashboard .f4-member-chart-fill.f4-chart-estimate,
-#dashboardView #pageDashboard .f4-trend-fill.f4-chart-estimate{
- background:#e6a62a!important;border-radius:6px 6px 3px 3px!important
-}
-#dashboardView #pageDashboard .f4-member-chart-fill.f4-chart-confirmed,
-#dashboardView #pageDashboard .f4-trend-fill.f4-chart-confirmed{background:#20936e!important}
-#dashboardView #pageDashboard .f4-member-chart-fill.f4-chart-weight,
-#dashboardView #pageDashboard .f4-trend-fill.f4-chart-weight{background:#25a174!important}
-#dashboardView #pageDashboard .f4-member-chart-track>span,
-#dashboardView #pageDashboard .f4-trend-track>span{flex-shrink:0;max-height:100%;min-height:0}
-#dashboardView #pageDashboard .f4-member-chart-legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:11px;color:#4f6c5a;font-size:11.5px}
-#dashboardView #pageDashboard .f4-member-chart-legend span{display:inline-flex;align-items:center;gap:5px}
-#dashboardView #pageDashboard .f4-member-chart-legend i{display:inline-block;width:9px;height:9px;border-radius:3px}
+/* Dashboard Bank Sampah: satu sumber nominal sah{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+
+
+
+
+
+
+
+
+
+
+
 #dashboardView #pageDashboard .f4-legend-confirmed{background:#20936e}
 #dashboardView #pageDashboard .f4-legend-estimate{background:#e6a62a}
-#dashboardView #pageDashboard .f4-chart-bar-status{
- font-style:normal;font-size:10.5px;color:#377757!important;line-height:1.2;font-weight:700
-}
-#dashboardView #pageDashboard .f4-chart-bar-status.is-estimate{color:#956818!important}
-#dashboardView #pageDashboard .f4-chart-bar-status.is-missing{color:#b24a30!important}
-#dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-head{align-items:center!important;justify-content:space-between}
-#dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-head>div:first-child{min-width:0}
-#dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-column{min-width:55px!important}
-#dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-track{max-width:42px!important}
-#dashboardView #pageDashboard .f4-trend-track{display:flex!important;align-items:stretch!important;overflow:hidden!important}
+
+
+
+
+
+
+
+
 @media(max-width:760px){
- #dashboardView #pageDashboard .f4-chart-toggle-btn{padding:5px 9px!important;font-size:11px!important}
- #dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-head{align-items:flex-start!important;gap:8px;flex-wrap:wrap}
- #dashboardView #pageDashboard .f4-chart-view-toggle{margin-left:0}
- #dashboardView #pageDashboard #f4-member-weight-chart .f4-member-chart-column{min-width:55px!important}
- #dashboardView #pageDashboard .f4-chart-admin-head{align-items:flex-start}
+
+
+
+
+
 }
 
 
@@ -1568,7 +1518,6 @@ body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #f4-member
 /* 2026-10-28 — mobile financial summary readability and report form density.
    Keep normal financial figures in prints/tables; shorten long KPI-only values. */
 @media screen and (max-width:760px){
-  body.f4-direct-bank #dashboardView #pageDashboard.f4-member-dashboard #v14Primary>.v14-kpi strong,
   body.f4-direct-bank #dashboardView #pageDashboard.v14-home:not(.f4-member-dashboard) #v14Primary>.v14-kpi strong{
     font-size:20px!important;line-height:1.25!important;letter-spacing:-.2px!important;
     overflow-wrap:normal!important;word-break:normal!important;min-width:0!important;
@@ -3607,8 +3556,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
        v14Stat('Berat','—','Total setoran'),
        v14Stat('Setoran','—','Setoran tercatat'));
       extra.replaceChildren();
-      $('v14RecentTitle').textContent='Setoran pribadi terbaru';
-      $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.replaceChildren(document.createTextNode('Penimbangan terbaru'));
+      $('v14RecentTitle').textContent='Mutasi Setoran';
+      $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.remove();
       $('v14Recent').textContent='Memuat riwayat setoran…';
       $('v14Activities').textContent='Memuat perkembangan program…';
       primary.parentElement.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
@@ -3648,17 +3597,26 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
        if(!recent.length)recentBox.textContent='Belum ada setoran.';
        for(const s of recent){
         const article=document.createElement('div');article.className='f4-member-recent';
-        const summary=document.createElement('div');
-        const dt=document.createElement('strong');dt.textContent=f4MemberDateID(s.tanggal);
+        const icon=document.createElement('span');icon.className='f4-member-recent-icon';
+        const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+        svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');
+        svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
+        svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+        const arrow=document.createElementNS('http://www.w3.org/2000/svg','path');
+        arrow.setAttribute('d','M17 7 7 17M7 9v8h8');svg.append(arrow);icon.append(svg);
+        const summary=document.createElement('div');summary.className='f4-member-recent-copy';
         const confirmed=/terkonfirmasi|confirmed/i.test(String(s.status||''));
-        const sub=document.createElement('small');sub.textContent=(s.beratKg==null?'Berat jual belum tersedia':kg(s.beratKg))+' • '+(confirmed?'Sudah sah':'Belum sah');
-        summary.append(dt,sub);
+        const title=document.createElement('strong');title.textContent='Setoran Sampah';
+        const sub=document.createElement('small');
+        sub.textContent=f4MemberDateID(s.tanggal)+' • '+(s.beratKg==null?'Berat belum tersedia':kg(s.beratKg))+' • '+(confirmed?'Sah':'Belum sah');
+        summary.append(title,sub);
         const value=document.createElement('div');value.className='f4-member-recent-value';
         const info=f4MemberDepositDisplay(s);
-        const amount=document.createElement('b');amount.textContent=info.nominal;
+        const amount=document.createElement('b');
+        amount.textContent=confirmed&&/^Rp\s/.test(info.nominal)?'+ '+info.nominal:info.nominal;
         const amountLabel=document.createElement('small');amountLabel.textContent=info.label;
         value.append(amount,amountLabel);
-        article.append(summary,value);recentBox.append(article);
+        article.append(icon,summary,value);recentBox.append(article);
        }
        $('v14Status').textContent='';
       }else{
