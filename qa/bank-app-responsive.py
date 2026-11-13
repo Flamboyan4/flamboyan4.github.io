@@ -4,7 +4,7 @@ from playwright.async_api import async_playwright
 
 ROOT="http://127.0.0.1:8765"
 HTML="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><base href="http://127.0.0.1:8765/">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
 <style>.hidden{display:none}.section{padding:20px;max-width:100%;box-sizing:border-box}
 @media(min-width:1024px){.section{margin-left:244px}}</style></head>
 <body data-f4-bank-role="admin">
@@ -38,7 +38,7 @@ MEMBER_HTML = """<!doctype html><html><head><meta name="viewport" content="width
 <link rel="stylesheet" href="/portal-live/modern-portals.css">
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css">
 <style>body{margin:0;font-family:system-ui;background:#f7fafb}.grid{display:block}
@@ -96,7 +96,7 @@ async def member_layout(browser):
     # Also exercise the embedded-mode CSS that previously forced 64px above the first member card.
     from pathlib import Path
     live_html=Path("bank-sampah/index.html").read_text(encoding="utf-8")
-    clearance="body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px!important}"
+    clearance="body.f4-embedded-bank:not(.f4-bank-app-member) #dashboardView .section{padding-top:64px}"
     assert clearance in live_html, "Embedded CSS must exclude member accounts"
     for device,width in [("pc",1366),("tablet",820),("hp",390),("smallhp",360)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
@@ -404,7 +404,7 @@ async def admin_mobile_shell(browser):
     assert inline,"Source Bank Sampah styles are required"
     html="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="/portal-live/direct-shell.css">
-    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
     </head><body class="f4-direct-bank f4-bank-app-private f4-bank-app-admin v17-dashboard">
     <div id="f4-direct-bar"><button id="f4-mobile-menu">Menu</button>Pengelola</div>
     <div id="dashboardView"><div class="mobile-nav">Legacy</div>
@@ -470,7 +470,7 @@ async def bank_real_mobile_dock_bidirectional_scroll(browser):
         fixture=f"""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
         <link rel="stylesheet" href="/portal-live/direct-shell.css">
         <link rel="stylesheet" href="/portal-live/modern-portals.css">
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         <link rel="stylesheet" href="/portal-live/bank-member-navigation.css">
         <style>@media(max-width:720px){{{root_rule.group(0)}}}</style></head>
         <body class="f4-direct-bank f4-bank-app-private f4-bank-app-{role} v17-dashboard">
@@ -624,7 +624,7 @@ async def public_report_compact(browser):
         <base href="http://127.0.0.1:8765/">
         <style>"""+core.group(1)+"""</style>
         <link rel="stylesheet" href="/portal-live/modern-portals.css">
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         </head><body><section id="v11Public" style="width:calc(100% - 22px);margin:0 11px">
         <div id="v25ReportRoot"><div id="v25ReportMetrics" class="v25-public-metrics v26-compact">"""+cards+"""</div></div></section></body></html>"""
         await page.goto(ROOT,wait_until="domcontentloaded")
@@ -674,7 +674,7 @@ async def member_profile_inline_name(browser):
     page=await browser.new_page(viewport={"width":390,"height":820})
     markup="""<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
     <base href="http://127.0.0.1:8765/">
-    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+    <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
     </head><body><div id="dashboardView"><section id="pageProfile">
     <div class="f4-profile-identity"><small>Nama anggota</small><strong id="pName">Heri Awal</strong></div>
     </section><span id="greeting"></span><span id="welcomeName"></span>
@@ -743,7 +743,7 @@ async def member_profile_dropdown_chevrons(browser):
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <base href="http://127.0.0.1:8765/">
         <style>"""+main_style.group(1)+"""</style>
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css"></head>
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css"></head>
         <body class="f4-direct-bank"><main id="dashboardView">
         <section id="pageProfile" class="card f4-profile-card" style="max-width:750px">
           <details id="v15PhotoPanel" class="f4-profile-edit">
@@ -807,7 +807,7 @@ async def note_print_is_visible(browser):
         await page.goto(ROOT,wait_until="domcontentloaded")
         fixture="""<!doctype html><html><head>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         <style>body{margin:0;font-family:system-ui}
         #dashboardView{max-width:980px;margin:auto;padding:16px}
         #pagePenjualan{background:#fff}</style></head>
@@ -898,7 +898,7 @@ async def sale_price_field_proportions(browser):
         page=await browser.new_page(viewport={"width":width,"height":820})
         await page.goto(ROOT,wait_until="domcontentloaded")
         fixture="""<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         <style>body{margin:0;font-family:system-ui}#dashboardView{padding:16px;max-width:1060px;margin:auto}
         #pagePenjualan{width:100%;max-width:600px;box-sizing:border-box}</style></head>
         <body class="f4-bank-app-private f4-bank-app-admin">
@@ -932,7 +932,7 @@ async def bank_unified_goods_forms(browser):
         page=await browser.new_page(viewport={"width":width,"height":850})
         fixture="""<!doctype html><html><head>
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         <style>body{margin:0;font-family:system-ui;background:#f7fafb}
         #dashboardView>.section{padding:14px}</style></head>
         <body class="f4-bank-app-private f4-bank-app-admin"><div id="dashboardView"><main class="section">
@@ -1030,7 +1030,7 @@ async def bank_policy_permission_ui(browser):
         page=await browser.new_page(viewport={"width":390,"height":780})
         await page.goto(ROOT,wait_until="domcontentloaded")
         await page.set_content("""<!doctype html><html><head>
-        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">
+        <link rel="stylesheet" href="/portal-live/bank-eco-pages.css">\n<link rel="stylesheet" href="/portal-live/bank-mobile-dock.css">
         </head><body><section id="pageMaster" class="hidden"></section></body></html>""",wait_until="load")
         async def policy(route):
             await route.fulfill(status=200,headers={
@@ -1419,9 +1419,9 @@ async def main():
                 assert state["home"]["w"]>850,state
                 assert abs(state["metrics"]["y"]-state["hero"]["y"])<3,state
                 assert state["metrics"]["x"]>=state["hero"]["right"]+8,state
-                assert abs(state["tiles"][0]["y"]-state["tiles"][2]["y"])<3,state
+                assert state["tiles"][0]["w"]==0 and state["tiles"][1]["w"]==0 and state["tiles"][2]["w"]>200,state
                 assert state["dock"]=="none",state
-                assert state["heroBreakdown"]["display"]=="none",state
+                assert state["heroBreakdown"]["display"]=="grid",state
             else:
                 assert state["heroBreakdown"]["display"]=="grid",state
                 assert state["heroBreakdown"]["values"]==["Rp 3.000","Rp 1.500"],state
