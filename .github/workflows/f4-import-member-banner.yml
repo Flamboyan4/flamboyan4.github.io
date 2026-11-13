@@ -16,36 +16,36 @@ jobs:
       - name: Download and verify original 1600 x 500 banner
         run: |
           python3 - <<'PY'
-            import urllib.request, urllib.error, pathlib, struct, sys, time, re
-            base="https://media.canva.com/v2/image-resize/format:PNG/height:62/quality:100/uri:ifs%3A%2F%2FM%2Ff8dc2fa1-b6b2-4c3e-a788-378187bccb7c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAFQ0HR7TRpyNcoYNvQ6blnUUC1qFUpX7NUAkrn-myyle&exp=1794604176&osig=AAAAAAAAAAAAAAAAAAAAAG1wwFHAS1PsWN6IQPpv5zDUbcjGfqt5jAKMsV-HAH9-&signer=media-rpc&token=AAIAAU0AJGY4ZGMyZmExLWI2YjItNGMzZS1hNzg4LTM3ODE4N2JjY2I3YwAAAAABoda-koBgISA4wkYbjwL5QKTsi6TTZCsRTpLtHoxzX4Ms7I1hgw&x-canva-quality=thumbnail"
-            file_id="1-FOObtanNOTTINqoO6g0pM9KgcSEvL86"
-            candidates=[
-             ("canva_original",base.replace("/height:62/","/height:500/").replace("/width:200?","/width:1600?")),
-             ("canva_original_no_thumbnail",base.replace("/height:62/","/height:500/").replace("/width:200?","/width:1600?").replace("&x-canva-quality=thumbnail","")),
-             ("canva_thumbnail",base),
-             ("drive_original","https://drive.google.com/uc?export=download&id="+file_id)
-            ]
-            found=False
-            for label,url in candidates:
-             try:
-              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
-              with urllib.request.urlopen(req,timeout=20) as result:
-               data=result.read(5000000)
-               content=result.headers.get("Content-Type","")
-              size=(0,0)
-              if data.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):size=struct.unpack(">II",data[16:24])
-              print(label,"http=200",content,"bytes",len(data),"size",size,flush=True)
-              if size[0]>=1500 and size[1]>=450:
-               path=pathlib.Path("assets/bank-sampah-alur-penimbangan-1600x500.png")
-               path.write_bytes(data)
-               found=True
-               break
-             except Exception as e:
-              print(label,type(e).__name__,str(e)[:160],flush=True)
-            if not found:
-             print("FULL_RESOLUTION_NOT_YET_ACCESSIBLE")
-             sys.exit(2)
-            
+          import urllib.request, urllib.error, pathlib, struct, sys, time, re
+          base="https://media.canva.com/v2/image-resize/format:PNG/height:62/quality:100/uri:ifs%3A%2F%2FM%2Ff8dc2fa1-b6b2-4c3e-a788-378187bccb7c/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAFQ0HR7TRpyNcoYNvQ6blnUUC1qFUpX7NUAkrn-myyle&exp=1794604176&osig=AAAAAAAAAAAAAAAAAAAAAG1wwFHAS1PsWN6IQPpv5zDUbcjGfqt5jAKMsV-HAH9-&signer=media-rpc&token=AAIAAU0AJGY4ZGMyZmExLWI2YjItNGMzZS1hNzg4LTM3ODE4N2JjY2I3YwAAAAABoda-koBgISA4wkYbjwL5QKTsi6TTZCsRTpLtHoxzX4Ms7I1hgw&x-canva-quality=thumbnail"
+          file_id="1-FOObtanNOTTINqoO6g0pM9KgcSEvL86"
+          candidates=[
+           ("canva_original",base.replace("/height:62/","/height:500/").replace("/width:200?","/width:1600?")),
+           ("canva_original_no_thumbnail",base.replace("/height:62/","/height:500/").replace("/width:200?","/width:1600?").replace("&x-canva-quality=thumbnail","")),
+           ("canva_thumbnail",base),
+           ("drive_original","https://drive.google.com/uc?export=download&id="+file_id)
+          ]
+          found=False
+          for label,url in candidates:
+           try:
+            req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+            with urllib.request.urlopen(req,timeout=20) as result:
+             data=result.read(5000000)
+             content=result.headers.get("Content-Type","")
+            size=(0,0)
+            if data.startswith(bytes.fromhex("89504e470d0a1a0a")):size=struct.unpack(">II",data[16:24])
+            print(label,"http=200",content,"bytes",len(data),"size",size,flush=True)
+            if size[0]>=1500 and size[1]>=450:
+             path=pathlib.Path("assets/bank-sampah-alur-penimbangan-1600x500.png")
+             path.write_bytes(data)
+             found=True
+             break
+           except Exception as e:
+            print(label,type(e).__name__,str(e)[:160],flush=True)
+          if not found:
+           print("FULL_RESOLUTION_NOT_YET_ACCESSIBLE")
+           sys.exit(2)
+          
           PY
       - name: Commit verified banner and remove temporary importer
         run: |
