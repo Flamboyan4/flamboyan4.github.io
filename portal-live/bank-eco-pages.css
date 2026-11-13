@@ -253,7 +253,7 @@ body.f4-bank-embedded #dashboardView .section,
    padding:6px 7px 12px!important;margin-bottom:10px!important
  }
  html body :is(#v18PublicSide,#sideNav) button svg{
-   width:19px!important;height:19px!important;flex:none!important
+   box-sizing:border-box;width:32px;height:32px;padding:6px;flex:none
  }
  /* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;
     lima tujuan utama tetap ada di dock, tanpa duplikasi. */
@@ -1331,7 +1331,7 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="deposit"],[data-group="sale"]){
   display:none
  }
- body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:17px;height:17px}
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:32px;height:32px}
  body.f4-bank-app-admin #sideNav #v15Footer{display:none}
  body.f4-bank-app-admin #dashboardView .f4-bank-screen{
   padding:19px 20px;border:1px solid #dfeae2;border-radius:15px;background:#fff
