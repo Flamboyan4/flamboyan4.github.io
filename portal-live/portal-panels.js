@@ -236,13 +236,14 @@ async function loadPersonal(kind){
     entries.replaceChildren();
     for(const row of list.slice(0,visible)){
      const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
-     // Pisahkan catatan Pembukuan dengan bulan kewajiban; jangan timpa
-     // keterangan asli (mis. "Humas" / "RT") dengan teks periode.
+     // Baris utama: periode pembayaran dan keterangan asli pengurus.
+     // Contoh: "2026-10 • Humas"; jika tanpa catatan cukup "2026-11".
      const description=String(row.keterangan||row.catatan||'').trim();
+     const period=String(row.periode||'').trim();
      const category={IURAN_BULANAN:'Iuran RT',KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'}[row.jenis]||labels[kind]||row.namaKegiatan||row.nama_kegiatan||'Riwayat pembayaran';
-     left.append(el('strong',description||category));
+     const headline=period?[period,description.startsWith(period+' • ')?description.slice(period.length+3):description].filter(Boolean).join(' • '):description||category;
+     left.append(el('strong',headline));
      const details=el('div',undefined,'f4-user-row-details');
-     if(row.periode)details.append(el('span','Periode '+String(row.periode)));
      if(dateOf(row))details.append(el('time',niceDate(dateOf(row))));
      if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
      left.append(details);
