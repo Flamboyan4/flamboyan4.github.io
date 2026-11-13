@@ -761,7 +761,7 @@ async def bank_cash_and_history_tabs(browser):
 
 
 async def member_price_card_position(browser):
-    """The member price CTA is prominent and above the weighing schedule."""
+    """Member schedule precedes price on desktop; both shortcuts share one mobile row."""
     for device,width in [("pc",1366),("hp",390)]:
         page=await browser.new_page(viewport={"width":width,"height":850})
         await page.goto(ROOT,wait_until="domcontentloaded")
@@ -789,7 +789,7 @@ async def member_price_card_position(browser):
         result=await page.evaluate("""() => {
           const p=document.querySelector('#f4MemberPriceShortcut'),s=document.querySelector('#f4BankWeighingSchedule');
           const a=p.getBoundingClientRect(),b=s.getBoundingClientRect();
-          return {priceBottom:a.bottom,priceRight:a.right,priceY:a.top,scheduleX:b.left,scheduleY:b.top,priceH:a.height,
+          return {priceBottom:a.bottom,priceRight:a.right,priceY:a.top,scheduleX:b.left,scheduleY:b.top,scheduleBottom:b.bottom,priceH:a.height,
             priceColor:getComputedStyle(p).backgroundColor,
              scheduleColor:getComputedStyle(s).backgroundColor,
              iconColor:getComputedStyle(s.querySelector('.f4-bank-weigh-icon')).backgroundColor,
@@ -801,13 +801,13 @@ async def member_price_card_position(browser):
             assert abs(result["priceY"]-result["scheduleY"])<2,(device,result)
             assert result["priceRight"]<=result["scheduleX"]+2,(device,result)
         else:
-            assert result["priceBottom"]<=result["scheduleY"]+2,(device,result)
+            assert result["scheduleBottom"]<=result["priceY"]+2,(device,result)
         assert result["priceH"]>=60 and not result["overflow"],(device,result)
-        assert result["priceColor"]=="rgb(253, 192, 16)",(device,result)
+        assert result["priceColor"]=="rgb(255, 255, 255)",(device,result)
         assert result["scheduleColor"]=="rgb(255, 255, 255)",(device,result)
-        assert result["iconColor"]=="rgb(9, 188, 211)",(device,result)
+        assert result["iconColor"]=="rgb(49, 134, 81)",(device,result)
         assert result["priceHasSvg"],(device,result)
-        assert result["border"]!="rgb(215, 230, 218)",(device,result)
+        assert result["border"]=="rgb(220, 232, 222)",(device,result)
         print("MEMBER_PRICE_SCHEDULE_RESPONSIVE_OK",device,result,flush=True)
         await page.close()
 
