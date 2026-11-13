@@ -275,28 +275,41 @@ async def savings_chart(browser):
       }}));
     }""")
     await page.locator("#f4BankSavingsBars .f4-bank-savings-bar").first.wait_for()
-    # Pencairan stays a raised yellow CTA with a real vector Rp symbol.
+    # The original design has a small raised yellow badge, a white Rp wordmark,
+    # and a caption aligned with the other tabs (only the badge protrudes).
     money_icon=await page.evaluate("""() => {
-      const center=document.querySelector('#f4BankAppDock .f4-bank-app-dock-action:nth-child(3)');
+      const nav=document.querySelector('#f4BankAppDock');
+      const center=nav?.querySelector('.f4-bank-app-dock-action:nth-child(3)');
       const icon=center?.querySelector('.f4-bank-app-action-icon');
       const svg=icon?.querySelector('svg.f4-bank-payout-rp-icon');
-      const style=center?getComputedStyle(center):null;
+      const word=svg?.querySelector('text');
+      const label=center?.querySelector('.f4-bank-app-action-name');
+      const first=nav?.querySelector('.f4-bank-app-dock-action:first-child .f4-bank-app-action-name');
       const tile=icon?getComputedStyle(icon):null;
       return {
-        route:center?.dataset.bankAppRoute,label:center?.querySelector('.f4-bank-app-action-name')?.textContent,
+        route:center?.dataset.bankAppRoute,label:label?.textContent,
         primary:center?.classList.contains('is-primary'),
-        svg:!!svg,paths:svg?.querySelectorAll('path').length||0,
+        svg:!!svg,word:word?.textContent||null,
+        wordFill:word?getComputedStyle(word).fill:null,
         iconBackground:tile?.backgroundColor,
-        transform:style?.transform,
-        isActive:center?.classList.contains('is-active'),
+        iconTop:icon?.getBoundingClientRect().top,
+        iconBottom:icon?.getBoundingClientRect().bottom,
+        navTop:nav?.getBoundingClientRect().top,
+        labelTop:label?.getBoundingClientRect().top,
+        firstLabelTop:first?.getBoundingClientRect().top,
+        iconWidth:icon?.getBoundingClientRect().width,
+        iconHeight:icon?.getBoundingClientRect().height,
         overflow:document.documentElement.scrollWidth>window.innerWidth+3
       };
     }""")
     assert money_icon["route"]=="bank-payout" and money_icon["label"]=="Pencairan",money_icon
-    assert money_icon["primary"] and money_icon["svg"] and money_icon["paths"]==2,money_icon
-    assert money_icon["iconBackground"]=="rgb(255, 199, 25)",money_icon
-    assert money_icon["transform"] not in (None,"none","matrix(1, 0, 0, 1, 0, 0)") and not money_icon["overflow"],money_icon
-    print("MEMBER_PAYOUT_SVG_DOCK_OK",money_icon,flush=True)
+    assert money_icon["primary"] and money_icon["svg"] and money_icon["word"]=="Rp",money_icon
+    assert money_icon["wordFill"]=="rgb(255, 255, 255)" and money_icon["iconBackground"]=="rgb(255, 199, 25)",money_icon
+    assert money_icon["iconTop"]<money_icon["navTop"] and money_icon["iconBottom"]<money_icon["labelTop"],money_icon
+    assert abs(money_icon["labelTop"]-money_icon["firstLabelTop"])<7,money_icon
+    assert 46<=money_icon["iconWidth"]<=56 and 48<=money_icon["iconHeight"]<=58,money_icon
+    assert not money_icon["overflow"],money_icon
+    print("MEMBER_PAYOUT_ORIGINAL_RP_DOCK_OK",money_icon,flush=True)
     state=await page.evaluate("""() => {
       const root=document.querySelector('#f4BankSavingsBars');
       return {
