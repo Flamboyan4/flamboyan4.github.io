@@ -405,19 +405,19 @@ refreshSession().then(()=>{
 (()=>{
  const css=document.createElement('style');css.id='f4-search-reload-layout';
  css.textContent=[
-  '.f4-inline-search-refresh{display:flex!important;align-items:center!important;gap:8px!important;flex:1 1 230px!important;min-width:0!important;max-width:100%!important;width:auto!important}',
-  '.f4-inline-search-refresh>input{flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;margin:0!important}',
-  '.f4-inline-search-refresh>.f4-search-refresh-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;margin:0!important;border-radius:11px!important;line-height:1!important}',
-  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-symbol{display:grid!important;place-items:center!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important}',
-  '.f4-inline-search-refresh>.f4-search-refresh-button svg{display:block!important;width:20px!important;height:20px!important;margin:auto!important}',
-  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-label{display:none!important}',
-  '@media(max-width:760px){#f4-account-page .f4-admin-controls:has(.f4-inline-search-refresh),#f4-account-page .sa-controls:has(.f4-inline-search-refresh){display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}#f4-account-page .f4-inline-search-refresh{flex:1 1 100%!important;width:100%!important}#f4-account-page .sa-account-filters .f4-inline-search-refresh{flex:1 1 100%!important}#f4-account-page .sa-account-filters select{flex:1 1 100%!important;max-width:none!important}}'
+  '.f4-inline-search-refresh{display:flex;align-items:center;gap:8px;flex:1 1 230px;min-width:0;max-width:100%;width:auto}',
+  '.f4-inline-search-refresh>input{flex:1 1 auto;width:100%;min-width:0;max-width:none;margin:0}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 42px;width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;max-height:42px;padding:0;margin:0;border-radius:11px;line-height:1}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-symbol{display:grid;place-items:center;width:100%;height:100%;margin:0;padding:0}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button svg{display:block;width:20px;height:20px;margin:auto}',
+  '.f4-inline-search-refresh>.f4-search-refresh-button .f4-action-label{display:none}',
+  '@media(max-width:760px){#f4-account-page .f4-admin-controls:has(.f4-inline-search-refresh),#f4-account-page .sa-controls:has(.f4-inline-search-refresh){display:flex;flex-wrap:wrap;align-items:center;gap:8px}#f4-account-page .f4-inline-search-refresh{flex:1 1 100%;width:100%}#f4-account-page .sa-account-filters .f4-inline-search-refresh{flex:1 1 100%}#f4-account-page .sa-account-filters select{flex:1 1 100%;max-width:none}}'
  ].join('\n');
  css.textContent+=[
-  'button.f4-global-refresh{display:inline-grid!important;place-items:center!important;flex:0 0 42px!important;width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;min-height:42px!important;max-height:42px!important;padding:0!important;margin:0!important;border-radius:10px!important;line-height:1!important;vertical-align:middle!important}',
-  'button.f4-global-refresh>svg{display:block!important;width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;margin:0!important;padding:0!important;fill:none!important;stroke:currentColor!important}',
-  'button.f4-global-refresh>.f4-refresh-label{display:none!important}',
-  '@media(max-width:760px){button.f4-global-refresh{flex-basis:40px!important;width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important}}'
+  'button.f4-global-refresh{display:inline-grid;place-items:center;flex:0 0 42px;width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;max-height:42px;padding:0;margin:0;border-radius:10px;line-height:1;vertical-align:middle}',
+  'button.f4-global-refresh>svg{display:block;width:20px;height:20px;max-width:20px;max-height:20px;margin:0;padding:0;fill:none;stroke:currentColor}',
+  'button.f4-global-refresh>.f4-refresh-label{display:none}',
+  '@media(max-width:760px){button.f4-global-refresh{flex-basis:40px;width:40px;min-width:40px;max-width:40px;height:40px;min-height:40px;max-height:40px}}'
  ].join('\n');
  document.head.append(css);
  const containers='.f4-admin-controls,.sa-controls,.sa-resident-controls,.sa-account-filters,.search-toolbar,.search-bar,.filter-bar,.f4-search-controls,.toolbar';
