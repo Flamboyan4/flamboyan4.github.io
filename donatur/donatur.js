@@ -144,6 +144,10 @@ function render(data){
  renderUpdates(data);
  renderReport(data);
  $('partial-warning').hidden=!data.historyPartial;
+ for(const id of ['print-header','print-report']){
+  const button=$(id);button.disabled=!!data.historyPartial;
+  button.title=data.historyPartial?'Riwayat lebih dari 500 transaksi. Minta arsip lengkap kepada pengurus.':'Cetak Laporan Pertanggungjawaban';
+ }
  tab('program');show('dashboard');
 }
 async function load(){
