@@ -1,0 +1,54 @@
+name: F4 Cerita Warga Popular Ranking & Kas Saya Notes
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-popular-kas-notes.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate frontend and backend syntax
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/community-home.js
+          node --check portal-live/portal-panels.js
+      - name: Verify production popular ranking without editing data
+        run: |
+          python3 - <<'PY'
+          import urllib.request,json
+          url='https://api.flamboyan4.web.id/api/v2/gallery/popular'
+          request=urllib.request.Request(url,headers={'Origin':'https://flamboyan4.web.id','User-Agent':'F4-popularity-acceptance/1.0'})
+          with urllib.request.urlopen(request,timeout=35) as response:
+              data=json.load(response)
+          assert data.get('ok') is True, data
+          photos=data.get('popular')
+          assert isinstance(photos,list)
+          previous=None
+          seen=set()
+          for row in photos:
+              assert row.get('id') and row['id'] not in seen
+              seen.add(row['id'])
+              assert row.get('url') and row.get('albumId')
+              score=(int(row.get('likes') or 0),int(row.get('commenterCount') or 0),str(row.get('date') or ''))
+              if previous is not None:
+                  assert previous >= score,('ranking incorrect',previous,score,row['id'])
+              previous=score
+          print('POPULAR_LIKES_COMMENTERS_ORDER_OK',len(photos))
+          PY
+      - name: Verify Kas Saya keeps original note and period separate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          backend=Path('cloudflare/worker-terpadu-operasional-teruji.js').read_text()
+          frontend=Path('portal-live/portal-panels.js').read_text()
+          assert 'keterangan:String(p.keterangan||"").trim()' in backend
+          assert "const description=String(row.keterangan||row.catatan||'').trim()" in frontend
+          assert "if(row.periode)details.append" in frontend
+          print('KAS_SAYA_ORIGINAL_NOTE_AND_PERIOD_OK')
+          PY
