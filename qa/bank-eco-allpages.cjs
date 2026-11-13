@@ -32,21 +32,29 @@ assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation m
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(!css.includes('#f4MemberHero'), 'No green wrapper should surround the ATM card');
-assert(css.includes('grid-area:card') && css.includes('grid-area:balance'), 'ATM and yellow wallet must be separate grid items');
+assert(css.includes('grid-area:card') && css.includes('grid-area:balance'), 'ATM and member savings balance must be separate grid items');
 assert(!css.includes('bottom:-48px;width:min(80%,380px);height:260px'), 'Old drifting leaf offset returned');
-assert(css.includes('#f4MemberQuickActions>#f4MemberPriceShortcut') && css.includes('background:#fff'), 'Price should be a standalone white shortcut card');
+assert(css.includes('#f4MemberQuickActions.f4-member-shortcuts') &&
+       css.includes('grid-area:quick') && mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'),
+ 'Schedule and price must remain two live actions in one integrated shortcut row');
 assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
        priceModule.includes('priceTag.innerHTML=\'<path d="m3 12 9-9') &&
        !priceModule.includes('f4-bank-price-shortcut-icon","♻'),
  'Price shortcut must use a clear SVG price-tag icon');
-assert(css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)') && !css.includes('background:linear-gradient(116deg,#009788 0%,#43A047 100%)'), 'ATM must stand on its own without the old green gradient frame');
-assert(css.includes('grid-area:balance') && css.includes('border:0;border-radius:26px;background:#FDC010') && css.includes('color:#162a37'), 'Balance must be its own yellow card with dark text');
+assert(css.includes('background:linear-gradient(135deg,#069a84 0%,#087450 55%,#06482f 100%)') &&
+       !css.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
+ 'Premium member ATM should use the selected deep-leaf gradient');
+assert(css.includes('grid-area:balance') && css.includes('linear-gradient(135deg,#f8fcf4,#eff8e9 87%)') &&
+       css.includes('background:linear-gradient(105deg,#067747,#075030)'),
+ 'Member balance requires its soft mint panel and functional dark green CTA');
 assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
-assert(css.includes('"card balance"') && css.includes('"recent quick"') &&
-       css.includes('"recent info"') && css.includes('"progress guide"'),
- 'Member desktop grid must show info beside history, then equal-height progress and deposit guide');
-assert(css.includes('grid-area:quick') && css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'The schedule and tariff must share the right column');
-assert(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'), 'Two-column quick actions required on phones');
+assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
+       css.includes('"progress guide"') && css.includes('"recent info"'),
+ 'Premium desktop hierarchy must be ATM/saldo, shortcuts, progress/guide, mutasi/laporan');
+assert(css.includes('grid-area:quick') && css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'),
+ 'Schedule and price must share the full width banking shortcut strip');
+assert(css.includes('"quick quick info"') && css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),
+ 'Mobile shortcuts must show three matched actions in one row');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'), 'Broken 12-track grid must not return');
 assert(mobile.includes('function arrangeMemberHomeLayout(hub)') && mobile.includes('function restoreMemberHomeLayout(hub)'), 'Member layout must mount and unmount across role changes');
 assert(mobile.includes('quick.replaceChildren(...[weighing,price].filter(Boolean))'), 'Schedule and tariff must remain real functional nodes');
@@ -54,9 +62,9 @@ assert(css.includes('grid-area:progress') && css.includes('grid-area:guide') &&
        css.includes('height:100%;align-self:stretch'),
  'Progress and deposit guide must share a stretched equal-height grid row');
 assert(mobile.includes('flow.hidden=false;flow.open=true;') &&
-       memberPolish.includes('grid-template-columns:repeat(2,minmax(0,1fr))') &&
+       memberPolish.includes('grid-template-columns:repeat(4,minmax(0,1fr))') &&
        memberPolish.includes('.f4-member-flow-steps p,'),
- 'Deposit guide should stay expanded with four compact visual steps');
+ 'Deposit guide stays expanded, with four compact side-by-side SVG steps');
 assert(mobile.includes('function openWeighingSchedule()') &&
        mobile.includes('card.setAttribute("aria-label","Lihat jadwal penimbangan")') &&
        mobile.includes('dialog.showModal()'),
@@ -76,8 +84,9 @@ assert(mobile.includes('identity.replaceChildren(el("strong","","Halo, "+name)')
 assert(mobile.includes('tile.append(memberMetricIcon(asset))') &&
        memberNav.includes('.f4-member-environment-stat svg{'),
  'Progress indicators must render purposeful SVGs');
-assert(css.includes('grid-area:recent;align-self:stretch;min-width:0;width:100%;height:100%'),
- 'Mutasi Setoran and the right column must finish on the same horizontal line');
+assert(css.includes('grid-area:recent;box-sizing:border-box;min-width:0;width:100%;height:100%') &&
+       css.includes('"recent info"'),
+ 'Mutations and report banner must remain aligned in the desktop bottom row');
 for(const step of [2,3,4]){
  assert(memberPolish.includes('.f4-member-flow-steps>li:nth-child('+step+')'),
  'Missing distinct pastel styling for instruction '+step);
@@ -87,6 +96,17 @@ assert(memberPolish.includes('background:var(--step-bg)') &&
  'Pastel instruction tiles and SVG symbols must use the same scoped color variables');
 assert(memberPolish.includes('.f4-member-flow-share>span:nth-child(2)'),
  'Savings and environment split badges must have differentiated color');
+assert(mobile.includes('brand.id="f4BankMemberTopBrand"') &&
+       memberNav.includes('grid-template-rows:42px 38px') &&
+       memberNav.includes('background:linear-gradient(105deg,#e2f5d6,#bff1ab)'),
+ 'Desktop leaf-green sidebar and dual-row mobile header must use the selected design');
+assert(memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
+       mobile.includes('splitSource.children') &&
+       memberPolish.includes('.f4-member-flow-foot{display:none'),
+ 'Profit sharing must appear within progress, sourced from live configuration, not duplicated hard-coded text');
+assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
+       css.includes('margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none'),
+ 'Remove the enclosing dashboard frame entirely');
 assert(!mobile.includes('values[2]') && !mobile.includes('values[3]'),
  'Member preview must not use nonexistent DOM metric array positions');
 assert(mobile.includes('new Map(rows.map(node=>[') &&
@@ -105,9 +125,9 @@ assert(mobile.includes('resetMemberSalesSummary();') &&
  'Member report state must reset on account changes and reject stale requests');
 
 
-assert(css.includes('background:#e9f5ec;color:#24774e') &&
+assert(css.includes('background:#e2f4df;color:#167244') &&
        css.includes('.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg'),
- 'Schedule and price should use clear SVG icons with matching leaf accents');
+ 'Schedule and price should use matched green icon tokens and true SVGs');
 assert(css.includes('#dashboardView #pageProfile .f4-bank-profile-detail .f4-bank-member-card'), 'Profile must share dashboard ATM gradient');
 assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")'), 'ATM contactless graphic must use SVG');
 assert(mobile.includes('number.id="f4BankCardNumber"') && mobile.includes('person.querySelector("strong").id="f4BankCardName"'), 'ATM number and member name must remain bound to the real account');
@@ -148,7 +168,7 @@ assert(h.includes("const isDebit=amountOut>0"),'Ledger must include posted withd
 assert(h.includes("isDebit?'− ':'+ '"),'Ledger amounts must show correct debit and credit signs');
 assert(!h.includes("const recent=active.slice().sort((a,b)=>String(b.tanggal"),'Deposit-only dashboard mutation logic must not return');
 assert(h.includes("document.createElementNS('http://www.w3.org/2000/svg','svg')"),'Mutation icons must be SVG');
-assert(css.includes('border:0;border-bottom:1px solid #edf0f1'), 'Mutation rows must not have separate boxes');
+assert(css.includes('border:0;border-bottom:1px solid #edf3ed'), 'Mutation rows must not have separate cards');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'),'Broken legacy member grid returned');
 // Prevent the old compact/underlined dock from reappearing.
 const dockSection=css.split('/* Navigasi bawah tunggal:')[1]?.split('body.f4-bank-drawer-open')[0];
@@ -181,7 +201,9 @@ assert(!modern.includes('#v9List{max-height:390px'),'Old capped roster in shared
 assert(!h.includes('max-height:310px!important;overflow-y:auto!important'),'Old roster scrolling returned');
 // Mobile Bank Sampah controls must not regress into the three bugs in the 31 Oct report.
 assert(!dockSection.includes('transform:translateY(-8px)'),'Center caption must not overlap gold action');
-assert(dockSection.includes('transform:translateY(-21px)'),'Raised central icon geometry changed');
+assert(!dockSection.includes('translateY(-21px)') &&
+       dockSection.includes('.f4-bank-app-dock-action.is-active'),
+ 'Banking dock should use five equal actions with no floating center control');
 // Admin HP retains shortcut actions; desktop manager uses a compact direct sidebar.
 const adminMobile=css.split('/* Pengelola HP: menu slide untuk Keuangan dan Pengelolaan;')[1]
   ?.split('@media screen and (max-width:760px)')[0];
