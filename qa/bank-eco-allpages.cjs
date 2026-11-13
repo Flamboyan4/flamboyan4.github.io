@@ -320,7 +320,7 @@ assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
  'Native fixed member navigation must be used without extra compositor transformations');
 assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
        !dockCss.includes('body.f4-bank-app-member .f4-bank-app-dock-action') &&
-       (dockCss.match(/body\\.f4-bank-app-private \\.f4-bank-app-dock-action\\.is-primary\\{/g)||[]).length===1 &&
+       dockCss.split('body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{').length===2 &&
        mobile.includes('isAdminReport=dock&&route==="laporan"') &&
        mobile.includes('if(!b.classList.contains("is-primary"))b.append('),
  'No role-specific dock styles; only icon and route data can differ');
