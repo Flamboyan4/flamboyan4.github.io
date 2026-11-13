@@ -4,6 +4,8 @@
 CREATE TABLE IF NOT EXISTS donor_organizations (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL COLLATE NOCASE UNIQUE,
+  contact_name TEXT NOT NULL DEFAULT '',
+  contact_email TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'aktif' CHECK(status IN ('aktif','arsip')),
   created_by TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -65,8 +67,10 @@ BEGIN
     WHERE p.id=NEW.program_id AND a.event_id=NEW.treasury_event_id
   ) < NEW.amount_rp+(
     SELECT COALESCE(SUM(l.amount_rp),0) FROM donor_finance_links l
+    JOIN donor_programs shared ON shared.id=l.program_id
     WHERE l.treasury_event_id=NEW.treasury_event_id
-      AND l.program_id=NEW.program_id AND l.kind=NEW.kind
+      AND shared.fund_id=(SELECT fund_id FROM donor_programs WHERE id=NEW.program_id)
+      AND l.kind=NEW.kind
   ) THEN RAISE(ABORT,'Alokasi melebihi transaksi keuangan asli') END;
   SELECT CASE WHEN NEW.kind='outgoing' AND (
     SELECT COALESCE(SUM(CASE WHEN kind='incoming' THEN amount_rp ELSE -amount_rp END),0)
@@ -94,3 +98,14 @@ CREATE TABLE IF NOT EXISTS donor_program_updates (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_donor_updates_program ON donor_program_updates(program_id,status,occurred_on DESC);
+
+-- Audit khusus modul donatur; tidak bergantung pada batasan scope audit_log lama.
+CREATE TABLE IF NOT EXISTS donor_audit (
+  id TEXT PRIMARY KEY,
+  actor_account_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  target_id TEXT NOT NULL,
+  summary_json TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_donor_audit_created ON donor_audit(created_at DESC);
