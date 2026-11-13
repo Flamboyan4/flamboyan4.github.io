@@ -1636,7 +1636,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-member .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%
  }
- /* Aksi Setoran milik pengurus: satu tombol tengah kuning, tanpa menyalin dock anggota. */
+ /* Aksi Laporan pengurus: tombol tengah kuning sesuai susunan navigasi pengelola lama. */
  body.f4-bank-app-admin .f4-bank-app-dock-action.is-primary{
   position:relative;overflow:visible;background:transparent;color:var(--bank-admin-forest);
  }
