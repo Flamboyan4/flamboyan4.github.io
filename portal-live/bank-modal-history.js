@@ -29,6 +29,8 @@
   // have their own overlay layers, not separate page routes.
   const roots=[...document.querySelectorAll(selector)].filter(isVisible);
   roots.sort((a,b)=>{
+   // An open HTML dialog is in the browser top layer regardless of z-index.
+   if(a.matches('dialog')!==b.matches('dialog'))return a.matches('dialog')?1:-1;
    const az=Number.parseInt(getComputedStyle(a).zIndex,10)||0;
    const bz=Number.parseInt(getComputedStyle(b).zIndex,10)||0;
    return az-bz;
