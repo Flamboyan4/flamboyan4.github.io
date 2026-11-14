@@ -366,7 +366,7 @@ assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
        mobile.includes('["Saldo Warga","tabungan","coins"]'),
  'Laporan and Dokumentasi remain accessible through Lainnya');
 assert(!dockCss.includes('backdrop-filter:blur(12px)') &&
-       dockCss.includes('position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);z-index:55;'),
+       dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
  'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
 assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(nav);') &&
