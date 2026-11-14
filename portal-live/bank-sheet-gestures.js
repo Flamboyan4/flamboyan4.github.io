@@ -120,7 +120,7 @@
    activeGesture=null;
    if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId);
    const delta=g.last-g.y;
-   if(!g.moved){lastCompleted=performance.now();return;}
+   if(!g.moved)return; // A deliberate tap toggles size; only swipes suppress click.
    const speed=delta/Math.max(1,performance.now()-g.started);
    if(cancel){animateBack(panel);return;}
    if(g.expanded){
