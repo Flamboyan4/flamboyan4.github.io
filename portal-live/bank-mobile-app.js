@@ -108,31 +108,7 @@ function dock(){
  if(nav.parentNode!==document.body)document.body.append(nav);
  return nav;
 }
-// Keep the shared mobile dock inside Android's visual viewport while a user
-// pinch-zooms. Normal vertical scrolling never applies an offset or transform.
-let dockZoomAdjusted=false,dockZoomFrame=0;
-function syncDockPinchZoom(){
- const nav=$("f4BankAppDock"),vv=window.visualViewport;
- if(!nav||!vv)return;
- const zoomed=window.matchMedia("(max-width:1023px)").matches&&vv.scale>1.015;
- if(!zoomed){
-  if(!dockZoomAdjusted)return;
-  for(const prop of ["left","right","bottom","width","transform","transform-origin"])nav.style.removeProperty(prop);
-  dockZoomAdjusted=false;
-  return;
- }
- dockZoomAdjusted=true;
- nav.style.left=Math.max(0,vv.offsetLeft)+"px";
- nav.style.right="auto";
- nav.style.bottom=Math.max(0,window.innerHeight-vv.offsetTop-vv.height)+"px";
- nav.style.width=window.innerWidth+"px";
- nav.style.transformOrigin="left bottom";
- nav.style.transform="scale("+(1/vv.scale)+")";
-}
-function queueDockPinchZoom(){
- if(!(window.visualViewport?.scale>1.015||dockZoomAdjusted)||dockZoomFrame)return;
- dockZoomFrame=requestAnimationFrame(()=>{dockZoomFrame=0;syncDockPinchZoom();});
-}
+// One native fixed dock; no JS writes to its position during browser scroll.
 function markDock(){
  const nav=dock();
  for(const b of nav.querySelectorAll("[data-bank-app-route]")){
@@ -2545,9 +2521,7 @@ function acceptMemberStatement(event){
 
 function init(){
  if(ready)return;ready=true;
- // Pinch-zoom compensation only; normal scroll keeps CSS-native fixed placement.
- window.visualViewport?.addEventListener("resize",queueDockPinchZoom,{passive:true});
- window.visualViewport?.addEventListener("scroll",queueDockPinchZoom,{passive:true});
+ // A single CSS-fixed dock keeps the same size while Android bars collapse.
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
  // Chrome Android mengirim resize saat address bar berubah tinggi pada scroll.
  // Jangan render ulang beranda/badge hanya karena tinggi viewport berubah.
@@ -2597,7 +2571,6 @@ function init(){
    if(role==="member"&&source&&chart&&chart.parentElement!==source)source.append(chart);
   }).observe(page,{childList:true,subtree:true});
  sync();
- syncDockPinchZoom();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();

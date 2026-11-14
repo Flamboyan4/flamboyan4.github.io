@@ -1,61 +1,66 @@
-name: F4 Bank Eco Visual PC HP
+name: Bank Sampah - Browser Audit Situs Asli
 on:
-  push:
-    branches: [main]
-    paths:
-      - bank-sampah/index.html
-      - portal-live/bank-eco-pages.css
-      - portal-live/bank-mobile-app.js
-      - portal-live/bank-mobile-dock.css
-      - portal-live/live-bank-readonly.js
-      - qa/bank-app-responsive.py
-      - qa/bank-eco-visual.py
-      - qa/bank-mobile-zoom.py
-      - qa/bank-real-pages-mobile.py
-      - qa/bank-select-dropdown.py
-      - .github/workflows/f4-bank-eco-visual.yml
-  pull_request:
-    paths:
-      - bank-sampah/index.html
-      - portal-live/bank-eco-pages.css
-      - portal-live/bank-mobile-app.js
-      - portal-live/bank-mobile-dock.css
-      - qa/bank-app-responsive.py
-      - qa/bank-eco-visual.py
-      - qa/bank-mobile-zoom.py
-      - qa/bank-real-pages-mobile.py
-      - qa/bank-select-dropdown.py
-      - .github/workflows/f4-bank-eco-visual.yml
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  visual:
+  live:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 11
+    timeout-minutes: 9
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Chromium browser
+      - name: Install Playwright browser
         run: |
           python3 -m pip install -q playwright
           python3 -m playwright install --with-deps chromium
-      - name: Start local portal
+      - name: Inspect https://flamboyan4.web.id/bank-sampah/ directly
         run: |
-          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f4-bank-eco-http.log 2>&1 &
-          sleep 2
-      - name: Inspect computed colors and desktop/mobile card layouts
-        run: python3 qa/bank-eco-visual.py
-      - name: Verify manager screen layout and dedicated payout UI
-        run: python3 qa/bank-app-responsive.py
-      - name: Android pinch-zoom retains fixed five-button dock
-        run: python3 qa/bank-mobile-zoom.py
-      - name: Inspect all real bank pages with full CSS and Android widths
-        run: python3 qa/bank-real-pages-mobile.py
-      - name: Test member dropdown, selection, Back and calendar sheet
-        run: python3 qa/bank-select-dropdown.py
-      - uses: actions/upload-artifact@v4
+          python3 - <<'PY'
+          import asyncio,json,pathlib
+          from playwright.async_api import async_playwright
+          evidence=pathlib.Path("bank-live-evidence")
+          evidence.mkdir(exist_ok=True)
+          async def main():
+            results=[]
+            async with async_playwright() as p:
+              browser=await p.chromium.launch(args=["--no-sandbox"])
+              for width in (360,390,412,1366):
+                ctx=await browser.new_context(viewport={"width":width,"height":844},
+                  is_mobile=width<1024,has_touch=width<1024)
+                page=await ctx.new_page()
+                errors=[]
+                page.on("pageerror",lambda e:errors.append(str(e)[:160]))
+                try:
+                  response=await page.goto("https://flamboyan4.web.id/bank-sampah/",
+                    wait_until="domcontentloaded",timeout=30000)
+                  await page.wait_for_timeout(1500)
+                  state=await page.evaluate("""() => ({
+                    viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+                    bodyWidth:document.body.scrollWidth,
+                    app:[...document.scripts].some(s=>s.src.includes("bank-mobile-app.js")),
+                    css:[...document.styleSheets].some(s=>(s.href||"").includes("bank-eco-pages.css")),
+                    visiblePublic:!!document.querySelector("#v11Public:not(.hidden)")
+                  })""")
+                  await page.screenshot(path=str(evidence/f"site-{width}.png"))
+                  results.append({"width":width,"http":response.status if response else 0,
+                    **state,"errors":errors})
+                except Exception as e:
+                  results.append({"width":width,"error":str(e)[:200]})
+                await ctx.close()
+              await browser.close()
+            (evidence/"audit.json").write_text(json.dumps(results,indent=2))
+            for row in results:print(row)
+            assert all(r.get("http")==200 and r.get("app") and r.get("css") and
+              not r.get("errors") and r.get("scrollWidth",9999)<=r["width"]+3 for r in results)
+          asyncio.run(main())
+          PY
+      - name: Store live screenshots
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: f4-bank-eco-pc-hp-screenshots
-          path: ops-audit/bank-eco-theme/
-          retention-days: 14
+          name: bank-live-evidence
+          path: bank-live-evidence/
+          retention-days: 7
