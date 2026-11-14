@@ -280,10 +280,7 @@ async def check_mobile_dock_scroll(browser, role):
         }
         nav.append(b);
       }
-      if(role==='admin'){
-        document.documentElement.classList.add('f4-bank-admin-dock-root');
-        document.documentElement.append(nav);
-      }else document.body.append(nav);
+      document.body.append(nav);
     }""", role)
     await page.add_style_tag(content=pathlib.Path("portal-live/bank-mobile-dock.css").read_text())
     measurements=[]
