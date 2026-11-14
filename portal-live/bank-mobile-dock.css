@@ -38,6 +38,11 @@
   display:block;width:23px;height:23px;object-fit:contain;
   filter:brightness(0) saturate(100%) invert(28%) sepia(31%) saturate(726%) hue-rotate(88deg) brightness(85%) contrast(94%)
  }
+ /* Ikon penjualan memakai SVG keranjang, bukan aset dompet lama. */
+ body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon .f4-bank-cart-icon{
+  display:block;width:23px;height:23px;fill:none;stroke:currentColor;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round
+ }
  body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-name{
   display:block;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;text-align:center;font-size:10px;line-height:1.15
