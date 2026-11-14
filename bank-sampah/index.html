@@ -2004,8 +2004,8 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 <link rel="preload" as="style" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="preload" as="style" href="/portal-live/bank-impact-summary.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261114-bank-modal-unified-v12">
-<script defer src="/portal-live/bank-sheet-gestures.js?v=20261114-native-v1"></script>
-<script src="/portal-live/bank-modal-history.js?v=20261114-modal-guard-v3"></script>
+<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261114-bank-receipt-handle-v12"></script>
+<script src="/portal-live/bank-modal-history.js?v=20261114-back-closes-modal-v2"></script>
 </head>
 <body>
 <div id="f4-bank-startup" role="status" aria-live="polite">Memuat Bank Sampah…</div>
@@ -6431,12 +6431,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker-row{padding:10px 11px;width:100%;border:0;border-bottom:1px solid #edf2ee;background:white;text-align:left;border-radius:0;font-size:13px;color:#294b36}
 .f4-warga-picker-row:hover,.f4-warga-picker-row:focus-visible{background:#eef7f0}
 .f4-warga-picker-row .f4-warga-home{text-align:right;font-weight:700;white-space:nowrap}
-/* Dropdown tetap dekat field; dipindahkan ke body supaya tidak terpotong kontainer. */
-.f4-warga-picker-pop{position:fixed;top:0;left:0;right:auto;bottom:auto;z-index:25000;max-height:410px;overflow:hidden;box-shadow:0 12px 36px #162c2133}
-.f4-warga-picker-table{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.f4-warga-picker-empty{margin:0;padding:12px;font-size:13px;color:#647c6b}
-@media(max-width:720px){.f4-warga-picker-pop{border-radius:14px;padding:8px;box-shadow:0 12px 32px #142d2138}
-.f4-warga-picker-row{min-height:45px;font-size:13px}}
+@media(max-width:720px){.f4-warga-picker-pop{position:fixed;left:10px;right:10px;top:20dvh;width:auto;max-height:62dvh;z-index:25000;box-shadow:0 0 0 100vmax #10291c80,0 14px 38px #152d2740}}
 
 
 
@@ -6489,7 +6484,6 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 .f4-compact-remove svg{display:block;width:18px;height:18px;pointer-events:none}
 </style>
 <script id="f4-bank-member-search">
-/* Daftar nama warga adalah dropdown pencarian, BUKAN bottom sheet. */
 (()=>{
  'use strict';
  const watched=['setWarga','v9Member'];
@@ -6504,87 +6498,41 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
   select.dataset.f4Picker='1';
   const wrap=document.createElement('div');wrap.className='f4-warga-picker';
   select.parentNode.insertBefore(wrap,select);wrap.append(select);
-  const trigger=document.createElement('button');trigger.type='button';trigger.className='f4-warga-picker-open';
-  trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+  const trigger=document.createElement('button');trigger.type='button';trigger.className='f4-warga-picker-open';trigger.setAttribute('aria-haspopup','listbox');
   const label=document.createElement('span');trigger.append(label);
-  const panel=document.createElement('div');panel.className='f4-warga-picker-pop';
-  panel.setAttribute('role','group');panel.setAttribute('aria-label','Pilih nama warga');panel.hidden=true;
-  const search=document.createElement('input');search.type='search';search.placeholder='Cari nama atau nomor rumah...';
-  search.setAttribute('aria-label','Cari warga');search.autocomplete='off';
-  const head=document.createElement('div');head.className='f4-warga-picker-head';
-  head.innerHTML='<span>Nama warga</span><span>Rumah</span>';
+  const panel=document.createElement('div');panel.className='f4-warga-picker-pop';panel.hidden=true;
+  const search=document.createElement('input');search.type='search';search.placeholder='Cari nama atau nomor rumah...';search.setAttribute('aria-label','Cari warga');
+  const head=document.createElement('div');head.className='f4-warga-picker-head';head.innerHTML='<span>Nama warga</span><span>Rumah</span>';
   const list=document.createElement('div');list.className='f4-warga-picker-table';list.setAttribute('role','listbox');
-  panel.append(search,head,list);wrap.append(trigger);document.body.append(panel);
+  panel.append(search,head,list);wrap.append(trigger,panel);
   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||'Pilih warga'};
-  const open=()=>!panel.hidden;
-  const place=()=>{
-   if(!open()||!trigger.isConnected){if(!trigger.isConnected)close();return;}
-   const r=trigger.getBoundingClientRect(),vv=window.visualViewport;
-   const top=vv?.offsetTop||0,height=vv?.height||innerHeight;
-   const bottom=top+height,below=bottom-r.bottom-8,above=r.top-top-8;
-   const down=below>=220||below>=above;
-   const space=Math.max(90,down?below:above);
-   const maxH=Math.min(410,space);
-   const width=Math.min(Math.max(220,r.width),innerWidth-20);
-   const left=Math.max(10,Math.min(innerWidth-width-10,r.left));
-   panel.style.left=left+'px';panel.style.width=width+'px';
-   panel.style.maxHeight=maxH+'px';
-   panel.style.top=(down?r.bottom+5:Math.max(top+5,r.top-maxH-5))+'px';
-   panel.style.bottom='auto';
-  };
-  function close(focus=false){
-   if(!open())return;
-   panel.hidden=true;trigger.setAttribute('aria-expanded','false');
-   if(active===panel)active=null;
-   if(focus)trigger.focus({preventScroll:true});
-  }
-  panel._f4Close=close;
+  function close(){panel.hidden=true;trigger.setAttribute('aria-expanded','false');if(active===panel)active=null}
   function render(){
    list.replaceChildren();
    const q=search.value.trim().toLocaleLowerCase('id-ID');
    const opts=[...select.options].filter(x=>x.value&&x.textContent.trim()!=='');
    for(const opt of opts){
-    const info=parsed(opt.textContent);
-    if(q&&!String(info.nama+' '+info.rumah).toLocaleLowerCase('id-ID').includes(q))continue;
-    const row=document.createElement('button');row.type='button';row.className='f4-warga-picker-row';
-    row.setAttribute('role','option');row.setAttribute('aria-selected',String(select.value===opt.value));
+    const info=parsed(opt.textContent);if(q&&!String(info.nama+' '+info.rumah).toLocaleLowerCase('id-ID').includes(q))continue;
+    const row=document.createElement('button');row.type='button';row.className='f4-warga-picker-row';row.setAttribute('role','option');row.setAttribute('aria-selected',String(select.value===opt.value));
     const name=document.createElement('span');name.textContent=info.nama;
     const home=document.createElement('span');home.textContent=info.rumah;home.className='f4-warga-home';
-    row.append(name,home);
-    row.onclick=()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close(true)};
+    row.append(name,home);row.onclick=()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();trigger.focus()};
     list.append(row);
    }
-   if(!list.childElementCount){
-    const empty=document.createElement('p');empty.textContent=q?'Warga tidak ditemukan':'Belum ada data warga';
-    empty.className='f4-warga-picker-empty';list.append(empty);
-   }
+   if(!list.childElementCount){const empty=document.createElement('p');empty.textContent='Warga tidak ditemukan';empty.style.padding='10px';list.append(empty)}
   }
-  trigger.onclick=()=>{
-   if(open()){close();return;}
-   active?._f4Close?.();
-   active=panel;panel.hidden=false;trigger.setAttribute('aria-expanded','true');
-   search.value='';render();place(); // Tidak otomatis memanggil keyboard Android.
-  };
+  trigger.onclick=()=>{if(!panel.hidden){close();return}if(active)active.hidden=true;active=panel;panel.hidden=false;trigger.setAttribute('aria-expanded','true');search.value='';render();search.focus()};
   search.oninput=render;
-  search.onkeydown=e=>{
-   if(e.key==='Escape'){e.preventDefault();close(true)}
-   if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}
-  };
+  search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
   select.addEventListener('change',sync);
-  new MutationObserver(()=>{sync();if(open())render()}).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
+  new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
   sync();
-  document.addEventListener('pointerdown',e=>{if(open()&&!wrap.contains(e.target)&&!panel.contains(e.target))close()},{capture:true});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open()){e.preventDefault();close(true)}});
-  window.addEventListener('scroll',()=>{if(open())place()},{capture:true,passive:true});
-  window.addEventListener('resize',place,{passive:true});
-  window.visualViewport?.addEventListener('resize',place,{passive:true});
-  window.visualViewport?.addEventListener('scroll',place,{passive:true});
+  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
  }
  function scan(){watched.forEach(id=>enhance(document.getElementById(id)))}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan,{once:true});else scan();
- const observer=new MutationObserver(mutations=>{
-  if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select')||n.querySelector?.('select')))))scan();
- });
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+ const observer=new MutationObserver(mutations=>{if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select')||n.querySelector?.('select')))))scan()});
  observer.observe(document.body,{childList:true,subtree:true});
 })();
 </script>
@@ -6612,7 +6560,6 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261114-no-shadow-dock-v8">
-<link rel="stylesheet" href="/portal-live/bank-sheet-gestures.css?v=20261114-native-v1">
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 <script src="/portal-live/calendar-unified.js?v=20261105-sunday-first"></script>
