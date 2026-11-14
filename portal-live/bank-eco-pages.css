@@ -268,6 +268,27 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
   gap:12px;width:100%;margin:0
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard{padding:0}
+ /* Structural width rules: avoid the Chromium expanded layout viewport. */
+ html body.f4-bank-app-admin{box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0;padding-left:0}
+ html body.f4-bank-app-admin :is(.shell,.content,#dashboardView,#dashboardView>.grid,#dashboardView>.grid>.section){
+  box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;margin-left:0;margin-right:0
+ }
+ html body.f4-bank-app-admin #dashboardView>.grid>.section{
+  padding:14px clamp(10px,3.2vw,18px) 20px;background:#f7faf8
+ }
+ body.f4-bank-app-admin #dashboardView>.grid>.section>:is(
+  #pageDashboard,#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
+  #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
+  #pageAdmin,.f4-bank-screen){
+  box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin-inline:auto
+ }
+ body.f4-bank-app-admin #dashboardView .section :is(
+  #saleForm,#setoranForm,#saleItems,#setBarang,.f4-entry-right,
+  .f4-entry-top-fields,.f4-sale-main,.f4-sale-side,.f4-setoran-main,
+  .f4-setoran-side,.f4-bank-sheet-tools,.f4-compact-row,
+  .f4-compact-entry-group,.f4-field-stack,.field,.toolbar,.summary-box){
+  box-sizing:border-box;min-width:0;max-width:100%
+ }
 }
 @media screen and (max-width:760px){
  #dashboardView #v16Tabs.v16-tabs{
@@ -1617,8 +1638,19 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  }
  body.f4-bank-app-admin #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;
-  width:calc(100% - var(--bank-sidebar-width));margin-left:var(--bank-sidebar-width)
+  width:calc(100% - var(--bank-sidebar-width));margin-left:var(--bank-sidebar-width);
+  padding:24px clamp(22px,3vw,48px) 60px;background:#f7faf8
  }
+ /* Manager pages retain multiple columns but use a readable canvas on PC. */
+ body.f4-bank-app-admin #dashboardView>.grid>.section>:is(
+  #pageDashboard,#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
+  #pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,
+  #pageAdmin,.f4-bank-screen){
+  box-sizing:border-box;width:100%;max-width:1120px;min-width:0;margin-inline:auto
+ }
+ body.f4-bank-app-admin #dashboardView>.grid>.section>:is(#pageSetoran,#pagePenjualan){max-width:1040px}
+ body.f4-bank-app-admin #dashboardView #f4BankAppHome[data-bank-role="admin"]{width:100%;max-width:1120px;margin-inline:auto}
+
  body.f4-bank-app-admin #sideNav .v16-brand{
   padding:8px 6px 16px;gap:10px;margin-bottom:10px;border-bottom:1px solid #e6eee9
  }
@@ -1846,8 +1878,8 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
  .f4-compact-row>.f4-compact-entry-group{grid-column:2}
  /* Penjualan di HP: empat kontrol nyata dalam satu baris, tanpa kolom kedua. */
  body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row{
-  grid-template-columns:minmax(0,1fr) 43px 72px 40px;
-  gap:6px;align-items:center
+  grid-template-columns:minmax(0,1fr) minmax(0,43px) minmax(0,72px) minmax(0,40px);
+  gap:6px;align-items:center;min-width:0;max-width:100%
  }
  body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>select{
   grid-column:1;min-width:0;white-space:nowrap;text-overflow:ellipsis;
@@ -1866,6 +1898,12 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
   grid-column:4;width:40px;min-height:47px
  }
  .f4-compact-entry-group{grid-template-columns:minmax(0,1fr) 34px;gap:7px}
+}
+@media(max-width:370px){
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row{
+  grid-template-columns:minmax(0,1fr) 36px 58px 36px;gap:4px
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>.f4-compact-remove{width:36px}
 }
 .f4-bank-own-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
