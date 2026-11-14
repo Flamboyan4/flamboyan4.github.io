@@ -383,9 +383,13 @@ async def main():
             source = pathlib.Path("bank-sampah/index.html").read_text()
             # Load the actual page-level stylesheet that owns the public Program component,
             # before the external canonical theme. A CSS-only fixture omitted it previously.
-            base = re.search(r"<style[^>]*>(.*?)</style>", source, re.I | re.S)
-            assert base, "Base Bank Sampah stylesheet missing"
-            await page.add_style_tag(content=base.group(1))
+            inline_styles = re.findall(r"<style[^>]*>(.*?)</style>", source, re.I | re.S)
+            assert inline_styles, "Base Bank Sampah stylesheets missing"
+            # The public Program is authored in later inline styles. The fixture
+            # must load all page rules to measure the real 12-column container,
+            # not an unstyled intrinsically narrow fake section.
+            for inline_style in inline_styles:
+                await page.add_style_tag(content=inline_style)
             # Reproduce the actual mobile report rule before the canonical theme.
             pattern = r'(#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{[^}]+\})'
             rule = re.search(pattern, source)
