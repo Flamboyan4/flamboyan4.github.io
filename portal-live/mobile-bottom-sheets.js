@@ -14,7 +14,6 @@
   '#credentialModal > .f4-bank-credential-panel',
   '.v24-edit-overlay .v24-edit-card',
   '.f4-activity-dialog .f4-activity-dialog-panel',
-  '.f4-warga-picker-pop',
   '.sa-account-shade .sa-account-modal',
   '.f4-jersey-print-veil .f4-jersey-print-dialog',
   '.tc-date-overlay .tc-date-dialog',
@@ -35,7 +34,7 @@
   '#f4-direct-dialog','#f4-superadmin-confirm','.v21-modal',
   '#f4-tx-receipt-dialog',
   '#credentialModal','.v24-edit-overlay','.f4-activity-dialog',
-  '.f4-warga-picker-pop','.sa-account-shade','.f4-jersey-print-veil',
+  '.sa-account-shade','.f4-jersey-print-veil',
   '.tc-date-overlay','.f4-ui-dialog','#f4-work-notice',
   '.f4-pm-shade','.f4-resident-sheet-overlay',
   '#modal-event-detail','#modal-arisan','#modal-cetak-kas',
@@ -173,11 +172,6 @@
  }
  function dismiss(panel){
   if(!panel?.isConnected)return;
-  if(panel.matches('.f4-warga-picker-pop')){
-   const trigger=panel.closest('.f4-warga-picker')?.querySelector('.f4-warga-picker-open');
-   if(trigger)trigger.click();else panel.hidden=true;
-   return;
-  }
   if(panel.matches('.f4-user-year-popover')){
    const details=panel.closest('details');if(details)details.open=false;
    return;
