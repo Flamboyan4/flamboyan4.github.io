@@ -103,11 +103,12 @@ if(!app.includes('["Laporan","bank-report","book.svg"]'))
  throw Error('Member report must remain accessible in the member dock');
 if(!app.includes('const adminDock=[')||!app.includes('dock().hidden=!isPrivate;'))
  throw Error('Manager mobile dock must be visible to logged-in admins');
-if(!app.includes('["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"]')||
-   !app.includes('["Laporan","laporan","book.svg"],["Penjualan","penjualan","cash.svg"]')||
-   !app.includes('["Saldo","tabungan","pay.svg"]')||
-   !app.includes('isAdminReport=dock&&route==="laporan"'))
- throw Error('Manager dock must preserve Beranda, Setoran, central gold Laporan, Penjualan and Saldo');
+if(!app.includes('["Beranda","dashboard","home.svg"],["Penjualan","penjualan","shopping-cart"]')||
+   !app.includes('["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"]')||
+   !app.includes('["Laporan","laporan","book.svg"]')||
+   !app.includes('isAdminDeposit=dock&&roleType()==="admin"&&route==="setoran"')||
+   !app.includes('f4-bank-cart-icon'))
+ throw Error('Manager dock must preserve Beranda, Penjualan cart, central Setoran, Saldo, Laporan');
 if(app.includes('f4BankAppShortcuts'))throw Error('Redundant shortcut tiles must be removed for all roles');
 if(!app.includes('updateProfileCard()')||!app.includes('function memberBuckets()'))throw Error('Profile card or trusted chart missing');
 if(app.includes('function ledger(){\n return [...($("v12History")'))
