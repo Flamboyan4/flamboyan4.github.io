@@ -146,6 +146,18 @@ async def main():
                     if width in (320,390,412,768,1024,1366,1920):
                         await page.evaluate(MEASURE,"pageSetoran")
                         add_layout=await page.evaluate("""() => {
+                          // The logged-out test fixture has no D1 item catalog.
+                          // Render a single real-classes field row into the
+                          // actual production form; no API writes or mock pages.
+                          const goods=document.querySelector('#setBarang');
+                          if(goods&&!goods.querySelector('.f4-compact-rows')){
+                            const list=document.createElement('div');
+                            list.className='f4-compact-rows';
+                            const row=document.createElement('div');
+                            row.className='f4-compact-row';
+                            row.innerHTML='<select aria-label="Jenis sampah"><option value="kardus">Kardus</option></select><div class="f4-compact-entry-group"><input aria-label="Berat (kg)" type="number" placeholder="Berat (kg)"><button class="f4-compact-remove" type="button" aria-label="Hapus jenis"></button></div>';
+                            list.append(row);goods.replaceChildren(list);
+                          }
                           const rect=s=>{
                             const e=document.querySelector(s);
                             if(!e)return null;
@@ -154,7 +166,7 @@ async def main():
                           };
                           const main=document.querySelector('#setoranForm .f4-setoran-main');
                           const button=document.querySelector('#f4SetAddKind');
-                          return {head:rect('#setoranForm .f4-entry-goods-heading'),
+                          return {head:rect('#setoranForm .f4-entry-goods-heading h3'),
                             goods:rect('#setBarang .f4-compact-rows'),
                             button:rect('#f4SetAddKind'),
                             main:rect('#setoranForm .f4-setoran-main'),

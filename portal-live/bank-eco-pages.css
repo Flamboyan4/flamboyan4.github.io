@@ -1263,9 +1263,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   min-height:32px;margin:0
  }
  body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading h3{font-size:15px}
- body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add{
-  min-height:38px;padding:7px 10px
- }
  body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box{
   order:3;padding:9px 11px;gap:9px;border-radius:12px
  }
