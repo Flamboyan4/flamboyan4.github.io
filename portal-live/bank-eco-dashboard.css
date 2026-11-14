@@ -66,7 +66,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
   border-radius:50%;background:#009788;color:#fff;font-size:13px;font-weight:850;line-height:1
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item:nth-child(even) .f4-recent-avatar{
-  background:#09bcd3;color:#174630
+  background:#09bcd3;color:#fff
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item>div:first-of-type{
   display:grid;gap:4px;min-width:0
