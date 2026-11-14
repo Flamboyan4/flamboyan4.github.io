@@ -309,7 +309,9 @@ assert(h.includes('/portal-live/bank-mobile-dock.css?v=') &&
  'Bank Sampah nav must be loaded separately and all Bank CSS must have no priority declarations');
 assert(dockCss.includes('body.f4-bank-app-private,html.f4-bank-admin-dock-root{--f4-bank-dock-height:64px}') &&
        dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)') &&
-       dockCss.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))') &&
+       dockCss.includes('height:var(--f4-bank-dock-height)') &&
+       dockCss.includes('bottom:env(safe-area-inset-bottom,0px)') &&
+       dockCss.includes('transform:translateY(var(--f4-bank-dock-viewport-shift,0px))') &&
        dockCss.includes('grid-template-rows:27px 15px'),
  'Both roles must share a single matching navigation and safe-area layout');
 assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
@@ -366,12 +368,14 @@ assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
        mobile.includes('["Saldo Warga","tabungan","coins"]'),
  'Laporan and Dokumentasi remain accessible through Lainnya');
 assert(!dockCss.includes('backdrop-filter:blur(12px)') &&
-       dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
+       dockCss.includes('position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);z-index:55;'),
  'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
 assert(mobile.includes('const host=roleType()==="admin"?document.documentElement:document.body;') &&
        mobile.includes('if(nav.parentNode!==host)host.append(nav);') &&
        mobile.includes('document.documentElement.classList.toggle("f4-bank-admin-dock-root",isPrivate&&next==="admin");') &&
+       mobile.includes('viewport.offsetTop+viewport.height-window.innerHeight') &&
+       mobile.includes('window.visualViewport?.addEventListener("resize",updateAdminDockViewport') &&
        dockCss.includes(':is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock:not([hidden]){'),
  'Admin dock must mount outside the scrolling body while member dock stays in body');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
