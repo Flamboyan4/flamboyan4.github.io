@@ -17,7 +17,7 @@
   height:var(--f4-bank-dock-height);
   padding:6px 8px;
   overflow:visible;background:#fff;border-top:1px solid #e4ece5;
-  box-shadow:0 -4px 12px #143c2410
+  box-shadow:none
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
   box-sizing:border-box;display:grid;grid-template-rows:27px 15px;
@@ -68,7 +68,7 @@
   display:grid;place-items:center;
   width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px);min-width:0;min-height:0;
   box-sizing:border-box;padding:0;border:3px solid #fff;border-radius:50%;
-  background:#ffc719;color:#fff;box-shadow:0 6px 15px #856b2433;
+  background:#ffc719;color:#fff;box-shadow:none;
   transform:translateX(-50%)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
