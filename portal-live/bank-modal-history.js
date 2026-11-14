@@ -73,12 +73,15 @@
    frames.pop();
    runAfter(top?.root);
   }
-  for(const root of live){
-   if(frames.some(frame=>frame.root===root))continue;
-   const id=++serial;
-   frames.push({id,root});
-   history.pushState({...history.state,f4BankModalGuard:id},'',location.href);
-  }
+  for(const root of live)registerOpen(root);
+ }
+ // Called directly by native dialogs so Back works immediately, before DOM observers.
+ function registerOpen(root){
+  if(!isVisible(root)||frames.some(frame=>frame.root===root))return;
+  watch(root);
+  const id=++serial;
+  frames.push({id,root});
+  history.pushState({...history.state,f4BankModalGuard:id},'',location.href);
  }
  function queue(){
   if(scheduled)return;
@@ -108,9 +111,8 @@
  }
  // Capture-phase handler executes before the old gallery/sidebar routing.
  window.addEventListener('popstate',event=>{
-  // A nested native date/select picker returns to the still-open dialog guard.
-  const topFrame=frames[frames.length-1];
-  if(!pending&&topFrame&&history.state?.f4BankModalGuard===topFrame.id)return;
+  // A route push may carry a copied modal guard. Back must still close
+  // the top visible sheet on its FIRST popstate, even if that id was copied.
   if(pending){
    pending=false;
    const top=frames.pop();
@@ -138,8 +140,8 @@
   }).observe(document.body,{subtree:true,childList:true});
   queue();
   window.F4BankModalHistory={
-   version:'20261114-bank-modal-back-v4',
-   refresh:queue,closeAndThen,
+   version:'20261114-bank-modal-back-v5',
+   refresh:queue,registerOpen,closeAndThen,
    getOpenCount:()=>frames.filter(frame=>isVisible(frame.root)).length
   };
  }
