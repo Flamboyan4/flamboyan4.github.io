@@ -86,12 +86,19 @@
     if(visible(panel))active=panel;
    }
   }
-  if(!active||!visible(active)){grip.hidden=true;return;}
+  if(!active||!visible(active)){
+   if(grip.parentNode!==document.body)document.body.append(grip);
+   grip.hidden=true;return;
+  }
+  // Native dialog is in the browser top layer: the handle must be its child.
+  const embedded=active.matches('dialog.f4-bank-sheet-modal,.f4-control-panel');
+  const host=embedded?active:document.body;
+  if(grip.parentNode!==host)host.append(grip);
   const r=active.getBoundingClientRect();
   if(r.top>=window.innerHeight){grip.hidden=true;return;}
-  grip.style.left=Math.max(0,r.left)+'px';
-  grip.style.top=Math.max(0,r.top)+'px';
-  grip.style.width=r.width+'px';
+  grip.style.left=embedded?'0px':Math.max(0,r.left)+'px';
+  grip.style.top=embedded?'0px':Math.max(0,r.top)+'px';
+  grip.style.width=embedded?'100%':r.width+'px';
   grip.hidden=false;
   updateLabel(active);
   // Keep the grip aligned while the sheet entrance animation is moving.
@@ -222,13 +229,14 @@
   panel.style.transform='translate3d(0,'+base+'px,0)';
   grip.classList.remove('f4-sheet-handle-settling');
   grip.style.transition='none';
-  grip.style.left=Math.max(0,rect.left)+'px';
-  grip.style.top=Math.max(0,rect.top)+'px';
-  grip.style.width=rect.width+'px';
+  const embedded=grip.parentNode===panel;
+  grip.style.left=embedded?'0px':Math.max(0,rect.left)+'px';
+  grip.style.top=embedded?'0px':Math.max(0,rect.top)+'px';
+  grip.style.width=embedded?'100%':rect.width+'px';
   grip.style.transform='translate3d(0,0,0)';
   grip.hidden=false;
   active=panel;
-  return {panel,expanded:wasExpanded,height,base,collapsed,
+  return {panel,expanded:wasExpanded,height,base,collapsed,embedded,
    top:rect.top,bottom:rect.bottom,delta:0,frame:0};
  }
  function animatePose(pose,target){
@@ -259,7 +267,7 @@
    job.frame=0;
    if(animating!==job||!panel.isConnected)return;
    panel.style.transform='translate3d(0,'+panelY+'px,0)';
-   grip.style.transform='translate3d(0,'+gripY+'px,0)';
+   if(!pose.embedded)grip.style.transform='translate3d(0,'+gripY+'px,0)';
   });
   timers.set(panel,setTimeout(()=>{
    if(animating!==job)return;
@@ -286,7 +294,7 @@
    panel.style.removeProperty('will-change');
    panel.style.removeProperty('transition');
    grip.style.transition='none';
-   grip.style.top=Math.max(0,finalTop)+'px';
+   grip.style.top=pose.embedded?'0px':Math.max(0,finalTop)+'px';
    grip.style.transform='none';
    grip.classList.remove('f4-sheet-handle-settling');
    requestRefresh();
@@ -330,7 +338,7 @@
     d.frame=0;
     if(drag!==d||!d.panel.isConnected)return;
     d.panel.style.transform='translate3d(0,'+d.pending+'px,0)';
-    grip.style.transform='translate3d(0,'+d.delta+'px,0)';
+    if(!d.embedded)if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
    });
   }
   event.preventDefault();
