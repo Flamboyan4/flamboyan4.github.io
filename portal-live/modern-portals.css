@@ -2,7 +2,8 @@
 @media screen {
 html:has(#v11Public),html:has(#f4-account-page){background:#fff}
 :root{--modern-ink:#20333d;--modern-muted:#63757d;--modern-line:#e3ebee;--modern-green:#087f5b;--modern-purple:#6650cc}
-body:has(#v11Public),body:has(#f4-account-page){background:#fff;color:var(--modern-ink);-webkit-font-smoothing:antialiased}
+body:has(#v11Public),body:has(#f4-account-page){color:var(--modern-ink);-webkit-font-smoothing:antialiased}
+body:has(#v11Public):not(.f4-bank-app-admin),body:has(#f4-account-page){background:#fff}
 body:has(#v11Public){--forest:#43a047;--leaf:#8bc24a;--sage:#e7f7d3;--cream:#fff;--ink:#173d2d;--muted:#556f62;--line:#e1ede5;--f4-nav:#43a047;--f4-nav-tint:#e7f7d3}
 body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#e4e7ef;--muted:#69748b;--work-bg:#fff;--work-accent:#6650cc;--work-tint:#f1edff;--work-line:#e4e7ef;--work-text:#28334b}
 /* Semua submenu Superadmin memakai satu tone ungu; Portal Bank Sampah tetap hijau pada aplikasinya sendiri. */
