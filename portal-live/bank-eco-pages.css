@@ -1545,6 +1545,8 @@ body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel summary{
  margin:0;color:#687a70;font-size:12px;list-style:none
 }
 body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel summary::-webkit-details-marker{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel summary svg{width:15px;height:15px;flex:none;margin-left:auto;transition:transform .15s}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel[open] summary svg{transform:rotate(180deg)}
 body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel[open] summary{margin-bottom:8px}
 body.f4-bank-app-admin #pageRekonsiliasi .field[hidden]{display:none}
 body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details{
