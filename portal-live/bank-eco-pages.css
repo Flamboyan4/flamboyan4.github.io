@@ -1236,7 +1236,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   min-height:38px;padding:7px 10px
  }
  body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box{
-  padding:9px 11px;gap:9px;border-radius:12px
+  order:3;padding:9px 11px;gap:9px;border-radius:12px
  }
  body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box small{font-size:11px}
  body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box strong{font-size:17px}
@@ -1295,9 +1295,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView :is(#setBarang,#saleItems){
   order:1;margin:0;overflow:visible
  }
- body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box{
-  order:3
- }
+
  /* Tombol tambah sama pada tiga form: di bawah baris input, selebar kartu. */
  body.f4-bank-app-admin #dashboardView :is(
   #pageSetoran #setoranForm .f4-entry-goods-heading>.f4-compact-add,
