@@ -5,6 +5,14 @@ on:
     paths:
       - qa/bank_data_integrity_readonly.py
       - .github/workflows/f4-bank-data-integrity-readonly.yml
+  pull_request:
+    paths:
+      - bank-sampah/index.html
+      - portal-live/native-controls.js
+      - portal-live/live-bank-readonly.js
+      - portal-live/f4-bank-write-bridge.js
+      - qa/bank_data_integrity_readonly.py
+      - .github/workflows/f4-bank-data-integrity-readonly.yml
   workflow_dispatch:
 permissions:
   contents: read
