@@ -1385,6 +1385,7 @@ function openAdminMenuSheet(){
  if(!dialog||dialog.open)return;
  adminSheetFocus=document.activeElement;
  dialog.showModal();
+ window.F4BankModalHistory?.registerOpen?.(dialog);
 }
 function closeAdminMenuSheet(destination=null){
  const dialog=$("f4BankAdminMenuSheet"),focus=adminSheetFocus;
