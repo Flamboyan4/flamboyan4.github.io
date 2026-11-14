@@ -111,7 +111,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 }
 #v11Public #v17Perkembangan .v17-bar,
 #v11Public #v17Perkembangan .v17-chart-bar{background:var(--eco-leaf)}
-#v11Public :is(.v17-timeline li,.public-tile,.v21-album-tile,.v21-inventory-row){
+#v11Public :is(.v17-timeline li,.public-tile,.v21-album-tile){
  border-color:#d1e5d9;border-radius:12px
 }
 /* Member: Tabungan Saya with 3 compact equal system cards. */
