@@ -1134,6 +1134,9 @@ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>summary
  flex:none;width:16px;height:16px;stroke:currentColor
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras[open]>summary svg{transform:rotate(180deg)}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras:not([open])>.f4-sale-note-fields{
+ display:none
+}
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>.f4-sale-note-fields{
  padding:0 12px 12px
 }
