@@ -312,9 +312,33 @@ async def check_mobile_dock_scroll(browser, role):
           const style=getComputedStyle(document.getElementById('f4BankAppDock'));
           return {willChange:style.willChange,backface:style.backfaceVisibility,isolation:style.isolation,transform:style.transform};
         }""")
-        assert "transform" in layer["willChange"], (role,layer)
-        assert layer["backface"]=="hidden" and layer["isolation"]=="isolate", (role,layer)
+        assert layer["willChange"]=="auto", (role,layer)
+        assert layer["backface"]=="visible" and layer["isolation"]=="auto", (role,layer)
         assert layer["transform"]=="none", (role,layer)
+    # Real touch gesture instead of programmatic scroll-only checks.
+    await page.set_viewport_size({"width":390,"height":844})
+    await page.evaluate("window.scrollTo(0,0)")
+    await page.wait_for_timeout(100)
+    cdp=await page.context.new_cdp_session(page)
+    await cdp.send("Input.dispatchTouchEvent",{
+      "type":"touchStart","touchPoints":[{"x":205,"y":590,"id":1}]})
+    touch_samples=[]
+    for y in range(570,180,-20):
+        await cdp.send("Input.dispatchTouchEvent",{
+          "type":"touchMove","touchPoints":[{"x":205,"y":y,"id":1}]})
+        await page.wait_for_timeout(14)
+        touch_samples.append(await page.evaluate("""() => {
+          const rect=document.getElementById('f4BankAppDock').getBoundingClientRect();
+          return {scroll:window.scrollY,dockBottom:rect.bottom,viewport:window.innerHeight};
+        }"""))
+    await cdp.send("Input.dispatchTouchEvent",{"type":"touchEnd","touchPoints":[]})
+    await page.wait_for_timeout(70)
+    assert max(x["scroll"] for x in touch_samples)>130,(role,touch_samples)
+    assert all(abs(x["dockBottom"]-x["viewport"])<2 for x in touch_samples),(role,touch_samples)
+    print("MOBILE_FINGER_SWIPE_SCROLL_OK",role,json.dumps({
+      "max_scroll":max(x["scroll"] for x in touch_samples),
+      "max_dock_error":max(abs(x["dockBottom"]-x["viewport"]) for x in touch_samples)}),flush=True)
+    await cdp.detach()
     await page.screenshot(path=str(DEST/(role+"-dock-scroll.png")),full_page=False)
     print("MOBILE_DOCK_SCROLL_OK",role,json.dumps(measurements),flush=True)
     await page.close()
