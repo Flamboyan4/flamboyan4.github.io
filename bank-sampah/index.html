@@ -1221,26 +1221,43 @@ overflow:visible
 @media(min-width:1024px){
  #pageTabungan.card{background:#fff;border:1px solid #e0e9e3;border-radius:15px;padding:19px 20px;box-shadow:none}
 }
-#pageTabungan .f4-savings-head{margin-bottom:13px}
-#pageTabungan .f4-savings-head h2{font-size:19px;line-height:1.3;margin:0 0 5px;color:#1e3d30}
-#pageTabungan .f4-savings-head p{margin:0;color:#688074;font-size:12px;line-height:1.45}
+#pageTabungan .f4-savings-head{margin:0 0 13px}
+#pageTabungan .f4-savings-head h2{font-size:21px;line-height:1.25;margin:0;color:#174630}
+#pageTabungan .f4-savings-head p{margin:5px 0 0;color:#708477;font-size:12px;line-height:1.4}
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{
  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
  gap:9px;width:100%;min-width:0;
  border:0;background:transparent;padding:0;margin:0
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{
- min-width:0;margin:0;padding:12px 14px;border:1px solid #b5d9c3;
- border-radius:11px;background:#e7f3eb;box-shadow:none
+ box-sizing:border-box;min-width:0;min-height:84px;display:flex;flex-direction:column;
+ justify-content:space-between;gap:9px;margin:0;padding:13px 14px;
+ border:1px solid #e1eae3;border-radius:16px;background:#f8faf8;box-shadow:none
+}
+body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric:nth-child(2){
+ background:#e6f5dc;border-color:#d4e9cb
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric small{
- display:block;font-size:11px;line-height:1.3;color:#698073
+ display:block;font-size:11px;line-height:1.35;font-weight:600;color:#60796a
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{
- display:block;font-size:19px;line-height:1.25;margin-top:6px;
- color:#19543c;overflow-wrap:anywhere
+ display:block;font-size:21px;line-height:1.16;margin:0;
+ color:#17573b;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
 }
-#pageTabungan .f4-savings-utility{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:9px 0 13px;flex-wrap:wrap}
+#pageTabungan .f4-savings-utility{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch;gap:9px;margin:11px 0 17px;min-width:0
+}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{
+ box-sizing:border-box;display:flex;justify-content:center;align-items:center;
+ min-width:0;width:100%;min-height:43px;margin:0;padding:10px 11px;
+ border:1px solid #d5e6db;border-radius:13px;background:#fff;
+ color:#175d41;font-size:11.5px;font-weight:750;line-height:1.3;
+ text-align:center;box-shadow:none;cursor:pointer
+}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{
+ background:#eef7e9;border-color:#d7e9cb
+}
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
 #pageTabungan #v9CashCheckStatus:not([hidden]){
  display:block;width:100%;min-width:0;margin:0 0 13px;
@@ -1255,11 +1272,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{
  border-color:#f0d0c7;background:#fff5f2;color:#913d2d
 }
 #pageTabungan #v9Sync:disabled{opacity:.7;cursor:wait}
-#pageTabungan #v9Sync{
- width:auto;min-height:35px;padding:7px 11px;
- font-size:11.5px;font-weight:700;border-radius:8px;
- background:#ebf6ef;color:#176344;box-shadow:none
-}
+
 #pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:11px;align-items:start}
 #pageTabungan .f4-savings-panel{min-width:0;border:1px solid #e0e9e4;border-radius:12px;background:#fff;padding:13px}
 /* Saldo anggota — daftar menyatu dengan halaman, tanpa scroll dan tanpa kartu berlapis. */
@@ -1271,15 +1284,15 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9List{
 }
 #pageTabungan #v9List .f4-saldo-list{display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0}
 #pageTabungan #v9List .f4-saldo-row{
- display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 14px;
- min-width:0;padding:12px 1px;border-bottom:1px solid #e2ebe5;background:transparent
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px;
+ min-width:0;padding:11px 1px;border-bottom:1px solid #e5ede7;background:transparent
 }
 #pageTabungan #v9List .f4-saldo-row:last-child{border-bottom:0}
 #pageTabungan #v9List .f4-saldo-row[hidden]{display:none}
 #pageTabungan #v9List .f4-saldo-person{display:grid;gap:2px;min-width:0}
-#pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.35;color:#234d39;font-weight:750;overflow-wrap:anywhere}
+#pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204735;font-weight:750;overflow-wrap:anywhere}
 #pageTabungan #v9List .f4-saldo-house{font-size:12px;line-height:1.3;color:#768b7c}
-#pageTabungan #v9List .f4-saldo-amount{font-size:16px;line-height:1.25;color:#08734d;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+#pageTabungan #v9List .f4-saldo-amount{font-size:15px;line-height:1.2;color:#08734d;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
 #pageTabungan .f4-savings-panel-title{margin:0 0 10px}
 #pageTabungan .f4-savings-panel-title h3,
 #pageTabungan #v9Form>h3,#pageTabungan .f4-savings-history h3{
@@ -1289,15 +1302,19 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9List{
  margin:0;color:#738579;font-size:11px;line-height:1.45
 }
 body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder{
- display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
- gap:6px;margin:0 0 9px;min-width:0
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+ gap:9px;margin:0 0 10px;min-width:0
 }
 body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{
- flex:1 1 190px;width:100%;max-width:100%;min-width:130px;
- min-height:37px;height:37px;padding:7px 11px;
- border:1px solid #dce8e0;border-radius:9px;font-size:12px
+ box-sizing:border-box;width:100%;max-width:none;min-width:0;
+ min-height:43px;height:43px;padding:9px 12px;
+ border:1px solid #dae7df;border-radius:12px;font-size:12px;background:#fff
 }
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-count{font-size:10.5px;color:#658072;white-space:normal}
+body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-count{
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
+ min-height:35px;padding:7px 10px;border:1px solid #e0ebe3;border-radius:999px;
+ background:#f5f9f6;font-size:11px;font-weight:750;color:#506f5e;white-space:nowrap
+}
 body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-footer{
  margin:8px 0 0;display:flex;justify-content:flex-end
 }
@@ -1345,19 +1362,17 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
 #pageTabungan #v9History .stat small{display:block;font-size:11px;margin-top:3px}
 @media(max-width:1190px){
  #pageTabungan .f4-savings-main{grid-template-columns:1fr}
- body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{max-width:350px}
+ 
 }
 @media(max-width:700px){
- #pageTabungan .f4-savings-head h2{font-size:18px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{padding:10px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{font-size:17px}
- #pageTabungan .f4-savings-utility{align-items:stretch;flex-direction:column;gap:7px}
- #pageTabungan #v9Sync{width:100%}
+ #pageTabungan .f4-savings-head h2{font-size:20px}
+ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{min-height:80px;padding:12px}
+ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{font-size:18px}
+ #pageTabungan .f4-savings-utility{gap:8px}
  #pageTabungan .f4-savings-panel{padding:11px}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form{grid-template-columns:1fr}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.field{grid-column:1/-1}
- body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{max-width:100%}
 }
 
 
@@ -2665,11 +2680,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const page=document.createElement('div');page.id='pageTabungan';page.className='card hidden';
     page.innerHTML=`
       <div class="f4-savings-head">
-        <h2>Saldo Warga</h2><p>Hak warga terpisah dari kas milik Bank Sampah.</p>
+        <h2>Saldo Warga</h2><p>Tabungan anggota dan posisi kas.</p>
       </div>
       <div id="v9KasInfo" class="summary-box f4-savings-kpis">Memuat ringkasan...</div>
       <div class="f4-savings-utility">
-        <button id="v9Sync" type="button" class="secondary" onclick="v9PostCash()">Periksa kesesuaian kas</button>
+        <button id="v9Sync" type="button" class="secondary" onclick="v9PostCash()">Cek kesesuaian kas</button>
       </div>
       <div id="v9CashCheckStatus" class="f4-savings-check-status" role="status" aria-live="polite" hidden></div>
       <div class="f4-savings-main">
@@ -2725,7 +2740,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     new MutationObserver(update).observe(host,{childList:true});
     update();
   }
-  async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);$('v9KasInfo').replaceChildren(metric('Kas milik Bank Sampah',rupiah(cash.kasMilikBankRp)),metric('Hak tabungan warga',rupiah(sum)),metric('Kas lingkungan / lorong',rupiah(cash.kasLingkunganRp)),metric('Kas gabungan',rupiah(cash.saldoKasTercatat)));const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>select.appendChild(new Option(m.nama+' • '+m.rumah,m.wargaId)));select.value=old;v9ShowBalance();const list=$('v9List');const roster=document.createElement('div');roster.className='f4-saldo-list';roster.setAttribute('role','list');
+  async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);$('v9KasInfo').replaceChildren(metric('Kas Bank Sampah',rupiah(cash.kasMilikBankRp)),metric('Tabungan warga',rupiah(sum)),metric('Kas lingkungan',rupiah(cash.kasLingkunganRp)),metric('Kas gabungan',rupiah(cash.saldoKasTercatat)));const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>select.appendChild(new Option(m.nama+' • '+m.rumah,m.wargaId)));select.value=old;v9ShowBalance();const list=$('v9List');const roster=document.createElement('div');roster.className='f4-saldo-list';roster.setAttribute('role','list');
 members.slice().sort((a,b)=>new Intl.Collator('id',{numeric:true,sensitivity:'base'}).compare(String(a.rumah||''),String(b.rumah||''))||String(a.nama||'').localeCompare(String(b.nama||''),'id')).forEach(m=>{
  const row=document.createElement('div');row.className='f4-saldo-row';row.setAttribute('role','listitem');
  const person=document.createElement('div');person.className='f4-saldo-person';
