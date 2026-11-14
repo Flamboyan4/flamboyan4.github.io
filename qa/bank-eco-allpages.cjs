@@ -691,6 +691,23 @@ assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-ent
        h.includes("name.textContent=shortName(info.nama)") &&
        h.includes("label.textContent=select.value&&opt?shortName("),
  'PC Setoran metadata must be in right column above totals; own Bank stock displays live kg, and member options show Pak + first name');
+/* Only the dedicated Setoran card is redesigned. Penjualan keeps nota,
+   payment adjustments, and its existing detail tooling. */
+const depositCard=h.split('function v18DepositHistoryCard(r){')[1]
+ ?.split('const v18OldHistoryCard=v7HistoryCard;')[0]||'';
+assert(depositCard.includes("card.className='f4-admin-deposit-card'") &&
+       depositCard.includes("receipt=f4BankReceiptIcon(null,async()=>{") &&
+       depositCard.includes("call('bsV7RincianSetoran',token,r.id)") &&
+       depositCard.includes("payload.details.push([String(item.barang") &&
+       depositCard.includes("actions.append(receipt,cancel)") &&
+       depositCard.includes("cancel.disabled=status!=='Estimasi'") &&
+       !depositCard.includes('v7ToggleDetails(') &&
+       !depositCard.includes('f4-bs-detail-button') &&
+       h.includes("if(type==='setoran')return v18DepositHistoryCard(r);") &&
+       h.includes("const card=v18OldHistoryCard(r,type);") &&
+       !h.includes('Setoran batal tetap tersimpan.</div>') &&
+       css.includes('Canonical Setoran history only: clean non-expandable cards'),
+ 'Admin deposit history must have exactly Resi/Batalkan, no detail expansion, with line items in receipt');
 /* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
    Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
 function assertBalancedCss(text,label){
