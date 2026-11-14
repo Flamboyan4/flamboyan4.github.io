@@ -191,6 +191,77 @@ async def main():
                                 'setoran':setoran,'failures':setoran_fail})
                         if width==1366:
                             await page.screenshot(path=str(OUT/f"{engine_name}-1366-setoran-right.png"))
+                    # The real custom warga picker shortens display only.
+                    # Its underlying member ID and full registered name are
+                    # deliberately untouched for D1 form submission.
+                    if width in (390,1366):
+                        await page.evaluate(MEASURE,"pageSetoran")
+                        await page.evaluate("""() => {
+                          const input=document.getElementById('setWarga');
+                          input.add(new Option(
+                            'Heri Juwandi — A5/08 (member:qa-only)','qa-only'
+                          ));
+                          input.value='qa-only';
+                          input.dispatchEvent(new Event('change',{bubbles:true}));
+                        }""")
+                        await page.wait_for_timeout(40)
+                        picked=await page.evaluate("""() => ({
+                          label:document.querySelector('#setWarga')?.closest('.f4-warga-picker')
+                            ?.querySelector('.f4-warga-picker-open')?.textContent?.trim(),
+                          full:document.querySelector('#setWarga')?.selectedOptions[0]?.textContent,
+                          id:document.querySelector('#setWarga')?.value
+                        })""")
+                        if (picked['label']!='Pak Heri' or picked['id']!='qa-only'
+                            or not picked['full'].startswith('Heri Juwandi')):
+                            results.append({'engine':engine_name,'width':width,
+                                'picker':picked,'failures':['short first-name display altered original data']})
+                        await page.locator("#setWarga").locator("xpath=..").locator(".f4-warga-picker-open").click()
+                        await page.locator(".f4-warga-picker-pop:not([hidden]) input").fill("Juwandi")
+                        names=await page.locator(".f4-warga-picker-pop:not([hidden]) .f4-warga-picker-row").all_text_contents()
+                        if not any("Pak Heri" in name for name in names):
+                            results.append({'engine':engine_name,'width':width,'matches':names,
+                                'failures':['search by full name no longer finds shortened label']})
+                        await page.keyboard.press("Escape")
+
+                    # Exercise the original own-stock UI via the actual Setoran
+                    # route. Only the catalog GET gets a synthetic test fixture;
+                    # the form is NEVER submitted and D1 is not modified.
+                    if width==1366:
+                        async def catalog_fixture(route):
+                            await route.fulfill(status=200,content_type='application/json',
+                                body='{"ok":true,"data":[{"id":"qa-kardus","name":"Kardus","active":1,"priceRpPerKg":500}]}')
+                        await page.route("**/api/v2/admin/bank/catalog",catalog_fixture)
+                        await page.evaluate("window.goPage('setoran')")
+                        await page.locator('#f4BankOwnModeTabs button[data-mode="bank"]').click()
+                        await page.wait_for_selector('#f4BankOwnLines input[data-own-weight="1"]',timeout=10000)
+                        await page.locator('#f4BankOwnLines input[data-own-weight="1"]').fill('1.25')
+                        own=await page.evaluate("""() => {
+                          const rect=sel=>{
+                            const e=document.querySelector(sel);
+                            if(!e)return null;
+                            const r=e.getBoundingClientRect();
+                            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+                          };
+                          return {
+                            date:rect('#f4BankOwnDate'),
+                            fields:rect('#f4BankOwnDepositForm .f4-bank-own-fields'),
+                            main:rect('#f4BankOwnDepositForm .f4-bank-own-main'),
+                            total:rect('#f4BankOwnDepositForm .f4-bank-own-weight-summary'),
+                            value:document.querySelector('#f4BankOwnWeightTotal')?.textContent
+                          };
+                        }""")
+                        err=[]
+                        if not all(own.get(k) for k in ('date','fields','main','total')):
+                            err.append('Bank Sampah own-deposit date/total card missing')
+                        else:
+                            if (own['fields']['left']<own['main']['right']+5 or
+                                abs(own['fields']['left']-own['total']['left'])>3 or
+                                own['fields']['bottom']>own['total']['top']+2):
+                                err.append('Bank Sampah own-deposit date is not above total in right column')
+                        if own['value']!='1,25 kg':
+                            err.append('real Bank stock weight input did not update total kg')
+                        if err:results.append({'engine':engine_name,'width':width,'own':own,'failures':err})
+                        await page.screenshot(path=str(OUT/f"{engine_name}-1366-bank-stock.png"))
                     for page_id in PAGES:
                         state=await page.evaluate(MEASURE,page_id)
                         failures=[]
