@@ -24,10 +24,13 @@ assert(sheet.includes('ready:()=>current?.status==="siap"') &&
        'A sale must use the prepared and locked worksheet');
 assert(sheet.includes('inputs[0].value=""')&&sheet.includes('inputs[1].value=""'),
        'Actual lapak weight/price must be entered by the manager, never prefilled from deposits');
-assert(sheet.includes('Cetak Nota Penimbangan'),'Visible print action for the signed weighing note is missing');
+assert(sheet.includes('Cetak nota') && sheet.includes('Cetak ulang nota'),'Signed weighing-note action and reprint must remain available');
 assert(sheet.includes('print.className="f4-bank-gold-action"'),'Weighing-note print must be a focal action');
-assert(page.includes('1. Cetak nota penimbangan → 2. Catat hasil lapak → 3. Cek & sahkan'),
- 'The agreed three-stage sale must be visible to managers');
+assert(!page.includes('id="f4SaleThreeSteps"') &&
+       page.includes('id="f4SaleExtras"') &&
+       page.includes("window.F4SaleSheet?.ready?.()") &&
+       page.includes("v8PendingBatch=batch;goPage('pengesahan')"),
+ 'Nota, input hasil lapak, and approval workflow must survive compact UI');
 assert(sheet.includes('lastPrice'),'Last lapak price should be editable suggestion only');
 assert(sheet.includes('groupField.after(tools)'),'Note action must appear immediately after sale group selector');
 assert(!sheet.includes('parent.after(tools)'),'Sale-sheet must not be inserted as a tiny grid column');
