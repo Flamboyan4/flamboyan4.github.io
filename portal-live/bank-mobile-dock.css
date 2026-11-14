@@ -81,7 +81,7 @@
  /* Ikon Laporan tetap SVG asli; ukuran dan badge sama dengan Pencairan warga. */
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
   width:32px;height:32px;
-  filter:brightness(0) saturate(100%) invert(21%) sepia(27%) saturate(762%) hue-rotate(90deg) brightness(94%) contrast(92%)
+  filter:brightness(0) invert(1)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%
