@@ -83,6 +83,7 @@
   // must not inherit the handle of a still-open sheet underneath it.
   let latest=null;
   for(const panel of document.querySelectorAll(selector)){
+   if(panel.closest('.f4-bank-select-dropdown'))continue;
    if(visible(panel))latest=panel;
   }
   active=latest;
@@ -153,6 +154,7 @@
   observer.observe(el,{attributes:true,attributeFilter:['class','hidden','style','open']});
  }
  function attach(panel){
+  if(panel.closest('.f4-bank-select-dropdown'))return;
   if(panel.dataset.f4SheetGesture==='1')return;
   panel.dataset.f4SheetGesture='1';
   panel.classList.add('f4-sheet-draggable');
