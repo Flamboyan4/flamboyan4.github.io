@@ -369,6 +369,16 @@ assert(!dockCss.includes('backdrop-filter:blur(12px)') &&
        dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
  'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
+assert(mobile.includes('if(nextDesktop===desktopLayout)return;') &&
+       mobile.includes('let desktopLayout=window.matchMedia("(min-width:1024px)").matches;') &&
+       mobile.includes('if(role==="admin")ensureAdminHome();') &&
+       !mobile.includes('updateAdminDockViewport'),
+ 'Mobile Chrome height-only resize must not rebuild manager home or move dock');
+assert(dockCss.includes('isolation:isolate;will-change:transform;') &&
+       dockCss.includes('-webkit-backface-visibility:hidden;backface-visibility:hidden') &&
+       !dockCss.includes('transform:translate3d(0,') &&
+       dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
+ 'Fixed dock must have independent paint layer without scroll-linked translation');
 assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(nav);') &&
        !mobile.includes('f4-bank-admin-dock-root') &&
        !mobile.includes('f4-bank-dock-viewport-shift') &&
