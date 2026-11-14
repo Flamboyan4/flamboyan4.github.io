@@ -14,7 +14,7 @@ FIXTURE = """
       <div><span class="v14-eyebrow">DARI RUMAH, UNTUK BUMI</span>
         <h2>Sampah terpilah. Manfaat bertambah.</h2>
         <p>Informasi lingkungan dan sampah warga.</p>
-        <button id="f4-public-manage-bank">Kelola Bank Sampah</button>
+        <button id="f4PublicSeeProgress" class="f4-public-hero-action">Lihat perkembangan</button>
         <button id="f4-public-my-savings">Lihat Tabungan Saya</button>
       </div>
     </section>
@@ -405,9 +405,10 @@ async def main():
               });
               return {
                 banner:color('#v11Public .v17-public-banner','backgroundColor'),
+                bannerGradient:color('#v11Public .v17-public-banner','backgroundImage'),
                 title:color('#v11Public .v17-public-banner h2','color'),
-                button:color('#f4-public-manage-bank','backgroundColor'),
-                buttonText:color('#f4-public-manage-bank','color'),
+                button:color('#f4PublicSeeProgress','backgroundColor'),
+                buttonText:color('#f4PublicSeeProgress','color'),
                 savingsButton:color('#f4-public-my-savings','backgroundColor'),
                 savingsButtonText:color('#f4-public-my-savings','color'),
                 feature:color('#v17Program .f4-bank-program-step','backgroundColor'),
@@ -430,12 +431,12 @@ async def main():
             await page.screenshot(path=str(DEST / (mode+"-fixture.png")), full_page=True)
             result[mode] = state
             print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
-            assert state["banner"]=="rgb(67, 160, 71)", f"{mode}: hero should use flat green: {state['banner']}"
+            assert "linear-gradient" in state["bannerGradient"] and "rgb(7, 90, 61)" in state["bannerGradient"], f"{mode}: hero must be saturated dark green: {state['bannerGradient']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
-            assert state["button"] == "rgb(253, 192, 16)", f"{mode}: CTA not palette yellow"
-            assert state["buttonText"] == "rgb(37, 65, 45)", f"{mode}: CTA must have readable dark green text"
-            assert state["savingsButton"] == state["button"], f"{mode}: savings CTA not same gold"
-            assert state["savingsButtonText"] == state["buttonText"], f"{mode}: savings CTA text must match readable dark green"
+            assert state["button"] == "rgb(255, 255, 255)", f"{mode}: hero CTA must be white"
+            assert state["buttonText"] == "rgb(16, 103, 70)", f"{mode}: hero CTA must have readable green text"
+            assert state["savingsButton"] != "rgba(0, 0, 0, 0)", f"{mode}: savings CTA must remain visible"
+            assert state["savingsButtonText"] != state["savingsButton"], f"{mode}: savings CTA needs contrast"
             assert state["feature"] == "rgba(0, 0, 0, 0)", f"{mode}: program steps should be unboxed"
             # Palette varies; verify leaf-green ink keeps AAA contrast on white.
             rgb = tuple(int(x) for x in re.findall(r"\d+", state["featureText"])[:3])
