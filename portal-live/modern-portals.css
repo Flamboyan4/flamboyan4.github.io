@@ -193,12 +193,8 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  table.f4-mobile-card-table td input,table.f4-mobile-card-table td select{
   min-width:0;max-width:100%;width:100%;box-sizing:border-box
  }
- #f4-account-page .sa-resident-controls{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  border:0;padding:0;background:#fff;
- }
- #f4-account-page .sa-resident-controls input{
-  grid-column:1/-1;width:100%;}
+ 
+ 
  #f4-account-page .sa-resident-controls button{
   width:100%;min-width:0;padding:10px 8px;font-size:12px
  }
@@ -393,16 +389,11 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  #dashboardView .f4-compact-bank-card>div:first-child strong{font-size:16px;line-height:1.35}
  #dashboardView .f4-compact-bank-card>div:first-child .f4-card-detail-toggle{margin-left:auto}
  #dashboardView .f4-compact-bank-card>div:first-child .tag{font-size:11px}
- #f4-account-page .f4-compact-super-card>div:first-child{min-width:0;flex:1}
- #f4-account-page .f4-compact-super-card>div:first-child strong{}
- #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{
-  display:grid;place-items:center;flex:none;
-  background:#f4f0ff;color:#6652b6;
-  border:1px solid #e6e0fa;border-radius:10px;
-  width:34px;height:34px;min-width:34px;padding:0
- }
+ 
+ 
+ 
  #f4-account-page .f4-compact-super-card:not(.f4-card-expanded)>div:first-child{align-self:center}
- #f4-account-page .f4-compact-super-card.f4-card-expanded>div:first-child small{display:block;margin-top:9px}
+ 
  #f4-account-page .f4-compact-super-card.f4-card-expanded>span.f4-admin-action-set,
  #f4-account-page .f4-compact-super-card.f4-card-expanded>button:not(.f4-card-detail-toggle){
   display:flex;flex-wrap:wrap;gap:7px;margin-top:10px
@@ -453,11 +444,9 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
 
 /* Final alignment for title-only cards and mobile-only pictogram actions. */
 @media screen and (max-width:760px){
- #f4-account-page .f4-compact-super-card{
-  display:flex;flex-wrap:wrap;justify-content:space-between
- }
- #f4-account-page .f4-compact-super-card>div:first-child{order:1;flex:1 1 65%}
- #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{order:2;margin-left:auto}
+ 
+ 
+ 
  #f4-account-page .f4-compact-super-card>.f4-admin-action-set,
  #f4-account-page .f4-compact-super-card>button:not(.f4-card-detail-toggle){
   order:3;flex:1 1 100%
@@ -501,10 +490,15 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  #f4-account-page .sa-controls .f4-icon-action .f4-action-symbol,
  #f4-account-page .sa-account-actions .f4-icon-action .f4-action-symbol,
  #f4-account-page .f4-admin-controls .f4-icon-action .f4-action-symbol{display:grid;place-items:center}
- #f4-account-page .sa-resident-controls{
+ #f4-account-page .sa-resident-controls{grid-template-columns:repeat(2,minmax(0,1fr));
+  border:0;padding:0;background:#fff;
+ 
+
   display:flex;flex-wrap:wrap;gap:9px;align-items:center
  }
  #f4-account-page .sa-resident-controls input{
+  grid-column:1/-1;width:100%;
+
   flex:1 1 100%;max-width:100%;min-width:0
  }
  #f4-account-page .sa-resident-controls button.f4-icon-action{
@@ -523,22 +517,31 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
 /* 2026-10-27: no-detail cards and documentation text/action collision fix. */
 @media screen and (max-width:760px){
  #f4-account-page .f4-compact-super-card{
+  display:flex;flex-wrap:wrap;justify-content:space-between
+ 
+
   display:grid;grid-template-columns:minmax(0,1fr) 36px;
   align-items:center;gap:8px;
   min-width:0;overflow:hidden;padding:14px
  }
- #f4-account-page .f4-compact-super-card>div:first-child{
-  grid-column:1;grid-row:1;order:unset;
+ #f4-account-page .f4-compact-super-card>div:first-child{grid-row:1;order:unset;
   width:auto;min-width:0;max-width:100%;
   flex:none;align-self:center
  }
  #f4-account-page .f4-compact-super-card>div:first-child strong{
+
   display:block;min-width:0;width:100%;
   max-width:100%;white-space:normal;
   overflow-wrap:break-word;word-break:normal;
   line-height:1.38;font-size:15px
  }
  #f4-account-page .f4-compact-super-card>.f4-card-detail-toggle{
+  display:grid;place-items:center;flex:none;
+  background:#f4f0ff;color:#6652b6;
+  border:1px solid #e6e0fa;border-radius:10px;padding:0
+ 
+order:2;margin-left:auto
+
   grid-column:2;grid-row:1;order:unset;
   justify-self:end;align-self:center;
   width:36px;min-width:36px;height:36px;margin:0
@@ -563,8 +566,7 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  #f4-account-page .f4-compact-super-card:not(.f4-card-expanded) small{
   display:none
  }
- #f4-account-page .f4-compact-super-card.f4-card-expanded>div:first-child small{
-  display:block;width:100%;max-width:100%;
+ #f4-account-page .f4-compact-super-card.f4-card-expanded>div:first-child small{display:block;width:100%;max-width:100%;
   white-space:normal;overflow-wrap:anywhere;margin-top:8px;
   line-height:1.5;font-size:12px
  }
@@ -979,10 +981,7 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
    justify-self:end;margin:0;width:auto;
    max-width:100%;flex:0 0 auto;white-space:nowrap
  }
- #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{
-   display:inline-grid;place-items:center;
-   width:40px;min-width:40px;max-width:40px;
-   height:40px;min-height:40px;}
+ 
  #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-label{display:none}
  #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action .f4-action-symbol{display:grid;place-items:center}
 }
@@ -1111,7 +1110,8 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
 /* Consistent visual center of Edit icons: independent of inherited line-height
    and the legacy flex icon wrappers. */
 @media screen and (max-width:760px){
- #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{
+ #f4-account-page .f4-admin-list>.f4-admin-item.f4-card-no-detail>button.f4-icon-action{place-items:center;
+
   position:relative;display:block;overflow:hidden;
   width:42px;min-width:42px;max-width:42px;
   height:42px;min-height:42px;max-height:42px;
