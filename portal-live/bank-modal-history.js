@@ -6,12 +6,14 @@
  if(window.F4BankModalHistory)return;
  const rootSelectors=[
   '#f4-tx-receipt-dialog','#bank-prices','#f4BankWeighingDialog',
+  '#f4BankAdminMenuSheet','.f4-warga-picker-pop',
   '#v21Lightbox','#v21GalleryModal','#v24ProgressOverlay',
   '#credentialModal','.f4-activity-dialog','.f4-ui-dialog',
   '#f4-direct-dialog'
  ];
  const selector=rootSelectors.join(',');
  const frames=[];
+ const afterClose=new WeakMap();
  let serial=0,pending=false,scheduled=false;
  const watched=new WeakSet();
  const byId=id=>document.getElementById(id);
@@ -35,6 +37,7 @@
  }
  function close(root){
   if(!isVisible(root))return;
+  if(root.matches('.f4-warga-picker-pop')){root.f4Close?.();return;}
   if(root.matches('dialog')){root.close();return;}
   if(root.id==='f4-tx-receipt-dialog'){
    window.F4TransactionReceipt?.close?.();return;
@@ -68,6 +71,7 @@
     return;
    }
    frames.pop();
+   runAfter(top?.root);
   }
   for(const root of live){
    if(frames.some(frame=>frame.root===root))continue;
@@ -79,6 +83,17 @@
  function queue(){
   if(scheduled)return;
   scheduled=true;queueMicrotask(refresh);
+ }
+ function runAfter(root){
+  if(!root)return;
+  const callback=afterClose.get(root);
+  afterClose.delete(root);
+  if(callback)queueMicrotask(callback);
+ }
+ function closeAndThen(root,callback){
+  if(typeof callback==='function')afterClose.set(root,callback);
+  if(isVisible(root))close(root);
+  queue();
  }
  function watch(root){
   if(watched.has(root))return;
@@ -93,11 +108,15 @@
  }
  // Capture-phase handler executes before the old gallery/sidebar routing.
  window.addEventListener('popstate',event=>{
+  // A nested native date/select picker returns to the still-open dialog guard.
+  const topFrame=frames[frames.length-1];
+  if(!pending&&topFrame&&history.state?.f4BankModalGuard===topFrame.id)return;
   if(pending){
    pending=false;
    const top=frames.pop();
    if(top&&isVisible(top.root))close(top.root);
    event.stopImmediatePropagation();
+   runAfter(top?.root);
    queue();
    return;
   }
@@ -105,6 +124,7 @@
   if(!top)return;
   close(top.root);
   event.stopImmediatePropagation();
+  runAfter(top.root);
   queue();
  },true);
  function start(){
@@ -118,8 +138,8 @@
   }).observe(document.body,{subtree:true,childList:true});
   queue();
   window.F4BankModalHistory={
-   version:'20261114-bank-modal-back-v1',
-   refresh:queue,
+   version:'20261114-bank-modal-back-v4',
+   refresh:queue,closeAndThen,
    getOpenCount:()=>frames.filter(frame=>isVisible(frame.root)).length
   };
  }
