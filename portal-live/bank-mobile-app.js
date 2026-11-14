@@ -155,7 +155,13 @@ function syncAdminBack(){
  const routeId=screen==="bank-admin-sale-history"?"bank-admin-history":
   screen.startsWith("bank-")?screen:"page"+screen.charAt(0).toUpperCase()+screen.slice(1);
  const active=show?$(routeId):null;
- const title=active?.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
+ let title=active?.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
+ if(show&&active&&!title){
+  // Fallback untuk halaman lama tanpa heading: tetap satu baris, tanpa Back terpisah.
+  title=el("h2","",screen==="profile"?"Profil Pengurus":
+   screen==="tabungan"?"Saldo Warga":active.id.replace(/^page|^bank-admin-/,"").replace(/-/g," "));
+  active.prepend(title);
+ }
  if(title){
   title.classList.add("f4-bank-admin-inline-title");
   if(back.parentElement!==title)title.prepend(back);
