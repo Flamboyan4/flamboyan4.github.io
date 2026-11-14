@@ -1,128 +1,128 @@
-/* Bank Sampah modal history: Back closes one visible popup, never its page.
-   Scoped to this portal; no patches to pushState, native Back, or app routing.
-   Gallery lightboxes retain their full-screen presentation. */
+/* Bank Sampah: unified modal Back guard. Picker and admin menu included.
+   The page history only receives Back after the topmost popup has closed. */
 (()=>{
  'use strict';
  if(window.F4BankModalHistory)return;
- const rootSelectors=[
+ const selector=[
   '#f4-tx-receipt-dialog','#bank-prices','#f4BankWeighingDialog',
-  '#v21Lightbox','#v21GalleryModal','#v24ProgressOverlay',
-  '#credentialModal','.f4-activity-dialog','.f4-ui-dialog',
-  '#f4-direct-dialog'
- ];
- const selector=rootSelectors.join(',');
- const frames=[];
- let serial=0,pending=false,scheduled=false;
- const watched=new WeakSet();
- const byId=id=>document.getElementById(id);
- function isVisible(node){
-  if(!node||!node.isConnected||node.hidden||node.classList.contains('hidden'))return false;
-  if(node.matches('dialog')&&!node.open)return false;
-  if(node.closest('[inert]'))return false;
-  const style=getComputedStyle(node);
-  return style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0;
+  '#f4BankAdminMenuSheet','#v21Lightbox','#v21GalleryModal',
+  '#v24ProgressOverlay','#credentialModal','.f4-activity-dialog',
+  '.f4-ui-dialog','#f4-direct-dialog','#f4-work-notice',
+  '.f4-warga-picker-pop'
+ ].join(',');
+ const frames=[],watched=new WeakSet();
+ let serial=0,scheduled=false,consuming=null;
+ function visible(root){
+  if(!root?.isConnected||root.hidden||root.classList.contains('hidden'))return false;
+  if(root.matches('dialog')&&!root.open)return false;
+  if(root.closest('[inert]'))return false;
+  const style=getComputedStyle(root);
+  return style.display!=='none'&&style.visibility!=='hidden'&&root.getClientRects().length>0;
  }
- function ordered(){
-  // A lightbox is above an album; the receipt and confirmation dialogs
-  // have their own overlay layers, not separate page routes.
-  const roots=[...document.querySelectorAll(selector)].filter(isVisible);
-  roots.sort((a,b)=>{
+ function stack(){
+  return [...document.querySelectorAll(selector)].filter(visible).sort((a,b)=>{
    const az=Number.parseInt(getComputedStyle(a).zIndex,10)||0;
    const bz=Number.parseInt(getComputedStyle(b).zIndex,10)||0;
    return az-bz;
   });
-  return roots;
  }
  function close(root){
-  if(!isVisible(root))return;
+  if(!visible(root))return;
+  if(root.matches('.f4-warga-picker-pop')){root._f4Close?.(true);return;}
   if(root.matches('dialog')){root.close();return;}
-  if(root.id==='f4-tx-receipt-dialog'){
-   window.F4TransactionReceipt?.close?.();return;
+  if(root.id==='f4-tx-receipt-dialog'&&window.F4TransactionReceipt?.close){
+   window.F4TransactionReceipt.close();return;
   }
-  const selectors={
-   v21Lightbox:'.v21-close',v21GalleryModal:'.v21-close',
-   v24ProgressOverlay:'#v24Close',
-   credentialModal:'[onclick*="closeCredential"]',
+  const buttons={
+   'v21Lightbox':'.v21-close','v21GalleryModal':'.v21-close',
+   'v24ProgressOverlay':'#v24Close',
+   'credentialModal':'[onclick*="closeCredential"]',
    'f4-direct-dialog':'#f4-direct-close-login'
   };
-  let candidate=selectors[root.id]&&root.querySelector(selectors[root.id]);
-  if(!candidate)candidate=root.querySelector(
-   '.f4-ui-dialog-cancel,.f4-activity-dialog-close,'+
-   '.f4-ui-dialog-accept,button[aria-label^="Tutup"],'+
-   'button[aria-label^="Close"],button[onclick*="closeModal"]'
-  );
-  if(candidate){candidate.click();return;}
-  // Refuse an unsafe generic dismissal rather than leaving click-blocking
-  // backdrops or accidentally submitting a destructive form.
+  const target=root.querySelector(buttons[root.id]||
+    '.f4-ui-dialog-cancel,.f4-activity-dialog-close,.f4-work-notice-close,'+
+    'button[aria-label^="Tutup"],button[aria-label^="Close"],button[onclick*="closeModal"]');
+  if(target)target.click();
  }
  function refresh(){
   scheduled=false;
-  if(pending)return;
-  const live=ordered();
-  // Only one outstanding frame is consumed per Back operation.
+  if(consuming)return;
   const top=frames[frames.length-1];
-  if(top&&!isVisible(top.root)){
+  if(top&&!visible(top.root)){
    if(history.state?.f4BankModalGuard===top.id){
-    pending=true;
-    history.back(); // Consumes the temporary guard on X, Escape or backdrop.
-    return;
+    consuming=top;history.back();return;
    }
-   frames.pop();
+   frames.pop();top.after?.();
   }
-  for(const root of live){
-   if(frames.some(frame=>frame.root===root))continue;
+  for(const root of stack()){
+   if(frames.some(x=>x.root===root))continue;
    const id=++serial;
-   frames.push({id,root});
+   frames.push({id,root,after:null});
    history.pushState({...history.state,f4BankModalGuard:id},'',location.href);
   }
  }
- function queue(){
+ function schedule(){
   if(scheduled)return;
   scheduled=true;queueMicrotask(refresh);
  }
- function watch(root){
-  if(watched.has(root))return;
-  watched.add(root);
-  const observer=new MutationObserver(queue);
-  observer.observe(root,{attributes:true,attributeFilter:['class','open','hidden','style']});
+ function watch(node){
+  if(watched.has(node))return;
+  watched.add(node);
+  new MutationObserver(schedule).observe(node,{
+   attributes:true,attributeFilter:['class','hidden','open','style']
+  });
  }
  function inspect(node){
   if(node.nodeType!==1)return;
   if(node.matches?.(selector))watch(node);
   node.querySelectorAll?.(selector).forEach(watch);
  }
- // Capture-phase handler executes before the old gallery/sidebar routing.
+ // Capture before page/router listeners. Consume exactly one modal guard.
  window.addEventListener('popstate',event=>{
-  if(pending){
-   pending=false;
-   const top=frames.pop();
-   if(top&&isVisible(top.root))close(top.root);
+  if(consuming){
+   const frame=consuming;consuming=null;
+   const i=frames.indexOf(frame);if(i>=0)frames.splice(i,1);
+   if(visible(frame.root))close(frame.root);
    event.stopImmediatePropagation();
-   queue();
-   return;
+   if(frame.after)queueMicrotask(frame.after);
+   schedule();return;
   }
-  const top=frames.pop();
-  if(!top)return;
-  close(top.root);
+  const frame=frames.pop();
+  if(!frame)return;
+  if(visible(frame.root))close(frame.root);
   event.stopImmediatePropagation();
-  queue();
+  if(frame.after)queueMicrotask(frame.after);
+  schedule();
  },true);
- function start(){
-  if(!document.body)return;
+ document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape'||!frames.length)return;
+  const top=frames[frames.length-1];
+  if(!visible(top.root))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  close(top.root);schedule();
+ },true);
+ function closeAndThen(root,callback){
+  const frame=frames.findLast(item=>item.root===root);
+  if(frame){
+   frame.after=typeof callback==='function'?callback:null;
+   close(root);schedule();
+  }else{
+   if(visible(root))close(root);
+   if(typeof callback==='function')queueMicrotask(callback);
+  }
+ }
+ function init(){
   inspect(document.body);
   new MutationObserver(records=>{
-   for(const record of records){
-    for(const child of record.addedNodes)inspect(child);
-   }
-   queue();
+   for(const record of records)for(const child of record.addedNodes)inspect(child);
+   schedule();
   }).observe(document.body,{subtree:true,childList:true});
-  queue();
-  window.F4BankModalHistory={
-   version:'20261114-bank-modal-back-v1',
-   refresh:queue,
-   getOpenCount:()=>frames.filter(frame=>isVisible(frame.root)).length
-  };
+  schedule();
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
- else start();
+ window.F4BankModalHistory={
+  version:'20261114-modal-guard-v3',refresh:schedule,closeAndThen,
+  getOpenCount:()=>frames.filter(x=>visible(x.root)).length
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+ else init();
 })();
