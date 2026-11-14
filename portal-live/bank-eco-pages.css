@@ -271,7 +271,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
  /* Structural width rules: avoid the Chromium expanded layout viewport. */
  html body.f4-bank-app-admin{box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin:0;padding-left:0}
  html body.f4-bank-app-admin :is(.shell,.content,#dashboardView,#dashboardView>.grid,#dashboardView>.grid>.section){
-  box-sizing:border-box;display:block;width:100%;min-width:0;max-width:100%;margin-left:0;margin-right:0
+  box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin-left:0;margin-right:0
  }
  html body.f4-bank-app-admin #dashboardView>.grid>.section{
   padding:14px clamp(10px,3.2vw,18px) 20px;background:#f7faf8

@@ -1,0 +1,35 @@
+name: Bank Sampah Chrome Firefox Real Layout
+on:
+  push:
+    branches: [main]
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-dock.css
+      - portal-live/bank-member-navigation.css
+      - qa/bank-cross-browser-layout.py
+      - .github/workflows/f4-bank-cross-browser-layout.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-layout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Chromium and Firefox
+        run: |
+          python3 -m pip install -q playwright
+          python3 -m playwright install --with-deps chromium firefox
+      - name: Audit production source on both browser engines
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f4-local-http.log 2>&1 &
+          python3 qa/bank-cross-browser-layout.py
+      - name: Preserve screenshots and overflow diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bank-chrome-firefox-layout
+          path: ops-audit/bank-cross-browser/
+          retention-days: 7
