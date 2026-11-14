@@ -52,6 +52,10 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome #v14Recent{
   overflow:visible;background:transparent;border:0
  }
+}
+
+/* Shared HP/PC Setoran Terbaru cards: one presentation source across
+   breakpoints; only the outer panel changes with the viewport. */
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-list{
   display:grid;gap:10px
  }
@@ -87,4 +91,3 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
   display:block;white-space:nowrap;color:#839589;font-size:10px
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{flex-wrap:wrap}
-}
