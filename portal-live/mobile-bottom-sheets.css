@@ -265,7 +265,7 @@
 /* Pegangan interaktif untuk setiap bottom sheet. Hanya aktif di HP.
    Handle ditambahkan di akhir konten agar selector :first-child lama tidak berubah. */
 @media(max-width:767px){
- body .f4-sheet-draggable:not(.f4-warga-picker-pop):not(.f4-user-year-popover){
+ body .f4-sheet-draggable:not(dialog):not(.f4-user-year-popover){
   position:relative
  }
  body .f4-sheet-draggable{box-sizing:border-box}
