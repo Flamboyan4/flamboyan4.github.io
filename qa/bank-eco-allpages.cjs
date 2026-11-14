@@ -683,7 +683,7 @@ assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-ent
        h.includes('class="f4-sale-main"') &&
        h.includes('class="f4-sale-side"') &&
        css.includes('#setoranForm>.f4-entry-right>.f4-entry-top-fields{\n  grid-column:2;grid-row:1;') &&
-       css.includes('#setoranForm>.f4-setoran-main{grid-row:1/span 2}') &&
+       css.includes('#setoranForm>.f4-setoran-main{\n  grid-row:1/span 2;gap:8px;padding:20px 23px') &&
        css.includes('#saleForm>.f4-entry-right>.f4-entry-top-fields{\n  grid-column:1/-1;grid-row:1') &&
        css.includes('#f4BankOwnDepositForm .f4-bank-own-fields{\n  grid-column:2;grid-row:1;') &&
        css.includes('.f4-bank-own-weight-summary{\n  grid-column:2;grid-row:2') &&
