@@ -510,6 +510,9 @@ z-index:48
     .v22-doc-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
     .v22-doc-heading h1{font-size:26px;margin:5px 0;color:#214934}
     .v22-back-home{border:1px solid #d4e5d6;background:#fff;color:#2c6645;font-size:12px;padding:9px 12px;flex:none}
+    .v22-doc-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;margin:8px 0 12px}
+    .v22-doc-tools #v22DocCount{margin:0;min-width:0;font-size:12px;color:#738a7c}
+    .v22-doc-tools #v22DocSearch{flex:0 1 260px;min-width:0;width:100%;height:39px;min-height:39px;margin:0;padding:9px 12px;font-size:12px;border-radius:11px}
     .v22-doc-filter{display:flex;flex-wrap:wrap;gap:7px;margin:13px 0}
     .v22-doc-filter button{padding:9px 13px;background:#fff;border:1px solid #d8e6d9;color:#496d54;border-radius:10px;font-size:12px}
     .v22-doc-filter button.active{background:#276744;color:#fff;border-color:#276744}
@@ -2909,12 +2912,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function copyCredential(){if(!currentCredential)return;const c=currentCredential;const value='Bank Sampah Flamboyan 4\nNama: '+c.nama+'\nUsername: '+c.username+'\nPassword awal: '+c.password+'\nSilakan login melalui portal Bank Sampah.';try{await navigator.clipboard.writeText(value);$('copyCred').textContent='Tersalin';}catch(e){$('copyCred').textContent='Salin manual';}}
   let v8PreviewData=null,v8ValidatedBatch='',v8PendingBatch='';
   function v8Setup(){if($('pagePengesahan'))return;const nav=document.createElement('button');nav.id='navPengesahan';nav.className='secondary';nav.textContent='Sahkan hasil';nav.onclick=()=>goPage('pengesahan');$('navRekonsiliasi').after(nav);const page=document.createElement('div');page.id='pagePengesahan';page.className='card hidden';page.innerHTML=`
-  <div class="f4-approval-heading">
-    
-    <h2>Sahkan penjualan</h2>
-    <p class="hint">Periksa penjualan, lalu bagi hasil.</p>
-  </div>
-  <div class="f4-approval-caution"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg> Sahkan setelah penjualan selesai. Saldo warga langsung tercatat.</div>
+  <div class="f4-approval-heading"><h2>Sahkan penjualan</h2></div>
+  <div class="f4-approval-caution"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg> Sahkan setelah penjualan selesai; saldo warga akan diperbarui.</div>
   <div class="field f4-approval-picker">
     <label for="v8Batch">Kelompok setoran</label>
     <select id="v8Batch" onchange="v8Preview()"><option value="">Pilih kelompok</option></select>
@@ -2944,6 +2943,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function v8LoadBatches(){
     const sel=$('v8Batch');
     v8PreviewData=null;v8ValidatedBatch='';
+    $('pagePengesahan').classList.remove('is-empty','has-selection');
     $('v8Form').classList.add('hidden');
     $('v8Preview').textContent='Memuat kelompok...';
     const old=v8PendingBatch||sel.value;
@@ -2955,20 +2955,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const eligible=(Array.isArray(rows)?rows:[]).filter(b=>
         ['draft','siap'].includes(String(b.status||'').trim().toLowerCase()));
       eligible.forEach(b=>sel.add(new Option(b.id+' • '+kg(b.berat)+' • '+b.jumlahSetoran+' setoran',b.id)));
+      sel.disabled=!eligible.length;
+      $('pagePengesahan').classList.toggle('is-empty',!eligible.length);
+      const reconDetails=$('f4BankReconDetails');if(reconDetails)reconDetails.hidden=!eligible.length;
       if(eligible.some(b=>b.id===old)){
         sel.value=old;
         await v8Preview();
       }else{
         sel.value='';
-        $('v8Preview').textContent=eligible.length
-          ? 'Pilih kelompok belum sah.'
-          : 'Tidak ada kelompok menunggu pengesahan.';
+        const area=$('v8Preview');area.replaceChildren();
+        if(!eligible.length){
+          const empty=document.createElement('div');empty.className='f4-approval-empty';
+          empty.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Belum ada penjualan yang perlu disahkan.</span>';
+          area.appendChild(empty);
+        }
       }
     }catch(e){
       $('v8Preview').textContent='Gagal memuat kelompok: '+(e.message||e);
     }
   }
-  async function v8Preview(){const batch=$('v8Batch').value;v8PreviewData=null;v8ValidatedBatch='';$('v8Form').classList.add('hidden');note('v8Notice','');if(!batch){$('v8Preview').textContent='Pilih kelompok terlebih dahulu.';return;}$('v8Preview').textContent='Memeriksa kelompok...';try{const p=await call('bsV8BatchSiap',token,batch);if($('v8Batch').value!==batch)return;v8PreviewData=p;v8ValidatedBatch=batch;const rows=[['Setoran',p.setoran],['Penjualan',p.penjualan],['Berat warga',kg(p.beratSetoran)],['Berat lapak',kg(p.beratLapak)],['Bagi hasil',p.wargaPercent+'% warga · '+p.lingkunganPercent+'% lingkungan'],['Hak warga',rupiah(p.estimasiWarga)],['Uang diterima',rupiah(p.diterima)],['Sisa dibagi',rupiah(p.marginBank)]];const grid=document.createElement('div');grid.className='metric-grid';rows.forEach(([l,v])=>grid.appendChild(metric(l,v)));const area=$('v8Preview');area.replaceChildren(grid);if(!p.siap){const warning=document.createElement('div');warning.className='notice error';warning.textContent=p.peringatan.join(' ');area.appendChild(warning);return;}const msg=document.createElement('p');msg.className='notice';msg.textContent='Siap. Periksa pembagian.';area.appendChild(msg);$('v8Form').classList.remove('hidden');$('v8Cadangan').value='0';$('v8Lorong').value='0';$('v8Operasional').value='0';$('v8SelectedLabel').textContent=batch;$('v8Reason').value='';$('v8Reason').required=!!p.hasWeightDifference;$('v8Reason').placeholder=p.hasWeightDifference?'Wajib: alasan hasil timbang berbeda':'Misalnya: penyusutan saat ditimbang lapak';v8Recalculate();}catch(e){$('v8Preview').textContent='Gagal memeriksa: '+(e.message||e);}}
+  async function v8Preview(){const batch=$('v8Batch').value;v8PreviewData=null;v8ValidatedBatch='';$('v8Form').classList.add('hidden');$('pagePengesahan').classList.toggle('has-selection',!!batch);note('v8Notice','');if(!batch){$('v8Preview').textContent='';return;}$('v8Preview').textContent='Memeriksa kelompok...';try{const p=await call('bsV8BatchSiap',token,batch);if($('v8Batch').value!==batch)return;v8PreviewData=p;v8ValidatedBatch=batch;const rows=[['Setoran',p.setoran],['Penjualan',p.penjualan],['Berat warga',kg(p.beratSetoran)],['Berat lapak',kg(p.beratLapak)],['Bagi hasil',p.wargaPercent+'% warga · '+p.lingkunganPercent+'% lingkungan'],['Hak warga',rupiah(p.estimasiWarga)],['Uang diterima',rupiah(p.diterima)],['Sisa dibagi',rupiah(p.marginBank)]];const grid=document.createElement('div');grid.className='metric-grid';rows.forEach(([l,v])=>grid.appendChild(metric(l,v)));const area=$('v8Preview');area.replaceChildren(grid);if(!p.siap){const warning=document.createElement('div');warning.className='notice error';warning.textContent=p.peringatan.join(' ');area.appendChild(warning);return;}const msg=document.createElement('p');msg.className='notice';msg.textContent='Siap. Periksa pembagian.';area.appendChild(msg);$('v8Form').classList.remove('hidden');$('v8Cadangan').value='0';$('v8Lorong').value='0';$('v8Operasional').value='0';$('v8SelectedLabel').textContent=batch;$('v8Reason').value='';$('v8Reason').required=!!p.hasWeightDifference;$('v8Reason').placeholder=p.hasWeightDifference?'Wajib: alasan hasil timbang berbeda':'Misalnya: penyusutan saat ditimbang lapak';v8Recalculate();}catch(e){$('v8Preview').textContent='Gagal memeriksa: '+(e.message||e);}}
   function v8Recalculate(){if(!v8PreviewData)return;const amounts=['v8Cadangan','v8Lorong','v8Operasional'].map(k=>Number($(k).value));const valid=amounts.every(v=>Number.isSafeInteger(v)&&v>=0);const sum=amounts.reduce((a,b)=>a+b,0);const delta=v8PreviewData.marginBank-sum;const balanced=valid&&delta===0;const indicator=$('v8Sisa');indicator.textContent=balanced?'Pas • Sisa Rp 0':'Sisa: '+rupiah(delta)+(valid?'':' • Isi rupiah bulat');indicator.classList.toggle('is-balanced',balanced);indicator.classList.toggle('is-outstanding',!balanced);$('v8Submit').disabled=!balanced;}
   function v8IsiSisa(){if(!v8PreviewData)return;const remainder=v8PreviewData.marginBank-Number($('v8Cadangan').value||0)-Number($('v8Lorong').value||0);if(remainder<0){note('v8Notice','Cadangan dan kas lorong melebihi margin.',true);return;}$('v8Operasional').value=String(remainder);v8Recalculate();}
   async function v8Confirm(e){e.preventDefault();if(!v8PreviewData||!v8PreviewData.siap)return;const batch=$('v8Batch').value;if(!batch||v8ValidatedBatch!==batch){note('v8Notice','Batch berubah. Muat kembali rincian sebelum disahkan.',true);return;}if(!await window.f4UiDialog.confirm('Apakah SEMUA barang pada batch '+batch+' sudah dijual dan selisih stoknya sudah diperiksa? Jika masih ada barang tersisa, pilih Batal.'))return;const payload={batch,konfirmasi:batch,cadangan:Number($('v8Cadangan').value),kasLorong:Number($('v8Lorong').value),operasional:Number($('v8Operasional').value),alasanSelisihBerat:$('v8Reason').value.trim(),semuaTerjual:true};if(!await window.f4UiDialog.confirm('PERINGATAN: Sahkan hak tabungan warga '+rupiah(v8PreviewData.estimasiWarga)+' untuk '+batch+'? Tindakan ini mencatat hak tabungan dan alokasi.'))return;busy(e.target,true);note('v8Notice','Sedang mengesahkan. Jangan tutup halaman.');try{const result=await call('bsV8SahkanBatch',token,payload);$('v8Form').classList.add('hidden');await v8LoadBatches();note('v8Notice','Batch '+result.batch+' berhasil disahkan. Hak warga '+rupiah(result.hakWarga)+' • margin bank '+rupiah(result.marginBank)+'.');}catch(err){note('v8Notice','Gagal mengesahkan: '+(err.message||err)+'. Jika ada status Diproses, jangan ulangi tanpa pemeriksaan.',true);}finally{busy(e.target,false);}}
@@ -5186,7 +5192,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const search=document.createElement('input');search.id='v22DocSearch';search.className='v22-search';search.type='search';search.placeholder='Cari album kegiatan...';
     search.setAttribute('aria-label','Cari album');search.oninput=()=>{v22Query=search.value.trim().toLowerCase();v22RenderDocs();};
     const list=v21Node('div','v22-doc-list');list.id='v22DocList';
-    page.append(heading,count,filter,search,list);main.appendChild(page);
+    const tools=v21Node('div','v22-doc-tools');tools.append(count,search);
+    page.append(heading,tools,filter,list);main.appendChild(page);
     const side=$('v18PublicSide');side?.querySelectorAll('button[data-public-menu]').forEach(btn=>{
       const old=btn.onclick;
       if(btn.dataset.publicMenu==='docs')btn.onclick=()=>{side.querySelectorAll('button').forEach(n=>n.classList.toggle('active',n===btn));v18ClosePublic();v22OpenDocs();};
