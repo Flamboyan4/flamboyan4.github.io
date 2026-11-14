@@ -135,7 +135,8 @@ function previousBankPage(){
  try{navigate(destination);}finally{returningFromBack=false;}
 }
 function syncAdminBack(){
- const section=$("dashboardView")?.querySelector(".grid > .section");
+ const root=$("dashboardView");
+ const section=root?.querySelector(".grid > .section")||root?.querySelector(".section");
  if(!section)return;
  let back=$("f4BankAdminBack");
  if(!back){
