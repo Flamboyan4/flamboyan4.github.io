@@ -1248,7 +1248,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
   display:contents
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{order:0}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-fields{
   order:1;box-sizing:border-box;padding:17px 18px;
   border:1px solid #e9eff0;border-radius:23px;background:#fff;
@@ -1301,7 +1300,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   padding:13px;border:1px solid #edf2f3;border-radius:14px;
   background:#f8fafc;font-size:13px;font-weight:500;line-height:1.45;resize:vertical
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro,
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
   box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
   border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
@@ -1560,39 +1558,35 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
   display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);
   align-items:start;gap:16px
  }
- body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-intro{
-  grid-column:1/-1;grid-row:1;margin:0;color:#688276;font-size:12px
- }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
   display:contents
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-fields{
-  grid-column:1/-1;grid-row:2;display:grid;gap:12px;
+  grid-column:1/-1;grid-row:1;display:grid;gap:12px;
   box-sizing:border-box;padding:20px 23px;border:1px solid #e6efea;
   border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{
-  grid-column:1;grid-row:3;min-width:0
+  grid-column:1;grid-row:2;min-width:0
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
   padding:20px 23px;border:1px solid #e6efea;border-radius:22px;
   background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-field{
-  grid-column:2;grid-row:3;box-sizing:border-box;display:grid;
+  grid-column:2;grid-row:2;box-sizing:border-box;display:grid;
   align-content:start;gap:12px;margin:0;padding:20px 23px;
   border:1px solid #e6efea;border-radius:22px;
   background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{
-  grid-column:2;grid-row:4;justify-self:stretch;
+  grid-column:2;grid-row:3;justify-self:stretch;
   min-height:50px;margin:0;border-radius:15px;background:#009788;color:#fff
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{
-  grid-column:2;grid-row:5
+  grid-column:2;grid-row:4
  }
 }
-.f4-bank-own-intro{font-size:12px;color:#567465;margin:0}
 .f4-bank-own-price-hint{font-size:11px;font-weight:500;color:#6e8377}
 .f4-compact-add{
  min-height:36px;padding:7px 13px;border:1px solid #cde2d4;border-radius:10px;
@@ -1628,10 +1622,27 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
  .f4-compact-row{grid-template-columns:minmax(0,1fr) minmax(0,140px);gap:8px}
  .f4-compact-row>select{grid-column:1}
  .f4-compact-row>.f4-compact-entry-group{grid-column:2}
- .f4-compact-sale-row{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr)}
- .f4-compact-sale-row>select{grid-column:1/-1}
- .f4-compact-sale-row>input{grid-column:1}
- .f4-compact-sale-row>.f4-compact-entry-group{grid-column:2}
+ /* Penjualan di HP: empat kontrol nyata dalam satu baris, tanpa kolom kedua. */
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row{
+  grid-template-columns:minmax(0,1fr) 43px 72px 40px;
+  gap:6px;align-items:center
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>select{
+  grid-column:1;min-width:0;white-space:nowrap;text-overflow:ellipsis;
+  padding-inline:6px;font-size:12px
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>input{
+  grid-column:2;min-width:0;padding-inline:2px;text-align:center;font-size:12px
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group{
+  display:contents
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>input{
+  grid-column:3;min-width:0;padding-inline:5px;font-size:12px
+ }
+ body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>.f4-compact-remove{
+  grid-column:4;width:40px;min-height:47px
+ }
  .f4-compact-entry-group{grid-template-columns:minmax(0,1fr) 34px;gap:7px}
 }
 .f4-bank-own-fields{
@@ -1655,7 +1666,6 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
 .f4-bank-own-detail-head strong{color:#16472f}
 .f4-bank-own-lines{display:grid;gap:8px}
 /* Setoran milik Bank memakai .f4-compact-row yang sama dengan Setoran Warga. */
-.f4-bank-own-weight{font-size:12px;font-weight:800;color:#126847}
 .f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
 body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:start}
 .f4-bank-admin-cash-body{display:grid;gap:14px}
