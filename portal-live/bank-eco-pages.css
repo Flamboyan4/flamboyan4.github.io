@@ -2319,7 +2319,6 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 }
 /* Responsive Bank Sampah: one sidebar category, submenu tabs in content. */
 @media(min-width:1024px){
- body.f4-bank-app-member #dashboardView>.grid{grid-template-columns:242px minmax(0,1fr);gap:0;align-items:stretch}
  body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px;background:#fff}
  body.f4-bank-app-private #dashboardView #pageDashboard{padding:0;background:transparent}
  body.f4-bank-app-private #dashboardView #f4BankAppHome{width:100%;max-width:1120px;margin-inline:auto;gap:14px;align-items:stretch}
