@@ -31,21 +31,23 @@ async def probe(page,width,screen):
       const target=document.getElementById(id);if(!target)return {screen:id,missing:true};
       target.classList.remove('hidden');
       document.getElementById('sideNav')?.classList.remove('open');
-      if(!document.getElementById('f4BankAppDock')){
-        const dock=document.createElement('nav');
-        dock.id='f4BankAppDock';dock.className='f4-bank-app-dock';
-        for(const label of ['Beranda','Penjualan','Setoran','Saldo','Laporan']){
-          const b=document.createElement('button');
-          b.className='f4-bank-app-dock-action'+(label==='Setoran'?' is-primary':'');
-          const ic=document.createElement('span');ic.className='f4-bank-app-action-icon';
-          const img=document.createElement('img');img.src='/assets/icons/bank.svg';
-          ic.append(img);b.append(ic);
-          if(label!=='Setoran'){
-            const t=document.createElement('span');t.className='f4-bank-app-action-name';t.textContent=label;b.append(t);
-          }dock.append(b);
-        }
-        document.body.append(dock);
+      // Real HTML already contains an initially hidden, empty dock. Login JS
+      // unhides it and inserts actions, so reproduce both operations here.
+      const nav=document.getElementById('f4BankAppDock')||document.createElement('nav');
+      nav.id='f4BankAppDock';nav.className='f4-bank-app-dock';
+      nav.hidden=false;
+      nav.replaceChildren();
+      for(const label of ['Beranda','Penjualan','Setoran','Saldo','Laporan']){
+        const b=document.createElement('button');
+        b.className='f4-bank-app-dock-action'+(label==='Setoran'?' is-primary':'');
+        const ic=document.createElement('span');ic.className='f4-bank-app-action-icon';
+        const img=document.createElement('img');img.src='/assets/icons/bank.svg';
+        ic.append(img);b.append(ic);
+        if(label!=='Setoran'){
+          const t=document.createElement('span');t.className='f4-bank-app-action-name';t.textContent=label;b.append(t);
+        }nav.append(b);
       }
+      if(nav.parentNode!==document.body)document.body.append(nav);
       window.scrollTo(0,0);
       const rect=n=>{const r=n?.getBoundingClientRect();return r?{x:r.x,right:r.right,w:r.width,top:r.top,bottom:r.bottom}:null};
       const dock=document.getElementById('f4BankAppDock');
