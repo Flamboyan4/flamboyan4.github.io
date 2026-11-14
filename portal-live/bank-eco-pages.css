@@ -1586,14 +1586,10 @@ body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details #reconResult{
 .f4-bank-admin-name-form input{flex:1 1 210px;min-width:0}
 .f4-bank-admin-name-form button{min-height:39px}
 .f4-bank-admin-name-status{flex-basis:100%;color:#667c6c}
-#dashboardView #pageProfile #v15PasswordBox{
- padding:0;margin:0;border:1px solid #d5e7ba;
-  border-radius:14px;background:#f7fbf2;
+#dashboardView #pageProfile #v15PasswordBox{margin:0;
 margin-top:12px;padding:0;border:1px solid #dce9df;border-radius:11px;background:#fff
 }
 #dashboardView #pageProfile #v15PasswordBox form{
- padding:13px;margin:0;
-  max-width:100%;
 display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid #e6eee7
 }
 #dashboardView #pageProfile #v15PasswordBox form .field{min-width:0;margin:0}
@@ -1659,9 +1655,7 @@ body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{
 body.f4-bank-app-admin #dashboardView #bank-admin-docs{
  align-content:start;max-width:none;width:100%
 }
-body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
- display:grid;min-width:0;gap:10px;
-}
+
 /* Dokumentasi pengurus — galeri foto ringkas seperti Portal Utama. */
 body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs{
  display:inline-flex;flex-wrap:nowrap;gap:3px;align-items:center;
@@ -1677,6 +1671,8 @@ body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs>.f4-bank-admin-hist
  background:#146b48;color:#fff
 }
 body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
+;
+
  display:grid;min-width:0;gap:8px
 }
 body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris){
