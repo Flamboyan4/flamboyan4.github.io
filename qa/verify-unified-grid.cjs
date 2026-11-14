@@ -87,7 +87,8 @@ assert(iconStart>=0&&iconEnd>iconStart,'Gallery icon control rule missing');
 const iconRule=galleryCss.slice(iconStart,iconEnd);
 assert(!iconRule.includes('!important'),'Legacy priority returned to gallery icon controls');
 assert(iconRule.includes('display:inline-grid;place-items:center;'),'Gallery icon alignment must remain centered');
-assert(galleryCss.includes('[hidden]{display:none!important}'),'Hidden element guard must remain intact');
+assert(galleryCss.includes('[hidden]{display:none}') && !galleryCss.includes('[hidden]{display:none!important}'),
+  'Hidden element guard must work without reintroducing CSS priority');
 // Avoid mobile/desktop duplicate ownership where later canonical rules already win.
 const memberCss=read('portal-live/bank-member-polish.css');
 const dashboardCss=read('portal-live/bank-eco-dashboard.css');
