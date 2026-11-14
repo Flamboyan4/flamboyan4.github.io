@@ -158,7 +158,7 @@ async def main():
                           };
                           const entry=document.querySelector('#sideNav #v16NavList>.v16-item');
                           return {
-                            name:r('#setoranForm #setWarga')||r('#setoranForm .f4-warga-picker'),
+                            name:r('#setoranForm .f4-warga-picker')||r('#setoranForm #setWarga'),
                             date:r('#setoranForm #setDate'),
                             meta:r('#setoranForm .f4-entry-top-fields'),
                             main:r('#setoranForm .f4-setoran-main'),
