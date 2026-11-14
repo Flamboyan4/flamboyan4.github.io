@@ -2502,7 +2502,29 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         const rows=data.filter(b=>!query||[b.nama,b.kode,b.kelompok].some(v=>normalize(v).includes(query)));
         count.textContent=rows.length+' jenis';
         list.replaceChildren();
+        const grouped=new Map();
+        const categoryOrder=['Kertas','Plastik','Logam','Campuran'];
+        const categoryOf=raw=>{
+          const name=normalize(raw);
+          if(name==='kertas')return 'Kertas';
+          if(name==='plastik')return 'Plastik';
+          if(name==='logam')return 'Logam';
+          if(name==='campuran'||name==='umum')return 'Campuran';
+          return 'Lainnya';
+        };
         rows.forEach(b=>{
+          const category=categoryOf(b.kelompok);
+          let group=grouped.get(category);
+          if(!group){
+            const section=document.createElement('section');section.className='f4-master-group';
+            const head=document.createElement('div');head.className='f4-master-group-heading';
+            const label=document.createElement('h3');label.textContent=category;
+            const number=document.createElement('span');head.append(label,number);
+            const body=document.createElement('div');body.className='f4-master-group-list';
+            section.append(head,body);
+            group={section,body,number,count:0};grouped.set(category,group);
+          }
+          group.number.textContent=++group.count+' jenis';
           const item=document.createElement('details');item.className='f4-master-row';
           item.dataset.priced=String(Number(b.tarif)>0);
           const summary=document.createElement('summary');summary.className='f4-master-summary';
@@ -2523,8 +2545,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           const line=(label,value)=>{const box=document.createElement('span'),small=document.createElement('small');small.textContent=label;const bold=document.createElement('strong');bold.textContent=String(value||'—');box.append(small,bold);return box};
           meta.append(line('Harga lapak',rupiah(b.acuan)+'/kg'),line('Kode',b.kode),line('Status',b.status));
           const button=document.createElement('button');button.type='button';button.textContent='Atur tarif';button.onclick=()=>editTarif(b);
-          detail.append(meta,button);item.append(summary,detail);list.append(item);
+          detail.append(meta,button);item.append(summary,detail);group.body.append(item);
         });
+        for(const category of [...categoryOrder,...[...grouped.keys()].filter(x=>!categoryOrder.includes(x))]){
+          const group=grouped.get(category);
+          if(group)list.append(group.section);
+        }
         if(!rows.length){const empty=document.createElement('div');empty.className='f4-master-empty';empty.textContent='Barang tidak ditemukan.';list.append(empty);}
       }
       search.oninput=draw;search.value=previous;field.append(search);tools.append(field,count);
