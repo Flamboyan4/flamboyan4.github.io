@@ -487,12 +487,11 @@ z-index:48
     /* Publik: album dan inventaris membentuk satu bagian ringan tanpa kartu bertumpuk. */
     .v21-media-layout{
       display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:18px;align-items:start;margin:2px 0 0;padding:17px 0 0;
-      border-top:1px solid #e7efe8
+      gap:14px;align-items:start;margin:0;padding:0;border:0
     }
     .v21-media-layout>.v17-section{
-      min-width:0;margin:0;padding:0;border:0;border-radius:0;
-      background:transparent;box-shadow:none
+      min-width:0;margin:0;padding:17px;border:1px solid #dce8df;
+      border-radius:19px;background:#fff;box-shadow:0 4px 14px #0f3a2510
     }
     .v21-section-bar{
       display:flex;align-items:center;justify-content:space-between;
@@ -565,8 +564,8 @@ z-index:48
     .v21-arrow{flex:none;width:43px;height:43px;border-radius:50%;background:#253b42;color:white;padding:0;font-size:24px}
     .v21-stage-content{flex:1;min-width:0;display:flex;height:100%;align-items:center;justify-content:center}
     .v21-gallery-count{text-align:center;color:#bfcfc6;font-size:12px;padding:8px}
-    @media(max-width:900px){.v21-media-layout{grid-template-columns:1fr;gap:13px}.v21-media-layout>.v17-section+ .v17-section{border-top:1px solid #e7efe8;padding-top:13px}.v21-album-list{grid-template-columns:repeat(2,minmax(0,1fr))}.v21-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-    @media(max-width:720px){.v21-media-layout{margin-top:0;padding-top:12px;gap:11px}.v21-media-layout>.v17-section{padding:0}.v21-media-layout>.v17-section+ .v17-section{padding-top:12px}.v21-feature-cover{height:143px}
+    @media(max-width:900px){.v21-media-layout{grid-template-columns:1fr;gap:12px}.v21-album-list{grid-template-columns:repeat(2,minmax(0,1fr))}.v21-gallery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:720px){.v21-media-layout{margin-top:0;padding-top:0;gap:12px}.v21-media-layout>.v17-section{padding:15px 14px;border-radius:18px}.v21-feature-cover{height:143px}
       .v21-modal{padding:9px}.v21-modal-card{max-height:94dvh;border-radius:13px}.v21-modal-body{padding:12px}.v21-modal-head{padding:13px}
       .v21-album-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v21-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
       .v21-gallery-tile{height:140px}.v21-album-tile>img,.v21-album-tile>.v21-placeholder{height:105px}
@@ -4524,14 +4523,14 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
             <p id="f4DevChartNote" class="f4-dev-chart-note" aria-live="polite">Memuat grafik...</p>
           </section>
           <section class="f4-dev-activity-card" aria-labelledby="f4DevActivityTitle">
-            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Linimasa kegiatan</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
+            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Aktivitas warga</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
             <div id="f4DevStepTrack" class="f4-dev-step-track" aria-label="Tahapan kegiatan"></div>
             <div class="f4-dev-timeline-head"><strong>Kegiatan terbaru</strong><button id="f4DevShowAll" class="f4-dev-show-more" type="button" hidden>Lihat semua</button></div>
             <ol id="v17Timeline" class="f4-dev-timeline"><li class="f4-dev-empty-activity">Memuat kegiatan...</li></ol>
           </section>
         </div>
       </section>
-      <section id="v17Dokumentasi" class="v17-section"><h2>Dokumentasi kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
+      <section id="v17Dokumentasi" class="v17-section"><h2>Galeri kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
       <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
       <section id="v17Transparansi" class="v17-section hidden" hidden><h2>Laporan Keuangan</h2><div class="v17-panel"><p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Saldo dan riwayat pribadi tersedia setelah login.</p></div></section></div>`;
     $('v17Logo').src=v17Logo;
