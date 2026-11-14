@@ -393,6 +393,23 @@ assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(n
        dockCss.includes('body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){'),
  'Both roles must mount the dock on body with no double viewport offsets');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
+assert(mobile.includes('title.classList.add("f4-bank-admin-inline-title")') &&
+       mobile.includes('if(back.parentElement!==title)title.prepend(back);') &&
+       css.includes('h2.f4-bank-admin-inline-title{') &&
+       css.includes('.f4-bank-admin-back:not([hidden]){'),
+  'Manager back must share the title line on every active secondary page');
+assert(h.includes('<h2>Saldo Warga</h2><p>Tabungan anggota dan posisi kas.</p>') &&
+       h.includes("metric('Kas Bank Sampah',rupiah(cash.kasMilikBankRp))") &&
+       h.includes("metric('Tabungan warga',rupiah(sum))") &&
+       h.includes("metric('Kas lingkungan',rupiah(cash.kasLingkunganRp))") &&
+       h.includes("metric('Kas gabungan',rupiah(cash.saldoKasTercatat))") &&
+       h.includes('grid-template-columns:repeat(2,minmax(0,1fr));') &&
+       h.includes('background:#e6f5dc;border-color:#d4e9cb') &&
+       h.includes('.f4-bs-saldo-count{') &&
+       mobile.includes('"Pengajuan pencairan"') &&
+       h.includes('>Cek kesesuaian kas</button>'),
+  'Saldo must retain all live balances in compact cards, two aligned actions and member count');
+
 assert(mobile.includes('const adminDock=[') &&
        mobile.includes('["Beranda","dashboard","home.svg"],["Penjualan","penjualan","shopping-cart"]') &&
        mobile.includes('["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"]') &&
