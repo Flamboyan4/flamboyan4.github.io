@@ -4,13 +4,13 @@
 .f4-bank-app-dock{display:none}
 .f4-bank-app-dock[hidden]{display:none}
 @media(max-width:1023px){
- body.f4-bank-app-private{--f4-bank-dock-height:64px}
+ body.f4-bank-app-private,html.f4-bank-admin-dock-root{--f4-bank-dock-height:64px}
  body.f4-bank-app-private #dashboardView{
   padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)
  }
  /* Navigasi bawah tunggal: Pencairan adalah aksi utama kuning (selalu),
     empat menu lain tetap normal, tanpa bergantung halaman aktif. */
- body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock:not([hidden]){
   box-sizing:border-box;position:fixed;left:0;right:0;bottom:0;z-index:55;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:stretch;gap:3px;width:100%;
@@ -19,7 +19,7 @@
   overflow:visible;background:#fff;border-top:1px solid #e4ece5;
   box-shadow:0 -5px 16px #143c2410
  }
- body.f4-bank-app-private .f4-bank-app-dock-action{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action{
   box-sizing:border-box;display:grid;grid-template-rows:27px 15px;
   justify-items:center;align-content:center;gap:1px;min-width:0;width:100%;
   height:100%;min-height:0;margin:0;padding:3px 1px;
@@ -27,38 +27,38 @@
   color:#5b7062;font:700 10px/1.15 system-ui,-apple-system,sans-serif;
   cursor:pointer;touch-action:manipulation
  }
- body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action .f4-bank-app-action-icon{
   box-sizing:border-box;display:grid;place-items:center;
   width:27px;height:27px;min-width:0;border-radius:9px;
   background:transparent;transform:none;box-shadow:none
  }
- body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon img{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action .f4-bank-app-action-icon img{
   display:block;width:23px;height:23px;object-fit:contain;
   filter:brightness(0) saturate(100%) invert(28%) sepia(31%) saturate(726%) hue-rotate(88deg) brightness(85%) contrast(94%)
  }
- body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-name{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action .f4-bank-app-action-name{
   display:block;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;text-align:center;font-size:10px;line-height:1.15
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-active{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-active{
   background:linear-gradient(145deg,#e4f7d6,#d5f3c8);
   color:#064a2e;font-weight:850
  }
- body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action:focus-visible{
   outline:2px solid #278655;outline-offset:-2px
  }
  /* Satu komponen tombol utama untuk Warga dan Pengelola.
     Posisi, diameter, jarak, garis putih dan interaksi sama; hanya ikon sesuai peran. */
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary{
   position:relative;z-index:2;display:block;
   width:100%;height:100%;min-height:0;margin:0;padding:0;
   border:0;border-radius:0;background:transparent;
   color:#5a471c;box-shadow:none;transform:none
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary:is(.is-active,:hover){
   background:transparent;color:#5a471c;box-shadow:none
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{
   position:absolute;left:50%;bottom:9px;
   display:grid;place-items:center;
   width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px);min-width:0;min-height:0;
@@ -66,19 +66,19 @@
   background:#ffc719;color:#fff;box-shadow:0 6px 15px #856b2433;
   transform:translateX(-50%)
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
   display:block;width:44px;height:44px;fill:#fff;stroke:none
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
   font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
   letter-spacing:-2px;fill:#fff;stroke:none
  }
  /* Ikon Laporan tetap SVG asli; ukuran dan badge sama dengan Pencairan warga. */
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
   width:32px;height:32px;
   filter:brightness(0) saturate(100%) invert(21%) sepia(27%) saturate(762%) hue-rotate(90deg) brightness(94%) contrast(92%)
  }
- body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:focus-visible{
+ :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%
  }
 
