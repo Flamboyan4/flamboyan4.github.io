@@ -17,9 +17,7 @@
   height:var(--f4-bank-dock-height);
   padding:6px 8px;
   overflow:visible;background:#fff;border-top:1px solid #e4ece5;
-  box-shadow:0 -5px 16px #143c2410;
-  isolation:isolate;will-change:transform;
-  -webkit-backface-visibility:hidden;backface-visibility:hidden
+  box-shadow:0 -4px 12px #143c2410
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
   box-sizing:border-box;display:grid;grid-template-rows:27px 15px;
