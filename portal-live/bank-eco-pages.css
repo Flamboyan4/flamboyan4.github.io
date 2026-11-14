@@ -2026,10 +2026,29 @@ body.f4-bank-app-admin #dashboardView #pageLaporan .f4-bank-report-progress-link
 }
 /* Menu bawah satu elemen fixed, tanpa efek blur yang bergeser saat scroll. */
 @media(max-width:1023px){
- body.f4-bank-app-private #dashboardView .mobile-nav{display:none}
+ /* Exactly one navigation surface on authenticated phones. The legacy
+    dashboard tabs and mobile bar are not a second navigation layer. */
+ body.f4-bank-app-private #dashboardView .mobile-nav,
+ body.f4-bank-app-private #dashboardView #v16Tabs{display:none}
+ /* Do not let intrinsic table/card width stretch the authenticated app,
+    which previously forced the dock and page off the right screen edge. */
+ body.f4-bank-app-private #dashboardView,
  body.f4-bank-app-private #dashboardView>.grid,
- body.f4-bank-app-private #dashboardView>.grid>.section{overflow:visible;scroll-behavior:auto}
+ body.f4-bank-app-private #dashboardView>.grid>.section{
+  box-sizing:border-box;display:block;min-width:0;max-width:100%;
+  overflow-x:clip;overflow-y:visible;scroll-behavior:auto
+ }
+ body.f4-bank-app-private #dashboardView>.grid>.section> :is(.card,.f4-bank-screen,.f4-bank-admin-unframed){
+  min-width:0;max-width:100%
+ }
+ body.f4-bank-app-private #dashboardView :is(form,.field,.toolbar,.f4-entry-right,.f4-sale-main,.f4-sale-side,.f4-setoran-main,.f4-setoran-side){
+  min-width:0;max-width:100%
+ }
  body.f4-bank-app-private #sideNav.side{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+ /* Field focusing must not trigger browser zoom/pan while weighing or selling. */
+ body.f4-bank-app-private #dashboardView :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+  font-size:16px
+ }
 }
 /* Bank Sampah member dashboard: premium eco-banking composition.
    A single canonical layout owner; only the card itself has an ATM surface.
