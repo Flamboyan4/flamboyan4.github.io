@@ -268,7 +268,7 @@ assert(mobile.includes('let memberBalancePrivacy={hidden:true}') &&
        mobile.includes('balanceLink.onclick=()=>navigate("pribadi")') &&
        mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=true;'),
  'Saldo hide and unhide must not navigate or overwrite the actual live balance');
-assert(dockCss.includes('width:clamp(58px,17vw,68px);height:clamp(58px,17vw,68px)') &&
+assert(dockCss.includes('width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px)') &&
        dockCss.includes('border:3px solid #fff;border-radius:50%') &&
        css.includes('.f4-bank-balance-head{'),
  'Payout must be round with a white outline and the balance has a separate eye');
@@ -279,7 +279,7 @@ assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px
        dockCss.includes('background:#ffc719;color:#fff;box-shadow:none'),
  'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
 assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
-       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),
+       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)'),
  'Only one bottom-dock clearance should remain on mobile');
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
@@ -307,9 +307,9 @@ assert(h.includes('/portal-live/bank-mobile-dock.css?v=') &&
        !css.includes('!important') &&
        !h.includes('!important'),
  'Bank Sampah nav must be loaded separately and all Bank CSS must have no priority declarations');
-assert(dockCss.includes('body.f4-bank-app-private{--f4-bank-dock-height:64px}') &&
-       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)') &&
-       dockCss.includes('height:var(--f4-bank-dock-height)') &&
+assert(dockCss.includes('body.f4-bank-app-private{--f4-bank-dock-height:72px}') &&
+       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)') &&
+       dockCss.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))') &&
        dockCss.includes('grid-template-rows:27px 15px'),
  'Both roles must share a single matching navigation and safe-area layout');
 assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
