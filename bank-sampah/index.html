@@ -1034,6 +1034,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .v33-report-choice-foot{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0}
 #pageLaporan .v33-report-choice-foot small{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #pageLaporan #v33SelectAll{border:0;background:transparent;color:#078261;font-size:11px;font-weight:750;padding:5px 1px;min-height:0;box-shadow:none}
+#pageLaporan #v33SelectAll[hidden]{display:none}
 #pageLaporan .v33-report-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:10px 0 0;border-top:1px solid #e5eee8}
 #pageLaporan .v33-report-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;min-width:0;min-height:40px;padding:9px 8px;margin:0;border-radius:11px;font-size:12px;font-weight:800;line-height:1.25}
 #pageLaporan .v33-report-actions button:nth-child(1){background:#09bcd3;color:#fff;border:1px solid #09bcd3}
@@ -5750,7 +5751,10 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       const label=document.createElement('label');label.className='v33-report-chip';
       const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.value=key;
       checkbox.dataset.reportSection='1';checkbox.checked=true;
-      const text=document.createElement('span');text.textContent=spec.title;
+      const text=document.createElement('span');
+      const shortLabels={setoran:'Setoran',penjualan:'Penjualan',pengeluaran:'Biaya',mutasi:'Tabungan',setoranBank:'Setoran bank'};
+      text.textContent=shortLabels[key]||spec.title;
+      checkbox.setAttribute('aria-label',spec.title);
       label.append(checkbox,text);list.append(label);
     }
     selections.append(list);
@@ -5777,10 +5781,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     else report.prepend(form);
     // Existing API/print handlers remain attached to their original buttons.
     // Feedback for load/print errors stays visible beside the report actions.
-    form.append(actions);
+    form.append(options,actions);
     const notice=$('v10ReportNotice');
     if(notice)form.append(notice);
-    form.append(options);
     const invalidate=()=>{
       v10ReportData=null;
       $('v10ReportSummary')?.replaceChildren();
