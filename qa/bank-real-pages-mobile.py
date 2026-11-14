@@ -13,8 +13,10 @@ DEST.mkdir(parents=True,exist_ok=True)
 SOURCE=pathlib.Path("bank-sampah/index.html").read_text(encoding="utf-8")
 SOURCE=re.sub(r'<script\\b[^>]*>.*?</script\\s*>','',SOURCE,flags=re.I|re.S)
 SOURCE=SOURCE.replace('<head>','<head><base href="'+ROOT+'/">',1)
-SCREENS=["pageSetoran","pagePenjualan","pageRekonsiliasi","pageTabungan",
-         "pageRiwayat","pageRiwayatJual","pageLaporan","pageMaster","pageAdmin"]
+# Tabungan and Laporan are constructed by authenticated JS after login.
+# Their actual rendered states have separate dynamic browser fixtures.
+SCREENS=["pageSetoran","pagePenjualan","pageRekonsiliasi","pageRiwayat",
+         "pageRiwayatJual","pageMaster","pageAdmin","pageDashboard","pageProfile"]
 
 async def probe(page,width,screen):
     return await page.evaluate("""(arg)=>{
@@ -56,7 +58,11 @@ async def probe(page,width,screen):
       }).slice(0,12).map(n=>({tag:n.tagName,id:n.id,cls:String(n.className).slice(0,65),rect:rect(n)}));
       return {screen:id,viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
         page:rect(target),forms:top,dock:rect(dock),dockPosition:getComputedStyle(dock).position,
-        overflow,cssLoaded:getComputedStyle(target).fontSize};
+        overflow,cssLoaded:getComputedStyle(target).fontSize,
+        dockDisplay:getComputedStyle(dock).display,dockHTML:dock.outerHTML.slice(0,200),
+        bodyClass:document.body.className,
+        externalSheets:[...document.styleSheets].filter(x=>x.href).map(x=>x.href.split('/').pop()),
+        mobileMedia:matchMedia('(max-width:1023px)').matches};
     }""", {"width":width,"id":screen})
 
 async def main():
@@ -82,7 +88,7 @@ async def main():
           d=result["dock"]
           if result["dockPosition"]!="fixed" or d["w"]>width+3 or d["x"]< -2:
             failures.append({"width":width,"screen":name,"reason":"dock geometry","details":result})
-        if width==390 and name in ("pageSetoran","pagePenjualan","pageTabungan","pageLaporan"):
+        if width==390 and name in ("pageSetoran","pagePenjualan","pageRekonsiliasi","pageDashboard"):
           await page.screenshot(path=str(DEST/f"real-{name}-{width}.png"),full_page=True)
       await page.close()
     (DEST/"real-mobile-allpages.json").write_text(json.dumps(
