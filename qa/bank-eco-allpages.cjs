@@ -712,5 +712,16 @@ for(const match of scripts){
   parsedScriptCount++;
  }
 }
+/* A member's Setoran choice must be sourced from actual D1 Bank members,
+   never from the subset of residents with login credentials. */
+const setoranDataSource=h.split('async function loadSetoran(){')[1]?.split('function addSetoranItemRow(){')[0]||'';
+assert(setoranDataSource.includes("call('bsV9SaldoAdmin',token)") &&
+       !setoranDataSource.includes('authAdminAccounts') &&
+       setoranDataSource.includes("w.status==='Aktif'&&w.wargaId"),
+ 'Setoran dropdown must show all active Bank Sampah members from D1, not login accounts');
+const residentSheetManager=fs.readFileSync('portal-live/mobile-bottom-sheets.js','utf8');
+assert(!residentSheetManager.includes("'.f4-warga-picker-pop'") &&
+       h.includes('document.body.append(panel)'),
+ 'Resident picker must remain an anchored, scrollable dropdown rather than a draggable sheet');
 console.log('F4_BANK_ASSET_SYNTAX_AUDIT_OK',styles.length,linkedCss.length,parsedScriptCount);
 console.log('F4_BANK_CANONICAL_THEME_OK');
