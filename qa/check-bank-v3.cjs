@@ -34,10 +34,13 @@ assert(ui.includes('Belum ada pemasukan kas')===false||ui.includes('Belum ada pe
 assert(!ui.includes('id="f4BankOwnAmount"'));
 assert(!ui.includes('requestKey:ownRequestKey,depositedOn:date,amountRp'));
 // One signed sheet, three stages, no permanent extra inputs for optional leftovers.
-assert(sheet.includes('Cetak Nota Penimbangan'));
+assert(sheet.includes('print.id="f4SaleSheetPrint"') && sheet.includes('print.textContent="Cetak nota"') && sheet.includes('number.textContent="Nota timbang"'),
+ 'Signed weighing note must remain printable from the live sale sheet');
 assert(sheet.includes('groupField.after(tools)'));
 assert(!sheet.includes('tools.hidden=!batchId'));
-assert(page.includes('1. Cetak nota penimbangan → 2. Catat hasil lapak → 3. Cek & sahkan'));
+assert(page.includes('id="setoranForm"') && page.includes('id="saleForm"') &&
+       page.includes('id="pageRekonsiliasi"') && page.includes("page.id='pagePengesahan'"),
+       'Three-stage deposit, sale and approval screens must remain connected');
 assert(sheet.includes('LEMBAR TIMBANG & JUAL'));
 assert(!page.includes('Cetak Nota Penjualan'));
 assert(sheet.includes('document.createElement("details")') && sheet.includes('unsoldWrap.append(unsoldSummary,unsoldLabel)'));
@@ -47,7 +50,9 @@ assert(ui.includes('["Debit/Kredit","bank-admin-cash","wallet"]'));
 assert(ui.includes('["Saldo Warga","tabungan","coins"]'));
 assert(!ui.includes('["Profil","profile","user-round"]'));
 assert(ui.includes('$("f4BankAdminOperations")?.after(shortcuts)'));
-assert(ui.includes('dock().hidden=!isPrivate||next==="admin"'));
+assert(ui.includes('dock().hidden=!isPrivate') &&
+       ui.includes('const adminDock=[') && ui.includes('const memberDock=['),
+       'Both member and admin must retain the native five-action mobile dock');
 assert(policy.includes('el("details","f4-bank-policy-card")'));
 assert(policy.includes('card.append(head,desc,form,message)'));
 const weighing=between('// BANK_WEEKLY_WEIGHING_START','// BANK_WEEKLY_WEIGHING_END');

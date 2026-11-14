@@ -38,13 +38,13 @@ const required=[
  ['index.html',['class="f4-page-width','class="f4-cash-overview"','class="f4-cash-summary"','data-cols="2"']],
  ['pembukuan/index.html',['class="grid f4-grid mb-6" data-cols="5"',
    'class="kas-summary grid f4-grid mb-5" data-cols="4"','class="grid f4-grid mb-5" data-cols="4"']],
- ['bank-sampah/index.html',['--f4-public-grid-gap:var(--f4-grid-gap,16px)',
+ ['bank-sampah/index.html',['#v11Public .v17-public-main>*{min-width:0;max-width:100%;grid-column:1/-1}',
    '#v11Public .v17-public-main>.v17-section{margin-top:0}']],
  ['portal-live/bank-eco-pages.css',[
    '#f4BankAppHome[data-bank-role="member"]',
    '#f4BankAppHome[data-bank-role="admin"]',
    'grid-template-columns:repeat(2,minmax(0,1fr))',
-   'gap:var(--f4-grid-gap,16px)']],
+   'gap:var(--f4-grid-gap-compact,10px)']],
  ['superadmin/index.html',['.sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
    '.f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))']],
  ['portal-live/treasury-center.css',['.tc-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px)',
@@ -87,15 +87,16 @@ assert(iconStart>=0&&iconEnd>iconStart,'Gallery icon control rule missing');
 const iconRule=galleryCss.slice(iconStart,iconEnd);
 assert(!iconRule.includes('!important'),'Legacy priority returned to gallery icon controls');
 assert(iconRule.includes('display:inline-grid;place-items:center;'),'Gallery icon alignment must remain centered');
-assert(galleryCss.includes('[hidden]{display:none!important}'),'Hidden element guard must remain intact');
+assert(galleryCss.includes('[hidden]{display:none}') && !galleryCss.includes('[hidden]{display:none!important}'),
+  'Hidden element guard must work without reintroducing CSS priority');
 // Avoid mobile/desktop duplicate ownership where later canonical rules already win.
 const memberCss=read('portal-live/bank-member-polish.css');
 const dashboardCss=read('portal-live/bank-eco-dashboard.css');
 const homeOverrides=read('portal-live/home-overrides.css');
 assert(!memberCss.includes('#dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
   'Obsolete member note override returned');
-assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
-  'Canonical member note is missing');
+assert(!dashboardCss.includes('.f4-member-finance-note{') && !memberCss.includes('.f4-member-finance-note{'),
+  'Removed member note must not return as a duplicate CSS owner');
 assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,0,
   'Obsolete responsive hidden-row override returned');
 // CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
