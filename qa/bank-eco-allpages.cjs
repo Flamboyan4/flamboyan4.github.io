@@ -605,10 +605,10 @@ assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (
        css.includes('grid-template-columns:minmax(0,1fr) minmax(0,43px) minmax(0,72px) minmax(0,40px);') &&
        css.includes('#saleItems .f4-compact-sale-row>.f4-compact-entry-group{\n  display:contents') &&
        !css.includes('f4-bank-own-intro') &&
-       !css.includes('f4-bank-own-weight') &&
-       !mobile.includes('f4BankOwnWeight') &&
+       css.includes('.f4-bank-own-weight-summary{') &&
+       mobile.includes('weightValue.id="f4BankOwnWeightTotal"') &&
+       mobile.includes('function refreshOwnWeightTotal(){') &&
        !mobile.includes('f4-bank-own-intro') &&
-       !mobile.includes('updateOwnWeight') &&
        h.includes("weight.placeholder='Kg';weight.setAttribute('aria-label','Berat terjual (kg)');") &&
        h.includes("price.placeholder='Rp/kg';price.setAttribute('aria-label','Harga lapak per kilogram');") &&
        css.includes('#pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add') &&
