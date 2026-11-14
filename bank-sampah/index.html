@@ -545,7 +545,7 @@ z-index:48
 }
 #pageAdmin .v23-account-search svg,#pageMaster .f4-master-search svg{
  position:absolute;left:12px;top:50%;transform:translateY(-50%);
- width:17px;height:17px;stroke:#759184;pointer-events:none
+ width:17px;height:17px;stroke:#759184;stroke-width:2;fill:none;pointer-events:none
 }
 #pageAdmin .v23-account-search input,#pageMaster .f4-master-search input{
  box-sizing:border-box;display:block;width:100%;min-width:0;height:40px;min-height:40px;
@@ -618,12 +618,33 @@ z-index:48
 #pageAdmin .v23-account-empty,#pageMaster .f4-master-empty{
  padding:16px 6px;text-align:center;color:#718478;font-size:12px
 }
-#pageMaster .f4-master-summary{min-height:57px}
+#pageMaster .f4-master-summary{min-height:52px}
+#pageMaster .f4-master-group{padding:2px 0 4px;min-width:0}
+#pageMaster .f4-master-group+.f4-master-group{border-top:1px solid #e3ece5}
+#pageMaster .f4-master-group-heading{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:9px;padding:12px 3px 6px;min-width:0
+}
+#pageMaster .f4-master-group-heading h3{
+ display:flex;align-items:center;gap:8px;margin:0;color:#185d42;
+ font-size:13px;line-height:1.3;font-weight:850
+}
+#pageMaster .f4-master-group-heading h3::before{
+ content:"";width:7px;height:7px;border-radius:50%;background:#009788;flex:none
+}
+#pageMaster .f4-master-group:nth-child(2) .f4-master-group-heading h3::before{background:#09bcd3}
+#pageMaster .f4-master-group:nth-child(3) .f4-master-group-heading h3::before{background:#43a047}
+#pageMaster .f4-master-group:nth-child(4) .f4-master-group-heading h3::before{background:#e2ab22}
+#pageMaster .f4-master-group-heading span{
+ color:#698578;font-size:10.5px;font-weight:700;white-space:nowrap
+}
+#pageMaster .f4-master-group-list{min-width:0}
+#pageMaster .f4-master-group-list .f4-master-row:last-child{border-bottom:0}
 #pageMaster .f4-master-amount{
- display:grid;justify-items:end;gap:2px;flex:none;min-width:0
+ display:grid;justify-items:end;gap:0;flex:none;min-width:0
 }
 #pageMaster .f4-master-amount strong{
- font-size:13.5px;color:#168359;font-weight:850;
+ font-size:13px;color:#168359;font-weight:850;
  line-height:1.2;font-variant-numeric:tabular-nums;white-space:nowrap
 }
 #pageMaster .f4-master-amount small{font-size:10px;color:#7d9084}
@@ -635,8 +656,16 @@ z-index:48
  border:0;border-radius:0;background:transparent;color:#75877b;
  font-size:11px;line-height:1.4
 }
+body.f4-bank-app-admin #dashboardView #pageAdmin>.toolbar{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:9px;flex-wrap:nowrap;margin-bottom:12px
+}
+body.f4-bank-app-admin #dashboardView #pageAdmin>.toolbar h2{
+ flex:1;min-width:0;margin:0;font-size:20px;line-height:1.25
+}
 body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions{
- display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0
+ display:flex;align-items:center;justify-content:flex-end;gap:7px;
+ min-width:0;flex:none;width:auto;margin:0
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button{
  display:inline-flex;align-items:center;justify-content:center;
@@ -647,15 +676,21 @@ body.f4-bank-app-admin #dashboardView #pageAdmin #bulkBtn{
  background:#009788;border:1px solid #009788;color:#fff
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button.secondary{
- width:38px;min-width:38px;padding:8px;
- background:#fff;border:1px solid #d8e9df;color:#167450
+ box-sizing:border-box;display:grid;place-items:center;flex:none;
+ width:38px;min-width:38px;height:38px;min-height:38px;padding:8px;
+ background:#fff;border:1px solid #d8e9df;border-radius:11px;color:#167450
+}
+body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions #bulkBtn[hidden]{display:none}
+body.f4-bank-app-admin #dashboardView #pageAdmin #bulkProgress:empty{display:none}
+body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
+ display:block;width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none
 }
 #pageAdmin .f4-bank-admin-actions svg,#pageMaster .toolbar button svg{
  display:block;flex:none;width:18px;height:18px;stroke:currentColor;fill:none
 }
 @media(max-width:720px){
- body.f4-bank-app-admin #dashboardView #pageAdmin>.toolbar{align-items:center;gap:9px}
- body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions{width:100%;justify-content:flex-end}
+ body.f4-bank-app-admin #dashboardView #pageAdmin>.toolbar{align-items:center;gap:9px;flex-wrap:nowrap}
+ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions{width:auto;justify-content:flex-end}
  #pageAdmin .v23-account-tools,#pageMaster .f4-master-tools{padding:10px;gap:8px}
  #pageAdmin #v23AccountRows,#pageMaster .f4-master-rows{padding:0 11px}
  #pageAdmin .v23-account-detail{padding-left:1px}
@@ -2532,9 +2567,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           const name=document.createElement('strong');name.textContent=b.nama||'Barang';
           identity.append(name);
           const price=document.createElement('span');price.className='f4-master-amount';
-          const value=document.createElement('strong');value.textContent=Number(b.tarif)>0?rupiah(b.tarif):'Belum ada tarif';
-          const unit=document.createElement('small');unit.textContent=Number(b.tarif)>0?'Tarif warga /kg':'';
-          price.append(value,unit);
+          const value=document.createElement('strong');value.textContent=Number(b.tarif)>0?rupiah(b.tarif)+'/kg':'Belum ada tarif';
+          price.append(value);
           const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
           arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');arrow.setAttribute('stroke-width','2');
           arrow.setAttribute('stroke-linecap','round');arrow.setAttribute('aria-hidden','true');arrow.classList.add('f4-master-chevron');arrow.innerHTML='<path d="m9 5 7 7-7 7"/>';
