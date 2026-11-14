@@ -2530,8 +2530,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           const summary=document.createElement('summary');summary.className='f4-master-summary';
           const identity=document.createElement('span');identity.className='f4-master-identity';
           const name=document.createElement('strong');name.textContent=b.nama||'Barang';
-          const group=document.createElement('small');group.textContent=b.kelompok||'Lainnya';
-          identity.append(name,group);
+          identity.append(name);
           const price=document.createElement('span');price.className='f4-master-amount';
           const value=document.createElement('strong');value.textContent=Number(b.tarif)>0?rupiah(b.tarif):'Belum ada tarif';
           const unit=document.createElement('small');unit.textContent=Number(b.tarif)>0?'Tarif warga /kg':'';
