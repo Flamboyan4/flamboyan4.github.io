@@ -40,7 +40,7 @@ jobs:
         run: node qa/bank-eco-allpages.cjs
       - name: Reject CSS priority and duplicate owners repository-wide
         run: node qa/css-cascade-ownership.cjs
-      - name: Validate Bank Sampah sale and member workflow
+      - name: Enforce zero duplicate CSS ownership on Bank Sampah\n        run: node qa/verify-css-ownership.cjs\n      - name: Validate Bank Sampah sale and member workflow
         run: |
           node --check cloudflare/worker-terpadu-operasional-teruji.js
           node --check portal-live/bank-sale-sheet.js
