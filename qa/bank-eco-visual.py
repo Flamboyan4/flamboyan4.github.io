@@ -372,7 +372,7 @@ async def main():
             print("PUBLIC_PROGRAM_LIVE_OK",mode,live,flush=True)
             assert live["parent"]=="v17-public-main",live
             assert live["count"]==3 and not live["cropped"],live
-            assert live["color"]=="rgb(18, 63, 43)",live
+            assert live["color"]=="rgb(33, 78, 55)",live
             assert live["background"]=="rgba(0, 0, 0, 0)",live
             assert live["columns"]==(1 if mode=="hp" else 3),live
             await page.screenshot(path=str(DEST / (mode+"-public.png")), full_page=False)
@@ -394,7 +394,6 @@ async def main():
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-pages.css")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-eco-dashboard.css")
             await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-impact-summary.css")
-            await page.add_style_tag(url="http://127.0.0.1:8765/portal-live/bank-impact-summary.css")
             await page.wait_for_timeout(300)
             state = await page.evaluate("""() => {
               const e = (s) => document.querySelector(s);
@@ -404,7 +403,7 @@ async def main():
                 const x=n.getBoundingClientRect();return {x:x.x,y:x.y,w:x.width,h:x.height}
               });
               return {
-                banner:color('#v11Public .v17-public-banner','backgroundColor'),
+                banner:color('#v11Public .v17-public-banner','backgroundImage'),
                 title:color('#v11Public .v17-public-banner h2','color'),
                 button:color('#f4-public-manage-bank','backgroundColor'),
                 buttonText:color('#f4-public-manage-bank','color'),
@@ -430,7 +429,7 @@ async def main():
             await page.screenshot(path=str(DEST / (mode+"-fixture.png")), full_page=True)
             result[mode] = state
             print("VISUAL_STATE",mode,json.dumps(state,ensure_ascii=False),flush=True)
-            assert state["banner"]=="rgb(67, 160, 71)", f"{mode}: hero should use flat green: {state['banner']}"
+            assert "linear-gradient(" in state["banner"] and "rgb(7, 90, 61)" in state["banner"], f"{mode}: hero should use the deep leaf-green gradient: {state['banner']}"
             assert state["title"] == "rgb(255, 255, 255)", f"{mode}: title not white"
             assert state["button"] == "rgb(253, 192, 16)", f"{mode}: CTA not palette yellow"
             assert state["buttonText"] == "rgb(37, 65, 45)", f"{mode}: CTA must have readable dark green text"
