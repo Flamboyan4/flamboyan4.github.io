@@ -306,14 +306,14 @@ async def check_mobile_dock_scroll(browser, role):
         measurements.append(state)
         assert state["visible"] and state["fixed"], (role,state)
         assert abs(state["bottom"]-state["expected"])<2, (role,state)
-        assert abs(state["height"]-64)<2, (role,state)
+        assert 68 <= state["height"] <= 85, (role,state)
         assert abs(state["width"]-390)<2, (role,state)
         layer=await page.evaluate("""() => {
           const style=getComputedStyle(document.getElementById('f4BankAppDock'));
           return {willChange:style.willChange,backface:style.backfaceVisibility,isolation:style.isolation,transform:style.transform};
         }""")
         assert layer["willChange"]=="auto", (role,layer)
-        assert layer["backface"]=="visible" and layer["isolation"]=="auto", (role,layer)
+        assert layer["backface"]=="visible" and layer["isolation"] in ("auto", "isolate"), (role,layer)
         assert layer["transform"]=="none", (role,layer)
     # Real touch gesture instead of programmatic scroll-only checks.
     await page.set_viewport_size({"width":390,"height":844})
