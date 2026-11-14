@@ -58,7 +58,7 @@ async def main():
   assert info['menu']['x']>=0 and info['menu']['right']<=info['vw']+2,info
   assert abs(info['menu']['x']-info['trigger']['x'])<5,info
   await page.locator('.f4-bank-select-popover .f4-control-search').fill('Warga 17')
-  await page.get_by_role('option',name='Warga 17').click()
+  await page.locator('.f4-bank-select-popover').get_by_role('option',name='Warga 17').click()
   state=await page.evaluate("""()=>({selected:document.querySelector('#setWarga').value,
      changes:window.changes,open:!!document.querySelector('.f4-bank-select-dropdown')})""")
   assert state=={"selected":"17","changes":1,"open":False},state
