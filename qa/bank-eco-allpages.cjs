@@ -374,11 +374,17 @@ assert(mobile.includes('if(nextDesktop===desktopLayout)return;') &&
        mobile.includes('if(role==="admin")ensureAdminHome();') &&
        !mobile.includes('updateAdminDockViewport'),
  'Mobile Chrome height-only resize must not rebuild manager home or move dock');
-assert(dockCss.includes('isolation:isolate;will-change:transform;') &&
-       dockCss.includes('-webkit-backface-visibility:hidden;backface-visibility:hidden') &&
-       !dockCss.includes('transform:translate3d(0,') &&
+assert(!dockCss.includes('will-change:transform') &&
+       !dockCss.includes('backface-visibility:hidden') &&
+       !dockCss.includes('isolation:isolate') &&
+       !dockCss.includes('translate3d(') &&
        dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
- 'Fixed dock must have independent paint layer without scroll-linked translation');
+ 'Dock fixed must avoid forced transform compositing on Chrome Android');
+assert(h.includes("const pub=$('v11Public');\n    if(!pub||pub.classList.contains('hidden')||document.body.classList.contains('v17-dashboard'))return;") &&
+       h.includes("if($('v11Public')?.classList.contains('hidden'))return;") &&
+       css.includes('background:radial-gradient(ellipse,#ffffff22 0%,#ffffff0c 60%,transparent 100%)') &&
+       !css.includes('filter:blur(13px)'),
+ 'Admin scroll must not run hidden public observers or hero filter blur');
 assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(nav);') &&
        !mobile.includes('f4-bank-admin-dock-root') &&
        !mobile.includes('f4-bank-dock-viewport-shift') &&
