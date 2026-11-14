@@ -314,7 +314,7 @@ assert(dockCss.includes('body.f4-bank-app-private,html.f4-bank-admin-dock-root{-
        dockCss.includes('transform:translateY(var(--f4-bank-dock-viewport-shift,0px))') &&
        dockCss.includes('grid-template-rows:27px 15px'),
  'Both roles must share a single matching navigation and safe-area layout');
-assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
+assert(dockCss.includes('position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px)') &&
        dockCss.includes('border:3px solid #fff;border-radius:50%') &&
        dockCss.includes('background:#ffc719') &&
        dockCss.includes('.f4-bank-payout-rp-icon text{') &&
