@@ -1251,7 +1251,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
 #pageTabungan .f4-saldo-part small{font-size:11px;font-weight:550;line-height:1.35;color:#f0fff0bb}
 #pageTabungan .f4-saldo-part strong{font-size:clamp(16px,1.7vw,21px);line-height:1.2;color:#fff;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #pageTabungan .f4-savings-utility{display:flex;justify-content:flex-end;gap:8px;min-width:0;margin:11px 0 18px}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #09bcd3;border-radius:13px;background:#09bcd3;color:#143d45;font-size:12.5px;font-weight:800;box-shadow:none}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #09bcd3;border-radius:13px;background:#09bcd3;color:#fff;font-size:12.5px;font-weight:800;box-shadow:none}
 body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#009788;border-color:#009788;color:#fff}
 
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
@@ -1281,9 +1281,9 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9List{width:100%;max-width:10
 #pageTabungan #v9List .f4-saldo-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:61px;min-width:0;padding:9px 11px;border:1px solid #e5ede6;border-radius:12px;background:#f9fbf8}
 #pageTabungan #v9List .f4-saldo-row:nth-child(even){background:#fff}
 #pageTabungan #v9List .f4-saldo-row[hidden]{display:none}
-#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#e5f1d8;color:#357448;font-size:13px;font-weight:850}
-#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#f9ecda;color:#9b6b38}
-#pageTabungan #v9List .f4-saldo-row:nth-child(3n+3) .f4-saldo-avatar{background:#e8eff8;color:#55769a}
+#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#009788;color:#fff;font-size:13px;font-weight:850}
+#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#09bcd3;color:#fff}
+#pageTabungan #v9List .f4-saldo-row:nth-child(3n+3) .f4-saldo-avatar{background:#43a047;color:#fff}
 #pageTabungan #v9List .f4-saldo-person{display:grid;gap:2px;min-width:0}
 #pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204535;font-weight:800;overflow-wrap:anywhere}
 #pageTabungan #v9List .f4-saldo-house{font-size:11.5px;color:#72887a;line-height:1.3}
@@ -2910,7 +2910,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     let extra=$('v33ReportMore');
     if(!extra){
       extra=document.createElement('details');extra.id='v33ReportMore';extra.className='v33-report-more';
-      const label=document.createElement('summary');label.textContent='Ringkasan lainnya';
+      const label=document.createElement('summary');label.textContent='Rincian lainnya';
       const grid=document.createElement('div');grid.id='v33ReportMoreMetrics';grid.className='metric-grid';
       extra.append(label,grid);summary.insertAdjacentElement('afterend',extra);
     }
@@ -2922,7 +2922,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const area=$('v10ReportTable');area.replaceChildren();
     const sections=v10SelectedSections();
     if(!sections.length){area.textContent='Pilih jenis laporan.';return;}
+    const emptyNames=[];
     sections.forEach(({key,spec,rows})=>{
+      if(!rows.length){emptyNames.push(spec.title);return;}
       const section=document.createElement('section');section.className='f4-report-section';
       const title=document.createElement('h2');title.textContent=spec.title+' ('+rows.length+')';
       title.className='v33-report-table-title';
@@ -2930,6 +2932,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
       scroll.appendChild(v10MakeTable(spec,rows,key));
       section.append(title,scroll);area.appendChild(section);
     });
+    if(emptyNames.length){
+      const detail=document.createElement('details');detail.className='f4-report-empty-group';
+      const summary=document.createElement('summary');
+      summary.textContent=emptyNames.length===sections.length
+        ?'Belum ada transaksi pada periode ini'
+        :emptyNames.length+' kategori tanpa transaksi';
+      const details=document.createElement('p');details.textContent=emptyNames.join(' · ');
+      detail.append(summary,details);area.append(detail);
+    }
   }
   function v10PrintReport(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const root=$('v10Print');root.replaceChildren();const title=document.createElement('h1');title.textContent='BANK SAMPAH FLAMBOYAN 4';const sub=document.createElement('p');sub.textContent='Laporan administrasi • '+v10ReportData.periode+' • Dicetak '+new Date().toLocaleDateString('id-ID');root.append(title,sub);const summary=document.createElement('p');const r=v10ReportData.ringkasan;summary.textContent='Setoran '+r.jumlahSetoran+' | Penjualan '+r.jumlahPenjualan+' | Uang diterima '+rupiah(r.diterima)+' | Hak warga '+rupiah(r.hakWargaDikredit)+' | Dicairkan '+rupiah(r.tabunganDicairkan)+' | Biaya '+rupiah(r.biaya)+' | Setoran Bank '+rupiah(r.setoranBankRp||0);root.appendChild(summary);v10SelectedSections().forEach(({key,spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title;root.append(heading,v10MakeTable(spec,rows,key));});const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);window.print();}
   function v10DownloadCSV(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const sections=v10SelectedSections(),lines=[];if(!sections.length){note('v10ReportNotice','Pilih minimal satu jenis data.',true);return;}const safe=value=>{let s=String(value??'');if(/^[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};sections.forEach(({spec,rows})=>{lines.push([safe(spec.title)]);lines.push(spec.fields.map(([,label])=>safe(label)));rows.forEach(r=>lines.push(spec.fields.map(([key])=>safe(r[key]))));lines.push([]);});const csv='\ufeff'+lines.map(r=>r.join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='BankSampah_Flamboyan4_'+(v10ReportData.periode||'semua')+'_'+sections.map(x=>x.key).join('-')+'.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
@@ -4045,7 +4056,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const seenToken=token,period=$('v10Month')?.value||'';$('v17FinanceNote').textContent='Memuat arus kas...';
     try{const [d,members]=await Promise.all([call('bsV17RingkasanKasAdmin',seenToken,period),call('bsV9SaldoAdmin',seenToken)]);if(token!==seenToken)return;
       const warga=members.reduce((n,x)=>n+Number(x.saldo||0),0);
-      $('v17FinanceKpis').replaceChildren(v17Kpi('Kas milik Bank Sampah',rupiah(d.kasMilikBankRp),true),v17Kpi('Hak warga',rupiah(warga)),v17Kpi('Kas lingkungan / lorong',rupiah(d.kasLingkunganRp)),v17Kpi('Kas gabungan',rupiah(d.kasTercatat)));
+      $('v17FinanceKpis').replaceChildren(v17Kpi('Kas gabungan',rupiah(d.kasTercatat),true),v17Kpi('Kas milik Bank Sampah',rupiah(d.kasMilikBankRp)),v17Kpi('Hak warga',rupiah(warga)),v17Kpi('Kas lingkungan',rupiah(d.kasLingkunganRp)));
       v17Chart($('v17FinanceBars'),d.bulanan,['masuk','keluar'],['Masuk','Keluar']);
       const list=$('v17FinanceDetails');list.replaceChildren();
       d.rincian.forEach(x=>{const line=document.createElement('div');line.className='v17-line';const name=document.createElement('span');name.textContent=x.jenis;
@@ -5588,7 +5599,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const initial=/^\d{4}-(0[1-9]|1[0-2])$/.test(month.value)?month.value:fallback;
     month.value=initial;
     const form=document.createElement('section');form.id='v33ReportControls';form.className='v33-report-controls';
-    const title=document.createElement('h3');title.className='v33-report-title';title.textContent='Cetak & Unduh Laporan';
+    const title=document.createElement('h3');title.className='v33-report-title';title.textContent='Buat laporan';
     form.append(title);
     const row=document.createElement('div');row.className='v33-report-row';
     const period=document.createElement('div');period.className='v33-report-period';
@@ -5685,7 +5696,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     syncAuditInline();
     const updateChoice=()=>{
       const total=list.querySelectorAll('input[data-report-section]:checked').length;
-      optionsLabel.textContent='Jenis data laporan • '+total+' dari '+Object.keys(v10Specs).length+' dipilih';
+      optionsLabel.textContent='Rincian laporan ('+total+'/'+Object.keys(v10Specs).length+')';
       count.textContent=total+' dari '+Object.keys(v10Specs).length+' jenis data dipilih';
       if(total===0)count.textContent='Pilih minimal 1 jenis data';
       if(v10ReportData)v10RenderReport();
