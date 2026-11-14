@@ -896,7 +896,7 @@ async def compact_sale_form(browser):
     """Use the actual sale markup and live CSS; never submit to the API."""
     import pathlib,re
     html=pathlib.Path("bank-sampah/index.html").read_text()
-    match=re.search(r'<div id="pagePenjualan" class="card hidden">[^\\n]*',html)
+    match=re.search(r'<div id="pagePenjualan" class="card hidden">[^\n]*',html)
     assert match,"Live sale form markup not found"
     sale=match.group(0).replace('class="card hidden"','class="card f4-bank-admin-unframed"',1)
     sale=sale.replace('id="saleItems" class="tablewrap">Memuat...',
