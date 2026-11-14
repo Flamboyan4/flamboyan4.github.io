@@ -103,7 +103,7 @@ function selectPicker(field,trigger){
  const current=list.querySelector('[aria-selected=true]');
  // Never scroll the document to a fixed dropdown or force the Android
  // keyboard when the user merely opens a choice list.
- if(current)panel.scrollTop=Math.max(0,current.offsetTop-panel.offsetTop-12);
+ if(current)panel.scrollTop=Math.max(0,current.offsetTop-24);
 
 }
 function formatValue(field){
