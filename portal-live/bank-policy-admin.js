@@ -40,7 +40,7 @@
   submit.type="submit";form.append(submit);
   const message=el("p","f4-bank-policy-status","");message.id="f4BankPolicyStatus";message.setAttribute("role","status");
   card.append(head,desc,form,message);
-  page.append(card);
+  const priceList=$("masterList");if(priceList)priceList.before(card);else page.append(card);
   form.onsubmit=async event=>{
    event.preventDefault();if(loading)return;
    if(!window.confirm("Aturan baru berlaku untuk penjualan yang disiapkan setelah tanggal efektif. Data sah lama tidak berubah. Simpan?"))return;
@@ -101,7 +101,7 @@
   const save=el("button","f4-bank-gold-action","Simpan jadwal");
   save.type="submit";save.disabled=true;
   form.append(freqRow,dayRow,anchorRow,monthRow,preview,save,status);
-  card.append(heading,form);page.append(card);
+  card.append(heading,form);const priceList=$("masterList");if(priceList)priceList.before(card);else page.append(card);
   const endpoint="https://api.flamboyan4.web.id";
   let loaded=null,busy=false,supportsRecurrence=false;
   const parseDay=raw=>new Date(raw+"T00:00:00Z");
