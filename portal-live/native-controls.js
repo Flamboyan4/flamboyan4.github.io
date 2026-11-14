@@ -12,26 +12,28 @@ const fmtDate=value=>{
 };
 function close(fromBack=false){
  if(!overlay)return;
- const last=overlay._trigger,reposition=overlay._reposition;
+ const last=overlay._trigger,stopPosition=overlay._stopPosition;
+ stopPosition?.();
  overlay.remove();overlay=null;
  document.body.classList.remove('f4-custom-picker-open');
- if(reposition)window.visualViewport?.removeEventListener('resize',reposition);
  window.F4MobileSheets?.refresh?.();
  if(!fromBack&&history.state?.f4PickerEntry)history.back();
  last?.focus?.({preventScroll:true});
 }
 window.addEventListener('popstate',()=>{if(overlay)close(true)});
-function start(trigger,title,dropdown=false){
- // Switching from one Bank picker to another replaces the temporary history
- // guard instead of adding a second Back step or racing history.back().
+function start(trigger,title,dropdown=false,options={}){
+ // Selects and calendars in Bank Sampah are anchored dropdowns.
+ // Other portals keep the bottom-sheet date picker.
  const reuse=!!overlay&&document.body.classList.contains('f4-direct-bank');
  if(overlay)close(reuse);
  const mask=document.createElement('div');mask.className='f4-control-overlay';mask.setAttribute('role','presentation');
  if(dropdown)mask.classList.add('f4-bank-select-dropdown');
+ if(options.kind==='calendar')mask.classList.add('f4-bank-calendar-dropdown');
  const panel=document.createElement('section');panel.className='f4-control-panel';
- panel.setAttribute('role',dropdown?'region':'dialog');
+ panel.setAttribute('role',options.kind==='calendar'?'dialog':dropdown?'region':'dialog');
  if(!dropdown)panel.setAttribute('aria-modal','true');
  if(dropdown)panel.classList.add('f4-bank-select-popover');
+ if(options.kind==='calendar')panel.classList.add('f4-bank-calendar-popover');
  panel.setAttribute('aria-label',title);
  const head=document.createElement('header');head.className='f4-control-header';
  const h=document.createElement('strong');h.textContent=title;
@@ -46,17 +48,33 @@ function start(trigger,title,dropdown=false){
    const r=trigger.getBoundingClientRect(),v=window.visualViewport;
    const left=v?.offsetLeft||0,top=v?.offsetTop||0;
    const vw=v?.width||innerWidth,vh=v?.height||innerHeight;
-   const width=Math.min(Math.max(0,r.width),Math.max(0,vw-16));
-   const x=Math.max(left+8,Math.min(r.left,left+vw-8-width));
-   const below=Math.max(0,top+vh-r.bottom-12),above=Math.max(0,r.top-top-12);
-   const up=below<195&&above>below;
-   const maxHeight=Math.max(100,Math.min(380,up?above:below));
+   const width=Math.min(Math.max(r.width,options.minWidth||0),Math.max(0,vw-16));
+   const x=Math.max(left+8,Math.min(r.left,left+vw-width-8));
+   // Recalculate after options/calendar render. Never make the calendar as
+   // narrow as its date input when the input occupies half a form row.
+   panel.style.maxHeight='none';
+   const natural=Math.max(90,panel.scrollHeight);
+   const desired=Math.min(natural,options.kind==='calendar'?510:380);
+   const below=Math.max(0,top+vh-r.bottom-10);
+   const above=Math.max(0,r.top-top-10);
+   const up=below<desired&&above>below;
+   const maxHeight=Math.max(90,Math.min(desired,up?above:below,Math.max(90,vh-16)));
+   const y=up?Math.max(top+8,r.top-maxHeight-6):Math.min(top+vh-8-maxHeight,r.bottom+6);
    panel.style.left=x+'px';panel.style.width=width+'px';
-   panel.style.maxHeight=maxHeight+'px';
-   panel.style.top=(up?Math.max(top+8,r.top-Math.min(panel.scrollHeight,maxHeight)-6):r.bottom+6)+'px';
+   panel.style.maxHeight=maxHeight+'px';panel.style.top=Math.max(top+8,y)+'px';
   };
+  const onScroll=e=>{if(!mask.contains(e.target))position()};
   mask._reposition=position;
+  mask._stopPosition=()=>{
+   window.removeEventListener('resize',position);
+   window.removeEventListener('scroll',onScroll,true);
+   window.visualViewport?.removeEventListener('resize',position);
+   window.visualViewport?.removeEventListener('scroll',position);
+  };
+  window.addEventListener('resize',position,{passive:true});
+  window.addEventListener('scroll',onScroll,{passive:true,capture:true});
   window.visualViewport?.addEventListener('resize',position,{passive:true});
+  window.visualViewport?.addEventListener('scroll',position,{passive:true});
   position();
  }
  document.body.classList.add('f4-custom-picker-open');
@@ -75,12 +93,15 @@ function action(field,value){
 function selectPicker(field,trigger){
  const options=[...field.options].map(o=>({value:o.value,label:o.textContent,disabled:o.disabled,group:o.parentElement?.label||''}));
  const dropdown=!!document.body.classList.contains('f4-direct-bank');
- const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',dropdown);
+ const goods=!!field.closest('#saleItems,#setBarang,#f4BankOwnLines');
+ const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',
+  dropdown,{kind:'select',minWidth:goods?300:options.length>10?276:0});
  if(options.length>10){
+  const searchRow=document.createElement('div');searchRow.className='f4-bank-picker-search-row';
   const input=document.createElement('input');input.type='search';input.className='f4-control-search';
   input.placeholder='Cari pilihan…';input.setAttribute('aria-label','Cari pilihan');
-  panel.append(input);
-  input.oninput=()=>paint(input.value);
+  searchRow.append(input);panel.append(searchRow);
+  input.oninput=()=>{paint(input.value);requestAnimationFrame(()=>overlay?._reposition?.())};
  }
  const list=document.createElement('div');list.className='f4-control-list';list.setAttribute('role','listbox');
  panel.append(list);
@@ -103,7 +124,7 @@ function selectPicker(field,trigger){
  const current=list.querySelector('[aria-selected=true]');
  // Never scroll the document to a fixed dropdown or force the Android
  // keyboard when the user merely opens a choice list.
- if(current)panel.scrollTop=Math.max(0,current.offsetTop-24);
+ if(current)list.scrollTop=Math.max(0,current.offsetTop-list.offsetTop-8);
 
 }
 function formatValue(field){
@@ -119,7 +140,9 @@ function calendar(field,trigger){
  const match=String(field.value||'').match(/^(\d{4})-(\d{2})/);
  if(match){y=Number(match[1]);m=Number(match[2])-1}
  else{const now=new Date();y=now.getFullYear();m=now.getMonth()}
- const panel=start(trigger,kind==='month'?'Pilih bulan':'Pilih tanggal');
+ const anchored=!!document.body.classList.contains('f4-direct-bank');
+ const panel=start(trigger,kind==='month'?'Pilih bulan':'Pilih tanggal',anchored,
+  {kind:'calendar',minWidth:318});
  const nav=document.createElement('div');nav.className='f4-control-calendar-nav';
  const prev=document.createElement('button');prev.type='button';prev.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';prev.setAttribute('aria-label','Bulan atau tahun sebelumnya');
  const heading=document.createElement('strong');
@@ -160,6 +183,7 @@ function calendar(field,trigger){
     if(field.value===v)b.classList.add('selected');
     b.onclick=()=>{input.value=v;action(field,v)};grid.append(b);
    });
+   if(anchored)requestAnimationFrame(()=>overlay?._reposition?.());
    return;
   }
   const weekdays=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
@@ -173,6 +197,7 @@ function calendar(field,trigger){
    b.disabled=!valid(v);if(field.value===v)b.classList.add('selected');
    b.onclick=()=>action(field,v);grid.append(b);
   }
+  if(anchored)requestAnimationFrame(()=>overlay?._reposition?.());
  }
  prev.onclick=()=>{if(kind==='month')y--;else{m--;if(m<0){m=11;y--}}render()};
  next.onclick=()=>{if(kind==='month')y++;else{m++;if(m>11){m=0;y++}}render()};
