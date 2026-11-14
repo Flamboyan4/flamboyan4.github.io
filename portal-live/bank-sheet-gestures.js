@@ -14,14 +14,15 @@
   '.v24-edit-overlay > .v24-edit-card',
   '.f4-activity-dialog > .f4-activity-dialog-panel',
   '.f4-ui-dialog > .f4-ui-dialog-panel',
-  '#f4-work-notice > .f4-work-notice-panel'
+  '#f4-work-notice > .f4-work-notice-panel',
+  '.f4-control-overlay > .f4-control-panel'
  ].join(',');
  const attached=new WeakSet();
  let activeGesture=null;
  function root(panel){
   return panel.matches('dialog')?panel:panel.closest(
    '#f4-tx-receipt-dialog,#f4-direct-dialog,.v21-modal,#credentialModal,'+
-   '.v24-edit-overlay,.f4-activity-dialog,.f4-ui-dialog,#f4-work-notice')||panel;
+   '.v24-edit-overlay,.f4-activity-dialog,.f4-ui-dialog,#f4-work-notice,.f4-control-overlay')||panel;
  }
  function visible(panel){
   if(!panel?.isConnected||panel.hidden||panel.classList.contains('hidden'))return false;
@@ -51,7 +52,8 @@
    'v24ProgressOverlay':'#v24Close',
    'credentialModal':'[onclick*="closeCredential"]',
    'f4-direct-dialog':'#f4-direct-close-login',
-   'f4-tx-receipt-dialog':'.f4-tx-close'
+   'f4-tx-receipt-dialog':'.f4-tx-close',
+   'f4-control-overlay':'.f4-control-x'
   };
   const target=parent.querySelector(selectors[parent.id]||
     '.f4-activity-dialog-close,.f4-ui-dialog-cancel,.f4-work-notice-close,'+
