@@ -141,6 +141,53 @@ async def main():
                             results.append({"engine":engine_name,"width":width,"desktop":desktop,"failures":problems})
                         if width in (1024,1366):
                             await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-home.png"))
+                    # Render actual legacy-v18 Setoran history component on
+                    # the real Bank Sampah page (no login and no D1 mutation).
+                    if width in (390,1366):
+                        await page.evaluate(MEASURE,"pageRiwayat")
+                        history_layout=await page.evaluate("""() => {
+                          const host=document.getElementById('riwayatList');
+                          const sample={id:'qa-estimasi',namaWarga:'Heri Juwandi',
+                            rumahWarga:'A5/08',tanggal:'2026-11-15',berat:1.25,
+                            beratTimbang:1.25,estimasi:2500,status:'Estimasi'};
+                          const fn=typeof v7HistoryCard==='function'?v7HistoryCard:null;
+                          if(!host||!fn)return {exists:false,reason:'renderer or host missing'};
+                          const confirmed={...sample,id:'qa-sah',status:'Terkonfirmasi',nilaiSahRp:2750};
+                          const canceled={...sample,id:'qa-batal',status:'Dibatalkan'};
+                          host.replaceChildren(fn(sample,'setoran'),fn(confirmed,'setoran'),fn(canceled,'setoran'));
+                          return {
+                            exists:true, cards:[...host.querySelectorAll('.f4-admin-deposit-card')].map(card=>{
+                              const r=card.getBoundingClientRect();
+                              const buttons=[...card.querySelectorAll('button')];
+                              return {width:r.width,right:r.right,
+                                position:getComputedStyle(card).display,
+                                actions:buttons.map(b=>({text:b.textContent.trim(),disabled:b.disabled})),
+                                hasExpand:!!card.querySelector('.f4-bs-detail-button,details,.details-panel,[aria-expanded]'),
+                                meta:card.querySelector('.f4-admin-deposit-meta')?.textContent,
+                                receiptItems:card.querySelectorAll('.f4-admin-deposit-receipt').length
+                              };
+                            })
+                          };
+                        }""")
+                        failures=[]
+                        if not history_layout['exists'] or len(history_layout.get('cards',[]))!=3:
+                            failures.append('real Setoran history renderer did not produce 3 cards')
+                        else:
+                            for index,card in enumerate(history_layout['cards']):
+                                if (card['width']<160 or card['right']>width+2
+                                    or card['position']!='grid' or card['hasExpand']
+                                    or card['receiptItems']!=1
+                                    or len(card['actions'])!=2
+                                    or [a['text'] for a in card['actions']]!=['Resi','Batalkan']):
+                                    failures.append('Setoran row still has expand/details or malformed actions')
+                                if card['actions'][1]['disabled']!=(index!=0):
+                                    failures.append('Setoran cancellation rights changed')
+                                if '2026-11-15' not in (card.get('meta') or ''):
+                                    failures.append('Setoran date not visible')
+                        if failures:
+                            results.append({'engine':engine_name,'width':width,
+                                'historyLayout':history_layout,'failures':failures})
+                        await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-deposit-history.png"))
                     # Setoran Warga: the action must follow actual item fields,
                     # never float alongside the heading (desktop and mobile).
                     if width in (320,390,412,768,1024,1366,1920):
