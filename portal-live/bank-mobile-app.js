@@ -88,7 +88,15 @@ function action([title,route,asset],dock=false){
 }
 function dock(){
  let nav=$("f4BankAppDock");
- if(!nav){nav=el("nav","f4-bank-app-dock");nav.id="f4BankAppDock";nav.setAttribute("aria-label","Menu bawah Bank Sampah");document.body.append(nav);}
+ if(!nav){
+  nav=el("nav","f4-bank-app-dock");
+  nav.id="f4BankAppDock";
+  nav.setAttribute("aria-label","Menu bawah Bank Sampah");
+ }
+ // Isolasi dock pengelola dari body yang bergulir di browser HP.
+ // Lokasi dock anggota tidak berubah.
+ const host=roleType()==="admin"?document.documentElement:document.body;
+ if(nav.parentNode!==host)host.append(nav);
  return nav;
 }
 function markDock(){
@@ -2310,6 +2318,7 @@ window.f4BankResetForAccountSwitch=()=>{
  resetRoleSurface();
  role=null;memberStatement=null;adminOverview=null;
  dock().replaceChildren();
+ document.documentElement.classList.remove("f4-bank-admin-dock-root");
  document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
  $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
  memberSide(false);syncAdminPageFrames();
@@ -2320,6 +2329,7 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
+ document.documentElement.classList.toggle("f4-bank-admin-dock-root",isPrivate&&next==="admin");
  dock().hidden=!isPrivate;
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
