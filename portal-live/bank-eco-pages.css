@@ -2259,7 +2259,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   background:#0097880b;color:#007e71
  }
  body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px
  }
  body.f4-bank-app-admin #dashboardView #pageLaporan .v33-report-row{
   grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)
