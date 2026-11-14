@@ -2381,6 +2381,8 @@ function sync(){
   ensureAdminProfile();
  }
  markDock();refreshSources();
+ // Reset stale horizontal pan only when entering an authenticated surface.
+ if(window.scrollX>0)window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
 }
 function refreshSources(){
  const p=$("v14Primary"),q=$("v14Extra");
@@ -2558,7 +2560,15 @@ function init(){
  if(typeof original==="function")window.goPage=function(route,...args){
    window.f4BankPageHistory?.begin?.();
    try{return handleRoute(route,original,args)}
-   finally{window.f4BankPageHistory?.end?.(screen)}
+   finally{
+    window.f4BankPageHistory?.end?.(screen);
+    // The previous operational form can leave the document horizontally
+    // panned on narrow phones. Navigation must always restore left origin,
+    // never retain the previous tab's offset.
+    if(window.scrollX>0||document.documentElement.scrollLeft>0){
+     window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
+    }
+   }
   };
   window.f4BankAppCurrentRoute=()=>screen;
  const view=$("dashboardView");
