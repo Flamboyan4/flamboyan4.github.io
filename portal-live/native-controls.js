@@ -12,10 +12,10 @@ const fmtDate=value=>{
 };
 function close(fromBack=false){
  if(!overlay)return;
- const last=overlay._trigger;
+ const last=overlay._trigger,reposition=overlay._reposition;
  overlay.remove();overlay=null;
  document.body.classList.remove('f4-custom-picker-open');
- if(overlay?._reposition)window.visualViewport?.removeEventListener('resize',overlay._reposition);
+ if(reposition)window.visualViewport?.removeEventListener('resize',reposition);
  window.F4MobileSheets?.refresh?.();
  if(!fromBack&&history.state?.f4PickerEntry)history.back();
  last?.focus?.({preventScroll:true});
