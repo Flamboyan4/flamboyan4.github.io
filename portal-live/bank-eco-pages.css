@@ -2223,7 +2223,14 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
   grid-column:2;grid-row:2;align-self:start;min-width:0;gap:14px
  }
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side)>:is(.summary-box,.field,.f4-sale-payment-fields,.f4-sale-note-fields){
+ body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-entry-right>.f4-sale-side{
+  box-sizing:border-box;padding:17px 19px;border:1px solid #e6efea;
+  border-radius:20px;background:#fff;box-shadow:0 4px 13px #153f2a09
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.f4-bank-sheet-tools{
+  order:4
+ }
+ body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-entry-right>.f4-setoran-side>:is(.summary-box,.field){
   box-sizing:border-box;margin:0;padding:18px 20px;
   border:1px solid #e6efea;border-radius:21px;
   background:#fff;box-shadow:0 5px 19px #153f2a0a
