@@ -1838,7 +1838,7 @@ function combineAdminApproval(){
   reconDetails.id="f4BankReconDetails";
   reconDetails.className="f4-bank-recon-details";
   const summary=document.createElement("summary");
-  summary.textContent="Cek selisih penimbangan";
+  summary.innerHTML='<span>Cek selisih penimbangan</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   reconDetails.append(summary);
   const note=root.querySelector(":scope > .pill-note");
   const reconPicker=$("reconBatch")?.closest(".field");
