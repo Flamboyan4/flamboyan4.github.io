@@ -1021,7 +1021,13 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 body.f4-bank-app-admin{
  --bank-sidebar-width:226px;
  --bank-admin-forest:#174630;--bank-admin-leaf:#318651;--bank-admin-lime:#78a45c;
- --bank-admin-gold:#fdc010;--bank-admin-line:#dce8de
+ --bank-admin-gold:#fdc010;--bank-admin-line:#dce8de;
+ --bank-admin-canvas:#f7faf8;background:var(--bank-admin-canvas)
+}
+/* One continuous admin canvas, including the otherwise-white empty space
+   below short pages and the footer. Cards remain white, not the shell. */
+body.f4-bank-app-admin :is(.shell,.content,#dashboardView,#dashboardView>.grid,.footer){
+ background:var(--bank-admin-canvas)
 }
 body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:12px;--bank-control-font:13px}
 /* Admin page shells have no outer card at any breakpoint; inner cards remain. */
@@ -1658,10 +1664,10 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  body.f4-bank-app-admin #sideNav .v16-nav-caption{
   padding:11px 10px 7px;color:#819489;font-size:10px;letter-spacing:.06em
  }
- body.f4-bank-app-admin #sideNav #v16NavList{gap:3px}
+ body.f4-bank-app-admin #sideNav #v16NavList{gap:1px}
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
-  min-height:44px;padding:9px 11px;gap:11px;
-  border-radius:11px;font-size:13px;line-height:1.25
+  min-height:37px;padding:7px 10px;gap:10px;
+  border-radius:10px;font-size:12.5px;line-height:1.25
  }
  /* Setoran dan Penjualan tetap tersedia melalui dua tombol utama di Beranda. */
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="deposit"],[data-group="sale"]){
@@ -1816,30 +1822,46 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-side>.f4-bank-gold-action{
   display:contents
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-fields{
-  grid-column:1/-1;grid-row:1;display:grid;gap:12px;
+  grid-column:2;grid-row:1;display:grid;gap:12px;
   box-sizing:border-box;padding:20px 23px;border:1px solid #e6efea;
   border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{
-  grid-column:1;grid-row:2;min-width:0
+  grid-column:1;grid-row:1/span 4;min-width:0
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
   padding:20px 23px;border:1px solid #e6efea;border-radius:22px;
   background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
+ body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-weight-summary{
+  grid-column:2;grid-row:2
+ }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-field{
-  grid-column:2;grid-row:2;box-sizing:border-box;display:grid;
+  grid-column:2;grid-row:3;box-sizing:border-box;display:grid;
   align-content:start;gap:12px;margin:0;padding:20px 23px;
   border:1px solid #e6efea;border-radius:22px;
   background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{
-  grid-column:2;grid-row:3;justify-self:stretch;
+  grid-column:2;grid-row:4;justify-self:stretch;
   min-height:50px;margin:0;border-radius:15px;background:#009788;color:#fff
  }
  body.f4-bank-app-admin #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{
-  grid-column:2;grid-row:4
+  grid-column:2;grid-row:5
  }
+}
+/* Live weight of Bank Sampah's own stock; separate from warga's hak. */
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-weight-summary{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ box-sizing:border-box;min-width:0;padding:19px 22px;
+ border:1px solid #e6efea;border-radius:22px;background:#fff;
+ box-shadow:0 5px 19px #153f2a0a
+}
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-weight-summary small{
+ color:#6a8077;font-size:12px;font-weight:700
+}
+body.f4-bank-app-admin #pageSetoran .f4-bank-own-weight-summary strong{
+ color:#43a047;font-size:19px;font-weight:850;white-space:nowrap
 }
 .f4-bank-own-price-hint{font-size:11px;font-weight:500;color:#6e8377}
 .f4-compact-add{
@@ -2371,7 +2393,9 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 }
 /* Responsive Bank Sampah: one sidebar category, submenu tabs in content. */
 @media(min-width:1024px){
- body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px;background:#fff}
+ body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px}
+ body.f4-bank-app-admin #dashboardView .section{background:var(--bank-admin-canvas)}
+ body.f4-bank-app-member #dashboardView .section{background:#fff}
  body.f4-bank-app-private #dashboardView #pageDashboard{padding:0;background:transparent}
  body.f4-bank-app-private #dashboardView #f4BankAppHome{width:100%;max-width:1120px;margin-inline:auto;gap:14px;align-items:stretch}
  /* Member layout is defined once below, with a single composition at every width. */
@@ -2429,7 +2453,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  body.f4-bank-app-admin #dashboardView :is(#pageSetoran,#pagePenjualan) :is(#setBarang,#saleItems){
   width:100%;max-width:100%;min-width:0
  }
- /* PC forms: metadata card spans full width, goods and totals sit in separate aligned cards. */
+ /* PC forms: only Penjualan uses full-width metadata.
+    Setoran Warga keeps member/date together inside the RIGHT column. */
  body.f4-bank-app-admin #dashboardView{
   --bank-input-h:48px;--bank-form-gap:14px
  }
@@ -2441,19 +2466,26 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   display:contents
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>.f4-entry-top-fields{
-  box-sizing:border-box;grid-column:1/-1;grid-row:1;
-  padding:21px 23px;border:1px solid #e6efea;
+  box-sizing:border-box;padding:21px 23px;border:1px solid #e6efea;
   border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-entry-right>.f4-entry-top-fields{
+  grid-column:1/-1;grid-row:1
+ }
+ body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-entry-right>.f4-entry-top-fields{
+  grid-column:2;grid-row:1;padding:18px 17px
  }
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field,
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:first-child{
   grid-column:span 4
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>:is(.f4-sale-main,.f4-setoran-main){
-  box-sizing:border-box;grid-column:1;grid-row:2;align-self:start;
+  box-sizing:border-box;grid-column:1;align-self:start;
   padding:22px 23px;border:1px solid #e6efea;
   border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
+ body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-sale-main{grid-row:2}
+ body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-setoran-main{grid-row:1/span 2}
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
   grid-column:2;grid-row:2;align-self:start;min-width:0;gap:14px
  }
