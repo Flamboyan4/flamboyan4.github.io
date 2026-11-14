@@ -141,6 +141,56 @@ async def main():
                             results.append({"engine":engine_name,"width":width,"desktop":desktop,"failures":problems})
                         if width in (1024,1366):
                             await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-home.png"))
+                    # Check the user's actual desktop Setoran screen: the
+                    # live member/date controls belong right of goods and above kg.
+                    if width >= 1024:
+                        await page.evaluate(MEASURE,"pageSetoran")
+                        setoran=await page.evaluate("""() => {
+                          const r=(selector)=>{
+                            const e=document.querySelector(selector);
+                            if(!e)return null;
+                            const x=e.getBoundingClientRect();
+                            return {left:x.left,right:x.right,top:x.top,bottom:x.bottom};
+                          };
+                          const color=selector=>{
+                            const e=document.querySelector(selector);
+                            return e?getComputedStyle(e).backgroundColor:null;
+                          };
+                          const entry=document.querySelector('#sideNav #v16NavList>.v16-item');
+                          return {
+                            name:r('#setoranForm #setWarga')||r('#setoranForm .f4-warga-picker'),
+                            date:r('#setoranForm #setDate'),
+                            meta:r('#setoranForm .f4-entry-top-fields'),
+                            main:r('#setoranForm .f4-setoran-main'),
+                            summary:r('#setoranForm .f4-setoran-side>.summary-box'),
+                            sidebarHeight:entry?.getBoundingClientRect().height||0,
+                            colors:{
+                              body:color('body'),shell:color('.shell'),content:color('.content'),
+                              section:color('#dashboardView>.grid>.section'),footer:color('.footer')
+                            }};
+                        }""")
+                        setoran_fail=[]
+                        name,date,meta,main,summary=(setoran.get(k) for k in
+                            ('name','date','meta','main','summary'))
+                        if not all((name,date,meta,main,summary)):
+                            setoran_fail.append('real Setoran form input/grid is missing')
+                        else:
+                            if meta['left'] < main['right']+5 or abs(meta['left']-summary['left'])>3:
+                                setoran_fail.append('member/date card not above total in the right column')
+                            if name['right']>date['left']+5 or abs(name['top']-date['top'])>3:
+                                setoran_fail.append('member/date fields no longer side by side')
+                            if meta['bottom']>summary['top']+2:
+                                setoran_fail.append('total weight appears above member/date card')
+                        if setoran['sidebarHeight']>41:
+                            setoran_fail.append('desktop sidebar menu remains too tall')
+                        colors=setoran['colors']
+                        if len(set(colors.values()))!=1:
+                            setoran_fail.append('background remains striped between body, content and footer')
+                        if setoran_fail:
+                            results.append({'engine':engine_name,'width':width,
+                                'setoran':setoran,'failures':setoran_fail})
+                        if width==1366:
+                            await page.screenshot(path=str(OUT/f"{engine_name}-1366-setoran-right.png"))
                     for page_id in PAGES:
                         state=await page.evaluate(MEASURE,page_id)
                         failures=[]
