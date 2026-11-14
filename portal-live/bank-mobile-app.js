@@ -1555,14 +1555,25 @@ function ensureOwnDepositForm(){
   note.append(noteInput);
   const save=el("button","f4-bank-gold-action","Simpan Setoran Bank");save.type="submit";
   const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
+  const weightTotal=el("div","f4-bank-own-weight-summary");
+  const weightValue=el("strong","","0 kg");weightValue.id="f4BankOwnWeightTotal";
+  weightTotal.append(el("small","","Total berat"),weightValue);
   const main=el("div","f4-bank-own-main"),side=el("div","f4-bank-own-side");
-  main.append(detail);side.append(fields,note,save,status);
+  main.append(detail);side.append(fields,weightTotal,note,save,status);
   form.append(main,side);
   form.onsubmit=submitOwnDeposit;tabs.after(form);
  }
  chooseOwnMode(ownFormMode);
 }
 
+function refreshOwnWeightTotal(){
+ const host=$("f4BankOwnLines"),value=$("f4BankOwnWeightTotal");
+ if(!host||!value)return;
+ const sum=[...host.querySelectorAll('input[data-own-weight="1"]')]
+  .reduce((total,input)=>total+Math.max(0,Number(input.value)||0),0);
+ // Keep decimal precision stable without changing the stored gram calculation.
+ value.textContent=Number(sum.toFixed(3)).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+}
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
  if(lines.childElementCount>=30)return;
@@ -1573,12 +1584,13 @@ function addOwnItemRow(){
   const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
  weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
  weight.setAttribute("aria-label","Berat sampah kilogram");
+ weight.addEventListener("input",refreshOwnWeightTotal);
  const del=el("button","f4-compact-remove");del.type="button";
  del.title="Hapus jenis";del.setAttribute("aria-label","Hapus jenis");
- del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();if(!lines.childElementCount)addOwnItemRow();};
+ del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();if(!lines.childElementCount)addOwnItemRow();refreshOwnWeightTotal();};
  const amountGroup=el("div","f4-compact-entry-group");
  amountGroup.append(weight,del);
- row.append(select,amountGroup);lines.append(row);
+ row.append(select,amountGroup);lines.append(row);refreshOwnWeightTotal();
 }
 async function loadOwnCatalog(){
  if(!$("f4BankOwnDepositForm")||ownFormMode!=="bank")return;
