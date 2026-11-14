@@ -2387,10 +2387,9 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
  margin:0 14px 13px;color:#176c47;font-size:11px;line-height:1.4
 }
 @media(max-width:640px){
- #pageMaster .f4-bank-policy-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #pageMaster .f4-bank-policy-form{grid-template-columns:repeat(2,minmax(0,1fr));margin-inline:12px}
  #pageMaster .f4-bank-policy-form>label:nth-child(3){grid-column:1/-1}
  #pageMaster :is(.f4-bank-policy-summary,.f4-bank-weighing-summary){padding:12px}
- #pageMaster .f4-bank-policy-form{margin-inline:12px}
  #pageMaster .f4-bank-policy-desc{margin-inline:12px}
  #pageMaster .f4-bank-policy-status:not(:empty){margin-inline:12px}
 }
