@@ -66,6 +66,14 @@ function roleType(){
  const r=String(document.body.dataset.f4BankRole||"").toLowerCase();
  return ["admin","superadmin"].includes(r)?"admin":["warga","anggota"].includes(r)?"member":null;
 }
+// Reuse the exact SVG component in the manager dock and PC action card.
+function bankSaleCartIcon(){
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+ svg.classList.add("f4-bank-cart-icon");
+ svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
+ return svg;
+}
 function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
@@ -82,11 +90,7 @@ function action([title,route,asset],dock=false){
   svg.innerHTML='<text x="36" y="45" text-anchor="middle">Rp</text>';
   symbol.append(svg);
  }else if(dock&&route==="penjualan"){
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
-  svg.classList.add("f4-bank-cart-icon");
-  svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
-  symbol.append(svg);
+  symbol.append(bankSaleCartIcon());
  }else symbol.append(image(asset));
  b.append(symbol);
  if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title));
@@ -334,6 +338,10 @@ function ensureHome(){
  }
  const legacyPanels=page.querySelector(".v14-panels");
  if(legacyPanels&&legacyPanels.parentElement!==reservoir)reservoir.append(legacyPanels);
+ // Satu kartu anggota aktif terpasang di kartu saldo pengelola.
+ const minis=$("f4BankAppMinis"),adminHero=$("f4BankAppAdminHero");
+ const minisHost=role==="admin"?adminHero:hub;
+ if(minis&&minisHost&&minis.parentElement!==minisHost)minisHost.append(minis);
  updateDashboard();
  if(role==="admin")ensureAdminHome();
 }
@@ -450,8 +458,8 @@ function updateDashboard(){
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
   text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—");
   text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—");
-  const opts=current?[["Hak warga",rupiah(current.hakWargaBelumCairRp)],["Kas lingkungan",rupiah(current.kasLingkunganRp)],["Anggota aktif",current.wargaAktif]]:
-   [["Hak warga","—"],["Kas lingkungan","—"],["Anggota aktif",map.get("Anggota aktif")]];
+  // Pos hak warga dan kas lingkungan sudah ditampilkan di kartu saldo utama.
+  const opts=[["Anggota aktif",current?.wargaAktif??map.get("Anggota aktif")??"—"]];
   $("f4BankAppMinis")?.replaceChildren(...opts.map(([label,value])=>{
    const members=label==="Anggota aktif";
    const node=el(members?"button":"div","f4-bank-app-mini"+(members?" f4-bank-admin-members-link":""));
@@ -1431,12 +1439,8 @@ function adminOperation(label,detail,route,primary){
  const button=el("button","f4-bank-admin-operation"+(primary?" is-primary":""));
  button.type="button";button.dataset.bankAppRoute=route;
  const icon=el("span","f4-bank-admin-operation-icon");
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
- svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
- svg.innerHTML=primary
-  ?'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8m-4-4h8"/>'
-  :adminShortcutPaths.wallet;
- icon.append(svg);
+ // Sama persis dengan Setoran (daur ulang) dan Penjualan (keranjang) di menu bawah.
+ icon.append(route==="setoran"?image("bank.svg"):bankSaleCartIcon());
  const copy=el("span","f4-bank-admin-operation-copy");
  copy.append(el("strong","",label));
  if(detail)copy.append(el("small","",detail));
