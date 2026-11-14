@@ -79,7 +79,8 @@ async def main():
             browser=await getattr(p,engine_name).launch(args=["--no-sandbox"] if engine_name=="chromium" else [])
             for width in SIZES:
                 context=await browser.new_context(viewport={"width":width,"height":844},
-                    device_scale_factor=1)
+                    device_scale_factor=1,is_mobile=width<1024 and engine_name=="chromium",
+                    has_touch=width<1024)
                 page=await context.new_page()
                 errors=[]
                 page.on("pageerror",lambda e:errors.append(str(e)[:250]))
@@ -106,6 +107,40 @@ async def main():
                         if failures:
                             state["failures"]=failures
                         results.append({"engine":engine_name,"width":width,**state})
+
+                    if width in (320, 390, 412):
+                        # Exercise the original website's real enhanced controls,
+                        # not a detached sample picker or a synthetic page.
+                        await page.evaluate(MEASURE,"pagePenjualan")
+                        picker=page.locator("#saleBatch + .f4-control-trigger")
+                        if await picker.count():
+                            await picker.click()
+                            dropdown=await page.evaluate("""() => {
+                              const root=document.querySelector('.f4-bank-select-dropdown');
+                              const r=root?.querySelector('.f4-bank-select-popover')?.getBoundingClientRect();
+                              return {exists:!!root,left:r?.left,right:r?.right,
+                                isSheet:!!root?.querySelector('.f4-sheet-draggable')};
+                            }""")
+                            if not dropdown["exists"] or dropdown["left"] < -1 or dropdown["right"] > width+1 or dropdown["isSheet"]:
+                                results.append({"engine":engine_name,"width":width,
+                                  "failures":["dropdown not anchored within viewport"],"dropdown":dropdown})
+                            await page.go_back(wait_until="domcontentloaded")
+                            if await page.locator(".f4-bank-select-dropdown").count():
+                                results.append({"engine":engine_name,"width":width,
+                                  "failures":["Back did not close select dropdown"]})
+                        picker=page.locator("#saleDate + .f4-control-trigger")
+                        if await picker.count():
+                            await picker.click()
+                            has_calendar=await page.evaluate("""() =>
+                              !!document.querySelector('.f4-control-calendar') &&
+                              !!document.querySelector('.f4-control-overlay:not(.f4-bank-select-dropdown)')""")
+                            if not has_calendar:
+                                results.append({"engine":engine_name,"width":width,
+                                    "failures":["date calendar did not open"]})
+                            await page.go_back(wait_until="domcontentloaded")
+                            if await page.locator(".f4-control-overlay").count():
+                                results.append({"engine":engine_name,"width":width,
+                                  "failures":["Back did not close date calendar"]})
                     if width in (360,390,1366):
                         await page.evaluate(MEASURE,"pagePenjualan")
                         await page.screenshot(path=str(OUT/f"{engine_name}-{width}-sale.png"))
