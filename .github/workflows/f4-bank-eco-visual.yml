@@ -6,6 +6,7 @@ on:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
       - portal-live/bank-mobile-app.js
+      - portal-live/bank-mobile-dock.css
       - portal-live/live-bank-readonly.js
       - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
@@ -15,6 +16,7 @@ on:
       - bank-sampah/index.html
       - portal-live/bank-eco-pages.css
       - portal-live/bank-mobile-app.js
+      - portal-live/bank-mobile-dock.css
       - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
       - .github/workflows/f4-bank-eco-visual.yml
