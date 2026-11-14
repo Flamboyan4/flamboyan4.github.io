@@ -50,20 +50,6 @@
   content:"";display:block;flex:none;width:42px;height:4px;
   margin:10px auto 0;border-radius:10px;background:#d7e1da
  }
- /* Pemilih warga juga naik dari bawah, bukan melayang di tengah. */
- body .f4-warga-picker-pop{
-  position:fixed;inset:auto 0 0;top:auto;bottom:0;
-  width:100%;max-height:min(82dvh,720px);
-  overflow:hidden;overscroll-behavior:contain;
-  padding:22px 14px calc(17px + env(safe-area-inset-bottom,0px));
-  border:1px solid #d9e8dd;border-bottom:0;border-radius:22px 22px 0 0;
-  box-shadow:0 0 0 100vmax rgba(14,31,21,.52),0 -16px 40px rgba(15,33,22,.2);
-  animation:f4-sheet-up .23s ease-out
- }
- body .f4-warga-picker-pop:before{
-  content:"";display:block;flex:none;width:42px;height:4px;
-  margin:-10px auto 15px;border-radius:10px;background:#d7e1da
- }
  /* Superadmin: editor akun, laporan Jersey dan kalender Pusat Keuangan. */
  body .sa-account-shade,
  body .f4-jersey-print-veil,
@@ -100,8 +86,6 @@
  body .f4-activity-dialog .f4-activity-dialog-scroll{
   min-height:0;overflow-y:auto;overscroll-behavior:contain
  }
- body .f4-warga-picker-pop{z-index:25000;min-width:0}
- body .f4-warga-picker-pop .f4-warga-picker-table{flex:1;min-height:0;overflow-y:auto}
  body :is(.sa-account-shade .sa-account-modal,.f4-jersey-print-veil .f4-jersey-print-dialog,.tc-date-overlay .tc-date-dialog){
   max-width:100%;box-sizing:border-box
  }
@@ -270,7 +254,7 @@
  #credentialModal>.f4-bank-credential-panel,
  body .v24-edit-overlay .v24-edit-card,
  body .f4-activity-dialog .f4-activity-dialog-panel,
- body .f4-warga-picker-pop,
+ body 
  body .sa-account-shade .sa-account-modal,
  body .f4-jersey-print-veil .f4-jersey-print-dialog,
  body .tc-date-overlay .tc-date-dialog{animation:none}
@@ -288,7 +272,7 @@
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
-  .f4-activity-dialog-panel,.f4-warga-picker-pop,.sa-account-modal,
+  .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,
   .f4-pm-dialog,.f4-user-year-popover,.f4-ui-dialog-panel,
   .f4-work-notice-panel,.edit-modal-card,#modal-koreksi-migrasi>div,
@@ -300,7 +284,7 @@
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
-  .f4-activity-dialog-panel,.f4-warga-picker-pop,.sa-account-modal,
+  .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,
   .f4-pm-dialog,.f4-user-year-popover,.f4-ui-dialog-panel,
   .f4-work-notice-panel,.edit-modal-card,#modal-koreksi-migrasi>div,
@@ -335,7 +319,7 @@
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
-  .f4-activity-dialog-panel,.f4-warga-picker-pop,.sa-account-modal,
+  .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,.f4-pm-dialog,
   .f4-user-year-popover,.f4-ui-dialog-panel,.f4-work-notice-panel,
   .edit-modal-card,#modal-koreksi-migrasi>div,
@@ -357,7 +341,7 @@
 
 /* v9: Hidden overlays must not intercept taps on mobile OR desktop. */
 body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
-  .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.f4-warga-picker-pop,
+  .v21-modal,.v24-edit-overlay,.f4-activity-dialog,
   .sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,.f4-ui-dialog,
   #f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
   #modal-cetak-kas,#modal-keuangan,#modal-jersey,#modal-dokumentasi,
@@ -415,7 +399,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
-  .f4-activity-dialog-panel,.f4-warga-picker-pop,.sa-account-modal,
+  .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,.f4-pm-dialog,
   .f4-user-year-popover,.f4-ui-dialog-panel,.f4-work-notice-panel,
   .edit-modal-card,#modal-koreksi-migrasi>div,
