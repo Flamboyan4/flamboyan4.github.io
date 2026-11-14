@@ -19,10 +19,10 @@
   // Permission is verified by the API before showing the policy editor.
   const card=el("details","f4-bank-policy-card");card.id="f4BankPolicyCard";card.hidden=true;
   const head=el("summary","f4-bank-policy-summary");
-  const title=el("strong","","Aturan Harga & Bagi Hasil");
+  const title=el("strong","","Aturan bagi hasil");
   const current=el("span","f4-bank-policy-current","Memuat aturan...");current.id="f4BankPolicyCurrent";
   head.append(title,current);
-  const desc=el("p","f4-bank-policy-desc","Aturan baru hanya berlaku ke depan. Transaksi sah lama tidak berubah.");
+  const desc=el("p","f4-bank-policy-desc","Perubahan hanya untuk transaksi berikutnya.");
   const form=el("form","f4-bank-policy-form");
   const method=el("select");method.name="method";method.required=true;
   method.add(new Option("Bagi hasil persentase","percentage"));
@@ -33,12 +33,12 @@
   const pctLabel=group("Hak warga (%)",pct);
   const change=()=>{pctLabel.hidden=method.value!=="percentage";pct.required=method.value==="percentage"};
   method.onchange=change;change();
-  form.append(group("Metode yang berlaku",method),group("Mulai tanggal",effective),pctLabel);
-  const submit=el("button","f4-bank-gold-action","Simpan Aturan Baru");
+  form.append(group("Metode",method),group("Berlaku mulai",effective),pctLabel);
+  const submit=el("button","f4-bank-gold-action","Simpan aturan");
   submit.type="submit";form.append(submit);
   const message=el("p","f4-bank-policy-status","");message.id="f4BankPolicyStatus";message.setAttribute("role","status");
   card.append(head,desc,form,message);
-  page.prepend(card);
+  page.append(card);
   form.onsubmit=async event=>{
    event.preventDefault();if(loading)return;
    if(!window.confirm("Aturan baru berlaku untuk penjualan yang disiapkan setelah tanggal efektif. Data sah lama tidak berubah. Simpan?"))return;
@@ -60,11 +60,8 @@
     if(data.canEdit!==true){card.remove();return;}
     card.hidden=false;
     form.hidden=false;
-    desc.textContent=data.canEdit===true?
-      "Aturan baru berlaku untuk penjualan berikutnya. Transaksi sah lama tetap.":
-      "Perubahan aturan hanya untuk Superadmin.";
-    current.textContent="Aktif: "+(active.method==="fixed_buy_price"?"Harga beli tetap per jenis":"Bagi hasil "+active.wargaPercent+"% warga / "+(100-active.wargaPercent)+"% Bank")+
-      (active.effectiveFrom?" · berlaku sejak "+active.effectiveFrom:" · metode lama");
+    desc.textContent="Perubahan hanya berlaku untuk penjualan berikutnya. Data lama tetap.";
+    current.textContent=active.method==="fixed_buy_price"?"Harga beli tetap":(active.wargaPercent??50)+"% warga · "+(100-(active.wargaPercent??50))+"% bank";
     if(!form.dataset.initialized){
      method.value=active.method||"percentage";pct.value=String(active.wargaPercent??50);change();form.dataset.initialized="1";
     }
@@ -79,8 +76,10 @@
  function initWeighing(){
   const page=$("pageMaster");
   if(!page||page.classList.contains("hidden")||$("f4BankWeighingCard"))return;
-  const card=el("section","f4-bank-weighing-editor");card.id="f4BankWeighingCard";card.hidden=true;
-  const heading=el("h3","","Jadwal Penimbangan");
+  const card=el("details","f4-bank-weighing-editor");card.id="f4BankWeighingCard";card.hidden=true;
+  const heading=el("summary","f4-bank-weighing-summary");
+  const title=el("strong","","Jadwal penimbangan"),next=el("small","f4-bank-weighing-next","Memuat jadwal…");
+  heading.append(title,next);
   const form=el("form","f4-bank-weighing-form");
   const freq=el("select");
   [["weekly","Setiap minggu"],["biweekly","Setiap 2 minggu"],["monthly","Setiap bulan"]].forEach(([value,label])=>freq.add(new Option(label,value)));
@@ -90,14 +89,15 @@
   const dayOfMonth=el("select");for(let n=1;n<=31;n++)dayOfMonth.add(new Option("Tanggal "+n,String(n)));
   const labeled=(label,input)=>{const node=el("label");node.append(el("span","",label),input);return node;};
   const freqRow=labeled("Frekuensi",freq),dayRow=labeled("Hari penimbangan",weekday);
-  const anchorRow=labeled("Tanggal pelaksanaan pertama",anchor),monthRow=labeled("Tanggal setiap bulan",dayOfMonth);
+  const anchorRow=labeled("Tanggal pertama",anchor),monthRow=labeled("Tanggal bulanan",dayOfMonth);
+  anchorRow.classList.add("f4-bank-weighing-anchor");monthRow.classList.add("f4-bank-weighing-monthly");
   const preview=el("p","f4-bank-weighing-preview","Memuat jadwal…");
   const status=el("p","f4-bank-weighing-status","");
   status.setAttribute("role","status");status.setAttribute("aria-live","polite");
-  const save=el("button","f4-bank-gold-action","Simpan Jadwal");
+  const save=el("button","f4-bank-gold-action","Simpan jadwal");
   save.type="submit";save.disabled=true;
   form.append(freqRow,dayRow,anchorRow,monthRow,preview,save,status);
-  card.append(heading,form);page.prepend(card);
+  card.append(heading,form);page.append(card);
   const endpoint="https://api.flamboyan4.web.id";
   let loaded=null,busy=false,supportsRecurrence=false;
   const parseDay=raw=>new Date(raw+"T00:00:00Z");
@@ -111,7 +111,7 @@
     date.setUTCDate(date.getUTCDate()+(Number(weekday.value)-date.getUTCDay()+7)%7);
    }else if(freq.value==="biweekly"){
     const start=parseDay(anchor.value);
-    if(!Number.isFinite(start.getTime())){preview.textContent="Pilih tanggal pertama yang valid.";return;}
+    if(!Number.isFinite(start.getTime())){preview.textContent="Pilih tanggal pertama yang valid.";next.textContent="Atur tanggal";return;}
     const diff=Math.ceil((now-start)/86400000),cycles=Math.max(0,Math.ceil(diff/14));
     date=new Date(start);date.setUTCDate(start.getUTCDate()+cycles*14);
     if(anchor.value)weekday.value=String(start.getUTCDay());
@@ -122,7 +122,8 @@
      date=new Date(Date.UTC(y,m+1,Math.min(target,new Date(Date.UTC(y,m+2,0)).getUTCDate())));
     }
    }
-   preview.textContent="Penimbangan berikutnya: "+fmt(date);
+   next.textContent=fmt(date);
+   preview.textContent="Berikutnya: "+fmt(date);
   }
   function refresh(){
    calculate();
