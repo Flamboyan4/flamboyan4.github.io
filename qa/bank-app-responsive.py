@@ -517,7 +517,7 @@ async def bank_real_mobile_dock_bidirectional_scroll(browser):
 
 
 async def public_chart_and_flat_roster(browser):
-    """Actual Bank Sampah styles: 33 saldo rows follow page scroll; public chart switches units."""
+    """Actual Bank Sampah styles: 33 balances; PC compact scroller, HP page scroll."""
     import re
     from pathlib import Path
     source=Path("bank-sampah/index.html").read_text(encoding="utf-8")
@@ -526,7 +526,8 @@ async def public_chart_and_flat_roster(browser):
     if not roster_css or 'CSS owner consolidated from #f4-bank-savings-compact-20261028' not in roster_css.group(1):
         raise AssertionError("Consolidated roster stylesheet unavailable")
     rows="".join(
-        '<div class="f4-saldo-row" role="listitem"><div class="f4-saldo-person">'
+        '<div class="f4-saldo-row" data-balance="positive" role="listitem">'
+        '<span class="f4-saldo-avatar">W</span><div class="f4-saldo-person">'
         f'<strong class="f4-saldo-name">Warga {i}</strong><small class="f4-saldo-house">A5/{i}</small>'
         f'</div><strong class="f4-saldo-amount">Rp {i*1000:,}</strong></div>'
         for i in range(1,34))
@@ -548,20 +549,28 @@ async def public_chart_and_flat_roster(browser):
         await page.set_content(markup,wait_until="load")
         values=await page.evaluate("""() => {
           const area=document.querySelector("#v9List"),frame=document.querySelector(".f4-savings-roster");
-          const last=document.querySelector(".f4-saldo-row:last-child");
           return {count:document.querySelectorAll(".f4-saldo-row").length,
             overflow:getComputedStyle(area).overflowY,maxHeight:getComputedStyle(area).maxHeight,
             paneBorder:getComputedStyle(frame).borderTopWidth,areaBorder:getComputedStyle(area).borderTopWidth,
+            areaScrollHeight:area.scrollHeight,areaViewport:area.clientHeight,
             scrollHeight:document.documentElement.scrollHeight,viewport:innerHeight,
-            lastBottom:last.getBoundingClientRect().bottom,overflowX:document.documentElement.scrollWidth>innerWidth+2};
+            overflowX:document.documentElement.scrollWidth>innerWidth+2};
         }""")
-        assert values["count"]==33,(label,values)
-        assert values["overflow"]=="visible" and values["maxHeight"]=="none",(label,values)
-        assert values["paneBorder"]=="0px" and values["areaBorder"]=="0px",(label,values)
-        assert values["scrollHeight"]>values["viewport"]+300 and not values["overflowX"],(label,values)
-        await page.evaluate("window.scrollTo(0,document.documentElement.scrollHeight)")
-        assert await page.evaluate("scrollY>300"),(label,values)
-        print("FLAT_MANAGER_ROSTER_OK",label,values,flush=True)
+        assert values["count"]==33 and not values["overflowX"],(label,values)
+        assert values["areaBorder"]=="0px",(label,values)
+        if label=="pc":
+            assert values["overflow"]=="auto" and values["maxHeight"]=="470px",(label,values)
+            assert values["paneBorder"]=="1px",(label,values)
+            assert values["areaScrollHeight"]>values["areaViewport"]+100,(label,values)
+            await page.evaluate('document.querySelector("#v9List").scrollTop=130')
+            assert await page.evaluate('document.querySelector("#v9List").scrollTop>50'),(label,values)
+        else:
+            assert values["overflow"]=="visible" and values["maxHeight"]=="none",(label,values)
+            assert values["paneBorder"]=="0px",(label,values)
+            assert values["scrollHeight"]>values["viewport"]+300,(label,values)
+            await page.evaluate("window.scrollTo(0,document.documentElement.scrollHeight)")
+            assert await page.evaluate("scrollY>300"),(label,values)
+        print("COMPACT_MANAGER_ROSTER_OK",label,values,flush=True)
         await page.close()
 
     def between(start,end):
