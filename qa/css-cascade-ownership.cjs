@@ -85,7 +85,7 @@ const bankThemeFiles=[
 ];
 const combinedBankTheme=bankThemeFiles.map(path=>{
  const source=fs.readFileSync(path,'utf8');
- return path.endsWith('.html')?[...source.matchAll(/<style\\b[^>]*>([\\s\\S]*?)<\\/style>/gi)].map(m=>m[1]).join('\n'):source;
+ return path.endsWith('.html')?[...source.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(m=>m[1]).join('\n'):source;
 }).join('\n');
 const crossFileCollisions=duplicates(combinedBankTheme);
 assert.equal(crossFileCollisions.length,0,
@@ -93,8 +93,8 @@ assert.equal(crossFileCollisions.length,0,
 // Within a single declaration block, earlier same-name properties are dead CSS.
 // This is checked separately from repeated selectors to block legacy inline stacking.
 const duplicateProperties=[];
-for(const [i,block] of [...combinedBankTheme.matchAll(/\\{([^{}]*)\\}/g)].entries()){
- const declarations=[...block[1].matchAll(/(?:^|;)\\s*([\\w-]+)\\s*:/g)].map(m=>m[1].toLowerCase());
+for(const [i,block] of [...combinedBankTheme.matchAll(/\{([^{}]*)\}/g)].entries()){
+ const declarations=[...block[1].matchAll(/(?:^|;)\s*([\w-]+)\s*:/g)].map(m=>m[1].toLowerCase());
  const found=new Set();
  for(const property of declarations){
   if(found.has(property)){duplicateProperties.push({block:i,property});break;}
