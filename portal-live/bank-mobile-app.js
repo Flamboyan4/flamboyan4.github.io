@@ -1816,9 +1816,11 @@ function ensureAdminReportLink(){
  if(!page||$("f4BankAdminProgressLink"))return;
  const link=el("button","f4-bank-secondary-action f4-bank-report-progress-link","Perkembangan");
  link.id="f4BankAdminProgressLink";link.type="button";
+ link.setAttribute("aria-label","Lihat perkembangan Bank Sampah");
+ link.insertAdjacentHTML("afterbegin",'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>');
  link.onclick=()=>navigate("bank-admin-progress");
  const head=page.querySelector(":scope > h2");
- if(head)head.after(link);else page.prepend(link);
+ if(head)head.append(link);else page.prepend(link);
 }
 function combineAdminApproval(){
  const root=$("pageRekonsiliasi"),approval=$("pagePengesahan");
