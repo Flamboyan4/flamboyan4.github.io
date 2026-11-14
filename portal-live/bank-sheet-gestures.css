@@ -1,4 +1,5 @@
 /* Bank Sampah: one phone-only sheet gesture layer. Desktop modal stays unchanged. */
+.f4-bank-gesture-sheet>.f4-bank-sheet-grip{display:none}
 @media(max-width:767px){
  dialog.f4-bank-sheet-modal{
   inset:auto 0 0;margin:0;width:100%;max-width:100%;
