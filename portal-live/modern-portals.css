@@ -1454,3 +1454,32 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
   .f4-control-date-input{font-size:16px}
   .f4-control-panel{max-width:calc(100vw - 24px)}
 }
+
+/* Bank Sampah: constrain native calendar and selectors to the phone viewport. */
+@media(max-width:760px){
+ body.f4-direct-bank .f4-control-overlay{
+  align-items:flex-end;justify-content:center;padding:0;backdrop-filter:none
+ }
+ body.f4-direct-bank .f4-control-overlay>.f4-control-panel{
+  box-sizing:border-box;flex:0 1 auto;width:100%;max-width:100%;min-width:0;
+  max-height:calc(100dvh - 8px);height:auto;overflow-y:auto;overflow-x:hidden;
+  padding:19px 14px calc(20px + env(safe-area-inset-bottom,0px));
+  border-radius:22px 22px 0 0;box-shadow:0 -15px 38px #14382935
+ }
+ body.f4-direct-bank .f4-control-calendar{
+  box-sizing:border-box;width:100%;min-width:0;
+  grid-template-columns:repeat(7,minmax(0,1fr));gap:3px
+ }
+ body.f4-direct-bank .f4-control-calendar.f4-month-choice{
+  grid-template-columns:repeat(3,minmax(0,1fr))
+ }
+ body.f4-direct-bank .f4-control-calendar :is(.f4-control-day,.f4-control-weekday){
+  box-sizing:border-box;min-width:0;max-width:100%;padding-inline:0
+ }
+ body.f4-direct-bank .f4-control-weekday{font-size:11px;overflow:hidden;text-overflow:clip}
+ body.f4-direct-bank .f4-control-day{font-size:15px}
+ body.f4-direct-bank .f4-control-calendar-nav{box-sizing:border-box;gap:6px;min-width:0}
+ body.f4-direct-bank .f4-control-calendar-nav strong{min-width:0;font-size:16px;text-align:center}
+ body.f4-direct-bank .f4-control-footer{flex-wrap:wrap}
+ body.f4-direct-bank .f4-control-footer button{min-width:0}
+}
