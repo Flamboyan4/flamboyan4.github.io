@@ -670,7 +670,7 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
 .f4-control-search,.f4-control-date-input{
  width:100%;min-height:44px;box-sizing:border-box;
  background:#fff;color:#283f35;border:1px solid #dbe5e2;border-radius:11px;
- padding:10px 13px;margin:0 0 12px;font-size:14px
+ padding:10px 13px;margin:0 0 12px;font-size:16px
 }
 .f4-control-empty{color:#77877e;padding:14px}
 .f4-control-calendar-nav{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:6px 0 12px}

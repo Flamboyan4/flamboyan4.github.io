@@ -369,7 +369,7 @@ padding:0
       .v17-finance-kpis{gap:8px}.v17-finance-kpi{padding:13px}.v17-finance-kpi strong{font-size:17px}
     }
     /* v18 — tampilan HP satu kolom, menu drawer kiri, tanpa navigasi warisan. */
-    html,body{max-width:100%;overflow-x:clip}
+    html,body{max-width:100%;overflow-x:hidden}
     body.v17-dashboard #sideNav > :not(#v16Brand):not(#v16Navigation):not(#v15Footer){display:none}
     #sideNav #v16Navigation,#sideNav #v16NavList{display:flex;flex-direction:column;gap:4px}
     #dashboardView .mobile-nav{justify-content:flex-start;gap:12px}
@@ -440,7 +440,7 @@ min-width:0;min-height:100dvh
     #v11Public .v17-public-metric,#v11Public .v17-feature,#v11Public .v17-panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
     #v19PublicFloatingMenu{display:none}
     @media(max-width:720px){
-      html,body,body>.shell,body>.shell>.content{width:100%;max-width:100%;min-width:0;overflow-x:clip}
+      html,body,body>.shell,body>.shell>.content{width:100%;max-width:100%;min-width:0}
       #v11Public.v18-public-shell{
 display:block;width:100%;min-width:0;max-width:100%;overflow-x:hidden
 }
@@ -1203,7 +1203,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261113-member-sidebar-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261115-bank-dropdown-v15">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261115-mobile-input-v16">
 
 <style id="f4-bank-admin-report-compact-20261027">
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
@@ -6407,7 +6407,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker-open span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.f4-warga-picker-open:after{content:'';display:inline-block;flex:none;width:18px;height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b6947' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat}
 
 .f4-warga-picker-pop[hidden]{display:none}
-.f4-warga-picker-pop input{width:100%;min-height:43px;flex:none;margin:0 0 7px;border:1px solid #bbd4c3;border-radius:8px;padding:9px;font:inherit}
+.f4-warga-picker-pop input{width:100%;min-height:43px;flex:none;margin:0 0 7px;border:1px solid #bbd4c3;border-radius:8px;padding:9px;font:inherit;font-size:16px}
 
 .f4-warga-picker-head,.f4-warga-picker-row{display:grid;grid-template-columns:minmax(0,1fr) 88px;gap:10px;align-items:center}
 .f4-warga-picker-head{padding:8px 11px;color:#678575;text-transform:uppercase;font-size:10px;font-weight:750;border-bottom:1px solid #ebf0ec}
@@ -6516,9 +6516,10 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
    const below=vbottom-r.bottom-8,above=r.top-vtop-8;
    const down=below>=200||below>=above;
    const height=Math.min(390,Math.max(110,down?below:above));
-   const width=Math.min(r.width,window.innerWidth-20);
+   const vleft=vv?.offsetLeft||0,vwidth=vv?.width||window.innerWidth;
+   const width=Math.min(r.width,vwidth-20);
    panel.style.width=width+'px';panel.style.maxHeight=height+'px';
-   panel.style.left=Math.max(10,Math.min(window.innerWidth-width-10,r.left))+'px';
+   panel.style.left=Math.max(vleft+10,Math.min(vleft+vwidth-width-10,r.left))+'px';
    panel.style.top=(down?r.bottom+5:Math.max(vtop+4,r.top-height-5))+'px';
    panel.style.bottom='auto';
   }
@@ -6529,9 +6530,9 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
    trigger.setAttribute('aria-expanded','true');search.value='';render();place();
   };
   window.addEventListener('resize',place,{passive:true});
-  window.addEventListener('scroll',place,{passive:true,capture:true});
+  window.addEventListener('scroll',()=>{if(!panel.hidden)close()},{passive:true});
   window.visualViewport?.addEventListener('resize',place,{passive:true});
-  window.visualViewport?.addEventListener('scroll',place,{passive:true});
+  
   search.oninput=render;
   search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
   select.addEventListener('change',sync);
@@ -6566,7 +6567,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261114-gemini-mobile-recent-cards-v14">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-admin-layout-active-v60">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-cross-browser-layout-v61">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261114-bank-mobile-audit-v9">
@@ -6574,7 +6575,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261114-bank-no-scroll-bar-repaint-v2"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261115-bank-picker-stable-v7"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261115-route-origin-v38"></script>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261115-cross-browser-scroll-v39"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261114-public-app-v3">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">

@@ -2141,7 +2141,7 @@ function memberFeature(route){
  }
  document.body.classList.add("f4-member-feature");
  if(!memberSnapshotsLoaded)publicSnapshot();
- window.scrollTo({top:0,behavior:"instant"});
+ window.scrollTo(0,0);
 }
 function bindMemberDocumentation(){
  const section=$("v17Dokumentasi");if(!section||section.dataset.f4MemberDocsBound)return;
@@ -2382,7 +2382,7 @@ function sync(){
  }
  markDock();refreshSources();
  // Reset stale horizontal pan only when entering an authenticated surface.
- if(window.scrollX>0)window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
+ if(window.scrollX>0)window.scrollTo(0,window.scrollY);
 }
 function refreshSources(){
  const p=$("v14Primary"),q=$("v14Extra");
@@ -2566,7 +2566,7 @@ function init(){
     // panned on narrow phones. Navigation must always restore left origin,
     // never retain the previous tab's offset.
     if(window.scrollX>0||document.documentElement.scrollLeft>0){
-     window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
+     window.scrollTo(0,window.scrollY);
     }
    }
   };

@@ -2029,7 +2029,7 @@ body.f4-bank-app-admin #dashboardView #pageLaporan .f4-bank-report-progress-link
  body.f4-bank-app-private #dashboardView>.grid,
  body.f4-bank-app-private #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;max-width:100%;
-  overflow-x:clip;overflow-y:visible;scroll-behavior:auto
+  scroll-behavior:auto
  }
  body.f4-bank-app-private #dashboardView>.grid>.section> :is(.card,.f4-bank-screen,.f4-bank-admin-unframed){
   min-width:0;max-width:100%
