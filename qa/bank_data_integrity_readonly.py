@@ -69,7 +69,12 @@ else:
         check("inventory_weights",count(db,"SELECT COUNT(*) AS n FROM bank_v3_inventory_lots WHERE remaining_grams<0 OR remaining_grams>initial_grams")==0)
     if {"bank_v3_inventory_movements","bank_v3_inventory_lots"}<=names:
         check("movement_lot_reference",count(db,"SELECT COUNT(*) AS n FROM bank_v3_inventory_movements m LEFT JOIN bank_v3_inventory_lots l ON l.id=m.lot_id WHERE l.id IS NULL")==0)
-        check("movement_grams",count(db,"SELECT COUNT(*) AS n FROM bank_v3_inventory_movements WHERE allocated_grams!=sold_grams+stock_grams+loss_grams")==0)
+        columns={r["name"] for r in select(db,"SELECT name FROM pragma_table_info('bank_v3_inventory_movements')")}
+        required={"allocated_grams","sold_grams","stock_grams","loss_grams"}
+        missing=sorted(required-columns)
+        check("movement_schema",not missing)
+        if missing:counts["movement_missing_columns"]=missing
+        else:check("movement_grams",count(db,"SELECT COUNT(*) AS n FROM bank_v3_inventory_movements WHERE allocated_grams!=sold_grams+stock_grams+loss_grams")==0)
     if {"bank_v3_batches","bank_v3_settlements"}<=names:
         check("settlement_batch_reference",count(db,"SELECT COUNT(*) AS n FROM bank_v3_settlements s LEFT JOIN bank_v3_batches b ON b.batch_id=s.batch_id WHERE b.batch_id IS NULL")==0)
         check("settlement_rights_sum",count(db,"SELECT COUNT(*) AS n FROM bank_v3_settlements WHERE gross_rp!=citizen_rights_rp+bank_rights_rp")==0)

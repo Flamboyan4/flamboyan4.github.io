@@ -12,27 +12,50 @@ const fmtDate=value=>{
 };
 function close(fromBack=false){
  if(!overlay)return;
- const last=overlay._trigger;
+ const last=overlay._trigger,reposition=overlay._reposition;
  overlay.remove();overlay=null;
  document.body.classList.remove('f4-custom-picker-open');
+ if(reposition)window.visualViewport?.removeEventListener('resize',reposition);
  window.F4MobileSheets?.refresh?.();
  if(!fromBack&&history.state?.f4PickerEntry)history.back();
  last?.focus?.({preventScroll:true});
 }
 window.addEventListener('popstate',()=>{if(overlay&&!history.state?.f4PickerEntry)close(true)});
-function start(trigger,title){
+function start(trigger,title,dropdown=false){
  if(overlay)close();
  const mask=document.createElement('div');mask.className='f4-control-overlay';mask.setAttribute('role','presentation');
+ if(dropdown)mask.classList.add('f4-bank-select-dropdown');
  const panel=document.createElement('section');panel.className='f4-control-panel';
- panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
+ panel.setAttribute('role',dropdown?'region':'dialog');
+ if(!dropdown)panel.setAttribute('aria-modal','true');
+ if(dropdown)panel.classList.add('f4-bank-select-popover');
  panel.setAttribute('aria-label',title);
  const head=document.createElement('header');head.className='f4-control-header';
  const h=document.createElement('strong');h.textContent=title;
  const x=document.createElement('button');x.type='button';x.className='f4-control-x';x.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
  x.setAttribute('aria-label','Tutup pilihan');x.onclick=()=>close();
- head.append(h,x);panel.append(head);mask.append(panel);
+ head.append(h,x);if(!dropdown)panel.append(head);mask.append(panel);
  mask.onclick=e=>{if(e.target===mask)close()};
- mask._trigger=trigger;document.body.append(mask);overlay=mask;
+ mask._trigger=trigger;mask._dropdown=dropdown;document.body.append(mask);overlay=mask;
+ if(dropdown){
+  const position=()=>{
+   if(!mask.isConnected)return;
+   const r=trigger.getBoundingClientRect(),v=window.visualViewport;
+   const left=v?.offsetLeft||0,top=v?.offsetTop||0;
+   const vw=v?.width||innerWidth,vh=v?.height||innerHeight;
+   const width=Math.min(Math.max(0,r.width),Math.max(0,vw-16));
+   const x=Math.max(left+8,Math.min(r.left,left+vw-8-width));
+   const below=Math.max(0,top+vh-r.bottom-12),above=Math.max(0,r.top-top-12);
+   const up=below<195&&above>below;
+   const maxHeight=Math.max(100,Math.min(380,up?above:below));
+   panel.style.left=x+'px';panel.style.width=width+'px';
+   panel.style.maxHeight=maxHeight+'px';
+   panel.style.top=(up?Math.max(top+8,r.top-Math.min(panel.scrollHeight,maxHeight)-6):r.bottom+6)+'px';
+  };
+  mask._reposition=position;
+  window.visualViewport?.addEventListener('resize',position,{passive:true});
+  position();
+ }
  document.body.classList.add('f4-custom-picker-open');
  window.F4MobileSheets?.refresh?.();
  history.pushState({...history.state,f4PickerEntry:++historyToken},'',location.href);
@@ -47,7 +70,8 @@ function action(field,value){
 }
 function selectPicker(field,trigger){
  const options=[...field.options].map(o=>({value:o.value,label:o.textContent,disabled:o.disabled,group:o.parentElement?.label||''}));
- const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan');
+ const dropdown=!!document.body.classList.contains('f4-direct-bank');
+ const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',dropdown);
  if(options.length>10){
   const input=document.createElement('input');input.type='search';input.className='f4-control-search';
   input.placeholder='Cari pilihan…';input.setAttribute('aria-label','Cari pilihan');
@@ -71,6 +95,7 @@ function selectPicker(field,trigger){
   if(!matching.length){const p=document.createElement('p');p.className='f4-control-empty';p.textContent='Tidak ada pilihan cocok';list.append(p)}
  }
  paint();
+ if(dropdown)requestAnimationFrame(()=>overlay?._reposition?.());
  const current=list.querySelector('[aria-selected=true]');
  current?.scrollIntoView?.({block:'nearest'});
  panel.querySelector('.f4-control-search')?.focus();

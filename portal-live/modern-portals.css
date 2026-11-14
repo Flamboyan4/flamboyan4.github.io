@@ -1459,14 +1459,38 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 
 /* Bank Sampah: constrain native calendar and selectors to the phone viewport. */
 @media(max-width:760px){
- body.f4-direct-bank .f4-control-overlay{
+ /* Date/calendar popups remain bottom sheets. Selects have their own
+    anchored dropdown, not a second modal over the form. */
+ body.f4-direct-bank .f4-control-overlay:not(.f4-bank-select-dropdown){
   align-items:flex-end;justify-content:center;padding:0;backdrop-filter:none
  }
- body.f4-direct-bank .f4-control-overlay>.f4-control-panel{
+ body.f4-direct-bank .f4-control-overlay:not(.f4-bank-select-dropdown)>.f4-control-panel{
   box-sizing:border-box;flex:0 1 auto;width:100%;max-width:100%;min-width:0;
   max-height:calc(100dvh - 8px);height:auto;overflow-y:auto;overflow-x:hidden;
   padding:19px 14px calc(20px + env(safe-area-inset-bottom,0px));
   border-radius:22px 22px 0 0;box-shadow:0 -15px 38px #14382935
+ }
+ body.f4-direct-bank .f4-control-overlay.f4-bank-select-dropdown{
+  display:block;align-items:initial;justify-content:initial;
+  padding:0;background:transparent;backdrop-filter:none
+ }
+ body.f4-direct-bank .f4-bank-select-dropdown>.f4-bank-select-popover{
+  position:fixed;box-sizing:border-box;display:block;flex:none;
+  margin:0;padding:7px;min-width:0;min-height:0;height:auto;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  border:1px solid #cbded2;border-radius:13px;background:#fff;
+  box-shadow:0 12px 32px #123f2b33;color:#18432f;
+  animation:none;transform:none
+ }
+ body.f4-direct-bank .f4-bank-select-popover>.f4-control-search{
+  position:sticky;top:0;z-index:1;margin:0 0 6px;
+  background:#f8fcf9;font-size:16px
+ }
+ body.f4-direct-bank .f4-bank-select-popover>.f4-control-list{
+  max-height:none;gap:2px;overflow:visible
+ }
+ body.f4-direct-bank .f4-bank-select-popover .f4-control-choice{
+  min-height:42px;border-radius:9px;font-size:13px
  }
  body.f4-direct-bank .f4-control-calendar{
   box-sizing:border-box;width:100%;min-width:0;
