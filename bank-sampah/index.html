@@ -37,7 +37,7 @@
     @media print{body .shell{display:none}#v10Print{display:block;color:#111}@page{size:A4;margin:14mm}}
     .public-hero h1{font-size:28px}.public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-tile h3{margin:0 0 5px;font-size:16px}.public-tile p{color:var(--muted);font-size:13px;margin:4px 0}.public-tile a{color:var(--forest);overflow-wrap:anywhere}.public-image{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:5px 0}.public-section{margin-top:24px}.public-section h2{font-size:19px}@media(max-width:720px){.public-hero h1{font-size:23px}.public-grid{grid-template-columns:1fr}.public-tile{padding:14px}}@media(min-width:721px) and (max-width:900px){.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     /* v13 — gaya Pembukuan: sidebar kompak, konten lapang, hijau daun lembut. */
-    :root{--white:#fff;
+    :root:has(#dashboardView){--white:#fff;
 --forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#fdc010
 }
     
@@ -426,7 +426,7 @@ padding:12px 10px 30px;min-width:0;width:100%
  width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start;
 min-width:0;min-height:100dvh
 }
-    #v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%}
+    
     #v11Public #v18PublicContent>.v17-public-head{display:none}
     #v11Public #v18PublicSide{display:flex;flex-direction:column}
     #v19PublicAccountFooter{margin-top:auto;border-top:1px solid #e1e9de;padding:15px 8px 4px;display:flex;align-items:center;gap:9px;min-width:0}
