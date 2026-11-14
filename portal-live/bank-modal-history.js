@@ -111,6 +111,9 @@
  }
  // Capture-phase handler executes before the old gallery/sidebar routing.
  window.addEventListener('popstate',event=>{
+  // Native date/month and select pickers own their temporary Back entry.
+  // Do not close the receipt/dialog underneath a visible picker.
+  if(document.querySelector('.f4-control-overlay'))return;
   // A route push may carry a copied modal guard. Back must still close
   // the top visible sheet on its FIRST popstate, even if that id was copied.
   if(pending){
