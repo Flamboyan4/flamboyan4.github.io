@@ -1459,8 +1459,8 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 
 /* Bank Sampah: constrain native calendar and selectors to the phone viewport. */
 @media(max-width:760px){
- /* Date/calendar popups remain bottom sheets. Selects have their own
-    anchored dropdown, not a second modal over the form. */
+ /* Bank Sampah selects and calendars are anchored dropdowns.
+    Other portals retain bottom-sheet date pickers. */
  body.f4-direct-bank .f4-control-overlay:not(.f4-bank-select-dropdown){
   align-items:flex-end;justify-content:center;padding:0;backdrop-filter:none
  }
@@ -1475,19 +1475,58 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
   padding:0;background:transparent;backdrop-filter:none
  }
  body.f4-direct-bank .f4-bank-select-dropdown>.f4-bank-select-popover{
-  position:fixed;box-sizing:border-box;display:block;flex:none;
-  margin:0;padding:7px;min-width:0;min-height:0;height:auto;
-  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
-  border:1px solid #cbded2;border-radius:13px;background:#fff;
+  position:fixed;box-sizing:border-box;display:flex;flex-direction:column;flex:none;
+  margin:0;padding:0;min-width:0;min-height:0;height:auto;
+  overflow:hidden;overscroll-behavior:contain;
+  border:1px solid #cbded2;border-radius:14px;background:#fff;
   box-shadow:0 12px 32px #123f2b33;color:#18432f;
   animation:none;transform:none
  }
- body.f4-direct-bank .f4-bank-select-popover>.f4-control-search{
-  position:sticky;top:0;z-index:1;margin:0 0 6px;
-  background:#f8fcf9;font-size:16px
+ /* The search input is a solid header row; choices scroll beneath it. */
+ body.f4-direct-bank .f4-bank-select-popover>.f4-bank-picker-search-row{
+  box-sizing:border-box;flex:none;width:100%;min-width:0;
+  padding:9px 10px 8px;border-bottom:1px solid #e4ede6;background:#fff
+ }
+ body.f4-direct-bank .f4-bank-picker-search-row>.f4-control-search{
+  position:static;display:block;box-sizing:border-box;
+  width:100%;min-width:0;min-height:42px;height:42px;
+  margin:0;padding:9px 12px;border:1px solid #d6e6dc;
+  border-radius:10px;background:#f7faf8;color:#18432f;
+  font:500 16px/1.35 system-ui,-apple-system,sans-serif;box-shadow:none
  }
  body.f4-direct-bank .f4-bank-select-popover>.f4-control-list{
-  max-height:none;gap:2px;overflow:visible
+  flex:1 1 auto;min-height:0;max-height:none;gap:2px;
+  overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+  padding:5px 6px 7px
+ }
+ /* Calendar remains full seven-column width even beside another field. */
+ body.f4-direct-bank .f4-bank-calendar-dropdown>.f4-bank-calendar-popover{
+  display:block;box-sizing:border-box;padding:12px;
+  overflow-x:hidden;overflow-y:auto;border-radius:16px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-calendar-nav{
+  margin:0 0 8px;gap:8px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-calendar-nav button{
+  width:34px;min-width:34px;height:34px;border-radius:10px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-calendar{
+  margin:0 0 10px;gap:3px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover .f4-control-weekday{
+  min-height:24px;padding:4px 0;font-size:11px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover .f4-control-day{
+  min-height:35px;height:35px;aspect-ratio:auto;font-size:14px;line-height:1.1
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover .f4-control-calendar.f4-month-choice .f4-control-day{
+  min-height:42px;height:42px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-date-input{
+  min-height:40px;height:40px;margin:0 0 9px
+ }
+ body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-footer button{
+  min-height:36px;padding:7px 12px
  }
  body.f4-direct-bank .f4-bank-select-popover .f4-control-choice{
   min-height:42px;border-radius:9px;font-size:13px
