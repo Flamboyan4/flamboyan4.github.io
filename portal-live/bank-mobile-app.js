@@ -42,9 +42,9 @@ const memberDock=[
 ];
 // Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
 const adminDock=[
- ["Beranda","dashboard","home.svg"],["Setoran","setoran","bank.svg"],
- ["Laporan","laporan","book.svg"],["Penjualan","penjualan","cash.svg"],
- ["Saldo","tabungan","pay.svg"]
+ ["Beranda","dashboard","home.svg"],["Penjualan","penjualan","shopping-cart"],
+ ["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"],
+ ["Laporan","laporan","book.svg"]
 ];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
@@ -70,8 +70,8 @@ function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
  const isMemberPayout=dock&&route==="bank-payout";
- const isAdminReport=dock&&route==="laporan";
- if(isMemberPayout||isAdminReport)b.classList.add("is-primary");
+ const isAdminDeposit=dock&&roleType()==="admin"&&route==="setoran";
+ if(isMemberPayout||isAdminDeposit)b.classList.add("is-primary");
  const symbol=el("span","f4-bank-app-action-icon");
  if(isMemberPayout){
   // Match the original yellow payout badge: the white "Rp" is a crisp SVG wordmark.
@@ -80,6 +80,12 @@ function action([title,route,asset],dock=false){
   svg.setAttribute("aria-hidden","true");
   svg.classList.add("f4-bank-payout-rp-icon");
   svg.innerHTML='<text x="36" y="45" text-anchor="middle">Rp</text>';
+  symbol.append(svg);
+ }else if(dock&&route==="penjualan"){
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+  svg.classList.add("f4-bank-cart-icon");
+  svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
   symbol.append(svg);
  }else symbol.append(image(asset));
  b.append(symbol);
@@ -1521,7 +1527,6 @@ function ensureOwnDepositForm(){
   }
   normal.before(tabs);
   const form=el("form","f4-bank-own-deposit-form");form.id="f4BankOwnDepositForm";form.hidden=true;
-  const intro=el("p","f4-bank-own-intro","Stok milik Bank dicatat tanpa pembagian. Kas masuk setelah penjualan disahkan.");
   const dateField=el("label","f4-bank-own-field");
   dateField.append(el("span","","Tanggal"),Object.assign(el("input"),{type:"date",required:true,value:today()}));
   dateField.querySelector("input").id="f4BankOwnDate";
@@ -1533,7 +1538,6 @@ function ensureOwnDepositForm(){
   add.onclick=()=>addOwnItemRow();
   detail.append(head);
   const rows=el("div","f4-bank-own-lines f4-compact-rows");rows.id="f4BankOwnLines";detail.append(rows,add);
-  const weight=el("small","f4-bank-own-weight","Total berat: 0 kg");weight.id="f4BankOwnWeight";detail.append(weight);
   const note=el("label","f4-bank-own-field");note.append(el("span","","Catatan (opsional)"));
   const noteInput=el("input");noteInput.id="f4BankOwnNote";noteInput.maxLength=200;noteInput.placeholder="Asal sampah / keterangan stok";
   note.append(noteInput);
@@ -1541,17 +1545,12 @@ function ensureOwnDepositForm(){
   const status=el("p","f4-bank-own-status");status.id="f4BankOwnStatus";status.setAttribute("role","status");
   const main=el("div","f4-bank-own-main"),side=el("div","f4-bank-own-side");
   main.append(detail);side.append(fields,note,save,status);
-  form.append(intro,main,side);
+  form.append(main,side);
   form.onsubmit=submitOwnDeposit;tabs.after(form);
  }
  chooseOwnMode(ownFormMode);
 }
-function updateOwnWeight(){
- let total=0;
- for(const row of document.querySelectorAll("#f4BankOwnLines .f4-bank-own-line"))
-  total+=Math.max(0,Number(row.querySelector("[data-own-weight]")?.value)||0);
- text("f4BankOwnWeight","Total stok: "+new Intl.NumberFormat("id-ID",{maximumFractionDigits:3}).format(total)+" kg");
-}
+
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
  if(lines.childElementCount>=30)return;
@@ -1559,16 +1558,15 @@ function addOwnItemRow(){
  const select=el("select");select.required=true;select.setAttribute("aria-label","Jenis sampah");
  select.add(new Option("Pilih jenis",""));
  for(const item of ownCatalog||[])select.add(new Option(item.name,item.id));
- select.onchange=updateOwnWeight;
- const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
+  const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
  weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
- weight.setAttribute("aria-label","Berat sampah kilogram");weight.oninput=updateOwnWeight;
+ weight.setAttribute("aria-label","Berat sampah kilogram");
  const del=el("button","f4-compact-remove");del.type="button";
  del.title="Hapus jenis";del.setAttribute("aria-label","Hapus jenis");
- del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();if(!lines.childElementCount)addOwnItemRow();updateOwnWeight();};
+ del.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';del.onclick=()=>{row.remove();if(!lines.childElementCount)addOwnItemRow();};
  const amountGroup=el("div","f4-compact-entry-group");
  amountGroup.append(weight,del);
- row.append(select,amountGroup);lines.append(row);updateOwnWeight();
+ row.append(select,amountGroup);lines.append(row);
 }
 async function loadOwnCatalog(){
  if(!$("f4BankOwnDepositForm")||ownFormMode!=="bank")return;
@@ -1607,7 +1605,7 @@ async function submitOwnDeposit(event){
   });
   status.textContent=res.duplicate?"Setoran sudah tercatat.":"Setoran Bank tercatat sebagai stok, belum menambah kas.";
   ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
-  $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();updateOwnWeight();
+  $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();
   adminOverview=null;updateDashboard();
  }catch(error){status.textContent=error.message||"Setoran gagal disimpan.";}
  finally{button.disabled=false;}
