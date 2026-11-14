@@ -302,7 +302,8 @@ padding:0
     .v17-albums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
     /* Program publik: satu compact app card, bukan heading dan strip penuh lebar. */
     #v17Program.f4-bank-program{
-      box-sizing:border-box;margin:1px 0 0;padding:16px 18px;
+      box-sizing:border-box;grid-column:1/-1;min-width:0;width:100%;
+      margin:1px 0 0;padding:16px 18px;
       border:1px solid #dce9dd;border-radius:19px;background:#fff;
       box-shadow:0 5px 18px #123a2710;scroll-margin-top:76px;color:#214d36
     }
