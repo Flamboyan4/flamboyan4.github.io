@@ -74,6 +74,36 @@ for(const path of ['portal-live/bank-eco-pages.css','portal-live/bank-member-nav
  const dup=duplicates(css);
  assert.equal(dup.length,0,'Duplicate CSS selectors in '+path+': '+JSON.stringify(dup.slice(0,7)));
 }
+// Keep Bank Sampah CSS ownership unique ACROSS loaded stylesheets, not just within one file.
+const bankThemeFiles=[
+ 'bank-sampah/index.html','portal-live/direct-shell.css',
+ 'portal-live/modern-portals.css','portal-live/bank-eco-pages.css',
+ 'portal-live/bank-eco-dashboard.css','portal-live/bank-member-navigation.css',
+ 'portal-live/bank-mobile-dock.css','portal-live/bank-member-polish.css',
+ 'portal-live/mobile-bottom-sheets.css','portal-live/bank-progress-app.css',
+ 'portal-live/bank-impact-summary.css','portal-live/bank-development-app.css'
+];
+const combinedBankTheme=bankThemeFiles.map(path=>{
+ const source=fs.readFileSync(path,'utf8');
+ return path.endsWith('.html')?[...source.matchAll(/<style\\b[^>]*>([\\s\\S]*?)<\\/style>/gi)].map(m=>m[1]).join('\n'):source;
+}).join('\n');
+const crossFileCollisions=duplicates(combinedBankTheme);
+assert.equal(crossFileCollisions.length,0,
+ 'Bank CSS has stacked selectors across sources: '+JSON.stringify(crossFileCollisions.slice(0,9)));
+// Within a single declaration block, earlier same-name properties are dead CSS.
+// This is checked separately from repeated selectors to block legacy inline stacking.
+const duplicateProperties=[];
+for(const [i,block] of [...combinedBankTheme.matchAll(/\\{([^{}]*)\\}/g)].entries()){
+ const declarations=[...block[1].matchAll(/(?:^|;)\\s*([\\w-]+)\\s*:/g)].map(m=>m[1].toLowerCase());
+ const found=new Set();
+ for(const property of declarations){
+  if(found.has(property)){duplicateProperties.push({block:i,property});break;}
+  found.add(property);
+ }
+}
+assert.equal(duplicateProperties.length,0,
+ 'Bank CSS has superseded duplicate declarations: '+JSON.stringify(duplicateProperties.slice(0,9)));
+
 const dock=fs.readFileSync('portal-live/bank-mobile-dock.css','utf8');
 const page=fs.readFileSync('portal-live/bank-eco-pages.css','utf8');
 const html=fs.readFileSync('bank-sampah/index.html','utf8');
