@@ -2649,7 +2649,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="f4-savings-head">
         <h2>Saldo Warga</h2><p>Tabungan anggota dan posisi kas.</p>
       </div>
-      <div id="v9KasInfo" class="summary-box f4-savings-kpis">Memuat ringkasan...</div>
+      <section id="v9KasInfo" class="f4-savings-kpis" aria-label="Ringkasan posisi kas">Memuat ringkasan...</section>
       <div class="f4-savings-utility">
         <button id="v9Sync" type="button" class="secondary" onclick="v9PostCash()">Cek kesesuaian kas</button>
       </div>
@@ -2685,11 +2685,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     host.dataset.f4FinderReady='1';
     const bar=document.createElement('div');bar.className='f4-bs-saldo-finder';
     const search=document.createElement('input');search.type='search';
-    search.placeholder='Cari anggota atau nomor rumah';
+    search.placeholder='Cari nama atau nomor rumah';
     search.setAttribute('aria-label','Cari saldo berdasarkan anggota atau nomor rumah');
     const status=document.createElement('span');status.className='f4-bs-saldo-count';
     status.setAttribute('role','status');
-    bar.append(search,status);host.before(bar);
+    
+    const field=document.createElement('div');field.className='f4-bs-saldo-search';
+    field.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>';
+    field.append(search);bar.append(field);
+    const heading=host.closest('.f4-savings-roster')?.querySelector('.f4-savings-panel-title');
+    if(heading)heading.append(status);else bar.append(status);
+    host.before(bar);
     // Semua anggota ada di tabel; pembatas hanya tinggi scroll, bukan jumlah data.
     const update=()=>{
       const all=[...host.querySelectorAll('.f4-saldo-row')];
@@ -2707,15 +2713,40 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     new MutationObserver(update).observe(host,{childList:true});
     update();
   }
-  async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);$('v9KasInfo').replaceChildren(metric('Kas Bank Sampah',rupiah(cash.kasMilikBankRp)),metric('Tabungan warga',rupiah(sum)),metric('Kas lingkungan',rupiah(cash.kasLingkunganRp)),metric('Kas gabungan',rupiah(cash.saldoKasTercatat)));const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>select.appendChild(new Option(m.nama+' • '+m.rumah,m.wargaId)));select.value=old;v9ShowBalance();const list=$('v9List');const roster=document.createElement('div');roster.className='f4-saldo-list';roster.setAttribute('role','list');
+
+  function v9RenderKas(cash,sum){
+    const hero=document.createElement('div');hero.className='f4-saldo-hero';
+    const primary=document.createElement('div');primary.className='f4-saldo-primary';
+    primary.innerHTML='<small>Total dana tercatat</small><strong></strong><span>Gabungan seluruh pos kas & tabungan</span>';
+    primary.querySelector('strong').textContent=rupiah(cash.saldoKasTercatat);
+    const parts=document.createElement('div');parts.className='f4-saldo-parts';
+    [
+      ['Tabungan warga',sum,'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6m2 3a5 5 0 0 1 2 4v2"/>'],
+      ['Kas bank sampah',cash.kasMilikBankRp,'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M7 7V4h10v3m-9 8h8"/>'],
+      ['Kas lingkungan',cash.kasLingkunganRp,'<path d="M12 21v-8m0 3C5 16 3 11 4 4c7 1 12 5 12 12m-4-3c0-6 4-9 8-10 1 5-1 9-5 11"/>']
+    ].forEach(([label,value,icon])=>{
+      const tile=document.createElement('div');tile.className='f4-saldo-part';
+      tile.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icon+'</svg><small></small><strong></strong>';
+      tile.querySelector('small').textContent=label;
+      tile.querySelector('strong').textContent=rupiah(value);
+      parts.append(tile);
+    });
+    hero.append(primary,parts);$('v9KasInfo').replaceChildren(hero);
+  }
+
+  async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);v9RenderKas(cash,sum);const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>select.appendChild(new Option(m.nama+' • '+m.rumah,m.wargaId)));select.value=old;v9ShowBalance();const list=$('v9List');const roster=document.createElement('div');roster.className='f4-saldo-list';roster.setAttribute('role','list');
 members.slice().sort((a,b)=>new Intl.Collator('id',{numeric:true,sensitivity:'base'}).compare(String(a.rumah||''),String(b.rumah||''))||String(a.nama||'').localeCompare(String(b.nama||''),'id')).forEach(m=>{
  const row=document.createElement('div');row.className='f4-saldo-row';row.setAttribute('role','listitem');
+  const avatar=document.createElement('span');avatar.className='f4-saldo-avatar';avatar.setAttribute('aria-hidden','true');
+  const words=String(m.nama||'').trim().replace(/^(pak|bapak|ibu|bu)\s+/i,'').split(/\s+/).filter(Boolean);
+  avatar.textContent=(words.length>1?words.slice(0,2).map(x=>x[0]).join(''):(words[0]||'?').slice(0,1)).toLocaleUpperCase('id-ID');
+  row.dataset.balance=Number(m.saldo)>0?'positive':'zero';
  const person=document.createElement('div');person.className='f4-saldo-person';
  const name=document.createElement('strong');name.className='f4-saldo-name';name.textContent=m.nama||'Nama belum tersedia';
  const house=document.createElement('small');house.className='f4-saldo-house';house.textContent=m.rumah||'—';
  const balance=document.createElement('strong');balance.className='f4-saldo-amount';balance.textContent=rupiah(m.saldo);
  row.setAttribute('aria-label',name.textContent+', rumah '+house.textContent+', saldo '+balance.textContent);
- person.append(name,house);row.append(person,balance);roster.append(row);
+ person.append(name,house);row.append(avatar,person,balance);roster.append(row);
 });
 list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replaceChildren(...history.map(h=>{const div=document.createElement('div');div.className='stat';div.style.marginBottom='8px';const a=document.createElement('strong');a.textContent=(members.find(m=>String(m.wargaId)===String(h.wargaId||'').replace(/^member:/,''))?.nama||'Nama warga belum tersedia')+' • '+rupiah(h.nominal);const p=document.createElement('small');p.textContent=h.status+' • '+h.tanggal+' • '+h.catatan;div.append(a,p);
   if(h.id&&Number(h.nominal)>0&&!/batal|ditolak|diproses|menunggu/i.test(String(h.status||''))){
@@ -6073,7 +6104,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261114-gemini-mobile-recent-cards-v14">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261114-saldo-compact-head-v47">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261114-saldo-overview-v48">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261113-harmony3-v10">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261114-no-shadow-dock-v8">
