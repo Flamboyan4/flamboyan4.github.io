@@ -1217,47 +1217,28 @@ overflow:visible
 
 /* CSS owner consolidated from #f4-bank-savings-compact-20261028; prior cascade position preserved */
 
-/* Scoped Bank Sampah savings screen: white dashboard, side-by-side ledger + payout. */
-@media(min-width:1024px){
- #pageTabungan.card{background:#fff;border:1px solid #e0e9e3;border-radius:15px;padding:19px 20px;box-shadow:none}
-}
-#pageTabungan .f4-savings-head{margin:0 0 13px}
-#pageTabungan .f4-savings-head h2{font-size:21px;line-height:1.25;margin:0;color:#174630}
-#pageTabungan .f4-savings-head p{margin:5px 0 0;color:#708477;font-size:12px;line-height:1.4}
-body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
- gap:9px;width:100%;min-width:0;
- border:0;background:transparent;padding:0;margin:0
-}
-body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{
- box-sizing:border-box;min-width:0;min-height:84px;display:flex;flex-direction:column;
- justify-content:space-between;gap:9px;margin:0;padding:13px 14px;
- border:1px solid #e1eae3;border-radius:16px;background:#f8faf8;box-shadow:none
-}
-body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric:nth-child(2){
- background:#e6f5dc;border-color:#d4e9cb
-}
-body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric small{
- display:block;font-size:11px;line-height:1.35;font-weight:600;color:#60796a
-}
-body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{
- display:block;font-size:21px;line-height:1.16;margin:0;
- color:#17573b;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
-}
-#pageTabungan .f4-savings-utility{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- align-items:stretch;gap:9px;margin:11px 0 17px;min-width:0
-}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{
- box-sizing:border-box;display:flex;justify-content:center;align-items:center;
- min-width:0;width:100%;min-height:43px;margin:0;padding:10px 11px;
- border:1px solid #d5e6db;border-radius:13px;background:#fff;
- color:#175d41;font-size:11.5px;font-weight:750;line-height:1.3;
- text-align:center;box-shadow:none;cursor:pointer
-}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{
- background:#eef7e9;border-color:#d7e9cb
-}
+
+/* Saldo Warga — ringkasan kompak satu kartu utama, tanpa empat kotak berulang. */
+#pageTabungan .f4-savings-head{margin:0 0 12px}
+#pageTabungan .f4-savings-head h2{margin:0;color:#174630;font-size:22px}
+#pageTabungan .f4-savings-head p{margin:5px 0 0;color:#6a8074;font-size:12px}
+body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{display:block;padding:0;margin:0;border:0;background:transparent}
+#pageTabungan .f4-saldo-hero{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.6fr);gap:12px;padding:17px;border-radius:19px;background:linear-gradient(120deg,#174b36,#2b704b);color:#fff}
+#pageTabungan .f4-saldo-primary{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0}
+#pageTabungan .f4-saldo-primary small{font-size:12px;color:#d8ecdc;font-weight:700}
+#pageTabungan .f4-saldo-primary strong{font-size:clamp(29px,3vw,37px);letter-spacing:-.035em;color:#fff;line-height:1.15;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#pageTabungan .f4-saldo-primary span{font-size:11px;color:#d8ecdc}
+#pageTabungan .f4-saldo-parts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#pageTabungan .f4-saldo-part{display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0;min-height:88px;padding:12px;border-radius:13px}
+#pageTabungan .f4-saldo-part:nth-child(1){background:#e7f4d8}
+#pageTabungan .f4-saldo-part:nth-child(2){background:#fff0d5}
+#pageTabungan .f4-saldo-part:nth-child(3){background:#e7eff9}
+#pageTabungan .f4-saldo-part small{font-size:11px;font-weight:650;line-height:1.3;color:#53695b}
+#pageTabungan .f4-saldo-part strong{font-size:clamp(15px,1.7vw,20px);line-height:1.18;color:#204b35;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#pageTabungan .f4-savings-utility{display:flex;justify-content:flex-end;gap:8px;min-width:0;margin:11px 0 18px}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:39px;margin:0;padding:9px 13px;border:1px solid #d5e5d9;border-radius:11px;background:#fff;color:#265b42;font-size:12px;font-weight:750;box-shadow:none}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#fff0c9;border-color:#efdaa4;color:#6b5423}
+
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
 #pageTabungan #v9CashCheckStatus:not([hidden]){
  display:block;width:100%;min-width:0;margin:0 0 13px;
@@ -1273,56 +1254,34 @@ body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank
 }
 #pageTabungan #v9Sync:disabled{opacity:.7;cursor:wait}
 
-#pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:11px;align-items:start}
-#pageTabungan .f4-savings-panel{min-width:0;border:1px solid #e0e9e4;border-radius:12px;background:#fff;padding:13px}
-/* Saldo anggota — daftar menyatu dengan halaman, tanpa scroll dan tanpa kartu berlapis. */
-#pageTabungan .f4-savings-roster{min-width:0;padding:0;border:0;background:transparent;box-shadow:none}
-#pageTabungan .f4-savings-roster .f4-savings-panel-title{margin-bottom:9px}
-body.f4-direct-bank #dashboardView #pageTabungan #v9List{
- width:100%;max-width:100%;max-height:none;overflow:visible;
- border:0;border-radius:0;margin:0;padding:0;background:transparent;overscroll-behavior:auto
-}
-#pageTabungan #v9List .f4-saldo-list{display:grid;grid-template-columns:minmax(0,1fr);gap:0;min-width:0}
-#pageTabungan #v9List .f4-saldo-row{
- display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 12px;
- min-width:0;padding:11px 1px;border-bottom:1px solid #e5ede7;background:transparent
-}
-#pageTabungan #v9List .f4-saldo-row:last-child{border-bottom:0}
+
+/* Saldo anggota — satu daftar ringkas dengan avatar, label rumah dan nominal. */
+#pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px;align-items:start}
+#pageTabungan .f4-savings-panel,#pageTabungan .f4-savings-roster{min-width:0;padding:14px;border:1px solid #e2ebe3;border-radius:17px;background:#fff}
+#pageTabungan .f4-savings-panel-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 11px}
+#pageTabungan .f4-savings-panel-title h3,#pageTabungan #v9Form>h3,#pageTabungan .f4-savings-history h3{margin:0;color:#234735;font-size:16px;line-height:1.3}
+#pageTabungan .f4-savings-panel-title p,#pageTabungan .f4-payout-intro{margin:0;color:#738579;font-size:11px}
+body.f4-direct-bank #dashboardView #pageTabungan #v9List{width:100%;max-width:100%;max-height:470px;overflow:auto;border:0;margin:0;padding:0;background:transparent}
+#pageTabungan #v9List .f4-saldo-list{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+#pageTabungan #v9List .f4-saldo-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:61px;min-width:0;padding:9px 11px;border:1px solid #e5ede6;border-radius:12px;background:#f9fbf8}
+#pageTabungan #v9List .f4-saldo-row:nth-child(even){background:#fff}
 #pageTabungan #v9List .f4-saldo-row[hidden]{display:none}
+#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#e5f1d8;color:#357448;font-size:13px;font-weight:850}
+#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#f9ecda;color:#9b6b38}
+#pageTabungan #v9List .f4-saldo-row:nth-child(3n+3) .f4-saldo-avatar{background:#e8eff8;color:#55769a}
 #pageTabungan #v9List .f4-saldo-person{display:grid;gap:2px;min-width:0}
-#pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204735;font-weight:750;overflow-wrap:anywhere}
-#pageTabungan #v9List .f4-saldo-house{font-size:12px;line-height:1.3;color:#768b7c}
-#pageTabungan #v9List .f4-saldo-amount{font-size:15px;line-height:1.2;color:#08734d;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
-#pageTabungan .f4-savings-panel-title{margin:0 0 10px}
-#pageTabungan .f4-savings-panel-title h3,
-#pageTabungan #v9Form>h3,#pageTabungan .f4-savings-history h3{
- margin:0 0 4px;color:#234436;font-size:15px;line-height:1.3
-}
-#pageTabungan .f4-savings-panel-title p,#pageTabungan .f4-payout-intro{
- margin:0;color:#738579;font-size:11px;line-height:1.45
-}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder{
- display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
- gap:9px;margin:0 0 10px;min-width:0
-}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder>input{
- box-sizing:border-box;width:100%;max-width:none;min-width:0;
- min-height:43px;height:43px;padding:9px 12px;
- border:1px solid #dae7df;border-radius:12px;font-size:12px;background:#fff
-}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-count{
- box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
- min-height:35px;padding:7px 10px;border:1px solid #e0ebe3;border-radius:999px;
- background:#f5f9f6;font-size:11px;font-weight:750;color:#506f5e;white-space:nowrap
-}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-footer{
- margin:8px 0 0;display:flex;justify-content:flex-end
-}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-footer[hidden]{display:none}
-body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-footer>button{
- min-height:32px;padding:6px 10px;font-size:11px;border-radius:8px
-}
-body.f4-direct-bank #dashboardView #pageTabungan #v9Form{
+#pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204535;font-weight:800;overflow-wrap:anywhere}
+#pageTabungan #v9List .f4-saldo-house{font-size:11.5px;color:#72887a;line-height:1.3}
+#pageTabungan #v9List .f4-saldo-amount{font-size:14px;color:#266443;font-weight:850;white-space:nowrap;font-variant-numeric:tabular-nums}
+#pageTabungan #v9List .f4-saldo-row[data-balance="positive"] .f4-saldo-amount{padding:7px 8px;border-radius:9px;background:#e4f2d9}
+#pageTabungan #v9List .f4-saldo-row[data-balance="zero"] .f4-saldo-amount{color:#75897b}
+body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-finder{display:block;margin:0 0 12px;min-width:0}
+#pageTabungan .f4-bs-saldo-search{position:relative;display:block;min-width:0}
+#pageTabungan .f4-bs-saldo-search svg{position:absolute;left:12px;top:50%;width:18px;height:18px;color:#768f7f;transform:translateY(-50%);pointer-events:none}
+body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-search>input{box-sizing:border-box;width:100%;height:43px;min-height:43px;padding:10px 12px 10px 40px;border:1px solid #dce8df;border-radius:12px;background:#fff;font-size:13px}
+body.f4-direct-bank #dashboardView #pageTabungan .f4-bs-saldo-count{display:inline-flex;align-items:center;min-height:29px;padding:5px 10px;border-radius:999px;border:1px solid #deeadf;background:#edf5e9;color:#466e51;font-size:11px;font-weight:750;white-space:nowrap}
+
+#pageTabungan #v9Form{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  column-gap:10px;row-gap:9px;align-items:start
 }
@@ -1360,21 +1319,29 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
 #pageTabungan #v9History .stat{padding:9px 11px;margin:0 0 7px;border:1px solid #e3ece5;border-radius:9px;background:#fafcfa;box-shadow:none}
 #pageTabungan #v9History .stat strong{display:block;font-size:12px;line-height:1.4}
 #pageTabungan #v9History .stat small{display:block;font-size:11px;margin-top:3px}
-@media(max-width:1190px){
- #pageTabungan .f4-savings-main{grid-template-columns:1fr}
- 
+
+@media(max-width:1023px){
+ #pageTabungan .f4-savings-main{grid-template-columns:minmax(0,1fr)}
+ body.f4-direct-bank #dashboardView #pageTabungan #v9List{max-height:none;overflow:visible}
 }
 @media(max-width:700px){
  #pageTabungan .f4-savings-head h2{font-size:20px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric{min-height:80px;padding:12px}
- body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo .metric strong{font-size:18px}
- #pageTabungan .f4-savings-utility{gap:8px}
- #pageTabungan .f4-savings-panel{padding:11px}
+ #pageTabungan .f4-saldo-hero{grid-template-columns:1fr;padding:14px;gap:12px}
+ #pageTabungan .f4-saldo-primary strong{font-size:31px}
+ #pageTabungan .f4-saldo-parts{gap:6px}
+ #pageTabungan .f4-saldo-part{min-height:72px;padding:10px 9px;gap:5px}
+ #pageTabungan .f4-saldo-part small{font-size:10.5px}
+ #pageTabungan .f4-saldo-part strong{font-size:clamp(14px,4vw,17px)}
+ #pageTabungan .f4-savings-utility{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:100%;padding:8px 9px;font-size:11.5px}
+ #pageTabungan .f4-savings-roster{padding:0;border:0;background:transparent}
+ #pageTabungan .f4-savings-panel{padding:13px}
+ #pageTabungan #v9List .f4-saldo-row{grid-template-columns:35px minmax(0,1fr) auto;padding:9px}
+ #pageTabungan #v9List .f4-saldo-avatar{width:35px;height:35px}
+ #pageTabungan #v9List .f4-saldo-amount{font-size:13.5px}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form{grid-template-columns:1fr}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.field{grid-column:1/-1}
 }
-
 
 /* CSS owner consolidated from #f4-bank-public-compact-and-scrollspy-20261028; prior cascade position preserved */
 
