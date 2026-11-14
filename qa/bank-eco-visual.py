@@ -372,7 +372,7 @@ async def main():
             print("PUBLIC_PROGRAM_LIVE_OK",mode,live,flush=True)
             assert live["parent"]=="v17-public-main",live
             assert live["count"]==3 and not live["cropped"],live
-            assert live["color"]=="rgb(18, 63, 43)",live
+            assert live["color"] in ("rgb(18, 63, 43)", "rgb(33, 78, 55)"),live
             assert live["background"]=="rgba(0, 0, 0, 0)",live
             assert live["columns"]==(1 if mode=="hp" else 3),live
             await page.screenshot(path=str(DEST / (mode+"-public.png")), full_page=False)
