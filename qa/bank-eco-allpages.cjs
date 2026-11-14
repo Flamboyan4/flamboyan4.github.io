@@ -276,7 +276,7 @@ assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px
        !mobile.includes('savings.onclick=event=>') &&
        css.includes('color:var(--member-ink);cursor:default') &&
        css.includes('border:0;border-radius:0;background:transparent;') &&
-       dockCss.includes('box-shadow:0 6px 15px #856b2433;'),
+       dockCss.includes('background:#ffc719;color:#fff;box-shadow:none'),
  'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
 assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
        dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)'),
@@ -479,6 +479,17 @@ assert(css.includes('.f4-compact-sale-row>input{grid-column:span 3}') &&
        css.includes('.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}'),
  'Sale price input must be allocated more width than the weight input');
 
+assert(h.includes('id="f4SaleExtras"') &&
+       h.includes('Detail tambahan <span>Opsional</span>') &&
+       h.includes('id="saleProofUrl"') &&
+       h.includes('id="saleProof"') &&
+       !h.includes('id="f4SaleThreeSteps"') &&
+       !h.includes('id="saleBatchHint"') &&
+       css.includes('#saleForm .f4-sale-extras>summary{') &&
+       css.includes('grid-template-columns:repeat(2,minmax(0,1fr));column-gap:9px') &&
+       !dockCss.includes('box-shadow:0 -4px 12px') &&
+       !dockCss.includes('box-shadow:0 6px 15px'),
+ 'Sale form must preserve optional evidence and payment fields with compact two-column mobile controls');
 // Bank Sampah: shared form grid is owned by bank-eco-pages.css, not desktop overrides.
 assert(css.includes('grid-template-columns:repeat(12,minmax(0,1fr))'),
  'Shared twelve-track Bank Sampah entry grid missing');
