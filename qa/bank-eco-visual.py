@@ -249,6 +249,72 @@ async def check_member_banking_layout(browser, mode, width):
         assert 65<=state["headerHeight"]<=72 and state["extraBrand"]=="none", state
     await page.close()
 
+
+async def check_mobile_dock_scroll(browser, role):
+    """Test the canonical production dock after scroll and viewport changes."""
+    page = await browser.new_page(
+        viewport={"width": 390, "height": 844}, device_scale_factor=2,
+        is_mobile=True, has_touch=True)
+    await page.set_content(
+        '<!doctype html><html><head><meta name="viewport" '
+        'content="width=device-width, initial-scale=1"></head>'
+        '<body class="f4-bank-app-private f4-bank-app-' + role + '" '
+        'style="margin:0"><main style="height:2800px"></main></body></html>')
+    await page.evaluate("""(role) => {
+      const nav=document.createElement('nav');
+      nav.id='f4BankAppDock';
+      nav.className='f4-bank-app-dock';
+      nav.setAttribute('aria-label','Menu bawah Bank Sampah');
+      for(let i=0;i<5;i++){
+        const b=document.createElement('button');
+        b.className='f4-bank-app-dock-action'+(i===2?' is-primary':'');
+        const icon=document.createElement('span');
+        icon.className='f4-bank-app-action-icon';
+        icon.textContent='◎';
+        b.append(icon);
+        if(i!==2){
+          const label=document.createElement('span');
+          label.className='f4-bank-app-action-name';
+          label.textContent='Menu '+i;
+          b.append(label);
+        }
+        nav.append(b);
+      }
+      if(role==='admin'){
+        document.documentElement.classList.add('f4-bank-admin-dock-root');
+        document.documentElement.append(nav);
+      }else document.body.append(nav);
+    }""", role)
+    await page.add_style_tag(content=pathlib.Path("portal-live/bank-mobile-dock.css").read_text())
+    measurements=[]
+    for scroll_y, height in [(0,844),(500,844),(1500,844),(1000,710),(300,710)]:
+        await page.set_viewport_size({"width":390,"height":height})
+        await page.evaluate("(y) => window.scrollTo(0,y)", scroll_y)
+        await page.wait_for_timeout(90)
+        state=await page.evaluate("""() => {
+          const nav=document.getElementById('f4BankAppDock');
+          const rect=nav.getBoundingClientRect();
+          const style=getComputedStyle(nav);
+          return {
+            visible:style.display!=='none',
+            fixed:style.position==='fixed',
+            scroll:window.scrollY,
+            height:rect.height,
+            bottom:rect.bottom,
+            expected:window.innerHeight-parseFloat(style.bottom||'0'),
+            width:rect.width,
+            viewport:window.innerHeight
+          };
+        }""")
+        measurements.append(state)
+        assert state["visible"] and state["fixed"], (role,state)
+        assert abs(state["bottom"]-state["expected"])<2, (role,state)
+        assert abs(state["height"]-64)<2, (role,state)
+        assert abs(state["width"]-390)<2, (role,state)
+    await page.screenshot(path=str(DEST/(role+"-dock-scroll.png")),full_page=False)
+    print("MOBILE_DOCK_SCROLL_OK",role,json.dumps(measurements),flush=True)
+    await page.close()
+
 async def main():
     result = {}
     async with async_playwright() as pw:
@@ -372,6 +438,8 @@ async def main():
             await page.close()
         await check_member_banking_layout(browser, "pc", 1366)
         await check_member_banking_layout(browser, "hp", 390)
+        await check_mobile_dock_scroll(browser, "admin")
+        await check_mobile_dock_scroll(browser, "member")
         await browser.close()
     (DEST / "result.json").write_text(json.dumps(result,indent=2))
     print("F4_BANK_ECO_VISUAL_OK",json.dumps(result,ensure_ascii=False))
