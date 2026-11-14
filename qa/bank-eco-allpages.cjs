@@ -307,7 +307,7 @@ assert(h.includes('/portal-live/bank-mobile-dock.css?v=') &&
        !css.includes('!important') &&
        !h.includes('!important'),
  'Bank Sampah nav must be loaded separately and all Bank CSS must have no priority declarations');
-assert(dockCss.includes('body.f4-bank-app-private{--f4-bank-dock-height:64px}') &&
+assert(dockCss.includes('body.f4-bank-app-private,html.f4-bank-admin-dock-root{--f4-bank-dock-height:64px}') &&
        dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 8px)') &&
        dockCss.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))') &&
        dockCss.includes('grid-template-rows:27px 15px'),
@@ -320,7 +320,7 @@ assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
  'Native fixed member navigation must be used without extra compositor transformations');
 assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
        !dockCss.includes('body.f4-bank-app-member .f4-bank-app-dock-action') &&
-       dockCss.split('body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{').length===2 &&
+       dockCss.split(':is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock-action.is-primary{').length===2 &&
        mobile.includes('isAdminReport=dock&&route==="laporan"') &&
        mobile.includes('if(!b.classList.contains("is-primary"))b.append('),
  'No role-specific dock styles; only icon and route data can differ');
@@ -369,6 +369,11 @@ assert(!dockCss.includes('backdrop-filter:blur(12px)') &&
        dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
  'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
+assert(mobile.includes('const host=roleType()==="admin"?document.documentElement:document.body;') &&
+       mobile.includes('if(nav.parentNode!==host)host.append(nav);') &&
+       mobile.includes('document.documentElement.classList.toggle("f4-bank-admin-dock-root",isPrivate&&next==="admin");') &&
+       dockCss.includes(':is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock:not([hidden]){'),
+ 'Admin dock must mount outside the scrolling body while member dock stays in body');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
 assert(mobile.includes('const adminDock=['),'Manager dock must have its own distinct five-item route list');
 assert(mobile.includes('isAdminReport=dock&&route==="laporan"'),
