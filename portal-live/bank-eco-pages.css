@@ -1425,12 +1425,12 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#43a047;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#009788;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#09bcd3;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174630}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#8bc24a;--bank-shortcut-ink:#174630}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#efb20e;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#78b53b;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#009788;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#43a047;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#dfe8e3;--bank-shortcut-ink:#315347}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174630}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#efb20e;--bank-shortcut-ink:#fff}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover{
  color:var(--bank-shortcut-accent,#087b54);transform:translateY(-2px)
 }
@@ -2509,7 +2509,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 }
 .f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon{
  flex:none;width:52px;height:52px;border-radius:16px;
- background:#00978815;color:#008b7d
+ background:#009788;color:#fff
 }
 .f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon svg{
  display:block;width:24px;height:24px;stroke:currentColor;fill:none;
