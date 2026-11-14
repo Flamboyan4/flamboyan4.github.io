@@ -308,6 +308,13 @@ async def check_mobile_dock_scroll(browser, role):
         assert abs(state["bottom"]-state["expected"])<2, (role,state)
         assert abs(state["height"]-64)<2, (role,state)
         assert abs(state["width"]-390)<2, (role,state)
+        layer=await page.evaluate("""() => {
+          const style=getComputedStyle(document.getElementById('f4BankAppDock'));
+          return {willChange:style.willChange,backface:style.backfaceVisibility,isolation:style.isolation,transform:style.transform};
+        }""")
+        assert "transform" in layer["willChange"], (role,layer)
+        assert layer["backface"]=="hidden" and layer["isolation"]=="isolate", (role,layer)
+        assert layer["transform"]=="none", (role,layer)
     await page.screenshot(path=str(DEST/(role+"-dock-scroll.png")),full_page=False)
     print("MOBILE_DOCK_SCROLL_OK",role,json.dumps(measurements),flush=True)
     await page.close()
