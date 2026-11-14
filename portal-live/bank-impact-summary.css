@@ -1,139 +1,168 @@
-/* ONE owner for the Bank Sampah public hero and headline metrics.
-   Five-color palette: yellow #FDC010, lime #8BC24A, green #43A047,
-   teal #009788, cyan #09BCD3. No priority hacks. */
+/* Portal publik: ringkas, kontras tenang, foto tetap dapat dibuka.
+   Pemilik tunggal gaya hero dan lima metrik; tidak mengubah kartu keuangan privat. */
 #v11Public .v17-public-main>.v17-public-banner{
-  grid-column:1/-1;box-sizing:border-box;display:grid;
-  grid-template-columns:minmax(0,1.17fr) minmax(0,.83fr);
-  align-items:center;gap:clamp(17px,3vw,34px);
-  width:100%;min-width:0;min-height:250px;margin:0;
-  padding:clamp(24px,3vw,36px);border:0;border-radius:24px;
-  background:#43a047;color:#fff;box-shadow:0 12px 28px #217b4124
+ box-sizing:border-box;grid-column:1/-1;display:grid;
+ grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+ align-items:center;gap:24px;min-width:0;width:100%;
+ min-height:0;margin:0;padding:23px 25px;
+ border:1px solid #dce9dd;border-radius:19px;
+ background:#f1f8f0;color:#174630;box-shadow:none
 }
 #v11Public .v17-public-main>.v17-public-banner>div:first-child{
-  display:flex;flex-direction:column;align-items:flex-start;min-width:0
+ display:flex;flex-direction:column;align-items:flex-start;min-width:0
 }
 #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;padding:7px 13px;
-  background:#ffffff2a;color:#fff;border:1px solid #ffffff50;
-  border-radius:999px;font-size:11px;font-weight:800
+ display:inline-flex;align-items:center;gap:7px;
+ margin:0;padding:5px 9px;border:1px solid #d3e8d5;
+ border-radius:8px;background:#e6f3e3;color:#267044;
+ font-size:10px;line-height:1.3;font-weight:800;letter-spacing:.08em;text-transform:uppercase
 }
-#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow img{width:18px;height:18px;display:block}
+#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow img{
+ display:block;width:16px;height:16px
+}
 #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
-  margin:16px 0 9px;max-width:660px;color:#fff;
-  font-size:clamp(27px,3.3vw,42px);font-weight:850;
-  line-height:1.16;letter-spacing:-.036em;text-wrap:balance
+ max-width:620px;margin:13px 0 7px;color:#185038;
+ font-size:clamp(23px,2.65vw,33px);line-height:1.17;
+ font-weight:850;letter-spacing:-.032em;text-wrap:balance
 }
 #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
-  margin:0;max-width:550px;color:#f1fff0;opacity:1;
-  font-size:clamp(12px,1.1vw,14px);line-height:1.6
+ max-width:500px;margin:0;color:#66816e;opacity:1;
+ font-size:clamp(12px,1vw,13px);line-height:1.55
 }
 #v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo){
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  min-height:40px;padding:9px 16px;margin:13px 9px 0 0;
-  border:0;border-radius:12px;background:#fdc010;color:#25412d;
-  box-shadow:0 4px 12px #153f2e14;font-weight:800;cursor:pointer
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+ min-height:36px;margin:11px 8px 0 0;padding:8px 13px;
+ border:0;border-radius:10px;background:#1c7850;color:#fff;
+ box-shadow:none;font-weight:750;cursor:pointer
 }
-#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):hover{background:#f2b900}
-#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):focus-visible{outline:2px solid #fff;outline-offset:3px}
+#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):hover{background:#146442}
+#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):focus-visible{
+ outline:2px solid #16815c;outline-offset:3px
+}
 #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo{
-  display:none;box-sizing:border-box;width:100%;min-width:0;
-  height:204px;padding:0;overflow:hidden;border:0;border-radius:18px;
-  background:#e3f5e7;box-shadow:0 6px 18px #164c3026;cursor:pointer
+ display:none;box-sizing:border-box;width:100%;min-width:0;
+ height:179px;margin:0;padding:0;overflow:hidden;border:0;border-radius:14px;
+ background:#dae8db;box-shadow:none;cursor:pointer
 }
 #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{display:block}
 #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{
-  width:100%;height:100%;display:block;object-fit:cover;object-position:center;transition:transform .2s ease
+ display:block;width:100%;height:100%;object-fit:cover;object-position:center;
+ transition:transform .2s ease
 }
 #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo:hover img{transform:scale(1.02)}
 #v11Public .v17-public-main>.v17-public-banner:not(:has(>.v30-hero-photo.has-photo)){
-  grid-template-columns:minmax(0,1fr)
+ grid-template-columns:minmax(0,1fr)
 }
 #v11Public .v17-public-main>.v17-public-metrics{
-  grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  grid-template-rows:none;gap:12px;align-items:stretch;
-  min-width:0;width:100%;margin:0;padding:0;border:0;border-radius:0;
-  background:transparent;overflow:visible
+ box-sizing:border-box;grid-column:1/-1;display:grid;
+ grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;
+ align-items:stretch;width:100%;min-width:0;margin:0;padding:0;
+ border:0;border-radius:0;background:transparent;overflow:visible
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
-  display:flex;flex-direction:column;align-items:flex-start;gap:5px;
-  box-sizing:border-box;min-width:0;min-height:119px;
-  padding:15px 16px;margin:0;border:0;border-radius:19px;
-  background:#fff;box-shadow:0 5px 17px #1e6b3510
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2){background:#fff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(3){background:#fff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(4){background:#fff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(5){background:#fff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
-  content:"";display:block;flex:none;width:28px;height:28px;
-  margin:0 0 2px;border-radius:9px;
-  background:#ffffffac url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/17px no-repeat
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{background-image:url('/assets/icons/user.svg')}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{background-image:url('/assets/icons/inventory.svg')}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{background-image:url('/assets/icons/calendar.svg')}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{background-image:url('/assets/icons/cash.svg')}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2)::before{background-color:#e0f7f0}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(3)::before{background-color:#e8f6dd}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(4)::before{background-color:#e0f7fb}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(5)::before{background-color:#fff3cb}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
-  display:block;margin:0;font-size:12px;line-height:1.35;font-weight:600;color:#526d5e
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2) strong{color:#009788}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(3) strong{color:#43a047}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(4) strong{color:#0a8296}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(5) strong{color:#a57700}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
-  display:block;margin:1px 0 0;font-size:clamp(21px,2.1vw,29px);
-  font-weight:850;line-height:1.12;letter-spacing:-.03em;color:#145b3f;
-  overflow-wrap:anywhere;font-variant-numeric:tabular-nums
+ box-sizing:border-box;display:flex;flex-direction:column;
+ align-items:flex-start;gap:4px;min-width:0;min-height:99px;
+ margin:0;padding:13px 14px;border:1px solid #e0eae2;
+ border-radius:15px;background:#fff;box-shadow:none
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
-  grid-column:auto;min-height:119px;padding:15px 16px;background:#8bc24a
+ grid-column:auto;min-height:99px;padding:13px 14px;
+ border-color:#d4e8d1;background:#edf7e6
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
+ content:"";display:block;flex:none;width:24px;height:24px;margin:0 0 1px;
+ border-radius:7px;background:#edf6ed url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/16px no-repeat
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
+ background-color:#e2f5e8;background-image:url('/assets/icons/user.svg')
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
+ background-color:#e7f3e2;background-image:url('/assets/icons/inventory.svg')
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
+ background-color:#e2f4f4;background-image:url('/assets/icons/calendar.svg')
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{
+ background-color:#fbf1d7;background-image:url('/assets/icons/cash.svg')
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
+ display:block;margin:0;color:#718578;font-size:11px;font-weight:600;line-height:1.32
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
+ display:block;margin:2px 0 0;color:#176045;
+ font-size:clamp(19px,1.9vw,25px);font-weight:850;line-height:1.18;
+ letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
-  font-size:clamp(21px,2.1vw,29px);color:#173d30
+ color:#1c593d
 }
 @media(max-width:1100px){
-  #v11Public .v17-public-main>.v17-public-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
-  #v11Public .v17-public-main>.v17-public-banner{grid-template-columns:minmax(0,1fr) minmax(0,.72fr)}
+ #v11Public .v17-public-main>.v17-public-metrics{
+  grid-template-columns:repeat(3,minmax(0,1fr))
+ }
+ #v11Public .v17-public-main>.v17-public-banner{
+  grid-template-columns:minmax(0,1fr) minmax(0,.8fr)
+ }
 }
 @media(max-width:760px){
-  #v11Public .v17-public-main>.v17-public-banner{
-    grid-column:1/-1;grid-template-columns:minmax(0,1fr);
-    min-height:0;gap:17px;padding:22px 19px;border-radius:22px
-  }
-  #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
-    font-size:clamp(25px,6.5vw,32px);margin:14px 0 8px
-  }
-  #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{
-    height:183px;border-radius:15px
-  }
-  #v11Public .v17-public-main>.v17-public-metrics{
-    grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
-  }
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
-    min-height:104px;padding:13px 14px;border-radius:17px
-  }
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
-    grid-column:1/-1;min-height:102px;padding:15px 17px
-  }
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2) strong{color:#009788}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(3) strong{color:#43a047}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(4) strong{color:#0a8296}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(5) strong{color:#a57700}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{font-size:21px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{font-size:29px}
+ #v11Public .v17-public-main>.v17-public-banner{
+  grid-template-columns:minmax(0,1fr) 112px;gap:11px;
+  padding:15px;border-radius:16px
+ }
+ #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
+  font-size:clamp(19px,5.2vw,22px);margin:9px 0 6px;line-height:1.21
+ }
+ #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
+  font-size:11px;line-height:1.45
+ }
+ #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow{
+  padding:4px 7px;font-size:9px;letter-spacing:.045em
+ }
+ #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{
+  height:143px;border-radius:12px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
+  display:grid;grid-template-columns:23px minmax(0,1fr);
+  grid-template-rows:auto 1fr;align-items:center;column-gap:7px;row-gap:4px;
+  min-height:82px;padding:10px 11px;border-radius:13px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
+  grid-column:1;width:22px;height:22px;margin:0;background-size:15px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
+  grid-column:2;font-size:10.5px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
+  grid-column:1/-1;font-size:20px;margin-top:1px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
+  grid-column:1/-1;display:flex;flex-direction:row;
+  align-items:center;justify-content:space-between;gap:10px;
+  min-height:64px;padding:11px 14px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{display:none}
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
+  color:#557661;font-size:12px;font-weight:750
+ }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
+  flex:none;font-size:26px;white-space:nowrap
+ }
 }
 @media(max-width:360px){
-  #v11Public .v17-public-main>.v17-public-banner{padding:19px 16px}
-  #v11Public .v17-public-main>.v17-public-metrics{gap:8px}
-  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{padding:12px}
+ #v11Public .v17-public-main>.v17-public-banner{
+  grid-template-columns:minmax(0,1fr) 93px;gap:9px;padding:12px
+ }
+ #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{height:128px}
+ #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){font-size:19px}
+ #v11Public .v17-public-main>.v17-public-metrics{gap:7px}
 }
 @media(prefers-reduced-motion:reduce){
-  #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{transition:none}
+ #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{transition:none}
 }
+
 /* Warga melihat angka rupiah di ruang akun, bukan di halaman tanpa login. */
 #f4BankPrivateFinancialSummary {
   min-width:0;
