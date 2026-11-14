@@ -79,6 +79,9 @@
  }
  // Capture before page/router listeners. Consume exactly one modal guard.
  window.addEventListener('popstate',event=>{
+  const top=frames[frames.length-1];
+  // A nested native date/select picker owns its own history entry.
+  if(!consuming&&top&&event.state?.f4BankModalGuard===top.id)return;
   if(consuming){
    const frame=consuming;consuming=null;
    const i=frames.indexOf(frame);if(i>=0)frames.splice(i,1);
