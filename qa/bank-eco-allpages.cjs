@@ -601,7 +601,7 @@ assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        css.includes('#dashboardView #f4BankAdminHeroBreakdown{'),
  'Manager reference layout must use live D1 figures and clickable active-member tile, not mocked data');
 assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP)') &&
-       css.includes('grid-template-columns:minmax(0,1fr) 43px 72px 40px;') &&
+       css.includes('grid-template-columns:minmax(0,1fr) minmax(0,43px) minmax(0,72px) minmax(0,40px);') &&
        css.includes('#saleItems .f4-compact-sale-row>.f4-compact-entry-group{\n  display:contents') &&
        !css.includes('f4-bank-own-intro') &&
        !css.includes('f4-bank-own-weight') &&
