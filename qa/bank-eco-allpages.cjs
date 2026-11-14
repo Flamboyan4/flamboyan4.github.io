@@ -321,7 +321,7 @@ assert(dockCss.includes('position:fixed;left:0;right:0;bottom:0') &&
 assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
        !dockCss.includes('body.f4-bank-app-member .f4-bank-app-dock-action') &&
        dockCss.split('body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{').length===2 &&
-       mobile.includes('isAdminReport=dock&&route==="laporan"') &&
+       mobile.includes('isAdminDeposit=dock&&roleType()==="admin"&&route==="setoran"') &&
        mobile.includes('if(!b.classList.contains("is-primary"))b.append('),
  'No role-specific dock styles; only icon and route data can differ');
 assert(!dockCss.includes('@media print') && !css.includes('@media print'),
@@ -387,9 +387,15 @@ assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(n
        dockCss.includes('body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){'),
  'Both roles must mount the dock on body with no double viewport offsets');
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
-assert(mobile.includes('const adminDock=['),'Manager dock must have its own distinct five-item route list');
-assert(mobile.includes('isAdminReport=dock&&route==="laporan"'),
- 'Manager dock central gold action must open Laporan, not Setoran');
+assert(mobile.includes('const adminDock=[') &&
+       mobile.includes('["Beranda","dashboard","home.svg"],["Penjualan","penjualan","shopping-cart"]') &&
+       mobile.includes('["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"]') &&
+       mobile.includes('["Laporan","laporan","book.svg"]') &&
+       mobile.includes('f4-bank-cart-icon') &&
+       dockCss.includes('f4-bank-cart-icon'),
+ 'Manager dock order must be Beranda, Penjualan (SVG cart), Setoran (center), Saldo, Laporan');
+assert(mobile.includes('isAdminDeposit=dock&&roleType()==="admin"&&route==="setoran"'),
+ 'Manager dock central gold action must open Setoran');
 assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &&
        mobile.includes('function ensureDesktopAdminSidebar()') &&
        mobile.includes('anchor.after(items);') &&
@@ -548,6 +554,15 @@ assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        css.includes('#dashboardView #f4BankAdminHeroBreakdown{'),
  'Manager reference layout must use live D1 figures and clickable active-member tile, not mocked data');
 assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP)') &&
+       css.includes('grid-template-columns:minmax(0,1fr) 43px 72px 40px;') &&
+       css.includes('#saleItems .f4-compact-sale-row>.f4-compact-entry-group{\n  display:contents') &&
+       !css.includes('f4-bank-own-intro') &&
+       !css.includes('f4-bank-own-weight') &&
+       !mobile.includes('f4BankOwnWeight') &&
+       !mobile.includes('f4-bank-own-intro') &&
+       !mobile.includes('updateOwnWeight') &&
+       h.includes("weight.placeholder='Kg';weight.setAttribute('aria-label','Berat terjual (kg)');") &&
+       h.includes("price.placeholder='Rp/kg';price.setAttribute('aria-label','Harga lapak per kilogram');") &&
        css.includes('#pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add') &&
        css.includes('#pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add') &&
        css.includes('#setoranForm #saveSetoranBtn,') &&
