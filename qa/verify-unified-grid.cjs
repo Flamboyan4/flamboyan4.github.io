@@ -95,8 +95,8 @@ const dashboardCss=read('portal-live/bank-eco-dashboard.css');
 const homeOverrides=read('portal-live/home-overrides.css');
 assert(!memberCss.includes('#dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
   'Obsolete member note override returned');
-assert(dashboardCss.includes('body #dashboardView #pageDashboard.f4-member-dashboard .f4-member-finance-note{'),
-  'Canonical member note is missing');
+assert(!dashboardCss.includes('.f4-member-finance-note{') && !memberCss.includes('.f4-member-finance-note{'),
+  'Removed member note must not return as a duplicate CSS owner');
 assert.equal(homeOverrides.split('#f4-private-transactions tbody tr[hidden]{display:none!important}').length-1,0,
   'Obsolete responsive hidden-row override returned');
 // CSS ownership: adjacent legacy overlays are coalesced at their original cascade location.
