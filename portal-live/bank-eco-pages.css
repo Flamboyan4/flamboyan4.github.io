@@ -1187,7 +1187,7 @@ body.f4-bank-app-admin #dashboardView .section #saleForm #saleItems .f4-compact-
  gap:var(--bank-form-gap)
 }
 body.f4-bank-app-admin #dashboardView .section .f4-entry-goods-heading{
- min-height:42px
+ min-height:0
 }
 body.f4-bank-app-admin #dashboardView .section .f4-entry-goods-heading>.f4-compact-add{
  min-height:42px;align-self:center
@@ -1306,7 +1306,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   #pageSetoran #setoranForm>.f4-setoran-main,
   #pagePenjualan #saleForm>.f4-sale-main){
   padding:18px;border:1px solid #e9eff0;border-radius:23px;
-  background:#fff;box-shadow:0 4px 15px #133e3310;gap:13px
+  background:#fff;box-shadow:0 4px 15px #133e3310;gap:10px
  }
  body.f4-bank-app-admin #dashboardView :is(
   #pageSetoran #setoranForm .f4-setoran-main,
@@ -1327,11 +1327,9 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   order:1;margin:0;overflow:visible
  }
 
- /* Tombol tambah sama pada tiga form: di bawah baris input, selebar kartu. */
- body.f4-bank-app-admin #dashboardView :is(
-  #pageSetoran #setoranForm .f4-entry-goods-heading>.f4-compact-add,
-  #pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add,
-  #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add){
+ /* Penjualan retains its mobile order; both Setoran forms share one
+    canonical add-button owner below the rows, defined outside this media. */
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add{
   box-sizing:border-box;order:2;justify-self:stretch;width:100%;min-height:48px;
   margin:0;padding:11px 12px;border:2px dashed #00978866;border-radius:13px;
   background:#0097880a;color:#007c70;font-size:13px;font-weight:850
@@ -1369,7 +1367,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{order:5}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{order:6}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
-  box-sizing:border-box;gap:13px;padding:17px 18px;border:1px solid #e9eff0;
+  box-sizing:border-box;gap:10px;padding:17px 18px;border:1px solid #e9eff0;
   border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail-head strong{
@@ -1870,6 +1868,16 @@ body.f4-bank-app-admin #pageSetoran .f4-bank-own-weight-summary strong{
 .f4-compact-add{
  min-height:36px;padding:7px 13px;border:1px solid #cde2d4;border-radius:10px;
  background:#fff;color:#136744;font-size:12px;font-weight:800;cursor:pointer
+}
+/* Single add-action style for Warga and Bank's own stock, both PC + HP.
+   Buttons are real siblings AFTER the item rows, never inside the heading. */
+body.f4-bank-app-admin #dashboardView #pageSetoran :is(
+ #setoranForm .f4-setoran-main,
+ #f4BankOwnDepositForm .f4-bank-own-detail)>.f4-compact-add{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ order:2;justify-self:stretch;width:100%;min-height:44px;
+ margin:0;padding:9px 12px;border:1px dashed #00978880;border-radius:12px;
+ background:#0097880a;color:#007c70;font-size:13px;font-weight:800
 }
 /* Canonical Setoran/Penjualan item rows share the form's 12-track boundaries. */
 .f4-compact-rows{display:grid;gap:9px;min-width:0}
@@ -2488,7 +2496,9 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   border-radius:22px;background:#fff;box-shadow:0 5px 19px #153f2a0a
  }
  body.f4-bank-app-admin #dashboardView .section #saleForm>.f4-sale-main{grid-row:2}
- body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-setoran-main{grid-row:1/span 2}
+ body.f4-bank-app-admin #dashboardView .section #setoranForm>.f4-setoran-main{
+  grid-row:1/span 2;gap:8px;padding:20px 23px
+ }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
   grid-column:2;grid-row:2;align-self:start;min-width:0;gap:14px
  }
@@ -2512,7 +2522,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   background:#009788;color:#fff;border:0;border-radius:15px;
   font-size:14px;font-weight:850
  }
- body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) .f4-entry-goods-heading{
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-entry-goods-heading{
   min-height:48px;margin-bottom:6px
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm) .f4-entry-goods-heading>.f4-compact-add{

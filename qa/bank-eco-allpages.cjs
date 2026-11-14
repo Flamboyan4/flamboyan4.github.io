@@ -601,6 +601,15 @@ assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        mobile.includes('node.onclick=()=>navigate("tabungan")') &&
        css.includes('#dashboardView #f4BankAdminHeroBreakdown{'),
  'Manager reference layout must use live D1 figures and clickable active-member tile, not mocked data');
+assert(h.includes('<div id="setBarang" class="tablewrap"></div><button id="f4SetAddKind"') &&
+       !h.includes('class="f4-compact-add" onclick="addSetoranItemRow()">Tambah jenis</button></div><div id="setBarang"') &&
+       mobile.includes('detail.append(rows,add);') &&
+       css.includes('Single add-action style for Warga and Bank') &&
+       css.includes('#setoranForm .f4-setoran-main,') &&
+       css.includes('#f4BankOwnDepositForm .f4-bank-own-detail)>.f4-compact-add{') &&
+       css.includes('grid-row:1/span 2;gap:8px;padding:20px 23px') &&
+       !css.includes('#setoranForm .f4-entry-goods-heading>.f4-compact-add'),
+ 'Both Setoran Warga and Bank must show an identical full-width add button BELOW item rows with compact headings');
 assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP)') &&
        css.includes('grid-template-columns:minmax(0,1fr) minmax(0,43px) minmax(0,72px) minmax(0,40px);') &&
        css.includes('#saleItems .f4-compact-sale-row>.f4-compact-entry-group{\n  display:contents') &&

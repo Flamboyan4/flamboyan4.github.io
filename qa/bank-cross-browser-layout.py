@@ -141,6 +141,41 @@ async def main():
                             results.append({"engine":engine_name,"width":width,"desktop":desktop,"failures":problems})
                         if width in (1024,1366):
                             await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-home.png"))
+                    # Setoran Warga: the action must follow actual item fields,
+                    # never float alongside the heading (desktop and mobile).
+                    if width in (320,390,412,768,1024,1366,1920):
+                        await page.evaluate(MEASURE,"pageSetoran")
+                        add_layout=await page.evaluate("""() => {
+                          const rect=s=>{
+                            const e=document.querySelector(s);
+                            if(!e)return null;
+                            const r=e.getBoundingClientRect();
+                            return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width};
+                          };
+                          const main=document.querySelector('#setoranForm .f4-setoran-main');
+                          const button=document.querySelector('#f4SetAddKind');
+                          return {head:rect('#setoranForm .f4-entry-goods-heading'),
+                            goods:rect('#setBarang .f4-compact-rows'),
+                            button:rect('#f4SetAddKind'),
+                            main:rect('#setoranForm .f4-setoran-main'),
+                            order:button&&main?[...main.children].indexOf(button):null};
+                        }""")
+                        errors=[]
+                        head,goods,button,main=(add_layout.get(k) for k in ('head','goods','button','main'))
+                        if not all((head,goods,button,main)):
+                            errors.append("Setoran Warga goods, title or add action missing")
+                        else:
+                            if (button['top']<goods['bottom']-1 or
+                                button['width']<goods['width']-2 or
+                                abs(button['left']-goods['left'])>2):
+                                errors.append("Setoran Warga add button not full-width below the goods")
+                            if goods['top']-head['bottom']>20:
+                                errors.append("Setoran Warga goods row too far below the title")
+                            if add_layout['order']!=2:
+                                errors.append("Setoran Warga add action is not the third direct item")
+                        if errors:
+                            results.append({'engine':engine_name,'width':width,
+                                'setoranAdd':add_layout,'failures':errors})
                     # Check the user's actual desktop Setoran screen: the
                     # live member/date controls belong right of goods and above kg.
                     if width >= 1024:
@@ -247,6 +282,9 @@ async def main():
                             fields:rect('#f4BankOwnDepositForm .f4-bank-own-fields'),
                             main:rect('#f4BankOwnDepositForm .f4-bank-own-main'),
                             total:rect('#f4BankOwnDepositForm .f4-bank-own-weight-summary'),
+                            add:rect('#f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add'),
+                            goods:rect('#f4BankOwnLines'),
+                            head:rect('#f4BankOwnDepositForm .f4-bank-own-detail-head'),
                             value:document.querySelector('#f4BankOwnWeightTotal')?.textContent
                           };
                         }""")
@@ -260,6 +298,13 @@ async def main():
                                 err.append('Bank Sampah own-deposit date is not above total in right column')
                         if own['value']!='1,25 kg':
                             err.append('real Bank stock weight input did not update total kg')
+                        if not all(own.get(k) for k in ('add','goods','head')):
+                            err.append('Bank Sampah add-action structure is missing')
+                        elif (own['add']['top']<own['goods']['bottom']-1 or
+                              abs(own['add']['left']-own['goods']['left'])>2 or
+                              own['add']['right']<own['goods']['right']-2 or
+                              own['goods']['top']-own['head']['bottom']>20):
+                            err.append('Bank Sampah add-action not aligned below item rows')
                         if err:results.append({'engine':engine_name,'width':width,'own':own,'failures':err})
                         await page.screenshot(path=str(OUT/f"{engine_name}-1366-bank-stock.png"))
                     for page_id in PAGES:
