@@ -101,8 +101,10 @@ function selectPicker(field,trigger){
  paint();
  if(dropdown)requestAnimationFrame(()=>overlay?._reposition?.());
  const current=list.querySelector('[aria-selected=true]');
- current?.scrollIntoView?.({block:'nearest'});
- panel.querySelector('.f4-control-search')?.focus();
+ // Never scroll the document to a fixed dropdown or force the Android
+ // keyboard when the user merely opens a choice list.
+ if(current)panel.scrollTop=Math.max(0,current.offsetTop-panel.offsetTop-12);
+
 }
 function formatValue(field){
  if(field.type==='month'){
