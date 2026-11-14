@@ -1487,12 +1487,93 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
 #dashboardView #bank-admin-history>.card:not(.hidden){
  width:100%;margin:0;max-width:none
 }
-#dashboardView #pageRekonsiliasi>.f4-bank-admin-approval{
- margin-top:14px;padding:15px;border:1px solid #dce9df;
- border-radius:14px;background:#fff
+/* Pengesahan pengurus — satu tindakan utama, rincian tambahan tetap tersedia. */
+body.f4-bank-app-admin #dashboardView #pageRekonsiliasi{
+ width:100%;max-width:none;padding:0;margin:0;
+ border:0;border-radius:0;box-shadow:none;background:transparent
 }
-#dashboardView #pageRekonsiliasi .field[hidden]{display:none}
-#dashboardView #pageRekonsiliasi #reconResult{margin:12px 0;min-width:0}
+body.f4-bank-app-admin #dashboardView #pageRekonsiliasi>h2{
+ margin:0 0 13px;font-size:20px;line-height:1.35;color:#174c36
+}
+body.f4-bank-app-admin #dashboardView #pageRekonsiliasi>.f4-bank-admin-approval{
+ margin:0;padding:18px;border:1px solid #e0ebe3;
+ border-radius:18px;background:#fff;box-shadow:0 3px 13px #18463208
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-heading{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-picker{margin:0 0 8px}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-picker label{
+ margin:0 0 7px;color:#315c47;font-size:12px;font-weight:750
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-picker select{
+ min-height:45px;border:1px solid #d9e9df;border-radius:12px;
+ padding:10px 13px;background:#fff;color:#254c39;font-size:13px
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-caution{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi #pagePengesahan.has-selection .f4-approval-caution{
+ display:flex;align-items:center;gap:8px;margin:0 0 12px;
+ border:1px solid #e3e9d8;background:#fafcf6;color:#597046;
+ border-radius:11px;padding:9px 11px;font-size:12px
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-caution svg{flex:none}
+body.f4-bank-app-admin #pageRekonsiliasi #pagePengesahan.is-empty .f4-approval-picker{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-empty{
+ display:flex;align-items:center;gap:11px;min-height:68px;
+ padding:12px 2px;color:#3f6752;font-size:13px;line-height:1.4
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-empty svg{
+ flex:none;box-sizing:content-box;padding:10px;border-radius:12px;
+ background:#e9f6ed;color:#168057
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v8Preview:empty{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric-grid{
+ grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric{
+ min-width:0;padding:12px;border-radius:12px;background:#f7fbf8;
+ border:1px solid #e1ede4;box-shadow:none
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric strong{
+ font-size:17px;line-height:1.24;color:#184b36
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel{
+ margin:12px 0 0;padding:0 11px;border:1px solid #e5ece7;
+ border-radius:12px;background:#fff
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel[open]{padding:0 11px 12px}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel summary{
+ display:flex;align-items:center;gap:8px;min-height:42px;
+ margin:0;color:#687a70;font-size:12px;list-style:none
+}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel summary::-webkit-details-marker{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi #v27CancelPanel[open] summary{margin-bottom:8px}
+body.f4-bank-app-admin #pageRekonsiliasi .field[hidden]{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details{
+ margin:10px 0 0;padding:0 13px;border:1px solid #e2ebe5;
+ border-radius:12px;background:#fff
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details[hidden]{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details>summary{
+ display:flex;align-items:center;justify-content:space-between;
+ min-height:43px;font-size:12px;font-weight:750;color:#476e57;cursor:pointer;list-style:none
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details>summary::-webkit-details-marker{display:none}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details>summary svg{
+ flex:none;width:16px;height:16px;transition:transform .15s
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details[open]>summary svg{transform:rotate(180deg)}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details>.pill-note{
+ margin:0 0 8px;padding:0;border:0;background:transparent;
+ font-size:12px;line-height:1.4;color:#78897d
+}
+body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details #reconResult{
+ min-width:0;margin:0 0 12px;font-size:12px
+}
+@media(max-width:760px){
+ body.f4-bank-app-admin #dashboardView #pageRekonsiliasi>.f4-bank-admin-approval{padding:14px;border-radius:15px}
+ body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric{padding:10px}
+ body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric strong{font-size:15px}
+}
 .f4-bank-admin-name-row{display:flex;align-items:center;gap:8px;min-width:0}
 .f4-bank-admin-name-edit{
  display:grid;place-items:center;width:33px;height:33px;min-width:33px;
@@ -1579,24 +1660,96 @@ body.f4-bank-app-admin #dashboardView #bank-admin-docs{
 body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
  display:grid;min-width:0;gap:10px;
 }
-/* Dokumentasi manager: tab is the only heading; no extra outer panel. */
+/* Dokumentasi pengurus — galeri foto ringkas seperti Portal Utama. */
+body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs{
+ display:inline-flex;flex-wrap:nowrap;gap:3px;align-items:center;
+ width:max-content;max-width:100%;margin:0 0 8px;
+ padding:4px;border:1px solid #e2ebe4;border-radius:13px;background:#f0f6f1
+}
+body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs>.f4-bank-admin-history-tab{
+ min-height:36px;min-width:96px;padding:8px 13px;margin:0;
+ border:0;border-radius:10px;background:transparent;color:#5d7768;
+ font-size:12px;font-weight:750;box-shadow:none
+}
+body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs>.f4-bank-admin-history-tab.is-active{
+ background:#146b48;color:#fff
+}
+body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
+ display:grid;min-width:0;gap:8px
+}
 body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris){
  display:block;min-width:0;width:100%;box-sizing:border-box;
- background:transparent;border:0;border-radius:0;padding:0;margin:0;box-shadow:none
+ margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
 }
 body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris)[hidden]{display:none}
 body.f4-bank-app-admin #bank-admin-docs #v22DocsPage .v22-doc-heading,
 body.f4-bank-app-admin #bank-admin-docs #v17Inventaris>h2{display:none}
-body.f4-bank-app-admin #bank-admin-docs #v22DocFilters{
- display:flex;flex-wrap:wrap;overflow:visible;gap:7px;min-width:0
+body.f4-bank-app-admin #bank-admin-docs #v22DocsPage .v22-doc-tools{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:10px;min-width:0;margin:3px 0 11px
 }
+body.f4-bank-app-admin #bank-admin-docs #v22DocCount{
+ margin:0;font-size:12px;font-weight:600;color:#84978a;white-space:nowrap
+}
+body.f4-bank-app-admin #bank-admin-docs #v22DocSearch{
+ flex:0 1 210px;box-sizing:border-box;width:100%;min-width:0;
+ max-width:210px;height:38px;min-height:38px;margin:0;
+ padding:8px 12px;border:1px solid #dae7df;border-radius:11px;
+ background:#fff;font-size:12px;color:#28503c
+}
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters{
+ display:flex;flex-wrap:nowrap;min-width:0;gap:6px;
+ overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+ margin:0 0 12px;padding:0 0 3px;scrollbar-width:none
+}
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters::-webkit-scrollbar{display:none}
 body.f4-bank-app-admin #bank-admin-docs #v22DocFilters[hidden]{display:none}
 body.f4-bank-app-admin #bank-admin-docs #v22DocFilters>button{
- white-space:nowrap;flex:0 0 auto
+ flex:0 0 auto;min-height:32px;margin:0;padding:7px 11px;
+ border:1px solid #dce8df;border-radius:999px;
+ color:#587363;background:#fff;font-size:11px;font-weight:700;
+ white-space:nowrap;box-shadow:none
 }
-body.f4-bank-app-admin #bank-admin-docs #v22DocSearch{width:100%;box-sizing:border-box;max-width:460px}
+body.f4-bank-app-admin #bank-admin-docs #v22DocFilters>button.active{
+ background:#1b704c;color:#fff;border-color:#1b704c
+}
 body.f4-bank-app-admin #bank-admin-docs .v22-doc-list{
- display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;min-width:0
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card{
+ position:relative;display:block;aspect-ratio:1;width:100%;min-width:0;
+ padding:0;overflow:hidden;text-align:left;border:0;border-radius:12px;
+ background:#e7efe9;color:#fff;box-shadow:none;transform:none
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card:is(:hover,:focus-visible){
+ box-shadow:0 0 0 2px #3c9d6a;transform:none
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card>img,
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card>.v21-placeholder{
+ position:absolute;inset:0;display:block;width:100%;height:100%;
+ margin:0;object-fit:cover;border-radius:0
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card>.v21-placeholder{
+ display:grid;place-items:center
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card-info{
+ position:absolute;inset:auto 0 0;z-index:1;display:block;min-width:0;
+ padding:22px 8px 8px;background:linear-gradient(transparent,#123323c9)
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card-info strong{
+ display:-webkit-box;overflow:hidden;-webkit-box-orient:vertical;
+ -webkit-line-clamp:2;font-size:12px;line-height:1.3;font-weight:760;
+ color:#fff;overflow-wrap:anywhere
+}
+body.f4-bank-app-admin #bank-admin-docs .v22-doc-card-info :is(.v22-cat-badge,small){display:none}
+@media(max-width:760px){
+ body.f4-bank-app-admin #bank-admin-docs .v22-doc-list{
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:5px
+ }
+ body.f4-bank-app-admin #bank-admin-docs .v22-doc-card{border-radius:8px}
+ body.f4-bank-app-admin #bank-admin-docs .v22-doc-card-info{padding:19px 6px 7px}
+ body.f4-bank-app-admin #bank-admin-docs .v22-doc-card-info strong{font-size:10.5px}
+ body.f4-bank-app-admin #bank-admin-docs #v22DocSearch{flex-basis:160px;max-width:160px}
 }
 body.f4-bank-app-admin #pageSetoran .f4-bank-own-mode-tabs{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
