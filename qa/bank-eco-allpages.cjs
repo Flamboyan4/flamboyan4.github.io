@@ -555,9 +555,9 @@ assert(h.includes("wrap.className='field f4-field-stack'"),
 // The Warga picker is an enhanced button, not the hidden #setWarga <select>.
 const pickerOwner=h.match(/<style id="f4-bank-member-search-style">([\s\S]*?)<\/style>/)?.[1]||'';
 assert(pickerOwner.includes('.f4-warga-picker-open{box-sizing:border-box;') &&
-       pickerOwner.includes('height:42px;min-height:42px;max-height:42px;') &&
+       pickerOwner.includes('height:var(--bank-input-h,42px);min-height:var(--bank-input-h,42px);max-height:var(--bank-input-h,42px);') &&
        pickerOwner.includes('padding:0 13px;'),
- 'The visible warga picker must match the adjacent 42px date control');
+ 'The visible warga picker must inherit the same responsive height as its adjacent date field');
 assert(!pickerOwner.includes('min-height:47px'),'Old 47px warga picker returned');
 assert(h.includes("trigger.className='f4-warga-picker-open'"),
  'Warga picker button must remain wired to searchable warga selection');
