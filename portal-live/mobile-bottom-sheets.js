@@ -79,13 +79,13 @@
   // Full-screen lightbox must have no drag control on top of the photo.
   const lightbox=document.querySelector('.v21-lightbox:not(.hidden):not([hidden])');
   if(lightbox&&lightbox.getClientRects().length){grip.hidden=true;return;}
-  if(drag&&drag.panel.isConnected)active=drag.panel;
-  else if(!visible(active)){
-   active=null;
-   for(const panel of document.querySelectorAll(selector)){
-    if(visible(panel))active=panel;
-   }
+  // Choose the uppermost currently visible sheet. A newer date picker/dialog
+  // must not inherit the handle of a still-open sheet underneath it.
+  let latest=null;
+  for(const panel of document.querySelectorAll(selector)){
+   if(visible(panel))latest=panel;
   }
+  active=latest;
   if(!active||!visible(active)){
    if(grip.parentNode!==document.body)document.body.append(grip);
    grip.hidden=true;return;
