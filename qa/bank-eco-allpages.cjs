@@ -357,8 +357,9 @@ assert(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),
 assert(mobile.includes('adminShortcuts.slice(0,7).map(adminShortcut),adminMoreShortcut()') &&
        mobile.includes('grid.append(...adminShortcuts.map(item=>{') &&
        mobile.includes('f4BankAdminMenuSheet') &&
-       mobile.includes('handleAdminSheetBack') &&
-       mobile.includes('history.pushState({...history.state,f4BankAdminSheet:true}') &&
+       mobile.includes('window.F4BankModalHistory?.closeAndThen') &&
+       !mobile.includes('handleAdminSheetBack') &&
+       !mobile.includes('f4BankAdminSheet:true') &&
        css.includes('dialog.f4-bank-sheet-modal.f4-bank-admin-menu-sheet{'),
  'Seven shortcuts and nine-menu bottom sheet must work with browser Back');
 assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
