@@ -128,19 +128,66 @@ async def main():
                             if await page.locator(".f4-bank-select-dropdown").count():
                                 results.append({"engine":engine_name,"width":width,
                                   "failures":["Back did not close select dropdown"]})
+                        # Search the real form's select with enough choices
+                        # to exercise the same component used by jenis barang.
+                        await page.evaluate("""() => {
+                          const select=document.getElementById('saleBatch');
+                          for(let i=0;i<12;i++)select.append(new Option('Jenis uji '+(i+1),'test-'+i));
+                        }""")
+                        await page.locator("#saleBatch + .f4-control-trigger").click()
+                        search=await page.evaluate("""() => {
+                          const panel=document.querySelector('.f4-bank-select-popover');
+                          const header=panel?.querySelector('.f4-bank-picker-search-row');
+                          const field=header?.querySelector('.f4-control-search');
+                          const list=panel?.querySelector('.f4-control-list');
+                          const h=header?.getBoundingClientRect();
+                          const f=field?.getBoundingClientRect();
+                          const l=list?.getBoundingClientRect();
+                          return {exists:!!field,left:f?.left,right:f?.right,
+                            headerBottom:h?.bottom,listTop:l?.top,
+                            fieldPosition:field?getComputedStyle(field).position:null,
+                            listScrollable:list?getComputedStyle(list).overflowY:null};
+                        }""")
+                        if (not search["exists"] or search["left"] < -1 or search["right"] > width+1
+                            or search["fieldPosition"]!="static"
+                            or search["listTop"] < search["headerBottom"]-1
+                            or search["listScrollable"]!="auto"):
+                            results.append({"engine":engine_name,"width":width,
+                              "failures":["item picker search floats over choices"],"search":search})
+                        await page.go_back(wait_until="domcontentloaded")
                         picker=page.locator("#saleDate + .f4-control-trigger")
                         if await picker.count():
                             await picker.click()
-                            has_calendar=await page.evaluate("""() =>
-                              !!document.querySelector('.f4-control-calendar') &&
-                              !!document.querySelector('.f4-control-overlay:not(.f4-bank-select-dropdown)')""")
-                            if not has_calendar:
+                            calendar=await page.evaluate("""() => {
+                              const root=document.querySelector('.f4-bank-calendar-dropdown');
+                              const panel=root?.querySelector('.f4-bank-calendar-popover');
+                              const r=panel?.getBoundingClientRect();
+                              return {exists:!!root&&!!panel,position:panel?getComputedStyle(panel).position:null,
+                                left:r?.left,right:r?.right,width:r?.width,
+                                isSheet:!!root?.querySelector('.f4-sheet-draggable'),
+                                days:panel?.querySelectorAll('.f4-control-day').length||0};
+                            }""")
+                            if (not calendar["exists"] or calendar["position"]!="fixed"
+                                or calendar["left"] < -1 or calendar["right"] > width+1
+                                or calendar["width"] < min(300,width-16)
+                                or calendar["isSheet"] or calendar["days"]<28):
                                 results.append({"engine":engine_name,"width":width,
-                                    "failures":["date calendar did not open"]})
+                                  "failures":["calendar dropdown is cropped, narrow or rendered as sheet"],"calendar":calendar})
                             await page.go_back(wait_until="domcontentloaded")
                             if await page.locator(".f4-control-overlay").count():
                                 results.append({"engine":engine_name,"width":width,
                                   "failures":["Back did not close date calendar"]})
+                            # The original native input continues receiving the real
+                            # change event when a calendar day is picked.
+                            await picker.click()
+                            await page.locator(".f4-bank-calendar-popover .f4-control-day:not([disabled])").first.click()
+                            date_state=await page.evaluate("""() => ({
+                              value:document.getElementById('saleDate').value,
+                              open:!!document.querySelector('.f4-bank-calendar-dropdown')
+                            })""")
+                            if not date_state["value"] or date_state["open"]:
+                                results.append({"engine":engine_name,"width":width,
+                                    "failures":["calendar day did not update original input"],"date":date_state})
                     # Open the portal's existing credential modal, not a
                     # mock overlay, and verify its real bottom sheet and Back.
                     if width == 390:
