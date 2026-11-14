@@ -6431,7 +6431,9 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
 .f4-warga-picker-row{padding:10px 11px;width:100%;border:0;border-bottom:1px solid #edf2ee;background:white;text-align:left;border-radius:0;font-size:13px;color:#294b36}
 .f4-warga-picker-row:hover,.f4-warga-picker-row:focus-visible{background:#eef7f0}
 .f4-warga-picker-row .f4-warga-home{text-align:right;font-weight:700;white-space:nowrap}
-@media(max-width:720px){.f4-warga-picker-pop{position:fixed;left:10px;right:10px;top:20dvh;width:auto;max-height:62dvh;z-index:25000;box-shadow:0 0 0 100vmax #10291c80,0 14px 38px #152d2740}}
+.f4-warga-picker-pop{position:fixed;top:0;left:0;right:auto;bottom:auto;z-index:25000;box-sizing:border-box;max-width:calc(100vw - 20px);box-shadow:0 14px 36px #102f2226}
+.f4-warga-picker-table{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media(max-width:720px){.f4-warga-picker-pop{padding:9px;border-radius:13px}.f4-warga-picker-row{min-height:44px}}
 
 
 
@@ -6504,9 +6506,10 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
   const search=document.createElement('input');search.type='search';search.placeholder='Cari nama atau nomor rumah...';search.setAttribute('aria-label','Cari warga');
   const head=document.createElement('div');head.className='f4-warga-picker-head';head.innerHTML='<span>Nama warga</span><span>Rumah</span>';
   const list=document.createElement('div');list.className='f4-warga-picker-table';list.setAttribute('role','listbox');
-  panel.append(search,head,list);wrap.append(trigger,panel);
+  panel.append(search,head,list);wrap.append(trigger);document.body.append(panel);
   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||'Pilih warga'};
   function close(){panel.hidden=true;trigger.setAttribute('aria-expanded','false');if(active===panel)active=null}
+  panel.f4Close=close;
   function render(){
    list.replaceChildren();
    const q=search.value.trim().toLocaleLowerCase('id-ID');
@@ -6521,13 +6524,35 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
    }
    if(!list.childElementCount){const empty=document.createElement('p');empty.textContent='Warga tidak ditemukan';empty.style.padding='10px';list.append(empty)}
   }
-  trigger.onclick=()=>{if(!panel.hidden){close();return}if(active)active.hidden=true;active=panel;panel.hidden=false;trigger.setAttribute('aria-expanded','true');search.value='';render();search.focus()};
+  function place(){
+   if(panel.hidden)return;
+   const r=trigger.getBoundingClientRect(),vv=window.visualViewport;
+   const vtop=vv?.offsetTop||0,vbottom=vtop+(vv?.height||window.innerHeight);
+   const below=vbottom-r.bottom-8,above=r.top-vtop-8;
+   const down=below>=200||below>=above;
+   const height=Math.min(390,Math.max(110,down?below:above));
+   const width=Math.min(r.width,window.innerWidth-20);
+   panel.style.width=width+'px';panel.style.maxHeight=height+'px';
+   panel.style.left=Math.max(10,Math.min(window.innerWidth-width-10,r.left))+'px';
+   panel.style.top=(down?r.bottom+5:Math.max(vtop+4,r.top-height-5))+'px';
+   panel.style.bottom='auto';
+  }
+  trigger.onclick=()=>{
+   if(!panel.hidden){close();return}
+   if(active)active.f4Close?.();
+   active=panel;panel.hidden=false;
+   trigger.setAttribute('aria-expanded','true');search.value='';render();place();
+  };
+  window.addEventListener('resize',place,{passive:true});
+  window.addEventListener('scroll',place,{passive:true,capture:true});
+  window.visualViewport?.addEventListener('resize',place,{passive:true});
+  window.visualViewport?.addEventListener('scroll',place,{passive:true});
   search.oninput=render;
   search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
   select.addEventListener('change',sync);
   new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
   sync();
-  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()});
+  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target)&&!panel.contains(e.target))close()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
  }
  function scan(){watched.forEach(id=>enhance(document.getElementById(id)))}
