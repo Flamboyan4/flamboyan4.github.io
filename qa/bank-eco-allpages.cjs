@@ -621,7 +621,7 @@ assert(css.includes('Satu sistem rincian sampah pada Warga, Bank dan Penjualan (
        h.includes("weight.placeholder='Kg';weight.setAttribute('aria-label','Berat terjual (kg)');") &&
        h.includes("price.placeholder='Rp/kg';price.setAttribute('aria-label','Harga lapak per kilogram');") &&
        css.includes('#pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add') &&
-       css.includes('#pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail>.f4-compact-add') &&
+       css.includes('#f4BankOwnDepositForm .f4-bank-own-detail)>.f4-compact-add{') &&
        css.includes('#setoranForm #saveSetoranBtn,') &&
        css.includes('position:static;justify-self:stretch;box-sizing:border-box') &&
        !css.includes('position:fixed;z-index:52;left:16px') &&
