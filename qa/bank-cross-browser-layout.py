@@ -141,6 +141,34 @@ async def main():
                             if await page.locator(".f4-control-overlay").count():
                                 results.append({"engine":engine_name,"width":width,
                                   "failures":["Back did not close date calendar"]})
+                    # Open the portal's existing credential modal, not a
+                    # mock overlay, and verify its real bottom sheet and Back.
+                    if width == 390:
+                        modal=page.locator("#credentialModal")
+                        if await modal.count():
+                            await page.evaluate("""() => {
+                              const modal=document.getElementById('credentialModal');
+                              modal.classList.remove('hidden');
+                              window.F4BankModalHistory?.refresh?.();
+                              window.F4MobileSheets?.refresh?.();
+                            }""")
+                            await page.wait_for_timeout(190)
+                            sheet=await page.evaluate("""() => {
+                              const modal=document.getElementById('credentialModal');
+                              const grip=document.querySelector('.f4-sheet-handle');
+                              const panel=modal?.querySelector('.f4-bank-credential-panel');
+                              return {open:modal&&!modal.classList.contains('hidden'),
+                                handleVisible:grip&&getComputedStyle(grip).display!=='none'
+                                  && !grip.hidden,attached:!!panel?.classList.contains('f4-sheet-draggable'),
+                                guardCount:window.F4BankModalHistory?.getOpenCount?.()||0};
+                            }""")
+                            if not sheet["open"] or not sheet["handleVisible"] or not sheet["attached"] or sheet["guardCount"]<1:
+                                results.append({"engine":engine_name,"width":width,
+                                    "failures":["real modal missing bottom-sheet/back guard"],"sheet":sheet})
+                            await page.go_back(wait_until="domcontentloaded")
+                            if await page.locator("#credentialModal:not(.hidden)").count():
+                                results.append({"engine":engine_name,"width":width,
+                                    "failures":["Back did not close existing credential modal"]})
                     if width in (360,390,1366):
                         await page.evaluate(MEASURE,"pagePenjualan")
                         await page.screenshot(path=str(OUT/f"{engine_name}-{width}-sale.png"))
