@@ -355,9 +355,12 @@ if(portal==='portal'){
    inventorySection.before(calendarSection);
 }
 // Utility bar is transparent at the top and becomes solid when scrolling.
-const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',window.scrollY>12);
-window.addEventListener('scroll',syncBarScroll,{passive:true});
-syncBarScroll();
+// Bank memakai header solid, tanpa render ulang untuk setiap scroll.
+if(portal!=='bank'){
+ const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',window.scrollY>12);
+ window.addEventListener('scroll',syncBarScroll,{passive:true});
+ syncBarScroll();
+}else bar.classList.remove('f4-scrolled');
 // Existing original page integration uses direct window messages instead of parent iframe.
 if(portal==='portal'){
  window.f4GoBank=()=>location.assign(paths.bank);
