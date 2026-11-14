@@ -1444,8 +1444,8 @@ async def main():
             # exercise the popup-first browser Back behavior used by production.
             async def serve_fixture(route):
                 await route.fulfill(status=200,content_type="text/html",body=HTML)
-            await page.route("http://bank-app-test.local/*",serve_fixture)
-            await page.goto("http://bank-app-test.local/",wait_until="load")
+            await page.route(ROOT+"/bank-test-fixture",serve_fixture)
+            await page.goto(ROOT+"/bank-test-fixture",wait_until="load")
             # Production registers the popup guard before its mobile app.
             await page.add_script_tag(url=ROOT+"/portal-live/bank-modal-history.js")
             await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
