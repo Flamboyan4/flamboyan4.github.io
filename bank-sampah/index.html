@@ -309,9 +309,9 @@ padding:0
     .v17-public-links a:hover{background:#edf5ea;color:#1d613b}
     .v17-public-account{margin-left:auto;flex-shrink:0;width:41px;height:41px;border:1px solid #d8e6d6;border-radius:50%;background:#e6f0e4;color:#27583e;font-weight:850;padding:0;display:grid;place-items:center;overflow:hidden}
     .v17-public-account img{width:100%;height:100%;object-fit:cover}
-    .v17-public-main{--f4-public-grid-gap:14px;box-sizing:border-box;max-width:980px;margin:0 auto;padding:20px 24px 56px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--f4-public-grid-gap)}
-        .v17-public-banner p{font-size:14px;color:#d6e6d8;margin:0;max-width:670px}
-    .v17-public-banner .emblem{font-size:70px;opacity:.85}
+    
+        
+    
                 .v17-section{margin-top:20px;scroll-margin-top:85px}.v17-section>h2{font-size:21px;margin:0 0 5px}.v17-section>.v17-subtle{margin:0 0 13px}
     .v17-two{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:13px}
     .v17-timeline{padding:0;margin:0;list-style:none}.v17-timeline li{position:relative;border-left:2px solid #c7ddca;margin-left:5px;padding:0 0 18px 17px;font-size:13px}
@@ -366,10 +366,10 @@ padding:0
     .v17-album p{font-size:12px;color:#657b6a}.v17-media-list{border-top:1px solid var(--line);padding-top:9px;margin-top:10px;display:grid;gap:8px}
     .v17-media-list a{font-size:12px;color:#226a42;overflow-wrap:anywhere}
     .v17-inventory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.v17-inventory .v17-feature{padding:13px}
-    @media(max-width:900px){.v17-finance-kpis,.v17-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v17-finance-grid,.v17-two{grid-template-columns:1fr}.v17-albums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:900px){.v17-finance-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.v17-finance-grid,.v17-two{grid-template-columns:1fr}.v17-albums{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media(max-width:720px){body.v17-dashboard #sideNav.side{top:0;height:100dvh;max-height:100dvh;min-height:0}
       .v17-public-head{padding:8px 11px;gap:8px}.v17-public-logo{min-width:0;font-size:11px;max-width:140px}.v17-public-logo img{width:31px;height:31px}.v17-public-links{gap:0}.v17-public-links a{padding:9px 6px;font-size:11px}
-      .v17-public-main{padding:12px 11px 36px}.v17-public-banner{padding:18px}.v17-public-banner h1{font-size:21px}.v17-public-banner .emblem{font-size:39px}.v17-public-metric{padding:12px}.v17-public-metric strong{font-size:20px}
+      
       .v17-albums,.v17-inventory{grid-template-columns:1fr}.v17-section{scroll-margin-top:65px}
       #v17Program.f4-bank-program{margin:0;padding:14px 13px;scroll-margin-top:70px}
       #v17Program .f4-bank-program-heading{margin-bottom:13px}
@@ -404,8 +404,8 @@ padding:0
     #v18PublicHeading{font-size:14px;font-weight:850;color:#2b5b41}
     #v18PublicMenuButton{display:none}
     #v18PublicBackdrop{display:none}
-    #v11Public .v17-public-main{max-width:980px;width:100%;padding:20px 24px 55px}
-    #v11Public .v17-public-metrics{min-width:0}
+    
+    
     #v11Public .v17-public-banner{min-width:0}
     .v18-secret-wrap{position:relative;width:100%}
     .v18-secret-wrap input{padding-right:52px}
@@ -432,12 +432,12 @@ padding:12px 10px 30px;min-width:0;width:100%
       #v18PublicMenuButton{display:grid}
       #v11Public .v17-public-head{padding:9px 12px;gap:10px;justify-content:flex-start;min-height:61px}
       #v18PublicHeading{margin-right:auto}
-      #v11Public .v17-public-main{padding:16px 18px 36px}
+      
       #v11Public .v17-public-banner{min-width:0}
       
-      #v11Public .v17-public-metrics{}
-      #v11Public .v17-public-metric{padding:12px;overflow-wrap:anywhere}
-      #v11Public .v17-public-metric strong{}
+      
+      
+      
       
     }
     /* v19 — portal publik sepenuhnya sidebar; tidak ada header atau navbar. */
@@ -452,7 +452,7 @@ min-width:0;min-height:100dvh
     #v19PublicAccountFooter .v17-public-account{margin:0;flex:0 0 43px;width:43px;height:43px}
     #v19PublicAccountText{font-size:12px;line-height:1.25;font-weight:800;color:#28553c;min-width:0;overflow-wrap:anywhere}
     #v19PublicAccountText small{display:block;font-size:10px;font-weight:500;color:#788c7b;margin-top:2px}
-    #v11Public #v18PublicContent .v17-public-main{min-width:0;max-width:980px;width:100%}
+    
     #v11Public .v17-public-main>*{min-width:0;max-width:100%;grid-column:1/-1}
     #v11Public .v17-public-main>.v17-section{margin-top:0}
     #v11Public .v17-public-metric,#v11Public .v17-feature,#v11Public .v17-panel{min-width:0;max-width:100%;overflow-wrap:anywhere}
@@ -464,7 +464,7 @@ min-width:0;min-height:100dvh
 display:block;width:100%;min-width:0;max-width:100%;overflow-x:hidden
 }
       #v11Public #v18PublicContent{display:block;box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-x:hidden}
-      #v11Public #v18PublicContent .v17-public-main{width:100%;max-width:100%;min-width:0;padding:66px 18px 36px;margin:0 auto;box-sizing:border-box}
+      
       #v19PublicFloatingMenu{display:grid;position:fixed;z-index:35;top:12px;left:12px;background:#fff;box-shadow:0 3px 14px #183e2624}
             #v11Public .v17-public-banner .emblem{
  font-size:33px;
@@ -889,7 +889,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   .v27-cancel-panel .field{margin-top:12px}.v27-cancel-panel button{background:#9a5d3a}
   #v27PrintReport{display:none}
   /* Hero foto resmi; Program berdiri sendiri di bawah banner. */
-          #v11Public .v30-hero-photo:focus-visible{outline:3px solid #f4ca6e;outline-offset:3px}
+          
     #v31ScrollTop{position:fixed;bottom:max(16px,env(safe-area-inset-bottom) + 12px);right:16px;width:40px;height:40px;border-radius:50%;padding:0;display:grid;place-items:center;background:#286e4a;color:#fff;box-shadow:0 2px 9px #173a2924;z-index:90;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px);transition:opacity .2s ease,transform .2s ease,visibility .2s}
   #v31ScrollTop.v31-visible{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
   #v31ScrollTop:hover{background:#254d38}
