@@ -358,7 +358,7 @@
   if(dy< -55||(dy< -28&&velocity<-.48))settle(d.panel,true,d.collapsed,d);
   else if(dy>85){
    if(d.expanded)settle(d.panel,false,d.collapsed,d);
-   else if(dy>Math.max(175,window.innerHeight*.22)||(dy>135&&velocity>1.0))
+   else if(dy>=150||(dy>135&&velocity>1.0))
     exitDown(d.panel,d);
    else settle(d.panel,false,d.collapsed,d);
   }else settle(d.panel,d.expanded,d.collapsed,d);
