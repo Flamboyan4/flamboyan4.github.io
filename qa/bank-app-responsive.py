@@ -883,12 +883,66 @@ async def note_print_is_visible(browser):
         assert prepared["post"]==1,(device,prepared)
         assert "LEMBAR TIMBANG & JUAL" in await page.evaluate("window.__noteHtml"),device
         assert "Pemilik Lapak" in await page.evaluate("window.__noteHtml"),device
-        assert "Cetak Ulang" in (await button.text_content()),device
+        assert "cetak ulang" in (await button.text_content()).lower(),device
         await button.click()
         await page.wait_for_function("() => window.__printed>=2")
         assert prepared["post"]==1,(device,"Reprint must never prepare a second time",prepared)
         assert prepared["get"]>=2,(device,prepared)
         print("BANK_WEIGH_NOTE_VISIBLE_AND_SAFE_REPRINT_OK",device,prepared,flush=True)
+        await page.close()
+
+
+async def compact_sale_form(browser):
+    """Use the actual sale markup and live CSS; never submit to the API."""
+    import pathlib,re
+    html=pathlib.Path("bank-sampah/index.html").read_text()
+    match=re.search(r'<div id="pagePenjualan" class="card hidden">[^\\n]*',html)
+    assert match,"Live sale form markup not found"
+    sale=match.group(0).replace('class="card hidden"','class="card f4-bank-admin-unframed"',1)
+    sale=sale.replace('id="saleItems" class="tablewrap">Memuat...',
+      'id="saleItems" class="tablewrap"><div class="f4-compact-rows">'
+      '<div class="f4-compact-row f4-compact-sale-row"><select><option>Kardus</option></select>'
+      '<input placeholder="Kg"><div class="f4-compact-entry-group">'
+      '<input placeholder="Rp/kg"><button class="f4-compact-remove">x</button></div></div></div>',1)
+    for label,width in [("hp",390),("pc",1366)]:
+        page=await browser.new_page(viewport={"width":width,"height":850},device_scale_factor=2)
+        fixture=(
+          '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">'
+          '<base href="'+ROOT+'/"><link rel="stylesheet" href="/portal-live/bank-eco-pages.css">'
+          '<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}'
+          '.section{padding:16px;max-width:100%}</style></head>'
+          '<body class="f4-bank-app-private f4-bank-app-admin"><div id="dashboardView">'
+          '<main class="section">'+sale+'</main></div></body></html>')
+        await page.set_content(fixture,wait_until="load")
+        await page.add_script_tag(url=ROOT+"/portal-live/bank-sale-sheet.js")
+        state=await page.evaluate("""() => {
+          const rect=s=>{const r=document.querySelector(s)?.getBoundingClientRect();
+            return r?{x:r.x,y:r.y,w:r.width,h:r.height,right:r.right}:null};
+          const details=document.getElementById('f4SaleExtras');
+          return {
+            scrollWidth:document.documentElement.scrollWidth,
+            batch:rect('#saleBatch'),date:rect('#saleDate'),lapak:rect('#saleLapak'),
+            money:rect('#saleReceived'),status:rect('#saleStatus'),
+            sheet:rect('.f4-bank-sheet-tools'),print:rect('#f4SaleSheetPrint'),
+            form:rect('#saleForm'),detailsOpen:details.open,
+            referenceHidden:document.getElementById('saleProof').getClientRects().length===0
+          };
+        }""")
+        assert state["scrollWidth"]<=width+2,(label,state)
+        assert not state["detailsOpen"] and state["referenceHidden"],(label,state)
+        assert state["sheet"] and state["print"] and state["print"]["w"]>80,(label,state)
+        if label=="hp":
+            assert abs(state["date"]["y"]-state["lapak"]["y"])<4,(label,state)
+            assert abs(state["money"]["y"]-state["status"]["y"])<4,(label,state)
+            assert state["form"]["w"]<=width,(label,state)
+        else:
+            assert abs(state["batch"]["y"]-state["date"]["y"])<4,(label,state)
+            assert abs(state["date"]["y"]-state["lapak"]["y"])<4,(label,state)
+        await page.locator("#f4SaleExtras > summary").click()
+        assert await page.locator("#saleProof").is_visible(),(label,"Reference hidden after expansion")
+        assert await page.locator("#saleProofUrl").is_visible(),(label,"Proof URL hidden after expansion")
+        assert await page.locator("#f4SaleSheetPrint").is_visible(),(label,"Nota action lost")
+        print("BANK_SALE_COMPACT_OPTIONAL_DETAILS_OK",label,state,flush=True)
         await page.close()
 
 
@@ -1512,6 +1566,7 @@ async def main():
         await sale_price_field_proportions(browser)
         await bank_unified_goods_forms(browser)
         await note_print_is_visible(browser)
+        await compact_sale_form(browser)
         await member_layout(browser)
         await member_balance_refresh_preserves_design(browser)
         await member_mutation_ledger(browser)
