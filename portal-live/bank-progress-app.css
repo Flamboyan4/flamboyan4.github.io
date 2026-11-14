@@ -106,12 +106,14 @@
  .f4-activity-step-summary{display:grid;grid-template-columns:30px minmax(0,1fr) 18px;column-gap:10px;row-gap:6px;align-items:center;min-height:0;padding:12px 10px}
  .f4-activity-step-icon{width:30px;height:30px;border-radius:10px;grid-column:1;grid-row:1/span 2}
  .f4-activity-step-copy{grid-column:2;grid-row:1}
- .f4-activity-step-right{display:contents}
- .f4-activity-status{grid-column:2;grid-row:2;justify-self:start;max-width:100%}
+ 
+ 
  .f4-activity-chevron{grid-column:3;grid-row:1/span 2;justify-self:center}
  .f4-activity-step-icon svg{width:17px;height:17px}
- .f4-activity-status{font-size:9px;padding:5px 7px}
- .f4-activity-step-right{gap:4px}
+ .f4-activity-status{grid-column:2;grid-row:2;justify-self:start;max-width:100%;
+font-size:9px;padding:5px 7px}
+ .f4-activity-step-right{display:contents;
+gap:4px}
  .f4-activity-step-body{padding-left:49px}
  .f4-activity-progress{padding:12px 13px}
  .f4-activity-dialog-panel{max-height:88dvh}
