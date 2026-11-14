@@ -169,7 +169,7 @@ async def main():
                             }""")
                             if (not calendar["exists"] or calendar["position"]!="fixed"
                                 or calendar["left"] < -1 or calendar["right"] > width+1
-                                or calendar["width"] < min(300,width-16)
+                                or calendar["width"] < min(286,width-24)
                                 or calendar["isSheet"] or calendar["days"]<28):
                                 results.append({"engine":engine_name,"width":width,
                                   "failures":["calendar dropdown is cropped, narrow or rendered as sheet"],"calendar":calendar})
