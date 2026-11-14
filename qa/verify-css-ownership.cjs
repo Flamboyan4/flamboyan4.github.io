@@ -66,12 +66,12 @@ function duplicateCount(path){
 
 const limits={
   "pembukuan/index.html": 164,
-  "bank-sampah/index.html": 82,
-  "portal-live/modern-portals.css": 11,
-  "portal-live/direct-shell.css": 7,
+  "bank-sampah/index.html": 0,
+  "portal-live/modern-portals.css": 0,
+  "portal-live/direct-shell.css": 0,
   "portal-live/portal-polish.css": 7,
-  "portal-live/bank-eco-pages.css": 2,
-  "portal-live/bank-eco-dashboard.css": 2,
+  "portal-live/bank-eco-pages.css": 0,
+  "portal-live/bank-eco-dashboard.css": 0,
   "portal-live/unified-account.css": 14,
   "portal-live/dokumentasi/site.css": 29,
   "portal-live/home-base.css": 5,
