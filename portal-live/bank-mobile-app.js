@@ -99,6 +99,29 @@ function dock(){
  if(nav.parentNode!==host)host.append(nav);
  return nav;
 }
+// Chrome Android memiliki visual viewport yang dapat bergeser saat bilah browser
+// muncul/hilang. Koreksi hanya dock pengelola; dock warga tidak disentuh.
+let dockViewportFrame=0;
+function updateAdminDockViewport(){
+ if(dockViewportFrame)return;
+ dockViewportFrame=requestAnimationFrame(()=>{
+  dockViewportFrame=0;
+  const nav=$("f4BankAppDock");
+  if(!nav)return;
+  if(roleType()!=="admin"||window.innerWidth>1023||nav.hidden){
+   nav.style.removeProperty("--f4-bank-dock-viewport-shift");
+   return;
+  }
+  const viewport=window.visualViewport;
+  const delta=viewport?(viewport.offsetTop+viewport.height-window.innerHeight):0;
+  const shift=Number.isFinite(delta)?Math.round(delta*10)/10:0;
+  nav.style.setProperty("--f4-bank-dock-viewport-shift",shift+"px");
+ });
+}
+window.addEventListener("resize",updateAdminDockViewport,{passive:true});
+window.addEventListener("scroll",updateAdminDockViewport,{passive:true});
+window.visualViewport?.addEventListener("resize",updateAdminDockViewport,{passive:true});
+window.visualViewport?.addEventListener("scroll",updateAdminDockViewport,{passive:true});
 function markDock(){
  const nav=dock();
  for(const b of nav.querySelectorAll("[data-bank-app-route]")){
@@ -2331,6 +2354,7 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
  document.documentElement.classList.toggle("f4-bank-admin-dock-root",isPrivate&&next==="admin");
  dock().hidden=!isPrivate;
+ updateAdminDockViewport();
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
   memberSide(false);
