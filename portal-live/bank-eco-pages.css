@@ -1117,13 +1117,31 @@ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields>.f
  display:block;min-height:0;margin:0;font-size:11px;line-height:1.35
 }
 .f4-sale-note-caption{display:inline;margin:0;color:#456858;font-weight:650}
+/* Penjualan: metadata pendukung hanya dibuka bila diperlukan. */
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras{
+ box-sizing:border-box;min-width:0;overflow:hidden;border:1px solid #dce9e0;
+ border-radius:13px;background:#f8faf8
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>summary{
+ display:flex;align-items:center;gap:7px;box-sizing:border-box;min-height:42px;
+ padding:9px 12px;list-style:none;cursor:pointer;color:#265a40;font-size:12px;font-weight:750
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>summary::-webkit-details-marker{display:none}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>summary span{
+ margin-left:auto;font-size:10px;color:#71897c;font-weight:600
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>summary svg{
+ flex:none;width:16px;height:16px;stroke:currentColor
+}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras[open]>summary svg{transform:rotate(180deg)}
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-extras>.f4-sale-note-fields{
+ padding:0 12px 12px
+}
 @media(max-width:680px){
  body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields{
   grid-template-columns:minmax(0,1fr)
  }
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields{
-  grid-template-columns:minmax(0,1fr)
- }
+
 }
 /* Both sides are self-contained grids; form layout can change without changing inputs. */
 /* Operational forms use one 12px spacing rhythm and real independent columns. */
@@ -1194,6 +1212,36 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm)>.f4-entry-right>:is(.f4-sale-side,.f4-setoran-side){
   grid-column:1/-1;grid-row:auto;order:2
+ }
+ /* HP Penjualan: kartu ringkas dan ritme grid yang sama untuk semua bagian. */
+ body.f4-bank-app-admin #dashboardView #pagePenjualan{--bank-input-h:46px;--bank-form-gap:10px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan>h2{
+  margin:0 0 11px;font-size:22px;line-height:1.2;letter-spacing:-.025em
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm>.f4-entry-right>.f4-sale-top-fields,
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm>.f4-sale-main,
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm>.f4-entry-right>.f4-sale-side{
+  box-sizing:border-box;min-width:0;padding:14px;border:1px solid #e3ebe5;
+  border-radius:18px;background:#fff;box-shadow:none
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm>.f4-entry-right>.f4-sale-top-fields{gap:10px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-payment-fields{
+  grid-template-columns:repeat(2,minmax(0,1fr));column-gap:9px
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading{
+  min-height:32px;margin:0
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading h3{font-size:15px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-entry-goods-heading>.f4-compact-add{
+  min-height:38px;padding:7px 10px
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box{
+  padding:9px 11px;gap:9px;border-radius:12px
+ }
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box small{font-size:11px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-main>.summary-box strong{font-size:17px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan #saleForm .f4-sale-side>button[type=submit]{
+  min-height:46px;margin:0;border-radius:13px
  }
  body.f4-bank-app-admin #dashboardView .section :is(.f4-sale-side,.f4-setoran-side)>button[type=submit]{
   justify-self:stretch;width:100%
@@ -1340,9 +1388,12 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  }
 }
 @media(max-width:600px){
- body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field,
- body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>:is(.field,.field:first-child){
+ body.f4-bank-app-admin #dashboardView .section #setoranForm .f4-entry-top-fields>.field,
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:first-child{
   grid-column:1/-1
+ }
+ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields>.field:not(:first-child){
+  grid-column:span 6
  }
  body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm){
   --bank-form-gap:10px;row-gap:11px
@@ -2260,16 +2311,16 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 /* Penjualan kolektif dan katalog harga anggota — pemilik tunggal komponen. */
 #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{
  grid-column:1/-1;min-width:0;width:100%;box-sizing:border-box;
- display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 12px;
- margin:0;padding:11px 13px;border:1px solid #d2e6d9;border-radius:12px;background:#fff;
+ display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 10px;
+ margin:0;padding:9px 11px;border:1px solid #e0eae3;border-radius:12px;background:#f8fbf8;
 }
 #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools[hidden]{display:none}
 #pagePenjualan .f4-bank-sheet-summary{display:grid;gap:4px;min-width:0}
-#pagePenjualan .f4-bank-sheet-summary strong{font-size:14px;line-height:1.35;color:#185d3e;overflow-wrap:anywhere}
+#pagePenjualan .f4-bank-sheet-summary strong{font-size:12px;line-height:1.3;color:#185d3e;overflow-wrap:anywhere}
 #pagePenjualan .f4-bank-sheet-summary small{font-size:11px;color:#677e70;line-height:1.4}
 #pagePenjualan #f4SaleSheetStatus[data-error="1"]{color:#a43d2f}
 #pagePenjualan .f4-bank-sheet-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
-#pagePenjualan .f4-bank-sheet-actions button{min-height:var(--bank-input-h,42px);padding:8px 12px;border-radius:9px;font-size:12px;white-space:normal}
+#pagePenjualan .f4-bank-sheet-actions button{min-height:39px;padding:7px 10px;border-radius:10px;font-size:12px;white-space:normal}
 #pagePenjualan .f4-bank-sheet-actions button[hidden]{display:none}
 #pagePenjualan .f4-bank-sale-diff{display:block;grid-column:1/-1;margin:0;color:#607768;font-size:11px;line-height:1.3}
 #pagePenjualan .f4-bank-unsold-wrap{
@@ -2302,9 +2353,13 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 .f4-bank-price-row span{overflow-wrap:anywhere;color:#284638}
 .f4-bank-price-row strong{white-space:nowrap;color:#18583b;font-variant-numeric:tabular-nums}
 @media(max-width:720px){
- #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{grid-template-columns:minmax(0,1fr);padding:11px 12px}
- #pagePenjualan .f4-bank-sheet-actions{justify-content:stretch}
- #pagePenjualan .f4-bank-sheet-actions button{flex:1 1 150px}
+ #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{
+  grid-template-columns:minmax(0,1fr) auto;padding:9px 10px
+ }
+ #pagePenjualan .f4-bank-sheet-summary small{font-size:10px}
+ #pagePenjualan .f4-bank-sheet-actions{justify-content:flex-end}
+ #pagePenjualan .f4-bank-sheet-actions button{flex:0 1 auto;min-width:95px}
+ #pagePenjualan .f4-bank-sheet-actions button:not([hidden])+button:not([hidden]){flex:1 1 100%}
  .f4-bank-prices-group{padding:10px 12px}
 }
 
