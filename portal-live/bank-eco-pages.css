@@ -1836,16 +1836,23 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  body.f4-bank-app-private #pagePribadi #v12Private>.f4-bank-savings-chart{margin-top:0}
  body.f4-bank-drawer-open{overscroll-behavior-y:contain}
 }
-/* One admin back control, visible on secondary screens only. */
+/* Single manager back button is part of the actual page title, never a separate row. */
 .f4-bank-admin-back{display:none}
+body.f4-bank-app-admin #dashboardView h2.f4-bank-admin-inline-title{
+ display:flex;align-items:center;gap:8px;min-width:0
+}
 @media(max-width:1023px){
+ body.f4-bank-app-admin #dashboardView h2.f4-bank-admin-inline-title{
+  margin-top:0;min-height:34px
+ }
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-back:not([hidden]){
-  display:inline-flex;align-items:center;justify-content:center;
-  border:0;background:transparent;color:#176342;padding:7px;margin:2px 0 12px;
-  width:36px;height:36px;min-height:36px;border-radius:50%;cursor:pointer
+  display:inline-flex;flex:0 0 32px;align-items:center;justify-content:center;
+  width:32px;height:32px;min-height:32px;margin:0;padding:6px;
+  border:1px solid #dce9df;border-radius:10px;
+  background:#f4faf5;color:#176342;cursor:pointer;box-shadow:none
  }
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-back svg{
-  width:18px;height:18px;stroke:currentColor;stroke-width:1.9;
+  width:19px;height:19px;stroke:currentColor;stroke-width:1.9;
   stroke-linecap:round;stroke-linejoin:round;fill:none
  }
 }
