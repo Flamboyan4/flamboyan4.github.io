@@ -166,10 +166,17 @@ async def main():
                           };
                           const main=document.querySelector('#setoranForm .f4-setoran-main');
                           const button=document.querySelector('#f4SetAddKind');
+                          const dateInput=document.querySelector('#setDate');
+                          const candidate=dateInput?.nextElementSibling;
+                          const dateVisual=candidate?.classList?.contains('f4-control-trigger') &&
+                            getComputedStyle(candidate).display!=='none' ? candidate : dateInput;
+                          const rdate=dateVisual?.getBoundingClientRect();
                           return {head:rect('#setoranForm .f4-entry-goods-heading h3'),
                             goods:rect('#setBarang .f4-compact-rows'),
                             button:rect('#f4SetAddKind'),
                             main:rect('#setoranForm .f4-setoran-main'),
+                            nameControl:rect('#setoranForm .f4-warga-picker-open'),
+                            dateControl:rdate?{top:rdate.top,bottom:rdate.bottom,height:rdate.height}:null,
                             order:button&&main?[...main.children].indexOf(button):null};
                         }""")
                         errors=[]
@@ -185,6 +192,12 @@ async def main():
                                 errors.append("Setoran Warga goods row too far below the title")
                             if add_layout['order']!=2:
                                 errors.append("Setoran Warga add action is not the third direct item")
+                        member,date=add_layout.get('nameControl'),add_layout.get('dateControl')
+                        if not member or not date:
+                            errors.append('member name or date visual control not available')
+                        elif (abs(member['height']-date['height'])>1 or
+                              abs(member['top']-date['top'])>1):
+                            errors.append('member select and date inputs have different heights or baselines')
                         if errors:
                             results.append({'engine':engine_name,'width':width,
                                 'setoranAdd':add_layout,'failures':errors})
@@ -312,11 +325,21 @@ async def main():
                             err.append('real Bank stock weight input did not update total kg')
                         if not all(own.get(k) for k in ('add','goods','head')):
                             err.append('Bank Sampah add-action structure is missing')
-                        elif (own['add']['top']<own['goods']['bottom']-1 or
-                              abs(own['add']['left']-own['goods']['left'])>2 or
-                              own['add']['right']<own['goods']['right']-2 or
-                              own['goods']['top']-own['head']['bottom']>20):
-                            err.append('Bank Sampah add-action not aligned below item rows')
+                        else:
+                            if (own['add']['top']<own['goods']['bottom']-1 or
+                                abs(own['add']['left']-own['goods']['left'])>2 or
+                                own['add']['right']<own['goods']['right']-2 or
+                                own['goods']['top']-own['head']['bottom']>20):
+                                err.append('Bank Sampah add-action not aligned below item rows')
+                            warga_title_gap=add_layout['goods']['top']-add_layout['head']['bottom']
+                            bank_title_gap=own['goods']['top']-own['head']['bottom']
+                            warga_button_gap=add_layout['button']['top']-add_layout['goods']['bottom']
+                            bank_button_gap=own['add']['top']-own['goods']['bottom']
+                            if (abs(warga_title_gap-bank_title_gap)>1.5 or
+                                abs(warga_button_gap-bank_button_gap)>1.5):
+                                err.append('Setoran Warga and Bank Sampah goods gaps are inconsistent')
+                            own['gapComparison']={'titleWarga':warga_title_gap,'titleBank':bank_title_gap,
+                                'buttonWarga':warga_button_gap,'buttonBank':bank_button_gap}
                         if err:results.append({'engine':engine_name,'width':width,'own':own,'failures':err})
                         await page.screenshot(path=str(OUT/f"{engine_name}-1366-bank-stock.png"))
                     for page_id in PAGES:
