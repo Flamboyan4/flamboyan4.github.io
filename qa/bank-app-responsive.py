@@ -1184,7 +1184,7 @@ async def admin_docs_back_and_cross_account(browser):
            body=json.dumps({"ok":True,"weekday":3,"dayName":"Rabu"}))
     await page.route("https://api.flamboyan4.web.id/api/public/bank/weighing-schedule",mock_schedule)
     await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
-    await page.locator("#f4BankAdminOperations").wait_for(timeout=8000)
+    await page.locator("#f4BankAdminOperations").wait_for(state="attached",timeout=8000)
     await page.evaluate("() => window.goPage('profile')")
     await page.evaluate("() => window.goPage('bank-admin-docs')")
     await page.locator("#f4BankAdminDocsTabs button").first.wait_for(timeout=8000)
@@ -1230,7 +1230,7 @@ async def admin_docs_back_and_cross_account(browser):
       document.body.dataset.f4BankRole='admin';
       window.f4BankReconcileAccount();
     }""")
-    await page.locator("#f4BankAdminOperations").wait_for(state="visible",timeout=8000)
+    await page.locator("#f4BankAdminOperations").wait_for(state="attached",timeout=8000)
     assert not await page.locator("#f4BankWeighingSchedule").is_visible()
     assert not await page.locator("#f4MemberPriceShortcut").is_visible()
     assert not await page.locator("#f4BankMemberCard").is_visible()
@@ -1240,7 +1240,7 @@ async def admin_docs_back_and_cross_account(browser):
       document.body.dataset.f4BankRole='superadmin';
       window.f4BankReconcileAccount();
     }""")
-    await page.locator("#f4BankAdminOperations").wait_for(state="visible",timeout=8000)
+    await page.locator("#f4BankAdminOperations").wait_for(state="attached",timeout=8000)
     assert await page.locator("#f4BankAdminShortcuts").is_visible()
     await page.evaluate("""() => {
       window.f4BankResetForAccountSwitch();
@@ -1407,12 +1407,14 @@ async def main():
                       const r=n.getBoundingClientRect();
                       return {x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom};
                     }),
+                    actionsDisplay:getComputedStyle(document.querySelector('#f4BankAdminOperations')).display,
                     membersTile:(()=>{
-                      const node=document.querySelector('#f4BankAppMinis .f4-bank-admin-members-link');
+                      const node=document.querySelector('#f4BankAppAdminHero #f4BankAppMinis .f4-bank-admin-members-link');
                       const r=node?.getBoundingClientRect();
                       return {tag:node?.tagName,route:node?.dataset.bankAppRoute,
                         background:node?getComputedStyle(node).backgroundColor:null,
-                        x:r?.x,y:r?.y,w:r?.width,h:r?.height};
+                        text:node?.textContent?.trim(),insideHero:document.querySelector('#f4BankAppAdminHero')?.contains(node),
+                        x:r?.x,y:r?.y,w:r?.width,h:r?.height,bottom:r?.bottom};
                     })(),
                     overflowing:[...document.querySelectorAll('body *')].filter(e=>{
                       const r=e.getBoundingClientRect(),c=getComputedStyle(e);
@@ -1429,26 +1431,27 @@ async def main():
             assert state["center"]["primary"] and state["center"]["label"]=="Setoran",state
             assert not state["center"]["visibleLabel"],state
             assert not state["overflow"],state
-            # Current manager dashboard: kas as the left hero and three useful KPI tiles,
-            # not the obsolete four-tile dashboard stacked under the balance.
-            assert len(state["tiles"])==3,state
+            # One true members badge INSIDE the saldo hero, not a standalone card.
+            assert len(state["tiles"])==1,state
+            assert state["membersTile"]["tag"]=="BUTTON" and state["membersTile"]["route"]=="tabungan",state
+            assert state["membersTile"]["insideHero"] and "33" in state["membersTile"]["text"],state
+            assert state["membersTile"]["x"]>=state["hero"]["x"] and state["membersTile"]["y"]>=state["hero"]["y"],state
+            assert state["membersTile"]["bottom"]<=state["hero"]["y"]+state["hero"]["h"]+2,state
             if device=="pc":
                 assert state["home"]["w"]>850,state
-                assert abs(state["metrics"]["y"]-state["hero"]["y"])<3,state
-                assert state["metrics"]["x"]>=state["hero"]["right"]+8,state
-                assert state["tiles"][0]["w"]==0 and state["tiles"][1]["w"]==0 and state["tiles"][2]["w"]>200,state
-                assert state["dock"]=="none",state
+                assert state["dock"]=="none" and state["actionsDisplay"]=="grid",state
                 assert state["heroBreakdown"]["display"]=="grid",state
+                assert len(state["actions"])==2,state
+                assert abs(state["actions"][0]["y"]-state["hero"]["y"])<3,state
+                assert state["actions"][0]["x"]>=state["hero"]["right"]+8,state
+                assert state["actions"][1]["y"]>=state["actions"][0]["bottom"]+7,state
+                assert abs(state["actions"][1]["bottom"]-(state["hero"]["y"]+state["hero"]["h"]))<4,state
             else:
                 assert state["heroBreakdown"]["display"]=="grid",state
                 assert state["heroBreakdown"]["values"]==["Rp 3.000","Rp 1.500"],state
-                assert len(state["actions"])==2 and abs(state["actions"][0]["y"]-state["actions"][1]["y"])<3,state
-                assert state["actions"][0]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
-                assert state["membersTile"]["tag"]=="BUTTON" and state["membersTile"]["route"]=="tabungan",state
-                assert state["membersTile"]["y"]>=state["actions"][0]["bottom"]-2,state
-                assert state["membersTile"]["background"]=="rgb(255, 255, 255)",state
-                assert state["metrics"]["y"]>=state["hero"]["y"]+state["hero"]["h"]-2,state
-                assert state["tiles"][2]["y"]>=state["tiles"][0]["y"],state
+                assert state["actionsDisplay"]=="none",state
+                assert all(action["w"]==0 for action in state["actions"]),state
+                assert state["metrics"]["y"]>=state["hero"]["y"]-2,state
                 assert state["dock"]=="grid",state
                 assert state["center"]["background"]=="rgb(255, 199, 25)",state
                 assert state["center"]["radius"]=="50%",state
