@@ -2498,7 +2498,15 @@ function init(){
  if(ready)return;ready=true;
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
  window.addEventListener("popstate",handleAdminSheetBack);
- window.addEventListener("resize",()=>{if(window.matchMedia("(min-width:1024px)").matches&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();syncAdminPageFrames();
+ // Chrome Android mengirim resize saat address bar berubah tinggi pada scroll.
+ // Jangan render ulang beranda/badge hanya karena tinggi viewport berubah.
+ let desktopLayout=window.matchMedia("(min-width:1024px)").matches;
+ window.addEventListener("resize",()=>{
+  const nextDesktop=window.matchMedia("(min-width:1024px)").matches;
+  if(nextDesktop===desktopLayout)return;
+  desktopLayout=nextDesktop;
+  if(nextDesktop&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
+  syncAdminPageFrames();
   if(role==="admin")ensureAdminHome();
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
