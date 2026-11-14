@@ -1,6 +1,18 @@
 /* Public Bank Sampah app — canonical hero, main canvas and metric components.
    Other application pages and the private finance block below are unaffected. */
 #v11Public #v18PublicContent{background:#f5f8f5}
+/* Public-only app bar; member and admin navigation remain untouched. */
+body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
+ background:#fff;border-bottom:1px solid #e3ece4;color:#174d35
+}
+body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login{
+ display:grid;place-items:center;width:auto;min-width:78px;
+ min-height:39px;padding:0 14px;border:0;border-radius:12px;
+ background:#117449;color:#fff;font-size:12px;font-weight:800
+}
+body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login:hover{
+ background:#075c3b;color:#fff
+}
 #v11Public #v18PublicContent .v17-public-main{
  box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
  width:100%;max-width:980px;min-width:0;margin:0 auto;
