@@ -1,85 +1,202 @@
-/* Bank Sampah — Perkembangan publik: satu komponen, tanpa override prioritas. */
-#v17Perkembangan.f4-dev{margin-top:22px;scroll-margin-top:85px;color:#163c2c}
-#v17Perkembangan .f4-dev-intro{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-#v17Perkembangan .f4-dev-kicker{display:block;color:#43a047;font-size:10px;font-weight:850;letter-spacing:.15em;margin-bottom:2px}
-#v17Perkembangan .f4-dev-intro h2{font-size:clamp(21px,2.8vw,28px);line-height:1.2;margin:0;letter-spacing:-.035em}
-#v17Perkembangan .f4-dev-intro-chip{font-size:11px;font-weight:750;color:#117950;background:#e8f7ef;border:1px solid #ceeadd;border-radius:99px;padding:7px 10px;white-space:nowrap}
-#v17Perkembangan .f4-dev-mini-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-public-grid-gap,15px);margin:0 0 13px}
-#v17Perkembangan .f4-dev-stat{position:relative;min-width:0;display:flex;align-items:center;gap:10px;padding:13px;border:1px solid #dbe8df;border-radius:15px;background:#fff;box-shadow:0 3px 12px #183a2510}
-#v17Perkembangan .f4-dev-stat-icon{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#e8f5ed;color:#43a047}
-#v17Perkembangan .f4-dev-stat:nth-child(2) .f4-dev-stat-icon{background:#fff3cb;color:#926800}
-#v17Perkembangan .f4-dev-stat:nth-child(3) .f4-dev-stat-icon{background:#e8f7f1;color:#009788}
-#v17Perkembangan .f4-dev-stat:nth-child(4) .f4-dev-stat-icon{background:#e2f8fc;color:#0a738b}
-#v17Perkembangan .f4-dev-stat-icon svg{display:block;width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#v17Perkembangan .f4-dev-stat-copy{min-width:0}
-#v17Perkembangan .f4-dev-stat-label{display:block;color:#698074;font-size:11px;font-weight:650;line-height:1.25}
-#v17Perkembangan .f4-dev-stat-value{display:block;margin-top:3px;font-size:clamp(15px,1.8vw,21px);line-height:1.2;letter-spacing:-.025em;font-weight:850;color:#164832;overflow-wrap:anywhere}
-#v17Perkembangan .f4-dev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-public-grid-gap,15px);align-items:stretch}
-#v17Perkembangan .f4-dev-chart-card,#v17Perkembangan .f4-dev-activity-card{min-width:0;padding:20px;border:1px solid #d6e6dc;border-radius:20px;background:#fff;box-shadow:0 8px 24px #093a2310}
-#v17Perkembangan .f4-dev-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-#v17Perkembangan .f4-dev-head h3{font-size:16px;line-height:1.3;margin:0;font-weight:850;letter-spacing:-.02em}
-#v17Perkembangan .f4-dev-head-note{font-size:11px;font-weight:700;color:#658170;white-space:nowrap}
-#v17Perkembangan .f4-dev-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:0 0 16px}
-#v17Perkembangan .f4-dev-periods,#v17Perkembangan .f4-dev-modes{display:flex;align-items:center;gap:3px;padding:4px;border-radius:12px;background:#f1f6f2;border:1px solid #e3ece6}
-#v17Perkembangan .f4-dev-controls button{min-height:35px;padding:7px 12px;border:0;border-radius:9px;background:transparent;box-shadow:none;color:#516d5d;font-size:12px;font-weight:750;line-height:1.15;white-space:nowrap;cursor:pointer;touch-action:manipulation}
-#v17Perkembangan .f4-dev-modes button{min-width:43px;padding-inline:11px}
-#v17Perkembangan .f4-dev-controls button.is-active{color:#fff;background:#43a047}
-#v17Perkembangan .f4-dev-controls button:focus-visible,#v17Perkembangan .f4-dev-show-more:focus-visible,#v17Perkembangan .f4-dev-activity:focus-visible{outline:2px solid #087a52;outline-offset:3px}
-#v17Perkembangan .f4-dev-chart-summary{display:flex;align-items:flex-end;gap:8px;min-height:56px;margin-bottom:12px}
-#v17Perkembangan .f4-dev-chart-summary strong{display:block;font-size:clamp(25px,3.4vw,34px);font-weight:900;line-height:1.13;color:#095e40;letter-spacing:-.045em}
-#v17Perkembangan .f4-dev-chart-summary small{display:block;padding-bottom:5px;color:#718577;font-size:11px;font-weight:650}
-#v17Perkembangan .f4-dev-chart{height:214px;display:grid;grid-template-columns:repeat(var(--dev-count,6),minmax(0,1fr));gap:8px;align-items:stretch;padding:12px 0 0;position:relative;background:repeating-linear-gradient(to top,transparent,transparent calc(25% - 1px),#edf2ed 25%);border-bottom:1px solid #e4ede5;overflow-x:auto}
-#v17Perkembangan .f4-dev-column{height:100%;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;position:relative}
-#v17Perkembangan .f4-dev-column-value{font-size:11px;font-weight:800;color:#237454;text-align:center;white-space:nowrap;line-height:1.1}
-#v17Perkembangan .f4-dev-column-track{width:100%;min-height:0;flex:1;display:flex;align-items:flex-end;justify-content:center;gap:4px}
-#v17Perkembangan .f4-dev-column-bar{width:36%;max-width:42px;min-width:9px;height:var(--dev-height,0%);border-radius:10px 10px 3px 3px;background:#43a047;transition:height .18s ease;flex-shrink:1}
-#v17Perkembangan .f4-dev-column-bar.is-pending{background:#fdc010;max-width:21px;min-width:6px}
-#v17Perkembangan .f4-dev-column-label{height:26px;display:flex;align-items:center;justify-content:center;max-width:100%;color:#718579;font-size:10px;font-weight:700;text-align:center;white-space:nowrap}
-#v17Perkembangan .f4-dev-empty{grid-column:1/-1;align-self:center;text-align:center;font-size:13px;color:#688272;padding:10px 14px;background:#f5faf6;border-radius:12px}
-#v17Perkembangan .f4-dev-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:14px;color:#617969;font-size:11px;font-weight:650}
+/* Canonical public progress chart and activity timeline; no duplicate UI layers. */
+#v17Perkembangan.f4-dev{margin-top:14px;scroll-margin-top:76px;color:#173e2b}
+#v17Perkembangan .f4-dev-intro{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px
+}
+#v17Perkembangan .f4-dev-kicker{display:none}
+#v17Perkembangan .f4-dev-intro h2{
+ margin:0;color:#1b4834;font-size:clamp(18px,2.3vw,23px);
+ line-height:1.25;letter-spacing:-.025em;font-weight:800
+}
+#v17Perkembangan .f4-dev-intro-chip{
+ padding:5px 9px;border:1px solid #e1ece2;border-radius:99px;
+ background:#f5faf5;color:#60816d;font-size:10px;font-weight:750;white-space:nowrap
+}
+/* The two duplicate summary cards are redundant with the five public KPIs. */
+#v17Perkembangan .f4-dev-mini-stats{display:none}
+#v17Perkembangan .f4-dev-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch;gap:12px
+}
+#v17Perkembangan .f4-dev-chart-card,
+#v17Perkembangan .f4-dev-activity-card{
+ min-width:0;margin:0;padding:16px;
+ border:1px solid #e0eae3;border-radius:17px;background:#fff;box-shadow:none
+}
+#v17Perkembangan .f4-dev-head{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:9px;margin:0 0 11px
+}
+#v17Perkembangan .f4-dev-head h3{
+ margin:0;color:#244c38;font-size:14px;font-weight:800;
+ line-height:1.3;letter-spacing:-.015em
+}
+#v17Perkembangan .f4-dev-head-note{
+ color:#819487;font-size:10px;font-weight:650;white-space:nowrap
+}
+#v17Perkembangan .f4-dev-controls{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:wrap;gap:8px;margin:0 0 10px
+}
+#v17Perkembangan .f4-dev-periods,
+#v17Perkembangan .f4-dev-modes{
+ display:flex;gap:3px;align-items:center;padding:3px;
+ border:1px solid #e5eee6;border-radius:10px;background:#f5faf6
+}
+#v17Perkembangan .f4-dev-controls button{
+ min-height:30px;margin:0;padding:6px 10px;border:0;border-radius:8px;
+ background:transparent;color:#647f6d;box-shadow:none;
+ font-size:11px;font-weight:750;line-height:1.2;white-space:nowrap;cursor:pointer;touch-action:manipulation
+}
+#v17Perkembangan .f4-dev-modes button{min-width:35px}
+#v17Perkembangan .f4-dev-controls button.is-active{background:#318752;color:#fff}
+/* Hide choices only when the public mode genuinely has no other available option. */
+#v17Perkembangan .f4-dev-controls:not(:has([data-dev-range="30"]:not([hidden]))){display:none}
+#v17Perkembangan .f4-dev-controls button:focus-visible,
+#v17Perkembangan .f4-dev-show-more:focus-visible,
+#v17Perkembangan .f4-dev-activity:focus-visible{
+ outline:2px solid #14845c;outline-offset:2px
+}
+#v17Perkembangan .f4-dev-chart-summary{
+ display:flex;align-items:baseline;gap:9px;min-height:0;margin:0 0 12px
+}
+#v17Perkembangan .f4-dev-chart-summary strong{
+ display:block;color:#176144;font-size:clamp(22px,2.8vw,29px);
+ font-weight:850;letter-spacing:-.035em;line-height:1.15
+}
+#v17Perkembangan .f4-dev-chart-summary small{
+ padding:0;color:#7a8c7e;font-size:11px;font-weight:600
+}
+#v17Perkembangan .f4-dev-chart{
+ position:relative;display:grid;grid-template-columns:repeat(var(--dev-count,6),minmax(0,1fr));
+ align-items:stretch;gap:7px;height:150px;min-width:0;padding:10px 0 0;
+ border-bottom:1px solid #e9f0eb;
+ background:repeating-linear-gradient(to top,transparent,transparent calc(33.333% - 1px),#f1f5f1 33.333%);
+ overflow-x:auto
+}
+#v17Perkembangan .f4-dev-column{
+ position:relative;display:flex;flex-direction:column;justify-content:flex-end;
+ align-items:center;gap:5px;height:100%;min-width:0
+}
+#v17Perkembangan .f4-dev-column-value{
+ color:#277952;font-size:10px;font-weight:800;line-height:1.1;white-space:nowrap
+}
+#v17Perkembangan .f4-dev-column-track{
+ flex:1;display:flex;align-items:flex-end;justify-content:center;
+ gap:4px;width:100%;min-height:0
+}
+#v17Perkembangan .f4-dev-column-bar{
+ flex-shrink:1;width:30%;min-width:9px;max-width:37px;
+ height:var(--dev-height,0%);border-radius:7px 7px 2px 2px;
+ background:#3b9e58;transition:height .18s ease
+}
+#v17Perkembangan .f4-dev-column-bar.is-pending{min-width:6px;max-width:20px;background:#f1c74f}
+#v17Perkembangan .f4-dev-column-label{
+ display:flex;align-items:center;justify-content:center;
+ max-width:100%;height:21px;color:#829388;
+ font-size:10px;font-weight:650;text-align:center;white-space:nowrap
+}
+#v17Perkembangan .f4-dev-empty{
+ grid-column:1/-1;align-self:center;padding:9px 12px;
+ border-radius:11px;background:#f4f8f4;color:#788c7e;
+ font-size:12px;text-align:center
+}
+#v17Perkembangan .f4-dev-legend{
+ display:flex;flex-wrap:wrap;gap:7px 13px;
+ margin:10px 0 0;color:#688071;font-size:10.5px;font-weight:600
+}
 #v17Perkembangan .f4-dev-legend span{display:inline-flex;align-items:center;gap:6px}
-#v17Perkembangan .f4-dev-legend i{width:8px;height:8px;border-radius:3px;background:#009788}
-#v17Perkembangan .f4-dev-legend span.is-pending i{background:#fdc010}
-#v17Perkembangan .f4-dev-chart-note{font-size:11px;line-height:1.45;margin:9px 0 0;color:#7b8d81}
-#v17Perkembangan .f4-dev-step-track{display:grid;grid-template-columns:repeat(var(--dev-steps,4),minmax(0,1fr));gap:5px;padding:10px 0 7px;margin-bottom:12px}
-#v17Perkembangan .f4-dev-step{min-width:0;text-align:center;position:relative}
-#v17Perkembangan .f4-dev-step:not(:last-child):after{content:'';position:absolute;left:calc(50% + 14px);right:calc(-50% + 14px);top:11px;height:2px;background:#d9e6dc}
-#v17Perkembangan .f4-dev-step i{position:relative;z-index:1;width:23px;height:23px;border:2px solid #d6e5d9;border-radius:50%;display:grid;place-items:center;margin:0 auto 6px;background:#f3f8f3;color:#6c8878;font-size:10px;font-style:normal;font-weight:850}
-#v17Perkembangan .f4-dev-step.is-done i{background:#43a047;color:#fff;border-color:#43a047}
-#v17Perkembangan .f4-dev-step.is-active i{background:#fff3cb;color:#926800;border-color:#ebc86b}
-#v17Perkembangan .f4-dev-step span{display:block;color:#687d6e;font-size:10px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#v17Perkembangan .f4-dev-timeline-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;border-top:1px solid #edf1ed;padding-top:15px}
-#v17Perkembangan .f4-dev-timeline-head strong{font-size:13px;font-weight:850}
-#v17Perkembangan .f4-dev-show-more{border:0;background:transparent;color:#009788;font-size:12px;font-weight:800;padding:7px;cursor:pointer}
-#v17Perkembangan .f4-dev-timeline{padding:0;margin:0;list-style:none;display:grid;gap:9px}
-#v17Perkembangan .f4-dev-activity{width:100%;display:flex;align-items:center;text-align:left;gap:10px;padding:10px;border:1px solid #e0ece3;border-radius:14px;background:#fff;color:#183e2d;cursor:pointer;min-width:0}
-#v17Perkembangan .f4-dev-activity:hover{background:#f5faf6}
-#v17Perkembangan .f4-dev-activity-img,#v17Perkembangan .f4-dev-activity-icon{width:53px;height:53px;flex:0 0 53px;border-radius:11px;object-fit:cover;background:#edf7ef}
-#v17Perkembangan .f4-dev-activity-icon{display:grid;place-items:center;color:#168057;font-size:22px}
-#v17Perkembangan .f4-dev-activity-info{min-width:0;flex:1}
-#v17Perkembangan .f4-dev-activity-info strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;line-height:1.35;color:#1e4a36;font-weight:850}
-#v17Perkembangan .f4-dev-activity-info small{display:block;margin-top:5px;color:#839386;font-size:11px}
-#v17Perkembangan .f4-dev-activity-state{flex:0 0 auto;align-self:center;border-radius:99px;background:#e9f5ee;color:#17744e;padding:5px 7px;font-size:10px;font-weight:800;max-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#v17Perkembangan .f4-dev-activity-state.is-plan{background:#e2f8fc;color:#0a738b}
-#v17Perkembangan .f4-dev-activity-state.is-active{background:#fff3d7;color:#966c10}
-#v17Perkembangan .f4-dev-empty-activity{font-size:12px;color:#7c9081;padding:12px 0}
+#v17Perkembangan .f4-dev-legend i{
+ width:8px;height:8px;border-radius:3px;background:#3b9e58
+}
+#v17Perkembangan .f4-dev-legend span.is-pending i{background:#f1c74f}
+#v17Perkembangan .f4-dev-chart-note{
+ margin:7px 0 0;color:#859789;font-size:10px;line-height:1.35
+}
+#v17Perkembangan .f4-dev-chart-note:empty{display:none}
+#v17Perkembangan .f4-dev-step-track{
+ display:grid;grid-template-columns:repeat(var(--dev-steps,4),minmax(0,1fr));
+ gap:4px;padding:4px 0 10px;margin:0 0 9px;border-bottom:1px solid #eaf0eb
+}
+#v17Perkembangan .f4-dev-step{position:relative;min-width:0;text-align:center}
+#v17Perkembangan .f4-dev-step:not(:last-child):after{
+ content:"";position:absolute;left:calc(50% + 13px);right:calc(-50% + 13px);
+ top:10px;height:2px;background:#dce8df
+}
+#v17Perkembangan .f4-dev-step i{
+ position:relative;z-index:1;display:grid;place-items:center;
+ width:22px;height:22px;margin:0 auto 5px;
+ border:1.5px solid #d4e4d7;border-radius:50%;
+ background:#f3f8f4;color:#78917e;font-size:10px;font-style:normal;font-weight:850
+}
+#v17Perkembangan .f4-dev-step.is-done i{background:#3d9e59;color:#fff;border-color:#3d9e59}
+#v17Perkembangan .f4-dev-step.is-active i{background:#fff1cf;color:#997123;border-color:#eccd82}
+#v17Perkembangan .f4-dev-step span{
+ display:block;overflow:hidden;color:#829487;
+ font-size:10px;font-weight:650;white-space:nowrap;text-overflow:ellipsis
+}
+#v17Perkembangan .f4-dev-timeline-head{
+ display:flex;align-items:center;justify-content:flex-end;
+ gap:6px;min-height:0;margin:0 0 6px;padding:0;border:0
+}
+#v17Perkembangan .f4-dev-timeline-head strong{display:none}
+#v17Perkembangan .f4-dev-show-more{
+ margin:0;padding:4px 1px;border:0;border-radius:4px;
+ background:transparent;color:#13846b;font-size:11px;font-weight:750;cursor:pointer
+}
+#v17Perkembangan .f4-dev-show-more[hidden]{display:none}
+#v17Perkembangan .f4-dev-timeline{
+ display:grid;gap:0;list-style:none;margin:0;padding:0
+}
+#v17Perkembangan .f4-dev-activity{
+ box-sizing:border-box;display:flex;align-items:center;gap:10px;
+ width:100%;min-width:0;margin:0;padding:9px 2px;
+ border:0;border-bottom:1px solid #eaf0eb;border-radius:0;
+ background:transparent;color:#214c35;text-align:left;cursor:pointer
+}
+#v17Perkembangan .f4-dev-timeline li:last-child .f4-dev-activity{border-bottom:0}
+#v17Perkembangan .f4-dev-activity:hover{background:#f6faf7}
+#v17Perkembangan .f4-dev-activity-img,
+#v17Perkembangan .f4-dev-activity-icon{
+ flex:0 0 43px;width:43px;height:43px;border-radius:9px;
+ object-fit:cover;background:#edf6ee
+}
+#v17Perkembangan .f4-dev-activity-icon{display:grid;place-items:center;color:#218456}
+#v17Perkembangan .f4-dev-activity-info{flex:1;min-width:0}
+#v17Perkembangan .f4-dev-activity-info strong{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+ font-size:12px;line-height:1.35;color:#214b36;font-weight:750
+}
+#v17Perkembangan .f4-dev-activity-info small{
+ display:block;margin:3px 0 0;color:#8c9b8e;font-size:10px
+}
+#v17Perkembangan .f4-dev-activity-state{
+ flex:none;align-self:center;max-width:78px;overflow:hidden;text-overflow:ellipsis;
+ padding:4px 7px;border-radius:8px;background:#edf7ee;
+ color:#357b50;font-size:10px;font-weight:700;white-space:nowrap
+}
+#v17Perkembangan .f4-dev-activity-state.is-plan{background:#edf8f9;color:#1c7685}
+#v17Perkembangan .f4-dev-activity-state.is-active{background:#fff4df;color:#91722c}
+#v17Perkembangan .f4-dev-empty-activity{padding:10px 0;color:#7b9181;font-size:12px}
 @media(max-width:900px){
- #v17Perkembangan .f4-dev-grid{grid-template-columns:minmax(0,1fr)}
- #v17Perkembangan .f4-dev-mini-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #v17Perkembangan .f4-dev-grid{grid-template-columns:minmax(0,1fr);gap:10px}
 }
 @media(max-width:540px){
- #v17Perkembangan .f4-dev-intro{margin-bottom:12px}
- #v17Perkembangan .f4-dev-mini-stats{gap:8px}
- #v17Perkembangan .f4-dev-stat{padding:11px 10px;gap:8px}
- #v17Perkembangan .f4-dev-stat-icon{width:32px;height:32px;flex-basis:32px}
- #v17Perkembangan .f4-dev-stat-value{font-size:17px}
- #v17Perkembangan .f4-dev-chart-card,#v17Perkembangan .f4-dev-activity-card{padding:15px 13px;border-radius:18px}
- #v17Perkembangan .f4-dev-controls{gap:8px}
- #v17Perkembangan .f4-dev-periods{flex:1}
- #v17Perkembangan .f4-dev-periods button{flex:1;padding-inline:7px}
- #v17Perkembangan .f4-dev-chart{height:194px;gap:3px}
- #v17Perkembangan .f4-dev-column-label{font-size:9px}
+ #v17Perkembangan.f4-dev{margin-top:5px}
+ #v17Perkembangan .f4-dev-intro{margin-bottom:9px}
+ #v17Perkembangan .f4-dev-chart-card,
+ #v17Perkembangan .f4-dev-activity-card{padding:13px;border-radius:15px}
+ #v17Perkembangan .f4-dev-chart{height:136px;gap:3px}
+ #v17Perkembangan .f4-dev-chart-summary{gap:7px}
+ #v17Perkembangan .f4-dev-chart-summary strong{font-size:25px}
  #v17Perkembangan .f4-dev-column-value{font-size:9px}
- #v17Perkembangan .f4-dev-activity-img,#v17Perkembangan .f4-dev-activity-icon{width:46px;height:46px;flex-basis:46px}
+ #v17Perkembangan .f4-dev-column-label{font-size:9px}
+ #v17Perkembangan .f4-dev-step-track{padding:3px 0 8px}
+ #v17Perkembangan .f4-dev-step span{display:none}
+ #v17Perkembangan .f4-dev-activity-img,
+ #v17Perkembangan .f4-dev-activity-icon{flex-basis:39px;width:39px;height:39px}
+ #v17Perkembangan .f4-dev-activity-state{font-size:9px}
 }
-@media(prefers-reduced-motion:reduce){#v17Perkembangan .f4-dev-column-bar{transition:none}}
+@media(prefers-reduced-motion:reduce){
+ #v17Perkembangan .f4-dev-column-bar{transition:none}
+}
