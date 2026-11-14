@@ -1,0 +1,23 @@
+name: Bank Sampah Production Data Integrity (Read Only)
+on:
+  push:
+    branches: [main, fix/bank-audit-stable-nov14]
+    paths:
+      - qa/bank_data_integrity_readonly.py
+      - .github/workflows/f4-bank-data-integrity-readonly.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  data-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: python3 -m py_compile qa/bank_data_integrity_readonly.py
+      - name: API and Cloudflare D1 read-only assertions
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 qa/bank_data_integrity_readonly.py
