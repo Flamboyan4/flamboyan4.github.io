@@ -1826,16 +1826,29 @@ function combineAdminApproval(){
  const root=$("pageRekonsiliasi"),approval=$("pagePengesahan");
  if(!root||!approval)return;
  const heading=root.querySelector(":scope > h2");
- if(heading)heading.textContent="Cek Selisih & Sahkan Hasil";
+ if(heading)heading.textContent="Sahkan Hasil";
  if(approval.parentNode!==root)root.append(approval);
  approval.classList.remove("hidden");
  approval.classList.add("f4-bank-admin-approval");
- const reconPicker=$("reconBatch")?.closest(".field");
- if(reconPicker)reconPicker.hidden=true;
+ // Keep the financial cross-check accessible without duplicating the primary
+ // confirmation flow or exposing the result before a batch is selected.
+ let reconDetails=$("f4BankReconDetails");
+ if(!reconDetails){
+  reconDetails=document.createElement("details");
+  reconDetails.id="f4BankReconDetails";
+  reconDetails.className="f4-bank-recon-details";
+  const summary=document.createElement("summary");
+  summary.textContent="Cek selisih penimbangan";
+  reconDetails.append(summary);
+  const note=root.querySelector(":scope > .pill-note");
+  const reconPicker=$("reconBatch")?.closest(".field");
+  const preview=$("reconResult");
+  if(note)reconDetails.append(note);
+  if(reconPicker){reconPicker.hidden=true;reconDetails.append(reconPicker);}
+  if(preview)reconDetails.append(preview);
+  root.append(reconDetails);
+ }
  const selection=$("v8Batch");
- const preview=$("reconResult");
- if(selection&&preview&&preview.previousElementSibling!==selection.closest(".field"))
-  selection.closest(".field")?.after(preview);
  if(selection&&!selection.dataset.f4ReconBound){
   selection.dataset.f4ReconBound="1";
   selection.addEventListener("change",()=>{
