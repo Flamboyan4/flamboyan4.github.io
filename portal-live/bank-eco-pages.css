@@ -1603,13 +1603,6 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  body.f4-bank-app-admin .f4-bank-admin-shortcut-grid{
   grid-template-columns:repeat(4,minmax(0,1fr))
  }
- body.f4-bank-app-admin #dashboardView #v16Tabs.v16-tabs:not(.hidden){
-  display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
-  gap:7px;scrollbar-width:thin;max-width:100%;padding-bottom:8px
- }
- body.f4-bank-app-admin #dashboardView #v16Tabs.v16-tabs>button{
-  flex:0 0 auto;white-space:nowrap
- }
 }
 @media(min-width:1024px){
  body.f4-bank-app-admin #dashboardView>.grid{
