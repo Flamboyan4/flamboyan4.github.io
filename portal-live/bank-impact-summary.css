@@ -1,166 +1,252 @@
-/* Portal publik: ringkas, kontras tenang, foto tetap dapat dibuka.
-   Pemilik tunggal gaya hero dan lima metrik; tidak mengubah kartu keuangan privat. */
-#v11Public .v17-public-main>.v17-public-banner{
- box-sizing:border-box;grid-column:1/-1;display:grid;
- grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
- align-items:center;gap:24px;min-width:0;width:100%;
- min-height:0;margin:0;padding:23px 25px;
- border:1px solid #dce9dd;border-radius:19px;
- background:#f1f8f0;color:#174630;box-shadow:none
+/* Public Bank Sampah app — canonical hero, main canvas and metric components.
+   Other application pages and the private finance block below are unaffected. */
+#v11Public #v18PublicContent{background:#f5f8f5}
+#v11Public #v18PublicContent .v17-public-main{
+ box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+ width:100%;max-width:980px;min-width:0;margin:0 auto;
+ padding:22px 24px 54px;column-gap:15px;row-gap:16px
 }
-#v11Public .v17-public-main>.v17-public-banner>div:first-child{
- display:flex;flex-direction:column;align-items:flex-start;min-width:0
+#v11Public .v17-public-main>.v17-public-banner{
+ position:relative;isolation:isolate;box-sizing:border-box;
+ grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 156px;
+ align-items:center;gap:18px;min-width:0;min-height:206px;
+ width:100%;margin:0;padding:24px 26px;overflow:hidden;
+ border:0;border-radius:24px;color:#fff;
+ background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%);
+ box-shadow:0 9px 22px #14563823
+}
+#v11Public .v17-public-main>.v17-public-banner::before{
+ content:"";position:absolute;z-index:-1;inset:auto -63px -127px auto;
+ width:275px;height:275px;border:1px solid #ffffff1c;border-radius:50%;
+ box-shadow:0 0 0 48px #ffffff07,0 0 0 98px #ffffff05;pointer-events:none
+}
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-copy{
+ min-width:0;display:flex;flex-direction:column;align-items:flex-start
 }
 #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow{
  display:inline-flex;align-items:center;gap:7px;
- margin:0;padding:5px 9px;border:1px solid #d3e8d5;
- border-radius:8px;background:#e6f3e3;color:#267044;
- font-size:10px;line-height:1.3;font-weight:800;letter-spacing:.08em;text-transform:uppercase
+ max-width:100%;margin:0;padding:6px 10px;
+ border:1px solid #ffffff36;border-radius:999px;
+ background:#ffffff16;color:#efffef;
+ font-size:10px;line-height:1.2;font-weight:780;letter-spacing:.075em
 }
-#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow img{
- display:block;width:16px;height:16px
+#v11Public .v17-public-main>.v17-public-banner .v14-eyebrow svg{
+ flex:none;display:block;width:16px;height:16px;stroke:#d9f9de
 }
-#v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
- max-width:620px;margin:13px 0 7px;color:#185038;
- font-size:clamp(23px,2.65vw,33px);line-height:1.17;
- font-weight:850;letter-spacing:-.032em;text-wrap:balance
+#v11Public .v17-public-main>.v17-public-banner h1{
+ max-width:535px;margin:15px 0 8px;
+ color:#fff;font-size:clamp(26px,3vw,38px);
+ line-height:1.14;font-weight:880;letter-spacing:-.035em;text-wrap:balance
 }
 #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
- max-width:500px;margin:0;color:#66816e;opacity:1;
- font-size:clamp(12px,1vw,13px);line-height:1.55
+ max-width:430px;margin:0;color:#d6f3e0;opacity:1;
+ font-size:12px;line-height:1.55;font-weight:500
 }
-#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo){
- display:inline-flex;align-items:center;justify-content:center;gap:7px;
- min-height:36px;margin:11px 8px 0 0;padding:8px 13px;
- border:0;border-radius:10px;background:#1c7850;color:#fff;
- box-shadow:none;font-weight:750;cursor:pointer
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:36px;margin:16px 0 0;padding:8px 13px;
+ border:0;border-radius:10px;background:#fff;color:#106746;
+ box-shadow:none;font-size:11px;font-weight:820;line-height:1.2;
+ white-space:nowrap;cursor:pointer
 }
-#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):hover{background:#146442}
-#v11Public .v17-public-main>.v17-public-banner button:not(.v30-hero-photo):focus-visible{
- outline:2px solid #16815c;outline-offset:3px
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action svg{
+ display:block;flex:none;width:15px;height:15px;stroke:currentColor
 }
-#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo{
- display:none;box-sizing:border-box;width:100%;min-width:0;
- height:179px;margin:0;padding:0;overflow:hidden;border:0;border-radius:14px;
- background:#dae8db;box-shadow:none;cursor:pointer
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:hover{
+ background:#ebf9ec;color:#064e31
 }
-#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{display:block}
-#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{
- display:block;width:100%;height:100%;object-fit:cover;object-position:center;
- transition:transform .2s ease
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:focus-visible{
+ outline:2px solid #f7d362;outline-offset:3px
 }
-#v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo:hover img{transform:scale(1.02)}
-#v11Public .v17-public-main>.v17-public-banner:not(:has(>.v30-hero-photo.has-photo)){
- grid-template-columns:minmax(0,1fr)
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-illustration{
+ position:relative;z-index:0;display:grid;place-items:center;
+ width:156px;height:156px;justify-self:center;flex:none
 }
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc{
+ display:grid;place-items:center;width:136px;height:136px;
+ border:1.5px solid #ffffff54;border-radius:50%;
+ background:linear-gradient(150deg,#ffffff2c,#ffffff07);
+ box-shadow:inset 0 0 0 10px #ffffff08
+}
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc svg{
+ display:block;width:83px;height:83px;stroke:#fff
+}
+#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-spark{
+ position:absolute;width:14px;height:14px;border-radius:5px;
+ background:#fbd15c;transform:rotate(-17deg)
+}
+#v11Public .v17-public-main>.v17-public-banner .f4-public-spark-one{
+ top:5px;right:10px
+}
+#v11Public .v17-public-main>.v17-public-banner .f4-public-spark-two{
+ bottom:7px;left:3px;width:9px;height:9px;background:#c3f29c
+}
+/* Dashboard KPIs: one highlighted result, four restrained secondary tiles. */
 #v11Public .v17-public-main>.v17-public-metrics{
  box-sizing:border-box;grid-column:1/-1;display:grid;
- grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;
- align-items:stretch;width:100%;min-width:0;margin:0;padding:0;
+ grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;
+ align-items:stretch;min-width:0;width:100%;margin:0;padding:0;
  border:0;border-radius:0;background:transparent;overflow:visible
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
- box-sizing:border-box;display:flex;flex-direction:column;
- align-items:flex-start;gap:4px;min-width:0;min-height:99px;
- margin:0;padding:13px 14px;border:1px solid #e0eae2;
- border-radius:15px;background:#fff;box-shadow:none
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
- grid-column:auto;min-height:99px;padding:13px 14px;
- border-color:#d4e8d1;background:#edf7e6
+ box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);
+ grid-template-rows:auto 1fr;align-items:center;column-gap:8px;row-gap:6px;
+ min-width:0;min-height:107px;margin:0;padding:14px;
+ border:1px solid #dee8df;border-radius:18px;background:#fff;
+ box-shadow:0 3px 10px #0b3d270b
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
- content:"";display:block;flex:none;width:24px;height:24px;margin:0 0 1px;
- border-radius:7px;background:#edf6ed url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/16px no-repeat
+ content:"";box-sizing:border-box;grid-column:1;grid-row:1;
+ display:grid;place-items:center;width:30px;height:30px;margin:0;
+ border-radius:10px;background:#e6f4e5
+ url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
- background-color:#e2f5e8;background-image:url('/assets/icons/user.svg')
+ background-color:#e1f4e6;background-image:url('/assets/icons/user.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
- background-color:#e7f3e2;background-image:url('/assets/icons/inventory.svg')
+ background-color:#def0dd;background-image:url('/assets/icons/inventory.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
- background-color:#e2f4f4;background-image:url('/assets/icons/calendar.svg')
+ background-color:#e3f4f3;background-image:url('/assets/icons/calendar.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{
- background-color:#fbf1d7;background-image:url('/assets/icons/cash.svg')
+ background-color:#fff1cb;background-image:url('/assets/icons/cash.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
- display:block;margin:0;color:#718578;font-size:11px;font-weight:600;line-height:1.32
+ grid-column:2;grid-row:1;min-width:0;margin:0;color:#657b6c;
+ font-size:10.5px;font-weight:690;line-height:1.3;overflow-wrap:anywhere
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
- display:block;margin:2px 0 0;color:#176045;
- font-size:clamp(19px,1.9vw,25px);font-weight:850;line-height:1.18;
+ grid-column:1/-1;grid-row:2;align-self:end;min-width:0;
+ display:block;margin:0;color:#135a3c;
+ font-size:clamp(21px,2.1vw,29px);font-weight:880;line-height:1.1;
  letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
 }
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
+ grid-column:auto;min-height:107px;padding:14px;
+ border-color:#c9e5c7;background:#dff1d0
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
+ background-color:#c6e6ab
+}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
+ color:#295f3e
+}
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
- color:#1c593d
+ color:#064e32
 }
 @media(max-width:1100px){
  #v11Public .v17-public-main>.v17-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr))
  }
- #v11Public .v17-public-main>.v17-public-banner{
-  grid-template-columns:minmax(0,1fr) minmax(0,.8fr)
- }
 }
 @media(max-width:760px){
+ #v11Public #v18PublicContent .v17-public-main{
+  width:100%;max-width:540px;min-width:0;padding:16px 18px 44px;
+  column-gap:11px;row-gap:14px
+ }
  #v11Public .v17-public-main>.v17-public-banner{
-  grid-template-columns:minmax(0,1fr) 112px;gap:11px;
-  padding:15px;border-radius:16px
+  grid-template-columns:minmax(0,1fr) 76px;
+  gap:6px;min-height:0;padding:18px 15px 17px;
+  border-radius:20px;box-shadow:0 6px 14px #1456381a
  }
- #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){
-  font-size:clamp(19px,5.2vw,22px);margin:9px 0 6px;line-height:1.21
- }
- #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
-  font-size:11px;line-height:1.45
+ #v11Public .v17-public-main>.v17-public-banner::before{
+  right:-135px;bottom:-142px
  }
  #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow{
-  padding:4px 7px;font-size:9px;letter-spacing:.045em
+  padding:5px 8px;font-size:9px;letter-spacing:.04em
  }
- #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{
-  height:143px;border-radius:12px
+ #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow svg{
+  width:15px;height:15px
+ }
+ #v11Public .v17-public-main>.v17-public-banner h1{
+  font-size:clamp(20px,5.6vw,25px);margin:12px 0 6px;
+  letter-spacing:-.035em;line-height:1.18
+ }
+ #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
+  font-size:10.5px;line-height:1.5
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
+  min-height:33px;margin-top:12px;padding:7px 10px;
+  font-size:10px;border-radius:9px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action svg{
+  width:13px;height:13px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-illustration{
+  width:76px;height:100px;align-self:center
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc{
+  width:73px;height:73px;box-shadow:inset 0 0 0 6px #ffffff08
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc svg{
+  width:49px;height:49px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-spark{
+  width:9px;height:9px;border-radius:3px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-spark-one{
+  right:0;top:0
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-spark-two{
+  left:0;bottom:2px;width:7px;height:7px
  }
  #v11Public .v17-public-main>.v17-public-metrics{
-  grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
-  display:grid;grid-template-columns:23px minmax(0,1fr);
-  grid-template-rows:auto 1fr;align-items:center;column-gap:7px;row-gap:4px;
-  min-height:82px;padding:10px 11px;border-radius:13px
+  grid-template-columns:27px minmax(0,1fr);column-gap:7px;row-gap:7px;
+  min-height:94px;padding:12px;border-radius:16px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
-  grid-column:1;width:22px;height:22px;margin:0;background-size:15px
+  width:27px;height:27px;border-radius:9px;background-size:16px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
-  grid-column:2;font-size:10.5px
+  font-size:10px;line-height:1.25
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
-  grid-column:1/-1;font-size:20px;margin-top:1px
+  font-size:24px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
-  grid-column:1/-1;display:flex;flex-direction:row;
-  align-items:center;justify-content:space-between;gap:10px;
-  min-height:64px;padding:11px 14px
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;min-height:74px;padding:15px 16px;border-radius:18px
  }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{display:none}
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
+  flex:0 0 32px;width:32px;height:32px;background-size:20px;border-radius:11px
+ }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
-  color:#557661;font-size:12px;font-weight:750
+  flex:1;min-width:0;font-size:12px;font-weight:750
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
-  flex:none;font-size:26px;white-space:nowrap
+  flex:none;font-size:27px;white-space:nowrap
  }
 }
 @media(max-width:360px){
+ #v11Public #v18PublicContent .v17-public-main{padding-inline:15px}
  #v11Public .v17-public-main>.v17-public-banner{
-  grid-template-columns:minmax(0,1fr) 93px;gap:9px;padding:12px
+  grid-template-columns:minmax(0,1fr) 63px;padding:16px 13px
  }
- #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo.has-photo{height:128px}
- #v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){font-size:19px}
- #v11Public .v17-public-main>.v17-public-metrics{gap:7px}
+ #v11Public .v17-public-main>.v17-public-banner h1{font-size:20px}
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-illustration{
+  width:63px;height:92px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc{
+  width:61px;height:61px
+ }
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc svg{
+  width:41px;height:41px
+ }
+ #v11Public .v17-public-main>.v17-public-metrics{gap:8px}
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
+  padding:10px
+ }
 }
 @media(prefers-reduced-motion:reduce){
- #v11Public .v17-public-main>.v17-public-banner>.v30-hero-photo img{transition:none}
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action,
+ #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-illustration{
+  transition:none
+ }
 }
 
 /* Warga melihat angka rupiah di ruang akun, bukan di halaman tanpa login. */
