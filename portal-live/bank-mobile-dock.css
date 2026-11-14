@@ -11,11 +11,12 @@
  /* Navigasi bawah tunggal: Pencairan adalah aksi utama kuning (selalu),
     empat menu lain tetap normal, tanpa bergantung halaman aktif. */
  :is(body.f4-bank-app-private,html.f4-bank-admin-dock-root) .f4-bank-app-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;left:0;right:0;bottom:0;z-index:55;
+  box-sizing:border-box;position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);z-index:55;
+  transform:translateY(var(--f4-bank-dock-viewport-shift,0px));
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:stretch;gap:3px;width:100%;
-  height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px));
-  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  height:var(--f4-bank-dock-height);
+  padding:6px 8px;
   overflow:visible;background:#fff;border-top:1px solid #e4ece5;
   box-shadow:0 -5px 16px #143c2410
  }
