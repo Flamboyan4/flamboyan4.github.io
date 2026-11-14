@@ -1440,7 +1440,14 @@ async def main():
         browser=await p.chromium.launch(args=["--no-sandbox"])
         for device,width in [("pc",1366),("hp",390)]:
             page=await browser.new_page(viewport={"width":width,"height":850},device_scale_factor=1)
-            await page.set_content(HTML,wait_until="load")
+            # History.pushState needs a genuine HTTP document. about:blank cannot
+            # exercise the popup-first browser Back behavior used by production.
+            async def serve_fixture(route):
+                await route.fulfill(status=200,content_type="text/html",body=HTML)
+            await page.route("http://bank-app-test.local/*",serve_fixture)
+            await page.goto("http://bank-app-test.local/",wait_until="load")
+            # Production registers the popup guard before its mobile app.
+            await page.add_script_tag(url=ROOT+"/portal-live/bank-modal-history.js")
             await page.add_script_tag(url=ROOT+"/portal-live/bank-mobile-app.js")
             await page.evaluate("""() => window.dispatchEvent(new CustomEvent('f4-bank-admin-overview',{
                 detail:{kasMilikBankRp:1500,kasGabunganRp:6000,hakWargaBelumCairRp:3000,
