@@ -1,0 +1,46 @@
+/* Bank Sampah: one phone-only sheet gesture layer. Desktop modal stays unchanged. */
+@media(max-width:767px){
+ dialog.f4-bank-sheet-modal{
+  inset:auto 0 0;margin:0;width:100%;max-width:100%;
+  min-width:0;max-height:calc(100dvh - 12px);
+  padding:34px 17px calc(19px + env(safe-area-inset-bottom,0px));
+  border:0;border-radius:23px 23px 0 0;overflow-y:auto;
+  overscroll-behavior:contain;background:#fff;
+  box-shadow:0 -14px 42px #112e2429
+ }
+ dialog.f4-bank-sheet-modal.f4-bank-admin-menu-sheet{
+  padding-top:35px
+ }
+ .f4-bank-admin-menu-sheet .f4-bank-admin-menu-handle{display:none}
+ .f4-bank-gesture-sheet:not(dialog){position:relative}
+ .f4-bank-gesture-sheet{overscroll-behavior:contain;touch-action:pan-y}
+ .f4-bank-gesture-sheet:not(dialog){padding-top:34px}
+ .f4-bank-gesture-sheet::before{display:none}
+ .f4-bank-gesture-sheet>.f4-bank-sheet-grip{
+  position:absolute;z-index:15;top:0;left:0;width:100%;height:31px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;margin:0;border:0;background:transparent;cursor:grab;
+  touch-action:none;user-select:none;-webkit-user-select:none
+ }
+ .f4-bank-gesture-sheet>.f4-bank-sheet-grip>span{
+  display:block;width:43px;height:5px;border-radius:20px;background:#c6d3cc;
+ }
+ .f4-bank-gesture-sheet>.f4-bank-sheet-grip:focus-visible{
+  outline:2px solid #178059;outline-offset:-3px
+ }
+ .f4-bank-gesture-sheet.f4-bank-sheet-moving,
+ .f4-bank-gesture-sheet.f4-bank-sheet-dismissing{animation:none}
+ .f4-bank-gesture-sheet.f4-bank-sheet-expanded{
+  height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);
+  border-radius:20px 20px 0 0;overflow-y:auto
+ }
+ #f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card.f4-bank-sheet-expanded,
+ .v21-modal:not(.v21-lightbox)>.v21-modal-card.f4-bank-sheet-expanded,
+ .v24-edit-overlay>.v24-edit-card.f4-bank-sheet-expanded,
+ .f4-activity-dialog>.f4-activity-dialog-panel.f4-bank-sheet-expanded{
+  height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .f4-bank-gesture-sheet{animation:none;transition:none}
+}
