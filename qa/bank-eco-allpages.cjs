@@ -78,7 +78,7 @@ assert(bankingCss.includes('grid-area:balance') &&
        bankingCss.includes('padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;\n background:#fff;') &&
        bankingCss.includes('background:linear-gradient(105deg,#067747,#075030)'),
  'Member balance requires white background and working green CTA');
-assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero stays solid green');
+assert(publicTheme.includes('background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%)') && publicTheme.includes('border:0;border-radius:24px;color:#fff;'), 'Public hero must keep the selected saturated green gradient and white text');
 assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
        css.includes('"progress recent"') && css.includes('"guide info"'),
  'Premium desktop hierarchy must have personal progress beside mutasi and compact steps beside information');
