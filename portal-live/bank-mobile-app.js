@@ -135,7 +135,7 @@ function previousBankPage(){
  try{navigate(destination);}finally{returningFromBack=false;}
 }
 function syncAdminBack(){
- const section=$("dashboardView")?.querySelector(".section");
+ const section=$("dashboardView")?.querySelector(".grid > .section");
  if(!section)return;
  let back=$("f4BankAdminBack");
  if(!back){
@@ -145,11 +145,22 @@ function syncAdminBack(){
   const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
-  back.append(arrow); // Ikon panah saja, nama aksi tetap tersedia via aria-label.
+  back.append(arrow);
   back.onclick=previousBankPage;
   section.prepend(back);
  }
- back.hidden=screen==="dashboard"||!$("pageDashboard")?.classList.contains("hidden")||roleType()!=="admin";
+ // Tempel panah pada judul halaman aktif: jangan membuat baris kosong di atasnya.
+ const show=roleType()==="admin"&&screen!=="dashboard"&&$("pageDashboard")?.classList.contains("hidden");
+ const active=show?[...section.children].find(node=>
+  node!==back&&!node.hidden&&!node.classList.contains("hidden")&&
+  node.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2")
+ ):null;
+ const title=active?.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
+ if(title){
+  title.classList.add("f4-bank-admin-inline-title");
+  if(back.parentElement!==title)title.prepend(back);
+ }else if(back.parentElement!==section)section.prepend(back);
+ back.hidden=!show||!title;
 }
 // Compact member identity replaces the oversized greeting on the member dashboard.
 function memberTopIdentity(){
@@ -1131,7 +1142,7 @@ function managerRequestsPanel(){
  }
  const savings=$("pageTabungan");
  if(savings&&!$("f4BankPayoutLink")){
-  const go=el("button","f4-bank-secondary-action f4-bank-payout-link","Lihat pengajuan pencairan");
+  const go=el("button","f4-bank-secondary-action f4-bank-payout-link","Pengajuan pencairan");
   go.id="f4BankPayoutLink";go.type="button";go.onclick=()=>navigate("bank-payout-admin");
   savings.querySelector(".f4-savings-utility")?.prepend(go);
  }
