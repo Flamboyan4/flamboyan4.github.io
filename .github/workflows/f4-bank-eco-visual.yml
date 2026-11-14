@@ -1,5 +1,12 @@
 name: Bank Sampah - Browser Audit Situs Asli
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-bank-eco-visual.yml
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - portal-live/bank-mobile-app.js
   workflow_run:
     workflows: ["pages build and deployment"]
     types: [completed]
