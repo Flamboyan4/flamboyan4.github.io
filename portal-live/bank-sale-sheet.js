@@ -88,11 +88,11 @@ function install(){
  installed=true;
  const tools=document.createElement("div");tools.className="f4-bank-sheet-tools";
  const label=document.createElement("div");label.className="f4-bank-sheet-summary";
- const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Tahap 1 · Nota Penimbangan";
+ const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Nota timbang";
  const statusNode=document.createElement("small");statusNode.id="f4SaleSheetStatus";statusNode.setAttribute("role","status");
  label.append(number,statusNode);
  const actions=document.createElement("div");actions.className="f4-bank-sheet-actions";
- const print=document.createElement("button");print.type="button";print.className="f4-bank-gold-action";print.id="f4SaleSheetPrint";print.textContent="Cetak Nota Penimbangan";
+ const print=document.createElement("button");print.type="button";print.className="f4-bank-gold-action";print.id="f4SaleSheetPrint";print.textContent="Cetak nota";
  print.setAttribute("aria-describedby","f4SaleSheetStatus");
  print.onclick=prepareAndPrint;
  const reopen=document.createElement("button");reopen.type="button";reopen.className="secondary";reopen.id="f4SaleSheetReopen";reopen.textContent="Buka kembali setoran";reopen.hidden=true;reopen.onclick=reopenBatch;
@@ -102,7 +102,7 @@ function install(){
  const groupField=picker.closest(".field");
  if(groupField&&groupField.parentElement===topFields)groupField.after(tools);
  else topFields.append(tools);
- status("Pilih kelompok setoran, lalu cetak nota sebelum ke lapak.");
+ status("Pilih kelompok dan cetak nota.");
  picker.addEventListener("change",refresh);
 }
 async function refresh(){
@@ -114,12 +114,12 @@ async function refresh(){
  // Jangan sembunyikan tombol tahap pertama: pengguna perlu tahu alurnya.
  if(tools)tools.hidden=false;
  current=null;
- if(print){print.disabled=false;print.textContent="Cetak Nota Penimbangan";}
+ if(print){print.disabled=false;print.textContent="Cetak nota";}
  if(reopen)reopen.hidden=true;
- $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Tahap 1 · Nota Penimbangan";
- status(batchId?"Memuat rekap sampah...":picker.disabled
-  ?"Belum ada kelompok setoran yang bisa dijual."
-  :"Pilih kelompok setoran, lalu cetak nota sebelum ke lapak.");
+ $("f4SaleSheetNumber").textContent=batchId?"Memuat rekap...":"Nota timbang";
+ status(batchId?"Memuat nota...":picker.disabled
+  ?"Belum ada setoran siap dijual."
+  :"Pilih kelompok dan cetak nota.");
  if(!batchId)return;
  try{
   const data=await fetchSheet(batchId);
@@ -135,7 +135,7 @@ async function refresh(){
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
   if(print){
    print.disabled=!(Array.isArray(data.lines)&&data.lines.length>0);
-   print.textContent=data.status==="siap"?"Cetak Ulang Nota Penimbangan":"Cetak Nota Penimbangan";
+   print.textContent=data.status==="siap"?"Cetak ulang nota":"Cetak nota";
   }
   if(reopen)reopen.hidden=data.status!=="siap";
   fill(data);
@@ -155,7 +155,7 @@ function sheetHtml(data){
 async function prepareAndPrint(){
  const picker=$("saleBatch");
  if(!picker?.value){
-  status(picker?.disabled?"Belum ada kelompok setoran yang bisa dijual.":"Pilih kelompok setoran terlebih dahulu.",true);
+  status(picker?.disabled?"Belum ada setoran siap dijual.":"Pilih kelompok setoran terlebih dahulu.",true);
   picker?.focus();return;
  }
  if(!current){
@@ -174,7 +174,7 @@ async function prepareAndPrint(){
   current=data;
   $("f4SaleSheetNumber").textContent=data.saleNumber;
   $("f4SaleSheetReopen").hidden=false;
-  status("Nota siap dicetak. Bawa ke lapak, isi hasil timbang dan minta tanda tangan.");
+  status("Nota siap. Isi hasil dari lapak setelah ditandatangani.");
   popup.document.open();popup.document.write(sheetHtml(data));popup.document.close();
   popup.focus();
   // Print sekali saja: Firefox dapat memicu load setelah readyState complete.
@@ -185,7 +185,7 @@ async function prepareAndPrint(){
  }catch(e){popup.close();status(e.message||String(e),true)}
  finally{
   print.disabled=false;
-  print.textContent=current?.status==="siap"?"Cetak Ulang Nota Penimbangan":"Cetak Nota Penimbangan";
+  print.textContent=current?.status==="siap"?"Cetak ulang nota":"Cetak nota";
  }
 }
 async function reopenBatch(){
