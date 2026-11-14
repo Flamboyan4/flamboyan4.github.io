@@ -906,9 +906,9 @@ async def sale_price_field_proportions(browser):
         <form id="saleForm"><div id="saleItems"><div class="f4-compact-rows">
         <div class="f4-compact-row f4-compact-sale-row">
         <select aria-label="Jenis sampah"><option>Kardus</option></select>
-        <input type="number" aria-label="Berat terjual (kg)" placeholder="Berat (kg)">
+        <input type="number" aria-label="Berat terjual (kg)" placeholder="Kg">
         <div class="f4-compact-entry-group">
-        <input type="number" aria-label="Harga per kg" placeholder="Harga/kg">
+        <input type="number" aria-label="Harga per kg" placeholder="Rp/kg">
         <button class="f4-compact-remove" type="button">×</button>
         </div></div></div></div></form></div></main></div></body></html>"""
         await page.set_content(fixture,wait_until="load")
@@ -948,7 +948,6 @@ async def bank_unified_goods_forms(browser):
            <button id="saveSetoranBtn" type="submit">Simpan setoran</button>
           </div></div></form>
           <form id="f4BankOwnDepositForm">
-           <p class="f4-bank-own-intro">Stok bank</p>
            <div class="f4-bank-own-main"><div class="f4-bank-own-detail">
              <div class="f4-bank-own-detail-head"><strong>Rincian sampah</strong></div>
              <div id="f4BankOwnLines" class="f4-bank-own-lines f4-compact-rows">
@@ -960,7 +959,6 @@ async def bank_unified_goods_forms(browser):
               </div>
              </div>
              <button type="button" class="f4-compact-add">Tambah jenis</button>
-             <small class="f4-bank-own-weight">Total stok: 0 kg</small>
            </div></div>
            <div class="f4-bank-own-side">
              <div class="f4-bank-own-fields"><label class="f4-bank-own-field">
@@ -978,8 +976,8 @@ async def bank_unified_goods_forms(browser):
             <div id="saleItems"><div class="f4-compact-rows">
               <div class="f4-compact-row f4-compact-sale-row">
                <select><option>Kardus</option></select>
-               <input type="number" placeholder="Berat (kg)">
-               <div class="f4-compact-entry-group"><input type="number" placeholder="Harga/kg">
+               <input type="number" placeholder="Kg">
+               <div class="f4-compact-entry-group"><input type="number" placeholder="Rp/kg">
                  <button type="button" class="f4-compact-remove">X</button>
                </div>
               </div>
@@ -1005,12 +1003,24 @@ async def bank_unified_goods_forms(browser):
               inputHeight:r.querySelector('input').getBoundingClientRect().height,
               deleteColor:getComputedStyle(r.querySelector('.f4-compact-remove')).backgroundColor};
           }),
+          saleFields:[...document.querySelectorAll('#saleItems .f4-compact-sale-row > select, #saleItems .f4-compact-sale-row > input, #saleItems .f4-compact-sale-row > .f4-compact-entry-group > input, #saleItems .f4-compact-sale-row > .f4-compact-entry-group > button')].map(box),
+          saleGroupDisplay:getComputedStyle(document.querySelector('#saleItems .f4-compact-entry-group')).display,
+          stockIntro:document.querySelector('#f4BankOwnDepositForm .f4-bank-own-intro')!==null,
+          stockTotal:document.querySelector('#f4BankOwnDepositForm .f4-bank-own-weight')!==null,
           ownDate:box(document.querySelector('#f4BankOwnDate')),
           wargaSave:getComputedStyle(document.querySelector('#saveSetoranBtn')).position,
           bankSave:getComputedStyle(document.querySelector('#f4BankOwnDepositForm [type=submit]')).position,
           overflow:document.documentElement.scrollWidth>innerWidth+3};
         }""")
         assert not report["overflow"],(width,report)
+        assert not report["stockIntro"] and not report["stockTotal"],(width,report)
+        assert report["saleGroupDisplay"]=="contents",(width,report)
+        assert len(report["saleFields"])==4,(width,report)
+        fields=report["saleFields"]
+        assert max(p["y"] for p in fields)-min(p["y"] for p in fields)<3,(width,fields)
+        assert fields[0]["x"]<fields[1]["x"]<fields[2]["x"]<fields[3]["x"],(width,fields)
+        assert fields[0]["w"]>fields[2]["w"]>fields[1]["w"]>=40,(width,fields)
+        assert abs(fields[3]["w"]-40)<2,(width,fields)
         for row in report["rows"]:
             assert row["inputHeight"]>=44,(width,row)
             assert row["add"]["w"]>=row["card"]["w"]-55,(width,row)
@@ -1371,6 +1381,7 @@ async def main():
                     home:box('#f4BankAppHome'),
                     dock:getComputedStyle(document.querySelector('#f4BankAppDock')).display,
                     labels:[...document.querySelectorAll('#f4BankAppDock .f4-bank-app-action-name')].map(n=>n.textContent),
+                    cartIcon:!!document.querySelector('#f4BankAppDock [data-bank-app-route="penjualan"] svg.f4-bank-cart-icon'),
                     routes:[...document.querySelectorAll('#f4BankAppDock .f4-bank-app-dock-action')].map(n=>n.dataset.bankAppRoute),
                     center:(()=>{
                       const nav=document.querySelector('#f4BankAppDock');
@@ -1412,9 +1423,10 @@ async def main():
                 };
             }""")
             assert state["account"]=="Rp 1.500",(device,state)
-            assert state["labels"]==["Beranda","Setoran","Penjualan","Saldo"],state
-            assert state["routes"]==["dashboard","setoran","laporan","penjualan","tabungan"],state
-            assert state["center"]["primary"] and state["center"]["label"]=="Laporan",state
+            assert state["cartIcon"],state
+            assert state["labels"]==["Beranda","Penjualan","Saldo","Laporan"],state
+            assert state["routes"]==["dashboard","penjualan","setoran","tabungan","laporan"],state
+            assert state["center"]["primary"] and state["center"]["label"]=="Setoran",state
             assert not state["center"]["visibleLabel"],state
             assert not state["overflow"],state
             # Current manager dashboard: kas as the left hero and three useful KPI tiles,
