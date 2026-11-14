@@ -338,7 +338,7 @@
     d.frame=0;
     if(drag!==d||!d.panel.isConnected)return;
     d.panel.style.transform='translate3d(0,'+d.pending+'px,0)';
-    if(!d.embedded)if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
+    if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
    });
   }
   event.preventDefault();
@@ -348,7 +348,7 @@
   const d=drag;drag=null;
   if(d.frame)cancelAnimationFrame(d.frame);
   d.panel.style.transform='translate3d(0,'+d.pending+'px,0)';
-  grip.style.transform='translate3d(0,'+d.delta+'px,0)';
+  if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
   grip.classList.remove('f4-sheet-handle-dragging');
   if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId);
   const dy=d.delta,elapsed=Math.max(1,performance.now()-d.startAt);
