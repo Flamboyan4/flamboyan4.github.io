@@ -21,7 +21,9 @@
   const head=el("summary","f4-bank-policy-summary");
   const title=el("strong","","Aturan bagi hasil");
   const current=el("span","f4-bank-policy-current","Memuat aturan...");current.id="f4BankPolicyCurrent";
-  head.append(title,current);
+  const arrow=el("span","f4-bank-settings-chevron");arrow.setAttribute("aria-hidden","true");
+  arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>';
+  head.append(title,current,arrow);
   const desc=el("p","f4-bank-policy-desc","Perubahan hanya untuk transaksi berikutnya.");
   const form=el("form","f4-bank-policy-form");
   const method=el("select");method.name="method";method.required=true;
@@ -79,7 +81,9 @@
   const card=el("details","f4-bank-weighing-editor");card.id="f4BankWeighingCard";card.hidden=true;
   const heading=el("summary","f4-bank-weighing-summary");
   const title=el("strong","","Jadwal penimbangan"),next=el("small","f4-bank-weighing-next","Memuat jadwal…");
-  heading.append(title,next);
+  const scheduleArrow=el("span","f4-bank-settings-chevron");scheduleArrow.setAttribute("aria-hidden","true");
+  scheduleArrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg>';
+  heading.append(title,next,scheduleArrow);
   const form=el("form","f4-bank-weighing-form");
   const freq=el("select");
   [["weekly","Setiap minggu"],["biweekly","Setiap 2 minggu"],["monthly","Setiap bulan"]].forEach(([value,label])=>freq.add(new Option(label,value)));
@@ -187,9 +191,9 @@
   // Re-check after each visit so account switching never reuses prior privileges.
   new MutationObserver(()=>{
    if(page.classList.contains("hidden")){$("f4BankPolicyCard")?.remove();$("f4BankWeighingCard")?.remove();}
-   else {init();initWeighing();}
+   else {initWeighing();init();}
   }).observe(page,{attributes:true,attributeFilter:["class"]});
-  init();initWeighing();
+  initWeighing();init();
  }
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind,{once:true});else bind();
 })();
