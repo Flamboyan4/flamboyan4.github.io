@@ -673,10 +673,15 @@ assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-ent
        h.includes('class="f4-setoran-side"') &&
        h.includes('class="f4-sale-main"') &&
        h.includes('class="f4-sale-side"') &&
-       css.includes('grid-column:1;grid-row:2;align-self:start') &&
-       css.includes('grid-column:1/-1;grid-row:1;') &&
-       !css.includes('grid-row:1 / span 2;align-self:start'),
- 'PC Setoran and Penjualan must put metadata on top and goods beside totals');
+       css.includes('#setoranForm>.f4-entry-right>.f4-entry-top-fields{\n  grid-column:2;grid-row:1;') &&
+       css.includes('#setoranForm>.f4-setoran-main{grid-row:1/span 2}') &&
+       css.includes('#saleForm>.f4-entry-right>.f4-entry-top-fields{\n  grid-column:1/-1;grid-row:1') &&
+       css.includes('#f4BankOwnDepositForm .f4-bank-own-fields{\n  grid-column:2;grid-row:1;') &&
+       css.includes('.f4-bank-own-weight-summary{\n  grid-column:2;grid-row:2') &&
+       mobile.includes('refreshOwnWeightTotal()') &&
+       h.includes("name.textContent=shortName(info.nama)") &&
+       h.includes("label.textContent=select.value&&opt?shortName("),
+ 'PC Setoran metadata must be in right column above totals; own Bank stock displays live kg, and member options show Pak + first name');
 /* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
    Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
 function assertBalancedCss(text,label){
