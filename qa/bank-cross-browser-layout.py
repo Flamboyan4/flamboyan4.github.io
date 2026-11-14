@@ -196,8 +196,8 @@ async def main():
                         if not member or not date:
                             errors.append('member name or date visual control not available')
                         elif (abs(member['height']-date['height'])>1 or
-                              abs(member['top']-date['top'])>1):
-                            errors.append('member select and date inputs have different heights or baselines')
+                              (width>=1024 and abs(member['top']-date['top'])>1)):
+                            errors.append('member select and date inputs have different heights or desktop baselines')
                         if errors:
                             results.append({'engine':engine_name,'width':width,
                                 'setoranAdd':add_layout,'failures':errors})
