@@ -6540,8 +6540,11 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
    trigger.setAttribute('aria-expanded','true');search.value='';render();place();
   };
   window.addEventListener('resize',place,{passive:true});
-  window.addEventListener('scroll',()=>{if(!panel.hidden)close()},{passive:true});
+  // Focusing the search box or collapsing browser chrome can scroll the
+  // document. Keep the anchored picker positioned; do not close it.
+  window.addEventListener('scroll',()=>{if(!panel.hidden)place()},{passive:true});
   window.visualViewport?.addEventListener('resize',place,{passive:true});
+  window.visualViewport?.addEventListener('scroll',place,{passive:true});
   
   search.oninput=render;
   search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
