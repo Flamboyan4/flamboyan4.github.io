@@ -461,4 +461,5 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  body.f4-direct-bank dialog.f4-bank-sheet-modal.f4-sheet-draggable{padding-top:34px}
  body.f4-direct-bank .f4-control-panel.f4-sheet-draggable::before,
  body.f4-direct-bank dialog.f4-bank-sheet-modal.f4-sheet-draggable::before{display:none}
+ body.f4-direct-bank .f4-bank-admin-menu-sheet.f4-sheet-draggable>.f4-bank-admin-menu-handle{display:none}
 }
