@@ -639,10 +639,10 @@ assert(css.includes('grid-area:actions') &&
        !css.includes('grid-area:next') &&
        css.includes('grid-area:recent'),
  'Operational dashboard grid contains duplicate/empty follow-up card');
-assert(css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
-       mobile.includes('tabs.hidden=false') &&
+assert(!css.includes('#v16Tabs.v16-tabs:not(.hidden)') &&
+       css.includes('body.f4-bank-app-private #dashboardView #v16Tabs{display:none}') &&
        mobile.includes('for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);'),
- 'Useful tabs must remain for Riwayat and Debit/Kredit on mobile');
+ 'Remove duplicate global mobile tabs while keeping independent Riwayat and Debit/Kredit tabs');
 assert(mobile.includes('const unframed=admin&&page.parentElement===section;'),
  'Admin page outer frames must be removed on PC as well as HP');
 assert(!mobile.includes('const unframed=mobile&&page.parentElement===section;'),
