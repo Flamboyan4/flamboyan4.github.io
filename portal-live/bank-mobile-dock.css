@@ -5,6 +5,11 @@
 .f4-bank-app-dock[hidden]{display:none}
 @media(max-width:1023px){
  body.f4-bank-app-private{--f4-bank-dock-height:72px}
+ /* Native mobile app uses the dock rather than the legacy site footer. */
+ body.f4-bank-app-private .shell>.footer{display:none}
+ body.f4-bank-app-private :is(#dashboardView,#dashboardView>.grid,#dashboardView>.grid>.section){
+  box-sizing:border-box;min-width:0;max-width:100%
+ }
  body.f4-bank-app-private #dashboardView{
   padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)
  }
