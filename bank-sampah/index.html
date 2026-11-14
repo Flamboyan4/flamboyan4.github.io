@@ -993,6 +993,12 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan>.desc{font-size:12px;color:#687b71;margin:0 0 14px;line-height:1.45}
 #pageLaporan .v33-report-controls{display:grid;gap:10px;margin:0 0 17px;padding:15px 16px;border:1px solid #dce9e1;background:#fff;border-radius:18px;box-shadow:0 3px 14px #17482a08}
 #pageLaporan .v33-report-title{margin:0;font-size:15px;line-height:1.35;font-weight:800;color:#174c33}
+
+#pageLaporan .v33-report-advanced{margin:0;min-width:0}
+#pageLaporan .v33-report-advanced>summary{
+ cursor:pointer;padding:3px 1px;color:#1b7252;font-size:12px;font-weight:750;line-height:1.35
+}
+#pageLaporan .v33-report-advanced[open] .v33-report-combine{margin-top:8px}
 #pageLaporan .v33-report-options{min-width:0;margin:0;border-top:1px solid #e8efe9;padding-top:7px}
 #pageLaporan .v33-report-options>summary{cursor:pointer;font-size:12px;font-weight:750;color:#167454;padding:5px 2px;line-height:1.35}
 #pageLaporan .v33-report-options>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
@@ -5699,10 +5705,13 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const endMonth=document.createElement('input');endMonth.id='v33ReportEndMonth';
     endMonth.type='month';endMonth.min='2026-01';endMonth.max='2046-12';endMonth.value=initial;
     endLabel.append(endMonth);endLabel.hidden=true;
-    combineRow.append(combineLabel,endLabel);periodField.append(combineRow);
+    combineRow.append(combineLabel,endLabel);
     row.append(periodField);
     const auditHolder=document.createElement('div');auditHolder.className='v33-report-audit';
     auditHolder.append(auditField);row.append(auditHolder);form.append(row);
+    const advanced=document.createElement('details');advanced.className='v33-report-advanced';
+    const advancedLabel=document.createElement('summary');advancedLabel.textContent='Opsi tambahan';
+    advanced.append(advancedLabel,combineRow);form.append(advanced);
     // The audit-only checkbox shares the same horizontal input row as the select.
     const syncAuditInline=()=>{
       const active=audit.value==='audit';
@@ -5763,7 +5772,7 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     };
     monthSelect.addEventListener('change',updateMonth);
     yearSelect.addEventListener('change',updateMonth);
-    combine.addEventListener('change',()=>{endLabel.hidden=!combine.checked;invalidate();});
+    combine.addEventListener('change',()=>{endLabel.hidden=!combine.checked;advancedLabel.textContent=combine.checked?'Opsi tambahan • gabungan bulan':'Opsi tambahan';invalidate();});
     endMonth.addEventListener('change',invalidate);
     audit.addEventListener('change',syncAuditInline);
     syncAuditInline();
