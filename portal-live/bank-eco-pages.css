@@ -89,11 +89,10 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 }
 /* Manager finance: remove the four pastel fills, retain one solid accent only in figures. */
 #dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi{
- background:#e8f7d4;border:0;
- border-radius:17px
+ background:transparent;border:0;border-radius:0;box-shadow:none
 }
 
-#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi :is(small,strong){color:#164a35}
+#dashboardView #v17Finance .v17-finance-kpis>.v17-finance-kpi :is(small,strong){color:#fff}
 #dashboardView #v17Finance .v17-bar:not(.out){background:var(--eco-leaf)}
 #dashboardView :is(#pageTabungan,#pageBiaya,#pageDokumentasi,#pageInventaris,
  #pageKegiatan,#pageMaster,#pageAdmin,#pagePengesahan,#pageRekonsiliasi,#pageLaporan)
