@@ -10,7 +10,7 @@
 }
 #v17Perkembangan .f4-dev-intro-chip{
  padding:5px 9px;border:1px solid #e1ece2;border-radius:99px;
- background:#f5faf5;color:#60816d;font-size:10px;font-weight:750;white-space:nowrap
+ background:#dff0df;color:#166a42;font-size:10px;font-weight:750;white-space:nowrap
 }
 /* The two duplicate summary cards are redundant with the five public KPIs. */
 #v17Perkembangan .f4-dev-mini-stats{display:none}
@@ -21,7 +21,7 @@
 #v17Perkembangan .f4-dev-chart-card,
 #v17Perkembangan .f4-dev-activity-card{
  min-width:0;margin:0;padding:16px;
- border:1px solid #e0eae3;border-radius:17px;background:#fff;box-shadow:none
+ border:1px solid #dce8de;border-radius:19px;background:#fff;box-shadow:0 4px 14px #0f3a2510
 }
 #v17Perkembangan .f4-dev-head{
  display:flex;align-items:center;justify-content:space-between;
@@ -88,7 +88,7 @@
 #v17Perkembangan .f4-dev-column-bar{
  flex-shrink:1;width:30%;min-width:9px;max-width:37px;
  height:var(--dev-height,0%);border-radius:7px 7px 2px 2px;
- background:#3b9e58;transition:height .18s ease
+ background:#268d51;transition:height .18s ease
 }
 #v17Perkembangan .f4-dev-column-bar.is-pending{min-width:6px;max-width:20px;background:#f1c74f}
 #v17Perkembangan .f4-dev-column-label{
@@ -129,7 +129,7 @@
  border:1.5px solid #d4e4d7;border-radius:50%;
  background:#f3f8f4;color:#78917e;font-size:10px;font-style:normal;font-weight:850
 }
-#v17Perkembangan .f4-dev-step.is-done i{background:#3d9e59;color:#fff;border-color:#3d9e59}
+#v17Perkembangan .f4-dev-step.is-done i{background:#188253;color:#fff;border-color:#188253}
 #v17Perkembangan .f4-dev-step.is-active i{background:#fff1cf;color:#997123;border-color:#eccd82}
 #v17Perkembangan .f4-dev-step span{
  display:block;overflow:hidden;color:#829487;
