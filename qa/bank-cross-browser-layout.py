@@ -88,6 +88,59 @@ async def main():
                     await page.goto(URL,wait_until="domcontentloaded",timeout=30000)
                     await page.wait_for_timeout(900)
                     await page.evaluate(PREPARE)
+                    # Role-surface observer composes the actual admin home after
+                    # the auth-only source DOM is revealed in this test.
+                    await page.wait_for_timeout(250)
+                    if width >= 1024:
+                        await page.evaluate(MEASURE,"pageDashboard")
+                        desktop=await page.evaluate("""() => {
+                          const root=document.getElementById('f4BankAppHome');
+                          const hero=document.getElementById('f4BankAppAdminHero');
+                          const actions=document.getElementById('f4BankAdminOperations');
+                          const recent=document.getElementById('v14Recent')?.closest('.v14-panel');
+                          const buttons=[...actions?.querySelectorAll('.f4-bank-admin-operation')||[]];
+                          const rect=node=>{
+                            if(!node)return null;
+                            const r=node.getBoundingClientRect();
+                            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height};
+                          };
+                          // Visual fixture only when no real data is available;
+                          // never submit any test record to the D1 API.
+                          const content=document.getElementById('v14Recent');
+                          if(content&&!content.querySelector('.f4-recent-item')){
+                            const list=document.createElement('div');list.className='f4-recent-list';
+                            const item=document.createElement('article');item.className='f4-recent-item';
+                            item.innerHTML='<span class="f4-recent-avatar">U</span><div><strong>Uji layout</strong><small>15 Nov 2026 • 1 kg</small></div><div class="f4-recent-value"><b>Rp 1.000</b><span>Hasil jual</span></div>';
+                            list.append(item);content.replaceChildren(list);
+                          }
+                          const row=content?.querySelector('.f4-recent-item');
+                          const avatar=row?.querySelector('.f4-recent-avatar');
+                          return {exists:!!root,grid:root?getComputedStyle(root).gridTemplateAreas:null,
+                            hero:rect(hero),actions:rect(actions),recent:rect(recent),
+                            buttons:buttons.map(rect),recentRowDisplay:row?getComputedStyle(row).display:null,
+                            avatarDisplay:avatar?getComputedStyle(avatar).display:null};
+                        }""")
+                        problems=[]
+                        if not desktop["exists"] or not all(desktop.get(k) for k in ("hero","actions","recent")):
+                            problems.append("real desktop manager dashboard is not composed")
+                        else:
+                            hero,actions,recent=desktop["hero"],desktop["actions"],desktop["recent"]
+                            if abs(hero["top"]-recent["top"])>3 or abs(actions["bottom"]-recent["bottom"])>3:
+                                problems.append("recent panel is not aligned with hero top and button bottom")
+                            if recent["left"] < hero["right"]+4 or actions["top"] < hero["bottom"]-3:
+                                problems.append("desktop dashboard columns overlap or buttons not below balance")
+                            if abs(hero["left"]-actions["left"])>2:
+                                problems.append("actions do not line up under balance")
+                            if (len(desktop["buttons"])!=2
+                                or desktop["buttons"][0]["right"] > desktop["buttons"][1]["left"]+2
+                                or abs(desktop["buttons"][0]["top"]-desktop["buttons"][1]["top"])>2):
+                                problems.append("Catat Setoran and Penjualan are not side by side")
+                            if desktop["recentRowDisplay"]!="grid" or desktop["avatarDisplay"]!="grid":
+                                problems.append("desktop recent deposits do not use the mobile card style")
+                        if problems:
+                            results.append({"engine":engine_name,"width":width,"desktop":desktop,"failures":problems})
+                        if width in (1024,1366):
+                            await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-home.png"))
                     for page_id in PAGES:
                         state=await page.evaluate(MEASURE,page_id)
                         failures=[]
