@@ -400,7 +400,7 @@ assert(h.includes("const v16AdminSidebar=new Set(['home','deposit','sale']);") &
        mobile.includes('function ensureDesktopAdminSidebar()') &&
        mobile.includes('anchor.after(items);') &&
        css.includes('>.v16-item:is([data-group="deposit"],[data-group="sale"]){') &&
-       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{\n  display:none'),
+       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{display:none'),
  'Desktop manager sidebar must own quick routes, excluding Setoran and Penjualan');
 assert(!css.includes('v16-mobile-extra')&&!h.includes('v16-mobile-extra'),
  'Duplicated tab submenus must not return to the admin sidebar');
@@ -547,6 +547,13 @@ assert(mobile.includes('f4BankAdminOperations') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
  'Task-first entry and eight mobile shortcuts are missing');
+assert(css.includes('grid-template-areas:"hero actions" "recent recent"') &&
+       css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:none}') &&
+       css.includes('#f4BankAppAdminHero>#f4BankAppMinis{') &&
+       mobile.includes('minisHost=role==="admin"?adminHero:hub;') &&
+       mobile.includes('const opts=[["Anggota aktif"') &&
+       mobile.includes('route==="setoran"?image("bank.svg"):bankSaleCartIcon()'),
+ 'PC actions must sit next to saldo and HP must use only dock; members badge must be inside hero');
 assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        mobile.includes('text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—")') &&
        mobile.includes('text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—")') &&
