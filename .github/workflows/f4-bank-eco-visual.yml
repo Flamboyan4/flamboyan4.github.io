@@ -11,6 +11,7 @@ on:
       - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
       - qa/bank-mobile-zoom.py
+      - qa/bank-real-pages-mobile.py
       - .github/workflows/f4-bank-eco-visual.yml
   pull_request:
     paths:
@@ -21,6 +22,7 @@ on:
       - qa/bank-app-responsive.py
       - qa/bank-eco-visual.py
       - qa/bank-mobile-zoom.py
+      - qa/bank-real-pages-mobile.py
       - .github/workflows/f4-bank-eco-visual.yml
   workflow_dispatch:
 permissions:
@@ -45,6 +47,8 @@ jobs:
         run: python3 qa/bank-app-responsive.py
       - name: Android pinch-zoom retains fixed five-button dock
         run: python3 qa/bank-mobile-zoom.py
+      - name: Inspect all real bank pages with full CSS and Android widths
+        run: python3 qa/bank-real-pages-mobile.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
