@@ -1257,7 +1257,15 @@ async def admin_docs_back_and_cross_account(browser):
     assert not await page.locator("#bank-admin-docs #v17Inventaris>h2").is_visible()
     await page.locator("#f4BankAdminBack").click()
     assert await page.locator("#pageProfile").is_visible(), "Back must return to previous profile screen"
-    assert await page.locator("#f4BankAdminBack").is_visible()
+    back_status=await page.evaluate("""() => {
+      const b=document.querySelector('#f4BankAdminBack'),h=document.querySelector('#pageProfile .f4-profile-header h2');
+      return {backHidden:b?.hidden,backParent:b?.parentElement?.outerHTML?.slice(0,400),
+        backStyle:b?getComputedStyle(b).display:null,backRect:b?.getBoundingClientRect().toJSON(),
+        profileVisible:!document.querySelector('#pageProfile')?.classList.contains('hidden'),
+        dashboardHidden:document.querySelector('#pageDashboard')?.classList.contains('hidden'),
+        heading:h?.outerHTML?.slice(0,400),bodyClass:document.body.className};
+    }""")
+    assert await page.locator("#f4BankAdminBack").is_visible(),back_status
     await page.locator("#f4BankAdminBack").click()
     assert await page.locator("#pageDashboard").is_visible()
     assert not await page.locator("#f4BankAdminBack").is_visible()
