@@ -151,7 +151,7 @@ function syncAdminBack(){
   section.prepend(back);
  }
  // Tempel panah pada judul halaman aktif: jangan membuat baris kosong di atasnya.
- const show=roleType()==="admin"&&screen!=="dashboard"&&$("pageDashboard")?.classList.contains("hidden");
+ const show=roleType()==="admin"&&screen!=="dashboard";
  const routeId=screen==="bank-admin-sale-history"?"bank-admin-history":
   screen.startsWith("bank-")?screen:"page"+screen.charAt(0).toUpperCase()+screen.slice(1);
  const active=show?$(routeId):null;
