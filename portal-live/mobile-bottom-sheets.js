@@ -14,6 +14,8 @@
   '#credentialModal > .f4-bank-credential-panel',
   '.v24-edit-overlay .v24-edit-card',
   '.f4-activity-dialog .f4-activity-dialog-panel',
+  '.f4-control-overlay > .f4-control-panel',
+  'dialog.f4-bank-sheet-modal',
   '.sa-account-shade .sa-account-modal',
   '.f4-jersey-print-veil .f4-jersey-print-dialog',
   '.tc-date-overlay .tc-date-dialog',
@@ -36,6 +38,7 @@
   '#credentialModal','.v24-edit-overlay','.f4-activity-dialog',
   '.sa-account-shade','.f4-jersey-print-veil',
   '.tc-date-overlay','.f4-ui-dialog','#f4-work-notice',
+  '.f4-control-overlay','dialog.f4-bank-sheet-modal',
   '.f4-pm-shade','.f4-resident-sheet-overlay',
   '#modal-event-detail','#modal-arisan','#modal-cetak-kas',
   '#modal-keuangan','#modal-jersey','#modal-dokumentasi',
@@ -70,7 +73,7 @@
   refreshFrame=0;
   if(!grip||!media.matches){if(grip)grip.hidden=true;return;}
   // The picker and year menu are nested controls, never draggable sheets.
-  if(document.querySelector('.f4-control-overlay')){grip.hidden=true;return;}
+  if(document.querySelector('.f4-control-overlay')&&!document.body.classList.contains('f4-direct-bank')){grip.hidden=true;return;}
   // Never read panel geometry or overwrite the grip while a gesture is in flight.
   if(drag?.panel?.isConnected||animating?.panel?.isConnected)return;
   // Full-screen lightbox must have no drag control on top of the photo.
@@ -172,6 +175,7 @@
  }
  function dismiss(panel){
   if(!panel?.isConnected)return;
+  if(panel.matches('dialog.f4-bank-sheet-modal')){if(panel.open)panel.close();return;}
   if(panel.matches('.f4-user-year-popover')){
    const details=panel.closest('details');if(details)details.open=false;
    return;
@@ -184,6 +188,7 @@
    panel.matches('.f4-activity-dialog-panel')?'.f4-activity-dialog-close':
    panel.matches('.f4-jersey-print-dialog')?'.f4-jersey-print-cancel':
    panel.matches('.f4-work-notice-panel')?'.f4-work-notice-close':
+   panel.matches('.f4-control-panel')?'.f4-control-x':
    panel.matches('.f4-book-edit-card')?'[onclick*="tutupEdit"]':
    panel.matches('#modal-koreksi-migrasi > div')?'[onclick*="tutupKoreksiMigrasi"]':
    panel.matches('#f4-direct-dialog > section')?'#f4-direct-close-login':'';
@@ -343,10 +348,11 @@
   if(d.moved)lastDragAt=performance.now();
   if(cancelled){settle(d.panel,d.expanded,d.collapsed,d);return;}
   if(dy< -55||(dy< -28&&velocity<-.48))settle(d.panel,true,d.collapsed,d);
-  else if(dy>90||(dy>42&&velocity>.58)){
-   const longPull=dy>Math.max(225,window.innerHeight*.30);
-   if(d.expanded&&!longPull)settle(d.panel,false,d.collapsed,d);
-   else exitDown(d.panel,d);
+  else if(dy>85){
+   if(d.expanded)settle(d.panel,false,d.collapsed,d);
+   else if(dy>Math.max(175,window.innerHeight*.22)||(dy>135&&velocity>1.0))
+    exitDown(d.panel,d);
+   else settle(d.panel,false,d.collapsed,d);
   }else settle(d.panel,d.expanded,d.collapsed,d);
   if(d.moved)event.preventDefault();
  }
@@ -397,7 +403,7 @@
   });
   observer.observe(document.body,{subtree:true,childList:true});
   window.addEventListener('resize',requestRefresh,{passive:true});
-  window.addEventListener('scroll',requestRefresh,{passive:true,capture:true});
+  window.addEventListener('scroll',()=>{if(!document.body.classList.contains('f4-direct-bank'))requestRefresh()},{passive:true,capture:true});
   window.visualViewport?.addEventListener('resize',requestRefresh,{passive:true});
   media.addEventListener?.('change',()=>{
    if(!media.matches){
