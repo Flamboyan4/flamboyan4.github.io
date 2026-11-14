@@ -1243,6 +1243,13 @@ async def admin_docs_back_and_cross_account(browser):
     await page.evaluate("() => window.goPage('bank-admin-docs')")
     await page.locator("#f4BankAdminDocsTabs button").first.wait_for(timeout=8000)
     assert await page.locator("#bank-admin-docs .f4-bank-screen-title").inner_text()=="Dokumentasi"
+    assert await page.locator("#bank-admin-docs .f4-bank-screen-title > #f4BankAdminBack").is_visible(), "Back must be beside the active title"
+    aligned=await page.evaluate("""() => {
+      const title=document.querySelector('#bank-admin-docs .f4-bank-screen-title').getBoundingClientRect();
+      const back=document.querySelector('#f4BankAdminBack').getBoundingClientRect();
+      return Math.abs(title.y+title.height/2-back.y-back.height/2)<3;
+    }""")
+    assert aligned,"Back and title must occupy the same row"
     assert not await page.locator("#bank-admin-docs #v22DocsPage .v22-doc-heading").is_visible()
     assert await page.locator("#bank-admin-docs #v22DocsPage").is_visible()
     await page.locator("#f4BankAdminDocsTabs button").nth(1).click()
