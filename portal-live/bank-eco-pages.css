@@ -1359,12 +1359,15 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   box-shadow:0 4px 15px #133e3310
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-main{order:2}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-weight-summary{
+  order:3;padding:13px 17px
+ }
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-field{
-  order:3;box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
+  order:4;box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
   border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{order:4}
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{order:5}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{order:5}
+ body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{order:6}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
   box-sizing:border-box;gap:13px;padding:17px 18px;border:1px solid #e9eff0;
   border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
