@@ -151,10 +151,9 @@ function syncAdminBack(){
  }
  // Tempel panah pada judul halaman aktif: jangan membuat baris kosong di atasnya.
  const show=roleType()==="admin"&&screen!=="dashboard"&&$("pageDashboard")?.classList.contains("hidden");
- const active=show?[...section.children].find(node=>
-  node!==back&&!node.hidden&&!node.classList.contains("hidden")&&
-  node.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2")
- ):null;
+ const routeId=screen==="bank-admin-sale-history"?"bank-admin-history":
+  screen.startsWith("bank-")?screen:"page"+screen.charAt(0).toUpperCase()+screen.slice(1);
+ const active=show?$(routeId):null;
  const title=active?.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
  if(title){
   title.classList.add("f4-bank-admin-inline-title");
