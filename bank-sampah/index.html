@@ -1683,28 +1683,31 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
     font-weight:650;line-height:1.3
   }
   /* Four summary numbers: compact rows instead of tall tiles. */
-  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportSummary.metric-grid,
+  body.f4-direct-bank #dashboardView #pageLaporan #v10ReportSummary.metric-grid{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;margin:14px 0 5px;align-items:stretch
+  }
   body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics.metric-grid{
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
     gap:8px;margin:9px 0;align-items:stretch
   }
-  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric{
     display:flex;flex-direction:column;justify-content:center;
     align-items:flex-start;gap:3px;
     min-width:0;min-height:0;height:auto;
     margin:0;padding:10px 11px;border-radius:11px
   }
-  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric small{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric small{
     font-size:13px;line-height:1.3;margin:0;
     color:#5e776a;font-weight:500
   }
-  body.f4-direct-bank #dashboardView #pageLaporan :is(#v10ReportSummary,#v33ReportMoreMetrics)>.metric strong{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric strong{
     font-size:19px;line-height:1.2;margin:0;
     font-weight:800;white-space:normal;overflow-wrap:normal;
     max-width:100%
   }
   body.f4-direct-bank #dashboardView #pageLaporan .v33-report-more{
-    margin:0 0 7px
+    margin:4px 0 14px
   }
   /* Keep rows tappable while removing excessive blank height. */
   body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable table.f4-mobile-card-table>tbody{
