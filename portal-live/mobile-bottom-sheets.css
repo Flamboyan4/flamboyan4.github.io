@@ -451,3 +451,14 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  body.f4-direct-bank dialog.f4-bank-sheet-modal[open],
  body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card{animation:none}
 }
+
+/* Bank Sampah: allow the same shared drag control on its native dialogs. */
+@media(max-width:767px){
+ body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
+  max-height:calc(100dvh - 8px);min-width:0;overflow-x:hidden
+ }
+ body.f4-direct-bank .f4-control-panel.f4-sheet-draggable,
+ body.f4-direct-bank dialog.f4-bank-sheet-modal.f4-sheet-draggable{padding-top:34px}
+ body.f4-direct-bank .f4-control-panel.f4-sheet-draggable::before,
+ body.f4-direct-bank dialog.f4-bank-sheet-modal.f4-sheet-draggable::before{display:none}
+}
