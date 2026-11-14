@@ -2338,6 +2338,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
  border:1px solid #e1ebe4;border-radius:14px;background:#fff;box-shadow:none
 }
 #pageMaster .f4-bank-policy-card[hidden]{display:none}
+#pageMaster :is(.f4-bank-policy-card,.f4-bank-weighing-editor):not([open])>:not(summary){display:none}
 #pageMaster :is(.f4-bank-policy-summary,.f4-bank-weighing-summary){
  display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;
  padding:12px 14px;cursor:pointer;list-style:none;color:#194d36;
