@@ -1261,7 +1261,8 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-gold-action{order:4}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-side>.f4-bank-own-status{order:5}
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
-  gap:13px
+  box-sizing:border-box;gap:13px;padding:17px 18px;border:1px solid #e9eff0;
+  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail-head strong{
   color:#183a2c;font-size:15px;font-weight:850
@@ -1299,10 +1300,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   box-sizing:border-box;display:block;min-height:86px;max-height:none;
   padding:13px;border:1px solid #edf2f3;border-radius:14px;
   background:#f8fafc;font-size:13px;font-weight:500;line-height:1.45;resize:vertical
- }
- body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm .f4-bank-own-detail{
-  box-sizing:border-box;padding:17px 18px;border:1px solid #e9eff0;
-  border-radius:23px;background:#fff;box-shadow:0 4px 15px #133e3310
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran :is(
   #setoranForm #saveSetoranBtn,
