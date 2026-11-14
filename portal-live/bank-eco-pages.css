@@ -681,7 +681,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
  }
  #dashboardView #f4BankAppAdminHero::before{
   content:"";position:absolute;z-index:-1;right:-25px;top:-42px;width:150px;height:150px;
-  border-radius:50%;background:#ffffff19;filter:blur(13px);pointer-events:none
+  border-radius:50%;background:radial-gradient(ellipse,#ffffff22 0%,#ffffff0c 60%,transparent 100%);pointer-events:none
  }
  #dashboardView #f4BankAppAdminHero>small{display:none}
  #dashboardView #f4BankAppAdminHero .f4-bank-app-balance-title{
