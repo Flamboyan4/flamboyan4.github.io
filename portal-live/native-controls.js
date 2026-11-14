@@ -20,9 +20,12 @@ function close(fromBack=false){
  if(!fromBack&&history.state?.f4PickerEntry)history.back();
  last?.focus?.({preventScroll:true});
 }
-window.addEventListener('popstate',()=>{if(overlay&&!history.state?.f4PickerEntry)close(true)});
+window.addEventListener('popstate',()=>{if(overlay)close(true)});
 function start(trigger,title,dropdown=false){
- if(overlay)close();
+ // Switching from one Bank picker to another replaces the temporary history
+ // guard instead of adding a second Back step or racing history.back().
+ const reuse=!!overlay&&document.body.classList.contains('f4-direct-bank');
+ if(overlay)close(reuse);
  const mask=document.createElement('div');mask.className='f4-control-overlay';mask.setAttribute('role','presentation');
  if(dropdown)mask.classList.add('f4-bank-select-dropdown');
  const panel=document.createElement('section');panel.className='f4-control-panel';
@@ -58,7 +61,8 @@ function start(trigger,title,dropdown=false){
  }
  document.body.classList.add('f4-custom-picker-open');
  window.F4MobileSheets?.refresh?.();
- history.pushState({...history.state,f4PickerEntry:++historyToken},'',location.href);
+ const state={...history.state,f4PickerEntry:++historyToken};
+ history[reuse?'replaceState':'pushState'](state,'',location.href);
  return panel;
 }
 function action(field,value){
