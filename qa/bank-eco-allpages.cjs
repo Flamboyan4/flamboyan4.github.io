@@ -234,19 +234,19 @@ assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan sched
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
 assert(css.includes('--eco-gold:#fdc010'),'Current golden yellow theme token missing');
-assert(publicTheme.includes('background:#43a047;color:#fff'),'Public hero must use saturated green with white text');
+assert(publicTheme.includes('background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%)'), 'Public hero must remain saturated deep-green, not pale');
 assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
 assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
 assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
-assert(publicTheme.includes('border:0;border-radius:12px;background:#fdc010;color:#25412d'),'Borderless golden hero action missing');
+assert(publicTheme.includes('border:0;border-radius:10px;background:#fff;color:#106746'), 'Readable white-on-deep-green hero action missing');
 assert(!publicTheme.includes('!important'),'Public hero stylesheet may not use priority overrides');
 assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
        h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
        h.includes("getElementById('f4-public-my-savings')"),
  'Responsive member CTA missing');
-assert(publicTheme.includes('#v11Public .v17-public-main>.v17-public-banner :is(h1,h2,h3){'),'Public hero must own its readable heading');
+assert(publicTheme.includes('#v11Public .v17-public-main>.v17-public-banner h1{'),'Public hero must own its readable heading');
 assert(publicTheme.includes('color:#fff'),'Public hero white foreground missing');
 assert(!h.includes('.stats .stat:last-child{grid-column:1/-1}'),'Wide last savings card regression');
 const reportRule=h.match(/#v11Public #v25ReportMetrics\.v26-compact>\.v17-public-metric\{([^}]+)\}/);
