@@ -1352,7 +1352,7 @@ function adminShortcut([name,route,iconName]){
  button.onclick=()=>navigate(route);return button;
 }
 /* Akses Cepat: tujuh tujuan utama dan Lainnya; setiap tujuan memakai rute yang sama dengan sidebar PC. */
-let adminSheetHistory=false,adminSheetRoute=null,adminSheetFocus=null;
+let adminSheetFocus=null;
 function ensureAdminMenuSheet(){
  if(role!=="admin")return null;
  let dialog=$("f4BankAdminMenuSheet");if(dialog)return dialog;
@@ -1384,30 +1384,19 @@ function openAdminMenuSheet(){
  const dialog=ensureAdminMenuSheet();
  if(!dialog||dialog.open)return;
  adminSheetFocus=document.activeElement;
- adminSheetRoute=null;
  dialog.showModal();
- history.pushState({...history.state,f4BankAdminSheet:true},"",location.href);
- adminSheetHistory=true;
 }
 function closeAdminMenuSheet(destination=null){
- const dialog=$("f4BankAdminMenuSheet");
- if(dialog?.open)dialog.close();
- if(destination)adminSheetRoute=destination;
- if(adminSheetHistory){history.back();return;}
- const route=adminSheetRoute;adminSheetRoute=null;
- if(route)navigate(route);
- else if(adminSheetFocus?.isConnected)adminSheetFocus.focus({preventScroll:true});
+ const dialog=$("f4BankAdminMenuSheet"),focus=adminSheetFocus;
  adminSheetFocus=null;
-}
-function handleAdminSheetBack(){
- if(!adminSheetHistory)return;
- adminSheetHistory=false;
- const dialog=$("f4BankAdminMenuSheet");
- if(dialog?.open)dialog.close();
- const route=adminSheetRoute;adminSheetRoute=null;
- if(route)navigate(route);
- else if(adminSheetFocus?.isConnected)adminSheetFocus.focus({preventScroll:true});
- adminSheetFocus=null;
+ const after=()=>{
+  if(destination)navigate(destination);
+  else if(focus?.isConnected)focus.focus({preventScroll:true});
+ };
+ if(!dialog?.open){after();return;}
+ if(window.F4BankModalHistory?.closeAndThen)
+  window.F4BankModalHistory.closeAndThen(dialog,after);
+ else{dialog.close();after();}
 }
 function adminMoreShortcut(){
  const button=el("button","f4-bank-admin-shortcut f4-bank-admin-more");
@@ -2531,7 +2520,6 @@ function acceptMemberStatement(event){
 function init(){
  if(ready)return;ready=true;
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
- window.addEventListener("popstate",handleAdminSheetBack);
  // Chrome Android mengirim resize saat address bar berubah tinggi pada scroll.
  // Jangan render ulang beranda/badge hanya karena tinggi viewport berubah.
  let desktopLayout=window.matchMedia("(min-width:1024px)").matches;
