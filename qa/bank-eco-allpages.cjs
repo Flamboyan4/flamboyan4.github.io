@@ -587,7 +587,7 @@ assert(mobile.includes('f4BankAdminOperations') &&
        mobile.includes('Catat Setoran') &&
        mobile.includes('Catat Penjualan'),
  'Task-first entry and eight mobile shortcuts are missing');
-assert(css.includes('grid-template-areas:"hero recent" "actions recent"') &&
+assert(css.includes('grid-template-areas:"hero recent" "actions recent" "insights insights"') &&
        css.includes('grid-template-columns:repeat(2,minmax(0,1fr));\n  grid-template-rows:minmax(0,1fr)') &&
        css.includes('#f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:none}') &&
        css.includes('#f4BankAppAdminHero>#f4BankAppMinis{') &&
@@ -595,6 +595,26 @@ assert(css.includes('grid-template-areas:"hero recent" "actions recent"') &&
        mobile.includes('const opts=[["Anggota aktif"') &&
        mobile.includes('route==="setoran"?image("bank.svg"):bankSaleCartIcon()'),
  'PC must show saldo above two side-by-side actions with recent deposits alongside; HP uses dock and member badge stays inside saldo');
+assert(h.includes("overview.id='f4BankAdminReportOverview'") &&
+       h.includes("overview.append(form,finance)") &&
+       h.includes('#pageLaporan .f4-bank-report-overview{display:grid;grid-template-columns:minmax(0,1fr)') &&
+       h.includes('#pageLaporan .f4-bank-report-overview{grid-template-columns:minmax(0,1fr) minmax(0,.94fr)') &&
+       h.includes("form.append(options,actions)") &&
+       h.includes("month.dispatchEvent(new Event('change',{bubbles:true}))"),
+ 'Admin Laporan must share one responsive form/finance grid while preserving original period, print and CSV handlers');
+assert(mobile.includes('function adminInsightMount(home){') &&
+       mobile.includes('home.append(wrap)') &&
+       mobile.includes('adminInsightMount(home);') &&
+       mobile.includes('api("/api/v2/public/bank/report")') &&
+       mobile.includes('api("/api/v2/public/bank")') &&
+       mobile.includes('api("/api/public/bank/weighing-schedule")') &&
+       mobile.includes('adminInsightStagesDraw();') &&
+       mobile.includes('adminInsightLoadedAt=Date.now()') &&
+       mobile.includes('adminInsightVersion++') &&
+       css.includes('grid-area:insights') &&
+       css.includes('f4-bank-admin-insight-row{') &&
+       css.includes('f4-bank-admin-stage-track{'),
+ 'Admin Beranda needs real D1 deposit progress, configured schedule and published milestones, with clean account reset and no mocked amounts');
 assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        mobile.includes('text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—")') &&
        mobile.includes('text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—")') &&
