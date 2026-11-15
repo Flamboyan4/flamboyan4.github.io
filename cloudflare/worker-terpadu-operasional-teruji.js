@@ -3288,6 +3288,7 @@ async function getMyAvatar(env, who) {
 __name(getMyAvatar, "getMyAvatar");
 async function getAdminBankMemberAvatar(env, who, url) {
   // Foto pribadi hanya boleh dibaca pengurus, dicocokkan lewat ID anggota D1.
+  // Endpoint baca-saja: tidak mengubah foto profil, tabungan, maupun data setoran.
   const denied = requireRole(who, ["admin", "superadmin"]);
   if (denied) return denied;
   const id = String(url.searchParams.get("memberId") || "").trim();
