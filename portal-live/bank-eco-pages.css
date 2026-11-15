@@ -1197,7 +1197,9 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-request-state.is-dibayar{background:#ddf4e4;color:#08613c}
 .f4-bank-request-state.is-ditolak{background:#ffebe7;color:#c4493d}
 .f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
-#dashboardView .f4-bank-report-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#dashboardView .f4-bank-report-period{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.72fr) auto;gap:8px;align-items:end}
+#dashboardView .f4-bank-report-period>label{min-width:0}
+#dashboardView .f4-bank-report-period :is(#f4BankReportMonth,#f4BankReportYear){min-width:0;padding-inline:9px;font-size:12px}
 #dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:7px 0;border-top:1px solid #e5eee8;border-bottom:1px solid #e5eee8}
 .f4-bank-report-tile{display:grid;align-content:center;gap:5px;min-width:0;min-height:72px;padding:10px 13px;border:0;border-radius:0;background:transparent}
 .f4-bank-report-tile:nth-child(2){border-left:1px solid #e5eee8}
@@ -3225,7 +3227,8 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 .f4-bank-report-period .f4-bank-report-range-fields[hidden]{display:none}
 .f4-bank-report-range-fields label{display:grid;gap:5px;font-size:12px;color:#5b7664}
 .f4-bank-report-range-fields input{width:100%;min-width:0;min-height:42px;border:1px solid #cbded1;border-radius:9px;background:#fff;color:#234834;padding:8px;font:inherit}
-#f4BankReportRangeToggle{white-space:nowrap;min-height:37px;padding:7px 12px;grid-column:1/-1;justify-self:start;width:auto}
+#f4BankReportRangeToggle{white-space:nowrap;min-height:42px;padding:7px 10px;grid-column:3;align-self:end;justify-self:end;width:auto;font-size:11px}
+@media(max-width:380px){#dashboardView .f4-bank-report-period{gap:6px}#dashboardView .f4-bank-report-period :is(#f4BankReportMonth,#f4BankReportYear){padding-inline:5px;font-size:11px}#f4BankReportRangeToggle{padding-inline:7px;font-size:10px}}
 .f4-bank-report-period label[hidden]{display:none}
 
 /* Laporan admin: kontrol gabungan bulan, satu aturan pemilik tanpa override. */
