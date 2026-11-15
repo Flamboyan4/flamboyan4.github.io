@@ -616,18 +616,21 @@ function dateMonth(raw){
  const m=names.indexOf(match[2].replace(".",""));
  return m<0?"":match[3]+"-"+String(m+1).padStart(2,"0");
 }
+function isBankCorrection(row){
+ return /(?:koreksi|pembatalan|dibatalkan|reversal|pembalik)/i.test(String(row?.jenis||row?.type||""));
+}
 function ledger(){
  if(!memberStatement||!Array.isArray(memberStatement.mutasi))return [];
  return memberStatement.mutasi.map(x=>{
   const iso=String(x.tanggal||""),credit=Number(x.kredit)||0,debit=Number(x.debit)||0;
   const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
    new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
-  return {date,iso,type:String(x.jenis||"Transaksi"),credit,debit,
+  return {date,iso,type:String(x.jenis||"Transaksi"),correction:isBankCorrection(x),credit,debit,
    balance:rupiah(Number(x.saldo)||0),month:iso.slice(0,7)};
  }).sort((a,b)=>b.iso.localeCompare(a.iso));
 }
 function historyLines(){
- const sales=ledger().map(item=>({...item,kind:item.debit>0?"out":"in",sortId:"m"}));
+ const sales=ledger().map(item=>({...item,kind:item.correction?"correction":item.debit>0?"out":"in",sortId:"m"}));
  const deposits=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
  const weights=deposits.filter(x=>!/batal/i.test(String(x.status||""))).map(x=>{
   const iso=String(x.tanggal||"");const isFinal=/terkonfirmasi/i.test(String(x.status||""));
@@ -761,9 +764,10 @@ function showReport(){
  const deposits=(memberStatement?.setoran||[]).filter(x=>inPeriod(String(x.tanggal||""))&&!/batal/i.test(String(x.status)));
  const missingWeight=deposits.some(x=>x.beratKg==null);
  const weight=deposits.reduce((n,x)=>n+Number(x.beratKg||0),0);
- const credit=selected.reduce((n,x)=>n+x.credit,0),debit=selected.reduce((n,x)=>n+x.debit,0);
+ const active=selected.filter(x=>!x.correction);
+ const credit=active.reduce((n,x)=>n+x.credit,0),debit=active.reduce((n,x)=>n+x.debit,0);
  const tiles=[["Setoran",missingWeight?"—":weight.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg"],
-  ["Hasil jual sah",rupiah(credit)],["Pencairan / keluar",rupiah(debit)],["Transaksi",String(transactions.length)]];
+  ["Hasil jual sah",rupiah(credit)],["Pencairan / keluar",rupiah(debit)],["Transaksi",String(transactions.filter(x=>x.kind!=="correction").length)]];
  const summary=$("f4BankReportSummary");summary.replaceChildren();
  for(const [label,value] of tiles){const box=el("div","f4-bank-report-tile");
   box.append(el("small","",label),el("strong","",value));summary.append(box);}
@@ -771,9 +775,9 @@ function showReport(){
  for(const entry of transactions){
   const node=el("article","f4-bank-report-transaction"),deposit=entry.kind==="deposit",out=entry.debit>0;
   const left=el("span");left.append(el("strong","",entry.type),el("small","",entry.date));
-  const right=el("span","",deposit?entry.amountText:(out?"− ":"+ ")+rupiah(out?entry.debit:entry.credit));
+  const right=el("span","",deposit?entry.amountText:entry.kind==="correction"?"Koreksi "+rupiah(Math.abs(entry.debit||entry.credit)):(out?"− ":"+ ")+rupiah(out?entry.debit:entry.credit));
   if(deposit)right.title=entry.note;
-  right.className=out?"is-out":"is-in";
+  right.className=entry.kind==="correction"?"is-correction":out?"is-out":"is-in";
   node.append(left,right);list.append(node);
  }
  if(!transactions.length)list.append(el("p","f4-bank-empty","Belum ada transaksi di periode ini."));
