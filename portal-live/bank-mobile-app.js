@@ -478,7 +478,7 @@ function updateDashboard(){
    balanceCard.querySelector(".f4-bank-balance-cta")?.before(hint);
   }
   if(hint)hint.textContent=preview?.pending>0?
-   "Estimasi sebelum penjualan · saldo sah "+rupiah(preview.confirmed):
+   "Estimasi sebelum penjualan · belum bisa dicairkan":
    "Saldo dari hasil penjualan sah";
   const eye=button?.querySelector(".f4-bank-balance-eye");
   if(eye){
