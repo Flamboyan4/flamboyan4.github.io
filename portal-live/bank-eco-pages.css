@@ -1262,11 +1262,14 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field{
  grid-column:span 6
 }
-/* Setoran metadata: preserve a single-line member name and a compact date field.
-   Mobile phones below 601px keep the existing stacked layout. */
+/* One owner for Setoran Warga metadata proportions. Keep stacked small phones. */
 @media(min-width:601px){
- body.f4-bank-app-admin #dashboardView .section #setoranForm .f4-entry-top-fields>.field:first-child{grid-column:span 7}
- body.f4-bank-app-admin #dashboardView .section #setoranForm .f4-entry-top-fields>.field:nth-child(2){grid-column:span 5}
+ body.f4-bank-app-admin #dashboardView .section #pageSetoran #setoranForm .f4-entry-top-fields{
+  grid-template-columns:minmax(0,7fr) minmax(0,5fr)
+ }
+ body.f4-bank-app-admin #dashboardView .section #pageSetoran #setoranForm .f4-entry-top-fields>.field{
+  grid-column:auto
+ }
 }
 
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-top-fields{
