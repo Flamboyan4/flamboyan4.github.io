@@ -574,11 +574,14 @@ async function bankEditDeposit(request,env,who){
  SELECT b.id,b.label,b.status FROM waste_batches b
  JOIN waste_deposits d ON d.batch_id=b.id
  WHERE d.id=? AND (d.status!='estimasi' OR b.status!='draft'
+ OR d.member_id!=? OR d.deposited_on!=? OR d.total_grams!=? OR d.estimated_total_rp!=?
+ OR (SELECT COUNT(*) FROM waste_deposit_lines l WHERE l.deposit_id=d.id)!=?
  OR EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=b.id AND s.status!='dibatalkan')
  OR EXISTS(SELECT 1 FROM waste_allocations a WHERE a.batch_id=b.id)
  OR EXISTS(SELECT 1 FROM waste_savings_ledger l WHERE l.batch_id=b.id))`;
  const ops=[
-  db.prepare(guard).bind(id),
+  db.prepare(guard).bind(id,previous.member_id,previous.deposited_on,
+   Number(previous.total_grams),Number(previous.estimated_total_rp),priorLines.length),
   db.prepare(`UPDATE waste_deposits SET member_id=?,deposited_on=?,total_grams=?,estimated_total_rp=?
     WHERE id=? AND batch_id=? AND status='estimasi' AND EXISTS
     (SELECT 1 FROM waste_batches WHERE id=? AND status='draft')
