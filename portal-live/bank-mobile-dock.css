@@ -4,14 +4,25 @@
 .f4-bank-app-dock{display:none}
 .f4-bank-app-dock[hidden]{display:none}
 @media(max-width:1023px){
- body.f4-bank-app-private{--f4-bank-dock-height:72px}
+ body.f4-bank-app-private{
+  --f4-bank-dock-height:72px;
+  --f4-bank-dock-safe-bottom:env(safe-area-inset-bottom,0px)
+ }
+ /* Firefox Android dapat melaporkan inset bawah walaupun bilah sistem sudah
+    berada di luar viewport halaman. Hindari ruang kosong palsu di bawah dock.
+    Chrome dan Safari tidak diubah. */
+ @supports (-moz-appearance:none){
+  @media (pointer:coarse){
+   body.f4-bank-app-private{--f4-bank-dock-safe-bottom:0px}
+  }
+ }
  /* Native mobile app uses the dock rather than the legacy site footer. */
  body.f4-bank-app-private .shell>.footer{display:none}
  body.f4-bank-app-private :is(#dashboardView,#dashboardView>.grid,#dashboardView>.grid>.section){
   box-sizing:border-box;min-width:0;max-width:100%
  }
  body.f4-bank-app-private #dashboardView{
-  padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)
+  padding-bottom:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom) + 16px)
  }
  /* Navigasi bawah tunggal: Pencairan adalah aksi utama kuning (selalu),
     empat menu lain tetap normal, tanpa bergantung halaman aktif. */
@@ -19,8 +30,8 @@
   box-sizing:border-box;position:fixed;left:0;right:0;bottom:0;z-index:55;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   align-items:stretch;gap:2px;width:auto;min-width:0;max-width:none;
-  height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px));
-  padding:7px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  height:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom));
+  padding:7px 8px calc(6px + var(--f4-bank-dock-safe-bottom));
   margin:0;overflow:visible;background:#fff;border-top:1px solid #e4ece5;
   box-shadow:none;transform:none
  }
