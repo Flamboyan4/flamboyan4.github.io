@@ -1508,7 +1508,8 @@ function adminInsightMount(home){
   cycle.id="f4BankAdminScheduleCycle";
   schedule.append(scheduleHead,date,cycle,
    el("p","f4-bank-admin-schedule-desc","Pilah dan kumpulkan plastik, kertas, atau logam sebelum ditimbang."));
-  row.append(chart,schedule);
+  const right=el("div","f4-bank-admin-insight-right");
+  right.append(schedule);
   const stages=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-stages");
   stages.id="f4BankAdminStages";
   const stagesHead=el("div","f4-bank-admin-insight-head");
@@ -1518,7 +1519,8 @@ function adminInsightMount(home){
   const overview=el("div","f4-bank-admin-stage-overview","Memuat perkembangan…");
   overview.id="f4BankAdminStageOverview";
   stages.append(stagesHead,overview);
-  wrap.append(row,stages);home.append(wrap);
+  right.append(stages);row.append(chart,right);
+  wrap.append(row);home.append(wrap);
  }
  if(adminInsightLoadedAt&&Date.now()-adminInsightLoadedAt<90000)return;
  adminInsightFetch();
