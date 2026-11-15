@@ -1198,16 +1198,16 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-request-state.is-ditolak{background:#ffebe7;color:#c4493d}
 .f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
 #dashboardView .f4-bank-report-period{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-#dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
-.f4-bank-report-tile{display:grid;gap:6px;padding:13px;border-radius:17px;background:#fff;border:1px solid #e2eee7;}
-.f4-bank-report-tile:nth-child(2){background:#fff}
-.f4-bank-report-tile:nth-child(3){background:#fff}
+#dashboardView .f4-bank-report-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:7px 0;border-top:1px solid #e5eee8;border-bottom:1px solid #e5eee8}
+.f4-bank-report-tile{display:grid;align-content:center;gap:5px;min-width:0;min-height:72px;padding:10px 13px;border:0;border-radius:0;background:transparent}
+.f4-bank-report-tile:nth-child(2){border-left:1px solid #e5eee8}
+.f4-bank-report-tile:nth-child(3){border-top:1px solid #e5eee8}
 .f4-bank-report-tile:nth-child(3) strong{color:#43a047}
-.f4-bank-report-tile:nth-child(4){background:#fff}
+.f4-bank-report-tile:nth-child(4){border-top:1px solid #e5eee8;border-left:1px solid #e5eee8}
 .f4-bank-report-tile:nth-child(4) strong{color:#a47500}
 .f4-bank-report-tile:nth-child(even) :is(small,strong){color:#287da9}
-.f4-bank-report-tile small{font-size:11px;color:#607768}
-.f4-bank-report-tile strong{font-size:16px;line-height:1.2;color:#087f87}
+.f4-bank-report-tile small{font-size:12px;color:#607768;font-weight:500}
+.f4-bank-report-tile strong{font-size:19px;line-height:1.2;color:#087f87}
 #dashboardView .f4-bank-report-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:var(--f4-control-gap,10px)}
 #dashboardView .f4-bank-report-list{display:grid;gap:0}
 #dashboardView .f4-bank-report-transaction{display:flex;justify-content:space-between;align-items:center;gap:11px;padding:12px 3px;border-bottom:1px solid #e8f0ea}
@@ -3225,7 +3225,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 .f4-bank-report-period .f4-bank-report-range-fields[hidden]{display:none}
 .f4-bank-report-range-fields label{display:grid;gap:5px;font-size:12px;color:#5b7664}
 .f4-bank-report-range-fields input{width:100%;min-width:0;min-height:42px;border:1px solid #cbded1;border-radius:9px;background:#fff;color:#234834;padding:8px;font:inherit}
-#f4BankReportRangeToggle{white-space:nowrap;min-height:42px;padding:8px 12px}
+#f4BankReportRangeToggle{white-space:nowrap;min-height:37px;padding:7px 12px;grid-column:1/-1;justify-self:start;width:auto}
 .f4-bank-report-period label[hidden]{display:none}
 
 /* Laporan admin: kontrol gabungan bulan, satu aturan pemilik tanpa override. */
