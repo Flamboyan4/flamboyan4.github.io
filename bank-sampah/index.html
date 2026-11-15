@@ -5432,7 +5432,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       item.lastChild.id=id;pendingGrid.append(item);
     }
     const pendingFoot=v21Node('p','f4-bank-report-pending-foot',
-      'Setoran warga yang belum disahkan. Nilai masih estimasi, bukan saldo yang dapat dicairkan.');
+      'Masih estimasi, belum dapat dicairkan.');
     pendingFoot.id='v25PendingFoot';
     pending.append(pendingHead,pendingGrid,pendingFoot);
     const summary=v21Node('div','v25-public-metrics');summary.id='v25ReportMetrics';
@@ -5453,9 +5453,9 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     $('v25PendingValue').textContent=validPending?rupiah(pendingRp):'—';
     const pendingCount=Number(sum.pendingCount);
     $('v25PendingFoot').textContent=validPending?
-      (Number.isSafeInteger(pendingCount)&&pendingCount>=0?pendingCount+' setoran warga menunggu proses. ':'')+
-       'Nilai belum sah dan bisa berubah saat penjualan. Stok milik Bank belum termasuk.':
-      'Data setoran belum disahkan belum tersedia; nominal tidak diperkirakan dari data lain.';
+      (Number.isSafeInteger(pendingCount)&&pendingCount>=0?pendingCount+' setoran warga belum dijual. ':'')+
+      'Nilai belum final · stok milik Bank belum termasuk.':
+      'Data estimasi belum tersedia. Tidak ada nominal yang direka.';
     $('v25ReportMetrics').replaceChildren(
       v17PublicStat('Berat sah',kg(sum.beratKg)),
       v17PublicStat('Penjualan sah',rupiah(sum.hasilPenjualan)),
@@ -6484,8 +6484,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <script src="/portal-live/direct-shell.js?v=20261114-bank-no-scroll-bar-repaint-v2"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261115-mobile-only-v10"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
 <script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261115-member-estimate-privacy-v46"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261115-report-picker-contrast-v5">
-<script defer src="/portal-live/bank-impact-summary.js?v=20261109-public-finance-v1"></script>
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261115-flat-report-v6">
+<script defer src="/portal-live/bank-impact-summary.js?v=20261115-flat-finance-hero-v2"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
 
