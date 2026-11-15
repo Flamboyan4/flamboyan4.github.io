@@ -1585,16 +1585,16 @@ body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-acti
  background:#fff;color:#176d48;font-size:12px;font-weight:800;
  line-height:1.2;box-shadow:none;white-space:nowrap
 }
-body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-receipt{
+body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-receipt{
  background:var(--eco-gold,#fdc010);border-color:var(--eco-gold,#fdc010);color:var(--eco-dark,#174630)
 }
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-receipt svg{
  display:block;width:17px;height:17px;flex:none
 }
-body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-cancel{
+body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-cancel{
  border-color:#e9e4da;background:#f7f2e8;color:#786449
 }
-body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-cancel:disabled{
+body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-cancel:disabled{
  opacity:1;border-color:#edf0ee;background:#f5f6f4;color:#a1aba4;
  cursor:not-allowed
 }
