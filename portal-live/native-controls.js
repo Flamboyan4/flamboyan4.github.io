@@ -132,7 +132,7 @@ function formatValue(field){
   const m=String(field.value||'').match(/^(\d{4})-(\d{2})$/);
   return m?monthNames[Number(m[2])-1]+' '+m[1]:'Pilih bulan';
  }
- return fmtDate(field.value);
+ return field.id==='setDate'&&field.value?(()=>{const m=field.value.match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?Number(m[3])+' '+monthNames[Number(m[2])-1].slice(0,3)+' '+m[1]:fmtDate(field.value)})():fmtDate(field.value);
 }
 function calendar(field,trigger){
  const kind=field.type;const hasValue=!!field.value;
@@ -219,14 +219,14 @@ function enhance(field){
   if(field.matches('select'))button.title=button.textContent;
  }
  button.onclick=()=>{
-  sync();if(!small()||field.disabled)return;
+  sync();if((!small()&&field.id!=='setDate')||field.disabled)return;
   field.matches('select')?selectPicker(field,button):calendar(field,button);
  };
  button.addEventListener('focus',sync);
  // A click on an associated <label> normally opens Android's native picker.
  // Cancel the synthetic click and send it to our accessible website dialog.
  field.addEventListener('click',e=>{
-  if(!small())return;
+  if(!small()&&field.id!=='setDate')return;
   e.preventDefault();e.stopImmediatePropagation();
   button.click();
  },true);
@@ -237,8 +237,8 @@ function enhance(field){
  field.classList.add('f4-modern-native-hidden');sync();
 }
 function scan(){
- if(!small())return;
- document.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance);
+ const selector=small()?'select,input[type=date],input[type=month]':'#pageSetoran #setDate';
+ document.querySelectorAll(selector).forEach(enhance);
 }
 let pending=false;function schedule(){
  if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan()});
