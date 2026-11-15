@@ -201,8 +201,9 @@ async def main():
                             if width>=1024:
                                 if (abs(graph["top"]-schedule["top"])>3 or
                                     schedule["left"]<graph["right"]+5 or
-                                    stages["top"]<graph["bottom"]+5):
-                                    fail.append("desktop chart/schedule not adjacent or stages not below")
+                                    stages["top"]<schedule["bottom"]+5 or
+                                    abs(stages["left"]-schedule["left"])>3):
+                                    fail.append("desktop chart left and schedule/stages stacked right")
                             elif schedule["top"]<graph["bottom"]+5 or stages["top"]<schedule["bottom"]+5:
                                 fail.append("mobile chart/schedule/stages not stacked")
                         if fail:results.append({"engine":engine_name,"width":width,
@@ -397,7 +398,7 @@ async def main():
                           const button=document.querySelector('#f4SetAddKind');
                           const dateInput=document.querySelector('#setDate');
                           const candidate=dateInput?.nextElementSibling;
-                          const dateVisual=candidate?.classList?.contains('f4-control-trigger') &&
+                          const dateVisual=candidate?.matches?.('.f4-bs-date-trigger,.f4-control-trigger') &&
                             getComputedStyle(candidate).display!=='none' ? candidate : dateInput;
                           const rdate=dateVisual?.getBoundingClientRect();
                           return {head:rect('#setoranForm .f4-entry-goods-heading h3'),
@@ -448,7 +449,7 @@ async def main():
                           const entry=document.querySelector('#sideNav #v16NavList>.v16-item');
                           return {
                             name:r('#setoranForm .f4-warga-picker')||r('#setoranForm #setWarga'),
-                            date:r('#setoranForm #setDate'),
+                            date:r('#setoranForm .f4-bs-date-trigger')||r('#setoranForm .f4-control-trigger')||r('#setoranForm #setDate'),
                             meta:r('#setoranForm .f4-entry-top-fields'),
                             main:r('#setoranForm .f4-setoran-main'),
                             summary:r('#setoranForm .f4-setoran-side>.summary-box'),
