@@ -89,6 +89,17 @@ async def main():
                         headers={"access-control-allow-origin":"http://127.0.0.1:8765",
                                  "access-control-allow-credentials":"true"},
                         body=json.dumps(body))
+                # Read-only routing check: active Cloudflare adapter must expose
+                # deposit-detail to the original Edit button. No D1 writes.
+                await page.route("**/api/v2/admin/bank/deposit-detail**",lambda route:
+                    read_fixture(route,{"ok":True,"deposit":{
+                      "id":"deposit:api:00000000-0000-4000-8000-000000000001",
+                      "member_id":"member:W017","deposited_on":"2026-11-15",
+                      "status":"estimasi","total_grams":1000,"estimated_total_rp":2250
+                     },"lines":[{
+                      "id":"depositline:api:test","waste_item_id":"waste:KARDUS",
+                      "grams":1000,"priceRpPerKg":2250,"estimated_rp":2250
+                     }]}))
                 await page.route("**/api/v2/public/bank/report",lambda route:
                     read_fixture(route,{"ok":True,"ringkasan":{},
                       "bulanan":[{"periode":"2026-10","beratKg":1.9,
@@ -108,6 +119,23 @@ async def main():
                     await page.goto(URL,wait_until="domcontentloaded",timeout=30000)
                     await page.wait_for_timeout(900)
                     await page.evaluate(PREPARE)
+                    # Regression: the former duplicate read bridge overwrote this
+                    # endpoint and displayed "fungsi ... belum memiliki endpoint".
+                    if width in (390,1366):
+                        detail=await page.evaluate("""async () => {
+                          try {
+                            return await window.__f4BankDemoCall('bsV32DetailSetoran',
+                              ['session','deposit:api:00000000-0000-4000-8000-000000000001']);
+                          } catch(error) {
+                            return {failure:String(error?.message||error)};
+                          }
+                        }""")
+                        if (detail.get("failure") or
+                            detail.get("deposit",{}).get("status")!="estimasi" or
+                            detail.get("lines",[{}])[0].get("grams")!=1000):
+                            results.append({"engine":engine_name,"width":width,
+                                "endpointBridge":detail,
+                                "failures":["Edit detail must reach live Cloudflare read bridge"]})
                     # Role-surface observer composes the actual admin home after
                     # the auth-only source DOM is revealed in this test.
                     await page.wait_for_timeout(250)
