@@ -2276,7 +2276,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
    const member=lookup.get(wargaId);
    return {
     id:x.id,wargaId,namaWarga:String(x.memberName||x.member_name||x.namaWarga||member?.nama||'').trim(),
-    rumahWarga:String(x.house||x.rumah||member?.rumah||'').trim(),tanggal:x.deposited_on,
+    rumahWarga:String(x.houseCode||x.house_code||x.house||x.rumah||member?.rumah||'').trim(),tanggal:x.deposited_on,
     berat:number(x.total_grams)/1000,estimasi:number(x.estimated_total_rp),
     status:x.status==='dibatalkan'?'Dibatalkan':x.status==='terkonfirmasi'?'Terkonfirmasi':'Estimasi',
     batchId:x.batch_id
@@ -3854,16 +3854,23 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       const item=document.createElement('article');item.className='f4-recent-item';
       const who=document.createElement('div');
       const avatar=document.createElement('span');avatar.className='f4-recent-avatar';
-      const words=String(r.namaWarga||r.nama||'').trim().split(/\s+/).filter(Boolean);
-      avatar.textContent=words.length?words.length>1?(words[0][0]+words[words.length-1][0]).toUpperCase():words[0].slice(0,2).toUpperCase():'?';
+      const rawName=String(r.namaWarga||r.nama||'').trim();
+      const personalName=rawName.replace(/^(?:(?:pak|bapak|bu|ibu|mas|mbak)\.?\s+)+/i,'').trim();
+      const words=(personalName||rawName).split(/\s+/).filter(Boolean);
+      avatar.textContent=words.length?(words.length>1?words[0][0]+words[words.length-1][0]:words[0][0]).toUpperCase():'?';
       avatar.setAttribute('aria-hidden','true');
+      const nameLine=document.createElement('div');nameLine.className='f4-recent-name-line';
       const name=document.createElement('strong');
       name.textContent=f4BankDisplayWargaName(r.namaWarga||r.nama);
+      const house=document.createElement('span');house.className='f4-recent-house';
+      const houseCode=String(r.rumahWarga||r.houseCode||'').trim();
+      house.textContent=houseCode||'Rumah belum terdata';
+      house.title=houseCode?'Rumah '+houseCode:'Nomor rumah belum tersedia di database';
+      nameLine.append(name,house);
       const desc=document.createElement('small');
-      desc.textContent=[r.rumahWarga||'',r.tanggal?f4MemberDateID(r.tanggal):'',
+      desc.textContent=[r.tanggal?f4MemberDateID(r.tanggal):'',
         r.berat==null?'Berat jual belum tersedia':kg(r.berat)].filter(Boolean).join(' • ');
-      
-      who.append(name,desc);
+      who.append(nameLine,desc);
       const value=document.createElement('div');value.className='f4-recent-value';
       const confirmed=r.status==='Terkonfirmasi';
       const amount=document.createElement('b');
@@ -6810,7 +6817,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261115-recent-cards-shared-v15">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-admin-three-recent-v77">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-admin-compact-house-v78">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261115-viewport-fixed-v10">
