@@ -1209,7 +1209,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
 #pageLaporan>h2{font-size:19px;line-height:1.3;margin:0 0 4px}
 #pageLaporan>.desc{font-size:12px;color:#687b71;margin:0 0 14px;line-height:1.45}
-#pageLaporan .v33-report-controls{display:grid;gap:10px;margin:0 0 17px;padding:15px 16px;border:1px solid #dce9e1;background:#fff;border-radius:18px;box-shadow:0 3px 14px #17482a08}
+#pageLaporan .v33-report-controls{display:grid;align-content:start;gap:12px;min-width:0;margin:0;padding:18px;border:1px solid #dce9e1;background:#fff;border-radius:20px;box-shadow:0 3px 14px #17482a08}
 #pageLaporan .v33-report-title{margin:0;font-size:15px;line-height:1.35;font-weight:800;color:#174c33}
 
 #pageLaporan .v33-report-advanced{margin:0;min-width:0}
@@ -1225,14 +1225,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .v17-finance-analysis>summary{cursor:pointer;font-size:13px;font-weight:750;color:#1b6447;padding:5px 2px}
 #pageLaporan .v17-finance-analysis>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
 #pageLaporan .v17-finance-analysis[open]>.v17-finance-grid{margin-top:11px}
-#pageLaporan .v33-report-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:end}
+#pageLaporan .v33-report-row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
 #pageLaporan .v33-report-period-field>strong{display:block;font-size:12px;line-height:16px;color:#355c47;margin:0 0 6px}
 #pageLaporan .v33-report-period{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:8px}
 #pageLaporan .v33-report-period label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#64796c;font-weight:700;margin:0;min-width:0}
 #pageLaporan .v33-report-period select,
 #pageLaporan .v33-report-audit select{height:42px;min-height:42px;margin:0;padding:7px 11px;border:1px solid #d8e5de;border-radius:11px;background-color:#fff;color:#204636;font-size:13px;font-weight:650;width:100%;max-width:none}
 /* Match the month and year select baseline; their section has an extra "Bulan/Tahun" label. */
-#pageLaporan .v33-report-audit{min-width:0;padding-top:22px}
+#pageLaporan .v33-report-audit{min-width:0;padding-top:0}
 #pageLaporan .v33-report-audit>.field{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:16px 42px;gap:5px 10px;align-items:center;margin:0;min-width:0}
 #pageLaporan .v33-report-audit>.field>label:first-child{display:block;font-size:11px;color:#64796c;font-weight:700;line-height:16px;margin:0;align-self:end}
 #pageLaporan .v33-report-audit>.field>select{grid-column:1;grid-row:2;min-width:0;max-width:100%}
@@ -1255,9 +1255,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan #v33SelectAll[hidden]{display:none}
 #pageLaporan .v33-report-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:10px 0 0;border-top:1px solid #e5eee8}
 #pageLaporan .v33-report-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;min-width:0;min-height:40px;padding:9px 8px;margin:0;border-radius:11px;font-size:12px;font-weight:800;line-height:1.25}
-#pageLaporan .v33-report-actions button:nth-child(1){background:#09bcd3;color:#fff;border:1px solid #09bcd3}
-#pageLaporan .v33-report-actions button:nth-child(2){background:#009788;color:#fff;border:1px solid #009788}
-#pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#196546;border:1px solid #d7e6dc}
+#pageLaporan .v33-report-actions button:nth-child(1){background:#f0f6f1;color:#174630;border:1px solid #dce8de}
+#pageLaporan .v33-report-actions button:nth-child(2){background:#318651;color:#fff;border:1px solid #318651}
+#pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#174630;border:1px solid #d7e6dc}
 #pageLaporan #v10ReportSummary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:14px 0 5px;padding:11px 0 0;border-top:1px solid #dce8df}
 #pageLaporan #v10ReportSummary>.stat,#pageLaporan #v33ReportMoreMetrics>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:12px;background:#fff}
 #pageLaporan #v10ReportSummary strong,#pageLaporan #v33ReportMoreMetrics strong{font-size:18px;line-height:1.3;color:#175b40}
@@ -1309,14 +1309,20 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 
 
 /* Laporan admin: alokasi saldo dalam satu kartu, seirama dengan Beranda & Saldo. */
-#pageLaporan #v17Finance{margin:6px 0 15px}
-#pageLaporan #v17Finance .v17-finance-head{margin:0 0 10px}
-#pageLaporan #v17Finance .v17-finance-head h2{font-size:18px;color:#174630}
+/* Single report layout: input and finance side-by-side on PC, stacked on HP. */
+#pageLaporan .f4-bank-report-overview{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:stretch;min-width:0;margin:0 0 16px}
+@media(min-width:1024px){
+ #pageLaporan .f4-bank-report-overview{grid-template-columns:minmax(0,1fr) minmax(0,.94fr)}
+}
+#pageLaporan #v17Finance{display:flex;flex-direction:column;min-width:0;margin:0;padding:17px;border:1px solid #dce9e1;border-radius:20px;background:#fff;box-shadow:0 3px 14px #17482a08}
+#pageLaporan #v17Finance .v17-finance-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px}
+#pageLaporan #v17Finance .v17-finance-head h2{font-size:16px;color:#174630}
 #pageLaporan #v17FinanceKpis{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+ align-content:center;flex:1 1 auto;
  min-width:0;margin:0;padding:19px 21px;
  border:0;border-radius:21px;
- background:linear-gradient(120deg,#009788 0%,#43a047 100%);
+ background:linear-gradient(120deg,#0d9580 0%,#3f9c4a 100%);
  box-shadow:0 7px 18px #00978818;color:#fff
 }
 #pageLaporan #v17FinanceKpis>.v17-finance-kpi{
@@ -6228,6 +6234,15 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     const heading=report.querySelector(':scope > h2');
     if(heading){heading.textContent='Laporan Bank Sampah';report.prepend(heading);heading.after(form);}
     else report.prepend(form);
+    // Put existing controls and the live finance card side by side on PC.
+    // Keep their original nodes, handlers, API requests and report data.
+    const finance=$('v17Finance');
+    if(finance){
+      const overview=document.createElement('div');overview.id='f4BankAdminReportOverview';
+      overview.className='f4-bank-report-overview';
+      if(heading)heading.after(overview);else report.prepend(overview);
+      overview.append(form,finance);
+    }
     // Existing API/print handlers remain attached to their original buttons.
     // Feedback for load/print errors stays visible beside the report actions.
     form.append(options,actions);
