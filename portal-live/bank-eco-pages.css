@@ -951,16 +951,30 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-line>span{
 #dashboardView .f4-bank-savings-page{min-width:0}
 #dashboardView .f4-bank-savings-page>h2{font-size:21px;margin:0 0 12px;color:#0f5537}
 #dashboardView .f4-bank-savings-page>.desc{display:none}
-#dashboardView .f4-bank-savings-hero{display:grid;gap:7px;padding:20px 17px;border-radius:20px;background:linear-gradient(112deg,#009688,#008e80 56%,#43a047);color:#fff}
+#dashboardView .f4-bank-savings-hero{display:grid;gap:6px;padding:19px 18px;border-radius:20px;background:linear-gradient(112deg,#009688,#008e80 56%,#43a047);color:#fff}
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
-#dashboardView .f4-bank-savings-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin:11px 0 14px}
-.f4-bank-savings-stat{display:grid;gap:5px;min-width:0;padding:13px 12px;background:#eff9e6;border:1px solid #d5eaba;border-radius:18px}
-.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}
-.f4-bank-savings-stat:nth-child(2) :is(small,strong){color:#008b9a}
-.f4-bank-savings-stat small{font-size:11px;color:#607768}
-.f4-bank-savings-stat strong{font-size:17px;line-height:1.2;overflow-wrap:anywhere;color:#2d843f;font-variant-numeric:tabular-nums}
+/* Masuk dan dicairkan: satu strip informasi, bukan dua kartu tambahan. */
+#dashboardView .f4-bank-savings-stats{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:0;margin:13px 0 17px;padding:0 0 13px;
+ border-bottom:1px solid #dce9e1
+}
+#dashboardView .f4-bank-savings-stat{
+ display:grid;gap:5px;min-width:0;margin:0;padding:3px 14px 2px 2px;
+ background:transparent;border:0;border-radius:0;box-shadow:none
+}
+#dashboardView .f4-bank-savings-stat:nth-child(2){
+ padding-left:17px;padding-right:0;
+ background:transparent;border:0;border-left:1px solid #dce9e1;border-radius:0
+}
+#dashboardView .f4-bank-savings-stat small{font-size:12px;color:#647c6d}
+#dashboardView .f4-bank-savings-stat strong{
+ font-size:19px;line-height:1.2;overflow-wrap:anywhere;
+ color:#14794e;font-variant-numeric:tabular-nums
+}
+#dashboardView .f4-bank-savings-stat:nth-child(2) strong{color:#087c86}
 /* Tabungan pribadi — chart app style, one canonical set of selectors (no overrides). */
 #dashboardView #pagePribadi #f4BankSavingsChart{
  display:grid;gap:13px;margin:0 0 14px;padding:17px;
@@ -976,19 +990,20 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-line>span{
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
- display:flex;grid-column:auto;gap:3px;align-items:center;flex-wrap:nowrap;
- padding:4px;margin:0;border:1px solid #d5e8da;border-radius:12px;background:#eff7f0
+ display:flex;grid-column:auto;gap:2px;align-items:center;flex-wrap:nowrap;
+ padding:0;margin:0;border:0;border-radius:0;background:transparent
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
  flex:1 1 auto;min-width:0;max-width:none
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
- flex:0 0 auto
+ flex:0 0 auto;padding-left:7px;border-left:1px solid #dde9e0
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
- flex:1 1 auto;min-width:0;min-height:34px;margin:0;padding:6px 10px;
- background:transparent;border:0;border-radius:9px;box-shadow:none;color:#507060;
+ flex:1 1 auto;min-width:0;min-height:35px;margin:0;padding:7px 8px 5px;
+ background:transparent;border:0;border-bottom:2px solid transparent;
+ border-radius:0;box-shadow:none;color:#61796b;
  font-size:12px;font-weight:780;white-space:nowrap;cursor:pointer;touch-action:manipulation
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
@@ -996,7 +1011,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-line>span{
 }
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button.is-active,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button.is-active{
- background:#009688;color:#fff
+ background:transparent;color:#087f65;border-bottom-color:#009688
 }
 #dashboardView #pagePribadi #f4BankSavingsChart button:focus-visible,
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-deposit>summary:focus-visible{
@@ -1103,7 +1118,8 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-line>span{
 }
 @media(max-width:370px){
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:4px}
- #dashboardView #pagePribadi #f4BankSavingsChart :is(.f4-bank-chart-groups,.f4-bank-chart-switch){gap:1px;padding:3px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{gap:1px;padding:0}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{gap:1px;padding:0 0 0 5px}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button{padding:6px 3px;font-size:10px}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{min-width:27px;padding:6px 3px;font-size:10px}
 }
