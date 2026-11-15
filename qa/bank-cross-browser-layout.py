@@ -210,6 +210,41 @@ async def main():
                             "adminInsights":panel,"failures":fail})
                         await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-insights.png"))
 
+                        if width>=1024:
+                            recent_scroll=await page.evaluate("""() => {
+                              const home=document.querySelector('#f4BankAppHome[data-bank-role="admin"]');
+                              const panel=home?.querySelector(':scope > .v14-panel');
+                              const list=panel?.querySelector('#v14Recent');
+                              const hero=document.getElementById('f4BankAppAdminHero');
+                              const actions=document.getElementById('f4BankAdminOperations');
+                              if(!panel||!list||!hero||!actions)return {exists:false};
+                              const before={panel:panel.getBoundingClientRect().height,
+                                hero:hero.getBoundingClientRect().height,
+                                actions:actions.getBoundingClientRect().height};
+                              const temporary=[];
+                              for(let i=0;i<14;i++){
+                                const row=document.createElement('div');
+                                row.textContent='Riwayat setoran tambahan '+i;
+                                row.style.minHeight='78px';row.style.padding='10px';
+                                list.append(row);temporary.push(row);
+                              }
+                              const after={panel:panel.getBoundingClientRect().height,
+                                hero:hero.getBoundingClientRect().height,
+                                actions:actions.getBoundingClientRect().height,
+                                scrollHeight:list.scrollHeight,clientHeight:list.clientHeight,
+                                overflow:getComputedStyle(list).overflowY};
+                              temporary.forEach(row=>row.remove());
+                              return {exists:true,before,after};
+                            }""")
+                            if (not recent_scroll.get("exists") or
+                                abs(recent_scroll["after"]["panel"]-recent_scroll["before"]["panel"])>2 or
+                                abs(recent_scroll["after"]["hero"]-recent_scroll["before"]["hero"])>2 or
+                                recent_scroll["after"]["scrollHeight"]<=recent_scroll["after"]["clientHeight"] or
+                                recent_scroll["after"]["overflow"] not in ("auto","scroll")):
+                                results.append({"engine":engine_name,"width":width,
+                                    "recentScroll":recent_scroll,
+                                    "failures":["Growing recent history must scroll inside a fixed card without stretching hero"]})
+
                         # Real report controls + finance are MOVED, never cloned.
                         await page.evaluate(MEASURE,"pageLaporan")
                         layout=await page.evaluate("""() => {
