@@ -92,6 +92,18 @@ async function saveInventory(_token,p){
  return {id:r.id,duplicate:!!r.duplicate};
 }
 
+async function editDeposit(_token,p){
+ const id=String(p?.id||""),date=String(p?.tanggal||""),member=memberId(p?.wargaId);
+ if(!id||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!p?.items?.length)
+  throw Error("Lengkapi data setoran sebelum menyimpan koreksi.");
+ const result=await api('/api/v2/admin/bank/deposits/edit',{
+  id,memberId:member,depositedOn:date,
+  reason:String(p?.alasan||"Koreksi salah input setoran").trim(),
+  items:p.items.map(line=>({itemId:wasteId(line.kode),grams:gramsFromKg(line.berat)}))
+ });
+ return {id:result.id,beratKg:Number(result.totalGrams||0)/1000,
+  estimasiRp:Number(result.estimatedRp||0),edited:!!result.edited};
+}
 async function cancelDeposit(_token,id,reason){
  const result=await api('/api/v2/admin/bank/deposits/cancel',{id:String(id||''),reason:String(reason||'')});
  return {id:result.id,status:'Dibatalkan',duplicate:!!result.duplicate};
@@ -230,6 +242,6 @@ async function cancelConfirmedBatch(_token,p){
   rightsReversedRp:result.rightsReversedRp??0,cashReversedRp:result.cashReversedRp??0};
 }
 
-const methods={authAdminProvisionBatch:provisionMemberBatch,authAdminResetDefault:provisionSingleMember,bsV27BatalkanPengesahan:cancelConfirmedBatch,bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
+const methods={authAdminProvisionBatch:provisionMemberBatch,authAdminResetDefault:provisionSingleMember,bsV27BatalkanPengesahan:cancelConfirmedBatch,bsV22SetKategoriAlbum:updateAlbumCategory,bsV24UbahProgress:updateBankProgress,bsV20TambahMedia:saveMediaLink,bsV10CatatBiaya:saveExpense,bsV11TambahInventaris:saveInventory,bsV32EditSetoran:editDeposit,bsV6BatalkanSetoran:cancelDeposit,bsV7BatalkanPenjualan:cancelSale,bsV5BuatSetoran:depositDraft,bsV5SimpanTarif:savePrice,bsV11TambahProgress:saveProgress,bsV22TambahAlbum:saveAlbum,bsV6SimpanPenjualan:saleDraft,bsV6PratinjauRekonsiliasi:recon,bsV8BatchSiap:recon,bsV8SahkanBatch:confirm,bsV9RiwayatPencairan:payoutHistory,bsV9CairkanTabungan:payout,bsV9PostingKasPenjualan:postingStatus};
 window.__f4BankDemoCall=(name,args=[])=>Object.hasOwn(methods,name)?methods[name](...args):previous(name,args);
 })();
