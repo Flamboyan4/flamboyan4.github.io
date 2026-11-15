@@ -1262,6 +1262,67 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field{
  grid-column:span 6
 }
+/* Desktop Bank Sampah date proxy; created only when its script is available. */
+@media(min-width:761px){
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setDate.f4-bs-date-native{
+  position:absolute;clip-path:inset(50%);clip:rect(0 0 0 0);
+  width:1px;height:1px;min-width:1px;min-height:1px;
+  margin:0;padding:0;border:0;opacity:0;pointer-events:none
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran .f4-bs-date-trigger{
+  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:7px;
+  width:100%;min-width:0;max-width:100%;height:var(--bank-input-h,48px);
+  margin:0;padding:0 11px;border:1px solid #cadfd0;border-radius:12px;
+  background:#fff;color:#1e5139;font:650 12px/1.4 system-ui,-apple-system,sans-serif;
+  cursor:pointer;text-align:left;white-space:nowrap
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran .f4-bs-date-trigger:focus-visible{
+  outline:2px solid #318651;outline-offset:2px
+ }
+ body.f4-bank-app-admin #dashboardView #pageSetoran .f4-bs-date-trigger>svg{
+  flex:none;color:#438c61
+ }
+}
+.f4-bs-calendar-popup{
+ position:fixed;z-index:2147483300;box-sizing:border-box;
+ width:320px;max-width:calc(100vw - 20px);padding:15px;
+ background:#fff;border:1px solid #cfe3d5;border-radius:17px;
+ box-shadow:0 16px 42px #193c2b31;color:#204d36;
+ font:13px/1.4 system-ui,-apple-system,sans-serif
+}
+.f4-bs-calendar-popup *{box-sizing:border-box}
+.f4-bs-calendar-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.f4-bs-calendar-nav>strong{font-size:15px;font-weight:800}
+.f4-bs-calendar-arrow{
+ display:grid;place-items:center;width:34px;height:34px;padding:0;
+ background:#f0f8f2;border:1px solid #e0ede4;border-radius:10px;
+ color:#216d49;font:650 22px/1 system-ui;cursor:pointer
+}
+.f4-bs-calendar-grid{
+ display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px
+}
+.f4-bs-calendar-weekday{
+ min-width:0;padding:7px 0;text-align:center;color:#66806f;font-size:11px;font-weight:700
+}
+.f4-bs-calendar-day{
+ display:grid;place-items:center;min-width:0;min-height:36px;padding:0;
+ border:0;border-radius:10px;background:transparent;color:#234332;
+ font:650 13px system-ui;cursor:pointer
+}
+.f4-bs-calendar-day:hover{background:#e7f4e9}
+.f4-bs-calendar-day.is-selected{background:#258752;color:#fff}
+.f4-bs-calendar-day.is-today:not(.is-selected){outline:1px solid #85b79a;outline-offset:-2px}
+.f4-bs-calendar-day:disabled{opacity:.3;cursor:not-allowed}
+.f4-bs-calendar-footer{
+ display:flex;justify-content:space-between;gap:8px;margin-top:12px;
+ padding-top:10px;border-top:1px solid #e7eee8
+}
+.f4-bs-calendar-footer button{
+ border:1px solid #dbe9df;background:#f4faf5;border-radius:9px;
+ color:#236647;min-height:36px;padding:7px 12px;font:700 12px system-ui;cursor:pointer
+}
+.f4-bs-calendar-footer button:disabled{opacity:.35;cursor:not-allowed}
+
 /* One owner for Setoran Warga metadata proportions. Keep stacked small phones. */
 @media(min-width:601px){
  body.f4-bank-app-admin #dashboardView .section #pageSetoran #setoranForm .f4-entry-top-fields{
