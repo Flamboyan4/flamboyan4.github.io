@@ -6670,10 +6670,16 @@ async function bankReverseConfirmed(request,env,who){
     one(db,"SELECT * FROM waste_allocations WHERE id=? AND batch_id=?",["alloc:bank:"+batchId,batchId]),
     list(db,"SELECT id,deposited_on,status FROM waste_deposits WHERE batch_id=? ORDER BY id",[batchId])
   ]);
-  if(!sale||!allocation||!deposits.length||deposits.some(x=>x.status!=="terkonfirmasi"||!x.id.startsWith("deposit:api:")))
-    return safeError("Hanya pengesahan D1 baru yang utuh dapat dibatalkan otomatis; transaksi historis memerlukan audit.",409);
-  const allSales=await one(db,"SELECT COUNT(*) AS n FROM waste_sales WHERE batch_id=?",[batchId]);
-  if(Number(allSales?.n)!==1)return safeError("Batch memiliki lebih dari satu riwayat penjualan; audit manual diperlukan.",409);
+  // Historical batches may contain old already-cancelled rows. Only the active
+  // confirmed deposits/sale are reversed; original cancelled history is kept.
+  const confirmedDeposits=deposits.filter(x=>x.status==="terkonfirmasi");
+  if(!sale||!allocation||!confirmedDeposits.length||
+     deposits.some(x=>!["terkonfirmasi","dibatalkan"].includes(x.status)))
+    return safeError("Setoran batch tidak lengkap atau memiliki status yang perlu diaudit.",409);
+  const saleHistory=await list(db,"SELECT id,status FROM waste_sales WHERE batch_id=?",[batchId]);
+  if(saleHistory.filter(x=>x.status==="terkonfirmasi").length!==1||
+     saleHistory.some(x=>!["terkonfirmasi","dibatalkan"].includes(x.status)))
+    return safeError("Status riwayat penjualan tidak cocok untuk koreksi otomatis.",409);
   if(Number(allocation.received_rp)!==Number(sale.amount_received_rp) || !Number.isSafeInteger(allocation.citizen_rights_rp) || allocation.citizen_rights_rp<=0)
     return safeError("Nominal alokasi tidak sesuai dengan penjualan; pembatalan ditolak.",409);
   const amounts={
@@ -6702,6 +6708,8 @@ async function bankReverseConfirmed(request,env,who){
   const payoutQuery=`SELECT id FROM waste_savings_ledger WHERE member_id IN (${memberIds.map(()=>"?").join(",")}) AND kind='pencairan' LIMIT 1`;
   if(await db.prepare(payoutQuery).bind(...memberIds).first())
     return safeError("Pembatalan ditolak: salah satu warga sudah melakukan pencairan tabungan; perlukan audit manual.",409);
+  const pendingPayout=await db.prepare(`SELECT id FROM waste_payout_requests WHERE member_id IN (${memberIds.map(()=>"?").join(",")}) AND status NOT IN ('dibatalkan','ditolak','dibayar') LIMIT 1`).bind(...memberIds).first();
+  if(pendingPayout)return safeError("Pembatalan ditolak: masih ada pengajuan pencairan tabungan warga.",409);
   const outgoing=await one(db,"SELECT id FROM waste_cash_ledger WHERE status='aktif' AND cash_out_rp>0 AND occurred_on>=? LIMIT 1",[sale.sold_on]);
   if(outgoing)return safeError("Pembatalan ditolak: terdapat arus kas keluar setelah tanggal penjualan.",409);
   for(const [fund,originalAmount] of expectedCash){
@@ -6719,8 +6727,13 @@ async function bankReverseConfirmed(request,env,who){
     "(SELECT COALESCE(SUM(cash_in_rp-cash_out_rp),0) FROM waste_cash_ledger WHERE status='aktif' AND fund_position='"+fund+"')>="+value).join(" AND ");
   const guard=`(SELECT status FROM waste_batches WHERE id=?)='disahkan'
        AND (SELECT status FROM waste_sales WHERE id=?)='terkonfirmasi'
+       AND (SELECT COUNT(*) FROM waste_sales WHERE batch_id=? AND status='terkonfirmasi')=1
+       AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status NOT IN ('terkonfirmasi','dibatalkan'))
+       AND (SELECT COUNT(*) FROM waste_deposits WHERE batch_id=? AND status='terkonfirmasi')=?
+       AND NOT EXISTS(SELECT 1 FROM waste_deposits WHERE batch_id=? AND status NOT IN ('terkonfirmasi','dibatalkan'))
        AND NOT EXISTS(SELECT 1 FROM waste_cash_ledger WHERE status='aktif' AND cash_out_rp>0 AND occurred_on>=?)
        AND NOT EXISTS(SELECT 1 FROM waste_savings_ledger WHERE kind='pencairan' AND member_id IN (${memberIds.map(()=>"?").join(",")}))
+       AND NOT EXISTS(SELECT 1 FROM waste_payout_requests WHERE status NOT IN ('dibatalkan','ditolak','dibayar') AND member_id IN (${memberIds.map(()=>"?").join(",")}))
        AND ${fundGuards}`;
   const reversalDate=new Date(Date.now()+7*3600000).toISOString().slice(0,10);
   const stmts=credits.map(credit=>
@@ -6729,7 +6742,7 @@ async function bankReverseConfirmed(request,env,who){
        CASE WHEN ${guard} AND (SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0)
          FROM waste_savings_ledger WHERE member_id=?)>=? THEN ? ELSE 0 END,?,?,?,?)`)
       .bind("bank-reverse:"+sale.id+":"+credit.member_id,credit.member_id,reversalDate,
-        batchId,sale.id,sale.sold_on,...memberIds,credit.member_id,credit.amount_rp,credit.amount_rp,
+        batchId,sale.id,batchId,batchId,batchId,confirmedDeposits.length,batchId,sale.sold_on,...memberIds,...memberIds,credit.member_id,credit.amount_rp,credit.amount_rp,
         batchId,sale.id+":"+credit.member_id,"Koreksi hak tabungan pengesahan dibatalkan: "+reason,who.id));
   stmts.push(
     db.prepare("UPDATE waste_cash_ledger SET status='dibatalkan' WHERE source_transaction_id=? AND transaction_type='penjualan_terkonfirmasi' AND status='aktif'").bind(sale.id),
@@ -6742,7 +6755,7 @@ async function bankReverseConfirmed(request,env,who){
   try{
     const results=await db.batch(stmts);
     const cashUpdate=results[credits.length],depositUpdate=results[credits.length+1],saleUpdate=results[credits.length+2],batchUpdate=results[credits.length+3];
-    if(Number(cashUpdate?.meta?.changes)!==cash.length||Number(depositUpdate?.meta?.changes)!==deposits.length||
+    if(Number(cashUpdate?.meta?.changes)!==cash.length||Number(depositUpdate?.meta?.changes)!==confirmedDeposits.length||
        Number(saleUpdate?.meta?.changes)!==1||Number(batchUpdate?.meta?.changes)!==1)
       return safeError("Pembatalan tercatat, tetapi status akhir perlu diverifikasi sebelum transaksi lanjutan.",409);
   }catch{
