@@ -744,57 +744,6 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  }
 }
 
-/* Bank Sampah Setoran PC: use the same Sunday-first calendar as mobile.
-   Deliberately confined to desktop, where native-controls previously stayed native. */
-@media screen and (min-width:761px){
- body.f4-direct-bank #dashboardView #pageSetoran #setDate.f4-modern-native-hidden{
-  position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%);
-  width:1px;height:1px;min-width:1px;min-height:1px;
-  margin:0;padding:0;border:0;opacity:0;pointer-events:none;overflow:hidden
- }
- body.f4-direct-bank #dashboardView #pageSetoran #setDate.f4-modern-native-hidden+.f4-control-trigger{
-  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
-  gap:6px;width:100%;min-width:0;max-width:100%;height:var(--bank-input-h,48px);
-  padding:0 11px;border:1px solid #cbded2;border-radius:11px;
-  background:#fff;color:#22543c;font:650 12px/1.35 system-ui,-apple-system,sans-serif;
-  white-space:nowrap;overflow:hidden;text-align:left;cursor:pointer
- }
- body.f4-direct-bank #dashboardView #pageSetoran #setDate+.f4-control-trigger::after{
-  content:"";display:block;flex:none;width:17px;height:17px;margin-left:4px;
-  background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23267350' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M7 3v4M17 3v4M3 10h18'/%3E%3C/svg%3E")
- }
- body.f4-direct-bank #dashboardView #pageSetoran #setDate+.f4-control-trigger:focus-visible{
-  outline:2px solid #318651;outline-offset:2px
- }
- body.f4-direct-bank .f4-control-overlay.f4-bank-calendar-dropdown{
-  display:block;padding:0;background:transparent;backdrop-filter:none
- }
- body.f4-direct-bank .f4-bank-calendar-dropdown>.f4-bank-calendar-popover{
-  position:fixed;box-sizing:border-box;display:block;min-width:0;height:auto;
-  margin:0;padding:13px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-  border:1px solid #cbded2;border-radius:16px;background:#fff;
-  box-shadow:0 14px 36px #123f2b35;color:#18432f
- }
- body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-calendar{
-  box-sizing:border-box;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin-bottom:10px
- }
- body.f4-direct-bank .f4-bank-calendar-popover .f4-control-day{
-  min-height:36px;height:36px;aspect-ratio:auto;font-size:13px
- }
- body.f4-direct-bank .f4-bank-calendar-popover .f4-control-weekday{
-  font-size:11px;min-width:0;padding:5px 0
- }
- body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-calendar-nav{
-  margin:0 0 9px;gap:8px
- }
- body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-date-input{
-  min-height:40px;height:40px;margin-bottom:9px;font-size:13px
- }
- body.f4-direct-bank .f4-bank-calendar-popover>.f4-control-footer button{
-  min-height:36px;padding:7px 12px;font-size:12px
- }
-}
-
 /* Specificity fix: action buttons remain visible when a card has nothing to expand. */
 @media screen and (max-width:760px){
  #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>.f4-admin-action-set:not(.f4-card-detail-toggle),
