@@ -2028,7 +2028,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
         </div>
         <div id="pageSetoran" class="card hidden"><h2>Setoran</h2><p class="desc">Estimasi · belum menjadi saldo</p><form id="setoranForm" onsubmit="submitSetoran(event)"><div class="f4-entry-right"><div class="f4-entry-top-fields"><div class="field f4-field-stack"><label for="setWarga">Nama anggota</label><select id="setWarga" required><option value="">Pilih warga</option></select></div><div class="field f4-field-stack"><label for="setDate">Tanggal setoran</label><input type="date" id="setDate" required></div></div><div class="f4-setoran-side"><div class="summary-box block-gap"><div><small>Total berat</small><strong id="previewKg" style="display:block">0 kg</strong></div><div><small>Estimasi hak warga</small><strong id="previewRp" style="display:block">Rp 0</strong></div></div><div class="field f4-field-stack block-gap"><label for="setNotes">Catatan (opsional)</label><textarea id="setNotes" rows="3" maxlength="300" placeholder="Contoh: kegiatan timbang rutin"></textarea></div><button id="saveSetoranBtn" type="submit" class="wide">Simpan setoran estimasi</button></div></div><div class="f4-setoran-main"><div class="f4-entry-goods-heading"><div><h3>Rincian sampah</h3></div></div><div id="setBarang" class="tablewrap"></div><button id="f4SetAddKind" type="button" class="f4-compact-add" onclick="addSetoranItemRow()">Tambah jenis</button></div></form><div id="setoranNotice" role="status" aria-live="polite"></div></div>
         <div id="pageRiwayat" class="card hidden"><div class="toolbar"><h2>Riwayat setoran</h2><button class="secondary" onclick="loadRiwayatV7()">Perbarui</button></div><div id="riwayatList" class="tablewrap">Memuat...</div><div id="riwayatNotice" role="status"></div></div>
-        <div id="pageRiwayatJual" class="card hidden"><div class="toolbar"><h2>Riwayat penjualan</h2><button class="secondary" onclick="loadRiwayatJual()">Perbarui</button></div><div class="pill-note"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg> Penjualan sah harus diperiksa sebelum dibatalkan.</div><div id="riwayatJualList" class="tablewrap">Memuat...</div><div id="riwayatJualNotice" role="status"></div></div>
+        <div id="pageRiwayatJual" class="card hidden"><div class="toolbar"><h2>Riwayat penjualan</h2><button class="secondary" onclick="loadRiwayatJual()">Perbarui</button></div><p class="f4-bank-sale-history-caution">Penjualan yang sudah disahkan harus diperiksa sebelum dibatalkan.</p><div id="riwayatJualList" class="tablewrap">Memuat...</div><div id="riwayatJualNotice" role="status"></div></div>
         <div id="pagePenjualan" class="card hidden"><h2>Penjualan</h2><form id="saleForm" onsubmit="submitSale(event)"><div class="f4-entry-right"><div class="f4-entry-top-fields f4-sale-top-fields"><div class="field f4-field-stack"><label for="saleBatch">Kelompok setoran</label><select id="saleBatch" required><option value="">Pilih kelompok</option></select></div><div class="field f4-field-stack"><label for="saleDate">Tanggal penjualan</label><input type="date" id="saleDate" required></div><div class="field f4-field-stack"><label for="saleLapak">Lapak / pengepul</label><input id="saleLapak" maxlength="100" required placeholder="Nama lapak"></div></div><div class="f4-sale-side"><div class="f4-sale-payment-fields"><div class="field f4-field-stack"><label for="saleReceived">Uang diterima</label><input type="number" id="saleReceived" min="0" step="1" value="0" required></div><div class="field f4-field-stack"><label for="saleStatus">Status bayar</label><select id="saleStatus" onchange="updateSaleTotals()"><option value="Belum Bayar">Belum Bayar</option><option value="Lunas">Lunas</option><option value="Sebagian">Sebagian</option></select></div></div><details class="f4-sale-extras" id="f4SaleExtras"><summary>Detail tambahan <span>Opsional</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="f4-sale-note-fields"><div class="field f4-field-stack"><label for="saleProof">Referensi lapak (opsional)</label><input id="saleProof" maxlength="80" placeholder="Contoh: NT-1026-014"></div><div class="field f4-field-stack f4-sale-proof-field"><label for="saleProofUrl">Bukti (opsional)</label><input id="saleProofUrl" maxlength="500" type="url" inputmode="url" pattern="https://.+" title="Masukkan tautan HTTPS yang valid" placeholder="https://..."></div></div></details><button type="submit" class="wide">Simpan penjualan</button></div></div><div class="f4-sale-main"><div class="f4-entry-goods-heading"><div><h3>Hasil timbang</h3></div><button id="f4SaleAddKind" type="button" class="f4-compact-add" onclick="addSaleItemRow()">Tambah jenis</button></div><div id="saleItems" class="tablewrap">Memuat...</div><div class="summary-box"><div><small>Berat terjual</small><strong id="saleWeight" style="display:block">0 kg</strong></div><div><small>Total jual</small><strong id="saleGross" style="display:block">Rp 0</strong></div></div></div></form><div id="saleNotice" role="status"></div></div>
         <div id="pageRekonsiliasi" class="card hidden"><h2>Cek selisih</h2><div class="pill-note"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 11v6m0-10h.01"/></svg> Hanya pengecekan. Saldo belum berubah.</div><div class="field block-gap"><label for="reconBatch">Pilih kelompok</label><select id="reconBatch" onchange="loadRekonsiliasi()"><option value="">Pilih kelompok</option></select></div><div id="reconResult" class="block-gap">Pilih kelompok terlebih dahulu.</div></div>
         <div id="pageMaster" class="card hidden"><div class="toolbar"><h2>Harga barang</h2><button class="secondary f4-master-refresh" onclick="loadMaster()" aria-label="Perbarui harga barang" title="Perbarui"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.9-4.1L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.9 4.1L21 15"/><path d="M21 20v-5h-5"/></svg></button></div><div id="masterList" class="f4-master-list">Memuat...</div></div>
@@ -4882,9 +4882,88 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
     card.append(identity,summary,actions);
     return card;
   }
+  // Penjualan uses the same compact list as Setoran: no eye button,
+  // no expand panel and no per-row nota buttons. Financial maintenance
+  // remains accessible from the receipt preview instead.
+  function v18SaleHistoryCard(r){
+    const status=String(r.status||'Draft');
+    const canceled=/batal/i.test(status);
+    const confirmed=/terkonfirmasi/i.test(status);
+    const card=document.createElement('article');
+    card.className='f4-admin-deposit-card f4-admin-sale-card'+(canceled?' is-canceled':'');
+    const identity=document.createElement('div');identity.className='f4-admin-deposit-identity';
+    const avatar=document.createElement('span');avatar.className='f4-admin-deposit-avatar';
+    avatar.setAttribute('aria-hidden','true');
+    const buyer=String(r.lapak||'Lapak tidak tersedia').trim();
+    const parts=buyer.split(/\s+/).filter(Boolean);
+    avatar.textContent=(parts.length>1?parts[0][0]+parts[parts.length-1][0]:parts[0]?.slice(0,2)||'L').toUpperCase();
+    const copy=document.createElement('div');copy.className='f4-admin-deposit-copy';
+    const name=document.createElement('strong');name.textContent=buyer;
+    const meta=document.createElement('span');meta.className='f4-admin-deposit-meta';
+    meta.textContent=r.tanggal||'Tanggal belum tersedia';
+    copy.append(name,meta);identity.append(avatar,copy);
+    const summary=document.createElement('div');summary.className='f4-admin-deposit-summary';
+    const gross=Number(r.bruto),received=Number(r.diterima);
+    const amount=document.createElement('strong');amount.className='f4-admin-deposit-amount';
+    amount.textContent=Number.isSafeInteger(gross)&&gross>=0?rupiah(gross):'Total belum tersedia';
+    const amountHint=document.createElement('span');
+    amountHint.textContent=canceled?'Arsip · tidak dihitung':
+      'Diterima '+(Number.isSafeInteger(received)&&received>=0?rupiah(received):'belum tersedia');
+    const badge=document.createElement('span');badge.className='f4-admin-deposit-status'+
+      (canceled?' is-canceled':confirmed?' is-confirmed':' is-estimated');
+    badge.textContent=status;
+    summary.append(amount,amountHint,badge);
+    const actions=document.createElement('div');actions.className='f4-admin-deposit-actions';
+    const receipt=f4BankReceiptIcon(null,async()=>{
+      const [payload,items]=await Promise.all([
+        Promise.resolve(f4BankSaleReceipt(r)),
+        call('bsV7RincianPenjualan',token,r.id)
+      ]);
+      if(!Array.isArray(items))throw Error('Rincian barang penjualan tidak dapat dibaca.');
+      payload.details.push(['Jumlah jenis barang',String(items.length)]);
+      for(const item of items){
+        const weight=Number(item.berat),rate=Number(item.harga),total=Number(item.nilai);
+        const desc=[Number.isFinite(weight)?kg(weight):'-',
+          Number.isFinite(rate)?rupiah(rate)+'/kg':null,
+          Number.isFinite(total)?'Nilai '+rupiah(total):null].filter(Boolean).join(' · ');
+        payload.details.push([String(item.barang||'Jenis sampah'),desc]);
+      }
+      if(r.alasanSelisih)payload.details.push(['Keterangan selisih',String(r.alasanSelisih)]);
+      if(canceled){
+        payload.title='Arsip Penjualan Dibatalkan';
+        payload.heading='Penjualan Dibatalkan';
+        payload.status='DIBATALKAN';
+        payload.note='Penjualan ini telah dibatalkan dan tidak dihitung sebagai pemasukan. Resi hanya untuk arsip.';
+      }else{
+        // Optional maintenance actions appear INSIDE the receipt dialog,
+        // never on the history row and never inside its JPG image.
+        payload.adminActions=[{
+          label:r.nota?'Ubah No. Bukti':'Isi No. Bukti',
+          onClick:()=>v7EditSaleReceipt(r)
+        }];
+        if(/^draft$/i.test(status)&&Number.isSafeInteger(received)&&
+           Number.isSafeInteger(gross)&&received<gross){
+          payload.adminActions.push({label:'Catat Pelunasan',onClick:()=>v7SettleSale(r)});
+        }
+      }
+      return payload;
+    });
+    receipt.classList.add('f4-admin-deposit-receipt');
+    receipt.title='Buka resi penjualan lengkap';
+    receipt.setAttribute('aria-label','Resi penjualan '+buyer);
+    receipt.append(document.createTextNode('Resi'));
+    const cancel=document.createElement('button');cancel.type='button';
+    cancel.className='f4-admin-deposit-cancel';cancel.textContent='Batalkan';
+    cancel.disabled=canceled;cancel.onclick=()=>v7CancelSale(r);
+    if(canceled)cancel.title='Penjualan sudah dibatalkan';
+    actions.append(receipt,cancel);
+    card.append(identity,summary,actions);
+    return card;
+  }
   const v18OldHistoryCard=v7HistoryCard;
   v7HistoryCard=function(r,type){
     if(type==='setoran')return v18DepositHistoryCard(r);
+    if(type==='penjualan')return v18SaleHistoryCard(r);
     const card=v18OldHistoryCard(r,type);
     card.classList.add('f4-bs-history-row');
     return card;
@@ -6650,11 +6729,11 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261115-recent-cards-shared-v15">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-admin-history-compact-v69">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-history-unified-v70">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261115-viewport-fixed-v10">
-<script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
+<script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261114-bank-no-scroll-bar-repaint-v2"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/native-controls.js?v=20261115-bank-calendar-anchor-v8"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
