@@ -302,7 +302,7 @@ async function adminBank(db, url) {
   const kind = url.pathname.split("/").pop(), limit = paramLimit(url, 300);
   const tables = {
     catalog: `SELECT i.id,i.name,i.category,i.unit,i.active,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) ORDER BY i.category,i.name LIMIT ?`,
-    members: `SELECT m.id,m.display_name AS nama,h.house_code AS rumah,m.status FROM members m LEFT JOIN households h ON h.id=m.household_id ORDER BY m.display_name LIMIT ?`,
+    members: `SELECT m.id,m.display_name AS nama,h.house_code AS rumah,m.status, EXISTS(SELECT 1 FROM accounts a JOIN member_account_profiles p ON p.account_id=a.id WHERE a.member_id=m.id AND a.status='aktif' AND p.avatar_key IS NOT NULL AND p.avatar_key<>'') AS hasAvatar FROM members m LEFT JOIN households h ON h.id=m.household_id ORDER BY m.display_name LIMIT ?`,
     batches: `SELECT b.id,b.label,b.status,b.confirmed_at,COUNT(d.id) AS deposits,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.total_grams ELSE 0 END),0) AS grams,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.estimated_total_rp ELSE 0 END),0) AS estimatedRp FROM waste_batches b LEFT JOIN waste_deposits d ON d.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC LIMIT ?`,
     deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,
       h.house_code AS houseCode,d.status,d.total_grams,d.estimated_total_rp,
@@ -2914,6 +2914,8 @@ async function handleUnifiedApi(request, env, who) {
     if (denied) return denied;
     if (path === "/api/v2/admin/bank/own-deposits" && (method==="GET"||method==="POST"))
       return bankOwnDeposit(request,env,who);
+    if (method === "GET" && path === "/api/v2/admin/bank/member-avatar")
+      return getAdminBankMemberAvatar(env,who,url);
     if (method === "GET") {
       if (path === "/api/v2/admin/bank/albums") return ok({data:await list(db,`SELECT
          id,title,category,event_on,description,visibility,status,
@@ -3284,6 +3286,29 @@ async function getMyAvatar(env, who) {
   return new Response(object.body, { headers });
 }
 __name(getMyAvatar, "getMyAvatar");
+async function getAdminBankMemberAvatar(env, who, url) {
+  // Foto pribadi hanya boleh dibaca pengurus, dicocokkan lewat ID anggota D1.
+  const denied = requireRole(who, ["admin", "superadmin"]);
+  if (denied) return denied;
+  const id = String(url.searchParams.get("memberId") || "").trim();
+  if (!/^[a-zA-Z0-9:_-]{1,128}$/.test(id)) return safeError("ID anggota tidak valid.", 400);
+  if (!env.PHOTOS) return safeError("Penyimpanan foto belum tersedia.", 503);
+  const fullId = id.startsWith("member:") ? id : "member:" + id;
+  const row = await env.DB.prepare(`SELECT p.avatar_key
+    FROM accounts a JOIN member_account_profiles p ON p.account_id=a.id
+    WHERE a.member_id IN (?,?) AND a.status='aktif'
+      AND p.avatar_key IS NOT NULL AND p.avatar_key<>''
+    ORDER BY p.updated_at DESC LIMIT 1`).bind(id, fullId).first();
+  if (!row?.avatar_key) return safeError("Foto anggota belum tersedia.", 404);
+  const object = await env.PHOTOS.get(row.avatar_key);
+  if (!object) return safeError("Foto anggota tidak ditemukan.", 404);
+  return new Response(object.body, {headers: {
+    "content-type": object.httpMetadata?.contentType || "application/octet-stream",
+    "cache-control": "private, no-store",
+    "x-content-type-options": "nosniff"
+  }});
+}
+__name(getAdminBankMemberAvatar, "getAdminBankMemberAvatar");
 async function publicSummary(db) {
   const [members, albums, progress] = await Promise.all([
     db.prepare("SELECT COUNT(*) AS n FROM members WHERE status='aktif'").first(),
