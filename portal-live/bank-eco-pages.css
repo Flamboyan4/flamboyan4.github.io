@@ -2865,14 +2865,16 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{grid-area:insights}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{display:none}
+ /* Recent deposits: show three complete entries. The fourth onward scrolls
+    inside the list, without stretching the right card or the left cards. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{
   grid-area:recent;display:flex;flex-direction:column;
-  min-width:0;min-height:0;width:100%;height:100%;align-self:stretch;overflow:hidden;
+  min-width:0;min-height:0;width:100%;height:330px;align-self:start;overflow:hidden;
   padding:19px 18px;border:1px solid #e4ece6;border-radius:21px;
   background:#fff;box-shadow:0 5px 20px #153f2a0b
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel #v14Recent{
-  flex:1 1 0;min-width:0;min-height:0;
+  flex:0 1 auto;min-width:0;min-height:0;height:232px;max-height:232px;
   overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;
   scrollbar-color:#c0ddc9 transparent
  }
