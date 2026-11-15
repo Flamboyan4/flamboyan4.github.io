@@ -30,6 +30,8 @@
    '#f4-tx-receipt-dialog button{font:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #d1d5db;border-radius:11px;background:#fff;color:#334155;min-height:42px;padding:8px 12px;cursor:pointer}' +
    '#f4-tx-receipt-dialog .f4-tx-image-wrap{overflow:auto;background:#f5f3ff;flex:1;min-height:0;padding:14px;text-align:center}' +
    '#f4-tx-receipt-dialog img{display:block;width:min(100%,410px);height:auto;margin:0 auto;border-radius:7px}' +
+   '#f4-tx-receipt-dialog .f4-tx-admin-actions{display:flex;gap:8px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid #e6ecdf;background:#f9fbf8}' +
+   '#f4-tx-receipt-dialog .f4-tx-admin-actions button{flex:1 1 140px;min-height:40px;background:#fff7da;border-color:#e6dfb6;color:#174630;font-size:12px;font-weight:750}' +
    '#f4-tx-receipt-dialog .f4-tx-actions{display:flex;gap:9px;padding:12px 16px;justify-content:flex-end;border-top:1px solid #e5e7eb}' +
    '#f4-tx-receipt-dialog .f4-tx-actions button{flex:1}' +
    '#f4-tx-receipt-dialog .f4-tx-primary{background:#5b21b6;color:#fff;border-color:#5b21b6}' +
@@ -57,7 +59,10 @@
  }
  function close(){
   const d=document.getElementById('f4-tx-receipt-dialog');
-  if(d)d.hidden=true;
+  if(d){
+   d.hidden=true;
+   d.querySelector('.f4-tx-admin-actions')?.remove?.();
+  }
   document.body.style.overflow=priorOverflow;
   if(url){URL.revokeObjectURL(url);url='';}
   blob=null;
@@ -316,6 +321,27 @@
   dialog.dataset.scope=record.scope==='bank'?'bank':'book';
   dialog.querySelector('#f4-tx-receipt-heading').textContent=record.title||'Bukti Transaksi';
   dialog.querySelector('#f4-tx-receipt-preview').src=url;
+  // Optional operator actions are controls alongside the preview, NEVER
+  // printed into the JPG and NEVER persisted in the transaction itself.
+  if(record.scope==='bank'&&Array.isArray(record.adminActions)&&record.adminActions.length){
+   const footer=document.createElement('div');
+   footer.className='f4-tx-admin-actions';
+   footer.setAttribute('aria-label','Tindakan administrasi penjualan');
+   for(const item of record.adminActions){
+    if(!item||typeof item.onClick!=='function'||!String(item.label||'').trim())continue;
+    const button=document.createElement('button');button.type='button';
+    button.textContent=String(item.label);
+    button.onclick=()=>{
+     close();
+     Promise.resolve().then(()=>item.onClick()).catch(e=>{
+      console.error('Gagal memproses tindakan resi',e);
+      window.f4UiDialog?.alert?.('Tindakan gagal: '+(e.message||e));
+     });
+    };
+    footer.appendChild(button);
+   }
+   if(footer.childElementCount)dialog.querySelector('.f4-tx-actions').before(footer);
+  }
   dialog.hidden=false;
   document.body.style.overflow='hidden';
   dialog.querySelector('.f4-tx-close').focus();
