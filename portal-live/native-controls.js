@@ -132,6 +132,10 @@ function formatValue(field){
   const m=String(field.value||'').match(/^(\d{4})-(\d{2})$/);
   return m?monthNames[Number(m[2])-1]+' '+m[1]:'Pilih bulan';
  }
+ if(field.type==='date'&&/^f4BankReport(?:From|To)$/.test(field.id)){
+  const m=String(field.value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?Number(m[3])+' '+monthNames[Number(m[2])-1].slice(0,3)+' '+m[1]:'Pilih tanggal';
+ }
  return fmtDate(field.value);
 }
 function calendar(field,trigger){
