@@ -4454,7 +4454,12 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     meta.textContent=[houseCode?'Rumah '+houseCode:'Nomor rumah belum tersedia',
       r.tanggal||'Tanggal belum tersedia',
       Number.isFinite(weight)&&weight>=0?kg(weight):'Berat belum tersedia'].join(' · ');
-    copy.append(name,meta);identity.append(avatar,copy);
+    // Di HP hanya rumah dan berat tampil pada list; tanggal lengkap ada di resi.
+    const compactMeta=document.createElement('span');
+    compactMeta.className='f4-admin-deposit-mobile-meta';
+    compactMeta.textContent=[houseCode?'Rumah '+houseCode:'Rumah belum tersedia',
+      Number.isFinite(weight)&&weight>=0?kg(weight):null].filter(Boolean).join(' · ');
+    copy.append(name,meta,compactMeta);identity.append(avatar,copy);
     const summary=document.createElement('div');summary.className='f4-admin-deposit-summary';
     const amount=document.createElement('strong');amount.className='f4-admin-deposit-amount';
     const money=confirmed?r.nilaiSahRp:r.estimasi;
@@ -4466,6 +4471,17 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       (canceled?' is-canceled':confirmed?' is-confirmed':' is-estimated');
     badge.textContent=status;
     summary.append(amount,amountHint,badge);
+    // Salinan teks ringkas khusus HP; status tetap terbaca, bukan hanya kode warna.
+    const compactSummary=document.createElement('span');
+    compactSummary.className='f4-admin-deposit-mobile-summary';
+    const compactAmount=document.createElement('strong');
+    compactAmount.textContent=amount.textContent;
+    const compactStatus=document.createElement('small');
+    compactStatus.className='f4-admin-deposit-mobile-status'+
+      (canceled?' is-canceled':confirmed?' is-confirmed':' is-estimated');
+    compactStatus.textContent=canceled?'Batal':confirmed?'Sah':'Estimasi';
+    compactSummary.append(compactAmount,compactStatus);
+    copy.appendChild(compactSummary);
     const actions=document.createElement('div');actions.className='f4-admin-deposit-actions';
     const receipt=f4BankReceiptIcon(null,async()=>{
       // Semua rincian barang dimuat ke resi, bukan ke kartu riwayat.
@@ -4493,15 +4509,23 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       return payload;
     });
     receipt.classList.add('f4-admin-deposit-receipt');
-    receipt.title='Buka resi lengkap';receipt.setAttribute('aria-label','Resi '+fullName);
-    receipt.append(document.createTextNode('Resi'));
+    receipt.title='Lihat resi setoran '+fullName;
+    receipt.setAttribute('aria-label','Lihat resi setoran '+fullName);
+    const receiptLabel=document.createElement('span');
+    receiptLabel.className='f4-admin-deposit-action-label';
+    receiptLabel.textContent='Resi';
+    receipt.appendChild(receiptLabel);
     const cancel=document.createElement('button');cancel.type='button';
-    cancel.className='f4-admin-deposit-cancel';cancel.textContent='Batalkan';
+    cancel.className='f4-admin-deposit-cancel';
+    cancel.innerHTML='<svg class="f4-admin-deposit-mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg><span class="f4-admin-deposit-action-label">Batalkan</span>';
+    cancel.setAttribute('aria-label','Batalkan setoran '+fullName);
     cancel.disabled=status!=='Estimasi';
     cancel.title=cancel.disabled?(canceled?'Setoran sudah dibatalkan':'Setoran yang sudah disahkan tidak dapat dibatalkan dari riwayat'):'Batalkan setoran estimasi';
     cancel.onclick=()=>cancelSetoran(r);
     const edit=document.createElement('button');edit.type='button';
-    edit.className='f4-admin-deposit-edit';edit.textContent='Edit';
+    edit.className='f4-admin-deposit-edit';
+    edit.innerHTML='<svg class="f4-admin-deposit-mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4.5-1 10.2-10.2a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/></svg><span class="f4-admin-deposit-action-label">Edit</span>';
+    edit.setAttribute('aria-label','Edit setoran '+fullName);
     edit.disabled=status!=='Estimasi';
     edit.title=edit.disabled?'Hanya setoran estimasi yang bisa diedit':'Koreksi setoran sebelum penjualan';
     edit.onclick=()=>editSetoran(r);
@@ -6390,7 +6414,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261115-recent-cards-shared-v15">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-mobile-riwayat-ringkas-v79">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261115-mobile-history-iconrow-v80">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261114-member-nav-palette-v23">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261115-viewport-fixed-v10">
