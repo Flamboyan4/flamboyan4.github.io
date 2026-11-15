@@ -1466,6 +1466,180 @@ function adminNextAction(label,detail,route){
  button.append(copy,chevron);button.onclick=()=>navigate(route);
  return button;
 }
+/* Pengelola home: three real D1/public read sources; never recalculate a
+   bank-wide total from the last 300 personal/transaction history rows. */
+let adminInsightVersion=0,adminInsightLoadedAt=0,adminInsightPending=null;
+let adminInsightReport=null,adminInsightPublic=null,adminInsightSchedule=null;
+let adminInsightUnit="kg",adminInsightRange="month";
+const f4AdminNumeric=value=>Math.max(0,Number.isFinite(Number(value))?Number(value):0);
+function adminInsightMount(home){
+ if(roleType()!=="admin"||!home)return;
+ let wrap=$("f4BankAdminInsights");
+ if(!wrap){
+  wrap=el("section","f4-bank-admin-insights");wrap.id="f4BankAdminInsights";
+  const row=el("div","f4-bank-admin-insight-row");
+  const chart=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-chart");
+  chart.id="f4BankAdminDepositChart";
+  const head=el("div","f4-bank-admin-insight-head");
+  head.append(el("h3","","Perkembangan Setoran Warga"));
+  const units=el("div","f4-bank-admin-insight-switch");
+  for(const [key,label] of [["kg","Kg"],["rp","Rp"]]){
+   const btn=el("button","",label);btn.type="button";btn.dataset.unit=key;
+   btn.onclick=()=>{adminInsightUnit=key;adminInsightDraw();};
+   units.append(btn);
+  }
+  head.append(units);
+  const bars=el("div","f4-bank-admin-insight-bars");
+  bars.id="f4BankAdminDepositBars";bars.setAttribute("role","img");
+  bars.setAttribute("aria-label","Grafik setoran Bank Sampah");
+  const chartFoot=el("div","f4-bank-admin-chart-foot");
+  chartFoot.append(el("small","f4-bank-admin-chart-note","Data setoran sah dan estimasi tercatat terpisah."));
+  chart.append(head,bars,chartFoot);
+  const schedule=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-schedule");
+  schedule.id="f4BankAdminScheduleCard";
+  const scheduleHead=el("div","f4-bank-admin-insight-head");
+  scheduleHead.append(el("h3","","Jadwal Setor Sampah"));
+  const action=el("button","f4-bank-admin-mini-action","Atur jadwal");
+  action.type="button";action.onclick=()=>navigate("master");scheduleHead.append(action);
+  const date=el("strong","f4-bank-admin-next-date","Memuat jadwal…");
+  date.id="f4BankAdminNextDate";
+  const cycle=el("span","f4-bank-admin-schedule-cycle","Sumber: jadwal penimbangan aktif");
+  cycle.id="f4BankAdminScheduleCycle";
+  schedule.append(scheduleHead,date,cycle,
+   el("p","f4-bank-admin-schedule-desc","Pilah dan kumpulkan plastik, kertas, atau logam sebelum ditimbang."));
+  row.append(chart,schedule);
+  const stages=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-stages");
+  stages.id="f4BankAdminStages";
+  const stagesHead=el("div","f4-bank-admin-insight-head");
+  stagesHead.append(el("h3","","Tahap Perkembangan Bank Sampah"));
+  const view=el("button","f4-bank-admin-mini-action","Lihat semua");
+  view.type="button";view.onclick=()=>navigate("bank-admin-progress");stagesHead.append(view);
+  const overview=el("div","f4-bank-admin-stage-overview","Memuat perkembangan…");
+  overview.id="f4BankAdminStageOverview";
+  stages.append(stagesHead,overview);
+  wrap.append(row,stages);home.append(wrap);
+ }
+ if(adminInsightLoadedAt&&Date.now()-adminInsightLoadedAt<90000)return;
+ adminInsightFetch();
+}
+function adminInsightDraw(){
+ const host=$("f4BankAdminDepositBars");if(!host)return;
+ const group=$("f4BankAdminDepositChart");
+ group?.querySelectorAll("[data-unit]").forEach(b=>{
+  const active=b.dataset.unit===adminInsightUnit;
+  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+ });
+ if(!adminInsightReport){
+  host.replaceChildren(el("p","f4-bank-admin-insight-empty","Belum ada data grafik yang dapat ditampilkan."));
+  return;
+ }
+ const keys=adminInsightUnit==="kg"?["beratKg","pendingWeightKg"]:["hasilPenjualan","pendingEstimateRp"];
+ const map=new Map((Array.isArray(adminInsightReport.bulanan)?adminInsightReport.bulanan:[])
+  .filter(r=>/^\d{4}-\d{2}$/.test(String(r.periode||"")))
+  .map(r=>[r.periode,r]));
+ const current=today().slice(0,7),year=+current.slice(0,4),month=+current.slice(5,7);
+ const months=[];
+ for(let index=5;index>=0;index--){
+  const d=new Date(Date.UTC(year,month-index-1,15));
+  months.push(d.toISOString().slice(0,7));
+ }
+ const rows=months.map(key=>({
+  key,label:new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"})
+   .format(new Date(key+"-15T12:00:00Z")),
+  vals:keys.map(k=>f4AdminNumeric(map.get(key)?.[k]))
+ }));
+ const max=Math.max(.001,...rows.map(x=>x.vals[0]+x.vals[1]));
+ host.replaceChildren();let total=0;
+ for(const item of rows){
+  const n=item.vals[0]+item.vals[1];total+=n;
+  const column=el("div","f4-bank-admin-insight-column");
+  const label=adminInsightUnit==="kg"?f4PrivateShort(n,"kg")+" kg":f4PrivateShort(n,"rp");
+  column.append(el("strong","",n>0?label:"—"));
+  const rail=el("span","f4-bank-admin-insight-rail");
+  for(const [i,val] of item.vals.entries()){
+   const piece=el("i",i?"is-estimate":"is-confirmed");
+   piece.style.height=n&&val?Math.max(3,val/max*100)+"%":"0%";rail.append(piece);
+  }
+  column.append(rail,el("small","",item.label));
+  column.title=item.key+" • Sah "+item.vals[0]+", estimasi "+item.vals[1];
+  host.append(column);
+ }
+ host.setAttribute("aria-label","Perkembangan setoran warga 6 bulan terakhir, "+
+  (adminInsightUnit==="kg"?"berat":"rupiah")+"; sah dan estimasi ditampilkan terpisah.");
+ const note=group?.querySelector(".f4-bank-admin-chart-note");
+ if(note)note.textContent=total>0?
+  "Hijau: sah · Kuning: estimasi / belum sah":
+  "Belum ada setoran pada enam bulan terakhir.";
+}
+function adminInsightScheduleDraw(){
+ const d=adminInsightSchedule,day=$("f4BankAdminNextDate"),cycle=$("f4BankAdminScheduleCycle");
+ if(!day||!cycle)return;
+ if(!d||!Number.isInteger(Number(d.weekday))||Number(d.weekday)<0||Number(d.weekday)>6){
+  day.textContent="Jadwal belum tersedia";cycle.textContent="Periksa pengaturan jadwal";return;
+ }
+ const days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+ const freq=String(d.frequency||"weekly");
+ const next=String(d.nextOccurrence||d.next_occurrence||"");
+ const label=days[Number(d.weekday)];
+ const valid=/^\d{4}-\d{2}-\d{2}$/.test(next);
+ const observed=valid?new Date(next+"T12:00:00Z"):null;
+ if(observed&&Number.isFinite(observed.getTime())){
+  day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
+   day:"numeric",month:"long",year:"numeric"}).format(observed);
+ }else if(freq==="weekly"){
+  const t=new Date(today()+"T12:00:00Z");
+  t.setUTCDate(t.getUTCDate()+(Number(d.weekday)-t.getUTCDay()+7)%7);
+  day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
+   day:"numeric",month:"long",year:"numeric"}).format(t);
+ }else day.textContent="Tanggal berikutnya belum tersedia";
+ cycle.textContent=freq==="weekly"?"Setiap "+label:
+  freq==="biweekly"?"Setiap 2 minggu":freq==="monthly"?"Setiap bulan":"Jadwal: "+label;
+}
+function adminInsightStagesDraw(){
+ const host=$("f4BankAdminStageOverview");if(!host)return;
+ const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
+ const done=rows.filter(x=>/selesai|tuntas|rampung/i.test(String(x.status||""))).length;
+ const active=rows.filter(x=>/berjalan|proses|aktif|dikerjakan/i.test(String(x.status||""))).length;
+ host.replaceChildren();
+ const summary=el("div","f4-bank-admin-stage-summary");
+ summary.append(el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
+  el("span","",rows.length?active+" dalam proses":"Data mengikuti perkembangan yang dipublikasikan"));
+ host.append(summary);
+ const bar=el("div","f4-bank-admin-stage-track");bar.setAttribute("role","progressbar");
+ bar.setAttribute("aria-label","Tahap perkembangan selesai");
+ bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax",String(rows.length||1));
+ bar.setAttribute("aria-valuenow",String(done));
+ const fill=el("span");fill.style.width=rows.length?done/rows.length*100+"%":"0%";
+ bar.append(fill);host.append(bar);
+ const list=el("div","f4-bank-admin-stage-list");
+ for(const item of rows.slice(0,3)){
+  const line=el("div","f4-bank-admin-stage-line");
+  const copy=el("div","");
+  copy.append(el("strong","",String(item.title||item.stage||"Tahap kegiatan")),
+    el("small","",String(item.happened_on||"")));
+  const status=el("span","",String(item.status||"Tercatat"));
+  line.append(copy,status);list.append(line);
+ }
+ if(rows.length)host.append(list);
+}
+function adminInsightFetch(force=false){
+ if(roleType()!=="admin")return;
+ if(adminInsightPending&&!force)return;
+ const version=++adminInsightVersion;
+ const tasks=Promise.allSettled([
+  api("/api/v2/public/bank/report"),
+  api("/api/v2/public/bank"),
+  api("/api/public/bank/weighing-schedule")
+ ]).then(results=>{
+  if(version!==adminInsightVersion||roleType()!=="admin")return;
+  adminInsightReport=results[0].status==="fulfilled"?results[0].value:null;
+  adminInsightPublic=results[1].status==="fulfilled"?results[1].value:null;
+  adminInsightSchedule=results[2].status==="fulfilled"?results[2].value:null;
+  adminInsightLoadedAt=Date.now();
+  adminInsightDraw();adminInsightScheduleDraw();adminInsightStagesDraw();
+ }).finally(()=>{if(version===adminInsightVersion)adminInsightPending=null;});
+ adminInsightPending=tasks;
+}
 function ensureAdminHome(){
  if(role!=="admin")return;
  ensureDesktopAdminSidebar();
@@ -1493,6 +1667,7 @@ function ensureAdminHome(){
   $("f4BankAdminOperations")?.after(shortcuts);
  }
  ensureAdminMenuSheet();
+ adminInsightMount(home);
  paintAdminAlerts();
  refreshAdminAlerts();
 }
@@ -2306,6 +2481,8 @@ function resetRoleSurface(){
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
  resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
+ adminInsightVersion++;adminInsightPending=null;adminInsightReport=null;
+ adminInsightPublic=null;adminInsightSchedule=null;adminInsightLoadedAt=0;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
  // Rebuild the role-specific home from source nodes, never from cached cards.
  // The old member/account must not inherit operations or cached balance widgets.
@@ -2563,6 +2740,7 @@ function init(){
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
  window.addEventListener("f4-bank-data-changed",()=>{
   refreshAdminAlerts(true);
+  if(roleType()==="admin"&&$("f4BankAdminInsights"))adminInsightFetch(true);
   if(roleType()==="member")loadMemberPublicMini(true);
  });
  window.addEventListener("focus",()=>{refreshAdminAlerts();if(roleType()==="member")loadMemberPublicMini();});
