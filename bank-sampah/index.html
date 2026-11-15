@@ -5166,11 +5166,25 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     filters.hidden=!hasAlbums;
     const search=$('v22DocSearch');if(search)search.hidden=!hasAlbums;
     list.replaceChildren();
+    const memberFeed=!!list.closest('#bank-member-docs');
     rows.forEach(a=>{
-      const card=v21Node('button','v22-doc-card');card.type='button';
+      const card=v21Node('button','v22-doc-card'+(memberFeed?' v22-member-feed-post':''));card.type='button';
+      if(memberFeed){
+        const header=v21Node('div','v22-feed-post-head');
+        const avatar=v21IconNode('span','v22-feed-avatar','recycle');
+        const identity=v21Node('div','v22-feed-post-identity');
+        identity.append(v21Node('strong','','Bank Sampah Flamboyan 4'));
+        const meta=v21Node('small','',(a.tanggal||'')+' · '+v23CategoryLabel(a.kategori));
+        identity.append(meta);header.append(avatar,identity);card.append(header);
+      }
       card.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21IconNode('div','v21-placeholder','camera'));
       const info=v21Node('div','v22-doc-card-info');
-      info.append(v21Node('span','v22-cat-badge',v23CategoryLabel(a.kategori)),v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));
+      if(memberFeed){
+        info.append(v21Node('strong','',a.judul));
+        if(String(a.deskripsi||'').trim())info.append(v21Node('p','v22-feed-caption',String(a.deskripsi).trim()));
+      }else{
+        info.append(v21Node('span','v22-cat-badge',v23CategoryLabel(a.kategori)),v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));
+      }
       card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
     });
     if(!rows.length)list.textContent=!v21Albums.length
