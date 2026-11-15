@@ -166,9 +166,19 @@
   if(deposits.some(x=>!x.id||!Array.isArray(x.rincian)||!x.rincian.length))
    throw Error('Rincian setoran warga belum lengkap. Laporan ditahan agar tidak keliru.');
   const person=r.anggota||{};
+  // "Masuk" harus NETO: kredit sah yang masih berlaku setelah jurnal koreksi
+  // pembatalan pengesahan. API lama mengirim totalMasukRp sebagai kredit bruto
+  // sebelum koreksi_debit, padahal saldoTersediaRp sudah memperhitungkannya.
+  // Saldo neto + pencairan = total masuk aktif; jangan hitung ulang dari
+  // 100 baris mutasi terakhir karena riwayat bisa terpotong.
+  const saldo=Number(r.saldoTersediaRp),totalCair=Number(r.totalCairRp);
+  const totalMasuk=saldo+totalCair;
+  if(![saldo,totalCair,totalMasuk].every(Number.isSafeInteger) ||
+     saldo<0||totalCair<0||totalMasuk<0)
+   throw Error('Ringkasan tabungan tidak seimbang. Muat ulang atau hubungi pengurus.');
   return {wargaId:String(person.id||''),nama:person.nama||'',rumah:person.rumah||'',
    dibuatPada:new Date().toLocaleDateString('id-ID'),
-   saldo:number(r.saldoTersediaRp),totalMasuk:number(r.totalMasukRp),totalCair:number(r.totalCairRp),
+   saldo,totalMasuk,totalCair,
    mutasi:history,setoran:deposits};
  }
  // Kegiatan yang telah dipublikasikan aman diakses anggota; endpoint admin tidak boleh dipanggil dari akun warga.
