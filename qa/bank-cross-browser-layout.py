@@ -12,7 +12,7 @@ OUT = pathlib.Path("ops-audit/bank-cross-browser")
 OUT.mkdir(parents=True, exist_ok=True)
 SIZES = (320, 360, 390, 412, 768, 1024, 1366, 1920)
 PAGES = ("pageDashboard", "pageSetoran", "pagePenjualan",
-         "pageMaster", "pageAdmin", "pageProfile")
+         "pageMaster", "pageAdmin", "pageProfile", "pageLaporan")
 
 PREPARE = r"""() => {
   document.documentElement.classList.remove('f4-bank-auth-pending');
@@ -82,6 +82,26 @@ async def main():
                     device_scale_factor=1,is_mobile=width<1024 and engine_name=="chromium",
                     has_touch=width<1024)
                 page=await context.new_page()
+                # D1-shaped, read-only fixtures for the public aggregate
+                # endpoints. Never mock the production DOM or transaction POSTs.
+                async def read_fixture(route,body):
+                    await route.fulfill(status=200,content_type="application/json",
+                        headers={"access-control-allow-origin":"http://127.0.0.1:8765",
+                                 "access-control-allow-credentials":"true"},
+                        body=json.dumps(body))
+                await page.route("**/api/v2/public/bank/report",lambda route:
+                    read_fixture(route,{"ok":True,"ringkasan":{},
+                      "bulanan":[{"periode":"2026-10","beratKg":1.9,
+                        "pendingWeightKg":0.8,"hasilPenjualan":6000,
+                        "pendingEstimateRp":1400}],"harian":[]}))
+                await page.route("**/api/v2/public/bank",lambda route:
+                    read_fixture(route,{"ok":True,"progress":[
+                      {"id":"a","title":"Persiapan lokasi","status":"Selesai","happened_on":"2026-10-12"},
+                      {"id":"b","title":"Penimbangan awal","status":"Berjalan","happened_on":"2026-11-15"}],
+                      "monthlyWeights":[],"overview":{"activeMembers":33}}))
+                await page.route("**/api/public/bank/weighing-schedule",lambda route:
+                    read_fixture(route,{"ok":True,"weekday":0,"frequency":"weekly",
+                      "nextOccurrence":"2026-11-22"}))
                 errors=[]
                 page.on("pageerror",lambda e:errors.append(str(e)[:250]))
                 try:
@@ -141,6 +161,88 @@ async def main():
                             results.append({"engine":engine_name,"width":width,"desktop":desktop,"failures":problems})
                         if width in (1024,1366):
                             await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-home.png"))
+                    # Dashboard manager: new features must use LIVE aggregate
+                    # labels rendered by production code, not hardcoded screenshots.
+                    if width in (390,1366):
+                        await page.evaluate(MEASURE,"pageDashboard")
+                        try:
+                            await page.locator("#f4BankAdminDepositBars .f4-bank-admin-insight-column").first.wait_for(timeout=4000)
+                        except Exception:
+                            pass
+                        panel=await page.evaluate("""() => {
+                          const box=id=>{
+                            const e=document.getElementById(id);
+                            if(!e)return null;
+                            const r=e.getBoundingClientRect();
+                            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+                              width:r.width,height:r.height};
+                          };
+                          const wrap=document.getElementById('f4BankAdminInsights');
+                          return {exists:!!wrap,chart:box('f4BankAdminDepositChart'),
+                            schedule:box('f4BankAdminScheduleCard'),
+                            stages:box('f4BankAdminStages'),wrap:box('f4BankAdminInsights'),
+                            columns:document.querySelectorAll('#f4BankAdminDepositBars .f4-bank-admin-insight-column').length,
+                            date:document.getElementById('f4BankAdminNextDate')?.textContent,
+                            progress:document.getElementById('f4BankAdminStageOverview')?.textContent,
+                            bar:document.querySelector('#f4BankAdminDepositBars .f4-bank-admin-insight-rail i')
+                              ?getComputedStyle(document.querySelector('#f4BankAdminDepositBars .f4-bank-admin-insight-rail i')).height:null};
+                        }""")
+                        fail=[]
+                        if not all(panel.get(k) for k in ("chart","schedule","stages","wrap")):
+                            fail.append("new admin graph/schedule/stages not mounted")
+                        else:
+                            graph,schedule,stages=panel["chart"],panel["schedule"],panel["stages"]
+                            if panel["columns"]!=6 or not panel.get("bar"):
+                                fail.append("real admin monthly chart not rendered from aggregate")
+                            if "22" not in (panel.get("date") or ""):
+                                fail.append("weighing date not from configured public schedule")
+                            if "1 dari 2" not in (panel.get("progress") or ""):
+                                fail.append("published development status not summarized")
+                            if width>=1024:
+                                if (abs(graph["top"]-schedule["top"])>3 or
+                                    schedule["left"]<graph["right"]+5 or
+                                    stages["top"]<graph["bottom"]+5):
+                                    fail.append("desktop chart/schedule not adjacent or stages not below")
+                            elif schedule["top"]<graph["bottom"]+5 or stages["top"]<schedule["bottom"]+5:
+                                fail.append("mobile chart/schedule/stages not stacked")
+                        if fail:results.append({"engine":engine_name,"width":width,
+                            "adminInsights":panel,"failures":fail})
+                        await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-insights.png"))
+
+                        # Real report controls + finance are MOVED, never cloned.
+                        await page.evaluate(MEASURE,"pageLaporan")
+                        layout=await page.evaluate("""() => {
+                          const r=id=>{
+                            const e=document.getElementById(id);if(!e)return null;
+                            const b=e.getBoundingClientRect();
+                            return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,
+                              width:b.width,height:b.height};
+                          };
+                          const box=document.getElementById('f4BankAdminReportOverview');
+                          return {exists:!!box,grid:box?getComputedStyle(box).gridTemplateColumns:null,
+                            controls:r('v33ReportControls'),finance:r('v17Finance'),overview:r('f4BankAdminReportOverview'),
+                            controlsParent:document.getElementById('v33ReportControls')?.parentElement?.id,
+                            financeParent:document.getElementById('v17Finance')?.parentElement?.id,
+                            monthChoices:document.getElementById('v33YearSelect')?.options?.length||0,
+                            exportButtons:document.querySelectorAll('#v33ReportControls .v33-report-actions button').length};
+                        }""")
+                        fail=[]
+                        if (not layout["exists"] or not all(layout.get(k) for k in ("controls","finance","overview"))
+                            or layout["controlsParent"]!="f4BankAdminReportOverview"
+                            or layout["financeParent"]!="f4BankAdminReportOverview"):
+                            fail.append("real report input and finance not shared in a single grid")
+                        else:
+                            controls,finance=layout["controls"],layout["finance"]
+                            if width>=1024:
+                                if abs(controls["top"]-finance["top"])>3 or finance["left"]<controls["right"]+5:
+                                    fail.append("PC Laporan input and finance not side by side")
+                            elif finance["top"]<controls["bottom"]+5:
+                                fail.append("mobile report controls/finance not stacked")
+                            if layout["monthChoices"]!=21 or layout["exportButtons"]<3:
+                                fail.append("year select or PDF/CSV buttons lost")
+                        if fail:results.append({"engine":engine_name,"width":width,
+                            "reportLayout":layout,"failures":fail})
+                        await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-report-grid.png"))
                     # Render actual legacy-v18 Setoran history component on
                     # the real Bank Sampah page (no login and no D1 mutation).
                     if width in (390,1366):
