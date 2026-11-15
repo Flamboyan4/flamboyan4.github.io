@@ -198,8 +198,16 @@
  }
  const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name+'?limit=300'));
  // Query 300 rows and explicitly reject incomplete admin reports before presenting them as final.
+ const editDepositDetail=async(_token,id)=>{
+  const depositId=String(id||'').trim();
+  if(!depositId||depositId.length>128)throw Error('ID setoran tidak valid.');
+  const result=await get('/api/v2/admin/bank/deposit-detail?id='+encodeURIComponent(depositId));
+  if(!result.deposit||!Array.isArray(result.lines))throw Error('Rincian setoran belum tersedia dari database.');
+  return {deposit:result.deposit,lines:result.lines};
+ };
  const adminDeposits=async()=> (await adminRows('deposits')).map(x=>({
-  id:x.id,wargaId:x.member_id,namaWarga:x.memberName||'',rumahWarga:'',tanggal:x.deposited_on,
+  id:x.id,wargaId:String(x.member_id||'').replace(/^member:/,''),namaWarga:x.memberName||'',
+  rumahWarga:String(x.houseCode||x.house_code||x.rumah||'').trim(),tanggal:x.deposited_on,
   tanggalJual:x.sold_on||null,
   beratTimbang:number(x.total_grams)/1000,
   beratSah:x.beratSahGram==null?null:number(x.beratSahGram)/1000,
@@ -485,6 +493,7 @@
    const keys=[...new Set([...Object.keys(titles),...byFund.keys()])];
    return {kasGabungan:[...byFund.values()].reduce((sum,v)=>sum+v,0),pos:keys.map(key=>({kode:key,nama:titles[key]||key,tersedia:byFund.get(key)||0}))};
   },
+  bsV32DetailSetoran:editDepositDetail,
   bsV6SetoranAdmin:adminDeposits,
   bsV18RiwayatSetoranAdmin:adminDeposits,
   bsV7PenjualanAdmin:adminSales,
