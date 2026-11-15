@@ -1882,6 +1882,11 @@ body.f4-bank-app-admin #pageRiwayatJual>.f4-bank-sale-history-caution::before{
  content:"";display:block;flex:none;width:6px;height:6px;
  border-radius:50%;background:var(--eco-gold,#fdc010)
 }
+/* Hanya riwayat setoran memakai elemen ringkas dan SVG mobile.
+   Sembunyikan di PC; resi, edit dan batal mempertahankan label desktop. */
+body.f4-bank-app-admin #dashboardView #riwayatList :is(.f4-admin-deposit-mobile-meta,.f4-admin-deposit-mobile-summary,.f4-admin-deposit-mobile-icon){
+ display:none
+}
 @media(max-width:760px){
  /* Riwayat Setoran dan Penjualan: kartu mobile dengan informasi utama tetap terbaca. */
  body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList)>.f4-admin-deposit-card{
@@ -1934,6 +1939,77 @@ body.f4-bank-app-admin #pageRiwayatJual>.f4-bank-sale-history-caution::before{
  body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-status{
   margin-top:0;padding:3px 8px;font-size:10px
  }
+ /* Setoran HP: satu baris horizontal (identitas, nilai, tiga ikon).
+    Detail lengkap tetap pada resi; tidak ada baris tombol tambahan. */
+ body.f4-bank-app-admin #dashboardView #riwayatList>.f4-admin-deposit-card{
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;column-gap:7px;row-gap:0;
+  min-height:65px;padding:9px 10px
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-identity{
+  grid-column:1;grid-row:1;gap:8px;min-width:0;align-items:center
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-avatar{
+  width:31px;height:31px;flex:0 0 31px
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-copy{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-copy>strong{
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:12.5px;line-height:1.25
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-meta{
+  display:none
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-meta{
+  display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  color:#73877b;font-size:10px;line-height:1.2;white-space:nowrap
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-summary{
+  display:none
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-summary{
+  display:flex;align-items:center;gap:5px;max-width:100%;min-width:0;
+  font-variant-numeric:tabular-nums;white-space:nowrap
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-summary>strong{
+  font-size:12px;line-height:1.2;font-weight:850;color:var(--eco-leaf,#318651)
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-status{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 5px;border-radius:99px;
+  background:#fff2c4;color:#775514;font-size:9px;font-weight:800;line-height:1.15
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-status.is-confirmed{
+  background:var(--eco-green,#e8f4e9);color:var(--eco-dark,#174630)
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-mobile-status.is-canceled{
+  background:#f0f2f0;color:#75837b
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-card.is-canceled .f4-admin-deposit-mobile-summary>strong{
+  color:#677b70
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-actions{
+  grid-column:2;grid-row:1;display:flex;align-items:center;
+  justify-self:end;justify-content:flex-end;gap:4px;
+  padding:0;border:0;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-actions>button{
+  display:grid;place-items:center;flex:0 0 34px;
+  width:34px;min-width:34px;height:34px;min-height:34px;
+  margin:0;padding:0;border-radius:10px
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-actions .f4-admin-deposit-action-label{
+  display:none
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-actions .f4-admin-deposit-mobile-icon{
+  display:block;width:17px;height:17px
+ }
+ body.f4-bank-app-admin #dashboardView #riwayatList .f4-admin-deposit-actions>.f4-admin-deposit-receipt svg{
+  width:17px;height:17px
+ }
+
 }
 
 /* Pengesahan pengurus — satu tindakan utama, rincian tambahan tetap tersedia. */
