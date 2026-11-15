@@ -280,10 +280,12 @@ async def main():
                                 if (card['width']<160 or card['right']>width+2
                                     or card['position']!='grid' or card['hasExpand']
                                     or card['receiptItems']!=1
-                                    or len(card['actions'])!=2
-                                    or [a['text'] for a in card['actions']]!=['Resi','Batalkan']):
+                                    or len(card['actions'])!=3
+                                    or [a['text'] for a in card['actions']]!=['Resi','Edit','Batalkan']):
                                     failures.append('Setoran row still has expand/details or malformed actions')
                                 if card['actions'][1]['disabled']!=(index!=0):
+                                    failures.append('Setoran edit rights changed')
+                                if card['actions'][2]['disabled']!=(index!=0):
                                     failures.append('Setoran cancellation rights changed')
                                 if '2026-11-15' not in (card.get('meta') or ''):
                                     failures.append('Setoran date not visible')
