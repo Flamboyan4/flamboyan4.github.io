@@ -4434,6 +4434,18 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     // Inisial mengambil nama depan, bukan gelar Pak/Bu atau tanda kurung di akhir nama.
     const givenName=displayName.replace(/^(?:Pak|Bu)\s+/i,'').trim();
     avatar.textContent=(givenName.match(/[A-Za-zÀ-ÿ]/u)?.[0]||'W').toLocaleUpperCase('id-ID');
+    // Foto dari profil akun warga (R2); bila belum ada / gagal dimuat gunakan inisial.
+    const memberId=String(r.wargaId||'').replace(/^member:/i,'').trim();
+    if(r.hasAvatar===true&&/^[a-zA-Z0-9:_-]{1,128}$/.test(memberId)){
+      const photo=document.createElement('img');
+      photo.alt='';photo.loading='lazy';photo.decoding='async';
+      photo.referrerPolicy='no-referrer';
+      avatar.style.position='relative';avatar.style.overflow='hidden';
+      photo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;';
+      photo.onerror=()=>photo.remove();
+      photo.src='https://api.flamboyan4.web.id/api/v2/admin/bank/member-avatar?memberId='+encodeURIComponent(memberId);
+      avatar.appendChild(photo);
+    }
     const copy=document.createElement('div');copy.className='f4-admin-deposit-copy';
     const name=document.createElement('strong');name.textContent=displayName;name.title=fullName;
     const meta=document.createElement('span');meta.className='f4-admin-deposit-meta';
@@ -4465,10 +4477,8 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       payload.details.push(['Jumlah jenis barang',String(items.length)]);
       for(const item of items){
         const grams=Number(item.berat);
-        const rate=Number(item.tarif);
         const estimate=Number(item.nilai);
         const desc=[Number.isFinite(grams)?kg(grams):'-',
-          Number.isFinite(rate)?'Tarif awal '+rupiah(rate)+'/kg':null,
           Number.isFinite(estimate)?'Perkiraan '+rupiah(estimate):null].filter(Boolean).join(' · ');
         payload.details.push([String(item.barang||'Jenis sampah'),desc]);
       }
