@@ -35,11 +35,13 @@ function render(){
         panel.querySelectorAll('.f4-bank-private-finance-card strong')[i].textContent=rupiah(data[key]);
       });
       const note=panel.querySelector('.f4-bank-private-finance-note');
-      note.textContent='Angka sah dari jurnal D1 · estimasi setoran ditampilkan terpisah.';
+      note.hidden=true;
       loaded=true;
     }).catch(error=>{
       if(marker!==serial||!panel||!isMember())return;
-      panel.querySelector('.f4-bank-private-finance-note').textContent='Ringkasan belum tersedia: '+(error.message||'Gangguan layanan');
+      const note=panel.querySelector('.f4-bank-private-finance-note');
+      note.hidden=false;
+      note.textContent='Ringkasan belum tersedia: '+(error.message||'Gangguan layanan');
     }).finally(()=>{if(marker===serial)busy=false});
 }
 function mount(){
@@ -63,7 +65,9 @@ function mount(){
     });
     const note=document.createElement('p');
     note.className='f4-bank-private-finance-note';
-    note.textContent='Memuat saldo sah...';
+    note.hidden=true;
+    note.setAttribute('role','status');
+    note.textContent='';
     const hero=document.createElement('div');
     hero.className='f4-bank-private-finance-hero';
     hero.append(title,grid);
