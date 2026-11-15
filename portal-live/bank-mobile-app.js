@@ -1242,7 +1242,6 @@ function restoreFeature(){
   if(item.node.id==="v22DocsPage")item.node.classList.add("hidden");
   if(item.anchor.parentNode)item.anchor.replaceWith(item.node);
  }
- $("f4MemberDocsShortcut")?.remove();
  moved=[];
  // The public homepage must not retain the album-only mode after member navigation.
  document.querySelector("#v11Public .v17-public-main")?.classList.remove("v22-show-docs");
@@ -2349,15 +2348,6 @@ function memberFeature(route){
   moveFeature(["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
   const finance=content.querySelector("#v17Transparansi");
   if(finance){finance.hidden=false;finance.classList.remove("hidden");}
-  let shortcut=$("f4MemberDocsShortcut");
-  if(!shortcut){
-   const section=$("v17Dokumentasi");
-   shortcut=el("button","f4-member-doc-shortcut","Lihat semua album");
-   shortcut.id="f4MemberDocsShortcut";shortcut.type="button";
-   shortcut.onclick=()=>navigate("bank-member-docs");
-   section?.querySelector(".v21-section-bar")?.append(shortcut);
-   if(!shortcut.isConnected)section?.prepend(shortcut);
-  }
   if(typeof window.v25LoadReport==="function")window.v25LoadReport();
  }
  document.body.classList.add("f4-member-feature");
@@ -2369,7 +2359,7 @@ function bindMemberDocumentation(){
  section.dataset.f4MemberDocsBound="1";
  section.addEventListener("click",event=>{
   if(roleType()!=="member"||!section.closest("#bank-member-info"))return;
-  if(!event.target.closest("#v17Albums button, .v22-section-title"))return;
+  if(!event.target.closest("#v17Albums button, .v22-section-title, .v21-section-all"))return;
   event.preventDefault();event.stopImmediatePropagation();
   navigate("bank-member-docs");
  },true);
