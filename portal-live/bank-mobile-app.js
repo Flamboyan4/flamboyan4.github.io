@@ -448,6 +448,17 @@ function dashboardMetrics(){
  }
  return map;
 }
+/* Pending setoran is only an estimate. Never use it for a payout or D1 ledger. */
+function memberBalancePreview(){
+ if(!memberStatement)return null;
+ const confirmed=Math.max(0,Number(memberStatement.saldo)||0);
+ const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran:[];
+ const pending=deposits.filter(row=>{
+  const status=String(row.status||"").toLowerCase();
+  return !/batal|konfirmasi|confirmed|sah/.test(status);
+ }).reduce((sum,row)=>sum+Math.max(0,Number(row.estimasiRp)||0),0);
+ return {confirmed,pending,total:confirmed+pending};
+}
 function updateDashboard(){
  if(!role||!$("f4BankAppHome"))return;
  const map=dashboardMetrics();
@@ -455,8 +466,20 @@ function updateDashboard(){
   const button=$("f4BankAppMemberBalance");
   // Keep the balance card and independent buttons intact on every refresh.
   const amount=button?.querySelector(".f4-bank-member-balance-value");
-  const realAmount=memberStatement?rupiah(memberStatement.saldo):(map.get("Saldo sah")||"—");
+  const preview=memberBalancePreview();
+  const realAmount=preview?rupiah(preview.total):(map.get("Saldo sah")||"—");
   if(amount)amount.textContent=memberBalancePrivacy.hidden?"••••••":realAmount;
+  const balanceCard=$("f4BankAppMemberBalance");
+  const heading=balanceCard?.querySelector(".f4-bank-member-balance-label");
+  if(heading)heading.textContent=preview?.pending>0?"Estimasi Saldo":"Saldo Tersedia";
+  let hint=balanceCard?.querySelector(".f4-bank-member-balance-hint");
+  if(balanceCard&&!hint){
+   hint=el("small","f4-bank-member-balance-hint");
+   balanceCard.querySelector(".f4-bank-balance-cta")?.before(hint);
+  }
+  if(hint)hint.textContent=preview?.pending>0?
+   "Estimasi sebelum penjualan · saldo sah "+rupiah(preview.confirmed):
+   "Saldo dari hasil penjualan sah";
   const eye=button?.querySelector(".f4-bank-balance-eye");
   if(eye){
    const label=memberBalancePrivacy.hidden?"Tampilkan saldo":"Sembunyikan saldo";
@@ -1053,7 +1076,15 @@ function chartSavings(){
  else host.scrollLeft=memberChartGroup==="period"?host.scrollWidth:0;
 }
 function syncSavings(){
- text("f4BankSavingsBalance",memberStatement?rupiah(memberStatement.saldo):"—");
+ const preview=memberBalancePreview();
+ text("f4BankSavingsBalance",preview?rupiah(preview.total):"—");
+ const hero=$("f4BankSavingsHero");
+ const title=hero?.querySelector("small");
+ if(title)title.textContent=preview?.pending>0?"ESTIMASI SALDO":"SALDO TABUNGAN";
+ const description=hero?.querySelector("span");
+ if(description)description.textContent=preview?.pending>0?
+  "Estimasi saldo sebelum penjualan · saldo sah "+rupiah(preview.confirmed):
+  "Saldo dari hasil penjualan sah";
  text("f4BankSavingsCredit",memberStatement?rupiah(memberStatement.totalMasuk):"—");
  text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
  text("f4BankPayoutBalance",memberStatement?rupiah(memberStatement.saldo):"—");
