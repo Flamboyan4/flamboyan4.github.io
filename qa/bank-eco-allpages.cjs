@@ -187,7 +187,7 @@ assert(css.includes('body.f4-bank-app-member #dashboardView #pageDashboard{') &&
  'Remove the enclosing dashboard frame entirely');
 assert(!mobile.includes('f4MemberEnvironmentStats') &&
        !mobile.includes('source.get("berat sah")') &&
-       !(mobile.split('/* Mini ringkasan PC')[0]||'').includes('api("/api/v2/public/bank/report")'),
+       !(mobile.split('function adminInsightMount(home){')[0]||'').includes('api("/api/v2/public/bank/report")'),
  'Private progress chart must not reuse report-wide weights or sale totals; public mini is separate');
 assert(personalPreview.includes('["month","Per bulan"]') &&
        personalPreview.includes('["year","Per tahun"]') &&
