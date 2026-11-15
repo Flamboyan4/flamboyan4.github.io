@@ -1,0 +1,23 @@
+name: Cancel audited Bank Sampah test batch B202610 (one-time)
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-bank-b202610-cancel.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-bank-b202610-guarded-cancel
+  cancel-in-progress: false
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cancel only audited B202610 with atomic guarded D1 batch and verify financial postings
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/cancel_bank_b202610_guarded.py
