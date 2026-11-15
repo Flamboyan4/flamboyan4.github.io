@@ -1323,7 +1323,7 @@ const adminShortcuts=[
  ["Cek & Sahkan","rekonsiliasi","shield-check"],
  ["Riwayat","bank-admin-history","history"],
  ["Debit/Kredit","bank-admin-cash","wallet"],
- ["Pencairan","bank-payout-admin","hand-coins"],
+ ["Pencairan","bank-payout-admin","cash-out"],
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
  ["Saldo Warga","tabungan","coins"],
@@ -1332,14 +1332,14 @@ const adminShortcuts=[
 ];
 const adminShortcutPaths={
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
- history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4 4v5h5"/>',
+ history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',
  wallet:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2M7 3h12"/>',
- "hand-coins":'<path d="M2 17h3l3 3h8l5-5-1.5-1.5-4 2H9"/><path d="M8 12h5a2 2 0 0 1 2 2"/><circle cx="16" cy="6" r="4"/><path d="M16 4v4m-1-3h2"/>',
+ "cash-out":'<rect x="2.5" y="9" width="19" height="12" rx="2"/><circle cx="12" cy="15" r="2.5"/><path d="M12 7V2m-3 3 3-3 3 3"/>',
  tags:'<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="7" r="1"/>',
  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>',
  images:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
  "user-round":'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
- coins:'<ellipse cx="8" cy="17" rx="5" ry="3"/><path d="M3 17v3c0 1.7 2.2 3 5 3s5-1.3 5-3v-3"/><circle cx="16" cy="8" r="5"/><path d="M16 5v6m-2-5h4"/>' ,
+ coins:'<ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 11v5c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-5"/><path d="M4.5 16v2c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-2"/>' ,
  "file-text":'<path d="M6 2h8l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/><path d="M14 2v6h5M8 12h8M8 16h8"/>'
 };
 function adminShortcut([name,route,iconName]){
