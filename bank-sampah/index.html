@@ -4933,6 +4933,8 @@ list.replaceChildren(roster);const historyArea=$('v9History');historyArea.replac
         payload.title='Arsip Penjualan Dibatalkan';
         payload.heading='Penjualan Dibatalkan';
         payload.status='DIBATALKAN';
+        payload.amountLabel='Nilai Sebelum Pembatalan';
+        payload.amount=Number.isSafeInteger(gross)&&gross>=0?gross:0;
         payload.note='Penjualan ini telah dibatalkan dan tidak dihitung sebagai pemasukan. Resi hanya untuk arsip.';
       }else{
         // Optional maintenance actions appear INSIDE the receipt dialog,
