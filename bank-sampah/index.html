@@ -5416,15 +5416,46 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     const print=v21Node('button','secondary','PDF');print.type='button';print.setAttribute('aria-label','Cetak atau simpan PDF');print.onclick=()=>v25PrintReport();
     const csv=v21Node('button','secondary','CSV');csv.type='button';csv.setAttribute('aria-label','Unduh laporan CSV');csv.onclick=v25DownloadReport;
     toolbar.append(period,refresh,print,csv);
+    // Keadaan sebelum penjualan tetap terlihat, berbeda dari hasil sah.
+    // Dihitung oleh Worker hanya dari setoran warga yang masih berstatus estimasi.
+    const pending=v21Node('section','f4-bank-report-pending');pending.id='v25ReportPending';
+    const pendingHead=v21Node('div','f4-bank-report-pending-head');
+    const pendingTitle=v21Node('h3','','Sebelum penjualan');
+    const pendingBadge=v21Node('span','f4-bank-report-pending-badge','Estimasi');
+    pendingHead.append(pendingTitle,pendingBadge);
+    const pendingGrid=v21Node('div','f4-bank-report-pending-grid');
+    for(const [id,label] of [
+      ['v25PendingWeight','Berat setoran'],
+      ['v25PendingValue','Perkiraan nilai']]){
+      const item=v21Node('div','f4-bank-report-pending-metric');
+      item.append(v21Node('small','',label),v21Node('strong','','—'));
+      item.lastChild.id=id;pendingGrid.append(item);
+    }
+    const pendingFoot=v21Node('p','f4-bank-report-pending-foot',
+      'Setoran warga yang belum disahkan. Nilai masih estimasi, bukan saldo yang dapat dicairkan.');
+    pendingFoot.id='v25PendingFoot';
+    pending.append(pendingHead,pendingGrid,pendingFoot);
     const summary=v21Node('div','v25-public-metrics');summary.id='v25ReportMetrics';
     const table=v21Node('div','v25-report-table');table.id='v25ReportTable';
+    const mobileList=v21Node('div','f4-bank-report-mobile-list');mobileList.id='v25ReportMobileList';
     const note=v21Node('p','v17-subtle','Memuat laporan...');note.id='v25ReportNote';note.setAttribute('role','status');note.setAttribute('aria-live','polite');
-    box.append(toolbar,summary,table,note);root.appendChild(box);
+    box.append(pending,toolbar,summary,table,mobileList,note);root.appendChild(box);
     const menu=$('v18PublicSide')?.querySelector('[data-public-menu="trans"]');
     if(menu){const label=menu.lastChild;if(label?.nodeType===3)label.textContent='Laporan Publik';}
   }
   function v25RenderReport(data){
-    const sum=data.ringkasan;
+    const sum=data?.ringkasan;
+    if(!sum||!Array.isArray(data.bulanan))throw Error('Format laporan belum lengkap. Coba muat ulang.');
+    const pendingKg=Number(sum.pendingWeightKg),pendingRp=Number(sum.pendingEstimateRp);
+    const validPending=Number.isFinite(pendingKg)&&pendingKg>=0&&
+      Number.isSafeInteger(pendingRp)&&pendingRp>=0;
+    $('v25PendingWeight').textContent=validPending?kg(pendingKg):'—';
+    $('v25PendingValue').textContent=validPending?rupiah(pendingRp):'—';
+    const pendingCount=Number(sum.pendingCount);
+    $('v25PendingFoot').textContent=validPending?
+      (Number.isSafeInteger(pendingCount)&&pendingCount>=0?pendingCount+' setoran warga menunggu proses. ':'')+
+       'Nilai belum sah dan bisa berubah saat penjualan. Stok milik Bank belum termasuk.':
+      'Data setoran belum disahkan belum tersedia; nominal tidak diperkirakan dari data lain.';
     $('v25ReportMetrics').replaceChildren(
       v17PublicStat('Berat sah',kg(sum.beratKg)),
       v17PublicStat('Penjualan sah',rupiah(sum.hasilPenjualan)),
@@ -5439,6 +5470,22 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       tr.appendChild(v21Node('td','',value));
     });body.appendChild(tr);});table.appendChild(body);root.replaceChildren(table);
     if(!data.bulanan?.length)root.appendChild(v21Node('p','v17-subtle','Belum ada data pada periode ini.'));
+    // Tabel asli tetap untuk desktop/print; HP memakai baris ringkas yang tidak terpotong.
+    const mobile=$('v25ReportMobileList');mobile.replaceChildren();
+    data.bulanan.forEach(item=>{
+      const row=v21Node('article','f4-bank-report-mobile-row');
+      const period=v21Node('strong','',String(item.periode||'Periode tidak tersedia'));
+      const values=v21Node('div','f4-bank-report-mobile-values');
+      for(const [label,value] of [
+        ['Berat sah',kg(item.beratKg)],
+        ['Penjualan',rupiah(item.hasilPenjualan)],
+        ['Pengeluaran',rupiah(item.pengeluaran)]]){
+        const metric=v21Node('span','');
+        metric.append(v21Node('small','',label),v21Node('strong','',value));values.append(metric);
+      }
+      row.append(period,values);mobile.append(row);
+    });
+    if(!data.bulanan.length)mobile.append(v21Node('p','v17-subtle','Belum ada transaksi sah. Periksa informasi estimasi di atas.'));
     $('v25ReportNote').hidden=true;
     $('v25ReportNote').textContent='';
     const picker=$('v25ReportPeriod');picker.replaceChildren(new Option('Seluruh periode','semua'));
