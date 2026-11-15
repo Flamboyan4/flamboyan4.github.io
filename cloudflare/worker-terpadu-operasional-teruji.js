@@ -5546,7 +5546,10 @@ async function ownSavings(db, memberId) {
   const [balance, deposits, details, ledger] = await Promise.all([
     db.prepare(`SELECT COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit')
       THEN amount_rp ELSE -amount_rp END),0) AS available_rp,
-      COALESCE(SUM(CASE WHEN kind='kredit' THEN amount_rp ELSE 0 END),0) AS credit_total_rp,
+      COALESCE(SUM(CASE
+        WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp
+        WHEN kind='koreksi_debit' THEN -amount_rp
+        ELSE 0 END),0) AS credit_total_rp,
       COALESCE(SUM(CASE WHEN kind='pencairan' THEN amount_rp ELSE 0 END),0) AS payout_total_rp
       FROM waste_savings_ledger WHERE member_id=?`).bind(memberId).first(),
     db.prepare(`SELECT d.id,d.batch_id,d.deposited_on,d.status,d.total_grams,d.estimated_total_rp,b.confirmed_at AS batch_confirmed_at,
@@ -5641,6 +5644,8 @@ async function ownSavings(db, memberId) {
     ok: true,
     anggota:{id:member?.id||memberId,nama:member?.nama||'',rumah:member?.rumah||''},
     saldoTersediaRp: Number(balance?.available_rp || 0),
+    // "Masuk" adalah kredit bersih; koreksi pembatalan tidak boleh tetap tercatat
+    // sebagai pemasukan aktif. Mutasi asli tetap dipertahankan untuk audit.
     totalMasukRp: Number(balance?.credit_total_rp || 0),
     totalCairRp: Number(balance?.payout_total_rp || 0),
     // Setoran menunggu dihitung atas SEMUA baris sah, bukan hanya 60 terbaru.
