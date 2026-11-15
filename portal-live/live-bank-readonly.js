@@ -230,7 +230,7 @@
  }));
  const adminMembers=async()=> (await adminRows('members')).map(x=>({
   wargaId:String(x.id||'').replace(/^member:/,''),nama:x.nama||'',rumah:x.rumah||'',
-  status:x.status==='aktif'?'Aktif':'Nonaktif'
+  status:x.status==='aktif'?'Aktif':'Nonaktif',hasAvatar:Number(x.hasAvatar||0)===1
  }));
  const adminOverview=async()=>{
   const [members,items,deposits,sales,ledger,cash,publicInfo]=await Promise.all([
@@ -495,7 +495,15 @@
   },
   bsV32DetailSetoran:editDepositDetail,
   bsV6SetoranAdmin:adminDeposits,
-  bsV18RiwayatSetoranAdmin:adminDeposits,
+  bsV18RiwayatSetoranAdmin:async()=>{
+   const [deposits,members]=await Promise.all([adminDeposits(),adminMembers()]);
+   const memberMap=new Map(members.map(m=>[String(m.wargaId),m]));
+   return deposits.map(d=>{
+    const member=memberMap.get(String(d.wargaId));
+    return {...d,rumahWarga:d.rumahWarga||member?.rumah||'',
+      hasAvatar:member?.hasAvatar===true};
+   });
+  },
   bsV7PenjualanAdmin:adminSales,
   bsV6BatchAdmin:adminBatches,
   bsV11PublicHome:home,
