@@ -21,6 +21,7 @@ function bankUiSvg(name){
 }
 function bankIconSpan(cls,name){const span=el('span',cls);span.append(bankUiSvg(name));span.setAttribute('aria-hidden','true');return span;}
 const rupiah=n=>"Rp "+Number(n||0).toLocaleString("id-ID");
+const displayWargaName=value=>window.f4BankDisplayWargaName?.(value)||String(value||"Anggota");
 const money=s=>Number(String(s||"").replace(/[^\d-]/g,""))||0;
 const today=()=>{
   const pieces=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
@@ -181,7 +182,7 @@ function memberTopIdentity(){
   identity=el("span","f4-bank-member-top-identity");identity.id="f4BankMemberTopIdentity";
   bar.insertBefore(identity,links);
  }
- const name=$("pName")?.textContent?.trim()||"Anggota";
+ const name=displayWargaName($("pName")?.textContent?.trim()||"Anggota");
  const home=$("pHome")?.textContent?.trim()||"—";
  identity.replaceChildren(el("strong","","Halo, "+name),el("small","","Rumah "+home));
 }
@@ -302,7 +303,7 @@ function ensureHome(){
  }
  hub.dataset.bankRole=role;
  if(role!=="member")restoreMemberHomeLayout(hub);
- const name=$("pName")?.textContent?.trim()||"Anggota";
+ const name=displayWargaName($("pName")?.textContent?.trim()||"Anggota");
  const house=$("pHome")?.textContent?.trim()||"—";
  const welcome=$("f4BankAppWelcome");if(welcome){
    welcome.replaceChildren(el("strong","",name));
@@ -1165,7 +1166,7 @@ async function loadManagerRequests(){
   for(const item of items){
    const card=el("article","f4-bank-manager-request");
    const top=el("div","f4-bank-manager-request-head");
-   top.append(el("strong","",item.nama+" • "+(item.rumah||"—")),el("span","f4-bank-request-state is-"+item.status,item.status));
+   top.append(el("strong","",displayWargaName(item.nama)+" • "+(item.rumah||"—")),el("span","f4-bank-request-state is-"+item.status,item.status));
    const details=el("div","f4-bank-manager-request-details");
    details.append(el("b","",rupiah(item.amount_rp)),el("small","","Saldo: "+rupiah(item.balance_rp)));
    card.append(top,details);
@@ -2604,7 +2605,7 @@ function updateCardNumber(){
  text("f4BankCardNumber",id&&id!=="Administrator"?id:"—");
  text("f4BankProfileNumber",id&&id!=="Administrator"?id:"—");
  const house=$("pHome")?.textContent?.trim()||"—";
- const name=$("pName")?.textContent?.trim()||"—";
+ const name=roleType()==="member"?displayWargaName($("pName")?.textContent?.trim()||"—"):($("pName")?.textContent?.trim()||"—");
  text("f4BankCardName",name);
  text("f4BankProfileName",name);
  const houseNode=$("f4BankAppHome")?.querySelector(".f4-bank-card-house");
@@ -2651,11 +2652,11 @@ function inlineMemberDisplayName(){
     if(roleType()!=="member"||!$("dashboardView")||$("dashboardView").classList.contains("hidden"))return;
     const persisted=String(result.profile?.nama||value).trim();
     name.textContent=persisted;
-    const sidebar=$("v15AccountName");if(sidebar)sidebar.textContent=persisted;
-    const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+persisted;
-    const welcome=$("welcomeName");if(welcome)welcome.textContent=persisted;
+    const sidebar=$("v15AccountName");if(sidebar)sidebar.textContent=displayWargaName(persisted);
+    const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+displayWargaName(persisted);
+    const welcome=$("welcomeName");if(welcome)welcome.textContent=displayWargaName(persisted);
     const mobile=$("f4BankAppHome")?.querySelector(".f4-bank-app-personal-greeting strong");
-    if(mobile)mobile.textContent="Halo, "+persisted+"!";
+    if(mobile)mobile.textContent="Halo, "+displayWargaName(persisted)+"!";
     updateCardNumber();
     mode(false);
     window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
