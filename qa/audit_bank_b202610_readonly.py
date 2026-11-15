@@ -37,5 +37,16 @@ out["v3_batches"]=select("SELECT batch_id,sale_id FROM bank_v3_batches WHERE bat
 out["closed_year"]=select("SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year=2026")
 out["payouts_related"]=select("SELECT COUNT(*) AS n FROM waste_savings_ledger WHERE kind='pencairan' AND member_id IN (SELECT member_id FROM waste_savings_ledger WHERE batch_id=?)",(batch,))
 out["cash_outgoing_after"]=select("SELECT COUNT(*) AS n FROM waste_cash_ledger WHERE status='aktif' AND cash_out_rp>0 AND occurred_on >= COALESCE((SELECT MIN(sold_on) FROM waste_sales WHERE batch_id=?),'2026-10-01')",(batch,))
+out["member_balances"]=select("""SELECT member_id,
+ COALESCE(SUM(CASE WHEN kind IN ('kredit','koreksi_kredit') THEN amount_rp ELSE -amount_rp END),0) AS balance
+ FROM waste_savings_ledger WHERE member_id IN
+ (SELECT member_id FROM waste_savings_ledger WHERE batch_id=?) GROUP BY member_id""",(batch,))
+out["fund_balances"]=select("""SELECT fund_position,COALESCE(SUM(cash_in_rp-cash_out_rp),0) AS balance
+ FROM waste_cash_ledger WHERE status='aktif' AND fund_position IN
+ ('tabungan_warga','operasional') GROUP BY fund_position""")
+out["pending_member_payouts"]=select("""SELECT id,status FROM waste_payout_requests WHERE
+ member_id IN (SELECT member_id FROM waste_savings_ledger WHERE batch_id=?)
+ AND status NOT IN ('dibatalkan','ditolak','dibayar')""",(batch,))
+out["treasury_event_matches"]=select("SELECT id,kind,occurred_on,note FROM treasury_events WHERE note LIKE '%B202610%'")
 # No names or personal address data; IDs needed to validate exactly matched ledger entries.
 print("BANK_B202610_READONLY_AUDIT="+json.dumps(out,ensure_ascii=False,sort_keys=True))
