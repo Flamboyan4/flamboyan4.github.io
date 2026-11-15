@@ -2798,6 +2798,20 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4MemberQuickActions.f4-member-shortcuts,
  #dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){height:94px}
 }
+/* Estimated Setoran editing shares the existing compact actions; no detail expansion. */
+#dashboardView .f4-admin-deposit-actions .f4-admin-deposit-edit{
+ display:inline-flex;align-items:center;justify-content:center;min-height:40px;
+ padding:8px 13px;border:1px solid #bddfce;border-radius:11px;
+ background:#eef9f1;color:#176a46;font-size:12px;font-weight:800;cursor:pointer
+}
+#dashboardView .f4-admin-deposit-actions .f4-admin-deposit-edit:disabled{
+ opacity:.45;cursor:not-allowed
+}
+#dashboardView #pageSetoran #f4SetEditDismiss{
+ justify-self:stretch;box-sizing:border-box;width:100%;min-height:43px;
+ padding:9px 13px;border-radius:12px;background:#f5faf6;
+ color:#285b42;border:1px solid #d6e8dc;font-weight:700
+}
 /* Responsive Bank Sampah: one sidebar category, submenu tabs in content. */
 @media(min-width:1024px){
  body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px}
@@ -2811,7 +2825,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
   display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.86fr);
   grid-template-areas:"hero recent" "actions recent" "insights insights";
-  grid-template-rows:minmax(218px,auto) minmax(96px,auto) auto;
+  grid-template-rows:300px 168px auto;
   gap:14px;align-items:stretch;min-width:0;
   width:100%;max-width:1310px;margin:0 auto
  }
@@ -2849,12 +2863,14 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{display:none}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{
   grid-area:recent;display:flex;flex-direction:column;
-  min-width:0;width:100%;height:100%;align-self:stretch;
+  min-width:0;min-height:0;width:100%;height:100%;align-self:stretch;overflow:hidden;
   padding:19px 18px;border:1px solid #e4ece6;border-radius:21px;
   background:#fff;box-shadow:0 5px 20px #153f2a0b
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel #v14Recent{
-  flex:1 1 auto;min-width:0
+  flex:1 1 0;min-width:0;min-height:0;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;
+  scrollbar-color:#c0ddc9 transparent
  }
  /* Desktop pages have no outside card; goods and payment panels share one workspace. */
  body.f4-bank-app-admin #dashboardView .section>#pageProfile{max-width:940px}
