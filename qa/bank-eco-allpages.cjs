@@ -691,9 +691,11 @@ assert(css.includes('#dashboardView .section :is(#saleForm,#setoranForm)>.f4-ent
        h.includes("name.textContent=shortName(info.nama)") &&
        h.includes("label.textContent=select.value&&opt?shortName("),
  'PC Setoran metadata must be in right column above totals; own Bank stock displays live kg, and member options show Pak + first name');
-/* Only the dedicated Setoran card is redesigned. Penjualan keeps nota,
-   payment adjustments, and its existing detail tooling. */
+/* Admin Riwayat Setoran and Penjualan share the same nonexpandable
+   cards; sale accounting tools are preserved inside the JPG receipt preview. */
 const depositCard=h.split('function v18DepositHistoryCard(r){')[1]
+ ?.split('function v18SaleHistoryCard(r){')[0]||'';
+const saleCard=h.split('function v18SaleHistoryCard(r){')[1]
  ?.split('const v18OldHistoryCard=v7HistoryCard;')[0]||'';
 assert(depositCard.includes("card.className='f4-admin-deposit-card'") &&
        depositCard.includes("receipt=f4BankReceiptIcon(null,async()=>{") &&
@@ -704,10 +706,21 @@ assert(depositCard.includes("card.className='f4-admin-deposit-card'") &&
        !depositCard.includes('v7ToggleDetails(') &&
        !depositCard.includes('f4-bs-detail-button') &&
        h.includes("if(type==='setoran')return v18DepositHistoryCard(r);") &&
-       h.includes("const card=v18OldHistoryCard(r,type);") &&
-       !h.includes('Setoran batal tetap tersimpan.</div>') &&
-       css.includes('Canonical Setoran history only: clean non-expandable cards'),
- 'Admin deposit history must have exactly Resi/Batalkan, no detail expansion, with line items in receipt');
+       !h.includes('Setoran batal tetap tersimpan.</div>'),
+ 'Deposit history should only show receipt and cancel, with its goods in the receipt');
+assert(saleCard.includes("card.className='f4-admin-deposit-card f4-admin-sale-card'") &&
+       saleCard.includes("call('bsV7RincianPenjualan',token,r.id)") &&
+       saleCard.includes("actions.append(receipt,cancel)") &&
+       saleCard.includes("cancel.disabled=canceled") &&
+       saleCard.includes("onClick:()=>v7EditSaleReceipt(r)") &&
+       saleCard.includes("onClick:()=>v7SettleSale(r)") &&
+       !saleCard.includes('v7ToggleDetails(') &&
+       !saleCard.includes('f4-bs-detail-button') &&
+       h.includes("if(type==='penjualan')return v18SaleHistoryCard(r);") &&
+       css.includes('Canonical history cards for both Setoran and Penjualan') &&
+       css.includes('var(--eco-gold,#fdc010)') &&
+       h.includes("class=\"f4-bank-sale-history-caution\""),
+ 'Sale history should only show receipt/cancel, preserve edit/settle under receipt and use dashboard colors');
 /* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
    Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
 function assertBalancedCss(text,label){
