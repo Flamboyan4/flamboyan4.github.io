@@ -513,6 +513,99 @@ async function bankDeposit(request, env) {
   return ok({ id: depositId, status: "estimasi", totalGrams, estimatedRp: totalRp, duplicate: false }, 201);
 }
 __name(bankDeposit, "bankDeposit");
+
+/* Edit only an unconfirmed API deposit in an open, unsold D1 batch.
+   Edit preserves the deposit ID and all related historical audit entries;
+   never touches citizen savings or confirmed cash ledgers. */
+async function bankEditDeposit(request,env,who){
+ const denied=requireRole(who,["admin","superadmin"]);if(denied)return denied;
+ if(env.BANK_WRITE_ENABLED!=="true")return err("Perubahan setoran sedang terkunci.",503);
+ let p;try{p=await body(request)}catch(e){return err(e.message,400)}
+ const id=String(p.id||""),memberId=String(p.memberId||""),date=String(p.depositedOn||"");
+ const reason=String(p.reason||"Koreksi salah input setoran").trim();
+ if(!/^deposit:api:[0-9a-f-]{36}$/i.test(id))return err("Hanya setoran estimasi baru yang dapat diedit; setoran historis memerlukan audit.",409);
+ if(!memberId||memberId.length>120||!validDate(date)||reason.length<5||reason.length>300)
+  return err("Nama warga, tanggal, dan alasan koreksi harus valid.",400);
+ if(!Array.isArray(p.items)||p.items.length<1||p.items.length>40)return err("Isi 1–40 jenis sampah.",400);
+ const merged=new Map();
+ for(const line of p.items){
+  const key=String(line?.itemId||""),grams=Number(line?.grams);
+  if(!key||key.length>128||!Number.isSafeInteger(grams)||grams<1||grams>1e7)return err("Jenis atau berat sampah tidak valid.",400);
+  merged.set(key,(merged.get(key)||0)+grams);
+  if(merged.get(key)>1e7)return err("Berat sampah terlalu besar.",400);
+ }
+ const normalized=[...merged.entries()].sort(([a],[b])=>a.localeCompare(b));
+ const db=env.DB;
+ const previous=await one(db,"SELECT id,batch_id,member_id,deposited_on,status,total_grams,estimated_total_rp FROM waste_deposits WHERE id=?",[id]);
+ if(!previous)return err("Setoran tidak ditemukan.",404);
+ if(previous.status!=="estimasi")return err("Setoran telah disahkan atau dibatalkan. Perubahan ditolak.",409);
+ if(String(previous.deposited_on).slice(0,7)!==date.slice(0,7))return err("Tanggal koreksi harus tetap pada bulan kelompok setoran yang sama.",409);
+ if(await one(db,"SELECT fiscal_year FROM fiscal_closings WHERE fiscal_year IN (?,?)",[Number(date.slice(0,4)),Number(String(previous.deposited_on).slice(0,4))]))
+  return err("Tahun transaksi telah ditutup.",409);
+ const [batch,member,sale,allocation,ledger,priorLines]=await Promise.all([
+  one(db,"SELECT status FROM waste_batches WHERE id=?",[previous.batch_id]),
+  one(db,"SELECT id FROM members WHERE id=? AND status='aktif'",[memberId]),
+  one(db,"SELECT id FROM waste_sales WHERE batch_id=? AND status!='dibatalkan' LIMIT 1",[previous.batch_id]),
+  one(db,"SELECT id FROM waste_allocations WHERE batch_id=? LIMIT 1",[previous.batch_id]),
+  one(db,"SELECT id FROM waste_savings_ledger WHERE batch_id=? LIMIT 1",[previous.batch_id]),
+  list(db,"SELECT waste_item_id,grams,citizen_rate_rp_per_kg,estimated_rp FROM waste_deposit_lines WHERE deposit_id=?",[id])
+ ]);
+ if(batch?.status!=="draft"||sale||allocation||ledger)return err("Setoran sudah masuk tahap penjualan atau pengesahan; tidak boleh diedit.",409);
+ if(!member)return err("Anggota tidak aktif atau tidak tersedia.",409);
+ if(!priorLines.length)return err("Rincian awal setoran tidak lengkap; koreksi otomatis ditolak.",409);
+ const prices=await list(db,`SELECT i.id,p.citizen_rate_rp_per_kg AS rateRp FROM waste_items i
+ LEFT JOIN waste_prices p ON p.id=(SELECT id FROM waste_prices WHERE waste_item_id=i.id
+  AND effective_from<=? ORDER BY effective_from DESC,id DESC LIMIT 1)
+ WHERE i.active=1`,[date]);
+ const catalog=new Map(prices.map(x=>[x.id,Number(x.rateRp)]));
+ let totalGrams=0,totalRp=0;
+ const lines=[];
+ for(const [key,grams] of normalized){
+  const rate=catalog.get(key);
+  if(!Number.isSafeInteger(rate)||rate<=0)return err("Tarif barang tidak tersedia untuk tanggal koreksi.",409);
+  const amount=Math.round(grams*rate/1000);
+  totalGrams+=grams;totalRp+=amount;lines.push({key,grams,rate,amount});
+ }
+ if(!Number.isSafeInteger(totalGrams)||!Number.isSafeInteger(totalRp)||totalGrams<1||totalRp<0)
+  return err("Total setoran tidak valid.",400);
+ const digest=await sha(JSON.stringify({batchId:previous.batch_id,memberId,date,items:normalized}));
+ const auditId="audit:bank-edit-deposit:"+crypto.randomUUID();
+ const guard=`INSERT INTO waste_batches(id,label,status)
+ SELECT b.id,b.label,b.status FROM waste_batches b
+ JOIN waste_deposits d ON d.batch_id=b.id
+ WHERE d.id=? AND (d.status!='estimasi' OR b.status!='draft'
+ OR EXISTS(SELECT 1 FROM waste_sales s WHERE s.batch_id=b.id AND s.status!='dibatalkan')
+ OR EXISTS(SELECT 1 FROM waste_allocations a WHERE a.batch_id=b.id)
+ OR EXISTS(SELECT 1 FROM waste_savings_ledger l WHERE l.batch_id=b.id))`;
+ const ops=[
+  db.prepare(guard).bind(id),
+  db.prepare(`UPDATE waste_deposits SET member_id=?,deposited_on=?,total_grams=?,estimated_total_rp=?
+    WHERE id=? AND batch_id=? AND status='estimasi' AND EXISTS
+    (SELECT 1 FROM waste_batches WHERE id=? AND status='draft')
+    AND NOT EXISTS(SELECT 1 FROM waste_sales WHERE batch_id=? AND status!='dibatalkan')
+    AND NOT EXISTS(SELECT 1 FROM waste_allocations WHERE batch_id=?)`)
+    .bind(memberId,date,totalGrams,totalRp,id,previous.batch_id,previous.batch_id,previous.batch_id,previous.batch_id),
+  db.prepare("DELETE FROM waste_deposit_lines WHERE deposit_id=?").bind(id),
+  ...lines.map(line=>db.prepare(`INSERT INTO waste_deposit_lines
+   (id,deposit_id,waste_item_id,grams,citizen_rate_rp_per_kg,estimated_rp)
+   VALUES(?,?,?,?,?,?)`).bind("depositline:api:"+crypto.randomUUID(),id,line.key,line.grams,line.rate,line.amount)),
+  db.prepare(`UPDATE migration_source_map SET source_fingerprint=?
+    WHERE source_system='api_v2' AND source_sheet='waste_deposit'
+    AND target_table='waste_deposits' AND target_id=?`).bind(digest,id),
+  db.prepare(`INSERT INTO audit_log(id,actor_account_id,scope,action,target_type,target_id,reason,before_json,after_json)
+   VALUES(?,?,'banksampah','edit_estimated_deposit','waste_deposits',?,?,?,?)`)
+    .bind(auditId,who.id,id,reason,JSON.stringify({...previous,lines:priorLines}),
+     JSON.stringify({memberId,date,totalGrams,totalRp,items:lines}))
+ ];
+ try{
+  const result=await db.batch(ops);
+  if(Number(result[1]?.meta?.changes||0)!==1||Number(result[2]?.meta?.changes||0)!==priorLines.length)
+   return err("Setoran perlu diverifikasi ulang sebelum digunakan.",409);
+ }catch(e){return err("Koreksi tidak disimpan. Pastikan setoran masih estimasi dan belum dijual.",409)}
+ return ok({id,status:"estimasi",totalGrams,estimatedRp:totalRp,edited:true});
+}
+__name(bankEditDeposit,"bankEditDeposit");
+
 async function bankPrice(request, env, who) {
   let p;
   try {
@@ -2828,6 +2921,7 @@ async function handleUnifiedApi(request, env, who) {
       const result = await adminBank(db, url);
       if (result) return result;
     }
+    if (method === "POST" && path === "/api/v2/admin/bank/deposits/edit") { const stop=guardedWrite(who,env);return stop||bankEditDeposit(request,env,who); }
     if (method === "POST" && path === "/api/v2/admin/bank/deposits/cancel") return cancelBankDraft(request,env,who,"deposit");
     if (method === "POST" && path === "/api/v2/admin/bank/sales/cancel") return cancelBankDraft(request,env,who,"sale");
     if (method === "POST" && path === "/api/v2/admin/bank/withdrawals") {
