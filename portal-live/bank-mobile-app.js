@@ -701,8 +701,10 @@ function showReport(){
   const monthCell=el("label","","Bulan"),month=el("select");month.id="f4BankReportMonth";monthCell.append(month);
   const yearCell=el("label","","Tahun"),year=el("select");year.id="f4BankReportYear";yearCell.append(year);
   period.append(monthCell,yearCell);
-  const rangeButton=el("button","f4-bank-secondary-action","Atur periode");rangeButton.type="button";
+  const rangeButton=el("button","f4-bank-secondary-action");rangeButton.type="button";
   rangeButton.id="f4BankReportRangeToggle";
+  rangeButton.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h6"/></svg>';
+  rangeButton.setAttribute("aria-label","Atur periode tanggal");rangeButton.title="Atur periode tanggal";
   rangeButton.onclick=()=>{
    reportRange=reportRange?null:{from:reportMonth+"-01",to:today()};
    if(reportRange&&reportRange.from>reportRange.to)reportRange.from=reportRange.to;
@@ -753,7 +755,11 @@ function showReport(){
  window.f4BankReportRange=()=>reportRange;
  const rangeInputs=$("f4BankReportRangeFields");
  rangeInputs.hidden=!reportRange;
- $("f4BankReportRangeToggle").textContent=reportRange?"Per Bulan":"Atur Periode";
+ const periodToggle=$("f4BankReportRangeToggle");
+ periodToggle.setAttribute("aria-label",reportRange?"Kembali ke periode bulanan":"Atur periode tanggal");
+ periodToggle.title=reportRange?"Kembali ke periode bulanan":"Atur periode tanggal";
+ periodToggle.setAttribute("aria-pressed",String(!!reportRange));
+ periodToggle.classList.toggle("is-range-active",!!reportRange);
  $("f4BankReportMonth").closest("label").hidden=!!reportRange;
  $("f4BankReportYear").closest("label").hidden=!!reportRange;
  if(reportRange){$("f4BankReportFrom").value=reportRange.from;$("f4BankReportTo").value=reportRange.to;}
