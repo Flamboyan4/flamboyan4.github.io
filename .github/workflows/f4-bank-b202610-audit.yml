@@ -1,0 +1,24 @@
+name: Bank Sampah B202610 read-only cancellation audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - qa/audit_bank_b202610_readonly.py
+      - .github/workflows/f4-bank-b202610-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-bank-b202610-audit
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect only batch:B202610 in bound Cloudflare D1 (no writes)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: python3 qa/audit_bank_b202610_readonly.py
