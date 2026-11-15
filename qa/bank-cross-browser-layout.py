@@ -188,6 +188,86 @@ async def main():
                             results.append({'engine':engine_name,'width':width,
                                 'historyLayout':history_layout,'failures':failures})
                         await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-deposit-history.png"))
+                    # Penjualan uses the same compact history component and
+                    # colors as Setoran. The fixture renders real production
+                    # functions/DOM, without a login or D1 writes.
+                    if width in (390,1366):
+                        await page.evaluate(MEASURE,"pageRiwayatJual")
+                        sale_layout=await page.evaluate("""() => {
+                          const host=document.getElementById('riwayatJualList');
+                          const sample={id:'qa-sale-draft',lapak:'Bang Jul',
+                            tanggal:'2026-11-15',bruto:4500,diterima:2500,
+                            nota:'BJ-01',status:'Draft'};
+                          const fn=typeof v7HistoryCard==='function'?v7HistoryCard:null;
+                          if(!host||!fn)return {exists:false};
+                          const confirmed={...sample,id:'qa-sale-confirmed',status:'Terkonfirmasi',
+                            bruto:4500,diterima:4500};
+                          const canceled={...sample,id:'qa-sale-canceled',status:'Dibatalkan'};
+                          host.replaceChildren(fn(sample,'penjualan'),fn(confirmed,'penjualan'),
+                            fn(canceled,'penjualan'));
+                          host.classList.add('f4-bs-history-list');
+                          return {exists:true,cards:[...host.querySelectorAll('.f4-admin-sale-card')].map(card=>{
+                            const r=card.getBoundingClientRect();
+                            const buttons=[...card.querySelectorAll('button')];
+                            return {display:getComputedStyle(card).display,width:r.width,right:r.right,
+                              buttons:buttons.map(b=>({text:b.textContent.trim(),disabled:b.disabled})),
+                              hasExpand:!!card.querySelector('.f4-bs-detail-button,details,.details-panel,[aria-expanded]'),
+                              receiptColor:getComputedStyle(card.querySelector('.f4-admin-deposit-receipt')).backgroundColor,
+                              amount:card.querySelector('.f4-admin-deposit-amount')?.textContent};
+                          })};
+                        }""")
+                        errs=[]
+                        if not sale_layout['exists'] or len(sale_layout.get('cards',[]))!=3:
+                            errs.append('sale history renderer did not create three modern cards')
+                        else:
+                            for i,card in enumerate(sale_layout['cards']):
+                                if (card['display']!='grid' or card['width']<150 or
+                                    card['right']>width+2 or card['hasExpand'] or
+                                    len(card['buttons'])!=2 or
+                                    [b['text'] for b in card['buttons']]!=['Resi','Batalkan']):
+                                    errs.append('sale history has legacy expand/misaligned controls')
+                                if card['buttons'][1]['disabled']!=(i==2):
+                                    errs.append('sale cancellation button changed its eligibility')
+                                if card['receiptColor']!='rgb(253, 192, 16)':
+                                    errs.append('sale receipt color is not dashboard gold')
+                                if '4.500' not in (card['amount'] or ''):
+                                    errs.append('sale gross amount missing from summary')
+                        if errs:
+                            results.append({'engine':engine_name,'width':width,
+                                'saleHistory':sale_layout,'failures':errs})
+                        await page.screenshot(path=str(OUT/f"{engine_name}-{width}-admin-sale-history.png"))
+                        if width==390:
+                            # The shared receipt preview exposes optional nota
+                            # and pelunasan tools without placing them in JPG.
+                            receipt_test=await page.evaluate("""async() => {
+                              const tx=window.F4TransactionReceipt;
+                              if(!tx)return {exists:false};
+                              let acted=0;
+                              const record={scope:'bank',id:'qa-sale-receipt',title:'Bukti Penjualan Sampah',
+                                party:'Bang Jul',house:'Bank Sampah Flamboyan 4',
+                                date:'2026-11-15',method:'Penjualan ke lapak',
+                                amount:2500,status:'BAYAR SEBAGIAN',
+                                adminActions:[{label:'Ubah No. Bukti',onClick:()=>{acted++;}},
+                                  {label:'Catat Pelunasan',onClick:()=>{acted++;}}]};
+                              await tx.open(record);
+                              const dialog=document.querySelector('#f4-tx-receipt-dialog');
+                              const tools=[...dialog.querySelectorAll('.f4-tx-admin-actions button')];
+                              const labels=tools.map(x=>x.textContent);
+                              tools[0]?.click();
+                              await Promise.resolve();
+                              await Promise.resolve();
+                              const closed=dialog.hidden;
+                              await tx.open({...record,id:'qa-no-tools',adminActions:[]});
+                              const cleared=!dialog.querySelector('.f4-tx-admin-actions');
+                              tx.close();
+                              return {exists:true,labels,closed,cleared,acted};
+                            }""")
+                            if (not receipt_test.get('exists') or
+                                receipt_test.get('labels')!=['Ubah No. Bukti','Catat Pelunasan']
+                                or not receipt_test.get('closed') or not receipt_test.get('cleared')
+                                or receipt_test.get('acted')!=1):
+                                results.append({'engine':engine_name,'width':width,
+                                    'receiptActions':receipt_test,'failures':['receipt management tools missing or not cleared']})
                     # Setoran Warga: the action must follow actual item fields,
                     # never float alongside the heading (desktop and mobile).
                     if width in (320,390,412,768,1024,1366,1920):
