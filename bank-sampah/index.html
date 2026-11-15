@@ -3141,8 +3141,9 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
 
     // Ringkasan satu baris, tanpa kartu tinggi.
     const summary=document.createElement('div');summary.className='f4-member-print-summary';
-    const income=mutasi.reduce((sum,x)=>sum+Number(x.kredit||0),0);
-    const expense=mutasi.reduce((sum,x)=>sum+Number(x.debit||0),0);
+    const activeMutasi=mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||'')));
+    const income=activeMutasi.reduce((sum,x)=>sum+Number(x.kredit||0),0);
+    const expense=activeMutasi.reduce((sum,x)=>sum+Number(x.debit||0),0);
     [['Saldo',d.saldo],['Masuk',income],['Keluar',expense]].forEach(([label,value])=>{
       const cell=document.createElement('span');cell.className='f4-member-print-summary-item';
       const name=document.createElement('small');name.textContent=label;
@@ -3205,7 +3206,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     setoran=d.setoran.filter(inPeriod).sort(v12PrintOldestFirst),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
       ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',range?range.from+' s.d. '+range.to:selected||'Semua'],
-      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
+      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||''))).reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||''))).reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
       ['RIWAYAT TABUNGAN'],
       ['Tanggal','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],
