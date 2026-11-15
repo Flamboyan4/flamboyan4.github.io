@@ -2009,12 +2009,18 @@ function showAdminHistory(selected="setoran"){
  for(const panel of [setoran,penjualan])if(panel?.parentNode!==page)page.append(panel);
  syncAdminPageFrames();
  const options=[["setoran","Setoran",setoran],["penjualan","Penjualan",penjualan]];
+ const refresh=el("button","f4-bank-admin-history-refresh","");
+ refresh.id="f4BankAdminHistoryRefresh";refresh.type="button";
+ refresh.title="Muat ulang riwayat "+(selected==="setoran"?"setoran":"penjualan");
+ refresh.setAttribute("aria-label",refresh.title);
+ refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
+ refresh.onclick=()=>selected==="setoran"?window.loadRiwayatV7?.():window.loadRiwayatJual?.();
  tabs.replaceChildren(...options.map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(selected===key?" is-active":""),label);
   button.type="button";button.setAttribute("aria-pressed",String(selected===key));
   button.onclick=()=>navigate(key==="penjualan"?"bank-admin-sale-history":"bank-admin-history");
   return button;
- }));
+ }),refresh);
  tabs.hidden=false;
  for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
  page.classList.remove("hidden");
