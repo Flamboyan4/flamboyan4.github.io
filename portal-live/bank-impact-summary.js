@@ -35,7 +35,7 @@ function render(){
         panel.querySelectorAll('.f4-bank-private-finance-card strong')[i].textContent=rupiah(data[key]);
       });
       const note=panel.querySelector('.f4-bank-private-finance-note');
-      note.textContent='Dihitung dari transaksi sah dan saldo jurnal D1. Tidak termasuk estimasi.';
+      note.textContent='Angka sah dari jurnal D1 · estimasi setoran ditampilkan terpisah.';
       loaded=true;
     }).catch(error=>{
       if(marker!==serial||!panel||!isMember())return;
@@ -52,7 +52,7 @@ function mount(){
     panel.setAttribute('aria-label','Ringkasan keuangan Bank Sampah');
     const title=document.createElement('h3');
     title.className='f4-bank-private-finance-title';
-    title.textContent='Posisi keuangan Bank Sampah';
+    title.textContent='BANK SAMPAH FLAMBOYAN 4';
     const grid=document.createElement('div');
     grid.className='f4-bank-private-finance-grid';
     fields.forEach(([label])=>{
@@ -64,7 +64,10 @@ function mount(){
     const note=document.createElement('p');
     note.className='f4-bank-private-finance-note';
     note.textContent='Memuat saldo sah...';
-    panel.append(title,grid,note);
+    const hero=document.createElement('div');
+    hero.className='f4-bank-private-finance-hero';
+    hero.append(title,grid);
+    panel.append(hero,note);
     const anchor=host.querySelector('#v25ReportRoot');
     if(anchor)host.insertBefore(panel,anchor);else host.append(panel);
   }
