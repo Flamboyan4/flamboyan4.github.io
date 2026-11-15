@@ -503,35 +503,82 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  margin:0 0 12px
 }
 #dashboardView #bank-member-info .v21-section-bar h2{margin:0}
-/* The existing full album directory is a member page; album cards open media only after selection. */
+/* Member documentation: one clean social-style feed, not a gallery catalogue. */
 #dashboardView #bank-member-docs.f4-bank-screen:not(.hidden){
- display:grid;gap:15px;min-width:0;max-width:none;width:100%;
+ display:grid;gap:12px;min-width:0;max-width:none;width:100%;
  padding:0;margin:0;border:0;background:transparent;box-shadow:none
 }
 #dashboardView #bank-member-docs #v22DocsPage{
- display:grid;gap:14px;min-width:0;width:100%;
+ display:grid;gap:12px;min-width:0;width:100%;
  padding:0;margin:0;background:transparent
 }
-#dashboardView #bank-member-docs #v22DocsPage>.v22-doc-heading{display:none}
-#dashboardView #bank-member-docs #v22DocCount{
- margin:0;color:#6a8272;font-size:12px
+#dashboardView #bank-member-docs #v22DocsPage>.v22-doc-heading,
+#dashboardView #bank-member-docs #v22DocCount{display:none}
+#dashboardView #bank-member-docs #v22DocFilters{
+ display:flex;flex-wrap:nowrap;gap:7px;overflow-x:auto;min-width:0;
+ margin:0;padding:1px 0 5px;scrollbar-width:none;overscroll-behavior-x:contain
 }
-#dashboardView #bank-member-docs #v22DocFilters{margin:0}
+#dashboardView #bank-member-docs #v22DocFilters::-webkit-scrollbar{display:none}
+#dashboardView #bank-member-docs #v22DocFilters>button{
+ flex:0 0 auto;min-height:35px;padding:7px 12px;border-radius:999px;
+ font-size:12px;white-space:nowrap
+}
+#dashboardView #bank-member-docs .v22-doc-tools{
+ display:block;margin:0;min-width:0
+}
 #dashboardView #bank-member-docs #v22DocSearch{
- width:100%;max-width:480px;min-height:42px;padding:10px 13px;
- border:1px solid #d9e6dc;border-radius:11px;background:#fff;
- font-size:13px
+ display:block;width:100%;max-width:680px;height:40px;min-height:40px;
+ margin:0;padding:8px 13px;border:1px solid #d9e6dc;
+ border-radius:12px;background:#fff;font-size:13px
 }
 #dashboardView #bank-member-docs #v22DocList{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:11px;min-width:0
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:14px;min-width:0;max-width:680px;width:100%;margin:0 auto
 }
-#dashboardView #bank-member-docs #v22DocList .v22-doc-card{
- min-width:0;border:1px solid #dbe8df;border-radius:14px;
- background:#fff;overflow:hidden;box-shadow:0 2px 10px #123b2709
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post{
+ width:100%;min-width:0;display:flex;flex-direction:column;
+ padding:0;border:1px solid #dce9df;border-radius:16px;
+ background:#fff;overflow:hidden;text-align:left;
+ box-shadow:0 3px 14px #153c250a;transform:none
 }
-#dashboardView #bank-member-docs #v22DocList .v22-doc-card img{
- width:100%;height:146px;object-fit:cover
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post:hover{
+ transform:none;box-shadow:0 3px 14px #153c250a
+}
+#dashboardView #bank-member-docs .v22-feed-post-head{
+ display:flex;align-items:center;gap:10px;width:100%;min-width:0;padding:13px 14px
+}
+#dashboardView #bank-member-docs .v22-feed-avatar{
+ width:37px;height:37px;flex:none;border-radius:50%;
+ display:grid;place-items:center;background:#e4f4e8;color:#277849
+}
+#dashboardView #bank-member-docs .v22-feed-avatar svg{width:19px;height:19px}
+#dashboardView #bank-member-docs .v22-feed-post-identity{
+ display:grid;gap:3px;min-width:0
+}
+#dashboardView #bank-member-docs .v22-feed-post-identity strong{
+ font-size:13px;line-height:1.3;color:#214d37;font-weight:800
+}
+#dashboardView #bank-member-docs .v22-feed-post-identity small{
+ color:#7a8c7d;font-size:11px;line-height:1.35
+}
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post>img,
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post>.v21-placeholder{
+ display:block;width:100%;height:auto;aspect-ratio:4/3;
+ object-fit:cover;border-radius:0;background:#e6efe7
+}
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post>.v21-placeholder{
+ display:grid;place-items:center
+}
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post>.v22-doc-card-info{
+ width:100%;padding:13px 15px 15px;display:grid;gap:5px
+}
+#dashboardView #bank-member-docs #v22DocList .v22-member-feed-post>.v22-doc-card-info strong{
+ font-size:15px;line-height:1.45;color:#224b35
+}
+#dashboardView #bank-member-docs .v22-feed-caption{
+ margin:0;font-size:12px;line-height:1.55;color:#5d7263;
+ overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;
+ -webkit-line-clamp:3;overflow:hidden
 }
 @media(min-width:1024px){
  body.f4-bank-app-member #dashboardView #bank-member-info .f4-member-feature-content{
@@ -541,9 +588,8 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  body.f4-bank-app-member #dashboardView #bank-member-info #v17Dokumentasi{grid-column:1/span 7}
  body.f4-bank-app-member #dashboardView #bank-member-info #v17Inventaris{grid-column:8/-1}
  body.f4-bank-app-member #dashboardView #bank-member-docs #v22DocList{
-  grid-template-columns:repeat(3,minmax(0,1fr));gap:16px
+  grid-template-columns:minmax(0,1fr);gap:16px
  }
- body.f4-bank-app-member #dashboardView #bank-member-docs #v22DocList .v22-doc-card img{height:190px}
 }
 
 #dashboardView #bank-member-info .v17-inventory{
