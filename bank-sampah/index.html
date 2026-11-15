@@ -4430,13 +4430,17 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     const avatar=document.createElement('span');avatar.className='f4-admin-deposit-avatar';
     avatar.setAttribute('aria-hidden','true');
     const fullName=String(r.namaWarga||'Warga tidak tersedia').trim();
-    const words=fullName.split(/\s+/).filter(Boolean);
-    avatar.textContent=(words.length>1?words[0][0]+words[words.length-1][0]:words[0]?.slice(0,2)||'W').toUpperCase();
+    const displayName=f4BankDisplayWargaName(fullName);
+    // Inisial mengambil nama depan, bukan gelar Pak/Bu atau tanda kurung di akhir nama.
+    const givenName=displayName.replace(/^(?:Pak|Bu)\s+/i,'').trim();
+    avatar.textContent=(givenName.match(/[A-Za-zÀ-ÿ]/u)?.[0]||'W').toLocaleUpperCase('id-ID');
     const copy=document.createElement('div');copy.className='f4-admin-deposit-copy';
-    const name=document.createElement('strong');name.textContent=f4BankDisplayWargaName(fullName);name.title=fullName;
+    const name=document.createElement('strong');name.textContent=displayName;name.title=fullName;
     const meta=document.createElement('span');meta.className='f4-admin-deposit-meta';
+    const houseCode=String(r.rumahWarga||r.rumah||r.houseCode||r.nomorRumah||'').trim();
     const weight=Number(r.beratTimbang??r.berat);
-    meta.textContent=[r.tanggal||'Tanggal belum tersedia',
+    meta.textContent=[houseCode?'Rumah '+houseCode:'Nomor rumah belum tersedia',
+      r.tanggal||'Tanggal belum tersedia',
       Number.isFinite(weight)&&weight>=0?kg(weight):'Berat belum tersedia'].join(' · ');
     copy.append(name,meta);identity.append(avatar,copy);
     const summary=document.createElement('div');summary.className='f4-admin-deposit-summary';
@@ -4587,6 +4591,33 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     const area=$('riwayatList');area.classList.add('f4-bs-history-list');area.textContent='Memuat riwayat setoran...';
     try{
       const rows=await call('bsV18RiwayatSetoranAdmin',token);
+      // Gunakan ID anggota untuk mencari rumah, bukan nama depan yang bisa sama.
+      const missing=rows.some(r=>!String(r.rumahWarga||r.rumah||r.houseCode||r.nomorRumah||'').trim());
+      if(missing){
+        let members=Array.isArray(v9Members)&&v9Members.length?v9Members:null;
+        if(!members){
+          try{members=await call('bsV9SaldoAdmin',token);}
+          catch(e){console.warn('Nomor rumah belum dapat dicocokkan:',e);}
+        }
+        if(Array.isArray(members)){
+          const memberKey=v=>String(v??'').trim().replace(/^member:/i,'');
+          const nameKey=v=>String(v||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('id-ID');
+          const byId=new Map();
+          const byFullName=new Map();
+          for(const m of members){
+            const id=memberKey(m.wargaId);
+            if(id)byId.set(id,m);
+            const name=nameKey(m.nama);
+            if(name)byFullName.set(name,byFullName.has(name)?null:m);
+          }
+          rows.forEach(r=>{
+            if(String(r.rumahWarga||r.rumah||r.houseCode||r.nomorRumah||'').trim())return;
+            const id=memberKey(r.wargaId||r.memberId||r.member_id);
+            const member=(id?byId.get(id):null)||byFullName.get(nameKey(r.namaWarga));
+            if(member&&String(member.rumah||'').trim())r.rumahWarga=String(member.rumah).trim();
+          });
+        }
+      }
       area.replaceChildren(...rows.map(r=>v7HistoryCard(r,'setoran')));
       if(!rows.length)area.textContent='Belum ada setoran.';
     }catch(e){area.textContent='Gagal memuat riwayat: '+(e.message||e);}
