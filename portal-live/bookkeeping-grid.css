@@ -316,23 +316,110 @@
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control)}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit-spacer{display:none}
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr;gap:8px;margin-bottom:10px}
- #tab-riwayat #history-iuran-panel .history-period-box{grid-template-columns:1fr}
- #tab-riwayat #history-iuran-panel .history-period-box .upr-range{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:6px}
- #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
- #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:var(--book-control);min-height:var(--book-control);padding:7px 10px;font-size:14px}
- #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:var(--book-control);min-height:var(--book-control);padding:7px 31px 7px 9px;font-size:14px}
- #tab-riwayat #iuran-quick-summary{padding:11px 10px 7px;border:1px solid #e8e1f6;border-radius:13px;background:#fff;box-shadow:none}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(odd){border-left:0}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
- #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(odd){border-left:0}
- #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
- #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:8px 7px;min-height:58px;border-radius:0}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){font-size:clamp(13px,3.6vw,17px);line-height:1.15;margin-top:3px}
+ /* Riwayat Iuran HP: kontrol menyatu, ringkasan datar, tetap satu workspace luar. */
+ #tab-riwayat #history-iuran-panel .history-iuran-filter{
+  grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:9px
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box{grid-template-columns:minmax(0,1fr)}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-range{
+  display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);
+  align-items:center;width:100%;min-width:0;gap:2px;padding:3px 6px;
+  border:1px solid #e7e0f3;border-radius:11px;background:#fbfaff
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-control{min-width:0;width:100%}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field{
+  height:40px;min-height:40px;min-width:0;border:0;border-radius:8px;
+  box-shadow:none;background:transparent;padding:5px 6px
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:0
+ }
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field-text{font-size:13px;font-weight:700}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-field svg{width:16px;height:16px;max-width:16px;max-height:16px}
+ #tab-riwayat #history-iuran-panel .history-period-box .upr-sep{
+  font-size:11px;font-weight:700;color:#988ca8;text-align:center
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search{
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.82fr);
+  gap:0;align-items:center;min-width:0;width:100%;
+  border:1px solid #e7e0f3;border-radius:11px;background:#fff
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search #cari-riwayat{
+  height:40px;min-height:40px;min-width:0;padding:6px 9px;font-size:13px;
+  border:0;border-radius:10px;background:transparent;box-shadow:none
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search #cari-riwayat:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:-2px
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search :is(.custom-select-wrap,#filter-riwayat){
+  width:100%;min-width:0;max-width:100%;margin:0
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search .custom-select-wrap{
+  border-left:1px solid #eee8f6
+ }
+ #tab-riwayat #history-iuran-panel .history-iuran-search :is(#filter-riwayat,.custom-select-btn){
+  height:40px;min-height:40px;width:100%;border:0;border-radius:0;
+  padding:6px 9px;font-size:13px;box-shadow:none;background:transparent
+ }
+ #tab-riwayat #iuran-quick-summary{
+  width:100%;max-width:100%;margin:9px 0 4px;padding:10px 0 0;
+  border:0;border-top:1px solid #ede7f6;border-radius:0;
+  background:transparent;box-shadow:none
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-head{margin-bottom:4px;gap:6px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-title{font-size:13px;line-height:1.25;font-weight:800}
+ /* Periode sudah terlihat pada kalender, jangan ditulis dua kali. */
+ #tab-riwayat #iuran-quick-summary .iuran-quick-period{display:none}
+ #tab-riwayat #iuran-quick-summary #f4-book-unpaid-toggle{
+  display:inline-flex;align-items:center;gap:5px;min-height:31px;
+  padding:4px 2px;border:0;border-radius:7px;background:transparent;
+  color:#7040af;font-size:11px;font-weight:750;box-shadow:none
+ }
+ #tab-riwayat #iuran-quick-summary #f4-book-unpaid-toggle svg{width:15px;height:15px}
+ #tab-riwayat #iuran-quick-summary #f4-book-unpaid-toggle:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:2px
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid,
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{
+  min-width:0;min-height:58px;padding:8px 8px;border:0;border-radius:0;
+  background:transparent;box-shadow:none
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile.is-main,
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile.money,
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile.check:not(.has-diff){
+  background:transparent
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(odd),
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(odd){
+  border-left:0
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(even),
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(even){
+  border-left:1px solid #eee9f8
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(-n+2),
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(-n+2){
+  border-bottom:1px solid #eee9f8
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){
+  font-size:clamp(13px,3.6vw,16px);line-height:1.2;margin-top:3px
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more{
+  border-top:1px solid #eee9f8;margin-top:3px
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more>summary{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:37px;padding:7px 3px;font-size:12px;font-weight:750
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{
+  padding:2px 0 5px;background:transparent;border-radius:0
+ }
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile.check.has-diff{
+  border-radius:0;background:#fff7ed
+ }
  #tab-riwayat .f4-book-filter-picker,#tab-laporan .f4-book-filter-picker{grid-template-columns:minmax(0,1fr);gap:5px}
  #tab-riwayat>.mb-4{margin-bottom:10px}
  #tab-riwayat>.mb-4>.f4-book-filter-picker{margin-bottom:0}
