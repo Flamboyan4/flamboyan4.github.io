@@ -443,7 +443,7 @@
   btn.className='f4-unpaid-trigger';
   btn.setAttribute('aria-expanded','false');
   btn.setAttribute('aria-controls','f4-book-unpaid-list');
-  btn.innerHTML='<i data-lucide="users-round"></i><span>Lihat Belum Lunas</span>';
+  btn.innerHTML='<i data-lucide="users-round"></i><span>Belum lunas</span>';
   btn.addEventListener('click',toggleUnpaid);
   host.querySelector('.iuran-quick-note')?.replaceWith(btn);
   const box=document.createElement('div');
