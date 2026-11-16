@@ -2340,8 +2340,7 @@ main > section.card{overflow:visible}
     <div id="tab-riwayat" class="tab-panel hidden p-4 sm:p-5">
       <div class="mb-4">
         <div class="f4-book-filter-picker">
-          <label for="f4-history-type">Jenis Riwayat</label>
-          <select id="f4-history-type" class="field" onchange="pilihRiwayat(this.value)">
+          <select id="f4-history-type" class="field" aria-label="Jenis riwayat" onchange="pilihRiwayat(this.value)">
             <option value="iuran">Iuran Warga</option>
             <option value="kasumum">Transaksi Kas</option>
             <option value="batch">Batch Kas</option>
@@ -2406,11 +2405,16 @@ main > section.card{overflow:visible}
           <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Setoran RT</span><strong id="iq-rt">Rp0</strong></div><div id="iq-count-rt" class="iq-counts"></div></div>
           <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Kas Lorong</span><strong id="iq-kas">Rp0</strong></div><div id="iq-count-kas" class="iq-counts"></div></div>
           <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Arisan</span><strong id="iq-arisan">Rp0</strong></div><div id="iq-count-arisan" class="iq-counts"></div></div>
-          <div class="iuran-summary-tile money"><span>Cash</span><strong id="iq-cash">Rp0</strong></div>
-          <div class="iuran-summary-tile money"><span>QRIS</span><strong id="iq-qris">Rp0</strong></div>
-          <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong id="iq-mandiri">Rp0</strong></div>
-          <div id="iq-selisih-card" class="iuran-summary-tile check"><span>Selisih</span><strong id="iq-selisih">Rp0</strong></div>
         </div>
+        <details class="iuran-quick-more">
+          <summary>Posisi uang <span class="iuran-more-arrow" aria-hidden="true"></span></summary>
+          <div class="iuran-quick-money-grid">
+            <div class="iuran-summary-tile money"><span>Cash</span><strong id="iq-cash">Rp0</strong></div>
+            <div class="iuran-summary-tile money"><span>QRIS</span><strong id="iq-qris">Rp0</strong></div>
+            <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong id="iq-mandiri">Rp0</strong></div>
+            <div id="iq-selisih-card" class="iuran-summary-tile check"><span>Selisih</span><strong id="iq-selisih">Rp0</strong></div>
+          </div>
+        </details>
       </section>
 
       <div class="overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
@@ -3045,6 +3049,7 @@ function renderIuranQuickSummary(data){
     ['total','rt','kas','arisan'].forEach(k=>{const e=document.getElementById('iq-count-'+k);if(e)e.innerHTML=iqCountHtml(c[k])});
     const p=document.getElementById('iuran-quick-period');if(p)p.textContent=f4IuranPeriodDisplay(d.labelPeriode||iuranQuickPeriodLabel());
     const sc=document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',Math.abs(Number(t.selisih||0))>.5);
+    const more=box.querySelector('.iuran-quick-more');if(more&&Math.abs(Number(t.selisih||0))>.5)more.open=true;
     try{lucide.createIcons()}catch(_e){}
     return;
   }
@@ -5358,6 +5363,15 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 @media (max-width:767px){
   .mhistory-source{display:none}
   .mhistory-cards{display:flex;flex-direction:column;gap:7px;margin-top:7px;min-width:0}
+  #history-iuran-panel .mhistory-cards{gap:0;border:1px solid #e9e1fa;border-radius:13px;overflow:hidden;background:#fff}
+  #history-iuran-panel .mhistory-entry{border:0;border-bottom:1px solid #eee9f7;border-radius:0}
+  #history-iuran-panel .mhistory-entry:last-child{border-bottom:0}
+  #history-iuran-panel .mhistory-entry>summary{min-height:54px;padding:8px 10px}
+  #history-iuran-panel .mhistory-right{grid-template-rows:auto}
+  #history-iuran-panel .mhistory-amount{grid-column:1;grid-row:1}
+  #history-iuran-panel .mhistory-status{grid-column:1;grid-row:2}
+  #history-iuran-panel .mhistory-chevron{grid-column:2;grid-row:1/span 2}
+  #history-iuran-panel .mhistory-entry[open]{background:#faf8ff}
   .mhistory-entry{border:1px solid #e9e1fa;background:#fff;border-radius:12px;overflow:hidden;box-shadow:none}
   .mhistory-entry[open]{border-color:#c4b5fd}
   .mhistory-entry>summary{list-style:none;cursor:pointer;padding:9px 11px;min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
@@ -5423,7 +5437,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
         const details=document.createElement('details');details.className='mhistory-entry';details.dataset.rkey=key;
         if(oldOpen.has(key))details.open=true;
         const summary=document.createElement('summary');
-        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
+        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status&&!/^aktif$/i.test(status)?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
         details.appendChild(summary);
         const body=document.createElement('div');body.className='mhistory-detail';
         cells.forEach((td,i)=>{
