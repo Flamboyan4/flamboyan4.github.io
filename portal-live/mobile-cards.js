@@ -88,6 +88,8 @@ function toggle(container,after){
  update();return button;
 }
 function enrichTable(table){
+ // Pusat Keuangan punya layout responsif tersendiri; jangan ubah tabel laporan menjadi kartu ganda.
+ if(table.closest('.tc-center'))return;
  // Saldo Anggota punya tiga kolom ringkas, bukan kartu transaksi yang dapat diperluas.
  // Hindari enhancer global agar 33 saldo tidak menjadi kartu tinggi yang bertabrakan.
  if(table.closest('#v9List'))return;
