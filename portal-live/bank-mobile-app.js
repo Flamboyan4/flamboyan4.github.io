@@ -1643,18 +1643,38 @@ function adminInsightStagesDraw(){
   const done=rows.filter(x=>/selesai|tuntas|rampung/i.test(String(x.status||""))).length;
   const active=rows.filter(x=>/berjalan|proses|aktif|dikerjakan/i.test(String(x.status||""))).length;
   const pct=rows.length?Math.round(done/rows.length*100):0;
-  const ring=el("div","f4-bank-admin-stage-ring");
-  ring.style.setProperty("--f4-bank-stage-pct",pct+"%");
-  ring.setAttribute("role","progressbar");
-  ring.setAttribute("aria-label","Tahap Bank Sampah selesai");
-  ring.setAttribute("aria-valuemin","0");
-  ring.setAttribute("aria-valuemax",String(rows.length||1));
-  ring.setAttribute("aria-valuenow",String(done));
-  ring.append(el("strong","",rows.length?pct+"%":"—"));
   const summary=el("div","f4-bank-admin-stage-summary");
-  summary.append(el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
-   el("span","",rows.length?active+" dalam proses":"Belum ada perkembangan"));
-  host.replaceChildren(ring,summary);
+  summary.append(
+   el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
+   el("span","",rows.length?pct+"%"+(active?" · "+active+" berjalan":""):"Menunggu perkembangan"));
+  const steps=el("ol","f4-bank-admin-stage-steps");
+  for(const [index,item] of rows.slice(0,4).entries()){
+   const status=String(item.status||"Tercatat");
+   const finished=/selesai|tuntas|rampung/i.test(status);
+   const ongoing=!finished&&/berjalan|proses|aktif|dikerjakan/i.test(status);
+   const stageName=String(item.title||item.stage||"Tahap "+(index+1));
+   const line=el("li","f4-bank-admin-stage-step "+(finished?"is-done":ongoing?"is-active":"is-waiting"));
+   line.setAttribute("aria-label","Tahap "+(index+1)+": "+stageName+". "+status);
+   const marker=el("span","f4-bank-admin-stage-marker");
+   marker.setAttribute("aria-hidden","true");
+   if(finished){
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 24 24");
+    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+    path.setAttribute("d","m5 12 4 4L19 6");
+    path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");
+    path.setAttribute("stroke-width","2.8");path.setAttribute("stroke-linecap","round");
+    path.setAttribute("stroke-linejoin","round");
+    svg.append(path);marker.append(svg);
+   }else marker.textContent=String(index+1);
+   const label=el("span","f4-bank-admin-stage-name",stageName);
+   label.title=stageName;
+   const state=el("small","f4-bank-admin-stage-status",finished?"Selesai":ongoing?"Berjalan":status);
+   state.title=status;
+   line.append(marker,label,state);steps.append(line);
+  }
+  if(!rows.length)steps.append(el("li","f4-bank-admin-stage-empty","Belum ada tahapan untuk ditampilkan."));
+  host.replaceChildren(summary,steps);
 }
 function adminInsightFetch(force=false){
  if(roleType()!=="admin")return;
