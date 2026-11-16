@@ -65,7 +65,7 @@
       '<div class="f4-kas-entry-top">'+
       '<button type="button" class="f4-kas-detail-toggle" data-kas-detail="'+i+'" aria-expanded="false" aria-controls="f4-kas-extra-'+i+'" aria-label="Lihat rincian '+escapeText(title)+'">'+
       '<span class="f4-kas-entry-title">'+escapeText(title)+'</span>'+
-      '<span class="f4-kas-entry-meta">'+escapeText(meta)+'<span class="f4-kas-inline-chevron">'+icons.down+'</span></span>'+
+      '<span class="f4-kas-entry-meta"><span class="f4-kas-meta-text">'+escapeText(meta)+'</span><span class="f4-kas-inline-chevron">'+icons.down+'</span></span>'+
       (status&&status.toUpperCase()!=='AKTIF'?'<span class="f4-kas-entry-status">'+escapeText(status)+'</span>':'')+
       '</button>'+
       '<div class="f4-kas-entry-aside">'+
