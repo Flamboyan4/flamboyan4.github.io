@@ -686,10 +686,10 @@ body.f4-bank-app-admin #dashboardView #f4BankAdminInsights{
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-row{
  display:grid;grid-template-columns:minmax(0,1.28fr) minmax(0,.82fr);
- gap:14px;align-items:start;min-width:0
+ gap:14px;align-items:stretch;min-width:0
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-right{
- display:grid;grid-template-rows:auto auto;align-content:start;gap:12px;min-width:0;min-height:0
+ display:grid;grid-template-rows:auto minmax(0,1fr);align-content:stretch;gap:12px;min-width:0;min-height:0
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-right>.f4-bank-admin-insight-panel{
  min-width:0;min-height:0;padding:14px 17px
@@ -701,13 +701,13 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-schedule .f4-bank-a
  font-size:clamp(15px,1.4vw,18px);letter-spacing:-.01em
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-stages{
- background:#fff
+ display:flex;flex-direction:column;background:#fff
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-stages .f4-bank-admin-insight-head{
  margin-bottom:8px
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-stages .f4-bank-admin-stage-overview{
- gap:14px
+ gap:7px
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-panel{
  box-sizing:border-box;min-width:0;padding:18px 19px;border:1px solid var(--eco-line,#dce8de);
@@ -788,27 +788,61 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-schedule-cycle{
  background:#e8f4e9;color:#286b45;border-radius:999px;font-size:10px;font-weight:800
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-overview{
- display:flex;align-items:center;gap:14px;min-width:0
-}
-body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-ring{
- position:relative;display:grid;place-items:center;flex:none;
- width:76px;height:76px;border-radius:50%;
- background:conic-gradient(var(--eco-leaf,#318651) var(--f4-bank-stage-pct,0%),#e9f2e9 0)
-}
-body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-ring::before{
- content:"";position:absolute;inset:10px;border-radius:50%;background:#fff
-}
-body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-ring strong{
- position:relative;z-index:1;font-size:16px;font-weight:850;color:var(--eco-dark,#174630)
+ display:flex;flex-direction:column;gap:7px;min-width:0;flex:1
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-summary{
- display:grid;align-content:center;gap:6px;min-width:0
+ display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-summary strong{
- color:var(--eco-dark,#174630);font-size:14px;font-weight:850
+ color:var(--eco-dark,#174630);font-size:11px;font-weight:850
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-summary>span{
- color:#728b79;font-size:11px
+ color:#4b9567;font-size:10px;font-weight:800;white-space:nowrap
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-steps{
+ position:relative;display:grid;grid-auto-rows:minmax(24px,auto);align-content:space-between;
+ gap:1px;flex:1;min-width:0;margin:0;padding:0;list-style:none
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-steps::before{
+ content:"";position:absolute;left:9px;top:12px;bottom:12px;width:2px;
+ background:#dceadd;pointer-events:none
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-step{
+ position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;
+ align-items:center;gap:8px;min-width:0;min-height:24px;padding:3px 0;
+ line-height:1.25
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-marker{
+ position:relative;z-index:1;display:grid;place-items:center;width:20px;height:20px;
+ border-radius:50%;background:#e8efe9;color:#6b8774;
+ font-size:10px;font-weight:850;line-height:1
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-step.is-done .f4-bank-admin-stage-marker{
+ background:#318651;color:#fff
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-step.is-active .f4-bank-admin-stage-marker{
+ background:#fdc010;color:#245038
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-marker svg{
+ width:12px;height:12px
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-name{
+ min-width:0;overflow-wrap:break-word;color:#214a34;
+ font-size:11px;font-weight:750;line-height:1.22
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-status{
+ color:#388556;font-size:9px;font-weight:750;white-space:nowrap
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-step.is-active .f4-bank-admin-stage-status{color:#967100}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-step.is-waiting .f4-bank-admin-stage-status{color:#788a7d}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-empty{
+ color:#728b79;font-size:11px;line-height:1.45
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart{
+ display:flex;flex-direction:column
+}
+body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admin-chart-foot{
+ margin-top:auto
 }
 @media(max-width:760px){
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-row{
@@ -827,7 +861,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-summary>span{
  }
  body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-bars{gap:6px}
   body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-summary{
-  gap:5px
+  gap:5px;flex-wrap:wrap
  }
 }
 #dashboardView #bank-admin-progress{min-width:0}
