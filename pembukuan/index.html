@@ -2492,7 +2492,7 @@ main > section.card{overflow:visible}
 
       <div id="history-talangan-panel" class="hidden">
         <div id="hist-tal-status" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TALANGAN AKTIF</div><div id="tal-sum-count" class="text-xl font-black mt-1">0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TOTAL AKTIF</div><div id="tal-sum-total" class="text-xl font-black mt-1">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SUDAH DIGANTI</div><div id="tal-sum-paid" class="text-xl font-black mt-1 text-emerald-700">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SISA</div><div id="tal-sum-sisa" class="text-xl font-black mt-1 text-red-600">Rp 0</div></div></div>
+        <div class="f4-talangan-quick grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TALANGAN AKTIF</div><div id="tal-sum-count" class="text-xl font-black mt-1">0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TOTAL AKTIF</div><div id="tal-sum-total" class="text-xl font-black mt-1">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SUDAH DIGANTI</div><div id="tal-sum-paid" class="text-xl font-black mt-1 text-emerald-700">Rp 0</div></div><div class="rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">SISA</div><div id="tal-sum-sisa" class="text-xl font-black mt-1 text-red-600">Rp 0</div></div></div>
         <div class="history-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin"><table class="min-w-[1000px] w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Periode</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Buku Kas</th><th class="p-3 text-left">Pelunasan</th><th class="p-3 text-right">Aksi</th></tr></thead><tbody id="tbody-riwayat-talangan" class="divide-y divide-violet-50"><tr><td colspan="9" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
       </div>
 
@@ -5503,6 +5503,74 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   #history-denda-panel .mhistory-line:last-child{border-bottom:0}
   #history-denda-panel .mhistory-empty{border:0;padding:20px 3px}
 
+  /* Riwayat Talangan HP — satu daftar flat, bukan tabel/kartu ganda. */
+  #history-talangan-panel .history-scroll.mhistory-source{display:none}
+  #history-talangan-panel .f4-talangan-quick{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;
+    border-top:1px solid #eee9f7;border-bottom:1px solid #eee9f7;
+    margin:0 0 6px
+  }
+  #history-talangan-panel .f4-talangan-quick>div{
+    min-width:0;min-height:63px;padding:11px 8px;border:0;border-radius:0;
+    background:transparent;box-shadow:none
+  }
+  #history-talangan-panel .f4-talangan-quick>div:nth-child(even){border-left:1px solid #eee9f7}
+  #history-talangan-panel .f4-talangan-quick>div:nth-child(-n+2){border-bottom:1px solid #eee9f7}
+  #history-talangan-panel .f4-talangan-quick>div>div:first-child{
+    color:#888097;font-size:10px;line-height:1.2;font-weight:700
+  }
+  #history-talangan-panel .f4-talangan-quick>div>div[id]{
+    font-size:clamp(14px,3.8vw,18px);line-height:1.25;margin-top:5px;
+    font-variant-numeric:tabular-nums;white-space:nowrap
+  }
+  #history-talangan-panel .mhistory-cards{
+    display:flex;flex-direction:column;gap:0;margin:0;border:0;background:transparent
+  }
+  #history-talangan-panel .mhistory-entry{
+    border:0;border-bottom:1px solid #eee9f7;border-radius:0;background:transparent;
+    box-shadow:none
+  }
+  #history-talangan-panel .mhistory-entry:last-child{border-bottom:0}
+  #history-talangan-panel .mhistory-entry[open]{border-color:#eee9f7;background:transparent}
+  #history-talangan-panel .mhistory-entry>summary{
+    min-height:60px;padding:11px 3px;gap:9px
+  }
+  #history-talangan-panel .mhistory-main{min-width:0}
+  #history-talangan-panel .mhistory-primary{
+    color:#352251;font-size:13px;font-weight:800;line-height:1.3;overflow-wrap:anywhere
+  }
+  #history-talangan-panel .mhistory-secondary{
+    color:#8b8398;font-size:11px;line-height:1.3;margin-top:4px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+  }
+  #history-talangan-panel .mhistory-right{
+    display:grid;grid-template-columns:minmax(0,1fr) 16px;
+    grid-template-rows:auto auto;align-items:center;gap:3px 5px;
+    max-width:44%;flex:0 0 auto
+  }
+  #history-talangan-panel .mhistory-amount{
+    grid-column:1/-1;grid-row:1;font-size:13px;font-weight:800;
+    color:#30263f;white-space:nowrap
+  }
+  #history-talangan-panel .mhistory-status{
+    grid-column:1;grid-row:2;font-size:10px;font-weight:750;color:#19815c
+  }
+  #history-talangan-panel .mhistory-status.is-active{color:#7c3aed}
+  #history-talangan-panel .mhistory-status.is-cancelled{color:#8a8399}
+  #history-talangan-panel .mhistory-chevron{grid-column:2;grid-row:2;color:#7c3aed}
+  #history-talangan-panel .mhistory-chevron svg{width:15px;height:15px}
+  #history-talangan-panel .mhistory-detail{
+    padding:7px 3px 10px;background:transparent;border-top:1px solid #f0eaf8
+  }
+  #history-talangan-panel .mhistory-line{
+    grid-template-columns:90px minmax(0,1fr);gap:8px;
+    padding:7px 0;font-size:11.5px;line-height:1.4;
+    border-bottom:1px solid #f5f1fb
+  }
+  #history-talangan-panel .mhistory-line:last-child{border-bottom:0}
+  #history-talangan-panel .mhistory-empty{padding:20px 3px;border:0;border-radius:0}
+
+
 
 }
 @media (min-width:768px){.mhistory-cards{display:none}}
@@ -5552,14 +5620,22 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
           amount=txt(cells[3])||'-';
           status=txt(cells[4])||'';
         }
+        if(tbodyId==='tbody-riwayat-talangan'){
+          const house=txt(cells[1]?.querySelector(':scope > div:nth-child(2)'));
+          const period=txt(cells[0]?.querySelector(':scope > div:first-child'));
+          const date=txt(cells[0]?.querySelector(':scope > div:nth-child(2)'));
+          side=[house,period,date].filter(Boolean).join(' • ');
+          amount=txt(cells[2])||'-';
+          status=txt(cells[5])||'';
+        }
         const key=tbodyId+'-'+index+'-'+first+'-'+side;
         const details=document.createElement('details');details.className='mhistory-entry';details.dataset.rkey=key;
         if(oldOpen.has(key))details.open=true;
         const summary=document.createElement('summary');
-        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status&&!/^aktif$/i.test(status)?'<div class="mhistory-status'+(tbodyId==='tbody-riwayat-denda'&&/^belum$/i.test(status)?' is-unpaid':tbodyId==='tbody-riwayat-denda'&&/^batal$/i.test(status)?' is-cancelled':'')+'">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
+        summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status&&(!/^aktif$/i.test(status)||tbodyId==='tbody-riwayat-talangan')?'<div class="mhistory-status'+(tbodyId==='tbody-riwayat-denda'&&/^belum$/i.test(status)?' is-unpaid':tbodyId==='tbody-riwayat-talangan'&&/^aktif$/i.test(status)?' is-active':(tbodyId==='tbody-riwayat-denda'||tbodyId==='tbody-riwayat-talangan')&&/^batal$/i.test(status)?' is-cancelled':'')+'">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
         details.appendChild(summary);
         const body=document.createElement('div');body.className='mhistory-detail';
-        const visibleCells=tbodyId==='kas-tbody-batch'?[1,3,5]:tbodyId==='tbody-riwayat-denda'?[2,5,6]:cells.map((_td,i)=>i);
+        const visibleCells=tbodyId==='kas-tbody-batch'?[1,3,5]:tbodyId==='tbody-riwayat-denda'?[2,5,6]:tbodyId==='tbody-riwayat-talangan'?[0,3,4,6,7,8]:cells.map((_td,i)=>i);
         visibleCells.forEach(i=>{
           const td=cells[i];
           const label=heads[i]||('Kolom '+(i+1));
@@ -5578,6 +5654,17 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
               ref.textContent=txt(idLine);
               v.appendChild(ref);
             }
+          }else if(tbodyId==='tbody-riwayat-talangan'&&i===0){
+            const period=txt(td.querySelector(':scope > div:first-child'));
+            const date=txt(td.querySelector(':scope > div:nth-child(2)'));
+            const due=txt(td.querySelector('div.text-violet-600'));
+            v.textContent=[period,date,due].filter(x=>x&&x!=='-').join(' • ')||'-';
+          }else if(tbodyId==='tbody-riwayat-talangan'&&i===7){
+            const paymentLabel=td.firstChild?.nodeType===3?td.firstChild.textContent.trim():'';
+            const paidDate=txt(td.querySelector(':scope > div.text-xs'));
+            v.textContent=[paymentLabel,paidDate].filter(Boolean).join(' • ')||'-';
+          }else if(tbodyId==='tbody-riwayat-talangan'&&i===6){
+            v.textContent=txt(td)||'-';
           }else if(tbodyId==='tbody-riwayat-denda'&&i===5){
             const paidDate=td.firstChild?.nodeType===3?td.firstChild.textContent.trim():'';
             const method=txt(td.querySelector(':scope > div.text-xs'));
@@ -5592,6 +5679,16 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
           }
           line.append(k,v);body.appendChild(line);
         });
+        if(tbodyId==='tbody-riwayat-talangan'){
+          const idText=txt(cells[0]?.querySelector('.f4-trans-ref div'));
+          if(idText){
+            const line=document.createElement('div');line.className='mhistory-line';
+            const k=document.createElement('span');k.className='mhistory-key';k.textContent='ID Talangan';
+            const v=document.createElement('div');v.className='mhistory-value';
+            v.textContent=idText.replace(/^ID:\s*/i,'');
+            line.append(k,v);body.appendChild(line);
+          }
+        }
         if(tbodyId==='tbody-riwayat-denda'){
           const idText=txt(cells[0]?.querySelector('.f4-trans-ref div'));
           if(idText){
