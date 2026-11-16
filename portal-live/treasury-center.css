@@ -27,6 +27,8 @@ body:has(#f4-account-page){
 .tc-view-btn.is-active img{opacity:1}
 .tc-view-btn:focus-visible{outline:2px solid var(--tc-accent);outline-offset:2px}
 .tc-view{display:grid;align-content:start;gap:9px;min-width:0}
+/* `hidden` must beat .tc-view display:grid (previously all three panels stayed visible). */
+.tc-center .tc-view[hidden]{display:none}
 .tc-fund-manage{margin:0;min-width:0;background:#fff;border:1px solid var(--tc-line);border-radius:12px;overflow:visible}
 .tc-fund-manage>summary{list-style:none;display:flex;align-items:center;min-height:46px;margin:0;padding:12px 14px;color:var(--tc-ink);font-size:14px;font-weight:800;cursor:pointer}
 .tc-fund-manage>summary:focus-visible{outline:2px solid var(--tc-accent);outline-offset:2px}
@@ -79,11 +81,15 @@ body:has(#f4-account-page){
 .tc-recent-row strong{font-size:13px;color:var(--tc-ink)}
 .tc-recent-row small{font-size:11px;color:var(--tc-muted);overflow-wrap:anywhere}
 .tc-recent-row b{font-size:12px;color:#2b506b;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tc-recent-row b.is-income{color:#087b56}
+.tc-recent-row b.is-expense{color:#be3843}
 .tc-report-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .tc-report-caption{display:grid;gap:4px}
 .tc-report-caption h3{margin:0}
 .tc-report-caption span{font-size:11px;color:var(--tc-muted)}
 .tc-history-panel>h3{margin-bottom:10px}
+/* Laporan desktop tetap tabel; versi HP memiliki list transaksi sendiri. */
+.tc-mobile-history{display:none}
 .tc-center .f4-work-heading{margin-bottom:0}
 .tc-panel,.tc-stat{min-width:0;background:#fff;border:1px solid var(--tc-line);border-radius:12px}
 .tc-panel{padding:12px 14px}
@@ -260,6 +266,170 @@ body:has(#f4-account-page){
  .tc-balance-breakdown{gap:5px}
  .tc-balance-breakdown>div{padding:7px 5px}
  .tc-balance-breakdown strong{font-size:10px}
+
+ /* Mobile app layout: one active panel, minimal containers, consistent spacing. */
+ .tc-center{gap:8px;min-width:0}
+ .tc-center .f4-work-heading{
+  margin:0;padding:4px 0 6px;border:0
+ }
+ .tc-center .f4-work-heading h2{
+  font-size:22px;line-height:1.22;letter-spacing:-.035em;margin:0
+ }
+ .tc-center .f4-work-heading p{display:none}
+ .tc-center .tc-overview{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:2px;
+  border-radius:16px;background:#fff
+ }
+ .tc-center .tc-overview .tc-stat{
+  min-height:61px;padding:9px 11px;gap:4px
+ }
+ .tc-center .tc-overview .tc-stat small{font-size:10px;font-weight:700}
+ .tc-center .tc-overview .tc-stat strong{
+  font-size:clamp(15px,4.4vw,19px);line-height:1.18;
+  white-space:nowrap;overflow-wrap:normal;letter-spacing:-.035em
+ }
+ .tc-center .tc-overview .tc-stat span{display:none}
+ .tc-center .tc-view-nav{
+  scroll-margin-top:75px;grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:3px;gap:3px;background:#f7f4fd;border:1px solid #ece6f8;border-radius:13px
+ }
+ .tc-center .tc-view-btn{
+  min-height:42px;padding:7px 5px;border:0;border-radius:10px;gap:5px;
+  font-size:11.5px;color:#726d81
+ }
+ .tc-center .tc-view-btn img{width:17px;height:17px}
+ .tc-center .tc-view-btn.is-active{
+  color:var(--tc-accent);background:#fff;border:0;box-shadow:0 1px 5px rgba(63,45,100,.09)
+ }
+ .tc-center .tc-view{gap:8px}
+ /* Saldo: one main surface containing both account balances and fund management. */
+ .tc-center #tc-view-saldo .tc-saldo-layout{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  border:1px solid var(--tc-line);border-radius:16px;background:#fff;overflow:visible
+ }
+ .tc-center #tc-view-saldo .tc-ownership{
+  padding:12px 14px 4px;background:transparent;border:0;border-radius:16px 16px 0 0
+ }
+ .tc-center #tc-view-saldo .tc-ownership .tc-section-head{margin-bottom:2px}
+ .tc-center #tc-view-saldo .tc-ownership h3{font-size:14px}
+ .tc-center #tc-view-saldo .tc-manage-trigger{display:none}
+ .tc-center #tc-view-saldo .tc-fund-balance-summary{min-height:48px;padding:10px 0}
+ .tc-center #tc-view-saldo .tc-fund-manage{
+  border:0;border-top:1px solid #eee9f5;border-radius:0 0 16px 16px;background:transparent
+ }
+ .tc-center #tc-view-saldo .tc-fund-manage>summary{
+  min-height:43px;padding:12px 14px;font-size:12px;font-weight:750;color:var(--tc-accent)
+ }
+ .tc-center #tc-view-saldo .tc-fund-manage>.tc-custom-fund{padding:3px 12px 13px}
+ .tc-center #tc-view-saldo .tc-balance-breakdown{
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:4px 0 12px
+ }
+ .tc-center #tc-view-saldo .tc-balance-breakdown>div{
+  padding:5px 6px;border-radius:0;background:transparent;gap:2px
+ }
+ .tc-center #tc-view-saldo .tc-balance-breakdown>div+div{border-left:1px solid #eee9f5}
+ /* Transactions: form and recent activity inside the same surface. */
+ .tc-center #tc-view-transaksi .tc-transaksi-layout{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  border:1px solid var(--tc-line);border-radius:16px;background:#fff;overflow:visible
+ }
+ .tc-center #tc-view-transaksi .tc-mutation-panel{
+  padding:12px 14px;border:0;border-radius:16px 16px 0 0;background:transparent
+ }
+ .tc-center #tc-view-transaksi .tc-mutation-panel>summary{
+  font-size:13px;margin:0;color:var(--tc-accent)
+ }
+ .tc-center #tc-view-transaksi .tc-mutation-panel[open]>summary{margin-bottom:10px}
+ .tc-center #tc-view-transaksi .tc-recent{
+  padding:12px 14px 6px;border:0;border-top:1px solid #eee9f5;
+  border-radius:0 0 16px 16px;background:transparent
+ }
+ .tc-center #tc-view-transaksi .tc-recent .tc-section-head{margin-bottom:5px}
+ .tc-center #tc-view-transaksi .tc-recent .tc-section-head h3{font-size:13px}
+ .tc-center #tc-view-transaksi .tc-recent .tc-secondary{
+  min-height:31px;padding:4px 7px;border:0;background:transparent;font-size:11px
+ }
+ .tc-center #tc-view-transaksi .tc-recent-row{
+  padding:10px 0;gap:10px;align-items:start
+ }
+ .tc-center #tc-view-transaksi .tc-recent-row strong{font-size:12.5px;line-height:1.3}
+ .tc-center #tc-view-transaksi .tc-recent-row small{font-size:11px;line-height:1.25}
+ .tc-center #tc-view-transaksi .tc-recent-row b{font-size:12px;flex:none}
+ .tc-center #tc-view-transaksi .tc-review-fold>summary{
+  border-radius:13px;padding:11px 13px;color:var(--tc-accent);background:#faf8ff
+ }
+ /* Laporan: one frame with archive control and a readable list. */
+ .tc-center #tc-view-laporan{
+  gap:0;border:1px solid var(--tc-line);border-radius:16px;padding:0 13px;background:#fff
+ }
+ .tc-center #tc-view-laporan .tc-report-top{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0
+ }
+ .tc-center #tc-view-laporan .tc-report-top .tc-report-head{
+  min-height:55px;padding:12px 0;border:0;border-bottom:1px solid #eee9f5;border-radius:0
+ }
+ .tc-center #tc-view-laporan .tc-report-caption span{display:none}
+ .tc-center #tc-view-laporan .tc-report-head h3{font-size:13px;margin:0}
+ .tc-center #tc-view-laporan .tc-report-head .tc-primary{
+  min-height:35px;padding:7px 10px;font-size:11px
+ }
+ .tc-center #tc-view-laporan .tc-report-top .tc-opening-recap{
+  padding:12px 0;margin:0;border:0;border-radius:0;background:transparent
+ }
+ .tc-center #tc-view-laporan .tc-opening-recap>summary{
+  font-size:11px;line-height:1.5;font-weight:700;overflow-wrap:anywhere
+ }
+ .tc-center #tc-view-laporan .tc-history-panel{
+  padding:12px 0 4px;border:0;border-top:1px solid #eee9f5;border-radius:0
+ }
+ .tc-center #tc-view-laporan .tc-history-panel h3{font-size:13px;margin:0 0 3px}
+ /* Do not show duplicated, automatically converted table cards on phones. */
+ .tc-center #tc-view-laporan .tc-history-table{display:none}
+ .tc-center #tc-view-laporan .tc-mobile-history{display:block}
+ .tc-center #tc-view-laporan .tc-mobile-history-item{
+  border-bottom:1px solid #eee9f5;background:transparent
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-item:last-child{border-bottom:0}
+ .tc-center #tc-view-laporan .tc-mobile-history-item>summary{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;
+  list-style:none;min-height:60px;padding:11px 0;cursor:pointer
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-item>summary::-webkit-details-marker{display:none}
+ .tc-center #tc-view-laporan .tc-mobile-history-item>summary:focus-visible{
+  outline:2px solid var(--tc-accent);outline-offset:2px;border-radius:6px
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-copy{display:grid;gap:4px;min-width:0}
+ .tc-center #tc-view-laporan .tc-mobile-history-copy strong{
+  font-size:12.5px;font-weight:800;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;overflow-wrap:anywhere
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-copy small{
+  font-size:10.5px;color:var(--tc-muted);line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-side{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;flex:none
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-side b{
+  font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-side b.is-income{color:#087b56}
+ .tc-center #tc-view-laporan .tc-mobile-history-side b.is-expense{color:#be3843}
+ .tc-center #tc-view-laporan .tc-mobile-history-caret{display:inline-flex;color:#8b68bd;transition:transform .15s}
+ .tc-center #tc-view-laporan .tc-mobile-history-caret svg{width:14px;height:14px}
+ .tc-center #tc-view-laporan .tc-mobile-history-item[open] .tc-mobile-history-caret{transform:rotate(90deg)}
+ .tc-center #tc-view-laporan .tc-mobile-history-detail{
+  display:grid;gap:0;padding:2px 0 10px;border-top:1px solid #f1ebf9
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-detail>div{
+  display:grid;grid-template-columns:75px minmax(0,1fr);gap:10px;align-items:start;
+  padding:7px 0;border-bottom:1px solid #f5f1fb;
+  font-size:11px;line-height:1.35
+ }
+ .tc-center #tc-view-laporan .tc-mobile-history-detail>div:last-child{border-bottom:0}
+ .tc-center #tc-view-laporan .tc-mobile-history-detail span{color:var(--tc-muted)}
+ .tc-center #tc-view-laporan .tc-mobile-history-detail strong{font-weight:650;overflow-wrap:anywhere}
  .tc-recent-row b{font-size:11px}
  .tc-report-head{align-items:flex-start}
  .tc-report-head button{padding:8px 10px;font-size:11px}
