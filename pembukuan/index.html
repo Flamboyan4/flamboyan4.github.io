@@ -5435,6 +5435,9 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   #history-batch-panel .mhistory-empty{
     padding:18px 2px;border:0;border-radius:0
   }
+  #history-batch-panel .mhistory-batch-id{
+    display:block;margin-top:3px;font-size:10px;color:#8a8399;overflow-wrap:anywhere
+  }
 
 }
 @media (min-width:768px){.mhistory-cards{display:none}}
@@ -5490,9 +5493,22 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
           const line=document.createElement('div');line.className='mhistory-line';
           const k=document.createElement('span');k.className='mhistory-key';k.textContent=label;
           const v=document.createElement('div');v.className='mhistory-value';
-          // Keep the same controls as the original table, without modifying the source data.
-          v.innerHTML=td.innerHTML;
-          v.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+          // Batch Kas: cukup kategori, ID, jumlah dan aksi tanpa nested "Detail pencatatan".
+          // Tombol Batal tetap memakai onclick asli dari tabel.
+          if(tbodyId==='kas-tbody-batch'&&i===1){
+            const category=td.querySelector(':scope > div:first-child');
+            const idLine=td.querySelector('.f4-trans-ref div');
+            v.textContent=txt(category)||'-';
+            if(idLine){
+              const ref=document.createElement('small');
+              ref.className='mhistory-batch-id';
+              ref.textContent=txt(idLine);
+              v.appendChild(ref);
+            }
+          }else{
+            v.innerHTML=td.innerHTML;
+            v.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+          }
           line.append(k,v);body.appendChild(line);
         });
         details.appendChild(body);frag.appendChild(details);
