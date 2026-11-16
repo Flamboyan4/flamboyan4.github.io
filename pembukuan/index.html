@@ -5393,6 +5393,49 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   .mhistory-value{color:#1e1b4b;min-width:0;overflow-wrap:anywhere}
   .mhistory-value button{min-width:32px;min-height:32px}
   .mhistory-empty{padding:18px;text-align:center;color:#94a3b8;border:1px solid #ede9fe;border-radius:13px}
+  /* Batch Kas HP: satu sumber daftar, tanpa tabel ganda maupun kartu bersarang. */
+  #history-batch-panel .history-scroll.mhistory-source{display:none}
+  #history-batch-panel .mhistory-cards{
+    display:flex;flex-direction:column;gap:0;margin:0;
+    border-top:1px solid #eee9f7;background:transparent
+  }
+  #history-batch-panel .mhistory-entry{
+    border:0;border-bottom:1px solid #eee9f7;border-radius:0;
+    background:transparent;box-shadow:none
+  }
+  #history-batch-panel .mhistory-entry:last-child{border-bottom:0}
+  #history-batch-panel .mhistory-entry[open]{border-color:#eee9f7;background:transparent}
+  #history-batch-panel .mhistory-entry>summary{
+    min-height:58px;gap:10px;padding:11px 3px
+  }
+  #history-batch-panel .mhistory-main{min-width:0}
+  #history-batch-panel .mhistory-primary{
+    font-size:13px;line-height:1.3;font-weight:800;color:#332253;overflow-wrap:anywhere
+  }
+  #history-batch-panel .mhistory-secondary{
+    margin-top:4px;font-size:11px;line-height:1.3;color:#858094
+  }
+  #history-batch-panel .mhistory-right{
+    display:grid;grid-template-columns:minmax(0,1fr) 16px;
+    grid-template-rows:auto;align-items:center;column-gap:6px;flex:0 0 auto
+  }
+  #history-batch-panel .mhistory-amount{
+    grid-column:1;grid-row:1;margin:0;font-size:13px;color:#29213f;white-space:nowrap
+  }
+  #history-batch-panel .mhistory-chevron{grid-column:2;grid-row:1}
+  #history-batch-panel .mhistory-chevron svg{width:15px;height:15px}
+  #history-batch-panel .mhistory-detail{
+    padding:7px 3px 10px;background:transparent;border-top:1px solid #f0eaf8
+  }
+  #history-batch-panel .mhistory-line{
+    grid-template-columns:92px minmax(0,1fr);gap:8px;padding:7px 0;
+    font-size:12px;border-bottom:1px solid #f5f1fb
+  }
+  #history-batch-panel .mhistory-line:last-child{border-bottom:0}
+  #history-batch-panel .mhistory-empty{
+    padding:18px 2px;border:0;border-radius:0
+  }
+
 }
 @media (min-width:768px){.mhistory-cards{display:none}}
 </style>
@@ -5440,7 +5483,9 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
         summary.innerHTML='<div class="mhistory-main"><div class="mhistory-primary">'+escapeText(first)+'</div><div class="mhistory-secondary">'+escapeText(side)+'</div></div><div class="mhistory-right"><div class="mhistory-amount">'+escapeText(amount)+'</div>'+(status&&!/^aktif$/i.test(status)?'<div class="mhistory-status">'+escapeText(status)+'</div>':'')+'<span class="mhistory-chevron" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div>';
         details.appendChild(summary);
         const body=document.createElement('div');body.className='mhistory-detail';
-        cells.forEach((td,i)=>{
+        const visibleCells=tbodyId==='kas-tbody-batch'?[1,3,5]:cells.map((_td,i)=>i);
+        visibleCells.forEach(i=>{
+          const td=cells[i];
           const label=heads[i]||('Kolom '+(i+1));
           const line=document.createElement('div');line.className='mhistory-line';
           const k=document.createElement('span');k.className='mhistory-key';k.textContent=label;
