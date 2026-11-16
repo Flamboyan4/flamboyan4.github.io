@@ -175,6 +175,9 @@
 
 
 /* Penampil foto sungguhan: layar gelap solid. Panel komentar PC; HP foto penuh. */
+/* State tersembunyi harus tetap menang atas display:grid milik mode sosial. */
+.f4p-photo-overlay.f4g-social-enabled[hidden]{display:none}
+
 .f4p-photo-overlay.f4g-social-enabled{
  display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,345px);
  grid-template-rows:auto minmax(0,1fr) auto;
