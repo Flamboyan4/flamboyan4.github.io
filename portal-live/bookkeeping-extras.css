@@ -1,5 +1,5 @@
 /* Pembukuan: satu daftar tunggakan dan satu resi JPG, tanpa mengubah grid dasar. */
-.f4-unpaid-trigger{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 13px;border:1px solid #c4b5fd;border-radius:11px;background:#fff;color:#5b21b6;font-size:12px;font-weight:800;cursor:pointer}
+.f4-unpaid-trigger{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:7px 10px;border:1px solid #c4b5fd;border-radius:10px;background:#fff;color:#5b21b6;font-size:11px;font-weight:750;white-space:nowrap;cursor:pointer}
 .f4-unpaid-trigger:hover,.f4-unpaid-trigger[aria-expanded="true"]{background:#f5f3ff}
 .f4-unpaid-trigger svg{width:16px;height:16px}
 .f4-unpaid-overlay{position:fixed;inset:0;z-index:1250;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(22,18,37,.56)}
