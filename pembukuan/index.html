@@ -1802,12 +1802,13 @@ main > section.card{overflow:visible}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261111-unified-frame-v3">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-riwayat-simple-v1">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-kas-mobile-v2">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script defer src="/portal-live/bookkeeping-extras.js?v=20261116-riwayat-simple-v1"></script>
+<script defer src="/portal-live/bookkeeping-kas-mobile.js?v=20261116-kas-mobile-v1"></script>
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -5400,7 +5401,6 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
   'use strict';
   const configs=[
     ['tbody-riwayat',[1,0],[2,3,4]],
-    ['tbody-riwayat-kas',[2,0],[3,4,6]],
     ['kas-tbody-batch',[2,0],[4,3,1]],
     ['tbody-riwayat-talangan',[1,0],[2,5,4]],
     ['tbody-riwayat-denda',[1,0],[3,4,2]],
