@@ -517,16 +517,20 @@
                 /* Tables must remain readable at the screen width. Google
                    Docs exports fixed column widths: do not force max-content
                    or crop the first column inside a horizontally scrolled table. */
-                table {
+                table[data-f4-responsive-table] {
                   display: table;
                   width: 100%;
                   max-width: 100%;
+                  min-width: 0;
                   table-layout: fixed;
                   border-collapse: collapse;
-                  margin-left: 0;
-                  margin-right: 0;
+                  margin: 0;
                 }
-                colgroup col { width: auto; }
+                table[data-f4-responsive-table] tr { width: 100%; }
+                table[data-f4-responsive-table] td,
+                table[data-f4-responsive-table] th {
+                  border: 1px solid #333;
+                }
                 td, th {
                   min-width: 0;
                   max-width: 100%;
@@ -581,20 +585,35 @@
               }
             });
 
-            // Google Docs frequently exports column width attributes and fixed
-            // inline widths. Let the responsive mobile rules own that geometry.
-            // Keep text, colors, borders and document structure intact.
-            exportedDoc.querySelectorAll('table').forEach(table => {
-              table.removeAttribute('width');
-              table.style.removeProperty('width');
-              table.style.removeProperty('min-width');
-              table.querySelectorAll('col,colgroup,td,th').forEach(cell => {
-                cell.removeAttribute('width');
-                cell.style.removeProperty('width');
-                cell.style.removeProperty('min-width');
-                cell.style.removeProperty('max-width');
-                cell.style.removeProperty('white-space');
-              });
+            // The exported document's body class carries its original A4/page
+            // margins and width. On a phone it places the document outside
+            // the iframe viewport, regardless of the responsive rules above.
+            // Keep formatting of paragraphs and headings, but remove page geometry.
+            exportedDoc.body.removeAttribute('class');
+            exportedDoc.body.removeAttribute('style');
+            exportedDoc.documentElement.removeAttribute('style');
+
+            // Rebuild only table geometry, retaining real text, formatting,
+            // links and row order. Google Docs class widths are otherwise
+            // wider than the phone screen and can hide the second column.
+            exportedDoc.querySelectorAll('table').forEach(original => {
+              const table=exportedDoc.createElement('table');
+              table.setAttribute('data-f4-responsive-table','');
+              const rows=Array.from(original.rows||[]);
+              for(const sourceRow of rows){
+                const tr=exportedDoc.createElement('tr');
+                for(const sourceCell of Array.from(sourceRow.cells||[])){
+                  const cell=exportedDoc.createElement(sourceCell.tagName.toLowerCase());
+                  if(sourceCell.colSpan>1)cell.colSpan=sourceCell.colSpan;
+                  if(sourceCell.rowSpan>1)cell.rowSpan=sourceCell.rowSpan;
+                  // Retain the document's bold/color spans without its fixed
+                  // cell-width classes or oversized inline padding.
+                  while(sourceCell.firstChild)cell.appendChild(sourceCell.firstChild);
+                  tr.appendChild(cell);
+                }
+                table.appendChild(tr);
+              }
+              original.replaceWith(table);
             });
 
             const serializedHtml = '<!DOCTYPE html>\n' + exportedDoc.documentElement.outerHTML;
