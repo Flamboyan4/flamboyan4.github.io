@@ -1802,13 +1802,13 @@ main > section.card{overflow:visible}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261111-unified-frame-v3">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-kas-mobile-v2">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-kas-flat-v3">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
 <script defer src="/portal-live/transaction-receipts.js?v=20261110-iuran-ticket-unified-v2"></script>
 <script defer src="/portal-live/bookkeeping-extras.js?v=20261116-riwayat-simple-v1"></script>
-<script defer src="/portal-live/bookkeeping-kas-mobile.js?v=20261116-kas-mobile-v1"></script>
+<script defer src="/portal-live/bookkeeping-kas-mobile.js?v=20261116-kas-flat-v3"></script>
 </head>
 <body>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -3491,7 +3491,7 @@ function renderRiwayatKas(){
     return [x.jenis,x.kategori,x.keterangan,x.metode,x.periode,x.idTransaksi].join(' ').toLowerCase().includes(q)
   }).sort((a,b)=>historyDateTs(b.tanggal)-historyDateTs(a.tanggal));
   const label=document.getElementById('history-kas-period-info');
-  if(label)label.textContent=(window.f4KasAllPeriods?'Semua tanggal':'Periode terpilih')+' • '+rows.length+' transaksi';
+  if(label)label.textContent=rows.length+' transaksi';
   document.getElementById('tbody-riwayat-kas').innerHTML=rows.map(x=>{
     const batal=x.status==='BATAL',debit=x.debit?rupiah(x.debit):'-',kredit=x.kredit?rupiah(x.kredit):'-';
     let aksi='-';
