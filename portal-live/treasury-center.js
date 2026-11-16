@@ -30,6 +30,7 @@ let current=null;
 let activeView="saldo";
 let reviewOpen=false;
 let manageOpen=null;
+let entryOpen=null;
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
  document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
@@ -374,7 +375,8 @@ function printTreasury(data){
 function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
- shell.open=true;
+ shell.open=entryOpen===null?window.matchMedia("(min-width: 761px)").matches:entryOpen;
+ shell.addEventListener("toggle",()=>{entryOpen=shell.open});
  shell.append(el("summary","Catat Transaksi"));
  const form=el("form",undefined,"tc-form");
  const action=select([{id:"",name:"Pilih jenis transaksi…"},{id:"incoming",name:"Pemasukan"},{id:"outgoing",name:"Pengeluaran"},{id:"move",name:"Pindah tempat uang"},{id:"allocation",name:"Pindah antarpos"}]);
@@ -842,6 +844,8 @@ function render(data){
   for(const view of views){
    const selected=view.id===id;
    viewPanels[view.id].hidden=!selected;
+   viewPanels[view.id].inert=!selected;
+   viewPanels[view.id].setAttribute("aria-hidden",String(!selected));
    buttons[view.id].classList.toggle("is-active",selected);
    buttons[view.id].setAttribute("aria-selected",String(selected));
    buttons[view.id].tabIndex=selected?0:-1;
@@ -875,6 +879,8 @@ function render(data){
   region.setAttribute("role","tabpanel");
   region.setAttribute("aria-labelledby",button.id);
   region.hidden=true;
+  region.inert=true;
+  region.setAttribute("aria-hidden","true");
   viewPanels[view.id]=region;
  }
  panel.append(nav);
@@ -946,14 +952,19 @@ function render(data){
  const recent=el("section",undefined,"tc-panel tc-recent");
  const recentHeader=el("div",undefined,"tc-section-head");
  recentHeader.append(el("h3","Transaksi Terakhir"));
- const seeAll=el("button","Lihat Semua","tc-secondary");
+ const seeAll=el("button","Riwayat","tc-secondary");
  seeAll.type="button";seeAll.onclick=()=>switchView("laporan",true);
  recentHeader.append(seeAll);recent.append(recentHeader);
  if(entries.length){
   for(const x of entries.slice(0,3)){
    const line=el("div",undefined,"tc-recent-row");
-   const info=el("div");info.append(el("strong",x.kindName),el("small",formatDate(x.date)+" · "+x.note));
-   line.append(info,el("b",rp(x.amount)));recent.append(line);
+   const info=el("div");
+   const description=String(x.note||"").trim();
+   info.append(el("strong",description||x.kindName),el("small",formatDate(x.date)+" · "+x.kindName));
+   const val=el("b",(x.kind==="incoming"?"+ ":x.kind==="outgoing"?"− ":"")+rp(x.amount));
+   if(x.kind==="incoming")val.classList.add("is-income");
+   if(x.kind==="outgoing")val.classList.add("is-expense");
+   line.append(info,val);recent.append(line);
   }
  }else recent.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
  transaksiGrid.append(recent);
@@ -989,8 +1000,39 @@ function render(data){
  simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
  reportTop.append(opened);
  const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
- if(historyRows.length)simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
- else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
+ if(historyRows.length){
+  simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
+  const mobileHistory=el("div",undefined,"tc-mobile-history");
+  mobileHistory.setAttribute("aria-label","Daftar riwayat transaksi");
+  for(const x of entries){
+   const item=el("details",undefined,"tc-mobile-history-item");
+   const summary=el("summary");
+   const left=el("span",undefined,"tc-mobile-history-copy");
+   const note=String(x.note||"").trim();
+   left.append(el("strong",note||x.kindName));
+   const detailLocation=x.kind==="incoming"?x.to:x.kind==="outgoing"?x.from:x.from+" ke "+x.to;
+   const dateText=[formatDate(x.date),x.kindName,detailLocation==="—"?"":detailLocation].filter(Boolean).join(" · ");
+   left.append(el("small",dateText));
+   const right=el("span",undefined,"tc-mobile-history-side");
+   const value=el("b",(x.kind==="incoming"?"+ ":x.kind==="outgoing"?"− ":"")+rp(x.amount));
+   if(x.kind==="incoming")value.classList.add("is-income");
+   if(x.kind==="outgoing")value.classList.add("is-expense");
+   const caret=el("span",undefined,"tc-mobile-history-caret");
+   caret.setAttribute("aria-hidden","true");
+   caret.append(tcSvgIcon("chevron-right"));
+   right.append(value,caret);
+   summary.append(left,right);
+   const expanded=el("div",undefined,"tc-mobile-history-detail");
+   for(const [label,valueText] of [["Dari",x.from],["Ke",x.to],["Keterangan",x.note||"—"]]){
+    const row=el("div");
+    row.append(el("span",label),el("strong",valueText||"—"));
+    expanded.append(row);
+   }
+   item.append(summary,expanded);
+   mobileHistory.append(item);
+  }
+  history.append(mobileHistory);
+ }else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
  if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; cetak dinonaktifkan agar tidak terpotong.","tc-status"));
  laporan.append(history);
  switchView(views.some(x=>x.id===activeView)?activeView:"saldo",false);
