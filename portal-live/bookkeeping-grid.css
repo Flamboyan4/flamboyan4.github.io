@@ -324,11 +324,11 @@
  #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:var(--book-control);min-height:var(--book-control);padding:7px 31px 7px 9px;font-size:14px}
  #tab-riwayat #iuran-quick-summary{padding:11px 10px 7px;border:1px solid #e8e1f6;border-radius:13px;background:#fff;box-shadow:none}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile{border-left:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(odd){border-left:0}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
  #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile{border-left:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(odd){border-left:0}
  #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
  #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:8px 7px;min-height:58px;border-radius:0}
