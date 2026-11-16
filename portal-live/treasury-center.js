@@ -86,7 +86,7 @@ function field(label,node,cls=""){
 }
 // Standalone themed calendar for Treasury forms (desktop and phone).
 // The submitted value stays ISO YYYY-MM-DD; no native date dialog is shown.
-function treasuryDateControl(){
+function treasuryDateControl(compact=false){
  const input=el("input");input.type="hidden";input.value=today();
  const wrap=el("div",undefined,"tc-date-control");
  const trigger=el("button",undefined,"tc-date-trigger");trigger.type="button";
@@ -97,7 +97,7 @@ function treasuryDateControl(){
  const days=["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
  const format=iso=>{
   const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m?Number(m[3])+" "+months[Number(m[2])-1]+" "+m[1]:"Pilih tanggal";
+  return m?Number(m[3])+" "+(compact?months[Number(m[2])-1].slice(0,3):months[Number(m[2])-1])+" "+m[1]:"Pilih tanggal";
  };
  const two=n=>String(n).padStart(2,"0");
  function update(){text.textContent=format(input.value)}
@@ -383,20 +383,23 @@ function buildForm(target,data,refresh){
  action.required=true;
  const fromFund=select(funds),toFund=select(funds);
  const fromLoc=select([]),toLoc=select([]);
- const dateCtl=treasuryDateControl(),date=dateCtl.input;
+ const dateCtl=treasuryDateControl(true),date=dateCtl.input;
  const value=el("input");value.type="number";value.min="1";value.max="10000000000";value.step="1";value.placeholder="Nominal";value.required=true;
  const note=el("input");note.maxLength=240;note.minLength=4;note.required=true;note.placeholder="Keterangan singkat";
- const originFund=field("Pos asal",fromFund),destinationFund=field("Pos tujuan",toFund);
- const originLoc=field("Tempat asal",fromLoc),destinationLoc=field("Tempat tujuan",toLoc);
+ const originFund=field("Pos asal",fromFund,"tc-origin-fund"),destinationFund=field("Pos tujuan",toFund,"tc-destination-fund");
+ const originLoc=field("Tempat asal",fromLoc,"tc-origin-location"),destinationLoc=field("Tempat tujuan",toLoc,"tc-destination-location");
  const grid=el("div",undefined,"tc-form-grid");
- append(grid,field("Aksi",action),field("Tanggal",dateCtl.element),
+ append(grid,
+  field("Jenis transaksi",action,"tc-kind-field"),
+  field("Tanggal",dateCtl.element,"tc-date-field"),
+  field("Nominal (Rp)",value,"tc-amount-field"),
   originFund,originLoc,destinationFund,destinationLoc,
-  field("Nominal (Rp)",value),field("Keterangan",note,"tc-wide"));
+  field("Keterangan",note,"tc-wide tc-note-field"));
  form.append(grid);
  const help=el("p","Pilih jenis transaksi agar kolom yang diperlukan muncul.","tc-form-help");
  form.append(help);
  const status=el("p","","tc-status");status.setAttribute("role","status");
- const save=el("button","Simpan","tc-primary");save.type="submit";
+ const save=el("button","Simpan Transaksi","tc-primary");save.type="submit";
  append(form,save,status);shell.append(form);target.append(shell);
  function locChoices(box,fund){
   const previous=box.value;box.replaceChildren();
@@ -409,12 +412,13 @@ function buildForm(target,data,refresh){
   originLoc.hidden=!kind||kind==="incoming";
   destinationFund.hidden=!kind||kind==="outgoing"||kind==="move";
   destinationLoc.hidden=!kind||kind==="outgoing";
-  help.textContent={
-   incoming:"Uang baru yang diterima, beserta pos dan tempat penyimpanannya.",
-   outgoing:"Pembayaran yang sudah keluar, misalnya DP produksi Jersey.",
-   move:"Pindah tempat uang dalam pos yang sama, contohnya Mandiri ke Cash.",
-   allocation:"Pindah alokasi antarpos tanpa menambah total dana."
-  }[kind]||"Pilih jenis transaksi agar kolom yang diperlukan muncul.";
+  grid.dataset.kind=kind;
+  const hint={
+   move:"Memindahkan uang antar tempat tanpa mengubah saldo pos.",
+   allocation:"Memindahkan uang antar pos tanpa menambah total dana."
+  }[kind]||"";
+  help.textContent=hint;
+  help.hidden=!hint;
   locChoices(fromLoc,fromFund.value);
   locChoices(toLoc,kind==="move"?fromFund.value:toFund.value);
   if(kind==="move"&&toLoc.value===fromLoc.value){
