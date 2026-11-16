@@ -89,7 +89,7 @@ body:has(#f4-account-page){
 .tc-report-caption span{font-size:11px;color:var(--tc-muted)}
 .tc-history-panel>h3{margin-bottom:10px}
 /* Laporan desktop tetap tabel; versi HP memiliki list transaksi sendiri. */
-.tc-mobile-history{display:none}
+.tc-mobile-history,.tc-opening-mobile{display:none}
 .tc-center .f4-work-heading{margin-bottom:0}
 .tc-panel,.tc-stat{min-width:0;background:#fff;border:1px solid var(--tc-line);border-radius:12px}
 .tc-panel{padding:12px 14px}
@@ -445,6 +445,80 @@ body:has(#f4-account-page){
  }
  .tc-center #tc-view-laporan .tc-opening-recap>summary{
   font-size:11px;line-height:1.5;font-weight:700;overflow-wrap:anywhere
+ }
+ /* Arsip mobile hanya daftar angka per pos, tidak memakai kartu hasil konversi tabel. */
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-balance-table{display:none}
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-mobile{display:block}
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-summary{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;min-width:0;padding:2px 18px 2px 0;position:relative;
+  color:var(--tc-ink);list-style:none;cursor:pointer
+ }
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-summary::-webkit-details-marker{display:none}
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-summary::after{
+  content:"";position:absolute;right:3px;top:50%;
+  width:7px;height:7px;border-right:2px solid #7c5ab9;border-bottom:2px solid #7c5ab9;
+  transform:translateY(-65%) rotate(45deg);transition:transform .15s
+ }
+ .tc-center #tc-view-laporan .tc-opening-recap[open]>.tc-opening-summary::after{
+  transform:translateY(-25%) rotate(225deg)
+ }
+ .tc-center #tc-view-laporan .tc-opening-summary-copy{
+  display:grid;gap:1px;min-width:0;flex:1
+ }
+ .tc-center #tc-view-laporan .tc-opening-summary-copy strong{
+  color:#344057;font-size:12px;font-weight:800;line-height:1.25
+ }
+ .tc-center #tc-view-laporan .tc-opening-summary-copy small{
+  color:#8a829a;font-size:10.5px;font-weight:550;line-height:1.25
+ }
+ .tc-center #tc-view-laporan .tc-opening-summary-total{
+  color:#302447;font-size:12px;white-space:nowrap;font-weight:850;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em
+ }
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-explain{
+  margin:9px 0 5px;font-size:10.5px;line-height:1.3;color:#80768e
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile{
+  margin-top:4px;padding-top:0;border-top:1px solid #f1ebf7
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-item{
+  border-bottom:1px solid #f1ebf7
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-item:last-child{border-bottom:0}
+ .tc-center #tc-view-laporan .tc-opening-mobile-summary{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:10px 16px 10px 0;min-height:40px;
+  list-style:none;position:relative;cursor:pointer
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-summary::-webkit-details-marker{display:none}
+ .tc-center #tc-view-laporan .tc-opening-mobile-summary::after{
+  content:"";position:absolute;right:2px;top:50%;
+  width:6px;height:6px;border-right:1.5px solid #8d80a2;border-bottom:1.5px solid #8d80a2;
+  transform:translateY(-65%) rotate(45deg);transition:transform .15s
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-item[open]>.tc-opening-mobile-summary::after{
+  transform:translateY(-30%) rotate(225deg)
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-summary span{
+  min-width:0;color:#353049;font-size:12px;font-weight:720;overflow-wrap:anywhere
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-summary strong{
+  flex:none;color:#302447;font-size:12px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-split{
+  display:grid;gap:0;margin:0 0 7px;padding:3px 8px;
+  border-top:1px solid #f6f2fb;background:#faf9fd;border-radius:7px
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-item:not([open])>.tc-opening-mobile-split{display:none}
+ .tc-center #tc-view-laporan .tc-opening-mobile-split>div{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 2px
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-split span{
+  color:#847a91;font-size:10.5px;font-weight:600
+ }
+ .tc-center #tc-view-laporan .tc-opening-mobile-split strong{
+  color:#423750;font-size:10.5px;font-weight:750;font-variant-numeric:tabular-nums
  }
  .tc-center #tc-view-laporan .tc-history-panel{
   padding:12px 0 4px;border:0;border-top:1px solid #eee9f5;border-radius:0
