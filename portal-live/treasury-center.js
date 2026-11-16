@@ -996,12 +996,33 @@ function render(data){
  history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
  const opened=el("details",undefined,"tc-opening-recap");
- opened.append(el("summary","Saldo awal (arsip) • "+formatDate(opening.date)+" • "+rp(opening.grand)));
- opened.append(el("p","Ini posisi saat pembukuan dibuka, bukan saldo sekarang. Pemindahan dan pengeluaran setelah tanggal tersebut ada di riwayat. Untuk saldo terbaru, buka tab Saldo.","tc-opening-explain"));
+ const openingTitle=el("summary",undefined,"tc-opening-summary");
+ const openingMeta=el("span",undefined,"tc-opening-summary-copy");
+ openingMeta.append(el("strong","Saldo awal (arsip)"),el("small",formatDate(opening.date)));
+ const openingAmount=el("strong",rp(opening.grand),"tc-opening-summary-total");
+ openingTitle.append(openingMeta,openingAmount);
+ opened.append(openingTitle);
+ opened.append(el("p","Posisi pembuka, bukan saldo terkini.","tc-opening-explain"));
  const openingRows=opening.rows.filter(x=>x.total!==0).map(x=>[x.name,rp(x.cash),rp(x.qris),rp(x.mandiri),rp(x.total)]);
  openingRows.push(["TOTAL",rp(opening.rows.reduce((n,x)=>n+x.cash,0)),rp(opening.rows.reduce((n,x)=>n+x.qris,0)),
   rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
  simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
+ const mobileOpening=el("div",undefined,"tc-opening-mobile");
+ mobileOpening.setAttribute("aria-label","Rincian saldo awal menurut pos");
+ for(const rowData of opening.rows.filter(x=>x.total!==0)){
+  const item=el("details",undefined,"tc-opening-mobile-item");
+  const rowHead=el("summary",undefined,"tc-opening-mobile-summary");
+  rowHead.append(el("span",rowData.name),el("strong",rp(rowData.total)));
+  const split=el("div",undefined,"tc-opening-mobile-split");
+  for(const [label,nominal] of [["Cash",rowData.cash],["QRIS",rowData.qris],["Mandiri",rowData.mandiri]]){
+   const line=el("div");
+   line.append(el("span",label),el("strong",rp(nominal)));
+   split.append(line);
+  }
+  item.append(rowHead,split);
+  mobileOpening.append(item);
+ }
+ opened.append(mobileOpening);
  reportTop.append(opened);
  const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
  if(historyRows.length){
@@ -1015,7 +1036,7 @@ function render(data){
    const note=String(x.note||"").trim();
    left.append(el("strong",note||x.kindName));
    const detailLocation=x.kind==="incoming"?x.to:x.kind==="outgoing"?x.from:x.from+" ke "+x.to;
-   const dateText=[formatDate(x.date),x.kindName,detailLocation==="—"?"":detailLocation].filter(Boolean).join(" · ");
+   const dateText=[formatDate(x.date),x.kindName].filter(Boolean).join(" · ");
    left.append(el("small",dateText));
    const right=el("span",undefined,"tc-mobile-history-side");
    const value=el("b",(x.kind==="incoming"?"+ ":x.kind==="outgoing"?"− ":"")+rp(x.amount));
