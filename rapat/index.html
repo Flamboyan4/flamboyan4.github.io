@@ -514,21 +514,32 @@
                   transform: none ;
                 }
 
-                /* Tabel saja yang boleh digeser horizontal bila memang lebar. */
+                /* Tables must remain readable at the screen width. Google
+                   Docs exports fixed column widths: do not force max-content
+                   or crop the first column inside a horizontally scrolled table. */
                 table {
-                  display: block ;
-                  width: 100% ;
-                  max-width: 100% ;
-                  overflow-x: auto ;
-                  -webkit-overflow-scrolling: touch;
-                  table-layout: auto ;
+                  display: table;
+                  width: 100%;
+                  max-width: 100%;
+                  table-layout: fixed;
                   border-collapse: collapse;
+                  margin-left: 0;
+                  margin-right: 0;
                 }
+                colgroup col { width: auto; }
                 td, th {
-                  min-width: max-content;
-                  word-break: normal ;
-                  overflow-wrap: normal ;
-                  line-height: 1.45 ;
+                  min-width: 0;
+                  max-width: 100%;
+                  padding: 6px;
+                  word-break: normal;
+                  overflow-wrap: anywhere;
+                  white-space: normal;
+                  vertical-align: top;
+                  line-height: 1.45;
+                }
+                td p, th p, td span, th span {
+                  white-space: normal;
+                  overflow-wrap: anywhere;
                 }
               }
             `;
@@ -570,6 +581,22 @@
               }
             });
 
+            // Google Docs frequently exports column width attributes and fixed
+            // inline widths. Let the responsive mobile rules own that geometry.
+            // Keep text, colors, borders and document structure intact.
+            exportedDoc.querySelectorAll('table').forEach(table => {
+              table.removeAttribute('width');
+              table.style.removeProperty('width');
+              table.style.removeProperty('min-width');
+              table.querySelectorAll('col,colgroup,td,th').forEach(cell => {
+                cell.removeAttribute('width');
+                cell.style.removeProperty('width');
+                cell.style.removeProperty('min-width');
+                cell.style.removeProperty('max-width');
+                cell.style.removeProperty('white-space');
+              });
+            });
+
             const serializedHtml = '<!DOCTYPE html>\n' + exportedDoc.documentElement.outerHTML;
             const body = document.getElementById('modal-rapat-body');
 
@@ -582,6 +609,14 @@
             iframe.srcdoc = serializedHtml;
 
             body.innerHTML = '';
+            body.scrollLeft=0;
+            body.scrollTop=0;
+            iframe.addEventListener('load',()=>{
+              try {
+                iframe.contentWindow.scrollTo(0,0);
+                iframe.contentDocument?.documentElement?.scrollTo(0,0);
+              } catch {}
+            },{once:true});
             body.appendChild(iframe);
           })
           .catch(err => {
