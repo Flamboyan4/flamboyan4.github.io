@@ -1546,14 +1546,13 @@ function adminInsightMount(home){
   date.id="f4BankAdminNextDate";
   const cycle=el("span","f4-bank-admin-schedule-cycle","Sumber: jadwal penimbangan aktif");
   cycle.id="f4BankAdminScheduleCycle";
-  schedule.append(scheduleHead,date,cycle,
-   el("p","f4-bank-admin-schedule-desc","Pilah dan kumpulkan plastik, kertas, atau logam sebelum ditimbang."));
+  schedule.append(scheduleHead,date,cycle);
   const right=el("div","f4-bank-admin-insight-right");
   right.append(schedule);
   const stages=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-stages");
   stages.id="f4BankAdminStages";
   const stagesHead=el("div","f4-bank-admin-insight-head");
-  stagesHead.append(el("h3","","Tahap Perkembangan Bank Sampah"));
+  stagesHead.append(el("h3","","Tahap Bank Sampah"));
   const view=el("button","f4-bank-admin-mini-action","Lihat semua");
   view.type="button";view.onclick=()=>navigate("bank-admin-progress");stagesHead.append(view);
   const overview=el("div","f4-bank-admin-stage-overview","Memuat perkembangan…");
@@ -1628,42 +1627,34 @@ function adminInsightScheduleDraw(){
  const observed=valid?new Date(next+"T12:00:00Z"):null;
  if(observed&&Number.isFinite(observed.getTime())){
   day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
-   day:"numeric",month:"long",year:"numeric"}).format(observed);
+   day:"numeric",month:"short",year:"numeric"}).format(observed);
  }else if(freq==="weekly"){
   const t=new Date(today()+"T12:00:00Z");
   t.setUTCDate(t.getUTCDate()+(Number(d.weekday)-t.getUTCDay()+7)%7);
   day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
-   day:"numeric",month:"long",year:"numeric"}).format(t);
+   day:"numeric",month:"short",year:"numeric"}).format(t);
  }else day.textContent="Tanggal berikutnya belum tersedia";
  cycle.textContent=freq==="weekly"?"Setiap "+label:
   freq==="biweekly"?"Setiap 2 minggu":freq==="monthly"?"Setiap bulan":"Jadwal: "+label;
 }
 function adminInsightStagesDraw(){
- const host=$("f4BankAdminStageOverview");if(!host)return;
- const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
- const done=rows.filter(x=>/selesai|tuntas|rampung/i.test(String(x.status||""))).length;
- const active=rows.filter(x=>/berjalan|proses|aktif|dikerjakan/i.test(String(x.status||""))).length;
- host.replaceChildren();
- const summary=el("div","f4-bank-admin-stage-summary");
- summary.append(el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
-  el("span","",rows.length?active+" dalam proses":"Data mengikuti perkembangan yang dipublikasikan"));
- host.append(summary);
- const bar=el("div","f4-bank-admin-stage-track");bar.setAttribute("role","progressbar");
- bar.setAttribute("aria-label","Tahap perkembangan selesai");
- bar.setAttribute("aria-valuemin","0");bar.setAttribute("aria-valuemax",String(rows.length||1));
- bar.setAttribute("aria-valuenow",String(done));
- const fill=el("span");fill.style.width=rows.length?done/rows.length*100+"%":"0%";
- bar.append(fill);host.append(bar);
- const list=el("div","f4-bank-admin-stage-list");
- for(const item of rows.slice(0,3)){
-  const line=el("div","f4-bank-admin-stage-line");
-  const copy=el("div","");
-  copy.append(el("strong","",String(item.title||item.stage||"Tahap kegiatan")),
-    el("small","",String(item.happened_on||"")));
-  const status=el("span","",String(item.status||"Tercatat"));
-  line.append(copy,status);list.append(line);
- }
- if(rows.length)host.append(list);
+  const host=$("f4BankAdminStageOverview");if(!host)return;
+  const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
+  const done=rows.filter(x=>/selesai|tuntas|rampung/i.test(String(x.status||""))).length;
+  const active=rows.filter(x=>/berjalan|proses|aktif|dikerjakan/i.test(String(x.status||""))).length;
+  const pct=rows.length?Math.round(done/rows.length*100):0;
+  const ring=el("div","f4-bank-admin-stage-ring");
+  ring.style.setProperty("--f4-bank-stage-pct",pct+"%");
+  ring.setAttribute("role","progressbar");
+  ring.setAttribute("aria-label","Tahap Bank Sampah selesai");
+  ring.setAttribute("aria-valuemin","0");
+  ring.setAttribute("aria-valuemax",String(rows.length||1));
+  ring.setAttribute("aria-valuenow",String(done));
+  ring.append(el("strong","",rows.length?pct+"%":"—"));
+  const summary=el("div","f4-bank-admin-stage-summary");
+  summary.append(el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
+   el("span","",rows.length?active+" dalam proses":"Belum ada perkembangan"));
+  host.replaceChildren(ring,summary);
 }
 function adminInsightFetch(force=false){
  if(roleType()!=="admin")return;
