@@ -338,3 +338,22 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  [aria-modal="true"] .overflow-auto,[aria-modal="true"] .overflow-y-auto,
  [aria-modal="true"] .overflow-x-auto
 )::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* 2026-11-16: One desktop content coordinate system for all native portals.
+   Bookkeeping has its own persistent 258px sidebar, unlike the 226px
+   Portal/Rapat navigation. Do not use overlapping transforms or overrides. */
+@media screen and (min-width:1024px){
+ body.f4-direct-book{--f4-book-sidebar-width:258px;overflow-x:clip}
+ body.f4-direct-book > #side-drawer{
+  left:0;right:auto;width:var(--f4-book-sidebar-width);
+ }
+ body.f4-direct-book > main{
+  box-sizing:border-box;
+  width:calc(100% - var(--f4-book-sidebar-width));
+  max-width:none;min-width:0;
+  margin-left:var(--f4-book-sidebar-width);
+  margin-right:0;
+ }
+ body.f4-direct-book > main > *{min-width:0;max-width:1200px}
+ body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
+}
