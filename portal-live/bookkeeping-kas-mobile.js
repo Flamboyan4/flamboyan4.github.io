@@ -62,15 +62,17 @@
     rawRefs.forEach(value=>fields.push(['Pencatatan',value]));
     const more=c[7].querySelectorAll('button').length>0;
     return '<article class="f4-kas-mobile-entry'+(status.toUpperCase()==='BATAL'?' is-cancelled':'')+'">'+
-      '<div class="f4-kas-entry-top"><div class="f4-kas-entry-copy">'+
-      '<div class="f4-kas-entry-title">'+escapeText(title)+'</div>'+
-      '<div class="f4-kas-entry-meta">'+escapeText(meta)+'</div>'+
+      '<div class="f4-kas-entry-top">'+
+      '<button type="button" class="f4-kas-detail-toggle" data-kas-detail="'+i+'" aria-expanded="false" aria-controls="f4-kas-extra-'+i+'" aria-label="Lihat rincian '+escapeText(title)+'">'+
+      '<span class="f4-kas-entry-title">'+escapeText(title)+'</span>'+
+      '<span class="f4-kas-entry-meta">'+escapeText(meta)+'<span class="f4-kas-inline-chevron">'+icons.down+'</span></span>'+
       (status&&status.toUpperCase()!=='AKTIF'?'<span class="f4-kas-entry-status">'+escapeText(status)+'</span>':'')+
-      '</div><div class="f4-kas-entry-money '+(income?'is-income':expense?'is-expense':'')+'">'+escapeText(nominal)+'</div></div>'+
-      '<div class="f4-kas-entry-bottom">'+
-      '<button type="button" class="f4-kas-detail-toggle" data-kas-detail="'+i+'" aria-expanded="false" aria-controls="f4-kas-extra-'+i+'">Detail '+icons.down+'</button>'+
+      '</button>'+
+      '<div class="f4-kas-entry-aside">'+
+      '<strong class="f4-kas-entry-money '+(income?'is-income':expense?'is-expense':'')+'">'+escapeText(nominal)+'</strong>'+
       (more?'<button type="button" class="f4-kas-more-button" data-kas-actions="'+i+'" aria-label="Aksi transaksi '+escapeText(title)+'">'+icons.more+'</button>':'')+
-      '</div><div class="f4-kas-extra" id="f4-kas-extra-'+i+'" hidden>'+
+      '</div></div>'+
+      '<div class="f4-kas-extra" id="f4-kas-extra-'+i+'" hidden>'+
       fields.map(p=>'<div><span>'+escapeText(p[0])+'</span><span>'+escapeText(p[1]||'-')+'</span></div>').join('')+
       '</div></article>';
   }
