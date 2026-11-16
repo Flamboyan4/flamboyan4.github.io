@@ -274,7 +274,20 @@ function closeTop(){
  if(closing)return;
  const layer=history.state?.f4DocSession===viewerSession?history.state?.f4DocOverlay:null;
  if((isOpen(photo)&&layer==='photo')||(isOpen(album)&&layer==='album')){
-  closing=true;history.back();return;
+  // Close the visible layer immediately. Browser popstate can arrive later on
+  // Android Chrome/Firefox; never leave a black full-screen overlay on screen.
+  closing=true;
+  if(isOpen(photo)){
+   stopVideo();show(photo,false);
+   photo.querySelector('.f4p-photo-content')?.replaceChildren();
+   if(isOpen(album))lastTile?.focus({preventScroll:true});
+  }else if(isOpen(album)){
+   show(album,false);
+  }
+  history.back();
+  // Defensive unlock if the host browser suppresses a popstate callback.
+  setTimeout(()=>{if(closing){closing=false;clearClosedLink(isOpen(album)?'foto':'album')}},450);
+  return;
  }
  if(isOpen(photo)){
   stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();
