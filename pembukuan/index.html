@@ -1802,7 +1802,7 @@ main > section.card{overflow:visible}
 </style>
 
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261111-unified-frame-v3">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-kas-flat-v3">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261116-iuran-flat-v4">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
@@ -2396,7 +2396,7 @@ main > section.card{overflow:visible}
       <section id="iuran-quick-summary" class="iuran-quick-summary mb-3" aria-label="Ringkasan cepat iuran">
         <div class="iuran-quick-head">
           <div>
-            <div class="iuran-quick-title">Ringkasan Iuran</div>
+            <div class="iuran-quick-title">Ringkasan</div>
             <div id="iuran-quick-period" class="iuran-quick-period">Periode aktif</div>
           </div>
           <div class="iuran-quick-note">Alokasi &amp; posisi uang</div>
@@ -5364,15 +5364,15 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 @media (max-width:767px){
   .mhistory-source{display:none}
   .mhistory-cards{display:flex;flex-direction:column;gap:7px;margin-top:7px;min-width:0}
-  #history-iuran-panel .mhistory-cards{gap:0;border:1px solid #e9e1fa;border-radius:13px;overflow:hidden;background:#fff}
-  #history-iuran-panel .mhistory-entry{border:0;border-bottom:1px solid #eee9f7;border-radius:0}
+  #history-iuran-panel .mhistory-cards{gap:0;margin-top:5px;border:0;border-top:1px solid #eee9f7;border-radius:0;overflow:visible;background:transparent}
+  #history-iuran-panel .mhistory-entry{border:0;border-bottom:1px solid #eee9f7;border-radius:0;background:transparent}
   #history-iuran-panel .mhistory-entry:last-child{border-bottom:0}
-  #history-iuran-panel .mhistory-entry>summary{min-height:54px;padding:8px 10px}
+  #history-iuran-panel .mhistory-entry>summary{min-height:52px;padding:9px 3px;gap:7px}
   #history-iuran-panel .mhistory-right{grid-template-rows:auto}
   #history-iuran-panel .mhistory-amount{grid-column:1;grid-row:1}
   #history-iuran-panel .mhistory-status{grid-column:1;grid-row:2}
   #history-iuran-panel .mhistory-chevron{grid-column:2;grid-row:1/span 2}
-  #history-iuran-panel .mhistory-entry[open]{background:#faf8ff}
+  #history-iuran-panel .mhistory-entry[open]{background:transparent}
   .mhistory-entry{border:1px solid #e9e1fa;background:#fff;border-radius:12px;overflow:hidden;box-shadow:none}
   .mhistory-entry[open]{border-color:#c4b5fd}
   .mhistory-entry>summary{list-style:none;cursor:pointer;padding:9px 11px;min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
