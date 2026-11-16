@@ -476,9 +476,8 @@ body:has(#f4-account-page){
   color:#302447;font-size:12px;white-space:nowrap;font-weight:850;
   font-variant-numeric:tabular-nums;letter-spacing:-.02em
  }
- .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-explain{
-  margin:9px 0 5px;font-size:10.5px;line-height:1.3;color:#80768e
- }
+ /* The title explicitly says "Saldo awal (arsip)", so extra explanation is unnecessary on phones. */
+ .tc-center #tc-view-laporan .tc-opening-recap>.tc-opening-explain{display:none}
  .tc-center #tc-view-laporan .tc-opening-mobile{
   margin-top:4px;padding-top:0;border-top:1px solid #f1ebf7
  }
