@@ -452,81 +452,145 @@
 .f4-kas-sheet-option.is-danger{color:#bb303e}
 .f4-kas-sheet-option.is-danger svg{color:#bb303e}
 @media screen and (max-width:767px){
+ /* Frame luar tetap. Isi dalam memakai divider, bukan banyak card bersarang. */
+ #tab-riwayat>.mb-4{margin-bottom:7px}
+ #tab-riwayat>.mb-4>.f4-book-filter-picker{
+  margin:0;padding:0 0 7px;border-bottom:1px solid #eee8f6;gap:0
+ }
+ #tab-riwayat>.mb-4>.f4-book-filter-picker :is(select.field,.custom-select-btn){
+  border:0;background:transparent;box-shadow:none;border-radius:0;
+  min-height:39px;height:39px;padding:3px 6px;font-size:15px;font-weight:800;color:#372057
+ }
+ #tab-riwayat>.mb-4>.f4-book-filter-picker :is(select.field,.custom-select-btn):focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:2px;border-radius:7px
+ }
  #tab-riwayat #history-kasumum-panel.f4-kas-mobile-ready>.history-scroll{display:none}
  #tab-riwayat #history-kasumum-panel.f4-kas-mobile-ready>.f4-kas-mobile-list{display:block}
  #tab-riwayat #history-kasumum-panel .f4-kas-period-filter{
-  border:0;background:transparent;border-radius:0;padding:0;margin-bottom:10px
+  border:0;background:transparent;border-radius:0;padding:0;margin:0 0 8px
  }
- #tab-riwayat #history-kasumum-panel .f4-kas-period-header{margin-bottom:6px;gap:8px}
+ #tab-riwayat #history-kasumum-panel .f4-kas-period-header{
+  display:flex;align-items:center;justify-content:space-between;margin:0 0 5px;gap:8px;min-height:29px
+ }
  #tab-riwayat #history-kasumum-panel .f4-kas-period-header strong{display:none}
- #tab-riwayat #history-kasumum-panel .f4-kas-period-header span{font-size:11px;color:#756987;font-weight:600}
- #tab-riwayat #history-kasumum-panel #history-kas-all{padding:6px 10px;font-size:11px;border-radius:9px;min-height:34px}
- #tab-riwayat #history-kasumum-panel #history-kas-period .upr-range{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:5px}
- #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field{
-  min-height:43px;height:43px;padding:7px 8px;border-radius:11px
+ #tab-riwayat #history-kasumum-panel .f4-kas-period-header span{
+  font-size:11px;color:#8a819b;font-weight:650;line-height:1.2
  }
- #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field-text{font-size:14px}
- #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field svg{width:17px;height:17px}
- #tab-riwayat #history-kasumum-panel>.flex.justify-end.mb-3{margin-bottom:10px}
+ #tab-riwayat #history-kasumum-panel #history-kas-all{
+  min-height:29px;padding:3px 6px;font-size:11px;font-weight:750;
+  border:0;border-radius:7px;background:transparent;color:#7043b6
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-all[aria-pressed="true"]{background:#f4efff}
+ /* Dua kalender berbagi satu bingkai dan separator tengah. */
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-range{
+  display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);
+  align-items:center;gap:1px;min-width:0;width:100%;
+  border:1px solid #e7e0f3;border-radius:11px;background:#fbfaff;padding:2px 4px
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-control{
+  width:100%;min-width:0
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field{
+  min-height:39px;height:39px;min-width:0;border:0;border-radius:8px;background:transparent;
+  box-shadow:none;padding:5px 5px
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:0
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field-text{
+  font-size:13px;font-weight:700;min-width:0
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field svg{
+  width:16px;height:16px;max-width:16px;max-height:16px
+ }
+ #tab-riwayat #history-kasumum-panel #history-kas-period .upr-sep{
+  color:#958aa9;font-size:12px;font-weight:650;text-align:center
+ }
+ /* Cari dan status berbagi satu baris kendali. */
+ #tab-riwayat #history-kasumum-panel>.flex.justify-end.mb-3{margin:9px 0 8px}
  #tab-riwayat #history-kasumum-panel>.flex.justify-end.mb-3>div{
-  display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr);gap:8px;width:100%;align-items:center
+  display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.75fr);
+  align-items:stretch;width:100%;min-width:0;gap:0;
+  background:#fff;border:1px solid #e7e0f3;border-radius:11px
  }
  #tab-riwayat #history-kasumum-panel :is(#cari-trx-kas,#filter-trx-kas){
-  width:100%;min-width:0;height:42px;min-height:42px;padding:6px 10px;font-size:13px
+  width:100%;min-width:0;min-height:40px;height:40px;box-shadow:none;
+  background:transparent;border:0;border-radius:0;padding:6px 9px;font-size:13px
  }
- #tab-riwayat #history-kasumum-panel #filter-trx-kas+.custom-select-wrap,
- #tab-riwayat #history-kasumum-panel .custom-select-wrap:has(>#filter-trx-kas){width:100%;min-width:0}
+ #tab-riwayat #history-kasumum-panel #cari-trx-kas:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:-2px;border-radius:9px
+ }
+ #tab-riwayat #history-kasumum-panel :is(#filter-trx-kas+.custom-select-wrap,.custom-select-wrap:has(>#filter-trx-kas)){
+  width:100%;min-width:0;border-left:1px solid #eee8f6
+ }
+ #tab-riwayat #history-kasumum-panel #filter-trx-kas+.custom-select-wrap .custom-select-btn,
+ #tab-riwayat #history-kasumum-panel .custom-select-wrap:has(>#filter-trx-kas) .custom-select-btn{
+  min-height:40px;height:40px;padding:6px 8px;font-size:13px;border:0;background:transparent;
+  box-shadow:none;border-radius:0
+ }
+ /* Daftar kas menyatu dengan frame halaman: hanya garis pemisah antartransaksi. */
  #tab-riwayat #history-kasumum-panel .f4-kas-mobile-list{
-  border:1px solid #e8e1f4;border-radius:13px;background:#fff;overflow:hidden
+  display:none;border:0;border-top:1px solid #eae3f4;border-radius:0;background:transparent;overflow:visible
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry{
-  min-width:0;border-bottom:1px solid #eee9f6;padding:12px 12px 9px;background:#fff
+  min-width:0;border-bottom:1px solid #eee9f5;padding:12px 0;background:transparent
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry:last-child{border-bottom:0}
- #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry.is-cancelled{background:#fbfafc}
+ #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry.is-cancelled{opacity:.7}
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-top{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start;min-width:0
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:9px;min-width:0
  }
- #tab-riwayat #history-kasumum-panel .f4-kas-entry-copy{min-width:0}
+ #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle{
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+  min-width:0;min-height:45px;width:100%;padding:0;border:0;border-radius:3px;background:transparent;
+  text-align:left;color:inherit;cursor:pointer
+ }
+ #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle:focus-visible,
+ #tab-riwayat #history-kasumum-panel .f4-kas-more-button:focus-visible{
+  outline:2px solid #8b5cf6;outline-offset:2px
+ }
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-title{
-  color:#32214f;font-size:13.5px;font-weight:800;line-height:1.35;overflow-wrap:anywhere
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+  max-width:100%;overflow:hidden;overflow-wrap:anywhere;
+  color:#352251;font-size:13.5px;font-weight:800;line-height:1.3
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-meta{
-  color:#8b849c;font-size:11px;font-weight:500;line-height:1.4;margin-top:4px;overflow-wrap:anywhere
+  display:flex;align-items:center;gap:5px;max-width:100%;min-width:0;
+  color:#8b829a;font-size:11px;font-weight:500;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:5px
  }
+ #tab-riwayat #history-kasumum-panel .f4-kas-inline-chevron{display:inline-flex;flex:none;color:#8553c7}
+ #tab-riwayat #history-kasumum-panel .f4-kas-inline-chevron svg{width:12px;height:12px;transition:transform .15s}
+ #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle[aria-expanded="true"] .f4-kas-inline-chevron svg{transform:rotate(180deg)}
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-status{
-  display:inline-block;margin-top:5px;font-size:10px;font-weight:800;color:#b45309
+  display:inline-flex;margin-top:5px;font-size:10px;font-weight:750;color:#a65e20
  }
- #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry.is-cancelled .f4-kas-entry-status{color:#857e91}
+ #tab-riwayat #history-kasumum-panel .f4-kas-mobile-entry.is-cancelled .f4-kas-entry-status{color:#82778f}
+ #tab-riwayat #history-kasumum-panel .f4-kas-entry-aside{
+  display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;
+  min-width:0;min-height:46px;gap:2px
+ }
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-money{
-  color:#334155;font-size:14px;font-weight:850;line-height:1.35;white-space:nowrap;
-  font-variant-numeric:tabular-nums;text-align:right;letter-spacing:-.2px
+  font-size:13.5px;line-height:1.35;color:#334155;font-weight:850;
+  letter-spacing:-.25px;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-money.is-income{color:#087b56}
  #tab-riwayat #history-kasumum-panel .f4-kas-entry-money.is-expense{color:#c53943}
- #tab-riwayat #history-kasumum-panel .f4-kas-entry-bottom{
-  display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:26px;margin-top:2px
- }
- #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle{
-  display:inline-flex;align-items:center;gap:4px;background:transparent;border:0;padding:4px 0;
-  color:#7045b2;font-size:11px;font-weight:700;cursor:pointer
- }
- #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle svg{width:13px;height:13px;transition:transform .15s}
- #tab-riwayat #history-kasumum-panel .f4-kas-detail-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
  #tab-riwayat #history-kasumum-panel .f4-kas-more-button{
-  width:34px;height:30px;display:grid;place-items:center;border:0;background:transparent;color:#6d28d9;cursor:pointer
+  display:grid;place-items:center;width:32px;height:28px;
+  border:0;border-radius:7px;background:transparent;color:#7c3aed;cursor:pointer
  }
- #tab-riwayat #history-kasumum-panel .f4-kas-more-button svg{width:19px;height:19px}
+ #tab-riwayat #history-kasumum-panel .f4-kas-more-button svg{width:18px;height:18px}
  #tab-riwayat #history-kasumum-panel .f4-kas-extra{
-  border-top:1px solid #f0ebf8;margin-top:7px;padding:9px 0 3px;display:grid;gap:6px
+  display:grid;gap:5px;border-top:1px solid #f0ebf8;margin-top:9px;padding:9px 0 2px
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-extra[hidden]{display:none}
  #tab-riwayat #history-kasumum-panel .f4-kas-extra>div{
-  display:grid;grid-template-columns:85px minmax(0,1fr);gap:8px;align-items:start;
-  font-size:11px;line-height:1.5;color:#383145
+  display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px;align-items:start;
+  font-size:11px;line-height:1.45;color:#383145
  }
  #tab-riwayat #history-kasumum-panel .f4-kas-extra>div>span:first-child{color:#8a8399}
  #tab-riwayat #history-kasumum-panel .f4-kas-extra>div>span:last-child{overflow-wrap:anywhere}
- #tab-riwayat #history-kasumum-panel .f4-kas-mobile-empty{padding:20px;text-align:center;color:#958ca8;font-size:13px}
+ #tab-riwayat #history-kasumum-panel .f4-kas-mobile-empty{padding:17px 0;text-align:center;color:#958ca8;font-size:13px}
 }
 @media print{.f4-kas-mobile-list,.f4-kas-action-sheet{display:none}}
