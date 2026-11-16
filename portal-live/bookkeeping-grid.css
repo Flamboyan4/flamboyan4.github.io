@@ -196,11 +196,22 @@
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:var(--book-tight);align-items:center
  }
  /* Ringkasan keuangan: 8 kartu mengikuti empat kolom PC, dua kolom HP. */
- #tab-riwayat #iuran-quick-summary{width:100%;max-width:100%;padding:14px;border-radius:14px}
+ #tab-riwayat #iuran-quick-summary{width:100%;max-width:100%;padding:13px 14px 10px;border-radius:14px;border:1px solid #e8e1f6;background:#fff}
  #tab-riwayat #iuran-quick-summary .iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:var(--book-tight);margin-bottom:10px}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--book-tight)}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile{min-width:0;max-width:100%;min-height:68px;padding:10px;border-radius:11px;overflow:hidden}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{min-width:0;max-width:100%;min-height:58px;padding:9px 10px;border:0;border-radius:0;background:transparent;overflow:hidden}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile.has-meta{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:not(:first-child){border-left:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more{border-top:1px solid #eee9f8;margin-top:5px;min-width:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:34px;padding:7px 2px;font-size:12px;font-weight:750;color:#6d28d9}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more>summary::-webkit-details-marker{display:none}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more>summary:focus-visible{outline:2px solid #7c3aed;outline-offset:2px;border-radius:6px}
+ #tab-riwayat #iuran-quick-summary .iuran-more-arrow{width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:5px;transition:transform .15s}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-more[open] .iuran-more-arrow{transform:rotate(225deg)}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:3px 0 5px;gap:0;background:#faf9ff;border-radius:9px}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:not(:first-child){border-left:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile.check.has-diff{background:#fff7ed;border-radius:8px}
+ 
  #tab-riwayat #iuran-quick-summary .iq-main{display:flex;flex-direction:column;justify-content:center;min-width:0}
  #tab-riwayat #iuran-quick-summary .iq-counts{min-width:0;text-align:right;white-space:nowrap}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){
@@ -311,11 +322,21 @@
  #tab-riwayat #history-iuran-panel .history-iuran-search{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px;align-items:center}
  #tab-riwayat #history-iuran-panel .history-iuran-search .field{height:var(--book-control);min-height:var(--book-control);padding:7px 10px;font-size:14px}
  #tab-riwayat #history-iuran-panel .history-period-box .upr-field{height:var(--book-control);min-height:var(--book-control);padding:7px 31px 7px 9px;font-size:14px}
- #tab-riwayat #iuran-quick-summary{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
- #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
- #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:7px 8px;min-height:52px;border-radius:10px}
+ #tab-riwayat #iuran-quick-summary{padding:11px 10px 7px;border:1px solid #e8e1f6;border-radius:13px;background:#fff;box-shadow:none}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile{border-left:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile{border-left:0}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(even){border-left:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-quick-money-grid>.iuran-summary-tile:nth-child(-n+2){border-bottom:1px solid #eee9f8}
+ #tab-riwayat #iuran-quick-summary .iuran-summary-tile{padding:8px 7px;min-height:58px;border-radius:0}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile :is(strong){font-size:clamp(13px,3.6vw,17px);line-height:1.15;margin-top:3px}
  #tab-riwayat .f4-book-filter-picker,#tab-laporan .f4-book-filter-picker{grid-template-columns:minmax(0,1fr);gap:5px}
+ #tab-riwayat>.mb-4{margin-bottom:10px}
+ #tab-riwayat>.mb-4>.f4-book-filter-picker{margin-bottom:0}
+ #tab-riwayat>.mb-4>.f4-book-filter-picker :is(select,.custom-select-btn){min-height:42px;height:42px}
  #tab-riwayat .f4-book-filter-picker :is(select,.custom-select-wrap),
  #tab-laporan .f4-book-filter-picker :is(select,.custom-select-wrap){grid-column:1/-1}
 }
