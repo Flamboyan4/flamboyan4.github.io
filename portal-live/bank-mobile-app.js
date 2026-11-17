@@ -1036,7 +1036,7 @@ function renderLatestComposition(){
  const status=el("span","f4-bank-composition-status"+(final?" is-final":""),final?"Sudah sah":"Belum sah");
  heading.append(status);
  const when=String(latest.tanggal||"");
- if(/^\\d{4}-\\d{2}-\\d{2}$/.test(when)){
+ if(/^\d{4}-\d{2}-\d{2}$/.test(when)){
   const date=el("small","f4-bank-composition-date",
    new Date(when+"T12:00:00Z").toLocaleDateString("id-ID",
     {day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}));
