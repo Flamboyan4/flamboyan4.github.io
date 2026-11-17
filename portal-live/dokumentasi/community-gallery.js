@@ -346,26 +346,71 @@ async function f4TagManager(target){
   });
  }catch(error){hint.textContent=f4TagError(error)}
 }
+let f4ActiveTagPopover=null;
+function f4CloseTagPopover(){
+ if(!f4ActiveTagPopover)return;
+ const {node,dispose}=f4ActiveTagPopover;
+ f4ActiveTagPopover=null;
+ dispose();node.remove();
+}
 function f4TagButton(host,target){
- host.querySelector('.f4-tag-trigger')?.remove();host.querySelector('.f4-tag-popup')?.remove();
- // The live API may lag behind GitHub Pages. Do not display an unusable tag control.
- // A gallery server that supports tags always returns the categories collection.
+ f4CloseTagPopover();
+ host.querySelector('.f4-tag-trigger')?.remove();
  if(!target?.id||!Array.isArray(window.f4GalleryCommunity?.categories))return;
  const trigger=button(null,'user',null,'f4-tag-trigger');
  trigger.title='Lihat tag warga';trigger.setAttribute('aria-label','Lihat tag warga');
- trigger.onclick=async()=>{
-  const old=host.querySelector('.f4-tag-popup');if(old){old.remove();return}
-  const pop=elem('div','f4-tag-popup','Memuat…');host.append(pop);
+ trigger.setAttribute('aria-expanded','false');
+ trigger.onclick=async event=>{
+  event.stopPropagation();
+  if(f4ActiveTagPopover?.anchor===trigger){f4CloseTagPopover();return}
+  f4CloseTagPopover();
+  const pop=elem('div','f4-tag-popup f4-tag-floating');
+  pop.setAttribute('role','group');pop.setAttribute('aria-label','Warga ditandai');
+  pop.append(elem('span','f4-tag-loading','Memuat tag…'));
+  document.body.append(pop);
+  trigger.setAttribute('aria-expanded','true');
+  const position=()=>{
+   if(!trigger.isConnected||!pop.isConnected){f4CloseTagPopover();return}
+   const rect=trigger.getBoundingClientRect();
+   const width=Math.min(300,Math.max(220,window.innerWidth-24));
+   const left=Math.min(Math.max(12,rect.left),window.innerWidth-width-12);
+   pop.style.width=width+'px';
+   pop.style.left=left+'px';
+   // Album actions sit near top of dialog; open below. Photo actions sit at bottom; open above.
+   const below=target.type==='album'||rect.top<window.innerHeight*.42;
+   pop.style.top=below?Math.min(window.innerHeight-pop.offsetHeight-12,rect.bottom+9)+'px':
+    Math.max(12,rect.top-pop.offsetHeight-9)+'px';
+  };
+  const outside=e=>{
+   if(!pop.contains(e.target)&&!trigger.contains(e.target))f4CloseTagPopover();
+  };
+  const escape=e=>{if(e.key==='Escape'){e.stopPropagation();f4CloseTagPopover()}};
+  const onScroll=e=>{if(!pop.contains(e.target))f4CloseTagPopover()};
+  document.addEventListener('pointerdown',outside,true);
+  document.addEventListener('keydown',escape,true);
+  window.addEventListener('resize',position);
+  document.addEventListener('scroll',onScroll,true);
+  const dispose=()=>{
+   trigger.setAttribute('aria-expanded','false');
+   document.removeEventListener('pointerdown',outside,true);
+   document.removeEventListener('keydown',escape,true);
+   window.removeEventListener('resize',position);
+   document.removeEventListener('scroll',onScroll,true);
+  };
+  f4ActiveTagPopover={node:pop,anchor:trigger,dispose};
+  position();
   try{
    const data=await get('/tags?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id));
-   if(!pop.isConnected)return;pop.replaceChildren();
-   if(!data.tags?.length)pop.append(elem('span','','Belum ada tag'));
+   if(f4ActiveTagPopover?.node!==pop)return;
+   pop.replaceChildren();
+   if(!data.tags?.length)pop.append(elem('span','f4-tag-empty-label','Belum ada warga ditandai'));
    for(const item of data.tags||[])pop.append(elem('span','f4-tag-chip',item.name));
-   if(data.canEdit)pop.append(button('Kelola','user',()=>{pop.remove();f4TagManager(target)}));
-  }catch(e){
-   pop.textContent=f4TagError(e);
-   pop.setAttribute('role','status');
-  }
+   if(data.canEdit){
+    const manage=button('Kelola Tag','user',()=>{f4CloseTagPopover();void f4TagManager(target)},'f4-tag-manage');
+    pop.append(manage);
+   }
+  }catch(e){pop.textContent=f4TagError(e);pop.setAttribute('role','status')}
+  if(f4ActiveTagPopover?.node===pop)position();
  };
  host.append(trigger);
 }
