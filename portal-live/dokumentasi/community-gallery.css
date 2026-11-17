@@ -397,7 +397,21 @@
 
 
 /* Galeri ringkas: kategori tetap bisa dipilih, PC mempertahankan filter chips. */
-#media-albums-section .f4g-category-select{display:none}
+/* Dropdown kategori custom — identik di Android Chrome/Firefox, tanpa picker sistem. */
+#media-albums-section .f4g-category-dropdown{display:none;position:relative;min-width:0}
+#media-albums-section .f4g-category-menu[hidden]{display:none}
+#media-albums-section .f4g-category-trigger{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;min-width:0;height:38px;padding:7px 9px;border:1px solid #dfd6ee;border-radius:10px;background:#fff;color:#5d4489;font:650 12px system-ui;cursor:pointer}
+#media-albums-section .f4g-category-trigger svg{flex:none;width:16px;height:16px;transition:transform .15s ease}
+#media-albums-section .f4g-category-trigger[aria-expanded="true"]{border-color:#9675dc;box-shadow:0 0 0 2px #9064cf19}
+#media-albums-section .f4g-category-trigger[aria-expanded="true"] svg{transform:rotate(180deg)}
+#media-albums-section .f4g-category-current{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#media-albums-section .f4g-category-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:120;box-sizing:border-box;width:max(170px,100%);max-width:calc(100vw - 26px);max-height:min(300px,48dvh);overflow-y:auto;overscroll-behavior:contain;padding:5px;border:1px solid #e8e0f1;border-radius:13px;background:#fff;box-shadow:0 14px 38px #1a15382b}
+#media-albums-section .f4g-category-option{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;width:100%;min-height:40px;padding:10px 12px;border:0;border-radius:9px;background:transparent;text-align:left;color:#50455f;font:600 12px system-ui;cursor:pointer}
+#media-albums-section .f4g-category-option.selected{background:#f2edfb;color:#603ab7}
+#media-albums-section .f4g-category-option.selected::after{content:"✓";font-size:14px}
+#media-albums-section .f4g-category-option:hover{background:#f6f2fc}
+#media-albums-section .f4g-category-option:focus-visible,#media-albums-section .f4g-category-trigger:focus-visible{outline:2px solid #8155ce;outline-offset:2px}
+
 @media (max-width:760px){
  body[data-section-page="dokumentasi"] main.page-stack{gap:10px}
  body[data-section-page="dokumentasi"] .portal-section-heading{font-size:22px;line-height:1.25;margin:0}
@@ -422,5 +436,6 @@
  #media-albums-section .f4g-album-tools .media-search{order:0;flex:1 1 auto;min-width:0;width:100%;height:38px;margin:0;padding:8px 10px;font-size:12px;border-radius:10px}
  #media-albums-section .f4g-album-tools .media-filters{order:1;display:flex;flex:0 0 133px;width:133px;min-width:0;margin:0}
  #media-albums-section .f4g-album-tools .media-filters .btn{display:none}
- #media-albums-section .f4g-category-select{display:block;box-sizing:border-box;width:100%;min-width:0;height:38px;padding:7px 24px 7px 9px;border:1px solid #dfd6ee;border-radius:10px;background:#fff;color:#5d4489;font:650 12px system-ui}
+ #media-albums-section .f4g-category-dropdown{display:block;width:100%}
+ #media-albums-section .f4g-album-tools{overflow:visible}
 }
