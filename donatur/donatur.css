@@ -154,3 +154,21 @@ p{color:var(--muted)}
  .report-box th,.report-box td{border-bottom:1px solid #aaa}
  a{color:#111}
 }
+
+/* 2026-11-17: touch polish matching all other Flamboyan portals. */
+@media screen{
+ html,html body,html body *{-webkit-tap-highlight-color:transparent}
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]),
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]) :not(input):not(textarea):not(select):not([contenteditable]){
+  -webkit-user-select:none;user-select:none
+ }
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]) img{-webkit-user-drag:none}
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]):focus:not(:focus-visible){outline:none}
+}
+@media screen and (hover:none) and (pointer:coarse){
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]):not(:disabled){transition:opacity .14s ease-out}
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]):not(:disabled):active{opacity:.9}
+}
+@media (prefers-reduced-motion:reduce){
+ body :is(button,a[href],summary,[role="button"],[role="tab"],[onclick]){transition-duration:0s}
+}
