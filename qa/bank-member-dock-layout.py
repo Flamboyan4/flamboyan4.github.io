@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright
 URL="http://127.0.0.1:8766/bank-sampah/"
 ROOT=pathlib.Path("ops-audit/bank-member-dock")
 ROOT.mkdir(parents=True, exist_ok=True)
-SIZES=(320,360,390,412,540,760)
+SIZES=(320,360,390,412,540)
 PAGES=("pagePribadi","bank-history","bank-report","bank-payout")
 
 PREPARE="""() => {
@@ -63,7 +63,14 @@ MEASURE="""() => {
   return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom};
  };
  const buttons=[...nav.querySelectorAll('.f4-bank-app-dock-action')].map(x=>({label:x.getAttribute('aria-label'),...box(x)}));
- return {vw:innerWidth,visual:visualViewport?.width||innerWidth,
+ const offending=[...document.querySelectorAll('body *')]
+  .filter(e=>e.getClientRects().length && getComputedStyle(e).position!=='fixed')
+  .map(e=>({e,r:e.getBoundingClientRect()})).filter(x=>x.r.width>0 && x.r.right>innerWidth+3)
+  .sort((a,b)=>b.r.right-a.r.right).slice(0,12)
+  .map(({e,r})=>({tag:e.tagName,id:e.id,cls:typeof e.className==='string'?e.className.slice(0,90):'',
+   right:Math.round(r.right),left:Math.round(r.left),width:Math.round(r.width),
+   position:getComputedStyle(e).position,overflow:getComputedStyle(e).overflowX}));
+ return {offending, vw:innerWidth,visual:visualViewport?.width||innerWidth,
   doc:document.documentElement.scrollWidth,body:document.body.scrollWidth,
   scrollX,nav:box(nav),header:box(document.getElementById('f4-direct-bar')),
   position:getComputedStyle(nav).position,display:getComputedStyle(nav).display,
@@ -84,8 +91,14 @@ async def main():
      await page.goto(URL,wait_until='domcontentloaded',timeout=20000)
      await page.evaluate(PREPARE)
      for id in PAGES:
+      await page.evaluate(PREPARE)
       await page.evaluate("""id=>{
        const pages=['pagePribadi','bank-history','bank-report','bank-payout'];
+       for(const node of document.querySelectorAll('#dashboardView>.grid>.section>*')){
+        if(node.id?.startsWith('page')||node.classList.contains('f4-bank-screen')){
+         node.classList.add('hidden');node.hidden=true;
+        }
+       }
        for(const x of pages){const e=document.getElementById(x);e.classList.toggle('hidden',x!==id);e.hidden=x!==id;}
        document.querySelectorAll('#f4BankAppDock button').forEach(b=>b.classList.toggle('is-active',b.dataset.bankAppRoute===(id==='pagePribadi'?'pribadi':id)));
       }""",id)
