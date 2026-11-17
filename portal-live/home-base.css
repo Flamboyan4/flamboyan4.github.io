@@ -279,15 +279,16 @@ footer#pembayaran.f4-payment-footer .f4-payment-rekening i[data-lucide="chevron-
   }
   #modal-rekening .f4-account-dialog{
     width:100%;max-height:85dvh;overflow-y:auto;
-    padding:15px 18px calc(19px + env(safe-area-inset-bottom,0px));
+    padding:32px 18px calc(19px + env(safe-area-inset-bottom,0px));
     border:0;border-radius:22px 22px 0 0;
     box-shadow:0 -12px 40px rgba(22,34,28,.16);
     animation:f4-rekening-up .2s cubic-bezier(.22,.75,.31,1)
   }
   #modal-rekening .f4-account-sheet-grip{
-    display:block;width:38px;height:4px;margin:0 auto 17px;
-    border-radius:99px;background:#d9e0db
+    display:block;position:absolute;top:15px;left:calc(50% - 19px);
+    width:38px;height:4px;margin:0;border-radius:99px;background:#d9e0db
   }
+  #modal-rekening .f4-account-dialog.f4-sheet-draggable .f4-account-sheet-grip{display:none}
   #modal-rekening .f4-account-item{padding:13px 0}
 }
 @keyframes f4-rekening-up{
