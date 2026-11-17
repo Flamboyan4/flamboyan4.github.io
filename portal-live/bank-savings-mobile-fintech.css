@@ -3,13 +3,13 @@
 #f4BankLatestComposition{display:none}
 @media screen and (max-width:760px){
  body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page{
-  position:relative;isolation:isolate;overflow:visible;min-width:0;background:#f7faf8;
+  position:relative;isolation:isolate;overflow-x:clip;overflow-y:visible;min-width:0;max-width:100%;background:#f7faf8;
   padding:0 0 20px;border:0;box-shadow:none
  }
  #dashboardView #pagePribadi.f4-bank-savings-page>h2{display:none}
  #dashboardView #pagePribadi #v12Private{position:relative;min-width:0}
  #dashboardView #pagePribadi #f4BankSavingsHero{
-  position:relative;z-index:0;isolation:isolate;overflow:visible;
+  position:relative;z-index:0;isolation:isolate;overflow:clip;
   padding:26px 20px 91px;margin:0 -10px;border-radius:0;background:transparent;
   color:#fff;box-shadow:none;gap:7px
  }
@@ -21,8 +21,8 @@
   box-shadow:0 13px 26px #046c5423;
  }
  #dashboardView #pagePribadi #f4BankSavingsHero::after{
-  content:"";position:absolute;z-index:-1;width:144px;height:144px;right:-30px;top:10px;
-  border:1px solid #ffffff1e;border-radius:50%;box-shadow:0 0 0 27px #ffffff08,0 0 0 52px #ffffff07;
+  content:"";position:absolute;z-index:-1;width:116px;height:116px;right:26px;top:12px;
+  border:1px solid #ffffff1e;border-radius:50%;box-shadow:0 0 0 18px #ffffff08,0 0 0 34px #ffffff07;
   pointer-events:none
  }
  #dashboardView #pagePribadi #f4BankSavingsHero>small{
