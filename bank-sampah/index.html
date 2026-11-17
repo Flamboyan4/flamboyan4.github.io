@@ -1229,10 +1229,52 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .v33-report-options>summary{cursor:pointer;font-size:12px;font-weight:750;color:#167454;padding:5px 2px;line-height:1.35}
 #pageLaporan .v33-report-options>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
 #pageLaporan .v33-report-options[open]>.v33-report-choices{margin-top:10px}
-#pageLaporan .v17-finance-analysis{border:1px solid #e0ebe4;border-radius:13px;padding:10px 12px;margin:10px 0 12px;background:#fff}
-#pageLaporan .v17-finance-analysis>summary{cursor:pointer;font-size:13px;font-weight:750;color:#1b6447;padding:5px 2px}
-#pageLaporan .v17-finance-analysis>summary:focus-visible{outline:2px solid #087b51;outline-offset:2px;border-radius:4px}
-#pageLaporan .v17-finance-analysis[open]>.v17-finance-grid{margin-top:11px}
+/* Cash analysis is part of the position card, not a card inside another card. */
+#pageLaporan .v17-finance-analysis{
+ border:0;border-top:1px solid #e3eee6;border-radius:0;
+ padding:10px 0 0;margin:12px 0 5px;background:transparent
+}
+#pageLaporan .v17-finance-analysis>summary{
+ cursor:pointer;font-size:13px;font-weight:750;color:#1b6447;padding:5px 2px
+}
+#pageLaporan .v17-finance-analysis>summary:focus-visible{
+ outline:2px solid #087b51;outline-offset:2px;border-radius:4px
+}
+#pageLaporan .v17-finance-analysis[open]>.v17-finance-grid{
+ margin-top:8px;gap:0;align-items:start
+}
+#dashboardView #pageLaporan #v17Finance .v17-finance-grid>.v17-panel{
+ border:0;border-radius:0;background:transparent;box-shadow:none;
+ min-width:0;margin:0;padding:7px 10px 5px 0
+}
+#dashboardView #pageLaporan #v17Finance .v17-finance-grid>.v17-panel+ .v17-panel{
+ padding-left:16px;border-left:1px solid #e6efe8
+}
+#pageLaporan #v17Finance .v17-panel h3{
+ font-size:13px;font-weight:750;color:#285740;margin:0 0 7px
+}
+#pageLaporan #v17Finance .v17-bars{
+ height:138px;padding-top:8px;min-height:0;
+ border-bottom:1px solid #dce8df
+}
+#pageLaporan #v17Finance .v17-bars.is-empty{
+ display:flex;align-items:center;justify-content:center;
+ height:auto;min-height:52px;padding:10px 5px;border:0;
+ color:#76897b;font-size:12px;line-height:1.5;text-align:center
+}
+#pageLaporan #v17Finance .v17-legend{
+ margin:9px 0 0;color:#637d6b;font-size:11px
+}
+#pageLaporan #v17Finance .v17-finance-grid .v17-line{
+ padding:7px 0;border-bottom:1px solid #e8f0eb
+}
+@media(max-width:900px){
+ #pageLaporan #v17Finance .v17-finance-grid{grid-template-columns:minmax(0,1fr)}
+ #dashboardView #pageLaporan #v17Finance .v17-finance-grid>.v17-panel{padding:7px 0 6px}
+ #dashboardView #pageLaporan #v17Finance .v17-finance-grid>.v17-panel+ .v17-panel{
+  margin-top:7px;padding:12px 0 2px;border-left:0;border-top:1px solid #e6efe8
+ }
+}
 #pageLaporan .v33-report-row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
 #pageLaporan .v33-report-period-field>strong{display:block;font-size:12px;line-height:16px;color:#355c47;margin:0 0 6px}
 #pageLaporan .v33-report-period{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:8px}
@@ -1266,7 +1308,21 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .v33-report-actions button:nth-child(1){background:#f0f6f1;color:#174630;border:1px solid #dce8de}
 #pageLaporan .v33-report-actions button:nth-child(2){background:#318651;color:#fff;border:1px solid #318651}
 #pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#174630;border:1px solid #d7e6dc}
-#pageLaporan #v10ReportSummary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:14px 0 5px;padding:11px 0 0;border-top:1px solid #dce8df}
+#pageLaporan #v10ReportSummary{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+ margin:0 0 6px;padding:0;border:0
+}
+#pageLaporan #f4BankReportResults{
+ box-sizing:border-box;min-width:0;margin:0;
+ padding:16px 18px 13px;border:1px solid #dce9e1;
+ border-radius:18px;background:#fff;box-shadow:0 3px 14px #17482a08
+}
+#pageLaporan #f4BankReportResults #v10ReportTable{margin-top:5px}
+#pageLaporan #f4BankReportResults .f4-report-section:last-child,
+#pageLaporan #f4BankReportResults .f4-report-empty-group:last-child{border-bottom:0}
+@media(max-width:760px){
+ #pageLaporan #f4BankReportResults{padding:13px 15px 10px;border-radius:17px}
+}
 #pageLaporan #v10ReportSummary>.stat,#pageLaporan #v33ReportMoreMetrics>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:12px;background:#fff}
 #pageLaporan #v10ReportSummary strong,#pageLaporan #v33ReportMoreMetrics strong{font-size:18px;line-height:1.3;color:#175b40}
 #pageLaporan .v33-report-more{margin:4px 0 14px;border-top:1px solid #edf1ed;padding-top:4px}
@@ -4066,7 +4122,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v17Chart(root,rows,keys,colorNames){
     root.replaceChildren();
     const data=Array.isArray(rows)?rows:[];
-    if(!data.length){root.textContent='Belum ada data pada periode ini.';return;}
+    root.classList.toggle('is-empty',!data.length);
+    if(!data.length){root.textContent='Belum ada arus kas pada periode ini.';return;}
     const max=Math.max(1,...data.flatMap(r=>keys.map(k=>Math.max(0,Number(r?.[k])||0))));
     data.forEach(r=>{
       const month=r?.periode??r?.bulan??r?.month??'';
@@ -6038,6 +6095,20 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     form.append(options,actions);
     const notice=$('v10ReportNotice');
     if(notice)form.append(notice);
+    // A single results surface groups the summary and transaction accordions.
+    // Dynamic details (v33ReportMore) are inserted after the unchanged summary node.
+    const summary=$('v10ReportSummary'),table=$('v10ReportTable');
+    if(summary&&table&&!$('f4BankReportResults')){
+      const results=document.createElement('section');
+      results.id='f4BankReportResults';
+      results.className='f4-bank-report-results';
+      results.setAttribute('aria-label','Ringkasan dan rincian laporan');
+      summary.before(results);
+      results.append(summary);
+      const existingDetails=$('v33ReportMore');
+      if(existingDetails)results.append(existingDetails);
+      results.append(table);
+    }
     const invalidate=()=>{
       v10ReportData=null;
       $('v10ReportSummary')?.replaceChildren();
