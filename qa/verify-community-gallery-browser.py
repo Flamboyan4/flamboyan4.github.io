@@ -4,6 +4,7 @@ No production writes: all API and Google Drive requests are intercepted.
 """
 import asyncio
 import json
+import os
 import pathlib
 import subprocess
 import re
@@ -525,10 +526,19 @@ async def validate_member_tags(browser):
             }""")
             assert geometry["bodyParent"] and geometry["left"]>=0 and geometry["right"]<=geometry["width"]+1,geometry
             assert geometry["top"]>=0 and geometry["bottom"]<=geometry["height"]+1,"Album tags clipped or outside viewport: "+str(geometry)
-            await pop.get_by_role("button",name="Kelola Tag").click()
+            edit=pop.get_by_role("button",name="Kelola Tag")
+            editSize=await edit.evaluate("e=>({width:e.getBoundingClientRect().width,label:e.innerText.trim()})")
+            assert editSize["width"]<=32 and not editSize["label"],"Edit control should be a compact icon: "+str(editSize)
+            assert await page.evaluate("getComputedStyle(document.documentElement).scrollbarWidth")=="none","Shared scrollbar-free CSS missing"
+            await edit.click()
             await page.locator(".f4-tag-list .f4-tag-row").first.wait_for()
             assert await page.locator(".f4-tag-row").count()==2,"Member selector did not load"
             await page.get_by_role("checkbox",name="Tag Pak Moyo").check()
+            selectedGeometry=await page.locator(".f4-tag-selected-chip").first.evaluate("""e=>{
+              const a=e.getBoundingClientRect(),b=e.parentElement.getBoundingClientRect();
+              return {height:a.height,top:a.top,bottom:a.bottom,parentTop:b.top,parentBottom:b.bottom}
+            }""")
+            assert selectedGeometry["height"]>=27 and selectedGeometry["top"]>=selectedGeometry["parentTop"]-1 and selectedGeometry["bottom"]<=selectedGeometry["parentBottom"]+1,"Selected tag chip clipped: "+str(selectedGeometry)
             await page.get_by_role("button",name="Simpan Tag").click()
             await page.wait_for_timeout(200)
             posts=[p for p in MOCK_POSTS if "/api/v2/gallery/tags" in p["url"]]
@@ -564,15 +574,16 @@ async def main():
             browser = await p.chromium.launch(args=["--no-sandbox"])
             try:
                 results.append(await validate_member_tags(browser))
-                results.append(await validate_documentation(browser, "pc", 1365, 820))
-                results.append(await validate_documentation(browser, "hp", 390, 844))
-                results.append(await validate_native_video(browser))
-                results.append(await validate_home(browser))
-                results.append(await validate_legacy_home(browser))
-                results.append(await validate_closed_photo_does_not_reopen(browser))
-                results.append(await validate_like_single_request(browser))
-                results.append(await validate_suppression(browser))
-                results.append(await validate_upload_with_mock_drive(browser))
+                if os.environ.get("F4_GALLERY_TAG_ONLY")!="1":
+                    results.append(await validate_documentation(browser, "pc", 1365, 820))
+                    results.append(await validate_documentation(browser, "hp", 390, 844))
+                    results.append(await validate_native_video(browser))
+                    results.append(await validate_home(browser))
+                    results.append(await validate_legacy_home(browser))
+                    results.append(await validate_closed_photo_does_not_reopen(browser))
+                    results.append(await validate_like_single_request(browser))
+                    results.append(await validate_suppression(browser))
+                    results.append(await validate_upload_with_mock_drive(browser))
             finally:
                 await browser.close()
     finally:
