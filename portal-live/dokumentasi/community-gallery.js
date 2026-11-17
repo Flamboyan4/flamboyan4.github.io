@@ -274,27 +274,77 @@ const f4TagError=(e)=>{
 const f4TagCategories=[['','Umum'],['bank_sampah','Bank Sampah'],['kerja_bakti','Kerja Bakti'],['rapat','Rapat'],['kegiatan','Kegiatan Warga']];
 async function f4TagManager(target){
  if(!await signedIn().catch(()=>false))return;
- const dlg=popup('Tag Warga');
- const search=field(dlg.body,'Cari warga','input','Nama atau nomor rumah…');
- const listNode=elem('div','f4-tag-list'),hint=elem('p','f4g-note','Memuat warga…');
- dlg.body.append(listNode,hint);
+ const dlg=popup(target.type==='album'?'Tag Warga Album':'Tag Warga Foto');
+ dlg.panel.classList.add('f4g-tag-modal');
+ const description=elem('p','f4-tag-description',target.type==='album'
+  ?'Tandai warga yang ikut dalam kegiatan ini.'
+  :'Pilih warga yang ada di foto ini.');
+ const searchWrap=elem('div','f4-tag-search');
+ const searchIcon=elem('span','f4-tag-search-icon');searchIcon.innerHTML=svg('user');
+ const search=elem('input');search.type='search';search.placeholder='Cari nama atau nomor rumah';
+ search.setAttribute('aria-label','Cari warga');
+ searchWrap.append(searchIcon,search);
+ const selectedWrap=elem('div','f4-tag-selected');selectedWrap.hidden=true;
+ const count=elem('span','f4-tag-count','0 dipilih');
+ const listNode=elem('div','f4-tag-list');
+ listNode.setAttribute('role','group');listNode.setAttribute('aria-label','Pilih warga');
+ const hint=elem('p','f4-tag-feedback','Memuat daftar warga…');hint.setAttribute('role','status');
+ const footer=elem('div','f4-tag-footer');
+ const cancel=button('Batal',null,dlg.close,'f4-tag-cancel');
+ const save=button('Simpan Tag',null,null,'primary f4-tag-save');save.disabled=true;
+ footer.append(cancel,save);
+ dlg.body.append(description,searchWrap,selectedWrap,count,listNode,hint,footer);
  try{
-  const [people,previous]=await Promise.all([get('/people'),get('/tags?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))]);
-  const selected=new Set((previous.tags||[]).map(t=>t.memberId)),peopleList=people.members||[];
-  const render=()=>{
-   listNode.replaceChildren();
-   for(const member of peopleList.filter(p=>(p.name+' '+p.house).toLowerCase().includes(search.value.toLowerCase()))){
-    const label=elem('label','f4-tag-row'),check=elem('input');check.type='checkbox';check.checked=selected.has(member.id);
-    check.addEventListener('change',()=>check.checked?selected.add(member.id):selected.delete(member.id));
-    label.append(check,elem('span','',member.name+(member.house?' · '+member.house:'')));listNode.append(label);
+  const [people,previous]=await Promise.all([
+   get('/people'),get('/tags?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))
+  ]);
+  const selected=new Set((previous.tags||[]).map(t=>String(t.memberId)));
+  const members=(people.members||[]).map(m=>({...m,id:String(m.id||'')}));
+  const names=new Map(members.map(m=>[m.id,m]));
+  const initials=value=>String(value||'W').replace(/^(Pak|Bu|Ibu)\s+/i,'').trim().slice(0,1).toUpperCase()||'W';
+  const drawSelected=()=>{
+   selectedWrap.replaceChildren();
+   selectedWrap.hidden=!selected.size;
+   count.textContent=selected.size+' dipilih';
+   for(const id of selected){
+    const member=names.get(id);if(!member)continue;
+    const chip=elem('button','f4-tag-selected-chip');chip.type='button';
+    chip.append(elem('span','',member.name),elem('span','f4-tag-chip-x','×'));
+    chip.setAttribute('aria-label','Hapus tag '+member.name);
+    chip.onclick=()=>{selected.delete(id);render()};
+    selectedWrap.append(chip);
    }
   };
+  const render=()=>{
+   const query=search.value.trim().toLocaleLowerCase('id');
+   listNode.replaceChildren();
+   const matched=members.filter(m=>(m.name+' '+m.house).toLocaleLowerCase('id').includes(query))
+    .sort((a,b)=>Number(selected.has(b.id))-Number(selected.has(a.id))||a.name.localeCompare(b.name,'id'));
+   for(const member of matched){
+    const row=elem('label','f4-tag-row');
+    const avatar=elem('span','f4-tag-avatar',initials(member.name));
+    const info=elem('span','f4-tag-person');
+    info.append(elem('strong','',member.name));
+    if(member.house)info.append(elem('small','','Rumah '+member.house));
+    const check=elem('input');check.type='checkbox';check.checked=selected.has(member.id);
+    check.setAttribute('aria-label','Tag '+member.name);
+    check.onchange=()=>{check.checked?selected.add(member.id):selected.delete(member.id);render()};
+    if(check.checked)row.classList.add('is-selected');
+    row.append(avatar,info,check);listNode.append(row);
+   }
+   if(!matched.length)listNode.append(elem('p','f4-tag-empty','Nama warga tidak ditemukan.'));
+   drawSelected();
+  };
   search.addEventListener('input',render);render();
-  hint.textContent='Tag album dan foto disimpan terpisah.';
-  const save=button('Simpan Tag','user',async()=>{
-   save.disabled=true;try{await post('/tags',{type:target.type,id:target.id,memberIds:[...selected]});dlg.close();toast('Tag berhasil disimpan.')}catch(e){hint.textContent=e.message;save.disabled=false}
-  },'primary');dlg.body.append(save);
- }catch(e){hint.textContent=f4TagError(e)}
+  hint.textContent='';save.disabled=false;
+  save.addEventListener('click',async()=>{
+   save.disabled=true;hint.textContent='Menyimpan tag…';
+   try{
+    await post('/tags',{type:target.type,id:target.id,memberIds:[...selected]});
+    dlg.close();toast('Tag warga berhasil disimpan.');
+   }catch(error){hint.textContent=f4TagError(error);save.disabled=false}
+  });
+ }catch(error){hint.textContent=f4TagError(error)}
 }
 function f4TagButton(host,target){
  host.querySelector('.f4-tag-trigger')?.remove();host.querySelector('.f4-tag-popup')?.remove();
@@ -319,9 +369,6 @@ function f4TagButton(host,target){
  };
  host.append(trigger);
 }
-const f4TagStyle=document.createElement('style');
-f4TagStyle.textContent='.f4g-album-actions,.f4g-photo-actions,.f4p-photo-stage{position:relative}.f4p-photo-stage>.f4-tag-trigger{position:absolute;bottom:14px;left:14px;z-index:36}.f4p-photo-stage>.f4-tag-popup{position:absolute;bottom:56px;left:14px;z-index:37}.f4-tag-trigger{width:34px;height:34px;padding:7px;border-radius:50%;background:#214a3a;color:white;display:inline-flex;align-items:center;justify-content:center}.f4-tag-trigger svg{width:18px;height:18px}.f4-tag-popup{position:absolute;bottom:40px;left:0;z-index:65;max-width:min(300px,85vw);padding:9px;display:flex;gap:6px;flex-wrap:wrap;background:#1d3d31;color:white;border-radius:12px;box-shadow:0 6px 20px #0003;font-size:12px}.f4-tag-chip{background:#ffffff29;padding:4px 8px;border-radius:20px}.f4-tag-list{display:grid;gap:6px;max-height:220px;overflow:auto}.f4-tag-row{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #dbe5df;border-radius:8px}.f4-tag-row input{width:16px}';
-document.head.append(f4TagStyle);
 
 async function uploadDialog(){
  if(!window.f4GalleryCommunity){
