@@ -2822,7 +2822,7 @@ async function f4GalleryApi(req,env,who,url){
  }
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
  if(path==="/api/v2/gallery/people"&&method==="GET"){
-  const members=await list(env.DB,"SELECT m.id,m.display_name AS name,COALESCE(h.house_number,h.number,'') AS house FROM members m LEFT JOIN households h ON h.id=m.household_id WHERE m.status='aktif' ORDER BY m.display_name LIMIT 250");
+  const members=await list(env.DB,"SELECT m.id,m.display_name AS name,COALESCE(h.house_code,'') AS house FROM members m LEFT JOIN households h ON h.id=m.household_id WHERE m.status='aktif' ORDER BY m.display_name LIMIT 250");
   return ok({members});
  }
  if(path==="/api/v2/gallery/tags"&&method==="POST"){
