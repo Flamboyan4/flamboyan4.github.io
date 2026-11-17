@@ -63,14 +63,15 @@ MEASURE="""() => {
   return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom};
  };
  const buttons=[...nav.querySelectorAll('.f4-bank-app-dock-action')].map(x=>({label:x.getAttribute('aria-label'),...box(x)}));
- const offending=[...document.querySelectorAll('body *')]
-  .filter(e=>e.getClientRects().length && getComputedStyle(e).position!=='fixed')
-  .map(e=>({e,r:e.getBoundingClientRect()})).filter(x=>x.r.width>0 && x.r.right>innerWidth+3)
-  .sort((a,b)=>b.r.right-a.r.right).slice(0,12)
-  .map(({e,r})=>({tag:e.tagName,id:e.id,cls:typeof e.className==='string'?e.className.slice(0,90):'',
-   right:Math.round(r.right),left:Math.round(r.left),width:Math.round(r.width),
-   position:getComputedStyle(e).position,overflow:getComputedStyle(e).overflowX}));
- return {offending, vw:innerWidth,visual:visualViewport?.width||innerWidth,
+ const all=[document.documentElement,document.body,...document.querySelectorAll('body *')];
+ const offending=all.filter(e=>e.getClientRects().length && getComputedStyle(e).position!=='fixed')
+  .map(e=>({e,r:e.getBoundingClientRect(),delta:e.scrollWidth-e.clientWidth}))
+  .filter(x=>x.delta>4||x.r.right>innerWidth+3)
+  .sort((a,b)=>b.delta-a.delta).slice(0,20)
+  .map(({e,r,delta})=>({tag:e.tagName,id:e.id,cls:typeof e.className==='string'?e.className.slice(0,90):'',
+    right:Math.round(r.right),left:Math.round(r.left),width:Math.round(r.width),scrollWidth:e.scrollWidth,
+    clientWidth:e.clientWidth,delta,position:getComputedStyle(e).position,overflow:getComputedStyle(e).overflowX}));
+ return {offending,role:document.body.dataset.f4BankRole,classes:document.body.className.slice(0,250), vw:innerWidth,visual:visualViewport?.width||innerWidth,
   doc:document.documentElement.scrollWidth,body:document.body.scrollWidth,
   scrollX,nav:box(nav),header:box(document.getElementById('f4-direct-bar')),
   position:getComputedStyle(nav).position,display:getComputedStyle(nav).display,
@@ -87,6 +88,7 @@ async def main():
      viewport={'width':width,'height':844},device_scale_factor=1,
      is_mobile=engine=='chromium',has_touch=True)
     page=await context.new_page()
+    await page.route('**/portal-live/bank-mobile-app.js*',lambda route:route.abort())
     try:
      await page.goto(URL,wait_until='domcontentloaded',timeout=20000)
      await page.evaluate(PREPARE)
