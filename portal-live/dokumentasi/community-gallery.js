@@ -425,7 +425,8 @@ async function uploadDialog(){
   catch(e){notice('Koneksi galeri belum siap: '+e.message);return}
  }
  const enabled=Boolean(window.f4GalleryCommunity.uploadEnabled);
- const dlg=popup('Unggah Foto Warga');
+ const dlg=popup('Unggah Foto');
+ dlg.panel.classList.add('f4g-upload-modal');
  if(!enabled){
   const note=elem('div','f4g-upload-offline');
   const mark=elem('span','f4g-upload-offline-icon');mark.innerHTML=svg('shield');
@@ -439,8 +440,7 @@ async function uploadDialog(){
    setup.target='_blank';setup.rel='noopener noreferrer';dlg.body.append(setup);
   }
  }
- dlg.body.append(elem('p','f4g-note','Pilih foto dan album.'));
- if(enabled&&user?.role==='superadmin'){
+ if(!enabled&&user?.role==='superadmin'){
   const check=elem('div','f4g-drive-check');
   check.setAttribute('role','status');
   check.append(elem('span','', 'Memeriksa izin Google Drive dan folder Upload Warga…'));
@@ -451,10 +451,14 @@ async function uploadDialog(){
    check.textContent=data.writable?'Koneksi Drive aktif: folder Upload Warga dapat ditulis.':(data.detail||'Koneksi Google Drive belum siap.');
   }).catch(e=>{if(check.isConnected){check.classList.add('error');check.textContent='Gagal mengecek izin Google Drive: '+e.message;}});
  }
- const drop=elem('div','f4g-drop');
- const icon=elem('span');icon.innerHTML=svg('upload');drop.append(icon,elem('strong','','Pilih foto dari perangkat'));
- const picker=elem('input');picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.multiple=true;drop.append(picker);
- drop.append(elem('p','f4g-note','Maks. 12 foto · JPG, PNG, WebP'));
+ const drop=elem('label','f4g-drop f4g-upload-pick');
+ const icon=elem('span','f4g-upload-pick-icon');icon.innerHTML=svg('upload');
+ drop.append(icon,elem('strong','','Pilih Foto'),elem('span','f4g-upload-pick-sub','Ketuk untuk memilih dari galeri atau file'));
+ const picker=elem('input','f4g-upload-native-file');
+ picker.type='file';picker.accept='image/jpeg,image/png,image/webp';picker.multiple=true;
+ picker.setAttribute('aria-label','Pilih foto dari perangkat');
+ drop.append(picker);
+ drop.append(elem('small','f4g-upload-file-help','Maksimal 12 foto · JPG, PNG, WebP'));
  dlg.body.append(drop);
  const preview=elem('div','f4g-previews');dlg.body.append(preview);
  const album=field(dlg.body,'Tujuan album','select');
@@ -470,8 +474,7 @@ async function uploadDialog(){
  caption.maxLength=350;
  const composer=elem('div','f4g-upload-layout');
  const media=elem('div','f4g-upload-media'),settings=elem('div','f4g-upload-settings');
- const section=elem('strong','f4g-upload-section-title','Foto yang dipilih');
- media.append(section,drop,preview);
+ media.append(drop,preview);
  const category=field(dlg.body,'Kategori album','select');
   for(const [key,name] of f4TagCategories){const option=elem('option','',name);option.value=key;category.append(option)}
   const cachedCategories=new Map((window.f4GalleryCommunity?.categories||[]).map(a=>[String(a.albumId),String(a.category)]));
@@ -486,10 +489,69 @@ async function uploadDialog(){
   };
   album.addEventListener('change',refreshCategory);
   void refreshCategory();
-  settings.append(elem('strong','f4g-upload-section-title','Detail unggahan'),album.parentElement,newWrap,category.parentElement,caption.parentElement);
- composer.append(media,settings);dlg.body.append(composer);
- const status=elem('p','f4g-status');status.hidden=true;dlg.body.append(status);
- const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;dlg.body.append(send);
+  const optional=elem('details','f4g-upload-optional');
+  const optionalTitle=elem('summary','f4g-upload-optional-title','Tambahan (opsional)');
+  const optionalBody=elem('div','f4g-upload-optional-body');
+  optionalBody.append(category.parentElement,caption.parentElement);
+  optional.append(optionalTitle,optionalBody);
+  settings.append(album.parentElement,newWrap,optional);
+  composer.append(media,settings);dlg.body.append(composer);
+  // Pilih album/kategori dengan menu custom; nilai tetap disinkronkan ke select internal.
+  const customSelect=(select,placeholder)=>{
+   const root=elem('div','f4g-upload-choice');
+   const trigger=elem('button','f4g-upload-choice-button');trigger.type='button';
+   trigger.setAttribute('aria-label',placeholder);
+   trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-haspopup','listbox');
+   const label=elem('span','f4g-upload-choice-value');
+   const arrow=elem('span','f4g-upload-choice-arrow');
+   arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
+   trigger.append(label,arrow);
+   const list=elem('div','f4g-upload-choice-list');list.hidden=true;
+   list.setAttribute('role','listbox');list.setAttribute('aria-label',placeholder);
+   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||placeholder;};
+   const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false')};
+   const paint=()=>{
+    list.replaceChildren();
+    for(const option of select.options){
+     const button=elem('button','f4g-upload-choice-option'+(option.value===select.value?' selected':''),option.textContent);
+     button.type='button';button.setAttribute('role','option');button.setAttribute('aria-selected',String(option.value===select.value));
+     button.onclick=()=>{
+      select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));
+      sync();close();
+     };
+     list.append(button);
+    }
+   };
+   trigger.onclick=()=>{
+    if(trigger.disabled)return;
+    const show=list.hidden;
+    // Only one dropdown may be open within the modal.
+    dlg.panel.querySelectorAll('.f4g-upload-choice-list').forEach(x=>x.hidden=true);
+    dlg.panel.querySelectorAll('.f4g-upload-choice-button').forEach(x=>x.setAttribute('aria-expanded','false'));
+    if(show){paint();list.hidden=false;trigger.setAttribute('aria-expanded','true')}
+   };
+   const onOutside=e=>{if(!root.contains(e.target))close()};
+   const onEscape=e=>{if(e.key==='Escape'&&!list.hidden){close();trigger.focus()}};
+   document.addEventListener('pointerdown',onOutside,true);
+   document.addEventListener('keydown',onEscape,true);
+   dlg.onClose(()=>{document.removeEventListener('pointerdown',onOutside,true);document.removeEventListener('keydown',onEscape,true)});
+   select.addEventListener('change',sync);
+   select.classList.add('f4g-upload-source-select');
+   select.after(root);root.append(trigger,list);sync();
+   return {trigger,refresh:sync};
+  };
+  const albumChoice=customSelect(album,'Pilih album');
+  const categoryChoice=customSelect(category,'Kategori album');
+  album.addEventListener('change',()=>{albumChoice.refresh();optional.open=album.value==='__new'});
+  category.addEventListener('change',categoryChoice.refresh);
+  const originalCategoryRefresh=refreshCategory;
+  album.addEventListener('change',()=>{void originalCategoryRefresh().then(()=>categoryChoice.refresh())});
+  // Preserve selected values when returning to a previously created album.
+  const captionWrap=caption.parentElement;
+  captionWrap.classList.add('f4g-upload-caption');
+  const footer=elem('div','f4g-upload-footer');
+ const status=elem('p','f4g-status');status.hidden=true;footer.append(status);
+ const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;footer.append(send);dlg.panel.append(footer);
  if(!enabled)send.title='Unggah belum tersedia sampai Google Drive dihubungkan pengelola.';
  const viewGallery=button('Lihat di Galeri','arrow',refreshGallery,'primary');
  let files=[],urls=[],completedFiles=new Set();
@@ -498,6 +560,9 @@ async function uploadDialog(){
   preview.replaceChildren();files=Array.from(picker.files||[]).slice(0,12);
   completedFiles.clear();viewGallery.remove();
   if(picker.files.length>12)message(dlg.body,'Maksimal 12 foto diproses dalam satu kiriman.',true);
+  drop.classList.toggle('has-files',files.length>0);
+  drop.querySelector('strong').textContent=files.length?'Tambah Foto':'Pilih Foto';
+  drop.querySelector('.f4g-upload-pick-sub').textContent=files.length?files.length+' foto dipilih · Ketuk untuk mengganti':'Ketuk untuk memilih dari galeri atau file';
   files.forEach(file=>{
    const fig=elem('figure'),img=elem('img'),link=URL.createObjectURL(file);urls.push(link);img.src=link;
    const label=elem('figcaption','',file.name.slice(0,24));
@@ -520,7 +585,7 @@ async function uploadDialog(){
     // Jangan membuat album duplikat jika foto pertama gagal diunggah.
     const saved=makeOption(created.id,created.title||newTitle.value.trim());
     album.insertBefore(saved,album.querySelector('option[value="__new"]'));
-    album.value=created.id;newWrap.hidden=true;
+    album.value=created.id;newWrap.hidden=true;albumChoice.refresh();
    }
    const currentCategory=cachedCategories.get(albumId)||'';
     if(category.value!==currentCategory){
