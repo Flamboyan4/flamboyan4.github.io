@@ -4,15 +4,6 @@
 .f4-bank-app-dock{display:none}
 .f4-bank-app-dock[hidden]{display:none}
 @media(max-width:1023px){
- /* A wide private report must not expand Chrome Android's layout viewport.
-    Keep clipping at the document boundary, not inside functional cards. */
- html:has(body.f4-bank-app-private){
-  box-sizing:border-box;width:100%;max-width:100%;min-width:0;
-  overflow-x:clip
- }
- body.f4-bank-app-private{
-  box-sizing:border-box;max-width:100%;min-width:0;overflow-x:clip
- }
  body.f4-bank-app-private{
   --f4-bank-dock-height:72px;
   --f4-bank-dock-safe-bottom:env(safe-area-inset-bottom,0px)
