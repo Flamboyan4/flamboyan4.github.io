@@ -1,4 +1,4 @@
-/* Portal Utama: copy bank account numbers from the rekening bottom sheet.
+/* Portal Utama: copy bank account numbers from inline desktop footer or mobile sheet.
    Opening/closing uses the existing global modal stack for Back and Escape. */
 (()=>{
  'use strict';
@@ -21,25 +21,26 @@
    el.remove();
    return ok;
  }
- root.addEventListener('click',async event=>{
+ document.addEventListener('click',async event=>{
    const button=event.target.closest?.('[data-account-copy]');
-   if(!button||!root.contains(button))return;
+   if(!button||!button.closest('#modal-rekening,footer#pembayaran'))return;
+   const inSheet=root.contains(button);
    const number=button.getAttribute('data-account-copy')||'';
    if(!/^\d{8,20}$/.test(number))return;
    const label=button.querySelector('span');
    button.disabled=true;
    let ok=false;
    try{ok=await copyNumber(number)}finally{button.disabled=false;}
-   if(!root.isConnected||root.classList.contains('hidden'))return;
+   if(inSheet&&(!root.isConnected||root.classList.contains('hidden')))return;
    const oldTimer=timers.get(button);
    if(oldTimer)clearTimeout(oldTimer);
    if(label)label.textContent=ok?'Tersalin':'Salin';
    button.dataset.copied=String(ok);
-   if(status)status.textContent=ok?'Nomor rekening berhasil disalin.':'Gagal menyalin. Tekan lama nomor rekening untuk menyalin.';
+   if(status&&inSheet)status.textContent=ok?'Nomor rekening berhasil disalin.':'Gagal menyalin. Tekan lama nomor rekening untuk menyalin.';
    const timer=setTimeout(()=>{
      if(label)label.textContent='Salin';
      delete button.dataset.copied;
-     if(status)status.textContent='';
+     if(status&&inSheet)status.textContent='';
      timers.delete(button);
    },1800);
    timers.set(button,timer);
