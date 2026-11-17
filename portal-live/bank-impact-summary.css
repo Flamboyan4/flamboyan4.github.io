@@ -3,15 +3,15 @@
 #v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#f5f8f5}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
- background:#fff;border-bottom:1px solid #e3ece4;color:#174d35
+ background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
 }
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login{
  display:grid;place-items:center;width:auto;min-width:78px;
  min-height:39px;padding:0 14px;border:0;border-radius:12px;
- background:#117449;color:#fff;font-size:12px;font-weight:800
+ background:#08775e;color:#fff;font-size:12px;font-weight:800
 }
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login:hover{
- background:#075c3b;color:#fff
+ background:#065940;color:#fff
 }
 #v11Public #v18PublicContent .v17-public-main{
  box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
@@ -24,7 +24,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  align-items:center;gap:18px;min-width:0;min-height:206px;
  width:100%;margin:0;padding:24px 26px;overflow:hidden;
  border:0;border-radius:24px;color:#fff;
- background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%);
+ background:linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%);
  box-shadow:0 9px 22px #14563823
 }
 #v11Public .v17-public-main>.v17-public-banner::before{
@@ -270,7 +270,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;position:relative;overflow:hidden;min-width:0;
  padding:21px 23px 18px;border-radius:20px;
  background:radial-gradient(circle at 90% 6%,#ffffff20 0,transparent 43%),
- linear-gradient(112deg,#079b91 0%,#16997a 42%,#43a14e 100%);
+ linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%);
  color:#fff
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-title{
@@ -326,7 +326,7 @@ body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-head h3{
 body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-badge{
  display:inline-flex;align-items:center;justify-content:center;
  flex:none;padding:5px 10px;border-radius:99px;
- background:#ffd145;color:#574009;font-size:10px;font-weight:850;line-height:1.2
+ background:#fff3cb;color:#946600;font-size:10px;font-weight:850;line-height:1.2
 }
 body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-grid{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -344,7 +344,7 @@ body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric small{
  color:#627e6d;font-size:11px;font-weight:600;line-height:1.25
 }
 body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric strong{
- color:#09836a;font-size:clamp(18px,2.1vw,24px);
+ color:#08775e;font-size:clamp(18px,2.1vw,24px);
  font-weight:850;line-height:1.2;overflow-wrap:anywhere;
  font-variant-numeric:tabular-nums
 }
@@ -375,10 +375,10 @@ body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar but
  background:#e9f6ee;color:#11684b;font-size:12px;font-weight:800
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button:nth-last-child(2){
- background:#09866c;border-color:#09866c;color:#fff
+ background:#08775e;border-color:#08775e;color:#fff
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button:last-child{
- background:#ffce32;border-color:#ffce32;color:#57410b
+ background:#ffc411;border-color:#ffc411;color:#174b36
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button svg{
  flex:none;width:19px;height:19px
