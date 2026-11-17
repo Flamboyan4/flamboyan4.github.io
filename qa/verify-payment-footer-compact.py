@@ -73,10 +73,14 @@ async def run():
                     return {footer:r(footer),qr:r(qr),bank:r(bank),
                        count:footer.querySelectorAll('a,button').length,
                        isWhite:getComputedStyle(footer).backgroundColor,
+                       qrBg:getComputedStyle(qr).backgroundColor,
+                       bankBg:getComputedStyle(bank).backgroundColor,
                        overflow:document.documentElement.scrollWidth,viewport:innerWidth}
                 }""")
                 assert result['count']==2,(width,'Footer should have just 2 actions',result)
                 assert result['isWhite']=='rgb(255, 255, 255)',(width,'Footer background changed',result)
+                assert result['qrBg']=='rgb(102, 85, 179)',(width,'Portal Utama primary action must be purple',result)
+                assert result['bankBg']=='rgb(247, 245, 252)',(width,'Rekening secondary action must be muted lilac',result)
                 assert result['overflow']<=width+1,(width,'Horizontal overflow',result)
                 assert abs(result['qr']['height']-result['bank']['height'])<1,(width,'Unequal buttons',result)
                 assert result['qr']['x']<result['bank']['x'],(width,'Button order changed',result)
