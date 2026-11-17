@@ -2230,7 +2230,7 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
  font-weight:800;cursor:pointer;transition:background-color .15s,border-color .15s
 }
 .f4-bank-admin-history-tab.is-active{
- background:var(--eco-leaf,#43a047);border-color:var(--eco-leaf,#43a047);color:#fff
+ background:#08775e;border-color:#08775e;color:#fff
 }
 #dashboardView #bank-admin-history>.card:not(.hidden){
  width:100%;margin:0;max-width:none
@@ -2256,7 +2256,7 @@ body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-iden
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-avatar{
  display:grid;place-items:center;flex:none;
  width:39px;height:39px;border-radius:50%;
- background:var(--eco-leaf,#43a047);color:#fff;
+ background:#08775e;color:#fff;
  font-size:12px;font-weight:850;letter-spacing:.02em
 }
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-copy{
@@ -2274,7 +2274,7 @@ body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-summ
  display:grid;justify-items:start;align-content:center;gap:3px;min-width:0
 }
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-amount{
- color:var(--eco-leaf,#43a047);font-size:15px;font-weight:850;line-height:1.25;
+ color:#08775e;font-size:15px;font-weight:850;line-height:1.25;
  font-variant-numeric:tabular-nums;white-space:nowrap
 }
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-summary>span:not(.f4-admin-deposit-status){
@@ -2368,7 +2368,7 @@ body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) :is(.f4
  }
  body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-mobile-summary>strong{
   font-size:12px;line-height:1.2;font-weight:850;
-  color:var(--eco-leaf,#43a047)
+  color:#08775e
  }
  body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-mobile-status{
   display:inline-flex;align-items:center;justify-content:center;
