@@ -39,52 +39,52 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   box-sizing:border-box;display:block;position:fixed;left:0;top:0;bottom:0;z-index:210;
   width:226px;height:100dvh;min-height:0;max-height:100dvh;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-  margin:0;padding:0 11px 20px;border:0;border-right:1px solid #e6eae8;
+  margin:0;padding:0 8px 16px;border:0;border-right:1px solid #dce8df;
   border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible
  }
- body.f4-bank-app-member #dashboardView #sideNav .v16-brand{
-  box-sizing:border-box;display:flex;align-items:center;gap:10px;
-  height:56px;min-height:56px;margin:0 -11px 16px;padding:0 16px;
-  border-bottom:1px solid #d6e6d9;background:transparent
+ body.f4-bank-app-member #dashboardView #sideNav #v16Brand.v16-brand{
+  box-sizing:border-box;display:flex;align-items:center;flex-shrink:0;gap:10px;
+  width:auto;height:56px;min-height:56px;margin:0 -8px 10px;padding:0 14px;
+  border:0;border-bottom:1px solid #d6e6d9;background:#fff
  }
- body.f4-bank-app-member #dashboardView #sideNav .v16-brand img{
-  display:block;flex:none;width:43px;height:43px;max-width:43px;object-fit:contain
+ body.f4-bank-app-member #dashboardView #sideNav #v16Brand img{
+  display:block;flex:none;width:42px;height:42px;max-width:42px;object-fit:contain
  }
- body.f4-bank-app-member #dashboardView #sideNav .v16-brand strong{
-  display:block;color:#21583b;font-size:13px;font-weight:800;
-  line-height:1.25;letter-spacing:0;white-space:normal;overflow-wrap:break-word
+ body.f4-bank-app-member #dashboardView #sideNav #v16Brand strong{
+  display:block;color:#21583b;font-size:12.5px;font-weight:800;
+  line-height:1.2;letter-spacing:-.2px;white-space:normal;overflow-wrap:normal
  }
- body.f4-bank-app-member #dashboardView #sideNav .v16-brand small{
+ body.f4-bank-app-member #dashboardView #sideNav #v16Brand small{
   display:block;color:#788d7f;font-size:10px;line-height:1.3
  }
  body.f4-bank-app-member #dashboardView #sideNav .v16-nav-caption{
-  display:block;color:#86998a;font-size:10px;font-weight:800;
-  letter-spacing:.07em;padding:8px 11px 9px
+  display:block;color:#819489;font-size:10px;font-weight:800;
+  letter-spacing:.06em;padding:11px 10px 7px
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList{
-  display:flex;flex-direction:column;gap:3px
+  display:flex;flex-direction:column;gap:1px
  }
  
+ /* Member navigation follows the same compact desktop grid as the admin sidebar. */
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item{
+  box-sizing:border-box;display:flex;align-items:center;gap:10px;
+  min-height:37px;margin:0;padding:7px 10px;border:0;border-radius:10px;
+  background:transparent;color:#526e5b;
+  font:650 12.5px/1.25 system-ui,-apple-system,sans-serif;
+  box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:#43a047
+ }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is(.active,[aria-current="page"]){
-  background:#e8f4ea;color:#145d3b;font-weight:800;box-shadow:none
+  background:#e4f6d5;color:#196e40;font-weight:750;box-shadow:none
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:not(.active):hover{
-  background:#f4f8f5;color:#145d3b
+  background:#f2f9f0;color:#2c7047
  }
- /* Navigation labels remain legible, while function icons use the supplied palette. */
- body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item{
- box-sizing:border-box;display:flex;align-items:center;gap:11px;
-  min-height:44px;margin:0;padding:9px 11px;border:0;border-radius:11px;
-  background:transparent;color:#294e3b;font:700 13.5px/1.3 system-ui,-apple-system,sans-serif;
-  box-shadow:none;text-align:left;cursor:pointer;
---member-nav-accent:#43a047
-}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="saving"],[data-group="memberdocs"]){--member-nav-accent:#009688}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="withdrawal"],.f4-back-account){--member-nav-accent:#b98b00}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is([data-group="statement"],[data-group="memberinfo"]){--member-nav-accent:#00a9bf}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item[data-group="memberreport"]{--member-nav-accent:#7aa938}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item svg{
-  display:block;flex:none;width:19px;height:19px;
+  display:block;flex:none;width:22px;height:22px;
   color:var(--member-nav-accent);stroke:currentColor;
   stroke-width:1.85;fill:none
  }
