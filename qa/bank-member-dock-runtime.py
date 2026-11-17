@@ -143,9 +143,9 @@ async def main():
         };
        }""")
        if not(savings['hiddenDisplay']=='none' and
-         (savings['barChartHeight'] or 0)<=125 and
-         (savings['railHeight'] or 0)<=65 and
-         (savings['columnWidth'] or 0)<=70 and
+         (savings['barChartHeight'] or 0)>=145 and (savings['barChartHeight'] or 0)<=180 and
+         (savings['railHeight'] or 0)>=100 and (savings['railHeight'] or 0)<=112 and
+         (savings['columnWidth'] or 0)<=74 and
          savings['titleText']=='Tabungan saya' and savings['titleVisible'] and
          savings['iconCount']==4 and savings['iconsVisible'] and
          savings['dashboardTopPadding']=='0px' and savings['contentTopPadding']=='0px' and
