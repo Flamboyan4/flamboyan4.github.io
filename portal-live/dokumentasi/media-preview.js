@@ -240,11 +240,18 @@ function drawAlbums(){
 }
 function drawFilters(){
  const box=$('media-category-filters');box.replaceChildren();
+ // PC: filter chips; HP: one compact selector so categories never form a second button grid.
  for(const kind of types){
   const btn=el('button','btn'+(active===kind?'':' outline'),kind);
   btn.type='button';btn.setAttribute('aria-pressed',String(active===kind));
   btn.onclick=()=>{active=kind;drawFilters();drawAlbums()};box.append(btn);
  }
+ const select=el('select','f4g-category-select');
+ select.setAttribute('aria-label','Filter kategori album');
+ for(const kind of types){const option=el('option','',kind);option.value=kind;select.append(option)}
+ select.value=active;
+ select.onchange=()=>{active=select.value;drawFilters();drawAlbums()};
+ box.append(select);
 }
 window.f4GalleryOpenRecent=async(albumId,photoId)=>{
  const album=docs.find(row=>row.id===albumId);
