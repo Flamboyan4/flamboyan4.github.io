@@ -49,7 +49,7 @@
  font-size:11px;font-weight:750;line-height:1.2;white-space:nowrap;cursor:pointer;touch-action:manipulation
 }
 #v17Perkembangan .f4-dev-modes button{min-width:35px}
-#v17Perkembangan .f4-dev-controls button.is-active{background:#318752;color:#fff}
+#v17Perkembangan .f4-dev-controls button.is-active{background:#43a047;color:#fff}
 /* Hide choices only when the public mode genuinely has no other available option. */
 #v17Perkembangan .f4-dev-controls:not(:has([data-dev-range="30"]:not([hidden]))){display:none}
 #v17Perkembangan .f4-dev-controls button:focus-visible,
