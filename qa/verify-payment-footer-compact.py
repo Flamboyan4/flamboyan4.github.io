@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Playwright: two-button payment footer, downloadable QRIS and rekening bottom sheet.
+"""Playwright: desktop inline accounts; mobile two-button footer and rekening bottom sheet.
 Read-only: all pages/resources are served from repository files; production is never contacted.
 """
 import asyncio
@@ -22,7 +22,7 @@ footer_end = html.index('</footer>', footer_start) + len('</footer>')
 modal_start = html.index('<div id="modal-rekening"')
 modal_end = html.index('  <!-- Firebase App', modal_start)
 fragment = html[footer_start:footer_end] + html[modal_start:modal_end]
-assert fragment.count('class="f4-payment-row"') == 0, 'Bank account details must be outside footer'
+assert fragment.count('class="f4-payment-desktop-account"') == 2, 'Desktop must show both bank accounts inline'
 assert fragment.count('class="f4-account-item"') == 2
 assert 'onclick="openModal(\'modal-rekening\')"' in fragment
 assert "1330022606479" in fragment and "901493321399" in fragment
@@ -70,20 +70,29 @@ async def run():
                     const qr=footer.querySelector('.f4-payment-qris');
                     const bank=footer.querySelector('.f4-payment-rekening');
                     const r=e=>{const b=e.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom,width:b.width,height:b.height}};
-                    return {footer:r(footer),qr:r(qr),bank:r(bank),
-                       count:footer.querySelectorAll('a,button').length,
+                    const accounts=[...footer.querySelectorAll('.f4-payment-desktop-account')];
+                    const visible=e=>e.getClientRects().length>0 && getComputedStyle(e).display!=='none';
+                    return {footer:r(footer),qr:r(qr),bank:r(bank),accounts:accounts.map(r),
+                       visibleCount:[...footer.querySelectorAll('a,button')].filter(visible).length,
+                       bankVisible:visible(bank),accountVisible:accounts.map(visible),
                        isWhite:getComputedStyle(footer).backgroundColor,
                        qrBg:getComputedStyle(qr).backgroundColor,
                        bankBg:getComputedStyle(bank).backgroundColor,
                        overflow:document.documentElement.scrollWidth,viewport:innerWidth}
                 }""")
-                assert result['count']==2,(width,'Footer should have just 2 actions',result)
                 assert result['isWhite']=='rgb(255, 255, 255)',(width,'Footer background changed',result)
                 assert result['qrBg']=='rgb(102, 85, 179)',(width,'Portal Utama primary action must be purple',result)
                 assert result['bankBg']=='rgb(247, 245, 252)',(width,'Rekening secondary action must be muted lilac',result)
                 assert result['overflow']<=width+1,(width,'Horizontal overflow',result)
-                assert abs(result['qr']['height']-result['bank']['height'])<1,(width,'Unequal buttons',result)
-                assert result['qr']['x']<result['bank']['x'],(width,'Button order changed',result)
+                if mobile:
+                    assert result['visibleCount']==2,(width,'Mobile must show only QRIS + Rekening',result)
+                    assert result['bankVisible'] and not any(result['accountVisible']),(width,'Mobile accounts must be in sheet',result)
+                    assert abs(result['qr']['height']-result['bank']['height'])<1,(width,'Unequal mobile buttons',result)
+                    assert result['qr']['x']<result['bank']['x'],(width,'Mobile button order changed',result)
+                else:
+                    assert result['visibleCount']==3,(width,'Desktop must show QRIS and 2 copy actions',result)
+                    assert not result['bankVisible'] and all(result['accountVisible']),(width,'Desktop must show inline banks without Rekening popup button',result)
+                    assert result['qr']['x']<result['accounts'][0]['x']<result['accounts'][1]['x'],(width,'Desktop QRIS and bank order',result)
                 assert result['footer']['height']<=72,(width,'Footer too tall',result)
 
                 # Download must start directly, without opening a modal.
@@ -92,6 +101,21 @@ async def run():
                 file = await info.value
                 assert file.suggested_filename=='QRIS_Flamboyan4.jpg',(width,file.suggested_filename)
                 assert await page.locator('#modal-rekening').evaluate('(e)=>e.classList.contains("hidden")')
+
+                if not mobile:
+                    # Desktop must copy directly without opening a popup.
+                    for number in ['1330022606479','901493321399']:
+                        button=page.locator('.f4-payment-desktop-account [data-account-copy="'+number+'"]')
+                        await button.click()
+                        await page.wait_for_function(
+                            "(n) => [...document.querySelectorAll('.f4-payment-desktop-copy')].some(b => b.getAttribute('data-account-copy')===n && b.dataset.copied==='true')",
+                            arg=number)
+                        copied=await page.evaluate('navigator.clipboard.readText()')
+                        assert copied==number,(width,'Wrong desktop bank number',copied,number)
+                    assert await page.locator('#modal-rekening').evaluate('(e)=>e.classList.contains("hidden")'), (width,'Desktop copy should not open sheet')
+                    print(f"PAYMENT_FOOTER_LAYOUT_PASS width={width} footer={result['footer']['height']:.1f}px desktop=inline copies=ok download=ok")
+                    await ctx.close()
+                    continue
 
                 await page.locator('.f4-payment-rekening').click()
                 await page.locator('#modal-rekening:not(.hidden)').wait_for()
@@ -112,7 +136,7 @@ async def run():
                     assert geom and geom['y']>50,(width,'Desktop dialog should be centered',geom)
 
                 for number in ['1330022606479','901493321399']:
-                    await page.locator('[data-account-copy="'+number+'"]').click()
+                    await page.locator('#modal-rekening [data-account-copy="'+number+'"]').click()
                     await page.wait_for_function(
                         "document.querySelector('#f4-account-copy-status').textContent.includes('berhasil')")
                     copied=await page.evaluate('navigator.clipboard.readText()')
