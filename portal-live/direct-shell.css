@@ -358,9 +358,3 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-direct-book > main > *{min-width:0;max-width:1200px}
  body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
 }
-
-/* Seluruh portal: scrollbar visual disembunyikan, bukan scroll-nya.
-   Tetap mendukung wheel, touch, trackpad, keyboard, dan scrollIntoView.
-   Aturan tunggal di stylesheet bersama; jangan membuat override per halaman. */
-html,body,body *{scrollbar-width:none;-ms-overflow-style:none}
-html::-webkit-scrollbar,body::-webkit-scrollbar,body *::-webkit-scrollbar{display:none;width:0;height:0}
