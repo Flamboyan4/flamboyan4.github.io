@@ -932,60 +932,46 @@
     </button>
   </div>
 
-  <!-- FOOTER -->
-  <footer id="pembayaran" class="bg-slate-900 text-slate-400 pt-6 pb-6 border-t border-slate-800 w-full">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="bg-slate-800/60 p-4 md:p-5 rounded-2xl border border-slate-700/80 mb-6">
-        <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3">
-          <div class="flex items-center space-x-2 text-white">
-            <i data-lucide="credit-card" class="w-5 h-5 text-indigo-400"></i>
-            <h4 class="font-bold text-sm md:text-base">Pembayaran</h4>
-          </div>
-          <span class="text-[11px] text-slate-400">Transfer / QRIS</span>
+  <!-- FOOTER — compact payment methods, same existing account data and actions -->
+  <footer id="pembayaran" class="f4-payment-footer">
+    <div class="f4-payment-inner">
+      <section class="f4-payment-panel" aria-label="Metode pembayaran">
+        <div class="f4-payment-heading">
+          <i data-lucide="credit-card" aria-hidden="true"></i>
+          <h4>Pembayaran</h4>
+          <span>Transfer &amp; QRIS</span>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <!-- REKENING 1: MANDIRI -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">Mandiri</p>
-              <p class="text-[11px] text-slate-400">A/N ROSALINDA</p>
+        <div class="f4-payment-list">
+          <div class="f4-payment-row">
+            <div class="f4-payment-info">
+              <strong>Mandiri</strong>
+              <small>A/N ROSALINDA</small>
             </div>
-            <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" aria-label="Salin nomor rekening Mandiri" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-1">Salin</span>
+            <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" aria-label="Salin nomor rekening Mandiri" class="f4-payment-action" type="button">
+              <i data-lucide="copy" aria-hidden="true"></i><span id="btn-text-1">Salin</span>
             </button>
           </div>
-
-          <!-- REKENING 2: SEABANK -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">SeaBank</p>
-              <p class="text-[11px] text-slate-400">A/N HERI JUWANDI</p>
+          <div class="f4-payment-row">
+            <div class="f4-payment-info">
+              <strong>SeaBank</strong>
+              <small>A/N HERI JUWANDI</small>
             </div>
-            <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" aria-label="Salin nomor rekening SeaBank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
-              <span id="btn-text-2">Salin</span>
+            <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" aria-label="Salin nomor rekening SeaBank" class="f4-payment-action" type="button">
+              <i data-lucide="copy" aria-hidden="true"></i><span id="btn-text-2">Salin</span>
             </button>
           </div>
-
-          <!-- QRIS SIMPEL TOMBOL UNDUH TERBARU -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-            <div>
-              <p class="text-white font-bold">QRIS Pembayaran</p>
-              <p class="text-[11px] text-slate-400">Bank & Dompet Digital</p>
+          <div class="f4-payment-row">
+            <div class="f4-payment-info">
+              <strong>QRIS</strong>
+              <small>Bank &amp; dompet digital</small>
             </div>
-            <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shrink-0 active:scale-95">
-              <i data-lucide="download" class="w-3.5 h-3.5"></i>
-              <span>Unduh QR</span>
+            <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="f4-payment-action f4-payment-qris" aria-label="Unduh QRIS pembayaran">
+              <i data-lucide="download" aria-hidden="true"></i><span>Unduh QR</span>
             </a>
           </div>
         </div>
-      </div>
-
-      <div class="text-center text-xs md:text-sm pt-2">
-        <p>&copy; 2026 Humas Flamboyan 4. Dikelola secara swadaya & transparan.</p>
-      </div>
+      </section>
+      <p class="f4-payment-copyright">© 2026 Humas Flamboyan 4 · Swadaya &amp; transparan</p>
     </div>
   </footer>
 
