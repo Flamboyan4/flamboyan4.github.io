@@ -17,6 +17,10 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 #f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
 #f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
+@media(min-width:1024px){
+ #f4-account-page>aside{padding-top:0}
+ #f4-account-page>aside .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;border-bottom-color:var(--f4-nav-line,var(--edge))}
+}
 .f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
 .f4-sa-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
 #f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:var(--navy);font-size:12px;font-weight:700}
@@ -317,7 +321,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261113-donor-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-brand-separator-aligned-v3"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261110-sa-tone-icon-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
