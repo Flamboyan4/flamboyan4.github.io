@@ -552,6 +552,24 @@ function ensureScreen(id,title){
  }
  return node;
 }
+function savingsStatIcon(kind){
+ const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ svg.setAttribute("viewBox","0 0 24 24");
+ svg.setAttribute("width","19");svg.setAttribute("height","19");
+ svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");
+ svg.setAttribute("stroke-width","1.9");svg.setAttribute("stroke-linecap","round");
+ svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+ const paths={
+  incoming:'M12 3v12m-4-4 4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2',
+  payout:'M12 21V9m-4 4 4-4 4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2',
+  deposit:'M3 7h18l-2 13H5L3 7Zm3 0 2-4h8l2 4M9 12h6m-3-3v6',
+  pending:'M12 7v5l3 2M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Z'
+ };
+ const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+ path.setAttribute("d",paths[kind]||paths.deposit);svg.append(path);
+ const wrap=el("span","f4-bank-savings-stat-icon is-"+kind);wrap.setAttribute("aria-hidden","true");
+ wrap.append(svg);return wrap;
+}
 function mountSavings(){
  const page=$("pagePribadi"),priv=$("v12Private");
  if(!page||!priv||role!=="member")return;
@@ -577,7 +595,9 @@ function mountSavings(){
  if(revised?.tagName==="H2")revised.textContent="Riwayat Setoran";
  if(!$("f4BankSavingsHero")){
   const hero=el("section","f4-bank-savings-hero");hero.id="f4BankSavingsHero";
-  hero.append(el("small","","SALDO TABUNGAN"),el("strong","","—"),el("span","","Saldo dari hasil penjualan sah"));
+  hero.append(el("h2","f4-bank-savings-title","Tabungan saya"),
+   el("small","","SALDO TABUNGAN"),el("strong","","—"),
+   el("span","","Saldo dari hasil penjualan sah"));
   priv.insertBefore(hero,priv.firstChild);hero.querySelector("strong").id="f4BankSavingsBalance";
   const payout=el("button","f4-bank-gold-action f4-bank-savings-payout","Ajukan Pencairan");
   payout.type="button";payout.onclick=()=>navigate("bank-payout");hero.append(payout);
@@ -586,7 +606,10 @@ function mountSavings(){
   const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
   for(const [title,key] of [["Masuk","f4BankSavingsCredit"],["Dicairkan","f4BankSavingsDebit"],
     ["Setoran","f4BankSavingsDepositCount"],["Belum sah","f4BankSavingsPendingWeight"]]){
-   const tile=el("div","f4-bank-savings-stat"+(["f4BankSavingsDepositCount","f4BankSavingsPendingWeight"].includes(key)?" is-mobile-extra":""));tile.append(el("small","",title));
+   const tile=el("div","f4-bank-savings-stat"+(["f4BankSavingsDepositCount","f4BankSavingsPendingWeight"].includes(key)?" is-mobile-extra":""));
+   const iconType=key==="f4BankSavingsCredit"?"incoming":key==="f4BankSavingsDebit"?"payout":
+    key==="f4BankSavingsDepositCount"?"deposit":"pending";
+   tile.append(savingsStatIcon(iconType),el("small","",title));
    const value=el("strong","","—");value.id=key;tile.append(value);mini.append(tile);
   }
   $("f4BankSavingsHero")?.after(mini);
