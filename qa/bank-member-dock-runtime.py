@@ -25,6 +25,17 @@ PREPARE="""() => {
      const e=document.createElement('button');e.id='nav'+title;e.className='hidden';side?.append(e);
    }
  }
+ // The baseline member savings DOM is normally created by v12Setup after login.
+ // Supply those source nodes to the read-only fixture; the actual mobile app then mounts them.
+ const savingsPage=document.getElementById('pagePribadi');
+ if(savingsPage&&!document.getElementById('v12Private')){
+  const source=document.createElement('div');source.id='v12Private';
+  const stats=document.createElement('div');stats.className='stats';
+  stats.innerHTML='<div class="stat"><small>Saldo</small><strong>—</strong></div>';
+  const title=document.createElement('h2');title.textContent='Rincian barang';
+  const deposits=document.createElement('div');deposits.id='v12Deposits';
+  source.append(stats,title,deposits);savingsPage.append(source);
+ }
  window.f4BankReconcileAccount?.();
 }"""
 MEASURE="""() => {
