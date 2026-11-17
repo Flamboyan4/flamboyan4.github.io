@@ -16,12 +16,12 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 #f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
 #f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
 #f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
-.f4-sa-brand{display:flex;gap:10px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
+.f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 @media(min-width:1024px){
  #f4-account-page>aside{padding-top:0}
  #f4-account-page>aside .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;border-bottom-color:var(--f4-nav-line,var(--edge))}
 }
-.f4-sa-logo{height:42px;width:42px;object-fit:contain}.f4-sa-brand strong{display:block;font-size:14px;color:var(--navy)}.f4-sa-brand small{display:block;font-size:10px;color:var(--muted)}
+.f4-sa-logo{height:42px;width:42px;object-fit:contain;flex:none}.f4-sa-brand strong{display:block;font-size:13px;font-weight:800;line-height:1.2;color:var(--blue)}.f4-sa-brand small{display:block;margin-top:3px;font-size:10px;font-weight:500;line-height:1.2;color:var(--muted)}
 .f4-sa-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
 #f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:var(--navy);font-size:12px;font-weight:700}
 #f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:var(--blue)}
@@ -444,7 +444,7 @@ async function get(path){const res=await fetch(API+path,{credentials:'include',c
 function sidebar(g=group){
  group=g;side.replaceChildren();
  const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
- const text=el('span');text.append(el('strong','Flamboyan 4'),el('small','Portal Superadmin'));brand.append(img,text);side.append(brand);
+ const text=el('span');text.append(el('strong','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
