@@ -44,7 +44,7 @@
 <script src="/portal-live/portal-d1-bridge.js?v=20261106-calendar-arisan-sync-v1"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261117-qris-priority-v6"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-nav-stable-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261117-qris-primary-green-v7"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-nav-stable-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
 <link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261112-mobile-cash-clean-v1">
 
@@ -932,7 +932,7 @@
     </button>
   </div>
 
-  <!-- FOOTER — compact payment methods, same existing account data and actions -->
+  <!-- FOOTER — QRIS as primary action, bank transfers as compact alternatives -->
   <footer id="pembayaran" class="f4-payment-footer">
     <div class="f4-payment-inner">
       <section class="f4-payment-panel" aria-label="Metode pembayaran">
@@ -941,6 +941,11 @@
           <h4>Pembayaran</h4>
         </div>
         <div class="f4-payment-list">
+          <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="f4-payment-qris" aria-label="Unduh QRIS pembayaran">
+            <i data-lucide="qr-code" aria-hidden="true"></i>
+            <span>Unduh QRIS</span>
+            <i data-lucide="download" aria-hidden="true"></i>
+          </a>
           <div class="f4-payment-row">
             <div class="f4-payment-info">
               <strong>Mandiri</strong>
@@ -958,15 +963,6 @@
             <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" aria-label="Salin nomor rekening SeaBank" class="f4-payment-action" type="button">
               <i data-lucide="copy" aria-hidden="true"></i><span id="btn-text-2">Salin</span>
             </button>
-          </div>
-          <div class="f4-payment-row">
-            <div class="f4-payment-info">
-              <strong>QRIS</strong>
-              <small>Bank &amp; dompet digital</small>
-            </div>
-            <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="f4-payment-action f4-payment-qris" aria-label="Unduh QRIS pembayaran">
-              <i data-lucide="download" aria-hidden="true"></i><span>Unduh QRIS</span>
-            </a>
           </div>
         </div>
       </section>
