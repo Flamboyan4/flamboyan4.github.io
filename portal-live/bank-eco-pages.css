@@ -1017,6 +1017,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView .f4-bank-savings-stat:nth-child(2) strong{color:#087c86}
 /* Setoran terakhir is a mobile-specific visual. Keep the PC layout unchanged. */
 #dashboardView #pagePribadi #f4BankLatestComposition,
+#dashboardView #pagePribadi #f4BankCategoryTotals,
 #dashboardView #pagePribadi .f4-bank-savings-stat.is-mobile-extra{display:none}
 /* Tabungan pribadi — chart app style, one canonical set of selectors (no overrides). */
 #dashboardView #pagePribadi #f4BankSavingsChart{
@@ -1338,6 +1339,59 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #pagePribadi .f4-bank-latest-footer strong{
   font-size:15px;color:#0b6648;font-weight:850;white-space:nowrap
  }
+ /* Compact lifetime composition: one card, no nested cards or redundant donut. */
+ #dashboardView #pagePribadi #f4BankCategoryTotals{
+  box-sizing:border-box;display:grid;gap:13px;min-width:0;
+  margin:0 14px 15px;padding:17px 15px;
+  border:1px solid #dfece4;border-radius:21px;
+  background:#fff;color:#174b36;box-shadow:0 6px 19px #134b3110
+ }
+ #dashboardView #pagePribadi .f4-bank-category-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0
+ }
+ #dashboardView #pagePribadi .f4-bank-category-heading{display:grid;gap:3px;min-width:0}
+ #dashboardView #pagePribadi .f4-bank-category-heading h3{
+  margin:0;font-size:17px;font-weight:850;line-height:1.25;color:#154936
+ }
+ #dashboardView #pagePribadi .f4-bank-category-heading small{
+  color:#788a7e;font-size:10px;line-height:1.4
+ }
+ #dashboardView #pagePribadi .f4-bank-category-total{
+  flex:none;color:#08775e;font-size:16px;font-weight:850;white-space:nowrap
+ }
+ #dashboardView #pagePribadi .f4-bank-category-rows{display:grid;gap:11px;min-width:0}
+ #dashboardView #pagePribadi .f4-bank-category-row{display:grid;gap:5px;min-width:0}
+ #dashboardView #pagePribadi .f4-bank-category-row-top{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0
+ }
+ #dashboardView #pagePribadi .f4-bank-category-label{
+  display:inline-flex;align-items:center;gap:7px;min-width:0;
+  color:#425e4d;font-size:11px;line-height:1.4;overflow-wrap:anywhere
+ }
+ #dashboardView #pagePribadi .f4-bank-category-label i{
+  flex:none;display:inline-block;width:9px;height:9px;border-radius:3px
+ }
+ #dashboardView #pagePribadi .f4-bank-category-row-top strong{
+  flex:none;color:#0a603f;font-size:11px;font-weight:850;white-space:nowrap
+ }
+ #dashboardView #pagePribadi .f4-bank-category-track{
+  height:6px;width:100%;overflow:hidden;border-radius:99px;background:#edf3ee
+ }
+ #dashboardView #pagePribadi .f4-bank-category-fill{
+  display:block;height:100%;border-radius:99px
+ }
+ #dashboardView #pagePribadi .f4-bank-category-note{
+  margin:0;padding-top:9px;border-top:1px solid #e9f0ea;
+  font-size:10px;line-height:1.5;color:#718578
+ }
+ #dashboardView #pagePribadi .f4-bank-category-empty{
+  margin:0;color:#718578;font-size:11px;line-height:1.55
+ }
+ #dashboardView #pagePribadi .f4-bank-category-expand{
+  align-self:center;justify-self:center;min-height:29px;margin:0;
+  padding:5px 10px;border:0;border-radius:9px;background:#eef7f2;
+  color:#08765c;font-size:11px;font-weight:800
+ }
  #dashboardView #pagePribadi #f4BankSavingsChart{
   box-sizing:border-box;padding:13px 13px 12px;margin:0 14px 15px;
   border-radius:20px;gap:8px;box-shadow:0 6px 19px #134b3110
@@ -1417,6 +1471,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #pagePribadi .f4-bank-latest-donut-center strong{font-size:16px}
  #dashboardView #pagePribadi #f4BankSavingsStats{padding-inline:2px;margin-inline:11px}
  #dashboardView #pagePribadi #f4BankLatestComposition,
+ #dashboardView #pagePribadi #f4BankCategoryTotals,
  #dashboardView #pagePribadi #f4BankSavingsChart,
  #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{margin-inline:11px}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:4px}
