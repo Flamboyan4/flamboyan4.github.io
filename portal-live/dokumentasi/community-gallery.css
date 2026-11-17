@@ -346,3 +346,51 @@
  .f4-tag-list{min-height:60px}
  .f4-tag-footer{justify-content:stretch}
 }
+
+
+/* Kelola Dokumentasi — daftar ringkas, satu menu tindakan per item. */
+.f4g-manage-modal.f4g-panel{width:min(100%,760px);max-height:min(760px,90dvh)}
+.f4g-manage-modal .f4g-body{display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden}
+.f4g-manage-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex:0 0 auto;gap:4px;padding:10px 16px 0;border-bottom:1px solid #eeeaf4}
+.f4g-manage-tab{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 7px;border:0;border-bottom:2px solid transparent;background:transparent;color:#7e778e;font:650 12px system-ui;cursor:pointer}
+.f4g-manage-tab small{display:grid;place-items:center;min-width:18px;height:19px;padding:0 5px;border-radius:10px;background:#f0eef5;color:#7c748c;font:650 10px system-ui}
+.f4g-manage-tab.selected{border-bottom-color:#6843c5;color:#5b37b0}
+.f4g-manage-tab.selected small{background:#ede5fb;color:#6843c5}
+.f4g-manage-list{flex:1 1 auto;min-height:0;overflow:auto;padding:5px 18px 15px}
+.f4g-manage-section[hidden],.f4g-manage-menu[hidden],.f4g-manage-picker[hidden]{display:none}
+.f4g-manage-item{display:grid;grid-template-columns:54px minmax(0,1fr) 34px;gap:12px;align-items:center;min-width:0;padding:13px 2px;border-bottom:1px solid #f1eef5}
+.f4g-manage-thumb{display:grid;place-items:center;width:54px;height:54px;object-fit:cover;border-radius:11px;background:#f5f0fb}
+.f4g-manage-folder{color:#6843c5}
+.f4g-manage-folder svg{width:29px;height:29px}
+.f4g-manage-info{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f4g-manage-name{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#29243b;font:680 13px/1.3 system-ui}
+.f4g-manage-meta{color:#928b9b;font:11px/1.3 system-ui}
+.f4g-manage-more.f4g-btn{width:34px;min-width:34px;height:34px;min-height:34px;padding:7px;border:0;border-radius:9px;background:transparent;color:#756b88}
+.f4g-manage-more.f4g-btn:hover,.f4g-manage-more[aria-expanded="true"]{background:#eee9fa;color:#5d38ad}
+.f4g-manage-more svg{width:19px;height:19px}
+.f4g-manage-menu{grid-column:1/-1;display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:9px 0 3px}
+.f4g-manage-action.f4g-btn{min-height:34px;padding:8px 10px;border:1px solid #eee9f7;border-radius:9px;background:#faf9fd;color:#5b408a;font:600 11px system-ui}
+.f4g-manage-action.f4g-btn:hover{background:#f0eafb}
+.f4g-manage-action.danger.f4g-btn{color:#b34b5f;background:#fff8fa;border-color:#f4e3e9}
+.f4g-manage-action.danger.f4g-btn:hover{background:#ffeef3}
+.f4g-manage-picker{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.f4g-manage-picker select{box-sizing:border-box;min-width:140px;max-width:280px;min-height:34px;padding:6px 8px;border:1px solid #ddd5ea;border-radius:8px;background:#fff;color:#3e3253;font:12px system-ui}
+.f4g-manage-empty{margin:22px auto;color:#948a9d;text-align:center;font:12px/1.5 system-ui}
+.f4g-manage-report{display:grid;gap:5px;padding:13px 3px;border-bottom:1px solid #eeeaf5}
+.f4g-manage-report strong{font-size:13px;color:#28243b}
+.f4g-manage-report small,.f4g-manage-report p{margin:0;color:#797284;font-size:12px}
+.f4g-manage-status{flex:0 0 auto;margin:0;padding:0 18px;color:#b04b53;font:12px system-ui}
+.f4g-manage-status:empty{display:none}
+@media(max-width:720px){
+ .f4g-overlay:has(.f4g-manage-modal){padding:0;align-items:flex-end}
+ .f4g-manage-modal.f4g-panel{width:100%;height:min(82dvh,760px);max-height:calc(100dvh - 12px);border-radius:20px 20px 0 0}
+ .f4g-manage-modal .f4g-head{flex:0 0 auto;padding:17px 16px}
+ .f4g-manage-tabs{padding:4px 12px 0}
+ .f4g-manage-list{padding:3px 15px 15px}
+ .f4g-manage-item{grid-template-columns:48px minmax(0,1fr) 32px;gap:10px;padding:12px 0}
+ .f4g-manage-thumb{width:48px;height:48px}
+ .f4g-manage-more.f4g-btn{width:32px;min-width:32px}
+ .f4g-manage-menu{gap:7px;padding:7px 0 2px}
+ .f4g-manage-picker{width:100%}
+ .f4g-manage-picker select{flex:1 1 170px;min-width:0}
+}
