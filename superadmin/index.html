@@ -14,7 +14,7 @@ body{--work-bg:#fff;--work-accent:var(--blue);--work-tint:var(--tint);--work-lin
 button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 [hidden]{display:none}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
 #f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
-#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:5px}
+#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:0}
 #f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 @media(min-width:1024px){
@@ -22,8 +22,9 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
  #f4-account-page>aside .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;border-bottom-color:var(--f4-nav-line,var(--edge))}
 }
 .f4-sa-logo{height:42px;width:42px;object-fit:contain;flex:none}.f4-sa-brand strong{display:block;font-size:13px;font-weight:800;line-height:1.2;color:var(--blue)}.f4-sa-brand small{display:block;margin-top:3px;font-size:10px;font-weight:500;line-height:1.2;color:var(--muted)}
-.f4-sa-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;padding:11px 10px 5px}
-#f4-account-page>aside button{width:100%;min-height:42px;text-align:left;border:0;border-radius:10px;background:transparent;padding:10px 11px;color:var(--navy);font-size:12px;font-weight:700}
+.f4-sa-label{display:block;font:800 10px/1.2 system-ui;color:#8290a7;text-transform:uppercase;letter-spacing:.055em;padding:10px 12px 5px}
+.f4-sa-label.f4-sa-other-pages{margin:15px 0 3px;padding:16px 12px 5px;border-top:1px solid var(--f4-nav-line,var(--edge))}
+#f4-account-page>aside button{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;margin:2px 0;padding:10px 12px;text-align:left;border:0;border-radius:10px;background:transparent;color:#333b54;font:650 13px/1.25 system-ui,sans-serif}
 #f4-account-page>aside button.active,#f4-account-page>aside button:hover{background:var(--tint);color:var(--blue)}
 #f4-account-page>aside .f4-sa-subtitle{margin-top:13px;border-top:1px solid var(--edge)}
 #f4-account-page>main h2{font-size:25px;margin:0 0 5px;font-weight:850;color:var(--navy)}
@@ -123,7 +124,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
  html body #f4-account-page>aside .f4-sa-label{display:block}
  html body #f4-account-page>aside button{
   width:100%;min-width:0;flex:none;text-align:left;
-  min-height:42px;padding:10px 11px
+  min-height:43px;padding:10px 12px
  }
  html body #f4-account-page>main{
   padding:66px 12px 24px;overflow-y:auto;overflow-x:hidden;
@@ -322,7 +323,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
 </style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-brand-separator-aligned-v3"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261110-sa-tone-icon-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261117-sidebar-menu-parity-v3"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
@@ -350,7 +351,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .sa-weighing-actions{grid-column:1/-1;display:flex;gap:10px}
 .sa-weighing-form button{min-height:42px}
 @media(max-width:640px){.sa-weighing-form{grid-template-columns:minmax(0,1fr)}}
-.sa-donor-link{display:flex;align-items:center;gap:11px;padding:12px 13px;margin:3px 0;border-radius:11px;color:var(--navy);font-weight:700;font-size:13px;text-decoration:none}
+.sa-donor-link{box-sizing:border-box;display:flex;align-items:center;gap:10px;min-height:43px;padding:10px 12px;margin:2px 0;border-radius:10px;color:#333b54;font:650 13px/1.25 system-ui,sans-serif;text-decoration:none}
 .sa-donor-link:hover,.sa-donor-link:focus-visible{background:var(--tint);color:var(--blue);text-decoration:none}
 
 
@@ -445,7 +446,7 @@ function sidebar(g=group){
  group=g;side.replaceChildren();
  const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
- side.append(el('strong','MENU SUPERADMIN','f4-sa-label'));
+ side.append(el('strong','MENU','f4-sa-label'));
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   b.dataset.saGroup=key;
@@ -455,7 +456,7 @@ function sidebar(g=group){
   b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
- side.append(el('strong','MITRA & PENDANAAN','f4-sa-label'));
+ side.append(el('strong','LAINNYA','f4-sa-label f4-sa-other-pages'));
  const donorLink=el('a',undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
  const donorIcon=el('img',undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
  donorLink.append(donorIcon,el('span','Donatur & Pendanaan'));side.append(donorLink);
