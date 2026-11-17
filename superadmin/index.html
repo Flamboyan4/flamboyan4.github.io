@@ -84,15 +84,9 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 .sa-warn{padding:12px;border-radius:10px;background:#fff7ec;color:#83562d;border:1px solid #f1dbb9}
 .sa-toast{position:fixed;bottom:18px;right:18px;border-radius:12px;padding:12px;background:var(--navy);color:#fff;z-index:10;box-shadow:0 7px 22px #112c4422;max-width:320px}
 .sa-back{display:none}
+/* The legacy horizontal mobile sidebar has been retired.
+   The single drawer implementation at max-width:1023px owns navigation. */
 @media(max-width:760px){
- #f4-account-page:not([hidden]){grid-template-columns:minmax(0,1fr);display:block}
- #f4-account-page>aside{position:sticky;top:0;z-index:7;height:auto;max-height:190px;overflow-y:auto;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;padding:8px;gap:6px;box-shadow:0 2px 8px #112c4415}
- #f4-account-page>aside .f4-sa-brand{min-width:122px;flex:none;margin:0;padding:5px 8px;border:0}
- #f4-account-page>aside .f4-sa-brand img{width:30px;height:30px}
- #f4-account-page>aside .f4-sa-brand small,.f4-sa-label{display:none}
- #f4-account-page>aside button{min-width:125px;width:auto;flex:none;padding:8px;min-height:37px;text-align:center}
- #f4-account-page>aside .f4-sa-subtitle{border:0;margin:0}
- #f4-account-page>main{padding:72px 12px 28px}
  .sa-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .f4-admin-fields{grid-template-columns:1fr}
 }
