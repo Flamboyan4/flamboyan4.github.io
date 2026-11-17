@@ -108,6 +108,17 @@ async def main():
         const stats=document.getElementById('f4BankSavingsStats');
         const category=document.getElementById('f4BankCategoryTotals');
         const chart=document.getElementById('f4BankSavingsChart');
+        const periodTrigger=document.getElementById('f4BankChartPeriodTrigger');
+        const periodMenu=document.getElementById('f4BankChartPeriodMenu');
+        const pickerVisible=!!periodTrigger&&getComputedStyle(periodTrigger).display!=='none';
+        periodTrigger?.click();
+        const periodOpened=!!periodMenu&&!periodMenu.hidden;
+        periodMenu?.querySelector('[data-chart-period="30"]')?.click();
+        const selected30=document.getElementById('f4BankSavingsBars')?.dataset.chartGroup==='30'&&
+          periodTrigger?.querySelector('.f4-bank-chart-period-label')?.textContent==='30 hari'&&periodMenu?.hidden;
+        periodTrigger?.click();
+        periodMenu?.querySelector('[data-chart-period="period"]')?.click();
+        const periodRestored=document.getElementById('f4BankSavingsBars')?.dataset.chartGroup==='period'&&periodMenu?.hidden;
         const savingsPage=document.getElementById('pagePribadi');
         const pageBox=savingsPage?.getBoundingClientRect();
         const heroBox=hero?.getBoundingClientRect();
@@ -151,7 +162,8 @@ async def main():
          categoryRows:[...(category?.querySelectorAll('.f4-bank-category-row')||[])].map(x=>x.textContent),
          categorySummary:category?.querySelector('.f4-bank-category-note')?.textContent,
          stats:stats?.querySelectorAll('.f4-bank-savings-stat').length||0,
-         chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0
+         chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0,
+         pickerVisible,periodOpened,selected30,periodRestored
         };
        }""")
        if not(savings['hiddenDisplay']=='none' and
@@ -163,6 +175,8 @@ async def main():
          savings['dashboardTopPadding']=='0px' and savings['contentTopPadding']=='0px' and
          savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
          savings['stats']==4 and savings['chart'] and savings['chartButtons']==5 and
+         savings['pickerVisible'] and savings['periodOpened'] and
+         savings['selected30'] and savings['periodRestored'] and
          savings['categoryPresent'] and savings['categoryVisible'] and
          savings['categoryTitle']=='Total Setoran per Jenis' and
          savings['categoryTotal']=='6 kg' and
