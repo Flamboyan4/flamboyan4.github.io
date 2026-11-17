@@ -624,6 +624,10 @@ function mountSavings(){
   const latest=el("section","f4-bank-latest-composition");latest.id="f4BankLatestComposition";
   $("f4BankSavingsChart")?.before(latest);
  }
+ if(!$("f4BankCategoryTotals")){
+  const totals=el("section","f4-bank-category-totals");totals.id="f4BankCategoryTotals";
+  $("f4BankSavingsChart")?.after(totals);
+ }
  // Riwayat becomes the right-hand panel on PC, and remains below the chart on HP.
  const deposits=$("v12Deposits");
  if(deposits&&!$("f4BankSavingsHistoryPanel")){
@@ -1114,6 +1118,83 @@ function renderLatestComposition(){
   el("strong","",money==null?"—":rupiah(Number(money)||0)));
  host.append(footer);
 }
+/* Aggregate the member's recorded, non-cancelled deposits by exact waste type.
+   Weight comes only from item rows, never from sales, estimates or ledger corrections. */
+function renderCategoryTotals(){
+ const host=$("f4BankCategoryTotals");if(!host)return;
+ const expanded=host.dataset.expanded==="true";
+ host.replaceChildren();
+ const head=el("div","f4-bank-category-head");
+ const nameBox=el("div","f4-bank-category-heading");
+ nameBox.append(el("h3","","Total Setoran per Jenis"),
+  el("small","","Akumulasi semua setoran tercatat"));
+ head.append(nameBox);
+ host.append(head);
+ if(!memberStatement){
+  host.append(el("p","f4-bank-category-empty","Memuat rekap jenis sampah..."));return;
+ }
+ const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran.filter(row=>
+  !/batal/i.test(String(row?.status||""))):[];
+ const totals=new Map();
+ let declaredWeight=0,missingWeights=0,usedCount=0;
+ for(const deposit of deposits){
+  const declared=deposit?.beratKg==null?NaN:Number(deposit.beratKg);
+  if(Number.isFinite(declared)&&declared>=0)declaredWeight+=declared;
+  else missingWeights++;
+  let itemWeight=0;
+  for(const part of Array.isArray(deposit?.rincian)?deposit.rincian:[]){
+   const label=String(part?.barang||part?.namaBarang||part?.jenis||"").trim().replace(/\s+/g," ");
+   const weight=part?.beratKg==null?NaN:Number(part.beratKg);
+   if(!label||!Number.isFinite(weight)||weight<=0)continue;
+   const key=label.toLocaleLowerCase("id-ID");
+   const entry=totals.get(key)||{name:label,weight:0};
+   entry.weight+=weight;itemWeight+=weight;totals.set(key,entry);
+  }
+  if(itemWeight>0)usedCount++;
+ }
+ const categories=[...totals.values()].sort((a,b)=>b.weight-a.weight||a.name.localeCompare(b.name,"id"));
+ const totalWeight=categories.reduce((sum,row)=>sum+row.weight,0);
+ const verified=deposits.length>0&&!missingWeights&&Math.abs(totalWeight-declaredWeight)<.011;
+ const total=el("strong","f4-bank-category-total",categories.length?f4PrivateKg(totalWeight):"—");
+ head.append(total);
+ if(!categories.length){
+  host.append(el("p","f4-bank-category-empty",deposits.length?
+   "Rincian jenis sampah belum tersedia.":"Belum ada setoran tercatat."));return;
+ }
+ const panel=el("div","f4-bank-category-rows");
+ const colors=["#009688","#ffc411","#4285d4","#eb8b39","#8c62bf","#76ad56","#d76583"];
+ const max=categories[0].weight||1;
+ const limit=expanded?categories.length:4;
+ for(const [index,item] of categories.slice(0,limit).entries()){
+  const color=colors[index%colors.length];
+  const row=el("div","f4-bank-category-row");
+  const top=el("div","f4-bank-category-row-top");
+  const label=el("span","f4-bank-category-label");
+  const swatch=el("i");swatch.style.backgroundColor=color;swatch.setAttribute("aria-hidden","true");
+  label.append(swatch,document.createTextNode(item.name));
+  const amount=el("strong","",f4PrivateKg(item.weight));
+  top.append(label,amount);
+  const track=el("div","f4-bank-category-track");
+  const fill=el("span","f4-bank-category-fill");
+  fill.style.width=Math.max(1,item.weight/max*100).toFixed(2)+"%";
+  fill.style.backgroundColor=color;
+  track.append(fill);track.setAttribute("aria-hidden","true");
+  row.append(top,track);panel.append(row);
+ }
+ host.append(panel);
+ if(categories.length>4){
+  const button=el("button","f4-bank-category-expand",expanded?
+   "Tampilkan lebih sedikit":"Lihat semua "+categories.length+" jenis");
+  button.type="button";button.setAttribute("aria-expanded",String(expanded));
+  button.onclick=()=>{host.dataset.expanded=expanded?"false":"true";renderCategoryTotals();};
+  host.append(button);
+ }
+ const caption=el("p","f4-bank-category-note",
+  deposits.length+" setoran · "+categories.length+" jenis sampah");
+ if(!verified)caption.append(document.createTextNode(
+  " · Hanya berat dengan rincian jenis yang tersedia"+(missingWeights?" (sebagian berat setoran belum tercatat)":"")));
+ host.append(caption);
+}
 function chartSavings(){
  const root=$("f4BankSavingsChart"),host=$("f4BankSavingsBars");
  if(!root||!host)return;
@@ -1206,6 +1287,7 @@ function syncSavings(){
  text("f4BankSavingsDepositCount",memberStatement?String(activeDeposits.length):"—");
  text("f4BankSavingsPendingWeight",memberStatement?f4PrivateKg(pendingWeight):"—");
  renderLatestComposition();
+ renderCategoryTotals();
  text("f4BankPayoutBalance",memberStatement?rupiah(memberStatement.saldo):"—");
  const requestButton=$("f4BankRequestSubmit");
  if(requestButton)requestButton.disabled=!requestEnabled||!memberStatement;
