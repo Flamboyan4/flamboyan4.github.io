@@ -554,9 +554,9 @@ async def main():
         async with async_playwright() as p:
             browser = await p.chromium.launch(args=["--no-sandbox"])
             try:
+                results.append(await validate_member_tags(browser))
                 results.append(await validate_documentation(browser, "pc", 1365, 820))
                 results.append(await validate_documentation(browser, "hp", 390, 844))
-                results.append(await validate_member_tags(browser))
                 results.append(await validate_native_video(browser))
                 results.append(await validate_home(browser))
                 results.append(await validate_legacy_home(browser))
