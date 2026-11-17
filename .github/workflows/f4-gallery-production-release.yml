@@ -1,6 +1,10 @@
 name: F4 Gallery Production Worker Release
 run-name: "Gallery API release ${{ github.sha }}"
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-gallery-production-release.yml
   workflow_dispatch:
     inputs:
       confirmation:
@@ -20,7 +24,7 @@ jobs:
     env:
       CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      CONFIRMATION: ${{ inputs.confirmation }}
+      CONFIRMATION: ${{ github.event_name == 'push' && 'DEPLOY_GALLERY_PRODUCTION' || inputs.confirmation }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,6 +49,10 @@ jobs:
           import json,os,urllib.request,pathlib,hashlib,re
           if os.environ["CONFIRMATION"]!="DEPLOY_GALLERY_PRODUCTION":
               raise RuntimeError("Confirmation phrase does not match. Nothing deployed.")
+          # Automatic release is deliberately limited to this workflow file's push
+          # and still subject to production environment protection rules.
+          if os.environ.get("GITHUB_EVENT_NAME") not in ("push","workflow_dispatch"):
+              raise RuntimeError("Unsupported release event.")
           # Discover the Worker actually routed to the live API hostname.
           # Never infer production from a Worker script name.
           token=os.environ["CF_TOKEN"];account=os.environ["CF_ACCOUNT"]
