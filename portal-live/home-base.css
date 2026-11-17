@@ -241,7 +241,8 @@ footer#pembayaran.f4-payment-footer .f4-payment-copyright{
   grid-column:2;grid-row:2;padding-right:0
  }
  footer#pembayaran.f4-payment-footer .f4-payment-row:nth-child(3){
-  grid-column:2;grid-row:1;padding-right:0
+  grid-column:2;grid-row:1;
+  box-sizing:border-box;height:32px;min-height:0;padding:0 0 0 6px
  }
  footer#pembayaran.f4-payment-footer .f4-payment-info{gap:3px}
  footer#pembayaran.f4-payment-footer .f4-payment-info strong{font-size:11px}
