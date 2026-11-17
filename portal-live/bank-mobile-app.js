@@ -1488,6 +1488,9 @@ function ensureDesktopAdminSidebar(){
   svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
   button.append(svg,el("span","",name));
   button.onclick=()=>navigate(route);
+  const selected=route===screen;
+  button.classList.toggle("active",selected);
+  button.setAttribute("aria-current",selected?"page":"false");
   items.append(button);
  }
  anchor.after(items);
