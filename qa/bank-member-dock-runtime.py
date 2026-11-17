@@ -98,7 +98,17 @@ async def main():
         const details=latest?.querySelectorAll('.f4-bank-latest-category')||[];
         const stats=document.getElementById('f4BankSavingsStats');
         const chart=document.getElementById('f4BankSavingsChart');
+        const savingsPage=document.getElementById('pagePribadi');
+        const pageBox=savingsPage?.getBoundingClientRect();
+        const heroBox=hero?.getBoundingClientRect();
+        const statsBox=stats?.getBoundingClientRect();
+        const backdrop=savingsPage&&getComputedStyle(savingsPage,'::before');
         return {
+         bleedLeft:pageBox?.left,bleedRight:pageBox?.right,
+         heroBottom:heroBox?.bottom,statsTop:statsBox?.top,
+         backdropColor:backdrop?.backgroundImage,backdropHeight:backdrop?.height,
+         backdropCurve:backdrop?.borderBottomLeftRadius,
+         heroFill:hero&&getComputedStyle(hero).backgroundImage,
          hero:!!hero,heroVisible:!!hero&&getComputedStyle(hero).display!=='none',
          heroRadius:hero&&getComputedStyle(hero).borderBottomLeftRadius,
          latest:!!latest,latestVisible:!!latest&&getComputedStyle(latest).display!=='none',
@@ -113,7 +123,12 @@ async def main():
          savings['stats']==4 and savings['chart'] and savings['chartButtons']==5 and
          savings['details']==2 and 'Kardus' in savings['latestText'] and
          'Botol Aqua bodong' in savings['latestText'] and
-         '4 kg' in savings['latestText'] and 'conic-gradient' in savings['donutBackground']):
+         '4 kg' in savings['latestText'] and 'conic-gradient' in savings['donutBackground'] and
+         abs(savings['bleedLeft'] or 0)<2 and abs((savings['bleedRight'] or 0)-width)<2 and
+         (savings['statsTop'] or 0)<(savings['heroBottom'] or -1) and
+         'linear-gradient' in (savings['backdropColor'] or '') and
+         (savings['backdropCurve'] or '') not in ('0px','0px 0px') and
+         savings['heroFill']=='none'):
         rows.append({'engine':engine,'width':width,'route':route,'savings':savings,
          'failures':['Member mobile redesign or genuine waste composition not rendered']})
       for where in ('top','bottom'):
