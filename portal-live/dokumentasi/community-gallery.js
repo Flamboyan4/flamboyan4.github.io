@@ -12,6 +12,7 @@ const icons={
  send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
  trash:'<path d="M3 6h18M8 6V4h8v2m3 0-1 15H6L5 6M10 10v7m4-7v7"/>',
  folder:'<path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3z"/>',
+ more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
  flag:'<path d="M5 22V4m0 1q5-4 9 0t7 0v12q-4 4-9 0t-7 0"/>',
  camera:'<path d="M14 4h-4L8 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="14" r="3.5"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
@@ -566,58 +567,85 @@ async function uploadDialog(){
  dlg.onClose(()=>urls.forEach(x=>URL.revokeObjectURL(x)));
 }
 async function adminDialog(){
- try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}
- catch{return}
- const dlg=popup('Kelola Unggahan Warga',true),listBox=elem('div');
- let changed=false;
+ try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}catch{return}
+ const dlg=popup('Kelola Dokumentasi',true);dlg.panel.classList.add('f4g-manage-modal');
+ let changed=false,active='photos';
  dlg.onClose(()=>{if(changed)location.reload()});
- dlg.body.append(elem('p','f4g-admin-note','Unggahan langsung tampil. Anda dapat meninjau, memindahkan ke folder album lain, menyembunyikan, atau menghapus. Foto yang dihapus dipindahkan ke Sampah Google Drive.'));
- dlg.body.append(listBox);
+ const tabs=elem('div','f4g-manage-tabs'),content=elem('div','f4g-manage-list'),status=elem('p','f4g-manage-status');
+ tabs.setAttribute('role','tablist');status.setAttribute('role','status');dlg.body.append(tabs,content,status);
+ const setTab=key=>{
+  active=key;
+  tabs.querySelectorAll('button').forEach(b=>{const yes=b.dataset.tab===key;b.classList.toggle('selected',yes);b.setAttribute('aria-selected',String(yes))});
+  content.querySelectorAll('[data-manage-section]').forEach(el=>el.hidden=el.dataset.manageSection!==key);
+ };
+ const section=type=>{const el=elem('section','f4g-manage-section');el.dataset.manageSection=type;content.append(el);return el};
+ const action=(label,icon,fn,danger=false)=>button(label,icon,fn,'f4g-manage-action'+(danger?' danger':''));
+ const makeItem=(title,info,thumb)=>{
+  const row=elem('article','f4g-manage-item'),avatar=thumb||elem('span','f4g-manage-thumb f4g-manage-folder');
+  if(!thumb)avatar.innerHTML=svg('folder');
+  const description=elem('div','f4g-manage-info');
+  description.append(elem('strong','f4g-manage-name',title),elem('small','f4g-manage-meta',info));
+  const toggle=button(null,'more',null,'f4g-manage-more');
+  toggle.setAttribute('aria-label','Tindakan untuk '+title);toggle.setAttribute('aria-expanded','false');
+  const menu=elem('div','f4g-manage-menu');menu.hidden=true;
+  toggle.onclick=()=>{
+   const next=menu.hidden;
+   content.querySelectorAll('.f4g-manage-menu').forEach(m=>{m.hidden=true;m.parentElement?.querySelector('.f4g-manage-more')?.setAttribute('aria-expanded','false')});
+   menu.hidden=!next;toggle.setAttribute('aria-expanded',String(next));
+  };
+  row.append(avatar,description,toggle,menu);
+  return {row,menu};
+ };
  const load=async()=>{
-  listBox.replaceChildren(elem('p','f4g-note','Memuat unggahan…'));
+  content.replaceChildren(elem('p','f4g-note','Memuat dokumentasi…'));status.textContent='';
   try{
    const data=await get('/admin');
-   listBox.replaceChildren();
-   const allAlbums=window.f4GalleryAlbums?.()||[];
-   const photos=data.photos||[];
-   const pending=photos.filter(p=>p.status==='baru').length;
-   listBox.append(elem('h3','','Foto warga · '+pending+' baru'));
-   if(!photos.length)listBox.append(elem('p','f4g-note','Belum ada unggahan warga.'));
+   content.replaceChildren();tabs.replaceChildren();
+   const photos=data.photos||[],albums=data.albums||[],reports=data.reports||[];
+   const counts=[['photos','Foto',photos.length],['albums','Album',albums.length],['reports','Laporan',reports.length]];
+   for(const [key,title,n] of counts){
+    const b=elem('button','f4g-manage-tab');b.type='button';b.dataset.tab=key;b.setAttribute('role','tab');
+    b.append(elem('span','',title),elem('small','',String(n)));b.onclick=()=>setTab(key);tabs.append(b);
+   }
+   const photoSection=section('photos'),albumSection=section('albums'),reportSection=section('reports');
+   if(!photos.length)photoSection.append(elem('p','f4g-manage-empty','Belum ada foto warga.'));
+   const available=window.f4GalleryAlbums?.()||[];
    for(const p of photos){
-    const row=elem('div','f4g-admin-row'),img=elem('img');img.src=p.url;img.alt=p.filename;img.loading='lazy';
-    const content=elem('div'),name=elem('b','',p.filename);
-    const info=elem('small','',p.uploader+' · '+p.status);
-    content.append(name,info);
-    const actions=elem('div','f4g-row'),select=elem('select');select.setAttribute('aria-label','Album tujuan');
-    for(const a of allAlbums){const o=elem('option','',a.title);o.value=a.id;select.append(o)}
-    select.value=p.albumId;
-    const run=async(action,rest={})=>{
-     try{await post('/admin',{action,photoId:p.id,...rest});changed=true;await load()}
-     catch(e){notice(e.message)}
+    const img=elem('img','f4g-manage-thumb');img.src=p.url;img.alt='';img.loading='lazy';
+    const state=p.status==='baru'?'Baru':p.status==='disembunyikan'?'Disembunyikan':p.status||'Foto';
+    const {row,menu}=makeItem(p.filename||'Foto warga',(p.uploader||'Warga')+' · '+state,img);
+    const run=async(name,extra={})=>{
+     try{await post('/admin',{action:name,photoId:p.id,...extra});changed=true;await load()}
+     catch(e){status.textContent=e.message}
     };
-    const move=button('Pindah','folder',()=>run('move_photo',{albumId:select.value}));
-    const hide=button(p.status==='disembunyikan'?'Tampilkan':'Sembunyikan','shield',()=>run(p.status==='disembunyikan'?'review_photo':'hide_photo'));
-    const trash=button('Hapus','trash',()=>confirmAction('Pindahkan foto ini ke Sampah Google Drive?',()=>run('delete_photo')));
-    actions.append(select,move,hide,trash);row.append(img,content,actions);listBox.append(row);
+    const move=action('Pindah album','folder',()=>{move.hidden=true;picker.hidden=false;select.focus()});
+    const picker=elem('div','f4g-manage-picker');picker.hidden=true;
+    const select=elem('select');select.setAttribute('aria-label','Album tujuan');
+    for(const a of available){const opt=elem('option','',a.title);opt.value=a.id;select.append(opt)}
+    select.value=p.albumId;
+    const moveConfirm=action('Pindahkan','arrow',()=>run('move_photo',{albumId:select.value}));moveConfirm.disabled=!available.length;
+    picker.append(select,moveConfirm);
+    menu.append(move,picker,
+     action(p.status==='disembunyikan'?'Tampilkan':'Sembunyikan','shield',()=>run(p.status==='disembunyikan'?'review_photo':'hide_photo')),
+     action('Hapus foto','trash',()=>confirmAction('Pindahkan foto ke Sampah Google Drive?',()=>run('delete_photo')),true));
+    photoSection.append(row);
    }
-   listBox.append(elem('h3','','Album yang dibuat warga'));
-   for(const a of data.albums||[]){
-    const row=elem('div','f4g-admin-row');
-    const icon=elem('div');icon.innerHTML=svg('folder');
-    const content=elem('div');content.append(elem('b','',a.title),elem('small','',a.status));
-    const actions=elem('div','f4g-row');
-    actions.append(button('Ubah Nama','folder',()=>renameAction(a.title,async renamed=>{
-     await post('/admin',{action:'rename_album',albumId:a.id,title:renamed});changed=true;await load();
-    })),button('Arsipkan','trash',()=>confirmAction('Sembunyikan album ini beserta fotonya dari publik?',async()=>{
-     try{await post('/admin',{action:'delete_album',albumId:a.id});changed=true;await load()}catch(e){notice(e.message)}
-    })));
-    row.append(icon,content,actions);listBox.append(row);
+   if(!albums.length)albumSection.append(elem('p','f4g-manage-empty','Belum ada album warga.'));
+   for(const a of albums){
+    const {row,menu}=makeItem(a.title||'Album warga',a.status==='aktif'?'Aktif':a.status||'Album');
+    menu.append(action('Ubah nama','edit',()=>renameAction(a.title,async title=>{
+     await post('/admin',{action:'rename_album',albumId:a.id,title});changed=true;await load()
+    })),action('Arsipkan album','folder',()=>confirmAction('Sembunyikan album beserta fotonya dari publik?',async()=>{
+     try{await post('/admin',{action:'delete_album',albumId:a.id});changed=true;await load()}catch(e){status.textContent=e.message}
+    }),true));albumSection.append(row);
    }
-   listBox.append(elem('h3','','Laporan dari Warga'));
-   for(const item of (data.reports||[]).slice(0,15)){
-    listBox.append(elem('p','f4g-admin-note',item.type+' · '+item.targetId+' — '+item.reason));
+   if(!reports.length)reportSection.append(elem('p','f4g-manage-empty','Belum ada laporan warga.'));
+   for(const item of reports.slice(0,30)){
+    const row=elem('div','f4g-manage-report');
+    row.append(elem('strong','',item.type||'Laporan'),elem('small','',item.targetId||''),elem('p','',item.reason||''));reportSection.append(row);
    }
-  }catch(e){listBox.replaceChildren(elem('p','f4g-status error',e.message))}
+   setTab(active);
+  }catch(e){content.replaceChildren(elem('p','f4g-status error',e.message))}
  };
  await load();
 }
