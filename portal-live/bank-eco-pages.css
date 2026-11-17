@@ -1178,7 +1178,13 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   content:"";position:absolute;top:0;left:0;right:0;
   height:var(--f4-savings-hero-height);z-index:0;pointer-events:none;
   border-radius:0 0 50% 50% / 0 0 46px 46px;
-  background:radial-gradient(ellipse at 82% 20%,#68c36a45,transparent 61%),
+  /* Subtle fintech rings and an organic arc, painted in the existing
+     full-width background layer (never over text or other pages). */
+  background:
+   radial-gradient(circle 143px at 88% 29%,transparent 71%,#ffffff12 71.6%,#ffffff12 72.7%,transparent 73.3%),
+   radial-gradient(circle 103px at 88% 29%,transparent 70%,#ffffff15 70.7%,#ffffff15 72%,transparent 72.7%),
+   radial-gradient(ellipse 230px 104px at 89% 108%,transparent 74%,#ffffff0d 75%,#ffffff0d 76%,transparent 77%),
+   radial-gradient(ellipse at 83% 15%,#85d97530 0%,transparent 61%),
    linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%)
  }
  body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{display:none}
