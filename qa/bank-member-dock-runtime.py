@@ -66,6 +66,45 @@ async def main():
       await page.evaluate(PREPARE)
       await page.evaluate("(route)=>window.goPage(route)",route)
       await page.wait_for_timeout(120)
+      if route=='pribadi':
+       # Real member app handles the same event sent by its read-only statement
+       # bridge. Fixture never calls an API or changes stored account data.
+       await page.evaluate("""() => {
+        const id=document.getElementById('pId');if(id)id.textContent='QA-W017';
+        document.getElementById('v12Private')?.classList.remove('hidden');
+        window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:{
+         wargaId:'QA-W017',saldo:0,totalMasuk:0,totalCair:0,mutasi:[],
+         setoran:[{id:'qa-1',tanggal:'2026-11-15',status:'estimasi',
+          beratKg:4,estimasiRp:6500,rincian:[
+           {barang:'Kardus',beratKg:2},{barang:'Botol Aqua bodong',beratKg:2}
+          ]}]
+        }}));
+       }""")
+       await page.wait_for_timeout(80)
+       savings=await page.evaluate("""() => {
+        const hero=document.getElementById('f4BankSavingsHero');
+        const latest=document.getElementById('f4BankLatestComposition');
+        const details=latest?.querySelectorAll('.f4-bank-latest-category')||[];
+        const stats=document.getElementById('f4BankSavingsStats');
+        const chart=document.getElementById('f4BankSavingsChart');
+        return {
+         hero:!!hero,heroVisible:!!hero&&getComputedStyle(hero).display!=='none',
+         heroRadius:hero&&getComputedStyle(hero).borderBottomLeftRadius,
+         latest:!!latest,latestVisible:!!latest&&getComputedStyle(latest).display!=='none',
+         donut:!!latest?.querySelector('.f4-bank-latest-donut'),
+         donutBackground:latest?.querySelector('.f4-bank-latest-donut')?.style.background||'',
+         latestText:latest?.textContent||'',details:details.length,
+         stats:stats?.querySelectorAll('.f4-bank-savings-stat').length||0,
+         chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0
+        };
+       }""")
+       if not(savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
+         savings['stats']==4 and savings['chart'] and savings['chartButtons']==5 and
+         savings['details']==2 and 'Kardus' in savings['latestText'] and
+         'Botol Aqua bodong' in savings['latestText'] and
+         '4 kg' in savings['latestText'] and 'conic-gradient' in savings['donutBackground']):
+        rows.append({'engine':engine,'width':width,'route':route,'savings':savings,
+         'failures':['Member mobile redesign or genuine waste composition not rendered']})
       for where in ('top','bottom'):
        await page.evaluate('window.scrollTo(0,0)' if where=='top' else 'window.scrollTo(0,document.body.scrollHeight)')
        data=await page.evaluate(MEASURE)
