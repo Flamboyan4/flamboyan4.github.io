@@ -39,13 +39,13 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   box-sizing:border-box;display:block;position:fixed;left:0;top:0;bottom:0;z-index:210;
   width:226px;height:100dvh;min-height:0;max-height:100dvh;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-  margin:0;padding:16px 11px 20px;border:0;border-right:1px solid #e6eae8;
+  margin:0;padding:0 11px 20px;border:0;border-right:1px solid #e6eae8;
   border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible
  }
  body.f4-bank-app-member #dashboardView #sideNav .v16-brand{
   box-sizing:border-box;display:flex;align-items:center;gap:10px;
-  margin:1px 0 16px;padding:6px 5px 17px;border-bottom:1px solid #e7eee9;
-  background:transparent
+  height:56px;min-height:56px;margin:0 -11px 16px;padding:0 16px;
+  border-bottom:1px solid #d6e6d9;background:transparent
  }
  body.f4-bank-app-member #dashboardView #sideNav .v16-brand img{
   display:block;flex:none;width:43px;height:43px;max-width:43px;object-fit:contain
