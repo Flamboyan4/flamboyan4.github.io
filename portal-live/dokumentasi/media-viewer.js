@@ -331,7 +331,8 @@ function renderPhoto(){
  else{photo.classList.remove('f4g-social-enabled');photo.querySelector('.f4g-photo-side')?.remove();photo.querySelector('.f4g-photo-actions')?.remove();}
 }
 function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto();
- photo?.querySelector('.f4p-photo-stage')?.classList.add('f4p-nav-visible');
+ // Reuse the timed navigation hint; never leave arrows permanently visible after a slide.
+ revealNavigation();
 }
 function openPhoto(index=0){ensure();if(!items.length)return;at=Math.max(0,Math.min(index,items.length-1));renderPhoto();
  if(!isOpen(photo)){pushLayer('photo');show(photo,true)}
