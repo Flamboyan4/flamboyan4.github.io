@@ -182,7 +182,8 @@ footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
 footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
   outline:2px solid #319b52;outline-offset:2px
 }
-footer#pembayaran.f4-payment-footer .f4-payment-qris svg{
+footer#pembayaran.f4-payment-footer .f4-payment-qris svg,
+footer#pembayaran.f4-payment-footer .f4-payment-qris i[data-lucide]{
   box-sizing:border-box;flex:none;width:27px;height:27px;padding:5px;
   color:#fff;background:#30984d;border-radius:8px
 }
@@ -230,7 +231,8 @@ footer#pembayaran.f4-payment-footer .f4-payment-action span{display:none}
     gap:4px;padding:5px 4px;border-radius:11px;
     font-size:11.5px;white-space:nowrap
   }
-  footer#pembayaran.f4-payment-footer .f4-payment-qris svg{
+  footer#pembayaran.f4-payment-footer .f4-payment-qris svg,
+  footer#pembayaran.f4-payment-footer .f4-payment-qris i[data-lucide]{
     width:28px;height:28px;padding:6px;border-radius:8px
   }
   footer#pembayaran.f4-payment-footer .f4-payment-bank-stack{
