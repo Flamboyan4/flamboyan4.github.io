@@ -1212,10 +1212,50 @@ function chartSavings(){
    const button=el("button","",label);button.type="button";button.dataset.mode=id;
    button.onclick=()=>{memberChartMode=id;chartSavings();};units.append(button);
   }
-  filters.append(tabs,units);
+  // HP uses one compact period picker; desktop keeps the original three tabs.
+  const picker=el("div","f4-bank-chart-period-picker");
+  const trigger=el("button","f4-bank-chart-period-trigger");
+  trigger.type="button";trigger.id="f4BankChartPeriodTrigger";
+  trigger.setAttribute("aria-label","Pilih periode grafik setoran");
+  trigger.setAttribute("aria-haspopup","menu");trigger.setAttribute("aria-expanded","false");
+  const chosen=el("span","f4-bank-chart-period-label","Periode");
+  const arrow=bankUiSvg("chevron-right");arrow.classList.add("f4-bank-chart-period-chevron");
+  trigger.append(chosen,arrow);
+  const menu=el("div","f4-bank-chart-period-menu");menu.id="f4BankChartPeriodMenu";
+  menu.hidden=true;menu.setAttribute("role","menu");menu.setAttribute("aria-label","Periode grafik setoran");
+  for(const [id,label] of [["period","Periode"],["30","30 hari"],["month","Per bulan"]]){
+   const option=el("button","",label);option.type="button";
+   option.dataset.chartPeriod=id;option.setAttribute("role","menuitemradio");
+   option.onclick=()=>{
+    memberChartGroup=id;menu.hidden=true;trigger.setAttribute("aria-expanded","false");chartSavings();
+   };
+   menu.append(option);
+  }
+  trigger.onclick=()=>{
+   menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",String(!menu.hidden));
+  };
+  picker.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&!menu.hidden){
+    event.preventDefault();menu.hidden=true;trigger.setAttribute("aria-expanded","false");trigger.focus();
+   }
+  });
+  document.addEventListener("pointerdown",event=>{
+   if(!picker.contains(event.target)&&!menu.hidden){
+    menu.hidden=true;trigger.setAttribute("aria-expanded","false");
+   }
+  });
+  picker.append(trigger,menu);
+  filters.append(tabs,picker,units);
   root.querySelector("h3")?.after(filters);
  }
  $("f4BankChartPeriod")?.remove();
+ const periodLabels={period:"Periode","30":"30 hari",month:"Per bulan"};
+ const pickerLabel=$("f4BankChartPeriodTrigger")?.querySelector(".f4-bank-chart-period-label");
+ if(pickerLabel)pickerLabel.textContent=periodLabels[memberChartGroup]||"Periode";
+ filters.querySelectorAll("[data-chart-period]").forEach(button=>{
+  const active=button.dataset.chartPeriod===memberChartGroup;
+  button.classList.toggle("is-active",active);button.setAttribute("aria-checked",String(active));
+ });
  filters.querySelectorAll("[data-group]").forEach(button=>{
   const active=button.dataset.group===memberChartGroup;
   button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
