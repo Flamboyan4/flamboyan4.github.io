@@ -284,8 +284,10 @@ padding:0
     .v17-line:last-child{border:0}.v17-line span{overflow-wrap:anywhere}
     #v11Public.v17-public{max-width:none;margin:0;padding:0;background:#f5f8f5}
     .v17-public-head{position:sticky;top:0;z-index:25;background:#fff;border-bottom:1px solid #e3ece2;display:flex;align-items:center;gap:18px;padding:10px max(18px,calc((100vw - 1250px)/2))}
-    .v17-public-logo{display:flex;align-items:center;gap:8px;color:#23533a;font-size:14px;font-weight:850;min-width:195px}
-    .v17-public-logo img{width:35px;height:35px;object-fit:contain}
+    .v17-public-logo{display:flex;align-items:center;gap:9px;color:#23533a;min-width:195px}
+    .v17-public-logo img{width:42px;height:42px;object-fit:contain;flex:none}
+    .v17-public-logo strong{display:block;color:#21583b;font-size:12.5px;line-height:1.2;font-weight:800}
+    .v17-public-logo small{display:block;margin-top:3px;color:#788d7f;font-size:10px;line-height:1.2;font-weight:500}
     .v17-public-links{display:flex;gap:5px;align-items:center;flex:1;overflow-x:auto;scrollbar-width:none}
     .v17-public-links a{flex:0 0 auto;text-decoration:none;color:#587260;padding:10px 9px;font-size:12px;font-weight:700;border-radius:9px}
     .v17-public-links a:hover{background:#edf5ea;color:#1d613b}
@@ -3940,8 +3942,9 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       const img=document.createElement('img');img.alt='Logo Flamboyan 4';
       img.src=v16LogoURL;
       img.addEventListener('error',()=>{const fallback=document.createElement('span');fallback.innerHTML='<img src="/assets/icons/bank.svg" width="18" height="18" alt="" aria-hidden="true">';img.replaceWith(fallback);},{once:true});
-      const title=document.createElement('div');const strong=document.createElement('strong');strong.textContent='Bank Sampah Flamboyan\u00a04';
-      title.append(strong);brand.append(img,title);side.prepend(brand);
+      const title=document.createElement('div');const strong=document.createElement('strong');strong.textContent='Bank Sampah';
+      const subtitle=document.createElement('small');subtitle.textContent='Flamboyan 4';
+      title.append(strong,subtitle);brand.append(img,title);side.prepend(brand);
     }
     let nav=$('v16Navigation');
     if(!nav){
@@ -4090,7 +4093,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
   function v17SetupPublic(){
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
-    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span>Bank Sampah<br>Flamboyan 4</span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=program" data-bank-section="v17Program">Program</a><a href="?bagian=perkembangan" data-bank-section="v17Perkembangan">Perkembangan</a><a href="?bagian=dokumentasi" data-bank-section="v17Dokumentasi">Dokumentasi</a><a href="?bagian=inventaris" data-bank-section="v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
+    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span><strong>Bank Sampah</strong><small>Flamboyan 4</small></span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=program" data-bank-section="v17Program">Program</a><a href="?bagian=perkembangan" data-bank-section="v17Perkembangan">Perkembangan</a><a href="?bagian=dokumentasi" data-bank-section="v17Dokumentasi">Dokumentasi</a><a href="?bagian=inventaris" data-bank-section="v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
       <div class="v17-public-main"><div class="v17-public-banner">
         <div class="f4-public-hero-copy">
           <span class="v14-eyebrow"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 19-4-6 4-6M3 13h8"/><path d="m9 4 7-1 3 6M16 3l-4 7"/><path d="m21 13-3 7h-7M18 20l-3-6"/></svg> FLAMBOYAN 4</span>
