@@ -516,7 +516,7 @@ async def validate_member_tags(browser):
             trigger=page.locator(".f4p-album-overlay .f4-tag-trigger")
             await trigger.wait_for(timeout=15000)
             await trigger.click()
-            await page.get_by_role("button",name="Kelola").click()
+            await page.locator("body > .f4-tag-floating").get_by_role("button",name="Kelola Tag").click()
             await page.locator(".f4-tag-list .f4-tag-row").first.wait_for()
             assert await page.locator(".f4-tag-row").count()==2,"Member selector did not load"
             await page.locator(".f4-tag-row input").first.check()
@@ -530,10 +530,10 @@ async def validate_member_tags(browser):
             await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
             photo_trigger=page.locator(".f4p-photo-stage > .f4-tag-trigger")
             await photo_trigger.wait_for(timeout=15000)
-            assert await page.locator(".f4p-photo-stage .f4-tag-popup").count()==0,"Photo tags should start hidden"
+            assert await page.locator("body > .f4-tag-floating").count()==0,"Photo tags should start hidden"
             await photo_trigger.click()
-            await page.locator(".f4p-photo-stage .f4-tag-popup").wait_for()
-            await page.locator(".f4p-photo-stage .f4-tag-popup").get_by_role("button",name="Kelola").click()
+            await page.locator("body > .f4-tag-floating").wait_for()
+            await page.locator("body > .f4-tag-floating").get_by_role("button",name="Kelola Tag").click()
             await page.locator(".f4-tag-row input").nth(1).check()
             await page.get_by_role("button",name="Simpan Tag").click()
             photo_posts=[p for p in MOCK_POSTS if "/api/v2/gallery/tags" in p["url"] and json.loads(p["body"]).get("type")=="photo"]
