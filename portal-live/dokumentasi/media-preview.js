@@ -305,14 +305,27 @@ function drawInventory(){
  const box=$('media-inventory-list');box.replaceChildren();
  $('inventory-total').textContent=inventory.length+' item';
  for(const r of inventory){
-  const btn=el('button','media-inventory-item');btn.type='button';
   const src=driveImage(r.photo);
-  if(src){const img=document.createElement('img');img.src=src;img.alt=r.name;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(photoPlaceholder())};btn.append(img)}
-  else btn.append(photoPlaceholder());
-  const copy=el('span','media-item-copy');copy.append(el('strong','',r.name),el('small','muted',r.condition));btn.append(copy);
-  btn.append(el('span','portal-inventory-qty',r.quantity+' unit'));
-  btn.onclick=()=>{if(src)openMediaViewer('Inventaris: '+r.name,[{url:src,type:'foto',caption:r.name}]);else status('Foto '+r.name+' memang belum tercantum dalam inventaris asli.')};
-  box.append(btn);
+  // Barang tanpa foto adalah informasi statis: tanpa ikon placeholder, popup, atau peringatan.
+  const card=el(src?'button':'div','media-inventory-item'+(src?'':' is-photo-free'));
+  if(src){
+   card.type='button';
+   const img=document.createElement('img');
+   img.src=src;img.alt=r.name;img.loading='lazy';
+   img.onerror=()=>{
+    if(!img.isConnected)return;
+    // Apabila sumber foto tidak valid, tampilkan data barang saja.
+    const staticCard=el('div','media-inventory-item is-photo-free');
+    for(const child of [...card.children])if(child!==img)staticCard.append(child);
+    card.replaceWith(staticCard);
+   };
+   card.append(img);
+   card.onclick=()=>openMediaViewer('Inventaris: '+r.name,[{url:src,type:'foto',caption:r.name}]);
+  }
+  const copy=el('span','media-item-copy');
+  copy.append(el('strong','',r.name),el('small','muted',r.condition));
+  card.append(copy,el('span','portal-inventory-qty',r.quantity+' unit'));
+  box.append(card);
  }
 }
 function tab(value,writeHash){
