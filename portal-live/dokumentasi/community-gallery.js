@@ -308,7 +308,7 @@ function f4TagButton(host,target){
  host.append(trigger);
 }
 const f4TagStyle=document.createElement('style');
-f4TagStyle.textContent='.f4g-album-actions,.f4g-photo-actions{position:relative}.f4-tag-trigger{width:34px;height:34px;padding:7px;border-radius:50%;background:#214a3a;color:white;display:inline-flex;align-items:center;justify-content:center}.f4-tag-trigger svg{width:18px;height:18px}.f4-tag-popup{position:absolute;bottom:40px;left:0;z-index:65;max-width:min(300px,85vw);padding:9px;display:flex;gap:6px;flex-wrap:wrap;background:#1d3d31;color:white;border-radius:12px;box-shadow:0 6px 20px #0003;font-size:12px}.f4-tag-chip{background:#ffffff29;padding:4px 8px;border-radius:20px}.f4-tag-list{display:grid;gap:6px;max-height:220px;overflow:auto}.f4-tag-row{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #dbe5df;border-radius:8px}.f4-tag-row input{width:16px}';
+f4TagStyle.textContent='.f4g-album-actions,.f4g-photo-actions,.f4p-photo-stage{position:relative}.f4p-photo-stage>.f4-tag-trigger{position:absolute;bottom:14px;left:14px;z-index:36}.f4p-photo-stage>.f4-tag-popup{position:absolute;bottom:56px;left:14px;z-index:37}.f4-tag-trigger{width:34px;height:34px;padding:7px;border-radius:50%;background:#214a3a;color:white;display:inline-flex;align-items:center;justify-content:center}.f4-tag-trigger svg{width:18px;height:18px}.f4-tag-popup{position:absolute;bottom:40px;left:0;z-index:65;max-width:min(300px,85vw);padding:9px;display:flex;gap:6px;flex-wrap:wrap;background:#1d3d31;color:white;border-radius:12px;box-shadow:0 6px 20px #0003;font-size:12px}.f4-tag-chip{background:#ffffff29;padding:4px 8px;border-radius:20px}.f4-tag-list{display:grid;gap:6px;max-height:220px;overflow:auto}.f4-tag-row{display:flex;gap:8px;align-items:center;padding:8px;border:1px solid #dbe5df;border-radius:8px}.f4-tag-row input{width:16px}';
 document.head.append(f4TagStyle);
 
 async function uploadDialog(){
@@ -661,7 +661,7 @@ document.addEventListener('f4:gallery:photo',e=>{
   actions.replaceChildren(button('Bagikan','share',()=>share(target)));
   renderPreview({comments:[]});
  }
- f4TagButton(actions,target);
+ f4TagButton(viewer.querySelector('.f4p-photo-stage')||actions,target);
 });
 document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 mount();
