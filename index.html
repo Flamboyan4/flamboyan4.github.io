@@ -44,7 +44,7 @@
 <script src="/portal-live/portal-d1-bridge.js?v=20261106-calendar-arisan-sync-v1"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261117-wallet-footer-v11"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-nav-stable-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261117-rekening-sheet-v12"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261117-nav-stable-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
 <link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261112-mobile-cash-clean-v1">
 
@@ -932,39 +932,60 @@
     </button>
   </div>
 
-  <!-- FOOTER — QRIS as primary action, bank transfers as compact alternatives -->
+  <!-- FOOTER: two simple actions, account details in a mobile sheet. -->
   <footer id="pembayaran" class="f4-payment-footer">
     <div class="f4-payment-inner">
-      <section class="f4-payment-panel" aria-label="Metode pembayaran">
-        <div class="f4-payment-list">
-          <a href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" class="f4-payment-qris" aria-label="Unduh QRIS pembayaran">
-            <i data-lucide="qr-code" aria-hidden="true"></i>
-            <span>Unduh QRIS</span>
-          </a>
-          <div class="f4-payment-bank-stack">
-              <div class="f4-payment-row">
-                <div class="f4-payment-info">
-                  <strong>Mandiri</strong>
-                  <small>A/N ROSALINDA</small>
-                </div>
-                <button onclick="salinNorekEx('1330022606479', 'btn-salin-1', 'btn-text-1')" id="btn-salin-1" aria-label="Salin nomor rekening Mandiri" class="f4-payment-action" type="button">
-                  <i data-lucide="copy" aria-hidden="true"></i><span id="btn-text-1">Salin</span>
-                </button>
-              </div>
-              <div class="f4-payment-row">
-                <div class="f4-payment-info">
-                  <strong>SeaBank</strong>
-                  <small>A/N HERI JUWANDI</small>
-                </div>
-                <button onclick="salinNorekEx('901493321399', 'btn-salin-2', 'btn-text-2')" id="btn-salin-2" aria-label="Salin nomor rekening SeaBank" class="f4-payment-action" type="button">
-                  <i data-lucide="copy" aria-hidden="true"></i><span id="btn-text-2">Salin</span>
-                </button>
-              </div>
-          </div>
-        </div>
-      </section>
+      <nav class="f4-payment-actions" aria-label="Metode pembayaran">
+        <a class="f4-payment-qris" href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" aria-label="Unduh gambar QRIS Flamboyan 4">
+          <i data-lucide="qr-code" aria-hidden="true"></i>
+          <span>Unduh QRIS</span>
+        </a>
+        <button class="f4-payment-rekening" type="button" aria-haspopup="dialog" aria-controls="modal-rekening" onclick="openModal('modal-rekening')">
+          <i data-lucide="landmark" aria-hidden="true"></i>
+          <span>Rekening</span>
+          <i data-lucide="chevron-up" aria-hidden="true"></i>
+        </button>
+      </nav>
     </div>
   </footer>
+
+  <div id="modal-rekening" class="f4-account-overlay hidden" onclick="if(event.target===this)closeModalDirect('modal-rekening')">
+    <section class="f4-account-dialog" role="dialog" aria-modal="true" aria-labelledby="f4-account-title" tabindex="-1">
+      <div class="f4-account-sheet-grip" aria-hidden="true"></div>
+      <header class="f4-account-head">
+        <div class="f4-account-title">
+          <h2 id="f4-account-title">Nomor Rekening</h2>
+          <p>Pilih rekening untuk menyalin nomor.</p>
+        </div>
+        <button class="f4-account-close" type="button" onclick="closeModalDirect('modal-rekening')" aria-label="Tutup rekening">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="f4-account-list">
+        <div class="f4-account-item">
+          <div class="f4-account-info">
+            <strong>Mandiri</strong>
+            <span class="f4-account-number">1330022606479</span>
+            <small>a.n. ROSALINDA</small>
+          </div>
+          <button class="f4-account-copy" type="button" data-account-copy="1330022606479" aria-label="Salin rekening Mandiri">
+            <i data-lucide="copy" aria-hidden="true"></i><span>Salin</span>
+          </button>
+        </div>
+        <div class="f4-account-item">
+          <div class="f4-account-info">
+            <strong>SeaBank</strong>
+            <span class="f4-account-number">901493321399</span>
+            <small>a.n. HERI JUWANDI</small>
+          </div>
+          <button class="f4-account-copy" type="button" data-account-copy="901493321399" aria-label="Salin rekening SeaBank">
+            <i data-lucide="copy" aria-hidden="true"></i><span>Salin</span>
+          </button>
+        </div>
+      </div>
+      <p id="f4-account-copy-status" class="f4-account-copy-status" role="status" aria-live="polite"></p>
+    </section>
+  </div>
 
   <!-- Firebase App & Realtime Database CDN (Compat v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -974,6 +995,7 @@
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script src="/portal-live/home-legacy.js?v=20261113-calendar-upcoming-v2"></script>
+<script defer src="/portal-live/payment-footer.js?v=20261117-rekening-sheet-v1"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
  const footer=document.getElementById('pembayaran');
