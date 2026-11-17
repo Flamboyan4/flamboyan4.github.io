@@ -34,7 +34,9 @@ MEASURE="""() => {
  const overflow=[document.documentElement,document.body,...document.querySelectorAll('#dashboardView *')].map(e=>({e,d:e.scrollWidth-e.clientWidth}))
   .filter(x=>x.d>4).sort((a,b)=>b.d-a.d).slice(0,10)
   .map(x=>({id:x.e.id,tag:x.e.tagName,cls:typeof x.e.className==='string'?x.e.className.slice(0,70):'',extra:x.d,scroll:x.e.scrollWidth,client:x.e.clientWidth}));
- return {viewport:innerWidth,doc:document.documentElement.scrollWidth,body:document.body.scrollWidth,
+ return {viewport:innerWidth,htmlClient:document.documentElement.clientWidth,visualScale:visualViewport?.scale,meta:document.querySelector('meta[name=viewport]')?.content,
+  bodyRect:box(document.body),htmlRect:box(document.documentElement),
+  doc:document.documentElement.scrollWidth,body:document.body.scrollWidth,
   visual:visualViewport?.width,scrollX,role:document.body.dataset.f4BankRole,dock:box(dock),buttons,
   header:box(document.getElementById('f4-direct-bar')),position:dock?getComputedStyle(dock).position:null,overflow};
 }"""
