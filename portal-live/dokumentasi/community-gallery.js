@@ -298,7 +298,9 @@ async function f4TagManager(target){
 }
 function f4TagButton(host,target){
  host.querySelector('.f4-tag-trigger')?.remove();host.querySelector('.f4-tag-popup')?.remove();
- if(!target?.id)return;
+ // The live API may lag behind GitHub Pages. Do not display an unusable tag control.
+ // A gallery server that supports tags always returns the categories collection.
+ if(!target?.id||!Array.isArray(window.f4GalleryCommunity?.categories))return;
  const trigger=button(null,'user',null,'f4-tag-trigger');
  trigger.title='Lihat tag warga';trigger.setAttribute('aria-label','Lihat tag warga');
  trigger.onclick=async()=>{
