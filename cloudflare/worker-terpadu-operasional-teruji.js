@@ -2811,7 +2811,11 @@ async function f4GalleryApi(req,env,who,url){
   const type=String(url.searchParams.get("type")||""),id=String(url.searchParams.get("id")||"");
   if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak ditemukan.",404);
   const tags=await list(env.DB,"SELECT t.member_id AS memberId,m.display_name AS name,t.position_x AS x,t.position_y AS y FROM f4_gallery_tags t JOIN members m ON m.id=t.member_id WHERE t.target_type=? AND t.target_id=? AND m.status='aktif' ORDER BY m.display_name LIMIT 60",[type,id]);
-  return ok({tags});
+  const author=type==="photo"
+   ?await one(env.DB,"SELECT uploader_id AS actor FROM f4_gallery_photos WHERE id=? AND status IN ('baru','ditinjau')",[id])
+   :await one(env.DB,"SELECT created_by AS actor FROM f4_gallery_albums WHERE id=? AND status='aktif'",[id]);
+  const canEdit=Boolean(who&&(who.role==="superadmin"||author?.actor===who.id));
+  return ok({tags,canEdit});
  }
  if(path==="/api/v2/gallery/category"&&method==="GET"){
   const albumId=String(url.searchParams.get("album")||"");
