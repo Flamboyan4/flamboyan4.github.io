@@ -38,7 +38,7 @@
     .public-hero h1{font-size:28px}.public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-tile h3{margin:0 0 5px;font-size:16px}.public-tile p{color:var(--muted);font-size:13px;margin:4px 0}.public-tile a{color:var(--forest);overflow-wrap:anywhere}.public-image{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:5px 0}.public-section{margin-top:24px}.public-section h2{font-size:19px}@media(max-width:720px){.public-hero h1{font-size:23px}.public-grid{grid-template-columns:1fr}.public-tile{padding:14px}}@media(min-width:721px) and (max-width:900px){.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     /* v13 — gaya Pembukuan: sidebar kompak, konten lapang, hijau daun lembut. */
     :root:has(#dashboardView){--white:#fff;
---forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#fdc010
+--forest:#43a047;--leaf:#8bc24a;--sage:#e5f7d7;--cream:#f8fcf8;--ink:#163e2d;--muted:#547063;--line:#e0ece5;--orange:#ffc411
 }
     
     
@@ -385,10 +385,10 @@ padding:0
       #v18PublicSide{padding-top:0}
       #v18PublicSide .v17-public-logo{box-sizing:border-box;display:flex;align-items:center;height:56px;min-height:56px;margin:0 -12px 16px;padding:0 18px}
     }
-    #v18PublicSide button{box-sizing:border-box;width:100%;min-height:43px;display:flex;align-items:center;gap:10px;margin:2px 0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#333b54;text-align:left;font:650 13px/1.25 system-ui,sans-serif;cursor:pointer}
+    #v18PublicSide button{box-sizing:border-box;width:100%;min-height:43px;display:flex;align-items:center;gap:10px;margin:2px 0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#315347;text-align:left;font:650 13px/1.25 system-ui,sans-serif;cursor:pointer}
     #v18PublicSide button:hover{background:#f2f9f0;color:#2c7047}
     #v18PublicSide button svg{box-sizing:border-box;width:18px;height:18px;padding:0;background:transparent;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
-    #v18PublicSide .f4-bank-public-nav-caption{margin:0;padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
+    #v18PublicSide .f4-bank-public-nav-caption{margin:0;padding:10px 12px 5px;color:#718578;font:800 10px/1.2 system-ui;letter-spacing:.055em}
     #v18PublicSide .f4-bank-public-nav-other{margin:14px 0 3px;padding-top:16px;border-top:1px solid #d6e6d9}
     #v18PublicContent{min-width:0;width:100%}
     #v11Public .v17-public-head{justify-content:space-between;padding:11px 24px;position:sticky;top:0;background:#fff}
@@ -656,9 +656,9 @@ z-index:48
 #pageAdmin .v23-account-summary::-webkit-details-marker,#pageMaster .f4-master-summary::-webkit-details-marker{display:none}
 #pageAdmin .v23-account-avatar{
  flex:none;display:grid;place-items:center;width:38px;height:38px;
- border-radius:12px;background:#009788;color:#fff;font-size:13px;font-weight:850
+ border-radius:12px;background:#009688;color:#fff;font-size:13px;font-weight:850
 }
-#pageAdmin .v23-account-row:nth-child(3n+2) .v23-account-avatar{background:#09bcd3;color:#fff}
+#pageAdmin .v23-account-row:nth-child(3n+2) .v23-account-avatar{background:#287ab0;color:#fff}
 #pageAdmin .v23-account-row:nth-child(3n+3) .v23-account-avatar{background:#43a047;color:#fff}
 #pageAdmin .v23-account-identity,#pageMaster .f4-master-identity{
  display:grid;gap:3px;min-width:0;flex:1
@@ -715,9 +715,9 @@ z-index:48
  font-size:13px;line-height:1.3;font-weight:850
 }
 #pageMaster .f4-master-group-heading h3::before{
- content:"";width:7px;height:7px;border-radius:50%;background:#009788;flex:none
+ content:"";width:7px;height:7px;border-radius:50%;background:#009688;flex:none
 }
-#pageMaster .f4-master-group:nth-child(2) .f4-master-group-heading h3::before{background:#09bcd3}
+#pageMaster .f4-master-group:nth-child(2) .f4-master-group-heading h3::before{background:#287ab0}
 #pageMaster .f4-master-group:nth-child(3) .f4-master-group-heading h3::before{background:#43a047}
 #pageMaster .f4-master-group:nth-child(4) .f4-master-group-heading h3::before{background:#e2ab22}
 #pageMaster .f4-master-group-heading span{
@@ -758,7 +758,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button{
  padding:8px 11px;border-radius:11px;font-size:11.5px;font-weight:800;white-space:nowrap
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin #bulkBtn{
- background:#009788;border:1px solid #009788;color:#fff
+ background:#009688;border:1px solid #009688;color:#fff
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button.secondary{
  box-sizing:border-box;display:grid;place-items:center;flex:none;
@@ -1306,9 +1306,9 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan #v33SelectAll[hidden]{display:none}
 #pageLaporan .v33-report-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:10px 0 0;border-top:1px solid #e5eee8}
 #pageLaporan .v33-report-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;min-width:0;min-height:40px;padding:9px 8px;margin:0;border-radius:11px;font-size:12px;font-weight:800;line-height:1.25}
-#pageLaporan .v33-report-actions button:nth-child(1){background:#f0f6f1;color:#174630;border:1px solid #dce8de}
-#pageLaporan .v33-report-actions button:nth-child(2){background:#318651;color:#fff;border:1px solid #318651}
-#pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#174630;border:1px solid #d7e6dc}
+#pageLaporan .v33-report-actions button:nth-child(1){background:#f0f6f1;color:#174b36;border:1px solid #dce8de}
+#pageLaporan .v33-report-actions button:nth-child(2){background:#08775e;color:#fff;border:1px solid #08775e}
+#pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#174b36;border:1px solid #d7e6dc}
 #pageLaporan #v10ReportSummary{
  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
  margin:0 0 6px;padding:0;border:0
@@ -1381,14 +1381,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 }
 #pageLaporan #v17Finance{display:flex;flex-direction:column;min-width:0;margin:0;padding:17px;border:1px solid #dce9e1;border-radius:20px;background:#fff;box-shadow:0 3px 14px #17482a08}
 #pageLaporan #v17Finance .v17-finance-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px}
-#pageLaporan #v17Finance .v17-finance-head h2{font-size:16px;color:#174630}
+#pageLaporan #v17Finance .v17-finance-head h2{font-size:16px;color:#174b36}
 #pageLaporan #v17FinanceKpis{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
  align-content:center;flex:1 1 auto;
  min-width:0;margin:0;padding:19px 21px;
  border:0;border-radius:21px;
  background:linear-gradient(120deg,#0d9580 0%,#3f9c4a 100%);
- box-shadow:0 7px 18px #00978818;color:#fff
+ box-shadow:0 7px 18px #00968818;color:#fff
 }
 #pageLaporan #v17FinanceKpis>.v17-finance-kpi{
  min-width:0;min-height:0;margin:0;padding:0 12px;border:0;border-radius:0;
@@ -1603,15 +1603,15 @@ overflow:visible
 
 /* Saldo Warga — ringkasan kompak satu kartu utama, tanpa empat kotak berulang. */
 #pageTabungan .f4-savings-head{margin:0 0 12px}
-#pageTabungan .f4-savings-head h2{margin:0;color:#174630;font-size:22px}
+#pageTabungan .f4-savings-head h2{margin:0;color:#174b36;font-size:22px}
 #pageTabungan .f4-savings-head p{margin:5px 0 0;color:#6a8074;font-size:12px}
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{display:block;padding:0;margin:0;border:0;background:transparent}
 #pageTabungan .f4-saldo-hero{
  position:relative;isolation:isolate;overflow:hidden;
  display:grid;grid-template-columns:minmax(0,1fr);gap:13px;
  padding:23px;border-radius:23px;
- background:linear-gradient(120deg,#009788 0%,#43a047 100%);color:#fff;
- box-shadow:0 10px 23px #00978826
+ background:linear-gradient(120deg,#009688 0%,#43a047 100%);color:#fff;
+ box-shadow:0 10px 23px #00968826
 }
 #pageTabungan .f4-saldo-hero::before{
  content:"";position:absolute;z-index:-1;right:-25px;top:-42px;
@@ -1634,8 +1634,8 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
 #pageTabungan .f4-saldo-part small{font-size:clamp(9px,1vw,11px);font-weight:550;line-height:1.35;letter-spacing:-.14px;white-space:nowrap;color:#f0fff0bb}
 #pageTabungan .f4-saldo-part strong{font-size:clamp(16px,1.7vw,21px);line-height:1.2;color:#fff;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #pageTabungan .f4-savings-utility{display:flex;justify-content:flex-end;gap:8px;min-width:0;margin:11px 0 18px}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #09bcd3;border-radius:13px;background:#09bcd3;color:#fff;font-size:12.5px;font-weight:800;box-shadow:none}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#009788;border-color:#009788;color:#fff}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #287ab0;border-radius:13px;background:#287ab0;color:#fff;font-size:12.5px;font-weight:800;box-shadow:none}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#009688;border-color:#009688;color:#fff}
 
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
 #pageTabungan #v9CashCheckStatus:not([hidden]){
@@ -1664,8 +1664,8 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9List{width:100%;max-width:10
 #pageTabungan #v9List .f4-saldo-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:61px;min-width:0;padding:9px 11px;border:1px solid #e5ede6;border-radius:12px;background:#f9fbf8}
 #pageTabungan #v9List .f4-saldo-row:nth-child(even){background:#fff}
 #pageTabungan #v9List .f4-saldo-row[hidden]{display:none}
-#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#009788;color:#fff;font-size:13px;font-weight:850}
-#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#09bcd3;color:#fff}
+#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#009688;color:#fff;font-size:13px;font-weight:850}
+#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#287ab0;color:#fff}
 #pageTabungan #v9List .f4-saldo-row:nth-child(3n+3) .f4-saldo-avatar{background:#43a047;color:#fff}
 #pageTabungan #v9List .f4-saldo-person{display:grid;gap:2px;min-width:0}
 #pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204535;font-weight:800;overflow-wrap:anywhere}
