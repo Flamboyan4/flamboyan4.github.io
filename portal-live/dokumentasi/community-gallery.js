@@ -265,8 +265,15 @@ async function imageBlob(file){
  }finally{bitmap.close()}
 }
 
+const f4TagError=(e)=>{
+ const msg=String(e?.message||e||'');
+ return /Fitur galeri tidak tersedia|HTTP 404|HTTP 405|Failed to fetch/i.test(msg)
+  ?'Tag warga belum tersedia pada API aktif. Pengelola perlu menerbitkan pembaruan Worker terlebih dahulu.'
+  :msg;
+};
 const f4TagCategories=[['','Umum'],['bank_sampah','Bank Sampah'],['kerja_bakti','Kerja Bakti'],['rapat','Rapat'],['kegiatan','Kegiatan Warga']];
 async function f4TagManager(target){
+ if(!await signedIn().catch(()=>false))return;
  const dlg=popup('Tag Warga');
  const search=field(dlg.body,'Cari warga','input','Nama atau nomor rumah…');
  const listNode=elem('div','f4-tag-list'),hint=elem('p','f4g-note','Memuat warga…');
@@ -287,7 +294,7 @@ async function f4TagManager(target){
   const save=button('Simpan Tag','user',async()=>{
    save.disabled=true;try{await post('/tags',{type:target.type,id:target.id,memberIds:[...selected]});dlg.close();toast('Tag berhasil disimpan.')}catch(e){hint.textContent=e.message;save.disabled=false}
   },'primary');dlg.body.append(save);
- }catch(e){hint.textContent=e.message}
+ }catch(e){hint.textContent=f4TagError(e)}
 }
 function f4TagButton(host,target){
  host.querySelector('.f4-tag-trigger')?.remove();host.querySelector('.f4-tag-popup')?.remove();
@@ -303,7 +310,10 @@ function f4TagButton(host,target){
    if(!data.tags?.length)pop.append(elem('span','','Belum ada tag'));
    for(const item of data.tags||[])pop.append(elem('span','f4-tag-chip',item.name));
    pop.append(button('Kelola','user',()=>{pop.remove();f4TagManager(target)}));
-  }catch(e){pop.textContent=e.message}
+  }catch(e){
+   pop.textContent=f4TagError(e);
+   pop.setAttribute('role','status');
+  }
  };
  host.append(trigger);
 }
@@ -366,6 +376,18 @@ async function uploadDialog(){
  media.append(section,drop,preview);
  const category=field(dlg.body,'Kategori album','select');
   for(const [key,name] of f4TagCategories){const option=elem('option','',name);option.value=key;category.append(option)}
+  const cachedCategories=new Map((window.f4GalleryCommunity?.categories||[]).map(a=>[String(a.albumId),String(a.category)]));
+  const refreshCategory=async()=>{
+   if(album.value==='__new'){category.value='';category.disabled=false;return}
+   category.value=cachedCategories.get(album.value)||'';
+   category.disabled=false;
+   if(!album.value)return;
+   try{const result=await get('/category?album='+encodeURIComponent(album.value));
+    if(album.value)category.value=result.category||'';
+   }catch(e){if(/Fitur galeri tidak tersedia|HTTP 404/i.test(String(e.message)))category.title='Kategori membutuhkan Worker API terbaru.'}
+  };
+  album.addEventListener('change',refreshCategory);
+  void refreshCategory();
   settings.append(elem('strong','f4g-upload-section-title','Detail unggahan'),album.parentElement,newWrap,category.parentElement,caption.parentElement);
  composer.append(media,settings);dlg.body.append(composer);
  const status=elem('p','f4g-status');status.hidden=true;dlg.body.append(status);
@@ -402,7 +424,16 @@ async function uploadDialog(){
     album.insertBefore(saved,album.querySelector('option[value="__new"]'));
     album.value=created.id;newWrap.hidden=true;
    }
-   if(category.value){try{await post('/category',{albumId,category:category.value})}catch(e){message(dlg.body,'Kategori belum disimpan: '+e.message,true)}}
+   const currentCategory=cachedCategories.get(albumId)||'';
+    if(category.value!==currentCategory){
+     try{
+      await post('/category',{albumId,category:category.value});
+      cachedCategories.set(albumId,category.value);
+     }catch(e){
+      message(dlg.body,'Kategori gagal disimpan: '+f4TagError(e),true);
+      throw e;
+     }
+    }
     for(let i=0;i<files.length;i++){
     const file=files[i];
     if(completedFiles.has(file))continue;
