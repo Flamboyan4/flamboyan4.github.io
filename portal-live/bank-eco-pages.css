@@ -2153,7 +2153,7 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
   width:var(--bank-sidebar-width);height:100dvh;max-height:100dvh;min-width:0;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   border-right:1px solid #dce8df;background:#fff;
-  padding:10px 8px 16px;transform:none;visibility:visible
+  padding:0 8px 16px;transform:none;visibility:visible
  }
  body.f4-bank-app-admin #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;
@@ -2171,7 +2171,9 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  body.f4-bank-app-admin #dashboardView #f4BankAppHome[data-bank-role="admin"]{width:100%;max-width:1120px;margin-inline:auto}
 
  body.f4-bank-app-admin #sideNav .v16-brand{
-  padding:8px 6px 16px;gap:10px;margin-bottom:10px;border-bottom:1px solid #e6eee9
+  box-sizing:border-box;height:56px;min-height:56px;
+  padding:0 14px;gap:10px;margin:0 -8px 10px;
+  border-bottom:1px solid #d6e6d9
  }
  body.f4-bank-app-admin #sideNav .v16-brand img{width:42px;height:42px}
  body.f4-bank-app-admin #sideNav .v16-nav-caption{
