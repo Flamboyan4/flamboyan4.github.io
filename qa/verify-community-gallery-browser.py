@@ -523,12 +523,20 @@ async def validate_compact_gallery_mobile(browser):
         assert await page.locator(".f4g-hero-copy").evaluate("e=>getComputedStyle(e).display")=="none"
         await page.locator("[data-gallery-view=albums]").click()
         assert await page.locator(".f4g-album-pane .panel-head").evaluate("e=>getComputedStyle(e).display")=="none"
-        dropdown=page.get_by_role("combobox",name="Filter kategori album")
+        dropdown=page.get_by_role("button",name="Filter kategori album")
         await dropdown.wait_for()
-        assert await dropdown.is_visible(),"Mobile category menu missing"
+        assert await dropdown.is_visible(),"Mobile custom filter missing"
+        assert await page.locator("#media-category-filters select").count()==0,"Native Android select remains"
         assert await page.locator("#media-category-filters .btn").first.evaluate("e=>getComputedStyle(e).display")=="none","Old category buttons still visible"
-        await dropdown.select_option("Arisan")
-        assert await dropdown.input_value()=="Arisan","Category selection lost"
+        await dropdown.click()
+        menu=page.get_by_role("listbox",name="Kategori album")
+        assert await menu.is_visible(),"Custom category listbox did not open"
+        await menu.get_by_role("option",name="Arisan").click()
+        assert await page.locator(".f4g-category-current").inner_text()=="Arisan","Selected category not shown"
+        assert await dropdown.get_attribute("aria-expanded")=="false","Menu did not close after selection"
+        await dropdown.click()
+        await page.keyboard.press("Escape")
+        assert await dropdown.get_attribute("aria-expanded")=="false","Escape should close custom menu"
         assert await page.locator(".media-search").is_visible(),"Album search missing"
         sizes=await page.locator(".f4g-top-actions .f4g-btn").evaluate_all("""els=>els.map(el=>({
           width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
@@ -536,7 +544,7 @@ async def validate_compact_gallery_mobile(browser):
         assert all(32<=b["width"]<=44 and b["accessible"] for b in sizes),sizes
         positions=await page.evaluate("""() => {
           const search=document.querySelector('.f4g-album-tools .media-search').getBoundingClientRect();
-          const filter=document.querySelector('.f4g-category-select').getBoundingClientRect();
+          const filter=document.querySelector('.f4g-category-trigger').getBoundingClientRect();
           return {difference:Math.abs(search.top-filter.top),right:filter.right,window:innerWidth}
         }""")
         assert positions["difference"]<=5 and positions["right"]<=positions["window"]+1,positions
