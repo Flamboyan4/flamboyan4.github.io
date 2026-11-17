@@ -194,11 +194,12 @@ body.f4-account-open #f4-direct-bar{z-index:500}
  body.f4-direct-bank.f4-bank-app-member #f4-direct-bar{left:226px}
  body.f4-direct-bank.f4-bank-app-admin #f4-direct-bar{left:var(--bank-sidebar-width,208px)}
  body.f4-direct-book #f4-direct-bar{left:258px}
- body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0;bottom:0;height:100dvh;padding-top:17px}
+ body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0;bottom:0;height:100dvh;padding-top:0}
  body.f4-direct-bank #v18PublicSide{position:fixed;top:0;left:0;bottom:0;width:244px;height:100dvh;max-height:100dvh}
  body.f4-direct-bank #v11Public.v18-public-shell{grid-template-columns:244px minmax(0,1fr)}
  body.f4-direct-bank #v18PublicContent{grid-column:2;min-width:0}
  body.f4-direct-book #side-drawer{top:0}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{box-sizing:border-box;height:56px;min-height:56px;margin:0 -10px 12px;padding:0 14px;border-bottom:1px solid var(--f4-nav-line)}
 }
 #f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;backdrop-filter:blur(14px);border-bottom:1px solid var(--f4-nav-line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45;
 isolation:isolate;
