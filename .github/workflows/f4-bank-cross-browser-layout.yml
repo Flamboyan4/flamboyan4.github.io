@@ -28,6 +28,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f4-local-http.log 2>&1 &
           python3 qa/bank-cross-browser-layout.py
       - name: Verify five member tabs on every mobile screen and scroll position
+        if: always()
         run: |
           python3 -m http.server 8766 --bind 127.0.0.1 >/tmp/f4-member-dock-http.log 2>&1 &
           python3 qa/bank-member-dock-layout.py
