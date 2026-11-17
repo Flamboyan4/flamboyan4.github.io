@@ -27,6 +27,7 @@
   '#modal-cetak-kas > div','#modal-keuangan > div',
   '#modal-jersey > div','#modal-dokumentasi > div',
   '#modal-gallery-grid > div','#modal-saran > div',
+  '#modal-rekening > .f4-account-dialog',
   '#modal-edit .f4-book-edit-card','.edit-modal .edit-modal-card',
   '#modal-koreksi-migrasi > div','#modal-doc-rapat > div',
   '.f4p-album-overlay > .f4p-album-card','#modal-gateway > div'
@@ -42,7 +43,7 @@
   '.f4-pm-shade','.f4-resident-sheet-overlay',
   '#modal-event-detail','#modal-arisan','#modal-cetak-kas',
   '#modal-keuangan','#modal-jersey','#modal-dokumentasi',
-  '#modal-gallery-grid','#modal-saran','#modal-edit',
+  '#modal-gallery-grid','#modal-saran','#modal-rekening','#modal-edit',
   '.edit-modal','#modal-koreksi-migrasi','#modal-doc-rapat',
   '.f4p-album-overlay','#modal-gateway'
  ].join(',');
