@@ -457,7 +457,7 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
  margin:0 0 12px;padding:0
 }
-#dashboardView #bank-member-info .v25-report-toolbar select{
+#dashboardView #bank-member-info .v25-report-toolbar select:not(.f4-modern-native-hidden){
  flex:1 1 100%;width:100%;max-width:none;min-width:0;min-height:40px;
  margin:0 0 2px;padding:8px 11px;border:1px solid #d8e8df;
  border-radius:10px;background:#fff;color:#23533a;font-size:13px;font-weight:700
