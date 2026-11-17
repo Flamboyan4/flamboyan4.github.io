@@ -319,7 +319,7 @@ async function f4TagManager(target){
    const query=search.value.trim().toLocaleLowerCase('id');
    listNode.replaceChildren();
    const matched=members.filter(m=>(m.name+' '+m.house).toLocaleLowerCase('id').includes(query))
-    .sort((a,b)=>Number(selected.has(b.id))-Number(selected.has(a.id))||a.name.localeCompare(b.name,'id'));
+    .sort((a,b)=>a.name.localeCompare(b.name,'id'));
    for(const member of matched){
     const row=elem('label','f4-tag-row');
     const avatar=elem('span','f4-tag-avatar',initials(member.name));
