@@ -118,7 +118,7 @@ jobs:
           python3 - <<'PY'
           import json,urllib.request,urllib.parse
           base="https://api.flamboyan4.web.id"
-          headers={"Origin":"https://flamboyan4.web.id","Accept":"application/json","Cache-Control":"no-cache"}
+          headers={"Origin":"https://flamboyan4.web.id","Accept":"application/json","Cache-Control":"no-cache","User-Agent":"Flamboyan4-Gallery-Release-Smoketest/1.0"}
           def get(path):
               with urllib.request.urlopen(urllib.request.Request(base+path,headers=headers),timeout=25) as response:
                   return json.load(response)
