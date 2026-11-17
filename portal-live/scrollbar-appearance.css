@@ -1,0 +1,5 @@
+/* Flamboyan 4 — satu kebijakan scrollbar untuk seluruh halaman aktif.
+   Sembunyikan batang scrollbar saja; wheel, swipe, trackpad, keyboard,
+   focus, overflow, dan scrollIntoView tetap bekerja seperti biasa. */
+html,body,body *{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,body *::-webkit-scrollbar{display:none;width:0;height:0}
