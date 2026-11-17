@@ -1580,21 +1580,19 @@ main > section.card{overflow:visible}
 }
 
 
+/* Pembukuan sidebar brand — one logo asset, same compact composition as Portal Utama. */
+body>#side-drawer .f4-book-brand{display:flex;align-items:center;gap:9px;min-width:0}
+body>#side-drawer .f4-book-brand-logo{display:block;width:42px;height:42px;object-fit:contain;flex:none}
+body>#side-drawer .f4-book-brand-copy{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
+body>#side-drawer .f4-book-brand-copy strong{display:block;font:800 13px/1.2 system-ui,sans-serif;color:#5b33c4}
+body>#side-drawer .f4-book-brand-copy small{display:block;font:500 10px/1.2 system-ui,sans-serif;color:#8793a7}
+
 /* CSS owner consolidated from #f4-original-sidebar-consistency; prior cascade position preserved */
 
   @media(min-width:1024px){
     body>#side-drawer .drawer-panel{background:#fff;border-radius:0}
     body>#side-drawer .drawer-panel>div:first-child{box-sizing:border-box;height:56px;min-height:56px;border-color:#e5dafa;padding:0 14px}
-    body>#side-drawer .drawer-panel>div:first-child>div:first-child{
-      position:relative;min-height:54px;display:flex;flex-direction:column;
-      align-items:flex-start;justify-content:center;padding-left:54px
-    }
-    body>#side-drawer .drawer-panel>div:first-child>div:first-child:before{
-      content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
-      width:44px;height:44px;background:url("https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2") center/contain no-repeat;
-    }
-    body>#side-drawer .drawer-panel>div:first-child .font-black{font-size:15px;color:#32216c}
-    body>#side-drawer .drawer-panel>div:first-child .text-\\[11px\\]{font-size:11px}
+    body>#side-drawer .drawer-panel>div:first-child>.f4-book-brand{min-height:54px}
     body>#side-drawer .drawer-panel>div:nth-child(3){padding:13px 12px}
     body>#side-drawer .drawer-item{display:flex;min-height:47px;padding:11px 13px;
       border:0;border-radius:11px;font:700 14px/1.3 system-ui,sans-serif;
@@ -1826,7 +1824,7 @@ main > section.card{overflow:visible}
   <div class="drawer-backdrop" onclick="tutupMenu()"></div>
   <aside class="drawer-panel">
     <div class="h-16 px-4 flex items-center justify-between border-b border-violet-100">
-      <div><div class="font-black text-violet-950">Pembukuan</div><div class="text-[11px] text-slate-400">Flamboyan 4</div></div>
+      <div class="f4-book-brand"><img class="f4-book-brand-logo" src="/assets/logo-flamboyan.svg?v=official-20261027-v2" width="42" height="42" alt="Logo Flamboyan 4"><span class="f4-book-brand-copy"><strong>Pembukuan</strong><small>Flamboyan 4</small></span></div>
       <button onclick="tutupMenu()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="p-4 overflow-y-auto">
