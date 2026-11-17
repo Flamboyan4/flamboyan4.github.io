@@ -379,6 +379,10 @@ padding:0
     
     #v18PublicSide{position:sticky;top:0;height:100dvh;background:white;border-right:1px solid #e1e9de;padding:17px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
     #v18PublicSide .v17-public-logo{min-width:0;margin-bottom:17px;padding:8px 8px 17px;border-bottom:1px solid #e1e9de}
+    @media(min-width:1024px){
+      #v18PublicSide{padding-top:0}
+      #v18PublicSide .v17-public-logo{box-sizing:border-box;display:flex;align-items:center;height:56px;min-height:56px;margin:0 -12px 16px;padding:0 18px}
+    }
     #v18PublicSide button{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#506d58;text-align:left;border-radius:9px;padding:12px 13px;font-size:13px;font-weight:700}
     #v18PublicSide button:hover{background:#edf8eb;color:#2b6943}
     #v18PublicSide button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
@@ -6507,7 +6511,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261115-recent-cards-shared-v15">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261117-sidebar-header-aligned-v91">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261116-member-doc-feed-v26">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261117-member-brand-line-v27">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261115-firefox-safe-area-v11">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
