@@ -1,6 +1,25 @@
 /* Flamboyan 4 — native navigation and shared Cloudflare session, no portal iframe. */
 (()=>{
 'use strict';
+/* Touch-only selection guard for dynamic clickable cards. Does not cancel
+   pointer/touch events, scroll, pinch zoom, typing, or normal text selection. */
+if(window.matchMedia('(pointer:coarse)').matches){
+ const tappable='button,a[href],summary,[role="button"],[role="link"],[role="tab"],'+
+  '[role="menuitem"],[onclick],.cursor-pointer,.media-album-card,.media-inventory-item,'+
+  '.f4g-feed-card,.f4g-album-card,.v22-doc-card,.v22-member-feed-post,[data-bank-app-route]';
+ document.addEventListener('selectstart',event=>{
+  const node=event.target?.nodeType===1?event.target:event.target?.parentElement;
+  if(!node?.closest||node.closest('input,textarea,select,[contenteditable],[data-allow-selection]'))return;
+  if(node.closest(tappable)){event.preventDefault();return}
+  /* Some legacy cards are assigned onclick in JS without an HTML attribute.
+     Only guard an ancestor that behaves as a clickable control. */
+  for(let el=node,depth=0;el&&el!==document.body&&depth<6;el=el.parentElement,depth++){
+   if(typeof el.onclick==='function'&&getComputedStyle(el).cursor==='pointer'){
+    event.preventDefault();return;
+   }
+  }
+ },true);
+}
 const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
