@@ -81,6 +81,10 @@ async def main():
        # Real member app handles the same event sent by its read-only statement
        # bridge. Fixture never calls an API or changes stored account data.
        await page.evaluate("""() => {
+        // v12Go normally removes the page's hidden class after auth success.
+        // The read-only fixture has no real account, so expose that exact screen.
+        const panel=document.getElementById('pagePribadi');
+        if(panel){panel.classList.remove('hidden');panel.hidden=false;}
         const id=document.getElementById('pId');if(id)id.textContent='QA-W017';
         document.getElementById('v12Private')?.classList.remove('hidden');
         window.dispatchEvent(new CustomEvent('f4-bank-member-statement',{detail:{
