@@ -10,18 +10,10 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 /* White content surfaces, colour reserved for icons, navigation and useful status. */
 #f4-account-page:not([hidden]),#f4-account-page>main,#v11Public,#v18PublicContent,#dashboardView,.shell,.content{background:#fff}
 #f4-account-page>aside,#v18PublicSide,body:not(.f4-bank-app-member) #sideNav{background:#fbfcfd;border-right:1px solid var(--modern-line);box-shadow:none}
-#f4-account-page>aside button{display:flex;align-items:center;gap:10px;font-size:13px;min-height:46px;line-height:1.35}
+#f4-account-page>aside button{display:flex;align-items:center;gap:10px;min-height:43px;margin:2px 0;padding:10px 12px;border-radius:10px;color:#333b54;font:650 13px/1.25 system-ui,sans-serif}
 #f4-account-page>aside button.active{background:var(--tint);color:var(--blue)}
 #f4-account-page>aside button:hover{background:#f1f4f8}
-.sa-nav-icon{width:34px;height:34px;padding:8px;border-radius:11px;background:#ede9ff;flex:none;object-fit:contain}
-/* Menu icon colors follow stable group IDs, not fragile nth-of-type order. */
-#f4-account-page>aside button[data-sa-group="overview"] .sa-nav-icon{background:#ede9ff}
-#f4-account-page>aside button[data-sa-group="treasury"] .sa-nav-icon{background:#fff0db}
-#f4-account-page>aside button[data-sa-group="accounts"] .sa-nav-icon{background:#e5f1ff}
-#f4-account-page>aside button[data-sa-group="content"] .sa-nav-icon{background:#eee9ff}
-#f4-account-page>aside button[data-sa-group="bank"] .sa-nav-icon{background:#dff8ec}
-#f4-account-page>aside button[data-sa-group="masters"] .sa-nav-icon{background:#e5f5fc}
-#f4-account-page>aside button[data-sa-group="audit"] .sa-nav-icon{background:#f0eaff}
+.sa-nav-icon{display:block;width:18px;height:18px;padding:0;border-radius:0;background:transparent;flex:none;object-fit:contain}
 #f4-account-page>main .f4-work-heading{border:0;margin-bottom:16px;padding-bottom:0}
 #f4-account-page>main .f4-work-heading h2{font-size:27px;letter-spacing:-.7px;font-weight:750;color:var(--modern-ink)}
 #f4-account-page>main .f4-work-heading p{font-size:13px;margin:7px 0 0;color:var(--modern-muted)}
