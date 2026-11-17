@@ -256,8 +256,9 @@
  .f4p-photo-overlay.f4g-social-enabled .f4p-photo-count{
   flex:0 0 auto;align-self:center;padding:4px 0 7px;font-size:11px;
  }
+ /* On phones use horizontal swipe. Do not overlay big navigation circles on faces. */
  .f4p-photo-overlay.f4g-social-enabled .f4p-photo-arrow{
-  width:36px;height:40px;background:#191b24b8;
+  display:none;
  }
  .f4p-photo-overlay.f4g-social-enabled .f4g-photo-side{
   display:flex;flex:0 0 auto;gap:6px;
