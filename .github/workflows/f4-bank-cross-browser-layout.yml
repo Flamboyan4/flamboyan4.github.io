@@ -9,6 +9,7 @@ on:
       - portal-live/bank-member-navigation.css
       - qa/bank-cross-browser-layout.py
       - qa/bank-member-dock-layout.py
+      - qa/bank-member-dock-runtime.py
       - .github/workflows/f4-bank-cross-browser-layout.yml
   workflow_dispatch:
 permissions:
@@ -28,6 +29,11 @@ jobs:
         run: |
           python3 -m http.server 8766 --bind 127.0.0.1 >/tmp/f4-member-dock-http.log 2>&1 &
           python3 qa/bank-member-dock-layout.py
+      - name: Verify real member app tabs and report navigation
+        if: always()
+        run: |
+          python3 -m http.server 8766 --bind 127.0.0.1 >/tmp/f4-member-runtime-http.log 2>&1 &
+          python3 qa/bank-member-dock-runtime.py
       - name: Audit production source on both browser engines
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/f4-local-http.log 2>&1 &
@@ -40,4 +46,5 @@ jobs:
           path: |
             ops-audit/bank-cross-browser/
             ops-audit/bank-member-dock/
+            ops-audit/bank-member-runtime/
           retention-days: 7
