@@ -358,3 +358,45 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-direct-book > main > *{min-width:0;max-width:1200px}
  body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
 }
+
+
+/* 2026-11-17: shared tactile click feedback, all Flamboyan portals. */
+/* Suppress the browser's rectangular/grey tap flash while retaining the
+   active menu state and visible keyboard focus for accessibility. */
+@media screen{
+ html{-webkit-tap-highlight-color:transparent}
+ :where(
+  button,a,summary,[role="button"],[role="link"],[role="tab"],[role="menuitem"],
+  [data-bank-app-route],[onclick]:not(input):not(select):not(textarea),.cursor-pointer
+ ){
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;
+  user-select:none
+ }
+ :where(
+  button,a,summary,[role="button"],[role="link"],[role="tab"],[role="menuitem"],
+  [data-bank-app-route],[onclick]:not(input):not(select):not(textarea),.cursor-pointer
+ ):focus:not(:focus-visible){outline:none}
+}
+/* Gentle press feedback only for touch input; no transform/scale that could
+   misalign a popup, bottom sheet, anchored badge, or fixed navigation. */
+@media screen and (hover:none) and (pointer:coarse){
+ :where(
+  button,a,summary,[role="button"],[role="link"],[role="tab"],[role="menuitem"],
+  [data-bank-app-route],[onclick]:not(input):not(select):not(textarea),.cursor-pointer
+ ):not(:disabled):not([aria-disabled="true"]){
+  transition:opacity .14s ease-out
+ }
+ :where(
+  button,a,summary,[role="button"],[role="link"],[role="tab"],[role="menuitem"],
+  [data-bank-app-route],[onclick]:not(input):not(select):not(textarea),.cursor-pointer
+ ):not(:disabled):not([aria-disabled="true"]):active{
+  opacity:.88
+ }
+}
+@media (prefers-reduced-motion:reduce){
+ :where(
+  button,a,summary,[role="button"],[role="link"],[role="tab"],[role="menuitem"],
+  [data-bank-app-route],[onclick]:not(input):not(select):not(textarea),.cursor-pointer
+ ){transition-duration:0s}
+}
