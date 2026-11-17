@@ -30,7 +30,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 #dashboardView #sideNav :is(button,.v16-item).active,
 #v11Public #v18PublicSide button.active{
  background:#e4f6d5;color:#196e40;
- box-shadow:none;border:0;border-radius:14px;font-weight:750
+ box-shadow:none;border:0;border-radius:10px;font-weight:750
 }
 #dashboardView #sideNav button:not(.active):hover,
 #v11Public #v18PublicSide button:not(.active):hover{
@@ -2177,18 +2177,26 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  }
  body.f4-bank-app-admin #sideNav .v16-brand img{width:42px;height:42px}
  body.f4-bank-app-admin #sideNav .v16-nav-caption{
-  padding:11px 10px 7px;color:#819489;font-size:10px;letter-spacing:.06em
+  padding:10px 12px 5px;color:#8290a7;font-size:10px;letter-spacing:.055em
  }
- body.f4-bank-app-admin #sideNav #v16NavList{gap:1px}
+ body.f4-bank-app-admin #sideNav #v16NavList{gap:0}
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
-  min-height:37px;padding:7px 10px;gap:10px;
-  border-radius:10px;font-size:12.5px;line-height:1.25
+  box-sizing:border-box;min-height:43px;margin:2px 0;padding:10px 12px;gap:10px;
+  border-radius:10px;color:#333b54;font:650 13px/1.25 system-ui,-apple-system,sans-serif
+ }
+ body.f4-bank-app-admin #sideNav #v16NavList .f4-bank-nav-divider{
+  box-sizing:border-box;margin:14px 0 3px;padding:16px 12px 5px;
+  border-top:1px solid #d6e6d9;color:#8290a7;
+  font:800 10px/1.2 system-ui;letter-spacing:.055em
  }
  /* Setoran dan Penjualan tetap tersedia melalui dua tombol utama di Beranda. */
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item:is([data-group="deposit"],[data-group="sale"]){
   display:none
  }
- body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{width:22px;height:22px}
+ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item svg{
+  box-sizing:border-box;width:18px;height:18px;min-width:18px;padding:0;
+  border-radius:0;background:transparent;color:currentColor;fill:none;stroke:currentColor
+ }
  body.f4-bank-app-admin #sideNav #v15Footer{display:none}
  body.f4-bank-app-admin #dashboardView .f4-bank-screen{
   padding:19px 20px;border:1px solid #dfeae2;border-radius:15px;background:#fff
