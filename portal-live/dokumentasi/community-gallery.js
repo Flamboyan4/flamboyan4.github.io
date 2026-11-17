@@ -506,38 +506,58 @@ async function uploadDialog(){
    const arrow=elem('span','f4g-upload-choice-arrow');
    arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
    trigger.append(label,arrow);
-   const list=elem('div','f4g-upload-choice-list');list.hidden=true;
+   // Options live in a separate layer over the ENTIRE upload modal, not the scrolling form.
+   // This keeps the list above the fixed upload footer on Chrome/Firefox Android.
+   const overlay=elem('div','f4g-upload-picker-overlay');overlay.hidden=true;
+   const sheet=elem('section','f4g-upload-picker-sheet');
+   const head=elem('div','f4g-upload-picker-head'),title=elem('strong','',placeholder);
+   const dismiss=button(null,'close',null,'f4g-upload-picker-close');
+   dismiss.setAttribute('aria-label','Tutup pilihan');
+   head.append(title,dismiss);
+   const list=elem('div','f4g-upload-choice-list');
    list.setAttribute('role','listbox');list.setAttribute('aria-label',placeholder);
-   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||placeholder;};
-   const close=()=>{list.hidden=true;trigger.setAttribute('aria-expanded','false')};
+   list.tabIndex=0;
+   sheet.append(head,list);overlay.append(sheet);
+   dlg.panel.append(overlay);
+   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||placeholder};
+   const close=(returnFocus=false)=>{
+    const wasOpen=!overlay.hidden;
+    overlay.hidden=true;trigger.setAttribute('aria-expanded','false');
+    if(returnFocus&&wasOpen&&trigger.isConnected)trigger.focus({preventScroll:true});
+   };
    const paint=()=>{
     list.replaceChildren();
     for(const option of select.options){
-     const button=elem('button','f4g-upload-choice-option'+(option.value===select.value?' selected':''),option.textContent);
-     button.type='button';button.setAttribute('role','option');button.setAttribute('aria-selected',String(option.value===select.value));
-     button.onclick=()=>{
-      select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));
-      sync();close();
+     const choice=elem('button','f4g-upload-choice-option'+(option.value===select.value?' selected':''),option.textContent);
+     choice.type='button';choice.setAttribute('role','option');
+     choice.setAttribute('aria-selected',String(option.value===select.value));
+     choice.onclick=()=>{
+      select.value=option.value;
+      select.dispatchEvent(new Event('change',{bubbles:true}));
+      sync();close(true);
      };
-     list.append(button);
+     list.append(choice);
     }
    };
    trigger.onclick=()=>{
     if(trigger.disabled)return;
-    const show=list.hidden;
-    // Only one dropdown may be open within the modal.
-    dlg.panel.querySelectorAll('.f4g-upload-choice-list').forEach(x=>x.hidden=true);
-    dlg.panel.querySelectorAll('.f4g-upload-choice-button').forEach(x=>x.setAttribute('aria-expanded','false'));
-    if(show){paint();list.hidden=false;trigger.setAttribute('aria-expanded','true')}
+    const open=overlay.hidden;
+    dlg.panel.querySelectorAll('.f4g-upload-picker-overlay').forEach(el=>el.hidden=true);
+    dlg.panel.querySelectorAll('.f4g-upload-choice-button').forEach(el=>el.setAttribute('aria-expanded','false'));
+    if(open){paint();overlay.hidden=false;trigger.setAttribute('aria-expanded','true');list.scrollTop=0}
    };
-   const onOutside=e=>{if(!root.contains(e.target))close()};
-   const onEscape=e=>{if(e.key==='Escape'&&!list.hidden){close();trigger.focus()}};
-   document.addEventListener('pointerdown',onOutside,true);
+   overlay.addEventListener('pointerdown',event=>{if(event.target===overlay)close(true)});
+   dismiss.onclick=()=>close(true);
+   const onEscape=event=>{
+    if(event.key==='Escape'&&!overlay.hidden){
+     event.preventDefault();event.stopImmediatePropagation();close(true);
+    }
+   };
    document.addEventListener('keydown',onEscape,true);
-   dlg.onClose(()=>{document.removeEventListener('pointerdown',onOutside,true);document.removeEventListener('keydown',onEscape,true)});
+   dlg.onClose(()=>document.removeEventListener('keydown',onEscape,true));
    select.addEventListener('change',sync);
    select.classList.add('f4g-upload-source-select');
-   select.after(root);root.append(trigger,list);sync();
+   select.after(root);root.append(trigger);sync();
    return {trigger,refresh:sync};
   };
   const albumChoice=customSelect(album,'Pilih album');
