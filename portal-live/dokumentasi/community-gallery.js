@@ -657,11 +657,11 @@ document.addEventListener('f4:gallery:photo',e=>{
  };
  const actions=side.querySelector('.f4g-photo-actions');
  if(target.id)socialButtons(actions,target,true,renderPreview);
-  f4TagButton(actions,target);
  else{
   actions.replaceChildren(button('Bagikan','share',()=>share(target)));
   renderPreview({comments:[]});
  }
+ f4TagButton(actions,target);
 });
 document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 mount();
