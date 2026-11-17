@@ -1182,7 +1182,10 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
    linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%)
  }
  body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{display:none}
- #dashboardView #pagePribadi #v12Private{
+ /* The V12 API toggles .hidden while loading. Never show an incomplete hero:
+    forcing display:block on #v12Private caused the jump before data arrived. */
+ #dashboardView #pagePribadi #v12Private.hidden{display:none}
+ #dashboardView #pagePribadi #v12Private:not(.hidden){
   position:relative;z-index:1;display:block;box-sizing:border-box;
   min-width:0;max-width:100%
  }
@@ -1353,8 +1356,27 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   background:#087b5e;color:#fff;border:0;box-shadow:0 2px 6px #00543a24
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>strong{font-size:25px}
- #dashboardView #pagePribadi #f4BankSavingsBars{min-height:154px;padding-top:7px}
- #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail{height:87px}
+ /* Small, narrow columns on phones. Leave the actual values and filters intact. */
+ #dashboardView #pagePribadi #f4BankSavingsBars{
+  min-height:112px;padding:6px 2px 6px;gap:5px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars>.f4-bank-savings-bar{
+  flex:0 0 52px;max-width:52px;
+  grid-template-rows:18px minmax(0,1fr) 20px;gap:2px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars[data-chart-group="month"]>.f4-bank-savings-bar{
+  flex-basis:64px;max-width:64px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars[data-chart-group="7"]>.f4-bank-savings-bar,
+ #dashboardView #pagePribadi #f4BankSavingsBars[data-chart-group="30"]>.f4-bank-savings-bar{
+  flex:1 0 34px;max-width:none
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail{
+  height:58px;max-width:30px;gap:3px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail i{
+  max-width:12px;border-radius:6px 6px 2px 2px
+ }
  #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
   box-sizing:border-box;margin:0 14px;padding:16px 14px;
   border-radius:21px;box-shadow:0 6px 19px #134b3110
