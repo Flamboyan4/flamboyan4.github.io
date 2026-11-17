@@ -1426,10 +1426,13 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-chevron{
   display:block;flex:none;width:14px;height:14px;transform:rotate(90deg)
  }
+ /* Dropdown opens toward the free space on the left. Never widen the
+    document or move the fixed bottom dock on narrow Android viewports. */
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu{
   display:grid;gap:2px;position:absolute;z-index:20;
-  top:calc(100% + 5px);left:0;min-width:137px;padding:5px;
-  border:1px solid #dce9df;border-radius:11px;background:#fff;
+  top:calc(100% + 5px);right:0;left:auto;
+  width:max-content;min-width:137px;max-width:min(190px,calc(100vw - 36px));
+  padding:5px;border:1px solid #dce9df;border-radius:11px;background:#fff;
   box-shadow:0 12px 25px #144f3427
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu[hidden]{
