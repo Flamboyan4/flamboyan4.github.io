@@ -553,6 +553,44 @@ async def validate_compact_gallery_mobile(browser):
     finally:
         await ctx.close()
 
+async def validate_upload_compact_mobile(browser):
+    """New upload sheet and custom album/category picker; mock requests only."""
+    ctx=await make_context(browser,390,844,upload_enabled=True)
+    page=await ctx.new_page()
+    try:
+        await page.goto(HOST+"/dokumentasi/",wait_until="domcontentloaded",timeout=30000)
+        await page.get_by_role("button",name="Unggah Foto",exact=True).click()
+        modal=page.locator(".f4g-upload-modal")
+        await modal.wait_for(timeout=15000)
+        assert await modal.get_by_text("Pilih Foto",exact=True).is_visible()
+        assert await modal.locator(".f4g-upload-native-file").count()==1
+        assert await modal.locator(".f4g-upload-native-file").evaluate("e=>getComputedStyle(e).opacity")=="0","Native file input must be visually hidden"
+        assert await modal.locator(".f4g-upload-source-select").count()==2,"Album/category should use custom pickers"
+        assert not await modal.locator(".f4g-upload-optional").evaluate("e=>e.open"),"Optional fields should start collapsed"
+        album=modal.get_by_role("button",name="Pilih album")
+        await album.click()
+        assert await modal.get_by_role("listbox",name="Pilih album").is_visible()
+        await modal.get_by_role("listbox",name="Pilih album").get_by_role("option",name="+ Buat album baru").click()
+        assert await modal.get_by_placeholder("Contoh: Arisan November 2026").is_visible()
+        assert await modal.locator(".f4g-upload-optional").evaluate("e=>e.open"),"New album should reveal extra settings"
+        cat=modal.get_by_role("button",name="Kategori album")
+        await cat.click()
+        assert await modal.get_by_role("listbox",name="Kategori album").is_visible()
+        await modal.get_by_role("listbox",name="Kategori album").get_by_role("option",name="Bank Sampah").click()
+        assert await modal.locator(".f4g-upload-optional .f4g-upload-choice-value").inner_text()=="Bank Sampah"
+        footer=modal.locator(".f4g-upload-footer")
+        assert await footer.is_visible()
+        bounds=await footer.evaluate("""e=>{
+          const r=e.getBoundingClientRect(),m=e.closest('.f4g-panel').getBoundingClientRect();
+          return {bottom:r.bottom,modalBottom:m.bottom,screenHeight:innerHeight}
+        }""")
+        assert bounds["bottom"]<=bounds["screenHeight"]+1 and abs(bounds["bottom"]-bounds["modalBottom"])<=3,bounds
+        assert await modal.get_by_role("button",name="Unggah Foto").is_disabled(),"Cannot upload without selected photo"
+        return {"compactUploadMobile":True,"nativeFileButtonHidden":True,
+                "customAlbumCategory":True,"optionalCollapsed":True,"footerVisible":True}
+    finally:
+        await ctx.close()
+
 async def validate_manage_documentation(browser):
     """Photo/album management UI check with mocked API only (no live mutations)."""
     results=[]
@@ -669,6 +707,7 @@ async def main():
             browser = await p.chromium.launch(args=["--no-sandbox"])
             try:
                 results.append(await validate_compact_gallery_mobile(browser))
+                results.append(await validate_upload_compact_mobile(browser))
                 results.append(await validate_member_tags(browser))
                 results.append(await validate_manage_documentation(browser))
                 if os.environ.get("F4_GALLERY_TAG_ONLY")!="1":
