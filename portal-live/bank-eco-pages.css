@@ -382,7 +382,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hi
 #dashboardView #pageProfile .f4-profile-avatar{
   width:76px;height:76px;flex:0 0 76px;overflow:hidden;
   display:grid;place-items:center;border-radius:50%;
-  border:2px solid #9adee8;background:#dff7fa;color:#008796;
+  border:2px solid #9adee8;background:#dff7fa;color:#08775e;
   font-size:23px;font-weight:800;letter-spacing:.03em;
 }
 #dashboardView #pageProfile #v15PhotoPreview{
@@ -411,7 +411,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hi
 #dashboardView #pageProfile .f4-member-name-cancel{
  display:grid;place-items:center;flex:none;width:32px;height:32px;min-height:32px;
  margin:0;padding:0;border:1px solid #b7e9ee;border-radius:9px;
- background:#e5f9fc;color:#008e9b;box-shadow:none;cursor:pointer
+ background:#e5f9fc;color:#08775e;box-shadow:none;cursor:pointer
 }
 #dashboardView #pageProfile .f4-member-name-save{background:#eaf6dc;border-color:#cbe4b0;color:#39782b}
 #dashboardView #pageProfile .f4-member-name-cancel{background:#fff;color:#6e8275}
@@ -447,7 +447,7 @@ body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hi
 /* Both profile dropdowns share the same summary and right-side chevron. */
 #dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary{
   position:relative;display:block;list-style:none;cursor:pointer;
-  padding:15px 36px 15px 15px;color:#146c70;font-size:13px;font-weight:750;
+  padding:15px 36px 15px 15px;color:#08775e;font-size:13px;font-weight:750;
   line-height:1.4;
 }
 #dashboardView #pageProfile :is(#v15PhotoPanel,#v15PasswordBox)>summary::-webkit-details-marker{display:none}
@@ -530,7 +530,7 @@ body.f4-bank-app-member #dashboardView{--bank-brand:#009688;--bank-brand-deep:#0
 #dashboardView .f4-bank-profile-detail h3{font-size:16px;color:#163d30;margin:0;font-weight:850}
 #dashboardView .f4-bank-profile-detail .f4-bank-profile-card{max-width:530px;pointer-events:none;cursor:default}
 #dashboardView .f4-bank-profile-card-note{font-size:11px;color:#6a7f70;margin:0}
-#dashboardView .f4-bank-profile-copy{justify-self:start;min-height:38px;padding:9px 12px;border:1px solid #b7e7ee;border-radius:11px;background:#e5f9fc;color:#007d8e;font-weight:750;font-size:12px}
+#dashboardView .f4-bank-profile-copy{justify-self:start;min-height:38px;padding:9px 12px;border:1px solid #b7e7ee;border-radius:11px;background:#e5f9fc;color:#08775e;font-weight:750;font-size:12px}
 #dashboardView #pageProfile .f4-bank-profile-detail + h2{margin-top:12px}
 /* Single ATM anatomy shared by dashboard and the cloned profile card. */
 #dashboardView .f4-bank-member-card-head{
@@ -1022,7 +1022,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  font-size:19px;line-height:1.2;overflow-wrap:anywhere;
  color:#14794e;font-variant-numeric:tabular-nums
 }
-#dashboardView .f4-bank-savings-stat:nth-child(2) strong{color:#087c86}
+#dashboardView .f4-bank-savings-stat:nth-child(2) strong{color:#08775e}
 /* Setoran terakhir is a mobile-specific visual. Keep the PC layout unchanged. */
 #dashboardView #pagePribadi #f4BankLatestComposition,
 #dashboardView #pagePribadi #f4BankCategoryTotals,
@@ -1154,7 +1154,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-amount{display:grid;justify-items:end;gap:4px;min-width:0;max-width:130px}
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-amount strong{text-align:right;color:#009688;font-size:14px;font-weight:850;line-height:1.2;white-space:nowrap;font-variant-numeric:tabular-nums}
 #dashboardView #pagePribadi #v12Deposits .f4-member-tx-amount small{color:#76887d;font-size:10px;font-weight:600;white-space:nowrap}
-#dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt{display:grid;place-items:center;box-sizing:border-box;width:36px;height:36px;min-width:36px;min-height:36px;margin:0;padding:7px;border:1px solid #b6e5eb;border-radius:11px;background:#e5f9fc;color:#008d9b;box-shadow:none;cursor:pointer}
+#dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt{display:grid;place-items:center;box-sizing:border-box;width:36px;height:36px;min-width:36px;min-height:36px;margin:0;padding:7px;border:1px solid #b6e5eb;border-radius:11px;background:#e5f9fc;color:#08775e;box-shadow:none;cursor:pointer}
 #dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt svg{display:block;width:20px;height:20px;fill:none;stroke:currentColor}
 #dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt:focus-visible{outline:2px solid #009688;outline-offset:2px}
 #dashboardView #pagePribadi #v12Deposits .f4-member-deposit-receipt:active{background:#d4f3f7}
@@ -1550,7 +1550,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 }
 #dashboardView .f4-bank-weigh-copy{display:grid;gap:3px;min-width:0}
 #dashboardView .f4-bank-weigh-copy small{
- font-size:10px;font-weight:850;letter-spacing:.07em;color:#147e98
+ font-size:10px;font-weight:850;letter-spacing:.07em;color:#08775e
 }
 #dashboardView .f4-bank-weigh-copy strong{
  font-size:clamp(17px,2.7vw,21px);font-weight:850;line-height:1.22;
@@ -1613,7 +1613,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-request-state{display:inline-flex;justify-content:center;align-items:center;padding:5px 9px;border-radius:999px;font-size:10px;font-weight:800;color:#755b21;background:#fff3d4;white-space:nowrap;text-transform:capitalize}
 .f4-bank-request-state.is-dibayar{background:#ddf4e4;color:#08613c}
 .f4-bank-request-state.is-ditolak{background:#ffebe7;color:#c4493d}
-.f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#225eaa}
+.f4-bank-request-state.is-disetujui{background:#e6f1ff;color:#287ab0}
 #dashboardView .f4-bank-report-period{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(112px,.8fr) 44px;gap:8px;align-items:end}
 #dashboardView .f4-bank-report-period>label{min-width:0}
 #dashboardView .f4-bank-report-period :is(#f4BankReportMonth:not(.f4-modern-native-hidden),#f4BankReportYear:not(.f4-modern-native-hidden)){min-width:0;padding-inline:9px;font-size:13px;white-space:nowrap}
@@ -1624,9 +1624,9 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-report-tile:nth-child(3) strong{color:#43a047}
 .f4-bank-report-tile:nth-child(4){border-top:1px solid #e5eee8;border-left:1px solid #e5eee8}
 .f4-bank-report-tile:nth-child(4) strong{color:#a47500}
-.f4-bank-report-tile:nth-child(even) :is(small,strong){color:#287da9}
+.f4-bank-report-tile:nth-child(even) :is(small,strong){color:#287ab0}
 .f4-bank-report-tile small{font-size:12px;color:#607768;font-weight:500}
-.f4-bank-report-tile strong{font-size:19px;line-height:1.2;color:#087f87}
+.f4-bank-report-tile strong{font-size:19px;line-height:1.2;color:#08775e}
 #dashboardView .f4-bank-report-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;gap:var(--f4-control-gap,10px)}
 #dashboardView .f4-bank-report-list{display:grid;gap:0}
 #dashboardView .f4-bank-report-transaction{display:flex;justify-content:space-between;align-items:center;gap:11px;padding:12px 3px;border-bottom:1px solid #e8f0ea}
