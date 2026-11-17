@@ -437,7 +437,21 @@ const notice=(text)=>{const n=el('p',text,'f4-admin-note');main.append(n);return
 const safe=(error)=>String(error&&error.message||error);
 async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
 function sidebar(g=group){
- group=g;side.replaceChildren();
+ group=g;
+ // Keep the same sidebar nodes across route changes. Rebuilding them makes
+ // the logo, icons and active state visibly jump while modules load.
+ const existing=[...side.querySelectorAll('button[data-sa-group]')];
+ if(existing.length===groups.length&&side.querySelector('.f4-sa-brand')&&side.querySelector('.sa-donor-link')){
+  for(const b of existing){
+   const selected=b.dataset.saGroup===g;
+   b.classList.toggle('active',selected);
+   b.setAttribute('aria-current',selected?'page':'false');
+  }
+  document.body.dataset.saArea=g;
+  window.f4SuperadminArea=g;
+  return;
+ }
+ side.replaceChildren();
  const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU','f4-sa-label'));
