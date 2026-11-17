@@ -7,7 +7,7 @@ import json
 import pathlib
 from playwright.async_api import async_playwright
 
-URL="http://127.0.0.1:8765/bank-sampah/"
+URL="http://127.0.0.1:8766/bank-sampah/"
 ROOT=pathlib.Path("ops-audit/bank-member-dock")
 ROOT.mkdir(parents=True, exist_ok=True)
 SIZES=(320,360,390,412,540,760)
