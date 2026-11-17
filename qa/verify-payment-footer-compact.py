@@ -96,6 +96,8 @@ async def run():
                 assert await dialog.get_attribute('aria-labelledby')=='f4-account-title'
                 assert await page.locator('.f4-account-item').count()==2
                 if mobile:
+                    # Entrance animation briefly positions the sheet ~16px lower.
+                    await page.wait_for_timeout(260)
                     geom=await dialog.bounding_box()
                     assert geom and abs((geom['y']+geom['height'])-height)<2,(width,'Not bottom aligned',geom)
                     await page.wait_for_function(
