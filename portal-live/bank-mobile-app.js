@@ -584,8 +584,9 @@ function mountSavings(){
  }
  if(!$("f4BankSavingsStats")){
   const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
-  for(const [title,key] of [["Masuk","f4BankSavingsCredit"],["Dicairkan","f4BankSavingsDebit"]]){
-   const tile=el("div","f4-bank-savings-stat");tile.append(el("small","",title));
+  for(const [title,key] of [["Masuk","f4BankSavingsCredit"],["Dicairkan","f4BankSavingsDebit"],
+    ["Setoran","f4BankSavingsDepositCount"],["Belum sah","f4BankSavingsPendingWeight"]]){
+   const tile=el("div","f4-bank-savings-stat"+(["f4BankSavingsDepositCount","f4BankSavingsPendingWeight"].includes(key)?" is-mobile-extra":""));tile.append(el("small","",title));
    const value=el("strong","","—");value.id=key;tile.append(value);mini.append(tile);
   }
   $("f4BankSavingsHero")?.after(mini);
@@ -595,6 +596,10 @@ function mountSavings(){
   chart.append(el("h3","","Perkembangan Setoran"));
   const bars=el("div","f4-bank-savings-bars","Memuat...");bars.id="f4BankSavingsBars";chart.append(bars);
   $("f4BankSavingsStats")?.after(chart);
+ }
+ if(!$("f4BankLatestComposition")){
+  const latest=el("section","f4-bank-latest-composition");latest.id="f4BankLatestComposition";
+  $("f4BankSavingsChart")?.before(latest);
  }
  // Riwayat becomes the right-hand panel on PC, and remains below the chart on HP.
  const deposits=$("v12Deposits");
@@ -1012,6 +1017,80 @@ function f4PrivateChartSummary(host,entries,mode){
   "Sebagian hasil sah belum tersedia.":"";
  foot.hidden=!foot.textContent;
 }
+/* Latest-deposit composition is a read-only visual of the member's actual item rows.
+   It never estimates category weights or modifies the settlement / payout ledger. */
+function renderLatestComposition(){
+ const host=$("f4BankLatestComposition");if(!host)return;
+ host.replaceChildren();
+ const all=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
+  .filter(row=>!/batal/i.test(String(row?.status||"")))
+  .slice().sort((a,b)=>String(b.tanggal||"").localeCompare(String(a.tanggal||""))||
+   String(b.id||"").localeCompare(String(a.id||"")));
+ const latest=all[0];
+ const heading=el("div","f4-bank-latest-heading");
+ heading.append(el("h3","","Setoran Terakhir"));
+ host.append(heading);
+ if(!memberStatement){
+  host.append(el("p","f4-bank-latest-empty","Memuat setoran terakhir..."));return;
+ }
+ if(!latest){
+  host.append(el("p","f4-bank-latest-empty","Belum ada setoran tercatat."));return;
+ }
+ const isFinal=/terkonfirmasi|confirmed|sah/i.test(String(latest.status||""));
+ heading.append(el("span","f4-bank-latest-status"+(isFinal?" is-final":""),isFinal?"Sudah sah":"Belum sah"));
+ const iso=String(latest.tanggal||"").slice(0,10);
+ if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){
+  const date=new Date(iso+"T12:00:00Z");
+  host.append(el("small","f4-bank-latest-date",
+   new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(date)));
+ }
+ const itemWeights=new Map();
+ for(const part of Array.isArray(latest.rincian)?latest.rincian:[]){
+  const name=String(part?.barang||part?.namaBarang||part?.jenis||"").trim();
+  const weight=part?.beratKg==null?NaN:Number(part.beratKg);
+  if(!name||!Number.isFinite(weight)||weight<=0)continue;
+  itemWeights.set(name,(itemWeights.get(name)||0)+weight);
+ }
+ const items=[...itemWeights].sort((a,b)=>b[1]-a[1]);
+ const knownTotal=items.reduce((sum,entry)=>sum+entry[1],0);
+ const total=latest.beratKg==null?NaN:Number(latest.beratKg);
+ const validBreakdown=items.length>0&&Number.isFinite(total)&&total>0&&Math.abs(knownTotal-total)<.011;
+ const main=el("div","f4-bank-latest-main");
+ const donut=el("div","f4-bank-latest-donut"+(validBreakdown?"":" is-unavailable"));
+ const center=el("div","f4-bank-latest-donut-center");
+ center.append(el("strong","",Number.isFinite(total)?f4PrivateKg(total):"—"),
+  el("small","","Total timbang"));
+ donut.append(center);
+ const detail=el("div","f4-bank-latest-categories");
+ if(validBreakdown){
+  const palette=["#009688","#ffc411","#4285d4","#eb8b39","#8c62bf","#77b85b","#d76583"];
+  let start=0;
+  const stops=[];
+  for(const [index,[name,weight]] of items.entries()){
+   const end=start+weight/knownTotal*100;
+   const color=palette[index%palette.length];
+   stops.push(color+" "+start.toFixed(3)+"% "+end.toFixed(3)+"%");
+   start=end;
+   const row=el("div","f4-bank-latest-category");
+   const label=el("span","f4-bank-latest-category-label");
+   const swatch=el("i");swatch.style.backgroundColor=color;swatch.setAttribute("aria-hidden","true");
+   label.append(swatch,document.createTextNode(name));
+   row.append(label,el("strong","",f4PrivateKg(weight)));detail.append(row);
+  }
+  donut.style.background="conic-gradient("+stops.join(",")+")";
+  donut.setAttribute("role","img");
+  donut.setAttribute("aria-label",items.map(([name,weight])=>name+" "+f4PrivateKg(weight)).join(", "));
+ }else{
+  detail.append(el("p","f4-bank-latest-unavailable",
+   "Rincian jenis atau berat belum tersedia untuk diagram."));
+ }
+ main.append(donut,detail);host.append(main);
+ const footer=el("div","f4-bank-latest-footer");
+ const money=isFinal?latest.nilaiSahRp:latest.estimasiRp;
+ footer.append(el("span","",isFinal?"Hasil penjualan sah":"Perkiraan nilai"),
+  el("strong","",money==null?"—":rupiah(Number(money)||0)));
+ host.append(footer);
+}
 function chartSavings(){
  const root=$("f4BankSavingsChart"),host=$("f4BankSavingsBars");
  if(!root||!host)return;
@@ -1097,6 +1176,13 @@ function syncSavings(){
   "Saldo dari hasil penjualan sah";
  text("f4BankSavingsCredit",memberStatement?rupiah(memberStatement.totalMasuk):"—");
  text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
+ const activeDeposits=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
+  .filter(row=>!/batal/i.test(String(row?.status||"")));
+ const pendingWeight=activeDeposits.filter(row=>!/terkonfirmasi|confirmed|sah/i.test(String(row.status||"")))
+  .reduce((sum,row)=>sum+Math.max(0,Number(row.beratKg)||0),0);
+ text("f4BankSavingsDepositCount",memberStatement?String(activeDeposits.length):"—");
+ text("f4BankSavingsPendingWeight",memberStatement?f4PrivateKg(pendingWeight):"—");
+ renderLatestComposition();
  text("f4BankPayoutBalance",memberStatement?rupiah(memberStatement.saldo):"—");
  const requestButton=$("f4BankRequestSubmit");
  if(requestButton)requestButton.disabled=!requestEnabled||!memberStatement;
