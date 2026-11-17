@@ -209,11 +209,16 @@ footer#pembayaran.f4-payment-footer .f4-payment-action:hover{
 footer#pembayaran.f4-payment-footer .f4-payment-action svg{
  flex:none;width:13px;height:13px
 }
-footer#pembayaran.f4-payment-footer .f4-payment-qris{
- color:#514b69;background:#f6f4fa;border-color:#e1ddea
+footer#pembayaran.f4-payment-footer .f4-payment-row:nth-child(3) .f4-payment-info strong{
+ color:#4d417d;font-weight:760
 }
-footer#pembayaran.f4-payment-footer .f4-payment-qris:hover{
- color:#40395f;background:#eeeaf5
+footer#pembayaran.f4-payment-footer .f4-payment-qris{
+ color:#fff;background:#65568f;border-color:#65568f;
+ font-weight:750;min-height:32px;padding:8px 12px
+}
+footer#pembayaran.f4-payment-footer .f4-payment-qris:hover,
+footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
+ color:#fff;background:#554778;border-color:#554778
 }
 footer#pembayaran.f4-payment-footer .f4-payment-copyright{
  margin:2px 0 0;padding:0;text-align:center;
