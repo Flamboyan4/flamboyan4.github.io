@@ -309,7 +309,7 @@ function f4TagButton(host,target){
    if(!pop.isConnected)return;pop.replaceChildren();
    if(!data.tags?.length)pop.append(elem('span','','Belum ada tag'));
    for(const item of data.tags||[])pop.append(elem('span','f4-tag-chip',item.name));
-   pop.append(button('Kelola','user',()=>{pop.remove();f4TagManager(target)}));
+   if(data.canEdit)pop.append(button('Kelola','user',()=>{pop.remove();f4TagManager(target)}));
   }catch(e){
    pop.textContent=f4TagError(e);
    pop.setAttribute('role','status');
