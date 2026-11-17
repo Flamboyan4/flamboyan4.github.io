@@ -110,6 +110,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  /* One clean mobile banking bar: member identity + global actions. */
  body.f4-bank-app-member #f4-direct-bar{
   box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+  left:0;right:auto;width:100vw;max-width:100vw;min-width:0;
   height:68px;min-height:68px;gap:8px;padding:0 15px;background:#fff;
   border-bottom:1px solid #e8eee9;box-shadow:none
  }
