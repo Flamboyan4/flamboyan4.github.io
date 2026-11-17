@@ -2315,7 +2315,10 @@ async function f4GallerySchema(db){
     "CREATE TABLE IF NOT EXISTS f4_gallery_comments(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,message TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'aktif',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
     "CREATE INDEX IF NOT EXISTS idx_f4_gallery_comments_target ON f4_gallery_comments(target_type,target_id,status,created_at)",
     "CREATE TABLE IF NOT EXISTS f4_gallery_reports(id TEXT PRIMARY KEY,target_type TEXT NOT NULL,target_id TEXT NOT NULL,account_id TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
-     "CREATE TABLE IF NOT EXISTS f4_gallery_share_links(code TEXT PRIMARY KEY,album_ref TEXT NOT NULL,photo_ref TEXT NOT NULL DEFAULT '',image_drive_id TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(album_ref,photo_ref))"
+     "CREATE TABLE IF NOT EXISTS f4_gallery_share_links(code TEXT PRIMARY KEY,album_ref TEXT NOT NULL,photo_ref TEXT NOT NULL DEFAULT '',image_drive_id TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(album_ref,photo_ref))",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_tags(target_type TEXT NOT NULL,target_id TEXT NOT NULL,member_id TEXT NOT NULL,position_x REAL,position_y REAL,added_by TEXT NOT NULL,PRIMARY KEY(target_type,target_id,member_id))",
+    "CREATE INDEX IF NOT EXISTS idx_f4_gallery_tags_member ON f4_gallery_tags(member_id)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_categories(album_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)"
    ];
    for(const statement of statements)await db.prepare(statement).run();
   })().catch(e=>{f4GallerySetup=null;throw e});
@@ -2412,7 +2415,8 @@ async function f4GalleryPublic(db,env){
   const comments=fromLatest?.comments||await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[p.id]);
   popular.push({...p,likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments});
  }
- return ok({albums,photos:data,highlights,popular,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
+ const categories=await list(db,"SELECT album_ref AS albumId,category FROM f4_gallery_categories");
+ return ok({albums,photos:data,highlights,popular,categories,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
 
@@ -2788,6 +2792,19 @@ async function f4GalleryApi(req,env,who,url){
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
  if(path==="/api/v2/gallery/popular"&&method==="GET")return f4GalleryMostLiked(env.DB,env);
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
+ if(path==="/api/v2/gallery/tags"&&method==="GET"){
+  const type=String(url.searchParams.get("type")||""),id=String(url.searchParams.get("id")||"");
+  if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak ditemukan.",404);
+  const tags=await list(env.DB,"SELECT t.member_id AS memberId,m.display_name AS name,t.position_x AS x,t.position_y AS y FROM f4_gallery_tags t JOIN members m ON m.id=t.member_id WHERE t.target_type=? AND t.target_id=? AND m.status='aktif' ORDER BY m.display_name LIMIT 60",[type,id]);
+  return ok({tags});
+ }
+ if(path==="/api/v2/gallery/category"&&method==="GET"){
+  const albumId=String(url.searchParams.get("album")||"");
+  if(!await f4GalleryAlbum(env.DB,albumId))return err("Album tidak ditemukan.",404);
+  const record=await one(env.DB,"SELECT category FROM f4_gallery_categories WHERE album_ref=?",[albumId]);
+  return ok({category:record?.category||""});
+ }
+
  // Pemeriksaan Origin berlaku juga untuk aksi superadmin, sebelum jalur admin.
  if(method==="POST"&&!allowedOrigin(req,env))return err("Asal permintaan tidak diizinkan.",403);
  if(path==="/api/v2/gallery/share"&&method==="POST")return f4ShareCreate(req,env);
@@ -2804,6 +2821,34 @@ async function f4GalleryApi(req,env,who,url){
   }catch(e){return ok({connected:false,writable:false,detail:String(e?.message||"Koneksi Drive gagal.").slice(0,240)});}
  }
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
+ if(path==="/api/v2/gallery/people"&&method==="GET"){
+  const members=await list(env.DB,"SELECT m.id,m.display_name AS name,COALESCE(h.house_number,h.number,'') AS house FROM members m LEFT JOIN households h ON h.id=m.household_id WHERE m.status='aktif' ORDER BY m.display_name LIMIT 250");
+  return ok({members});
+ }
+ if(path==="/api/v2/gallery/tags"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Data tag tidak valid.",400)}
+  const type=String(p.type||""),id=String(p.id||"");
+  if(!await f4GalleryCheckTarget(env.DB,type,id))return err("Konten tidak ditemukan.",404);
+  const owner=type==="photo"?await one(env.DB,"SELECT uploader_id AS actor FROM f4_gallery_photos WHERE id=?",[id]):await one(env.DB,"SELECT created_by AS actor FROM f4_gallery_albums WHERE id=?",[id]);
+  if(who.role!=="superadmin"&&owner?.actor!==who.id)return err("Hanya pengunggah atau pengelola yang dapat mengubah tag.",403);
+  if(!Array.isArray(p.memberIds)||p.memberIds.length>40)return err("Maksimal 40 warga per tag.",400);
+  const ids=[...new Set(p.memberIds.map(String))];
+  if(ids.some(x=>!/^[-\w:]{1,100}$/.test(x)))return err("ID warga tidak valid.",400);
+  for(const memberId of ids)if(!await one(env.DB,"SELECT id FROM members WHERE id=? AND status='aktif'",[memberId]))return err("Warga tidak ditemukan.",400);
+  await env.DB.prepare("DELETE FROM f4_gallery_tags WHERE target_type=? AND target_id=?").bind(type,id).run();
+  for(const memberId of ids)await env.DB.prepare("INSERT INTO f4_gallery_tags(target_type,target_id,member_id,added_by) VALUES(?,?,?,?)").bind(type,id,memberId,who.id).run();
+  return ok({saved:true,count:ids.length});
+ }
+ if(path==="/api/v2/gallery/category"&&method==="POST"){
+  let p;try{p=await body(req)}catch{return err("Kategori tidak valid.",400)}
+  const albumId=String(p.albumId||""),category=String(p.category||"");
+  if(!["","bank_sampah","kerja_bakti","rapat","kegiatan"].includes(category))return err("Kategori tidak tersedia.",400);
+  if(!await f4GalleryAlbum(env.DB,albumId))return err("Album tidak ditemukan.",404);
+  const owner=await one(env.DB,"SELECT created_by AS actor FROM f4_gallery_albums WHERE id=?",[albumId]);
+  if(who.role!=="superadmin"&&owner?.actor!==who.id)return err("Hanya pembuat album atau pengelola yang dapat mengubah kategori.",403);
+  await env.DB.prepare("INSERT INTO f4_gallery_categories(album_ref,category,updated_by) VALUES(?,?,?) ON CONFLICT(album_ref) DO UPDATE SET category=excluded.category,updated_by=excluded.updated_by").bind(albumId,category,who.id).run();
+  return ok({saved:true,category});
+ }
  if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
  if(path==="/api/v2/gallery/album"&&method==="POST"){
   let p;try{p=await body(req)}catch{return err("Format album tidak valid.",400)}
