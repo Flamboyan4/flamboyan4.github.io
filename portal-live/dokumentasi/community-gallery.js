@@ -720,8 +720,15 @@ function mount(){
  const hero=buildGalleryLayout(albums);if(!hero)return;
  const actions=hero.querySelector('.f4g-top-actions');actions.replaceChildren();
  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
- upload.title='Unggah satu atau beberapa foto sekaligus';actions.append(upload);
- if(user?.role==='superadmin')actions.append(button('Kelola Unggahan','shield',adminDialog));
+ upload.title='Unggah satu atau beberapa foto sekaligus';
+ upload.setAttribute('aria-label','Unggah Foto');
+ actions.append(upload);
+ if(user?.role==='superadmin'){
+  const manage=button('Kelola Unggahan','shield',adminDialog);
+  manage.title='Kelola Unggahan';
+  manage.setAttribute('aria-label','Kelola Unggahan');
+  actions.append(manage);
+ }
  if(user?.role==='superadmin'&&ready&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
   window.f4gAdminAutoOpened=true;adminDialog();
  }
