@@ -1265,6 +1265,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan #v17Finance .v17-legend{
  margin:9px 0 0;color:#637d6b;font-size:11px
 }
+#pageLaporan #v17Finance .v17-bars.is-empty+.v17-legend{display:none}
 #pageLaporan #v17Finance .v17-finance-grid .v17-line{
  padding:7px 0;border-bottom:1px solid #e8f0eb
 }
@@ -4123,7 +4124,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     root.replaceChildren();
     const data=Array.isArray(rows)?rows:[];
     root.classList.toggle('is-empty',!data.length);
-    if(!data.length){root.textContent='Belum ada arus kas pada periode ini.';return;}
+    if(!data.length){root.textContent='Belum ada data pada periode ini.';return;}
     const max=Math.max(1,...data.flatMap(r=>keys.map(k=>Math.max(0,Number(r?.[k])||0))));
     data.forEach(r=>{
       const month=r?.periode??r?.bulan??r?.month??'';
@@ -4155,7 +4156,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       d.rincian.forEach(x=>{const line=document.createElement('div');line.className='v17-line';const name=document.createElement('span');name.textContent=x.jenis;
         const amount=document.createElement('strong');amount.textContent=(x.masuk?'+'+rupiah(x.masuk):'')+(x.masuk&&x.keluar?' / ':'')+(x.keluar?'-'+rupiah(x.keluar):'');line.append(name,amount);list.appendChild(line);});
       if(!d.rincian.length)list.textContent='Belum ada transaksi kas periode ini.';
-      $('v17FinanceNote').textContent=d.catatan+' • '+d.transaksi+' transaksi pada '+d.periode+'.';
+      $('v17FinanceNote').textContent=Number(d.transaksi)>0?d.catatan+' • '+d.transaksi+' transaksi pada '+d.periode+'.':'';
     }catch(e){$('v17FinanceNote').textContent='Gagal memuat ringkasan kas: '+(e.message||e);}
   }
   v17SetupFinance();
