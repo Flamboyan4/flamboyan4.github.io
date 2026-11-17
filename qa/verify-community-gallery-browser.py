@@ -43,7 +43,7 @@ SOCIAL = {"ok": True, "likes": 2, "liked": False,
 MOCK_POSTS = []
 TINY_PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAEElEQVR4nGM44VYBRwzEcQB/EhhhaUt3dAAAAABJRU5ErkJggg==")
 
-async def make_context(browser, width, height, suppressed=False, upload_enabled=False, no_new_photos=False):
+async def make_context(browser, width, height, suppressed=False, upload_enabled=False, no_new_photos=False, admin_sample=False):
     ctx = await browser.new_context(viewport={"width": width, "height": height},
                                     has_touch=width<721,
                                     permissions=["clipboard-read", "clipboard-write"])
@@ -78,7 +78,16 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
         elif "/api/v2/gallery/drive-status" in url:
             data = {"ok": True, "connected": True, "writable": True, "detail": "Google Drive siap"}
         elif "/api/v2/gallery/admin" in url:
-            data = {"ok": True, "photos": [], "albums": [], "comments": [], "reports": []}
+            if admin_sample:
+                data = {"ok": True,
+                        "photos": [{"id":"f4photo:audit","albumId":ALBUM_ID,
+                                    "filename":"Foto Perbaikan Fasilitas.jpg",
+                                    "url":"https://lh3.googleusercontent.com/d/"+FILE_ID,
+                                    "uploader":"Warga A5","status":"baru"}],
+                        "albums": [{"id":ALBUM_ID,"title":"Arisan Audit Browser","status":"aktif"}],
+                        "comments": [], "reports": [{"type":"foto","targetId":"f4photo:audit","reason":"Uji laporan warga"}]}
+            else:
+                data = {"ok": True, "photos": [], "albums": [], "comments": [], "reports": []}
         elif re.search(r"/api/v2/gallery(?:\?|$)", url):
             data = dict(GALLERY)
             data["uploadEnabled"] = upload_enabled
@@ -503,6 +512,51 @@ async def validate_suppression(browser):
     finally:
         await context.close()
 
+async def validate_manage_documentation(browser):
+    """Photo/album management UI check with mocked API only (no live mutations)."""
+    results=[]
+    for width, name in ((1365,"pc"),(390,"hp")):
+        ctx=await make_context(browser,width,820,admin_sample=True)
+        page=await ctx.new_page()
+        try:
+            await page.goto(HOST+"/dokumentasi/",wait_until="domcontentloaded",timeout=30000)
+            await page.get_by_role("button",name="Kelola Unggahan",exact=True).click()
+            dialog=page.locator(".f4g-manage-modal")
+            await dialog.wait_for(timeout=15000)
+            tabs=dialog.locator(".f4g-manage-tab")
+            assert await tabs.count()==3,"Expected Foto, Album, Laporan tabs"
+            assert await dialog.locator(".f4g-manage-section:not([hidden]) .f4g-manage-item").count()==1
+            assert await dialog.locator(".f4g-manage-menu:not([hidden])").count()==0
+            menu=dialog.locator(".f4g-manage-more").first
+            await menu.click()
+            assert await dialog.locator(".f4g-manage-menu:not([hidden])").count()==1
+            assert await dialog.get_by_role("button",name="Pindah album").count()==1
+            assert await dialog.get_by_role("button",name="Sembunyikan").count()==1
+            assert await dialog.get_by_role("button",name="Hapus foto").count()==1
+            await dialog.get_by_role("button",name="Pindah album").click()
+            assert await dialog.get_by_role("combobox",name="Album tujuan").is_visible()
+            # Opening an action is read-only; do not submit any destructive operation.
+            await tabs.nth(1).click()
+            assert await dialog.locator(".f4g-manage-section:not([hidden]) .f4g-manage-item").count()==1
+            await dialog.locator(".f4g-manage-section:not([hidden]) .f4g-manage-more").click()
+            assert await dialog.get_by_role("button",name="Ubah nama").is_visible()
+            assert await dialog.get_by_role("button",name="Arsipkan album").is_visible()
+            await tabs.nth(2).click()
+            assert await dialog.locator(".f4g-manage-report").count()==1
+            bounds=await dialog.evaluate("""e=>{
+                const r=e.getBoundingClientRect();
+                return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+                        screenWidth:innerWidth,screenHeight:innerHeight}
+            }""")
+            assert bounds["left"]>=-1 and bounds["right"]<=bounds["screenWidth"]+1,bounds
+            assert bounds["top"]>=-1 and bounds["bottom"]<=bounds["screenHeight"]+1,bounds
+            assert await page.evaluate("getComputedStyle(document.documentElement).scrollbarWidth")=="none"
+            results.append({"device":name,"tabs":3,"contextActions":True,"noStackedButtons":True,
+                            "withinViewport":True,"scrollbarHidden":True})
+        finally:
+            await ctx.close()
+    return {"manageDocumentation":results}
+
 async def validate_member_tags(browser):
     """UI save test in desktop and mobile; API writes are mocked, never touch D1."""
     reports = []
@@ -574,6 +628,7 @@ async def main():
             browser = await p.chromium.launch(args=["--no-sandbox"])
             try:
                 results.append(await validate_member_tags(browser))
+                results.append(await validate_manage_documentation(browser))
                 if os.environ.get("F4_GALLERY_TAG_ONLY")!="1":
                     results.append(await validate_documentation(browser, "pc", 1365, 820))
                     results.append(await validate_documentation(browser, "hp", 390, 844))
