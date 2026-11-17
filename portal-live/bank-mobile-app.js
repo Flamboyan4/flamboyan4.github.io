@@ -1678,56 +1678,51 @@ function adminInsightStagesDraw(){
  const ongoing=entry=>!finished(entry)&&/berjalan|proses|aktif|dikerjakan/i.test(String(entry.status||""));
  const done=rows.filter(finished).length;
  const active=rows.filter(ongoing).length;
- const pct=rows.length?Math.round(done/rows.length*100):0;
- const hero=el("div","f4-bank-admin-stage-hero");
- const heroCopy=el("div","f4-bank-admin-stage-hero-copy");
- heroCopy.append(
-  el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
-  el("small","",rows.length?
-   (done===rows.length?"Semua tahapan sudah tuntas":active?active+" tahap sedang berjalan":"Pantau perkembangan berikutnya"):
-   "Perkembangan akan muncul di sini")
- );
- const percent=el("div","f4-bank-admin-stage-percent",rows.length?pct+"%":"—");
- percent.setAttribute("aria-label",pct+" persen tahapan selesai");
- hero.append(heroCopy,percent);
- const progress=el("div","f4-bank-admin-stage-segments");
- progress.setAttribute("role","progressbar");
- progress.setAttribute("aria-label","Penyelesaian seluruh tahap Bank Sampah");
- progress.setAttribute("aria-valuemin","0");
- progress.setAttribute("aria-valuemax",String(rows.length||1));
- progress.setAttribute("aria-valuenow",String(done));
- const segments=rows.length?rows:[null];
- for(const entry of segments){
-  const segment=el("span","f4-bank-admin-stage-segment"+(!entry?"":finished(entry)?" is-done":ongoing(entry)?" is-active":""));
-  segment.setAttribute("aria-hidden","true");progress.append(segment);
- }
- const milestones=el("ol","f4-bank-admin-stage-milestones");
+ // Labels stay concise on the home screen; full titles remain accessible by hover and on Lihat semua.
+ const shortTitle=(raw)=>{
+  const title=String(raw||"").trim();
+  if(/sosialisasi/i.test(title))return "Sosialisasi";
+  if(/perancangan|alur kerja|administrasi/i.test(title))return "Alur kerja";
+  if(/wadah|pembuatan/i.test(title))return "Wadah";
+  if(/persiapan|pembersihan/i.test(title))return "Persiapan";
+  return title.length>20?title.slice(0,18).trimEnd()+"…":title;
+ };
+ const compact=el("div","f4-bank-admin-stage-compact");
+ const progressText=el("div","f4-bank-admin-stage-overline");
+ const amount=el("strong","",rows.length?done+"/"+rows.length+" tahap selesai":"Belum ada tahap");
+ const state=el("span","",rows.length?
+  (active?active+" sedang berjalan":done===rows.length?"Progres tuntas":"Progres kegiatan"):
+  "Menunggu data");
+ progressText.append(amount,state);
+ const steps=el("ol","f4-bank-admin-stage-flow");
+ steps.setAttribute("aria-label","Urutan tahapan Bank Sampah");
  for(const [index,item] of rows.slice(0,4).entries()){
   const status=String(item.status||"Tercatat");
   const isDone=finished(item),isActive=ongoing(item);
-  const name=String(item.title||item.stage||"Tahap "+(index+1));
-  const tile=el("li","f4-bank-admin-stage-tile "+(isDone?"is-done":isActive?"is-active":"is-waiting"));
-  tile.title=name+" — "+status;
-  tile.setAttribute("aria-label","Tahap "+(index+1)+". "+name+". "+status);
-  const top=el("div","f4-bank-admin-stage-tile-top");
-  const icon=el("span","f4-bank-admin-stage-tile-icon");
-  icon.setAttribute("aria-hidden","true");
+  const full=String(item.title||item.stage||"Tahap "+(index+1));
+  const step=el("li","f4-bank-admin-stage-flow-item "+(isDone?"is-done":isActive?"is-active":"is-waiting"));
+  step.title=full+" — "+status;
+  step.setAttribute("aria-label","Tahap "+(index+1)+": "+full+" — "+status);
+  const dot=el("span","f4-bank-admin-stage-flow-dot");
+  dot.setAttribute("aria-hidden","true");
   if(isDone){
-   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-   svg.setAttribute("viewBox","0 0 24 24");
+   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   icon.setAttribute("viewBox","0 0 24 24");
    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
    path.setAttribute("d","m5 12 4 4L19 6");
-   path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");
-   path.setAttribute("stroke-width","2.8");path.setAttribute("stroke-linecap","round");
-   path.setAttribute("stroke-linejoin","round");svg.append(path);icon.append(svg);
-  }else icon.textContent=String(index+1);
-  const label=el("span","f4-bank-admin-stage-tile-status",isDone?"Selesai":isActive?"Berjalan":status);
-  top.append(icon,label);
-  tile.append(top,el("strong","f4-bank-admin-stage-tile-title",name));
-  milestones.append(tile);
+   path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","2.7");
+   path.setAttribute("fill","none");path.setAttribute("stroke-linecap","round");
+   path.setAttribute("stroke-linejoin","round");icon.append(path);dot.append(icon);
+  }else dot.textContent=String(index+1);
+  const name=el("span","f4-bank-admin-stage-flow-label",shortTitle(full));
+  step.append(dot,name);steps.append(step);
  }
- if(!rows.length)milestones.append(el("li","f4-bank-admin-stage-empty","Belum ada tahapan untuk ditampilkan."));
- host.replaceChildren(hero,progress,milestones);
+ if(!rows.length)steps.append(el("li","f4-bank-admin-stage-empty","Belum ada tahapan untuk ditampilkan."));
+ if(rows.length>4){
+  const more=el("small","f4-bank-admin-stage-extra","+"+(rows.length-4)+" tahap lain di Lihat semua");
+  compact.append(progressText,steps,more);
+ }else compact.append(progressText,steps);
+ host.replaceChildren(compact);
 }
 function adminInsightFetch(force=false){
  if(roleType()!=="admin")return;
