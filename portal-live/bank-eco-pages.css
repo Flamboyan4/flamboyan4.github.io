@@ -1394,21 +1394,28 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   padding:5px 10px;border:0;border-radius:9px;background:#eef7f2;
   color:#08765c;font-size:11px;font-weight:800
  }
+ /* Two compact header rows; bar plot remains the visual priority. */
  #dashboardView #pagePribadi #f4BankSavingsChart{
-  box-sizing:border-box;padding:12px 13px 11px;margin:0 14px 15px;
-  border-radius:20px;gap:9px;box-shadow:0 6px 19px #134b3110
+  box-sizing:border-box;grid-template-columns:minmax(0,1fr) auto;
+  column-gap:8px;row-gap:6px;
+  padding:12px 13px 11px;margin:0 14px 15px;
+  border-radius:20px;box-shadow:0 6px 19px #134b3110
  }
  #dashboardView #pagePribadi #f4BankSavingsChart h3{
-  font-size:16px;line-height:1.2
+  grid-column:1;grid-row:1;align-self:center;
+  min-width:0;font-size:16px;line-height:1.2
  }
+ /* Unwrap filter layout so the title and Kg/Rp share one row,
+    while the period picker sits beside the small summary. */
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{
-  justify-content:space-between;gap:7px
+  display:contents
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
   display:none
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-picker{
-  display:block;position:relative;flex:0 0 auto;min-width:0
+  display:block;position:relative;grid-column:2;grid-row:2;
+  justify-self:end;align-self:center;min-width:0
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-trigger{
   box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:9px;
@@ -1437,7 +1444,8 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   background:#e5f5ed;color:#076d50
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
-  box-sizing:border-box;display:flex;align-items:center;flex:0 0 auto;
+  box-sizing:border-box;display:flex;align-items:center;
+  grid-column:2;grid-row:1;justify-self:end;
   gap:2px;margin:0;padding:2px;border:0;border-radius:10px;
   background:#eff5f0
  }
@@ -1450,7 +1458,8 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   background:#087b5e;color:#fff;box-shadow:0 2px 6px #00543a24
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary{
-  display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 9px
+  display:flex;grid-column:1;grid-row:2;align-self:center;
+  flex-wrap:wrap;align-items:baseline;gap:2px 7px;min-width:0
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>span{
   font-size:10px;line-height:1.2
@@ -1459,10 +1468,12 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   font-size:16px;line-height:1.15
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>small{
-  flex:0 0 100%;font-size:10px;line-height:1.35
+  flex:0 0 100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:10px;line-height:1.25
  }
  /* Bars, not surrounding controls, are the main visual on mobile. */
  #dashboardView #pagePribadi #f4BankSavingsBars{
+  grid-column:1/-1;grid-row:3;
   min-height:157px;padding:6px 2px 4px;gap:5px
  }
  #dashboardView #pagePribadi #f4BankSavingsBars>.f4-bank-savings-bar{
@@ -1483,7 +1494,10 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   max-width:22px;border-radius:7px 7px 2px 2px
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-legend{
-  gap:7px 13px;font-size:10px
+  grid-column:1/-1;grid-row:4;gap:5px 12px;font-size:10px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-note{
+  grid-column:1/-1;grid-row:5;margin:0
  }
  #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
   box-sizing:border-box;margin:0 14px;padding:16px 14px;
@@ -1507,7 +1521,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #pagePribadi #f4BankCategoryTotals,
  #dashboardView #pagePribadi #f4BankSavingsChart,
  #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{margin-inline:11px}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:4px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{display:contents}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-trigger{
   min-width:95px;padding:6px 8px;font-size:10px
  }
