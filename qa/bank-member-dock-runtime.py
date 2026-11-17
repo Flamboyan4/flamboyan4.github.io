@@ -12,6 +12,19 @@ PREPARE="""() => {
  b.classList.remove('f4-bank-app-admin');
  document.getElementById('authView')?.classList.add('hidden');
  document.getElementById('dashboardView')?.classList.remove('hidden');
+ // Legacy goPage expects both its original buttons and pages after authenticated setup.
+ // Fake their missing shells rather than invoking any login/API.
+ const names=['dashboard','profile','setoran','riwayat','riwayatJual','penjualan','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress','password'];
+ const host=document.querySelector('#dashboardView>.grid>.section'),side=document.getElementById('sideNav');
+ for(const name of names){
+   const title=name.charAt(0).toUpperCase()+name.slice(1);
+   if(!document.getElementById('page'+title)){
+     const e=document.createElement('section');e.id='page'+title;e.className='hidden';host?.append(e);
+   }
+   if(!document.getElementById('nav'+title)){
+     const e=document.createElement('button');e.id='nav'+title;e.className='hidden';side?.append(e);
+   }
+ }
  window.f4BankReconcileAccount?.();
 }"""
 MEASURE="""() => {
@@ -40,7 +53,7 @@ async def main():
      await page.wait_for_function("typeof window.f4BankReconcileAccount==='function'",timeout=12000)
      await page.evaluate(PREPARE)
      await page.wait_for_timeout(200)
-     for route in ('dashboard','pribadi','bank-history','bank-report','bank-member-info'):
+     for route in ('pribadi','bank-history','bank-report','bank-payout'):
       await page.evaluate(PREPARE)
       await page.evaluate("(route)=>window.goPage(route)",route)
       await page.wait_for_timeout(120)
