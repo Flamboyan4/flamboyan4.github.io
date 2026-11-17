@@ -105,3 +105,27 @@ jobs:
           print("SOURCE_SHA256="+hashlib.sha256(script).hexdigest())
           print("BINDINGS_PRESERVED="+str(len(names)))
           PY
+      - name: Verify live tag endpoints after release (read-only)
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.parse
+          base="https://api.flamboyan4.web.id"
+          headers={"Origin":"https://flamboyan4.web.id","Accept":"application/json","Cache-Control":"no-cache"}
+          def get(path):
+              with urllib.request.urlopen(urllib.request.Request(base+path,headers=headers),timeout=25) as response:
+                  return json.load(response)
+          gallery=get("/api/v2/gallery")
+          assert gallery.get("ok") is True,"Public gallery unavailable after release"
+          assert isinstance(gallery.get("categories"),list),"New gallery API not active"
+          items=gallery.get("albums") or []
+          if items:
+              album=str(items[0]["id"])
+              q=urllib.parse.urlencode({"type":"album","id":album})
+              tagged=get("/api/v2/gallery/tags?"+q)
+              assert tagged.get("ok") is True and isinstance(tagged.get("tags"),list),"Tag endpoint failed"
+              category=get("/api/v2/gallery/category?"+urllib.parse.urlencode({"album":album}))
+              assert category.get("ok") is True,"Category endpoint failed"
+          bank=get("/api/v2/public/bank")
+          assert bank.get("ok") is True and isinstance(bank.get("albums"),list),"Bank gallery unavailable"
+          print("LIVE_GALLERY_TAG_AND_BANK_READ_SMOKE_OK")
+          PY
