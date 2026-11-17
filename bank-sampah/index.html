@@ -379,15 +379,17 @@ padding:0
     .v18-hamburger{display:grid;place-items:center;width:43px;height:43px;padding:0;flex:none;border:1px solid #d8e6da;border-radius:10px;background:#eaf2e8;color:#285b40}
 .v18-hamburger svg{display:block;width:21px;height:21px;stroke-width:2}
     
-    #v18PublicSide{position:sticky;top:0;height:100dvh;background:white;border-right:1px solid #e1e9de;padding:17px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+    #v18PublicSide{position:sticky;top:0;height:100dvh;background:white;border-right:1px solid #e1e9de;padding:17px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:0}
     #v18PublicSide .v17-public-logo{min-width:0;margin-bottom:17px;padding:8px 8px 17px;border-bottom:1px solid #e1e9de}
     @media(min-width:1024px){
       #v18PublicSide{padding-top:0}
       #v18PublicSide .v17-public-logo{box-sizing:border-box;display:flex;align-items:center;height:56px;min-height:56px;margin:0 -12px 16px;padding:0 18px}
     }
-    #v18PublicSide button{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;color:#506d58;text-align:left;border-radius:9px;padding:12px 13px;font-size:13px;font-weight:700}
-    #v18PublicSide button:hover{background:#edf8eb;color:#2b6943}
-    #v18PublicSide button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
+    #v18PublicSide button{box-sizing:border-box;width:100%;min-height:43px;display:flex;align-items:center;gap:10px;margin:2px 0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#333b54;text-align:left;font:650 13px/1.25 system-ui,sans-serif;cursor:pointer}
+    #v18PublicSide button:hover{background:#f2f9f0;color:#2c7047}
+    #v18PublicSide button svg{box-sizing:border-box;width:18px;height:18px;padding:0;background:transparent;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
+    #v18PublicSide .f4-bank-public-nav-caption{margin:0;padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
+    #v18PublicSide .f4-bank-public-nav-other{margin:14px 0 3px;padding-top:16px;border-top:1px solid #d6e6d9}
     #v18PublicContent{min-width:0;width:100%}
     #v11Public .v17-public-head{justify-content:space-between;padding:11px 24px;position:sticky;top:0;background:#fff}
     #v18PublicHeading{font-size:14px;font-weight:850;color:#2b5b41}
@@ -3949,11 +3951,16 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     let nav=$('v16Navigation');
     if(!nav){
       nav=document.createElement('div');nav.id='v16Navigation';
-      const label=document.createElement('div');label.className='v16-nav-caption';label.textContent='Navigasi';
+      const label=document.createElement('div');label.className='v16-nav-caption';label.textContent='MENU';
       const list=document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
     const list=$('v16NavList');list.replaceChildren();
     v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&v16AdminSidebar.has(g.id)):g.member).forEach(g=>{
+      if(!/admin/i.test(String(profile?.peran||''))&&g.id==='progress'){
+       const other=document.createElement('div');
+       other.className='f4-bank-nav-divider';other.textContent='LAINNYA';
+       other.setAttribute('role','presentation');list.appendChild(other);
+      }
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
@@ -4686,9 +4693,15 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     if(!head||!main)return;
     const side=document.createElement('aside');side.id='v18PublicSide';side.setAttribute('aria-label','Menu portal publik');
     const logo=head.querySelector('.v17-public-logo');if(logo)side.appendChild(logo);
+    const navLabel=document.createElement('div');navLabel.className='f4-bank-public-nav-caption';
+    navLabel.textContent='MENU';side.appendChild(navLabel);
     head.querySelector('.v17-public-links')?.remove();
     const links=[['dashboard','Beranda','home',null],['program','Program','leaf','v17Program'],['progress','Perkembangan','edit','v17Perkembangan'],['docs','Dokumentasi','database','v17Dokumentasi'],['stock','Inventaris','wallet','v17Inventaris']];
     links.forEach(([id,label,icon,target],i)=>{
+      if(id==='docs'){
+       const other=document.createElement('div');other.className='f4-bank-public-nav-caption f4-bank-public-nav-other';
+       other.textContent='LAINNYA';side.appendChild(other);
+      }
       const b=document.createElement('button');b.type='button';b.dataset.publicMenu=id;
       if(i===0)b.classList.add('active');b.append(v16Icon(icon),document.createTextNode(label));
       b.onclick=()=>{
@@ -6512,15 +6525,15 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261113-desktop-compact-steps-v11">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261115-recent-cards-shared-v15">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261117-sidebar-header-aligned-v91">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261117-sidebar-menu-parity-v92">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261114-public-app-v3">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261117-member-admin-sidebar-parity-v28">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261117-sidebar-menu-parity-v29">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261115-firefox-safe-area-v11">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261114-bank-no-scroll-bar-repaint-v2"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261117-admin-stepflow-v54"></script>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261117-sidebar-menu-parity-v55"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261115-flat-estimate-single-frame-v8">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
