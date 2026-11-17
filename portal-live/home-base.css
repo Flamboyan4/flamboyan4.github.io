@@ -163,7 +163,7 @@ footer#pembayaran.f4-payment-footer .f4-payment-inner{
   box-sizing:border-box;width:min(calc(100% - 32px),1120px);margin:0 auto;padding:0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-panel{
-  display:grid;grid-template-columns:minmax(210px,1.4fr) repeat(2,minmax(160px,1fr));
+  display:grid;grid-template-columns:minmax(145px,1.4fr) repeat(2,minmax(125px,1fr));
   align-items:center;column-gap:14px;min-height:46px;
   margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none
 }
