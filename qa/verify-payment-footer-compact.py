@@ -42,6 +42,7 @@ async def main():
                 }""")
                 assert result["bg"] == "rgb(255, 255, 255)", (width,"Footer not white",result)
                 assert result["qrisHref"] == "/assets/qris-flamboyan4.jpg" and result["qrisDownload"], result
+                assert result["qrisBg"] == "rgb(48, 152, 77)", (width,"QRIS should use fresh leaf green",result)
                 assert result["qrisBg"] != result["copyBg"], (width,"QRIS lacks visual priority",result)
                 assert result["overflow"] <= width+1, (width,"Horizontal overflow",result)
                 assert all(a["right"] <= width+1 for a in result["actions"]), (width,"Copy action clipped",result)
@@ -55,12 +56,14 @@ async def main():
                         width,"QRIS should equal the stacked bank methods height",result)
                     assert abs(qr["height"] - (rows[1]["bottom"]-rows[0]["y"])) <= 2, (
                         width,"QRIS and bank column heights differ",result)
-                    assert result["footer"]["height"] <= 120, (width,"Mobile footer too tall",result)
+                    assert abs(qr["height"]-62) <= 2, (width,"Mobile QRIS should be compact at ~62px",result)
+                    assert result["footer"]["height"] <= 105, (width,"Mobile footer too tall",result)
                 else:
                     assert abs(qr["y"]-rows[0]["y"]) <= 5 and abs(rows[0]["y"]-rows[1]["y"]) <= 5, (
                         width,"Desktop footer should use one row",result)
                     assert qr["x"] < rows[0]["x"] < rows[1]["x"], (width,"Desktop column order wrong",result)
-                    assert result["footer"]["height"] <= 95, (width,"Desktop footer too tall",result)
+                    assert result["footer"]["height"] <= 82, (width,"Desktop footer too tall",result)
+                    assert qr["width"] <= 211, (width,"Desktop QRIS button too wide",result)
                 assert result["copyright"]["y"] >= result["qris"]["bottom"]-1, result
                 print(f"PAYMENT_FOOTER_LAYOUT_PASS width={width} height={result['footer']['height']:.1f}px "
                       f"QRIS={qr['height']:.1f}px bankRows={[r['height'] for r in rows]}")
