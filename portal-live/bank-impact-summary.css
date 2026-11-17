@@ -361,7 +361,7 @@ body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar{
  display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
  min-width:0;width:100%;margin:0 0 14px;padding:0
 }
-body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar select{
+body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar select:not(.f4-modern-native-hidden){
  box-sizing:border-box;flex:1 1 auto;min-width:0;width:100%;
  height:43px;margin:0;padding:9px 11px;
  border:1px solid #d0e3d6;border-radius:11px;
@@ -460,7 +460,7 @@ body.f4-bank-app-member #bank-member-info #v25ReportMobileList{
   display:grid;grid-template-columns:minmax(0,1fr) repeat(3,43px);
   align-items:center;gap:7px
  }
- body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar select{
+ body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar select:not(.f4-modern-native-hidden){
   grid-column:1;grid-row:1;min-width:0;width:100%;height:43px
  }
  body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button.f4-control-trigger{
