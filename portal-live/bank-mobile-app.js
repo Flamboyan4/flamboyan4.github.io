@@ -1463,6 +1463,10 @@ function ensureDesktopAdminSidebar(){
  oldLinks.forEach(link=>link.remove());
  const items=document.createDocumentFragment();
  for(const [name,route,iconName] of adminShortcuts){
+  if(route==="master"){
+   const divider=el("div","f4-bank-nav-divider","LAINNYA");
+   divider.setAttribute("role","presentation");items.append(divider);
+  }
   const button=el("button","v16-item f4-bank-desktop-nav-link");
   button.type="button";button.dataset.bankAppRoute=route;
   button.setAttribute("aria-label",name);
