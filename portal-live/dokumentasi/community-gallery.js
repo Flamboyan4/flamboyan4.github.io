@@ -15,6 +15,7 @@ const icons={
  flag:'<path d="M5 22V4m0 1q5-4 9 0t7 0v12q-4 4-9 0t-7 0"/>',
  camera:'<path d="M14 4h-4L8 7H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="14" r="3.5"/>',
  user:'<circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>',
+ edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/>',
  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
  images:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/><circle cx="13" cy="12" r="1.5"/><path d="m9 19 4-4 3 3 2-2 3 3"/>',
  sparkle:'<path d="m12 2 2.3 6.7L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/>'
@@ -364,7 +365,7 @@ function f4TagButton(host,target){
   event.stopPropagation();
   if(f4ActiveTagPopover?.anchor===trigger){f4CloseTagPopover();return}
   f4CloseTagPopover();
-  const pop=elem('div','f4-tag-popup f4-tag-floating');
+  const pop=elem('div','f4-tag-popup f4-tag-floating'+(target.type==='photo'?' f4-tag-photo':''));
   pop.setAttribute('role','group');pop.setAttribute('aria-label','Warga ditandai');
   pop.append(elem('span','f4-tag-loading','Memuat tag…'));
   document.body.append(pop);
@@ -372,10 +373,9 @@ function f4TagButton(host,target){
   const position=()=>{
    if(!trigger.isConnected||!pop.isConnected){f4CloseTagPopover();return}
    const rect=trigger.getBoundingClientRect();
-   const width=Math.min(300,Math.max(220,window.innerWidth-24));
-   const left=Math.min(Math.max(12,rect.left),window.innerWidth-width-12);
-   pop.style.width=width+'px';
-   pop.style.left=left+'px';
+   const width=Math.min(pop.getBoundingClientRect().width,window.innerWidth-24);
+   const preferred=target.type==='album'?rect.right-width:rect.left;
+   pop.style.left=Math.min(Math.max(12,preferred),window.innerWidth-width-12)+'px';
    // Album actions sit near top of dialog; open below. Photo actions sit at bottom; open above.
    const below=target.type==='album'||rect.top<window.innerHeight*.42;
    pop.style.top=below?Math.min(window.innerHeight-pop.offsetHeight-12,rect.bottom+9)+'px':
@@ -406,7 +406,10 @@ function f4TagButton(host,target){
    if(!data.tags?.length)pop.append(elem('span','f4-tag-empty-label','Belum ada warga ditandai'));
    for(const item of data.tags||[])pop.append(elem('span','f4-tag-chip',item.name));
    if(data.canEdit){
-    const manage=button('Kelola Tag','user',()=>{f4CloseTagPopover();void f4TagManager(target)},'f4-tag-manage');
+    pop.classList.add('f4-tag-editable');
+    const manage=button(null,'edit',()=>{f4CloseTagPopover();void f4TagManager(target)},'f4-tag-manage');
+    manage.setAttribute('aria-label','Kelola Tag');
+    manage.title='Ubah tag warga';
     pop.append(manage);
    }
   }catch(e){pop.textContent=f4TagError(e);pop.setAttribute('role','status')}
