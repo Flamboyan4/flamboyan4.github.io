@@ -512,6 +512,39 @@ async def validate_suppression(browser):
     finally:
         await context.close()
 
+async def validate_compact_gallery_mobile(browser):
+    """Visual hierarchy and category filtering on HP; all data remains mocked."""
+    ctx=await make_context(browser,390,844)
+    page=await ctx.new_page()
+    try:
+        await page.goto(HOST+"/dokumentasi/",wait_until="domcontentloaded",timeout=30000)
+        await page.locator("[data-gallery-view=albums]").wait_for(timeout=25000)
+        assert (await page.locator(".portal-section-heading").inner_text()).strip()=="Galeri"
+        assert await page.locator(".f4g-hero-copy").evaluate("e=>getComputedStyle(e).display")=="none"
+        await page.locator("[data-gallery-view=albums]").click()
+        assert await page.locator(".f4g-album-pane .panel-head").evaluate("e=>getComputedStyle(e).display")=="none"
+        dropdown=page.get_by_role("combobox",name="Filter kategori album")
+        await dropdown.wait_for()
+        assert await dropdown.is_visible(),"Mobile category menu missing"
+        assert await page.locator("#media-category-filters .btn").first.evaluate("e=>getComputedStyle(e).display")=="none","Old category buttons still visible"
+        await dropdown.select_option("Arisan")
+        assert await dropdown.input_value()=="Arisan","Category selection lost"
+        assert await page.locator(".media-search").is_visible(),"Album search missing"
+        sizes=await page.locator(".f4g-top-actions .f4g-btn").evaluate_all("""els=>els.map(el=>({
+          width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,
+          accessible:el.getAttribute('aria-label')}))""")
+        assert all(32<=b["width"]<=44 and b["accessible"] for b in sizes),sizes
+        positions=await page.evaluate("""() => {
+          const search=document.querySelector('.f4g-album-tools .media-search').getBoundingClientRect();
+          const filter=document.querySelector('.f4g-category-select').getBoundingClientRect();
+          return {difference:Math.abs(search.top-filter.top),right:filter.right,window:innerWidth}
+        }""")
+        assert positions["difference"]<=5 and positions["right"]<=positions["window"]+1,positions
+        return {"compactGalleryMobile":True,"oneCategoryDropdown":True,
+                "titleDeduplicated":True,"searchSameRow":True,"actionsIconOnly":True}
+    finally:
+        await ctx.close()
+
 async def validate_manage_documentation(browser):
     """Photo/album management UI check with mocked API only (no live mutations)."""
     results=[]
@@ -627,6 +660,7 @@ async def main():
         async with async_playwright() as p:
             browser = await p.chromium.launch(args=["--no-sandbox"])
             try:
+                results.append(await validate_compact_gallery_mobile(browser))
                 results.append(await validate_member_tags(browser))
                 results.append(await validate_manage_documentation(browser))
                 if os.environ.get("F4_GALLERY_TAG_ONLY")!="1":
