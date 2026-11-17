@@ -26,10 +26,11 @@
  }
  /* Navigasi bawah tunggal: Pencairan adalah aksi utama kuning (selalu),
     empat menu lain tetap normal, tanpa bergantung halaman aktif. */
- body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;left:0;right:0;bottom:0;z-index:55;
+ body.f4-bank-app-private #f4BankAppDock.f4-bank-app-dock:not([hidden]){
+  box-sizing:border-box;position:fixed;left:0;right:auto;bottom:0;z-index:55;
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
-  align-items:stretch;gap:2px;width:auto;min-width:0;max-width:none;
+  grid-auto-flow:row;align-items:stretch;gap:2px;
+  width:100vw;max-width:100vw;min-width:0;
   height:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom));
   padding:7px 8px calc(6px + var(--f4-bank-dock-safe-bottom));
   margin:0;overflow:visible;background:#fff;border-top:1px solid #e4ece5;
