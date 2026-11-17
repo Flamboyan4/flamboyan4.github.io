@@ -516,7 +516,16 @@ async def validate_member_tags(browser):
             trigger=page.locator(".f4p-album-overlay .f4-tag-trigger")
             await trigger.wait_for(timeout=15000)
             await trigger.click()
-            await page.locator("body > .f4-tag-floating").get_by_role("button",name="Kelola Tag").click()
+            pop=page.locator("body > .f4-tag-floating")
+            await pop.wait_for(timeout=10000)
+            geometry=await pop.evaluate("""el=>{
+                const r=el.getBoundingClientRect();
+                return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,
+                        width:innerWidth,height:innerHeight,bodyParent:el.parentElement===document.body}
+            }""")
+            assert geometry["bodyParent"] and geometry["left"]>=0 and geometry["right"]<=geometry["width"]+1,geometry
+            assert geometry["top"]>=0 and geometry["bottom"]<=geometry["height"]+1,"Album tags clipped or outside viewport: "+str(geometry)
+            await pop.get_by_role("button",name="Kelola Tag").click()
             await page.locator(".f4-tag-list .f4-tag-row").first.wait_for()
             assert await page.locator(".f4-tag-row").count()==2,"Member selector did not load"
             await page.locator(".f4-tag-row input").first.check()
