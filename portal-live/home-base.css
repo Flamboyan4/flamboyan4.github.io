@@ -153,68 +153,102 @@ body:has(
 
 
 
-/* Portal Utama: compact payment footer, one flat list instead of nested cards. */
+/* Footer Portal Utama — satu area gelap yang menyatu, tanpa card dalam card. */
 footer#pembayaran.f4-payment-footer{
-  box-sizing:border-box;width:100%;margin:0;
-  padding:16px 0 14px;background:#f9f9fd;color:#252442;
-  border-top:1px solid #e7e5f0
+  box-sizing:border-box;width:100%;min-height:0;margin:0;
+  padding:24px 0 15px;background:#20243c;color:#fff;
+  border-top:0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-inner{
-  box-sizing:border-box;width:min(100% - 32px,760px);margin:0 auto;padding:0
+  box-sizing:border-box;width:min(calc(100% - 48px),950px);
+  padding:0;margin:0 auto
 }
 footer#pembayaran.f4-payment-footer .f4-payment-panel{
-  padding:0;border:1px solid #e6e3ef;border-radius:15px;background:#fff;overflow:hidden
+  padding:0;margin:0;background:transparent;border:0;border-radius:0;
+  box-shadow:none;overflow:visible
 }
 footer#pembayaran.f4-payment-footer .f4-payment-heading{
-  display:flex;align-items:center;gap:9px;min-height:44px;
-  padding:11px 15px;border-bottom:1px solid #efedf5
+  display:flex;align-items:center;gap:9px;min-height:0;
+  margin:0;padding:0 0 13px;border-bottom:1px solid #ffffff24
 }
 footer#pembayaran.f4-payment-footer .f4-payment-heading svg{
-  width:17px;height:17px;flex:none;color:#6453c1
+  width:18px;height:18px;flex:none;color:#a79afc
 }
 footer#pembayaran.f4-payment-footer .f4-payment-heading h4{
-  margin:0;font:750 14px/1.3 system-ui;color:#242440
+  margin:0;font:720 14px/1.4 system-ui;color:#fff
 }
 footer#pembayaran.f4-payment-footer .f4-payment-heading>span{
-  margin-left:auto;font:500 11px system-ui;color:#89869a
+  margin-left:auto;font:500 11px system-ui;color:#aaaec4
+}
+footer#pembayaran.f4-payment-footer .f4-payment-list{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;margin:0;padding:10px 0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-row{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:12px 15px;min-height:57px;box-sizing:border-box;
-  border-bottom:1px solid #f0eef5
+  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
+  gap:9px;min-width:0;min-height:58px;padding:9px 15px;
+  background:transparent;border:0;border-right:1px solid #ffffff1f
 }
-footer#pembayaran.f4-payment-footer .f4-payment-row:last-child{border-bottom:0}
+footer#pembayaran.f4-payment-footer .f4-payment-row:first-child{padding-left:0}
+footer#pembayaran.f4-payment-footer .f4-payment-row:last-child{
+  padding-right:0;border-right:0
+}
 footer#pembayaran.f4-payment-footer .f4-payment-info{
   display:flex;flex-direction:column;gap:4px;min-width:0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-info strong{
-  font:720 13px/1.25 system-ui;color:#292741
+  font:700 13px/1.25 system-ui;color:#fff
 }
 footer#pembayaran.f4-payment-footer .f4-payment-info small{
-  font:500 11px/1.3 system-ui;color:#7e7b8e
+  font:450 10px/1.3 system-ui;color:#adb2c9
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  box-sizing:border-box;flex:none;min-height:33px;padding:7px 11px;
-  background:#f1edfb;color:#5d3fb2;border:0;border-radius:9px;
-  text-decoration:none;font:680 11px/1 system-ui;
-  cursor:pointer;box-shadow:none;transition:background-color .15s ease
+  box-sizing:border-box;display:inline-flex;justify-content:center;align-items:center;
+  gap:5px;flex:none;min-height:32px;padding:7px 10px;
+  border:1px solid #ffffff26;border-radius:9px;
+  background:#ffffff13;color:#eeeaff;text-decoration:none;
+  font:650 11px/1 system-ui;cursor:pointer;box-shadow:none;
+  transition:background-color .15s ease
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action:hover{
-  background:#e8e1f8;color:#5132a5
+  background:#ffffff27;color:#fff
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action svg{
-  flex:none;width:14px;height:14px
+  width:14px;height:14px;flex:none
 }
-footer#pembayaran.f4-payment-footer .f4-payment-qris{background:#e8f7f1;color:#08734c}
-footer#pembayaran.f4-payment-footer .f4-payment-qris:hover{background:#d7f1e5;color:#076344}
+footer#pembayaran.f4-payment-footer .f4-payment-qris{
+  color:#d1f3e2;border-color:#3a8b74;background:#0d73533d
+}
+footer#pembayaran.f4-payment-footer .f4-payment-qris:hover{
+  color:#fff;background:#13795580
+}
 footer#pembayaran.f4-payment-footer .f4-payment-copyright{
-  padding:10px 0 0;margin:0;text-align:center;
-  font:400 10px/1.45 system-ui;color:#9290a0
+  padding:11px 0 0;margin:0;border-top:1px solid #ffffff16;
+  font:400 10px/1.4 system-ui;color:#959bb5;text-align:center
 }
-@media(max-width:640px){
-  footer#pembayaran.f4-payment-footer{padding:12px 0 12px}
-  footer#pembayaran.f4-payment-footer .f4-payment-inner{width:calc(100% - 24px)}
-  footer#pembayaran.f4-payment-footer .f4-payment-heading{padding:9px 13px;min-height:39px}
-  footer#pembayaran.f4-payment-footer .f4-payment-row{padding:10px 13px;min-height:54px}
+@media(max-width:720px){
+ footer#pembayaran.f4-payment-footer{padding:18px 0 13px}
+ footer#pembayaran.f4-payment-footer .f4-payment-inner{
+   width:calc(100% - 36px)
+ }
+ footer#pembayaran.f4-payment-footer .f4-payment-heading{
+   padding-bottom:10px
+ }
+ footer#pembayaran.f4-payment-footer .f4-payment-list{
+   grid-template-columns:minmax(0,1fr);padding:5px 0
+ }
+ footer#pembayaran.f4-payment-footer .f4-payment-row,
+ footer#pembayaran.f4-payment-footer .f4-payment-row:first-child,
+ footer#pembayaran.f4-payment-footer .f4-payment-row:last-child{
+   padding:10px 0;min-height:54px;border-right:0;
+   border-bottom:1px solid #ffffff15
+ }
+ footer#pembayaran.f4-payment-footer .f4-payment-row:last-child{border-bottom:0}
+}
+@media(min-width:721px) and (max-width:950px){
+ footer#pembayaran.f4-payment-footer .f4-payment-inner{
+   width:calc(100% - 32px)
+ }
+ footer#pembayaran.f4-payment-footer .f4-payment-row{padding:8px}
+ footer#pembayaran.f4-payment-footer .f4-payment-row:first-child{padding-left:0}
 }
