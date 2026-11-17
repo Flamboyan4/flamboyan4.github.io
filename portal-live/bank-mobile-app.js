@@ -1452,15 +1452,27 @@ function adminMoreShortcut(){
  circle.append(svg);button.append(circle,el("span","", "Lainnya"));
  button.onclick=openAdminMenuSheet;return button;
 }
-/* Satu daftar rute melayani shortcut HP dan sidebar PC; jangan membuat menu duplikat. */
+/* The legacy v16BuildNav() recreates nav children during page transitions.
+   Observe only that list, and restore secondary routes idempotently. */
+let adminNavList=null,adminNavObserver=null;
 function ensureDesktopAdminSidebar(){
  if(role!=="admin")return;
  const list=$("v16NavList");if(!list)return;
+ if(adminNavList!==list){
+  adminNavObserver?.disconnect();
+  adminNavList=list;
+  adminNavObserver=new MutationObserver(()=>{
+   if(role==="admin")ensureDesktopAdminSidebar();
+  });
+  adminNavObserver.observe(list,{childList:true});
+ }
  const anchor=list.querySelector('[data-group="home"]');
  if(!anchor)return;
  const oldLinks=[...list.querySelectorAll(".f4-bank-desktop-nav-link")];
- if(oldLinks.length===adminShortcuts.length)return;
+ const dividers=[...list.querySelectorAll(".f4-bank-nav-divider")];
+ if(oldLinks.length===adminShortcuts.length&&dividers.length===1)return;
  oldLinks.forEach(link=>link.remove());
+ dividers.forEach(divider=>divider.remove());
  const items=document.createDocumentFragment();
  for(const [name,route,iconName] of adminShortcuts){
   if(route==="master"){
@@ -2581,6 +2593,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
+ adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
  resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
