@@ -35,7 +35,7 @@ PHOTO = {"id": "f4photo:audit", "albumId": ALBUM_ID, "driveId": FILE_ID,
                       {"nama": "Warga B2", "message": "Semoga makin kompak"}]}
 GALLERY = {
     "ok": True, "albums": [], "photos": [], "highlights": [PHOTO],
-    "popular": [PHOTO], "suppressedDriveIds": [], "uploadEnabled": False, "maxFiles": 12, "maxFileMb": 5
+    "popular": [PHOTO], "categories": [], "suppressedDriveIds": [], "uploadEnabled": False, "maxFiles": 12, "maxFileMb": 5
 }
 SOCIAL = {"ok": True, "likes": 2, "liked": False,
           "comments": [{"id": "c1", "author": "Warga A5", "message": "Terima kasih semuanya"}]}
@@ -63,6 +63,15 @@ async def make_context(browser, width, height, suppressed=False, upload_enabled=
                 data = {**SOCIAL, "liked": True, "likes": 3}
             else:
                 data = {"ok": True, "created": True}
+        elif "/api/v2/gallery/tags?" in url:
+            data = {"ok": True, "tags": [], "canEdit": True}
+        elif "/api/v2/gallery/people" in url:
+            data = {"ok": True, "members": [
+                {"id": "member-audit-01", "name": "Pak Moyo", "house": "A6/08"},
+                {"id": "member-audit-02", "name": "Pak Riadi", "house": "A5/02"}
+            ]}
+        elif "/api/v2/gallery/category?" in url:
+            data = {"ok": True, "category": ""}
         elif "/api/v2/gallery/social?" in url:
             data = SOCIAL
         elif "/api/v2/gallery/drive-status" in url:
@@ -493,6 +502,49 @@ async def validate_suppression(browser):
     finally:
         await context.close()
 
+async def validate_member_tags(browser):
+    """UI save test in desktop and mobile; API writes are mocked, never touch D1."""
+    reports = []
+    for width, name in ((1365,"pc"),(390,"hp")):
+        context=await make_context(browser,width,820)
+        page=await context.new_page()
+        try:
+            await page.goto(HOST+"/dokumentasi/",wait_until="domcontentloaded",timeout=30000)
+            await page.locator("[data-gallery-view=albums]").wait_for(timeout=25000)
+            await page.locator("[data-gallery-view=albums]").click()
+            await page.locator(".media-album-card",has_text="Arisan Audit Browser").click()
+            trigger=page.locator(".f4p-album-overlay .f4-tag-trigger")
+            await trigger.wait_for(timeout=15000)
+            await trigger.click()
+            await page.get_by_role("button",name="Kelola").click()
+            await page.locator(".f4-tag-list .f4-tag-row").first.wait_for()
+            assert await page.locator(".f4-tag-row").count()==2,"Member selector did not load"
+            await page.locator(".f4-tag-row input").first.check()
+            await page.get_by_role("button",name="Simpan Tag").click()
+            await page.wait_for_timeout(200)
+            posts=[p for p in MOCK_POSTS if "/api/v2/gallery/tags" in p["url"]]
+            assert posts,"Album tag save did not call POST"
+            body=json.loads(posts[-1]["body"])
+            assert body["type"]=="album" and body["id"]==ALBUM_ID and body["memberIds"]==["member-audit-01"],body
+            # Dismiss album and open an individual photo.
+            await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
+            photo_trigger=page.locator(".f4p-photo-stage > .f4-tag-trigger")
+            await photo_trigger.wait_for(timeout=15000)
+            assert await page.locator(".f4p-photo-stage .f4-tag-popup").count()==0,"Photo tags should start hidden"
+            await photo_trigger.click()
+            await page.locator(".f4p-photo-stage .f4-tag-popup").wait_for()
+            await page.locator(".f4p-photo-stage .f4-tag-popup").get_by_role("button",name="Kelola").click()
+            await page.locator(".f4-tag-row input").nth(1).check()
+            await page.get_by_role("button",name="Simpan Tag").click()
+            photo_posts=[p for p in MOCK_POSTS if "/api/v2/gallery/tags" in p["url"] and json.loads(p["body"]).get("type")=="photo"]
+            assert photo_posts,"Photo tag save did not call POST"
+            photo_body=json.loads(photo_posts[-1]["body"])
+            assert photo_body["memberIds"]==["member-audit-02"],photo_body
+            reports.append({"device":name,"albumTagSavedMock":True,"photoTagSavedMock":True,"hiddenUntilTap":True})
+        finally:
+            await context.close()
+    return {"memberTags":reports}
+
 async def main():
     server = subprocess.Popen(["python3", "-m", "http.server", "8766", "--bind", "127.0.0.1"],
                               cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -504,6 +556,7 @@ async def main():
             try:
                 results.append(await validate_documentation(browser, "pc", 1365, 820))
                 results.append(await validate_documentation(browser, "hp", 390, 844))
+                results.append(await validate_member_tags(browser))
                 results.append(await validate_native_video(browser))
                 results.append(await validate_home(browser))
                 results.append(await validate_legacy_home(browser))
