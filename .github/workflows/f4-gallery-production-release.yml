@@ -3,14 +3,6 @@ run-name: "Gallery API release ${{ github.sha }}"
 on:
   workflow_dispatch:
     inputs:
-      worker_name:
-        description: "Nama Worker produksi yang melayani api.flamboyan4.web.id (bukan staging)"
-        required: true
-        type: string
-      expected_d1_uuid:
-        description: "UUID D1 produksi (cek Cloudflare Dashboard sebelum menjalankan)"
-        required: true
-        type: string
       confirmation:
         description: "Ketik DEPLOY_GALLERY_PRODUCTION untuk mengizinkan publikasi"
         required: true
@@ -28,8 +20,6 @@ jobs:
     env:
       CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      WORKER_NAME: ${{ inputs.worker_name }}
-      EXPECTED_D1_UUID: ${{ inputs.expected_d1_uuid }}
       CONFIRMATION: ${{ inputs.confirmation }}
     steps:
       - uses: actions/checkout@v4
@@ -55,12 +45,8 @@ jobs:
           import json,os,urllib.request,pathlib,hashlib,re
           if os.environ["CONFIRMATION"]!="DEPLOY_GALLERY_PRODUCTION":
               raise RuntimeError("Confirmation phrase does not match. Nothing deployed.")
-          worker=os.environ["WORKER_NAME"].strip()
-          uuid=os.environ["EXPECTED_D1_UUID"].strip()
-          if not re.fullmatch(r"[A-Za-z0-9_-]{4,100}",worker) or "staging" in worker.lower():
-              raise RuntimeError("Production Worker name is invalid or is staging.")
-          if not re.fullmatch(r"[a-fA-F0-9-]{36}",uuid):
-              raise RuntimeError("Expected D1 UUID is invalid.")
+          # Discover the Worker actually routed to the live API hostname.
+          # Never infer production from a Worker script name.
           token=os.environ["CF_TOKEN"];account=os.environ["CF_ACCOUNT"]
           if not token or not account:raise RuntimeError("Cloudflare GitHub secrets missing")
           base="https://api.cloudflare.com/client/v4/accounts/"+account
@@ -73,17 +59,30 @@ jobs:
               if data.get("success") is not True:
                   raise RuntimeError("Cloudflare refused request: "+str(data.get("errors")))
               return data.get("result")
+          domains=call("/workers/domains?hostname=api.flamboyan4.web.id")
+          routes=[d for d in domains if d.get("hostname")=="api.flamboyan4.web.id" and d.get("enabled") is True]
+          if len(routes)!=1:
+              raise RuntimeError("Expected exactly one enabled Worker custom domain for api.flamboyan4.web.id. No deployment.")
+          worker=str(routes[0].get("service") or "")
+          if not re.fullmatch(r"[A-Za-z0-9_-]{4,100}",worker):
+              raise RuntimeError("Mapped Worker name invalid. No deployment.")
+          if routes[0].get("environment") not in (None,"","production"):
+              raise RuntimeError("API domain is not attached to the production environment.")
           settings=call("/workers/scripts/"+worker+"/settings")
           bindings=settings.get("bindings") or []
           names={b.get("name"):b for b in bindings}
-          if names.get("DB",{}).get("type")!="d1" or names["DB"].get("id")!=uuid:
-              raise RuntimeError("Production D1 binding ID mismatch. No deployment.")
+          if names.get("DB",{}).get("type")!="d1":
+              raise RuntimeError("Live domain Worker is missing D1. No deployment.")
+          uuid=str(names["DB"].get("id") or "")
+          if not re.fullmatch(r"[a-fA-F0-9-]{36}",uuid):
+              raise RuntimeError("Live D1 binding has invalid UUID. No deployment.")
           if names.get("PHOTOS",{}).get("type")!="r2_bucket" or names.get("ASSETS",{}).get("type")!="assets":
               raise RuntimeError("Required R2/ASSETS binding not recognized. No deployment.")
           databases=call("/d1/database")
           production=next((d for d in databases if d.get("uuid")==uuid),None)
-          if not production or "staging" in str(production.get("name","")).lower():
-              raise RuntimeError("D1 database does not exist or is staging. No deployment.")
+          if not production:
+              raise RuntimeError("Live Worker D1 database was not found. No deployment.")
+          print("VERIFIED_LIVE_DOMAIN_WORKER="+worker+" D1_NAME="+str(production.get("name") or "unknown"))
           script=pathlib.Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
           if len(script)<200000:raise RuntimeError("Worker source truncated")
           flags={k:v.get("text") for k,v in names.items() if k.endswith("_WRITE_ENABLED")}
