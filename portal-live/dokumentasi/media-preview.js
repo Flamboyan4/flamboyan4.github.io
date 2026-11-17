@@ -240,18 +240,59 @@ function drawAlbums(){
 }
 function drawFilters(){
  const box=$('media-category-filters');box.replaceChildren();
- // PC: filter chips; HP: one compact selector so categories never form a second button grid.
+ // PC retains filter buttons; mobile uses a custom panel rather than Android's native picker.
  for(const kind of types){
   const btn=el('button','btn'+(active===kind?'':' outline'),kind);
   btn.type='button';btn.setAttribute('aria-pressed',String(active===kind));
   btn.onclick=()=>{active=kind;drawFilters();drawAlbums()};box.append(btn);
  }
- const select=el('select','f4g-category-select');
- select.setAttribute('aria-label','Filter kategori album');
- for(const kind of types){const option=el('option','',kind);option.value=kind;select.append(option)}
- select.value=active;
- select.onchange=()=>{active=select.value;drawFilters();drawAlbums()};
- box.append(select);
+ const wrap=el('div','f4g-category-dropdown');
+ const trigger=el('button','f4g-category-trigger');
+ trigger.type='button';trigger.setAttribute('aria-label','Filter kategori album');
+ trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+ const name=el('span','f4g-category-current',active);
+ const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('aria-hidden','true');
+ arrow.innerHTML='<path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+ trigger.append(name,arrow);
+ const panel=el('div','f4g-category-menu');
+ panel.setAttribute('role','listbox');panel.setAttribute('aria-label','Kategori album');
+ panel.hidden=true;
+ const close=()=>{panel.hidden=true;trigger.setAttribute('aria-expanded','false')};
+ const choose=kind=>{active=kind;close();drawFilters();drawAlbums()};
+ for(const kind of types){
+  const option=el('button','f4g-category-option'+(active===kind?' selected':''),kind);
+  option.type='button';option.setAttribute('role','option');
+  option.setAttribute('aria-selected',String(kind===active));
+  option.onclick=()=>choose(kind);
+  panel.append(option);
+ }
+ trigger.onclick=()=>{
+  const opening=panel.hidden;
+  panel.hidden=!opening;trigger.setAttribute('aria-expanded',String(opening));
+ };
+ wrap.append(trigger,panel);box.append(wrap);
+ // One delegated listener for all filter renders. No stale listeners per update.
+ if(!document.documentElement.dataset.f4gCategoryListener){
+  document.documentElement.dataset.f4gCategoryListener='1';
+  document.addEventListener('pointerdown',event=>{
+   const current=document.querySelector('#media-category-filters .f4g-category-dropdown');
+   if(current&&!current.contains(event.target)){
+    const menu=current.querySelector('.f4g-category-menu');
+    const button=current.querySelector('.f4g-category-trigger');
+    if(menu)menu.hidden=true;
+    if(button)button.setAttribute('aria-expanded','false');
+   }
+  },true);
+  document.addEventListener('keydown',event=>{
+   const current=document.querySelector('#media-category-filters .f4g-category-dropdown');
+   if(!current)return;
+   const menu=current.querySelector('.f4g-category-menu');
+   const button=current.querySelector('.f4g-category-trigger');
+   if(!menu||menu.hidden)return;
+   if(event.key==='Escape'){event.preventDefault();menu.hidden=true;button.setAttribute('aria-expanded','false');button.focus()}
+  });
+ }
 }
 window.f4GalleryOpenRecent=async(albumId,photoId)=>{
  const album=docs.find(row=>row.id===albumId);
