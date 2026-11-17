@@ -14,7 +14,7 @@ PREPARE="""() => {
  document.getElementById('dashboardView')?.classList.remove('hidden');
  // Legacy goPage expects both its original buttons and pages after authenticated setup.
  // Fake their missing shells rather than invoking any login/API.
- const names=['dashboard','profile','setoran','riwayat','riwayatJual','penjualan','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress','password'];
+ const names=['dashboard','profile','pribadi','setoran','riwayat','riwayatJual','penjualan','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress','password'];
  const host=document.querySelector('#dashboardView>.grid>.section'),side=document.getElementById('sideNav');
  for(const name of names){
    const title=name.charAt(0).toUpperCase()+name.slice(1);
