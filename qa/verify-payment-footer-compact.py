@@ -35,6 +35,9 @@ async def main():
                   const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,height:r.height,width:r.width}};
                   return {footer:rect(footer),panel:rect(panel),title:rect(title),
                     rows:rows.map(rect),copyright:rect(copyright),actions:actions.map(rect),
+                    qrisStyle:{bg:getComputedStyle(actions[2]).backgroundColor,color:getComputedStyle(actions[2]).color,
+                               label:actions[2].innerText.trim(),href:actions[2].getAttribute('href')},
+                    bankStyles:actions.slice(0,2).map(e=>getComputedStyle(e).backgroundColor),
                     outerWidth:document.documentElement.scrollWidth,viewport:innerWidth}
                 }""")
                 limit=88 if width>720 else 126
@@ -51,6 +54,9 @@ async def main():
                     assert abs(title_center-qris_center)<=5,(width,'QR and title should be vertically aligned',result)
                     assert result['rows'][2]['y']>=result['panel']['y']-1,(width,'QR row overflows top of footer',result)
                     assert ys[0]>ys[2],(width,'Mobile row layout is wrong',result)
+                assert result['qrisStyle']['label']=="Unduh QRIS",(width,"QRIS action must be explicit",result)
+                assert result['qrisStyle']['href']=="/assets/qris-flamboyan4.jpg",(width,"QRIS download href must be preserved",result)
+                assert result['qrisStyle']['bg'] not in result['bankStyles'],(width,"QRIS must be more prominent than bank-copy actions",result)
                 assert all(a['right']<=width+1 for a in result['actions']),(width,'Action clipped',result)
                 assert result['copyright']['y']>=result['panel']['y']+result['panel']['height']-1
                 print(f"PAYMENT_FOOTER_LAYOUT_PASS width={width} height={result['footer']['height']:.1f}px "
