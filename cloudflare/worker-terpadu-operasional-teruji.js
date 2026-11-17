@@ -122,6 +122,7 @@ async function authenticatedPortalCashBalance(db){
 }
 __name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
 async function publicBank(db) {
+  await f4GallerySchema(db);
   const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
     list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,
@@ -147,7 +148,14 @@ async function publicBank(db) {
       WHERE s.status='terkonfirmasi'
       GROUP BY substr(s.sold_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
-  return ok({ catalog, albums:albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)})), progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
+  const taggedGalleryAlbums=await list(db,`SELECT g.id,g.title,'Bank Sampah' AS category,substr(g.created_at,1,10) AS event_on,g.description,
+   'bank-sampah' AS portal_scope,COUNT(p.id) AS mediaCount,
+   (SELECT p2.drive_file_id FROM f4_gallery_photos p2 WHERE p2.album_ref=g.id AND p2.status IN ('baru','ditinjau') ORDER BY p2.created_at,p2.id LIMIT 1) AS coverDriveId
+   FROM f4_gallery_albums g
+   JOIN f4_gallery_categories c ON c.album_ref=g.id AND c.category='bank_sampah'
+   LEFT JOIN f4_gallery_photos p ON p.album_ref=g.id AND p.status IN ('baru','ditinjau')
+   WHERE g.status='aktif' GROUP BY g.id ORDER BY g.created_at DESC LIMIT 80`);
+  return ok({ catalog, albums:[...taggedGalleryAlbums.map(a=>({...a,coverUrl:a.coverDriveId?f4GalleryImageUrl(a.coverDriveId):null})),...albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)}))], progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
     ...x,
     photoUrl: urlSafe(x.photoUrl)
   })), overview });
@@ -281,6 +289,13 @@ async function publicBankReport(db, url) {
 }
 __name(publicBankReport, "publicBankReport");
 async function publicAlbum(db, id) {
+  if(String(id).startsWith('galbum:')){
+   await f4GallerySchema(db);
+   const album=await one(db,"SELECT g.id,g.title,g.description,substr(g.created_at,1,10) AS event_on,'Bank Sampah' AS category FROM f4_gallery_albums g JOIN f4_gallery_categories c ON c.album_ref=g.id AND c.category='bank_sampah' WHERE g.id=? AND g.status='aktif'",[id]);
+   if(!album)return err("Album tidak ditemukan.",404);
+   const media=await list(db,"SELECT id,'foto' AS media_type,caption,drive_file_id,created_at FROM f4_gallery_photos WHERE album_ref=? AND status IN ('baru','ditinjau') ORDER BY created_at,id",[id]);
+   return ok({album,media:media.map((m,i)=>({id:m.id,media_type:m.media_type,caption:m.caption,external_url:f4GalleryImageUrl(m.drive_file_id),sort_order:i,hasStoredMedia:0,mediaUrl:null}))});
+  }
   const album = await one(db, `SELECT id,title,category,event_on,description FROM albums WHERE id=? AND visibility='publik' AND status='aktif'`, [id]);
   if (!album) return err("Album tidak ditemukan.", 404);
   const media = await list(db, `SELECT id,media_type,caption,external_url,sort_order,CASE WHEN storage_key IS NULL THEN 0 ELSE 1 END AS hasStoredMedia FROM album_media WHERE album_id=? AND status='aktif' ORDER BY sort_order,id`, [id]);
