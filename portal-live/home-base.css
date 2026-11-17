@@ -174,18 +174,18 @@ footer#pembayaran.f4-payment-footer .f4-payment-rekening{
   transition:background-color .14s ease,border-color .14s ease
 }
 footer#pembayaran.f4-payment-footer .f4-payment-qris{
-  background:#30984d;border:1px solid #30984d;color:#fff
+  background:#6655b3;border:1px solid #6655b3;color:#fff
 }
 footer#pembayaran.f4-payment-footer .f4-payment-qris:hover,
 footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
-  background:#267e40;border-color:#267e40;color:#fff
+  background:#55439f;border-color:#55439f;color:#fff
 }
 footer#pembayaran.f4-payment-footer .f4-payment-rekening{
-  background:#f7f9f8;border:1px solid #dfe6e2;color:#33453d
+  background:#f7f5fc;border:1px solid #e4dff0;color:#4d426d
 }
 footer#pembayaran.f4-payment-footer .f4-payment-rekening:hover,
 footer#pembayaran.f4-payment-footer .f4-payment-rekening:focus-visible{
-  background:#eef3f0;border-color:#cbd9d1
+  background:#efebf8;border-color:#d7cee9
 }
 footer#pembayaran.f4-payment-footer .f4-payment-actions svg,
 footer#pembayaran.f4-payment-footer .f4-payment-actions i[data-lucide]{
@@ -193,76 +193,76 @@ footer#pembayaran.f4-payment-footer .f4-payment-actions i[data-lucide]{
 }
 footer#pembayaran.f4-payment-footer .f4-payment-rekening svg:last-child,
 footer#pembayaran.f4-payment-footer .f4-payment-rekening i[data-lucide="chevron-up"]{
-  width:14px;height:14px;color:#88948e
+  width:14px;height:14px;color:#8b82a2
 }
 /* The overlay remains outside the footer so neither overflow nor stacking clips it. */
 #modal-rekening.f4-account-overlay{
   position:fixed;inset:0;z-index:850;display:flex;
   align-items:center;justify-content:center;
-  background:rgba(19,28,24,.52);padding:16px;box-sizing:border-box
+  background:rgba(29,23,49,.49);padding:16px;box-sizing:border-box
 }
 #modal-rekening.f4-account-overlay.hidden{display:none}
 #modal-rekening .f4-account-dialog{
   position:relative;box-sizing:border-box;width:min(100%,430px);
   min-height:0;max-height:min(88dvh,610px);overflow:auto;
-  border:1px solid #e4e8e5;border-radius:20px;
-  padding:21px 19px 19px;background:#fff;color:#26342d;
-  box-shadow:0 15px 50px rgba(22,34,28,.19);
+  border:1px solid #e9e4f1;border-radius:20px;
+  padding:21px 19px 19px;background:#fff;color:#29253e;
+  box-shadow:0 15px 50px rgba(36,27,63,.17);
   outline:none
 }
 #modal-rekening .f4-account-sheet-grip{display:none}
 #modal-rekening .f4-account-head{
   display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
-  padding:0 0 16px;border-bottom:1px solid #e8ece9
+  padding:0 0 16px;border-bottom:1px solid #eeeaf4
 }
 #modal-rekening .f4-account-title h2{
-  margin:0;color:#26342d;font:750 17px/1.3 system-ui
+  margin:0;color:#29253e;font:750 17px/1.3 system-ui
 }
 #modal-rekening .f4-account-title p{
-  margin:5px 0 0;color:#777f79;font:450 12px/1.4 system-ui
+  margin:5px 0 0;color:#827c8e;font:450 12px/1.4 system-ui
 }
 #modal-rekening .f4-account-close{
   display:flex;align-items:center;justify-content:center;flex:none;
   width:32px;height:32px;padding:7px;
-  background:#f3f5f3;border:0;border-radius:9px;
-  color:#55645b;cursor:pointer
+  background:#f4f1f9;border:0;border-radius:9px;
+  color:#645a78;cursor:pointer
 }
 #modal-rekening .f4-account-close svg,
 #modal-rekening .f4-account-close i[data-lucide]{width:17px;height:17px}
 #modal-rekening .f4-account-list{display:flex;flex-direction:column}
 #modal-rekening .f4-account-item{
   display:flex;align-items:center;justify-content:space-between;
-  gap:12px;min-width:0;padding:15px 0;border-bottom:1px solid #eef0ee
+  gap:12px;min-width:0;padding:15px 0;border-bottom:1px solid #eeebf3
 }
 #modal-rekening .f4-account-item:last-child{border-bottom:0}
 #modal-rekening .f4-account-info{
   display:flex;flex-direction:column;gap:4px;min-width:0
 }
 #modal-rekening .f4-account-info strong{
-  font:720 13px/1.2 system-ui;color:#2c3430
+  font:720 13px/1.2 system-ui;color:#302a40
 }
 #modal-rekening .f4-account-number{
-  font:750 17px/1.25 system-ui;color:#283e30;
+  font:750 17px/1.25 system-ui;color:#3c315d;
   font-variant-numeric:tabular-nums;user-select:text
 }
 #modal-rekening .f4-account-info small{
-  font:450 11px/1.2 system-ui;color:#78817b
+  font:450 11px/1.2 system-ui;color:#847d93
 }
 #modal-rekening .f4-account-copy{
   display:flex;align-items:center;justify-content:center;
   gap:6px;flex:none;min-width:77px;min-height:36px;
-  padding:7px 10px;border:1px solid #d9e7dd;border-radius:10px;
-  background:#eff7f1;color:#287746;font:700 12px system-ui;
+  padding:7px 10px;border:1px solid #ded5f0;border-radius:10px;
+  background:#f2eef9;color:#5a469c;font:700 12px system-ui;
   cursor:pointer
 }
-#modal-rekening .f4-account-copy:hover{background:#e2f2e6}
+#modal-rekening .f4-account-copy:hover{background:#eae3f8}
 #modal-rekening .f4-account-copy svg,
 #modal-rekening .f4-account-copy i[data-lucide]{width:15px;height:15px}
 #modal-rekening .f4-account-copy[data-copied="true"]{
-  background:#e1f2e7;color:#206a3c
+  background:#e8e0f6;color:#4c3a90
 }
 #modal-rekening .f4-account-copy-status{
-  margin:0;color:#49795c;font:500 11px/1.3 system-ui;
+  margin:0;color:#6852a3;font:500 11px/1.3 system-ui;
   min-height:0;text-align:center
 }
 #modal-rekening .f4-account-copy-status:not(:empty){margin-top:6px}
@@ -281,12 +281,12 @@ footer#pembayaran.f4-payment-footer .f4-payment-rekening i[data-lucide="chevron-
     width:100%;max-height:85dvh;overflow-y:auto;
     padding:32px 18px calc(19px + env(safe-area-inset-bottom,0px));
     border:0;border-radius:22px 22px 0 0;
-    box-shadow:0 -12px 40px rgba(22,34,28,.16);
+    box-shadow:0 -12px 40px rgba(36,27,63,.15);
     animation:f4-rekening-up .2s cubic-bezier(.22,.75,.31,1)
   }
   #modal-rekening .f4-account-sheet-grip{
     display:block;position:absolute;top:15px;left:calc(50% - 19px);
-    width:38px;height:4px;margin:0;border-radius:99px;background:#d9e0db
+    width:38px;height:4px;margin:0;border-radius:99px;background:#d5d0e1
   }
   #modal-rekening .f4-account-dialog.f4-sheet-draggable .f4-account-sheet-grip{display:none}
   #modal-rekening .f4-account-item{padding:13px 0}
