@@ -1586,6 +1586,14 @@ body>#side-drawer .f4-book-brand-logo{display:block;width:42px;height:42px;objec
 body>#side-drawer .f4-book-brand-copy{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0}
 body>#side-drawer .f4-book-brand-copy strong{display:block;font:800 13px/1.2 system-ui,sans-serif;color:#5b33c4}
 body>#side-drawer .f4-book-brand-copy small{display:block;font:500 10px/1.2 system-ui,sans-serif;color:#8793a7}
+body>#side-drawer .f4-book-menu-wrap{box-sizing:border-box;padding:14px 8px}
+body>#side-drawer .f4-book-menu-label{padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
+body>#side-drawer .f4-book-menu-list{display:flex;flex-direction:column;gap:0}
+body>#side-drawer .f4-book-menu-list .drawer-item{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;margin:2px 0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#333b54;text-align:left;font:650 13px/1.25 system-ui,sans-serif;box-shadow:none}
+body>#side-drawer .f4-book-menu-list .drawer-item.active{background:#eee7fb;color:#6535d7}
+body>#side-drawer .f4-book-menu-list .drawer-item:hover:not(.active){background:#f5f0fc;color:#6535d7}
+body>#side-drawer .f4-book-menu-list .drawer-item :is(i,svg){display:block;flex:none;width:18px;height:18px;color:currentColor;stroke:currentColor}
+body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;border-top:1px solid #e5dafa;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
 
 /* CSS owner consolidated from #f4-original-sidebar-consistency; prior cascade position preserved */
 
@@ -1594,12 +1602,12 @@ body>#side-drawer .f4-book-brand-copy small{display:block;font:500 10px/1.2 syst
     body>#side-drawer .drawer-panel>div:first-child{box-sizing:border-box;height:56px;min-height:56px;border-color:#e5dafa;padding:0 14px}
     body>#side-drawer .drawer-panel>div:first-child>.f4-book-brand{min-height:54px}
     body>#side-drawer .drawer-panel>div:nth-child(3){padding:13px 12px}
-    body>#side-drawer .drawer-item{display:flex;min-height:47px;padding:11px 13px;
-      border:0;border-radius:11px;font:700 14px/1.3 system-ui,sans-serif;
-      background:transparent;color:#554c69;box-shadow:none}
+    body>#side-drawer .drawer-item{display:flex;align-items:center;gap:10px;min-height:43px;margin:2px 0;padding:10px 12px;
+      border:0;border-radius:10px;font:650 13px/1.25 system-ui,sans-serif;
+      background:transparent;color:#333b54;box-shadow:none}
     body>#side-drawer .drawer-item.active{background:#eee7fb;color:#6535d7}
     body>#side-drawer .drawer-item:hover:not(.active){background:#f5f0fc;color:#6535d7}
-    body>#side-drawer .drawer-item i,body>#side-drawer .drawer-item svg{width:19px;height:19px}
+    body>#side-drawer .drawer-item i,body>#side-drawer .drawer-item svg{width:18px;height:18px}
   }
   
 
@@ -1827,12 +1835,13 @@ body>#side-drawer .f4-book-brand-copy small{display:block;font:500 10px/1.2 syst
       <div class="f4-book-brand"><img class="f4-book-brand-logo" src="/assets/logo-flamboyan.svg?v=official-20261027-v2" width="42" height="42" alt="Logo Flamboyan 4"><span class="f4-book-brand-copy"><strong>Pembukuan</strong><small>Flamboyan 4</small></span></div>
       <button onclick="tutupMenu()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <div class="p-4 overflow-y-auto">
-      <div class="text-[11px] font-black uppercase tracking-wider text-slate-400 px-2 mb-2">Navigasi</div>
-      <div class="space-y-2">
+    <div class="f4-book-menu-wrap overflow-y-auto">
+      <div class="f4-book-menu-label">MENU</div>
+      <div class="f4-book-menu-list">
         <button data-menu-group="inputdata" onclick="pilihMenu('inputdata')" class="drawer-item active w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm"><i data-lucide="square-pen" class="w-4 h-4"></i><span>Input Data</span></button>
         <button data-menu-group="riwayat" onclick="pilihMenu('riwayat')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="history" class="w-4 h-4"></i><span>Riwayat</span></button>
         <button data-menu-group="laporan" onclick="pilihMenu('laporan')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="file-chart-column" class="w-4 h-4"></i><span>Laporan & Rekap</span></button>
+        <div class="f4-book-menu-other" role="presentation">LAINNYA</div>
         <button data-menu-group="dataacuan" onclick="pilihMenu('dashboard')" class="drawer-item w-full flex items-center gap-3 px-3 py-3 rounded-xl border border-violet-100 text-left font-bold text-sm text-slate-700 hover:bg-violet-50"><i data-lucide="database" class="w-4 h-4"></i><span>Data Acuan</span></button>
       </div>
     </div>    </div>
