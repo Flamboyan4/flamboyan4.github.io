@@ -153,109 +153,109 @@ body:has(
 
 
 
-/* Footer pembayaran: QRIS utama, rekening sekunder. Satu sumber gaya, tanpa override tambahan. */
+/* Footer bergaya wallet app: satu aksi QRIS, satu kelompok rekening, tanpa copyright. */
 footer#pembayaran.f4-payment-footer{
   box-sizing:border-box;width:100%;height:auto;min-height:0;margin:0;
-  padding:9px 0 6px;background:#fff;color:#272738;
-  border-top:1px solid #e6e6ed;border-bottom:0
+  padding:9px 0;background:#fff;color:#272738;border-top:1px solid #e7e9ee;border-bottom:0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-inner{
   box-sizing:border-box;width:min(calc(100% - 32px),1120px);margin:0 auto;padding:0
 }
 footer#pembayaran.f4-payment-footer .f4-payment-panel{
-  display:grid;grid-template-columns:minmax(160px,210px) repeat(2,minmax(125px,1fr));
-  align-items:center;column-gap:12px;min-height:38px;
-  margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none
+  min-height:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none
 }
-footer#pembayaran.f4-payment-footer .f4-payment-list{display:contents}
+footer#pembayaran.f4-payment-footer .f4-payment-list{
+  display:grid;grid-template-columns:minmax(155px,220px) repeat(2,minmax(120px,1fr));
+  align-items:center;gap:14px;min-height:40px
+}
 footer#pembayaran.f4-payment-footer .f4-payment-qris{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  box-sizing:border-box;min-width:0;min-height:38px;padding:8px 12px;
-  border:1px solid #30984d;border-radius:10px;background:#30984d;
-  color:#fff;text-decoration:none;font:720 13px/1.2 system-ui;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  box-sizing:border-box;min-width:0;min-height:40px;padding:6px 12px;
+  border:1px solid #c3e7cd;border-radius:11px;background:#eef8f0;
+  color:#267341;text-decoration:none;font:740 12px/1.2 system-ui;
   cursor:pointer;transition:background-color .15s ease,border-color .15s ease
 }
 footer#pembayaran.f4-payment-footer .f4-payment-qris:hover,
 footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
-  color:#fff;background:#277d40;border-color:#277d40
+  background:#e1f4e6;border-color:#8cca9d;color:#1d6234
 }
 footer#pembayaran.f4-payment-footer .f4-payment-qris:focus-visible{
-  outline:2px solid #277d40;outline-offset:3px
+  outline:2px solid #319b52;outline-offset:2px
 }
 footer#pembayaran.f4-payment-footer .f4-payment-qris svg{
-  flex:none;width:18px;height:18px
+  box-sizing:border-box;flex:none;width:27px;height:27px;padding:5px;
+  color:#fff;background:#30984d;border-radius:8px
 }
+footer#pembayaran.f4-payment-footer .f4-payment-bank-stack{display:contents}
 footer#pembayaran.f4-payment-footer .f4-payment-row{
   display:flex;align-items:center;justify-content:space-between;
-  box-sizing:border-box;min-width:0;min-height:38px;gap:8px;
-  margin:0;padding:2px 0 2px 12px;border:0;border-left:1px solid #e6e6ed;
-  background:transparent
+  box-sizing:border-box;min-width:0;min-height:38px;gap:7px;
+  margin:0;padding:2px 0 2px 12px;
+  border:0;border-left:1px solid #e5e8ed;background:transparent
 }
 footer#pembayaran.f4-payment-footer .f4-payment-info{
-  display:flex;min-width:0;flex-direction:column;gap:3px
+  display:flex;min-width:0;flex-direction:column;gap:2px
 }
 footer#pembayaran.f4-payment-footer .f4-payment-info strong{
-  color:#29293b;font:700 12px/1.2 system-ui
+  color:#2d3140;font:710 12px/1.2 system-ui
 }
 footer#pembayaran.f4-payment-footer .f4-payment-info small{
-  color:#77788a;font:400 10px/1.2 system-ui;
+  color:#777f8b;font:440 9px/1.2 system-ui;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action{
   display:inline-flex;align-items:center;justify-content:center;flex:none;
-  box-sizing:border-box;min-width:31px;min-height:31px;width:31px;height:31px;
-  padding:6px;border:1px solid #e1ddea;border-radius:9px;
-  background:#f6f4fa;color:#534c73;text-decoration:none;
-  cursor:pointer;box-shadow:none
+  box-sizing:border-box;min-width:29px;min-height:29px;width:29px;height:29px;
+  padding:6px;border:1px solid #e4e7eb;border-radius:8px;
+  background:#f7f8fa;color:#586176;cursor:pointer;box-shadow:none
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action:hover,
 footer#pembayaran.f4-payment-footer .f4-payment-action:focus-visible{
-  color:#40395f;background:#eeeaf5
+  background:#ebeff2;color:#344154
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action svg{
   flex:none;width:15px;height:15px
 }
 footer#pembayaran.f4-payment-footer .f4-payment-action span{display:none}
-footer#pembayaran.f4-payment-footer .f4-payment-copyright{
-  margin:10px 0 0;padding:0;text-align:center;
-  color:#8b8c99;font:400 10px/1.3 system-ui;border:0
-}
 @media(max-width:760px){
-  footer#pembayaran.f4-payment-footer{padding:8px 0 6px}
-  footer#pembayaran.f4-payment-footer .f4-payment-inner{width:calc(100% - 26px)}
-  footer#pembayaran.f4-payment-footer .f4-payment-panel{display:block;min-height:0}
+  footer#pembayaran.f4-payment-footer{padding:8px 0}
+  footer#pembayaran.f4-payment-footer .f4-payment-inner{width:calc(100% - 24px)}
   footer#pembayaran.f4-payment-footer .f4-payment-list{
-    display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);
-    grid-template-rows:29px 29px;column-gap:9px;row-gap:4px;
-    align-items:stretch;min-width:0
+    display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);
+    grid-template-rows:64px;gap:8px;align-items:stretch;min-width:0;min-height:0
   }
   footer#pembayaran.f4-payment-footer .f4-payment-qris{
-    grid-column:1;grid-row:1/span 2;
-    min-width:0;width:100%;height:100%;min-height:0;
-    flex-direction:column;justify-content:center;
-    gap:4px;padding:5px 6px;border-radius:9px;
-    font-size:11.5px;line-height:1.15;white-space:nowrap
+    grid-column:1;grid-row:1;flex-direction:column;
+    justify-content:center;min-width:0;min-height:0;height:64px;
+    gap:4px;padding:5px 4px;border-radius:11px;
+    font-size:11.5px;white-space:nowrap
   }
-  footer#pembayaran.f4-payment-footer .f4-payment-qris svg{width:21px;height:21px}
+  footer#pembayaran.f4-payment-footer .f4-payment-qris svg{
+    width:28px;height:28px;padding:6px;border-radius:8px
+  }
+  footer#pembayaran.f4-payment-footer .f4-payment-bank-stack{
+    grid-column:2;grid-row:1;display:grid;grid-template-rows:repeat(2,minmax(0,1fr));
+    height:64px;min-width:0;overflow:hidden;
+    border:1px solid #e7ebea;border-radius:11px;background:#f8faf9
+  }
   footer#pembayaran.f4-payment-footer .f4-payment-row{
-    box-sizing:border-box;min-width:0;min-height:0;height:29px;
-    gap:4px;padding:1px 0 1px 8px;margin:0;
-    border-left:1px solid #e6e6ed
+    min-height:0;height:auto;gap:5px;padding:2px 7px;
+    border:0;border-bottom:1px solid #e6eae8;background:transparent
   }
-  footer#pembayaran.f4-payment-footer .f4-payment-row:nth-of-type(1){grid-column:2;grid-row:1}
-  footer#pembayaran.f4-payment-footer .f4-payment-row:nth-of-type(2){grid-column:2;grid-row:2}
+  footer#pembayaran.f4-payment-footer .f4-payment-row:last-child{border-bottom:0}
   footer#pembayaran.f4-payment-footer .f4-payment-info{gap:2px}
   footer#pembayaran.f4-payment-footer .f4-payment-info strong{font-size:11px}
   footer#pembayaran.f4-payment-footer .f4-payment-info small{font-size:9px}
   footer#pembayaran.f4-payment-footer .f4-payment-action{
-    width:25px;height:25px;min-width:25px;min-height:25px;padding:4px
+    width:25px;height:25px;min-width:25px;min-height:25px;
+    padding:4px;border:0;border-radius:7px;background:#eef1f0;color:#52635c
   }
   footer#pembayaran.f4-payment-footer .f4-payment-action svg{width:14px;height:14px}
-  footer#pembayaran.f4-payment-footer .f4-payment-copyright{margin-top:12px;font-size:9px}
 }
 @media(max-width:360px){
-  footer#pembayaran.f4-payment-footer .f4-payment-list{column-gap:6px}
-  footer#pembayaran.f4-payment-footer .f4-payment-row{padding-left:6px}
+  footer#pembayaran.f4-payment-footer .f4-payment-list{
+    grid-template-columns:minmax(0,40fr) minmax(0,60fr);gap:6px
+  }
   footer#pembayaran.f4-payment-footer .f4-payment-info small{font-size:8.5px}
-  footer#pembayaran.f4-payment-footer .f4-payment-qris{gap:3px;font-size:11px}
+  footer#pembayaran.f4-payment-footer .f4-payment-qris{font-size:11px}
 }
