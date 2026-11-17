@@ -575,9 +575,23 @@ async def validate_upload_compact_mobile(browser):
         assert await modal.locator(".f4g-upload-optional").evaluate("e=>e.open"),"New album should reveal extra settings"
         cat=modal.get_by_role("button",name="Kategori album")
         await cat.click()
-        assert await modal.get_by_role("listbox",name="Kategori album").is_visible()
-        await modal.get_by_role("listbox",name="Kategori album").get_by_role("option",name="Bank Sampah").click()
+        category_menu=modal.get_by_role("listbox",name="Kategori album")
+        assert await category_menu.is_visible()
+        overlay=modal.locator(".f4g-upload-picker-overlay:not([hidden])")
+        assert await overlay.count()==1,"Category options need their own non-clipped overlay"
+        assert await category_menu.evaluate("e=>getComputedStyle(e).overflowY")=="auto","Category options must scroll"
+        assert await category_menu.evaluate("e=>e.scrollHeight>=e.clientHeight"),"Category list dimensions invalid"
+        await category_menu.evaluate("e=>e.scrollTop=e.scrollHeight")
+        last=category_menu.get_by_role("option").last
+        assert await last.is_visible(),"Last category should remain accessible"
+        bounds=await last.evaluate("""e=>{
+          const r=e.getBoundingClientRect(),p=e.closest('[role=listbox]').getBoundingClientRect();
+          return {lastBottom:r.bottom,listBottom:p.bottom,lastTop:r.top,listTop:p.top}
+        }""")
+        assert bounds["lastTop"]>=bounds["listTop"]-1 and bounds["lastBottom"]<=bounds["listBottom"]+1,"Last category clipped: "+str(bounds)
+        await category_menu.get_by_role("option",name="Bank Sampah").click()
         assert await modal.locator(".f4g-upload-optional .f4g-upload-choice-value").inner_text()=="Bank Sampah"
+        assert await modal.locator(".f4g-upload-picker-overlay:not([hidden])").count()==0,"Picker must close after choosing"
         footer=modal.locator(".f4g-upload-footer")
         assert await footer.is_visible()
         bounds=await footer.evaluate("""e=>{
