@@ -1,0 +1,108 @@
+name: F4 Gallery Production Worker Release
+run-name: "Gallery API release ${{ github.sha }}"
+on:
+  workflow_dispatch:
+    inputs:
+      worker_name:
+        description: "Nama Worker produksi yang melayani api.flamboyan4.web.id (bukan staging)"
+        required: true
+        type: string
+      expected_d1_uuid:
+        description: "UUID D1 produksi (cek Cloudflare Dashboard sebelum menjalankan)"
+        required: true
+        type: string
+      confirmation:
+        description: "Ketik DEPLOY_GALLERY_PRODUCTION untuk mengizinkan publikasi"
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      WORKER_NAME: ${{ inputs.worker_name }}
+      EXPECTED_D1_UUID: ${{ inputs.expected_d1_uuid }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify Worker source and gallery tag routes
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/dokumentasi/community-gallery.js
+          python3 - <<'PY'
+          from pathlib import Path
+          source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_text()
+          for path in ('/api/v2/gallery/tags','/api/v2/gallery/category','/api/v2/gallery/people'):
+              if path not in source:
+                  raise RuntimeError("Missing gallery API route: "+path)
+          if 'CREATE TABLE IF NOT EXISTS f4_gallery_tags' not in source:
+              raise RuntimeError("Gallery tag schema missing")
+          PY
+      - name: Validate target, preserve all bindings, and deploy only on exact confirmation
+        run: |
+          python3 - <<'PY'
+          import json,os,urllib.request,pathlib,hashlib,re
+          if os.environ["CONFIRMATION"]!="DEPLOY_GALLERY_PRODUCTION":
+              raise RuntimeError("Confirmation phrase does not match. Nothing deployed.")
+          worker=os.environ["WORKER_NAME"].strip()
+          uuid=os.environ["EXPECTED_D1_UUID"].strip()
+          if not re.fullmatch(r"[A-Za-z0-9_-]{4,100}",worker) or "staging" in worker.lower():
+              raise RuntimeError("Production Worker name is invalid or is staging.")
+          if not re.fullmatch(r"[a-fA-F0-9-]{36}",uuid):
+              raise RuntimeError("Expected D1 UUID is invalid.")
+          token=os.environ["CF_TOKEN"];account=os.environ["CF_ACCOUNT"]
+          if not token or not account:raise RuntimeError("Cloudflare GitHub secrets missing")
+          base="https://api.cloudflare.com/client/v4/accounts/"+account
+          def call(path,method="GET",payload=None,ctype=None):
+              hdr={"Authorization":"Bearer "+token,"Accept":"application/json"}
+              if ctype:hdr["Content-Type"]=ctype
+              request=urllib.request.Request(base+path,data=payload,headers=hdr,method=method)
+              with urllib.request.urlopen(request,timeout=70) as response:
+                  data=json.load(response)
+              if data.get("success") is not True:
+                  raise RuntimeError("Cloudflare refused request: "+str(data.get("errors")))
+              return data.get("result")
+          settings=call("/workers/scripts/"+worker+"/settings")
+          bindings=settings.get("bindings") or []
+          names={b.get("name"):b for b in bindings}
+          if names.get("DB",{}).get("type")!="d1" or names["DB"].get("id")!=uuid:
+              raise RuntimeError("Production D1 binding ID mismatch. No deployment.")
+          if names.get("PHOTOS",{}).get("type")!="r2_bucket" or names.get("ASSETS",{}).get("type")!="assets":
+              raise RuntimeError("Required R2/ASSETS binding not recognized. No deployment.")
+          databases=call("/d1/database")
+          production=next((d for d in databases if d.get("uuid")==uuid),None)
+          if not production or "staging" in str(production.get("name","")).lower():
+              raise RuntimeError("D1 database does not exist or is staging. No deployment.")
+          script=pathlib.Path("cloudflare/worker-terpadu-operasional-teruji.js").read_bytes()
+          if len(script)<200000:raise RuntimeError("Worker source truncated")
+          flags={k:v.get("text") for k,v in names.items() if k.endswith("_WRITE_ENABLED")}
+          metadata={"main_module":"main.js","keep_assets":True,
+                    "compatibility_date":settings.get("compatibility_date") or "2026-10-21",
+                    "bindings":[{"name":b["name"],"type":"inherit"} for b in bindings],
+                    "annotations":{"workers/message":"F4 gallery tags + album categories; preserve bindings"}}
+          boundary="----F4GallerySafeDeploy"
+          def part(name,raw,mime):
+              return (("--"+boundary+"\r\nContent-Disposition: form-data; name=\""+name+"\"; filename=\""+name+"\"\r\nContent-Type: "+mime+"\r\n\r\n").encode()+raw+b"\r\n")
+          body=part("metadata",json.dumps(metadata).encode(),"application/json")+part("main.js",script,"application/javascript+module")+("--"+boundary+"--\r\n").encode()
+          call("/workers/scripts/"+worker+"?bindings_inherit=strict","PUT",body,"multipart/form-data; boundary="+boundary)
+          after=call("/workers/scripts/"+worker+"/settings")
+          after_names={b.get("name"):b for b in after.get("bindings") or []}
+          if set(after_names)!=set(names) or after_names.get("DB",{}).get("id")!=uuid:
+              raise RuntimeError("CRITICAL: post-deployment binding mismatch")
+          if any(after_names.get(k,{}).get("text")!=value for k,value in flags.items()):
+              raise RuntimeError("CRITICAL: post-deployment write flag mismatch")
+          print("GALLERY_PRODUCTION_DEPLOY_OK worker="+worker+" d1="+uuid)
+          print("SOURCE_SHA256="+hashlib.sha256(script).hexdigest())
+          print("BINDINGS_PRESERVED="+str(len(names)))
+          PY
