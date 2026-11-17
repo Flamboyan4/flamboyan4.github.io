@@ -696,6 +696,22 @@ async def validate_member_tags(browser):
             await page.locator(".f4p-album-overlay .f4p-album-tile").first.click()
             photo_trigger=page.locator(".f4p-photo-stage > .f4-tag-trigger")
             await photo_trigger.wait_for(timeout=15000)
+            if name=="hp":
+                arrows=await page.locator(".f4p-photo-overlay .f4p-photo-arrow").evaluate_all(
+                    "els=>els.map(e=>getComputedStyle(e).display)")
+                assert arrows==["none","none"],"Mobile slider arrows should not cover photo: "+str(arrows)
+                before=await page.locator(".f4p-photo-count").inner_text()
+                await page.locator(".f4p-photo-stage").evaluate("""stage=>{
+                    const first=new Touch({identifier:4,target:stage,clientX:300,clientY:400});
+                    const last=new Touch({identifier:4,target:stage,clientX:90,clientY:410});
+                    stage.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,
+                        touches:[first],targetTouches:[first],changedTouches:[first]}));
+                    stage.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,
+                        touches:[],targetTouches:[],changedTouches:[last]}));
+                }""")
+                await page.wait_for_timeout(150)
+                after=await page.locator(".f4p-photo-count").inner_text()
+                assert before!=after,"Photo swipe navigation broke while removing slider arrows"
             assert await page.locator("body > .f4-tag-floating").count()==0,"Photo tags should start hidden"
             await photo_trigger.click()
             await page.locator("body > .f4-tag-floating").wait_for()
