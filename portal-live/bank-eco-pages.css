@@ -1155,16 +1155,16 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
    The negative gutters cancel only the member content padding (15/11 px);
    the fixed global dock, header and other routes are never touched. */
 @media screen and (max-width:760px){
- body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){
+ body.f4-bank-app-member #dashboardView>.grid>.section #pagePribadi.f4-bank-savings-page:not(.hidden){
   --f4-savings-gutter:15px;
   --f4-savings-hero-height:322px;
   box-sizing:border-box;position:relative;isolation:isolate;
-  width:calc(100% + var(--f4-savings-gutter) * 2);
+  width:calc(100% + var(--f4-savings-gutter) + var(--f4-savings-gutter));
   max-width:none;min-width:0;
-  margin:0 calc(-1 * var(--f4-savings-gutter));
+  margin:0 calc(0px - var(--f4-savings-gutter));
   padding:0 0 18px;background:#f7faf8;border:0;box-shadow:none
  }
- body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden)::before{
+ body.f4-bank-app-member #dashboardView>.grid>.section #pagePribadi.f4-bank-savings-page:not(.hidden)::before{
   content:"";position:absolute;top:0;left:0;right:0;
   height:var(--f4-savings-hero-height);z-index:0;pointer-events:none;
   border-radius:0 0 50% 50% / 0 0 46px 46px;
@@ -1333,7 +1333,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  }
 }
 @media screen and (max-width:380px){
- body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden){
+ body.f4-bank-app-member #dashboardView>.grid>.section #pagePribadi.f4-bank-savings-page:not(.hidden){
   --f4-savings-gutter:11px
  }
  #dashboardView #pagePribadi .f4-bank-latest-main{
