@@ -1542,11 +1542,27 @@ function adminInsightMount(home){
   scheduleHead.append(el("h3","","Jadwal Setor Sampah"));
   const action=el("button","f4-bank-admin-mini-action","Atur jadwal");
   action.type="button";action.onclick=()=>navigate("master");scheduleHead.append(action);
+  const scheduleMain=el("div","f4-bank-admin-schedule-main");
+  const dateBox=el("div","f4-bank-admin-schedule-databox");
+  dateBox.setAttribute("aria-hidden","true");
+  const dateNum=el("strong","f4-bank-admin-schedule-num","–");
+  dateNum.id="f4BankAdminScheduleNum";
+  const monthNum=el("span","f4-bank-admin-schedule-month","");
+  monthNum.id="f4BankAdminScheduleMonth";
+  dateBox.append(dateNum,monthNum);
+  const scheduleCopy=el("div","f4-bank-admin-schedule-copy");
   const date=el("strong","f4-bank-admin-next-date","Memuat jadwal…");
   date.id="f4BankAdminNextDate";
-  const cycle=el("span","f4-bank-admin-schedule-cycle","Sumber: jadwal penimbangan aktif");
+  const scheduleMeta=el("div","f4-bank-admin-schedule-meta");
+  const cycle=el("span","f4-bank-admin-schedule-cycle","Jadwal aktif");
   cycle.id="f4BankAdminScheduleCycle";
-  schedule.append(scheduleHead,date,cycle);
+  const countdown=el("span","f4-bank-admin-schedule-countdown","");
+  countdown.id="f4BankAdminScheduleCountdown";
+  countdown.hidden=true;
+  scheduleMeta.append(cycle,countdown);
+  scheduleCopy.append(date,scheduleMeta);
+  scheduleMain.append(dateBox,scheduleCopy);
+  schedule.append(scheduleHead,scheduleMain);
   const right=el("div","f4-bank-admin-insight-right");
   right.append(schedule);
   const stages=el("section","f4-bank-admin-insight-panel f4-bank-admin-insight-stages");
@@ -1615,9 +1631,25 @@ function adminInsightDraw(){
 }
 function adminInsightScheduleDraw(){
  const d=adminInsightSchedule,day=$("f4BankAdminNextDate"),cycle=$("f4BankAdminScheduleCycle");
- if(!day||!cycle)return;
+ const dateNum=$("f4BankAdminScheduleNum"),monthNum=$("f4BankAdminScheduleMonth");
+ const countdown=$("f4BankAdminScheduleCountdown");
+ if(!day||!cycle||!dateNum||!monthNum||!countdown)return;
+ const setDate=(date)=>{
+  if(!date||!Number.isFinite(date.getTime())){
+   dateNum.textContent="–";monthNum.textContent="";
+   countdown.hidden=true;countdown.textContent="";return;
+  }
+  dateNum.textContent=String(date.getUTCDate());
+  monthNum.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"}).format(date);
+  const present=new Date(today()+"T12:00:00Z");
+  const diff=Math.round((date.getTime()-present.getTime())/86400000);
+  if(!Number.isFinite(diff)){countdown.hidden=true;countdown.textContent="";return;}
+  countdown.hidden=false;
+  countdown.textContent=diff===0?"Hari ini":diff===1?"Besok":diff>1?diff+" hari lagi":"Jadwal terlewat";
+ };
  if(!d||!Number.isInteger(Number(d.weekday))||Number(d.weekday)<0||Number(d.weekday)>6){
-  day.textContent="Jadwal belum tersedia";cycle.textContent="Periksa pengaturan jadwal";return;
+  day.textContent="Jadwal belum tersedia";cycle.textContent="Periksa pengaturan jadwal";
+  setDate(null);return;
  }
  const days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
  const freq=String(d.frequency||"weekly");
@@ -1625,56 +1657,77 @@ function adminInsightScheduleDraw(){
  const label=days[Number(d.weekday)];
  const valid=/^\d{4}-\d{2}-\d{2}$/.test(next);
  const observed=valid?new Date(next+"T12:00:00Z"):null;
- if(observed&&Number.isFinite(observed.getTime())){
-  day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
-   day:"numeric",month:"short",year:"numeric"}).format(observed);
- }else if(freq==="weekly"){
+ let target=observed&&Number.isFinite(observed.getTime())?observed:null;
+ if(!target&&freq==="weekly"){
   const t=new Date(today()+"T12:00:00Z");
   t.setUTCDate(t.getUTCDate()+(Number(d.weekday)-t.getUTCDay()+7)%7);
+  target=t;
+ }
+ if(target){
   day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
-   day:"numeric",month:"short",year:"numeric"}).format(t);
+   day:"numeric",month:"short",year:"numeric"}).format(target);
  }else day.textContent="Tanggal berikutnya belum tersedia";
+ setDate(target);
  cycle.textContent=freq==="weekly"?"Setiap "+label:
   freq==="biweekly"?"Setiap 2 minggu":freq==="monthly"?"Setiap bulan":"Jadwal: "+label;
 }
 function adminInsightStagesDraw(){
-  const host=$("f4BankAdminStageOverview");if(!host)return;
-  const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
-  const done=rows.filter(x=>/selesai|tuntas|rampung/i.test(String(x.status||""))).length;
-  const active=rows.filter(x=>/berjalan|proses|aktif|dikerjakan/i.test(String(x.status||""))).length;
-  const pct=rows.length?Math.round(done/rows.length*100):0;
-  const summary=el("div","f4-bank-admin-stage-summary");
-  summary.append(
-   el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
-   el("span","",rows.length?pct+"%"+(active?" · "+active+" berjalan":""):"Menunggu perkembangan"));
-  const steps=el("ol","f4-bank-admin-stage-steps");
-  for(const [index,item] of rows.slice(0,4).entries()){
-   const status=String(item.status||"Tercatat");
-   const finished=/selesai|tuntas|rampung/i.test(status);
-   const ongoing=!finished&&/berjalan|proses|aktif|dikerjakan/i.test(status);
-   const stageName=String(item.title||item.stage||"Tahap "+(index+1));
-   const line=el("li","f4-bank-admin-stage-step "+(finished?"is-done":ongoing?"is-active":"is-waiting"));
-   line.setAttribute("aria-label","Tahap "+(index+1)+": "+stageName+". "+status);
-   const marker=el("span","f4-bank-admin-stage-marker");
-   marker.setAttribute("aria-hidden","true");
-   if(finished){
-    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-    svg.setAttribute("viewBox","0 0 24 24");
-    const path=document.createElementNS("http://www.w3.org/2000/svg","path");
-    path.setAttribute("d","m5 12 4 4L19 6");
-    path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");
-    path.setAttribute("stroke-width","2.8");path.setAttribute("stroke-linecap","round");
-    path.setAttribute("stroke-linejoin","round");
-    svg.append(path);marker.append(svg);
-   }else marker.textContent=String(index+1);
-   const label=el("span","f4-bank-admin-stage-name",stageName);
-   label.title=stageName;
-   const state=el("small","f4-bank-admin-stage-status",finished?"Selesai":ongoing?"Berjalan":status);
-   state.title=status;
-   line.append(marker,label,state);steps.append(line);
-  }
-  if(!rows.length)steps.append(el("li","f4-bank-admin-stage-empty","Belum ada tahapan untuk ditampilkan."));
-  host.replaceChildren(summary,steps);
+ const host=$("f4BankAdminStageOverview");if(!host)return;
+ const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
+ const finished=entry=>/selesai|tuntas|rampung/i.test(String(entry.status||""));
+ const ongoing=entry=>!finished(entry)&&/berjalan|proses|aktif|dikerjakan/i.test(String(entry.status||""));
+ const done=rows.filter(finished).length;
+ const active=rows.filter(ongoing).length;
+ const pct=rows.length?Math.round(done/rows.length*100):0;
+ const hero=el("div","f4-bank-admin-stage-hero");
+ const heroCopy=el("div","f4-bank-admin-stage-hero-copy");
+ heroCopy.append(
+  el("strong","",rows.length?done+" dari "+rows.length+" tahap selesai":"Belum ada tahap tercatat"),
+  el("small","",rows.length?
+   (done===rows.length?"Semua tahapan sudah tuntas":active?active+" tahap sedang berjalan":"Pantau perkembangan berikutnya"):
+   "Perkembangan akan muncul di sini")
+ );
+ const percent=el("div","f4-bank-admin-stage-percent",rows.length?pct+"%":"—");
+ percent.setAttribute("aria-label",pct+" persen tahapan selesai");
+ hero.append(heroCopy,percent);
+ const progress=el("div","f4-bank-admin-stage-segments");
+ progress.setAttribute("role","progressbar");
+ progress.setAttribute("aria-label","Penyelesaian seluruh tahap Bank Sampah");
+ progress.setAttribute("aria-valuemin","0");
+ progress.setAttribute("aria-valuemax",String(rows.length||1));
+ progress.setAttribute("aria-valuenow",String(done));
+ const segments=rows.length?rows:[null];
+ for(const entry of segments){
+  const segment=el("span","f4-bank-admin-stage-segment"+(!entry?"":finished(entry)?" is-done":ongoing(entry)?" is-active":""));
+  segment.setAttribute("aria-hidden","true");progress.append(segment);
+ }
+ const milestones=el("ol","f4-bank-admin-stage-milestones");
+ for(const [index,item] of rows.slice(0,4).entries()){
+  const status=String(item.status||"Tercatat");
+  const isDone=finished(item),isActive=ongoing(item);
+  const name=String(item.title||item.stage||"Tahap "+(index+1));
+  const tile=el("li","f4-bank-admin-stage-tile "+(isDone?"is-done":isActive?"is-active":"is-waiting"));
+  tile.title=name+" — "+status;
+  tile.setAttribute("aria-label","Tahap "+(index+1)+". "+name+". "+status);
+  const top=el("div","f4-bank-admin-stage-tile-top");
+  const icon=el("span","f4-bank-admin-stage-tile-icon");
+  icon.setAttribute("aria-hidden","true");
+  if(isDone){
+   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   svg.setAttribute("viewBox","0 0 24 24");
+   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+   path.setAttribute("d","m5 12 4 4L19 6");
+   path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");
+   path.setAttribute("stroke-width","2.8");path.setAttribute("stroke-linecap","round");
+   path.setAttribute("stroke-linejoin","round");svg.append(path);icon.append(svg);
+  }else icon.textContent=String(index+1);
+  const label=el("span","f4-bank-admin-stage-tile-status",isDone?"Selesai":isActive?"Berjalan":status);
+  top.append(icon,label);
+  tile.append(top,el("strong","f4-bank-admin-stage-tile-title",name));
+  milestones.append(tile);
+ }
+ if(!rows.length)milestones.append(el("li","f4-bank-admin-stage-empty","Belum ada tahapan untuk ditampilkan."));
+ host.replaceChildren(hero,progress,milestones);
 }
 function adminInsightFetch(force=false){
  if(roleType()!=="admin")return;
