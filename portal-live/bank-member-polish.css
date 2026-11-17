@@ -48,7 +48,7 @@
 #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
  box-sizing:border-box;display:flex;flex-direction:column;min-width:0;width:100%;height:100%;
  margin:0;border:1px solid #e5ebed;border-radius:20px;
- background:#fff;color:#193b2c;overflow:hidden;box-shadow:0 5px 15px #1832480a
+ background:#fff;color:#193b2c;overflow:hidden;box-shadow:0 5px 15px #174b360a
 }
 #dashboardView #f4MemberFlow>.f4-member-flow-head{
  display:flex;align-items:center;gap:10px;flex:none;min-width:0;
