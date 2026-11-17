@@ -497,3 +497,52 @@
  .f4g-upload-modal .f4g-previews{grid-template-columns:repeat(5,minmax(0,1fr))}
  .f4g-upload-modal .f4g-upload-footer{padding:10px 16px max(12px,env(safe-area-inset-bottom,0px));border-radius:0}
 }
+
+
+/* Fixed-in-modal choice sheet: category and album options must never be clipped by
+   the scrolling form or pinned upload button. Scroll only the options list. */
+.f4g-upload-modal.f4g-panel{position:relative}
+.f4g-upload-modal .f4g-upload-picker-overlay{
+ position:absolute;inset:0;z-index:180;box-sizing:border-box;
+ display:flex;align-items:flex-end;justify-content:center;
+ padding:12px;background:#18132691;border-radius:inherit;overflow:hidden
+}
+.f4g-upload-modal .f4g-upload-picker-overlay[hidden]{display:none}
+.f4g-upload-modal .f4g-upload-picker-sheet{
+ box-sizing:border-box;display:flex;flex-direction:column;min-height:0;
+ width:100%;max-width:470px;height:min(380px,72%);
+ border-radius:17px;background:#fff;box-shadow:0 16px 45px #1a123c38;overflow:hidden
+}
+.f4g-upload-modal .f4g-upload-picker-head{
+ display:flex;align-items:center;justify-content:space-between;
+ flex:0 0 auto;gap:10px;padding:13px 15px;border-bottom:1px solid #efebf5
+}
+.f4g-upload-modal .f4g-upload-picker-head strong{
+ color:#27213a;font:750 14px system-ui
+}
+.f4g-upload-modal .f4g-upload-picker-close.f4g-btn{
+ flex:0 0 31px;min-width:31px;width:31px;height:31px;min-height:31px;
+ display:grid;place-items:center;padding:6px;border:0;border-radius:9px;
+ background:#f4f0fa;color:#5f4695
+}
+.f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-list{
+ position:relative;inset:auto;top:auto;left:auto;right:auto;z-index:auto;
+ box-sizing:border-box;display:flex;flex:1 1 0;flex-direction:column;
+ min-height:0;height:auto;max-height:none;overflow-x:hidden;overflow-y:auto;
+ -webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;
+ gap:2px;padding:6px 9px 12px;border:0;border-radius:0;box-shadow:none
+}
+.f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-option{
+ flex:0 0 auto;min-height:44px;padding:12px;text-align:left;border-radius:10px
+}
+@media(max-width:720px){
+ .f4g-upload-modal .f4g-upload-picker-overlay{padding:0;align-items:flex-end}
+ .f4g-upload-modal .f4g-upload-picker-sheet{
+  max-width:none;width:100%;height:min(430px,74%);
+  border-radius:20px 20px 0 0
+ }
+ .f4g-upload-modal .f4g-upload-picker-head{padding:15px 17px}
+ .f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-list{
+  padding:8px 12px max(18px,env(safe-area-inset-bottom,0px))
+ }
+}
