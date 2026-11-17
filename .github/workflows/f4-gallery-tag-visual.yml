@@ -1,0 +1,49 @@
+name: F4 Tag Warga Visual UI
+on:
+  push:
+    branches: [main]
+    paths:
+      - portal-live/dokumentasi/community-gallery.js
+      - portal-live/dokumentasi/community-gallery.css
+      - portal-live/scrollbar-appearance.css
+      - qa/verify-community-gallery-browser.py
+      - .github/workflows/f4-gallery-tag-visual.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-tags:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate gallery JavaScript and common scrollbar CSS
+        run: |
+          node --check portal-live/dokumentasi/community-gallery.js
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path('portal-live/scrollbar-appearance.css').read_text()
+          assert 'scrollbar-width:none' in css and '::-webkit-scrollbar' in css
+          pages=('index.html','bank-sampah/index.html','pembukuan/index.html',
+                 'superadmin/index.html','rapat/index.html','dokumentasi/index.html',
+                 'donatur/index.html','donatur/admin.html',
+                 'portal-live/dokumentasi/index.html','portal-live/rapat/index.html','cctv.html')
+          for page in pages:
+              assert '/portal-live/scrollbar-appearance.css' in Path(page).read_text(),page
+          print('F4_SHARED_SCROLLBARS_HIDDEN_IN_ALL_ACTIVE_PAGES_OK')
+          PY
+      - name: Install isolated browser runner
+        run: |
+          python3 -m pip install --quiet playwright
+          python3 -m playwright install --with-deps chromium
+      - name: Verify album and photo tags on PC and HP with mocked API
+        env:
+          F4_GALLERY_TAG_ONLY: "1"
+        run: python3 qa/verify-community-gallery-browser.py
+      - name: Upload non-production visual test output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: f4-tag-ui-visual-check
+          path: ops-audit/community-gallery-browser.json
+          if-no-files-found: ignore
