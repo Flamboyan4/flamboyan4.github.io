@@ -46,7 +46,10 @@ async def main():
                     assert abs(result['title']['y']-ys[0])<=15,(width,'Title is not inline',result)
                 else:
                     assert abs(ys[0]-ys[1])<=3,(width,'Bank accounts should share one row',result)
-                    assert abs(result['title']['y']-ys[2])<=5,(width,'QR and title should share one row',result)
+                    title_center=result['title']['y']+result['title']['height']/2
+                    qris_center=result['rows'][2]['y']+result['rows'][2]['height']/2
+                    assert abs(title_center-qris_center)<=5,(width,'QR and title should be vertically aligned',result)
+                    assert result['rows'][2]['y']>=result['panel']['y']-1,(width,'QR row overflows top of footer',result)
                     assert ys[0]>ys[2],(width,'Mobile row layout is wrong',result)
                 assert all(a['right']<=width+1 for a in result['actions']),(width,'Action clipped',result)
                 assert result['copyright']['y']>=result['panel']['y']+result['panel']['height']-1
