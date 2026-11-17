@@ -109,7 +109,20 @@ async def main():
         const backdrop=savingsPage&&getComputedStyle(savingsPage,'::before');
         const title=hero?.querySelector('.f4-bank-savings-title');
         const statIcons=stats?.querySelectorAll('.f4-bank-savings-stat-icon')||[];
+        const privateArea=document.getElementById('v12Private');
+        let hiddenDisplay=null;
+        if(privateArea){
+         privateArea.classList.add('hidden');
+         hiddenDisplay=getComputedStyle(privateArea).display;
+         privateArea.classList.remove('hidden');
+        }
+        const bars=document.getElementById('f4BankSavingsBars');
+        const rail=bars?.querySelector('.f4-bank-savings-bar-rail');
+        const column=bars?.querySelector('.f4-bank-savings-bar');
         return {
+         hiddenDisplay,barChartHeight:bars?.getBoundingClientRect().height,
+         railHeight:rail?.getBoundingClientRect().height,
+         columnWidth:column?.getBoundingClientRect().width,
          titleText:title?.textContent, titleVisible:!!title && getComputedStyle(title).display!=='none',
          iconCount:statIcons.length,iconsVisible:[...statIcons].every(x=>getComputedStyle(x).display!=='none'),
          dashboardTopPadding:getComputedStyle(document.getElementById('dashboardView')).paddingTop,
@@ -129,7 +142,11 @@ async def main():
          chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0
         };
        }""")
-       if not(savings['titleText']=='Tabungan saya' and savings['titleVisible'] and
+       if not(savings['hiddenDisplay']=='none' and
+         (savings['barChartHeight'] or 0)<=125 and
+         (savings['railHeight'] or 0)<=65 and
+         (savings['columnWidth'] or 0)<=70 and
+         savings['titleText']=='Tabungan saya' and savings['titleVisible'] and
          savings['iconCount']==4 and savings['iconsVisible'] and
          savings['dashboardTopPadding']=='0px' and savings['contentTopPadding']=='0px' and
          savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
