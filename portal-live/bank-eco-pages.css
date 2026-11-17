@@ -1040,6 +1040,8 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
  flex:1 1 auto;min-width:0;max-width:none
 }
+/* The compact picker belongs to HP; the existing desktop period tabs remain intact. */
+#dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-picker{display:none}
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
  flex:0 0 auto;padding-left:7px;border-left:1px solid #dde9e0
 }
@@ -1393,40 +1395,71 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   color:#08765c;font-size:11px;font-weight:800
  }
  #dashboardView #pagePribadi #f4BankSavingsChart{
-  box-sizing:border-box;padding:13px 13px 12px;margin:0 14px 15px;
-  border-radius:20px;gap:8px;box-shadow:0 6px 19px #134b3110
+  box-sizing:border-box;padding:12px 13px 11px;margin:0 14px 15px;
+  border-radius:20px;gap:9px;box-shadow:0 6px 19px #134b3110
  }
  #dashboardView #pagePribadi #f4BankSavingsChart h3{
   font-size:16px;line-height:1.2
  }
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:5px}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups,
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{
+  justify-content:space-between;gap:7px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{
+  display:none
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-picker{
+  display:block;position:relative;flex:0 0 auto;min-width:0
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-trigger{
+  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:9px;
+  min-height:33px;min-width:103px;padding:6px 10px;margin:0;
+  border:1px solid #d9eae0;border-radius:10px;background:#f4f8f5;
+  color:#17694e;font-size:11px;font-weight:800;box-shadow:none
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-chevron{
+  display:block;flex:none;width:14px;height:14px;transform:rotate(90deg)
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu{
+  display:grid;gap:2px;position:absolute;z-index:20;
+  top:calc(100% + 5px);left:0;min-width:137px;padding:5px;
+  border:1px solid #dce9df;border-radius:11px;background:#fff;
+  box-shadow:0 12px 25px #144f3427
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu[hidden]{
+  display:none
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu button{
+  display:block;width:100%;min-height:34px;margin:0;padding:7px 11px;
+  border:0;border-radius:8px;background:transparent;box-shadow:none;
+  color:#526f5d;text-align:left;font-size:11px;font-weight:700
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu button.is-active{
+  background:#e5f5ed;color:#076d50
+ }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
-  box-sizing:border-box;display:flex;align-items:center;gap:2px;
-  margin:0;padding:2px;border:0;border-radius:10px;background:#eef6ef
+  box-sizing:border-box;display:flex;align-items:center;flex:0 0 auto;
+  gap:2px;margin:0;padding:2px;border:0;border-radius:10px;
+  background:#eff5f0
  }
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{flex:1 1 auto;min-width:0}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{flex:none}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button,
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
-  flex:1 1 auto;min-width:0;min-height:30px;margin:0;padding:4px 3px;
-  border:0;border-radius:8px;background:transparent;color:#5e7768;
-  font-size:10px;font-weight:800;white-space:nowrap;box-shadow:none
+  flex:0 0 auto;min-width:37px;min-height:29px;margin:0;padding:5px 8px;
+  border:0;border-radius:8px;background:transparent;box-shadow:none;
+  color:#6b8171;font-size:11px;font-weight:800;white-space:nowrap
  }
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{flex:0 0 auto;min-width:30px}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button.is-active,
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button.is-active{
-  background:#087b5e;color:#fff;border:0;box-shadow:0 2px 6px #00543a24
+  background:#087b5e;color:#fff;box-shadow:0 2px 6px #00543a24
  }
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary{gap:2px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 9px
+ }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>span{
-  font-size:10px
+  font-size:10px;line-height:1.2
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>strong{
-  font-size:20px;line-height:1.12
+  font-size:16px;line-height:1.15
  }
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>small{
-  font-size:10px;line-height:1.3
+  flex:0 0 100%;font-size:10px;line-height:1.35
  }
  /* Bars, not surrounding controls, are the main visual on mobile. */
  #dashboardView #pagePribadi #f4BankSavingsBars{
@@ -1475,11 +1508,12 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #pagePribadi #f4BankSavingsChart,
  #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{margin-inline:11px}
  #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{gap:4px}
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups button,
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
-  padding:5px 2px;font-size:9px
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-trigger{
+  min-width:95px;padding:6px 8px;font-size:10px
  }
- #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{min-width:26px}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
+  min-width:32px;padding:5px 7px;font-size:10px
+ }
 }
 #dashboardView .f4-bank-weigh-icon{
  flex:none;display:grid;place-items:center;width:39px;height:39px;
