@@ -1036,7 +1036,7 @@ function renderLatestComposition(){
  if(!latest){
   host.append(el("p","f4-bank-latest-empty","Belum ada setoran tercatat."));return;
  }
- const isFinal=/terkonfirmasi|confirmed|sah/i.test(String(latest.status||""));
+ const isFinal=/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test(String(latest.status||"").trim());
  heading.append(el("span","f4-bank-latest-status"+(isFinal?" is-final":""),isFinal?"Sudah sah":"Belum sah"));
  const iso=String(latest.tanggal||"").slice(0,10);
  if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){
@@ -1178,7 +1178,7 @@ function syncSavings(){
  text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
  const activeDeposits=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
   .filter(row=>!/batal/i.test(String(row?.status||"")));
- const pendingWeight=activeDeposits.filter(row=>!/terkonfirmasi|confirmed|sah/i.test(String(row.status||"")))
+ const pendingWeight=activeDeposits.filter(row=>!/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test(String(row.status||"").trim()))
   .reduce((sum,row)=>sum+Math.max(0,Number(row.beratKg)||0),0);
  text("f4BankSavingsDepositCount",memberStatement?String(activeDeposits.length):"—");
  text("f4BankSavingsPendingWeight",memberStatement?f4PrivateKg(pendingWeight):"—");
