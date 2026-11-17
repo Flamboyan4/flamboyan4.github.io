@@ -107,7 +107,13 @@ async def main():
         const heroBox=hero?.getBoundingClientRect();
         const statsBox=stats?.getBoundingClientRect();
         const backdrop=savingsPage&&getComputedStyle(savingsPage,'::before');
+        const title=hero?.querySelector('.f4-bank-savings-title');
+        const statIcons=stats?.querySelectorAll('.f4-bank-savings-stat-icon')||[];
         return {
+         titleText:title?.textContent, titleVisible:!!title && getComputedStyle(title).display!=='none',
+         iconCount:statIcons.length,iconsVisible:[...statIcons].every(x=>getComputedStyle(x).display!=='none'),
+         dashboardTopPadding:getComputedStyle(document.getElementById('dashboardView')).paddingTop,
+         contentTopPadding:getComputedStyle(document.querySelector('#dashboardView>.grid>.section')).paddingTop,
          bleedLeft:pageBox?.left,bleedRight:pageBox?.right,
          heroBottom:heroBox?.bottom,statsTop:statsBox?.top,
          backdropColor:backdrop?.backgroundImage,backdropHeight:backdrop?.height,
@@ -123,7 +129,10 @@ async def main():
          chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0
         };
        }""")
-       if not(savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
+       if not(savings['titleText']=='Tabungan saya' and savings['titleVisible'] and
+         savings['iconCount']==4 and savings['iconsVisible'] and
+         savings['dashboardTopPadding']=='0px' and savings['contentTopPadding']=='0px' and
+         savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
          savings['stats']==4 and savings['chart'] and savings['chartButtons']==5 and
          savings['details']==2 and 'Kardus' in savings['latestText'] and
          'Botol Aqua bodong' in savings['latestText'] and
