@@ -37,6 +37,8 @@ async def main():
                   return {footer:rect(footer),qris:rect(qris),banks:banks.map(rect),actions:actions.map(rect),
                     copyright:rect(copyright),bg:getComputedStyle(footer).backgroundColor,
                     qrisBg:getComputedStyle(qris).backgroundColor,copyBg:getComputedStyle(actions[0]).backgroundColor,
+                    qrisDirection:getComputedStyle(qris).flexDirection,
+                    qrisIconCount:qris.querySelectorAll('svg,i[data-lucide]').length,
                     viewport:innerWidth,overflow:document.documentElement.scrollWidth,
                     qrisHref:qris.getAttribute("href"),qrisDownload:qris.getAttribute("download")}
                 }""")
@@ -44,11 +46,15 @@ async def main():
                 assert result["qrisHref"] == "/assets/qris-flamboyan4.jpg" and result["qrisDownload"], result
                 assert result["qrisBg"] == "rgb(48, 152, 77)", (width,"QRIS should use fresh leaf green",result)
                 assert result["qrisBg"] != result["copyBg"], (width,"QRIS lacks visual priority",result)
+                assert result["qrisIconCount"] == 1, (width,"QRIS must use only one icon",result)
                 assert result["overflow"] <= width+1, (width,"Horizontal overflow",result)
                 assert all(a["right"] <= width+1 for a in result["actions"]), (width,"Copy action clipped",result)
                 qr=result["qris"]
                 rows=result["banks"]
                 if width <= 760:
+                    assert result["qrisDirection"] == "column", (width,"Mobile QRIS icon must sit above its label",result)
+                    assert result["copyright"]["y"]-max(qr["bottom"],rows[1]["bottom"]) >= 10, (
+                        width,"Copyright is too close to payment methods",result)
                     assert rows[0]["x"] > qr["right"]-1, (width,"Bank methods should be right of QRIS",result)
                     assert abs(rows[0]["x"]-rows[1]["x"]) <= 2, (width,"Banks not stacked",result)
                     assert rows[1]["y"] > rows[0]["y"], (width,"Bank order reversed",result)
