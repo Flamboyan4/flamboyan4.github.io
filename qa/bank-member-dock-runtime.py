@@ -31,10 +31,17 @@ MEASURE="""() => {
  const dock=document.getElementById('f4BankAppDock');
  const box=x=>{if(!x)return null;const r=x.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom};};
  const buttons=[...(dock?.querySelectorAll('.f4-bank-app-dock-action')||[])].map(e=>({name:e.getAttribute('aria-label'),...box(e)}));
- const overflow=[document.documentElement,document.body,...document.querySelectorAll('#dashboardView *')].map(e=>({e,d:e.scrollWidth-e.clientWidth}))
-  .filter(x=>x.d>4).sort((a,b)=>b.d-a.d).slice(0,10)
+ const overflow=[document.documentElement,document.body,...document.querySelectorAll('body *')].map(e=>({e,d:e.scrollWidth-e.clientWidth}))
+  .filter(x=>x.d>4).sort((a,b)=>b.d-a.d).slice(0,12)
   .map(x=>({id:x.e.id,tag:x.e.tagName,cls:typeof x.e.className==='string'?x.e.className.slice(0,70):'',extra:x.d,scroll:x.e.scrollWidth,client:x.e.clientWidth}));
- return {viewport:innerWidth,htmlClient:document.documentElement.clientWidth,visualScale:visualViewport?.scale,meta:document.querySelector('meta[name=viewport]')?.content,
+ const outside=[...document.querySelectorAll('body *')].filter(e=>e.getClientRects().length)
+  .map(e=>({e,r:e.getBoundingClientRect()})).filter(x=>x.r.right>document.documentElement.clientWidth+3)
+  .sort((a,b)=>b.r.right-a.r.right).slice(0,18)
+  .map(x=>({id:x.e.id,tag:x.e.tagName,cls:typeof x.e.className==='string'?x.e.className.slice(0,70):'',
+   left:Math.round(x.r.left),right:Math.round(x.r.right),width:Math.round(x.r.width),
+   pos:getComputedStyle(x.e).position,display:getComputedStyle(x.e).display,
+   transform:getComputedStyle(x.e).transform.slice(0,70)}));
+ return {outside,viewport:innerWidth,htmlClient:document.documentElement.clientWidth,visualScale:visualViewport?.scale,meta:document.querySelector('meta[name=viewport]')?.content,
   bodyRect:box(document.body),htmlRect:box(document.documentElement),
   doc:document.documentElement.scrollWidth,body:document.body.scrollWidth,
   visual:visualViewport?.width,scrollX,role:document.body.dataset.f4BankRole,dock:box(dock),buttons,
