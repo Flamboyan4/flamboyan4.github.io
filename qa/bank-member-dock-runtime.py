@@ -92,7 +92,12 @@ async def main():
          setoran:[{id:'qa-1',tanggal:'2026-11-15',status:'estimasi',
           beratKg:4,estimasiRp:6500,rincian:[
            {barang:'Kardus',beratKg:2},{barang:'Botol Aqua bodong',beratKg:2}
-          ]}]
+          ]},{id:'qa-2',tanggal:'2026-11-10',status:'terkonfirmasi',
+           beratKg:2,nilaiSahRp:3000,rincian:[
+            {barang:' kardus ',beratKg:1},{barang:'Gelas plastik bersih',beratKg:1}
+           ]},{id:'qa-batal',tanggal:'2026-11-08',status:'batal',
+            beratKg:50,rincian:[{barang:'Logam',beratKg:50}]
+           }]
         }}));
        }""")
        await page.wait_for_timeout(80)
@@ -101,6 +106,7 @@ async def main():
         const latest=document.getElementById('f4BankLatestComposition');
         const details=latest?.querySelectorAll('.f4-bank-latest-category')||[];
         const stats=document.getElementById('f4BankSavingsStats');
+        const category=document.getElementById('f4BankCategoryTotals');
         const chart=document.getElementById('f4BankSavingsChart');
         const savingsPage=document.getElementById('pagePribadi');
         const pageBox=savingsPage?.getBoundingClientRect();
@@ -138,6 +144,12 @@ async def main():
          donut:!!latest?.querySelector('.f4-bank-latest-donut'),
          donutBackground:latest?.querySelector('.f4-bank-latest-donut')?.style.background||'',
          latestText:latest?.textContent||'',details:details.length,
+         categoryPresent:!!category,
+         categoryVisible:!!category&&getComputedStyle(category).display!=='none',
+         categoryTitle:category?.querySelector('h3')?.textContent,
+         categoryTotal:category?.querySelector('.f4-bank-category-total')?.textContent,
+         categoryRows:[...(category?.querySelectorAll('.f4-bank-category-row')||[])].map(x=>x.textContent),
+         categorySummary:category?.querySelector('.f4-bank-category-note')?.textContent,
          stats:stats?.querySelectorAll('.f4-bank-savings-stat').length||0,
          chart:!!chart,chartButtons:chart?.querySelectorAll('[data-group],[data-mode]').length||0
         };
@@ -151,6 +163,14 @@ async def main():
          savings['dashboardTopPadding']=='0px' and savings['contentTopPadding']=='0px' and
          savings['heroVisible'] and savings['latestVisible'] and savings['donut'] and
          savings['stats']==4 and savings['chart'] and savings['chartButtons']==5 and
+         savings['categoryPresent'] and savings['categoryVisible'] and
+         savings['categoryTitle']=='Total Setoran per Jenis' and
+         savings['categoryTotal']=='6 kg' and
+         len(savings['categoryRows'])==3 and
+         'Kardus3 kg' in savings['categoryRows'][0] and
+         'Botol Aqua bodong2 kg' in savings['categoryRows'][1] and
+         'Gelas plastik bersih1 kg' in savings['categoryRows'][2] and
+         '2 setoran' in savings['categorySummary'] and
          savings['details']==2 and 'Kardus' in savings['latestText'] and
          'Botol Aqua bodong' in savings['latestText'] and
          '4 kg' in savings['latestText'] and 'conic-gradient' in savings['donutBackground'] and
