@@ -16,6 +16,15 @@ on:
       - portal-live/bank-member-polish.css
       - qa/bank-member-view.cjs
       - .github/workflows/f4-bank-member-view.yml
+  pull_request:
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-mobile-app.js
+      - portal-live/live-bank-readonly.js
+      - portal-live/bank-eco-pages.css
+      - portal-live/bank-member-polish.css
+      - qa/bank-member-view.cjs
+      - .github/workflows/f4-bank-member-view.yml
   workflow_dispatch:
 permissions:
   contents: read
