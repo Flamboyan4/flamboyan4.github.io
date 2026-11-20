@@ -137,10 +137,10 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
  grid-column:auto;min-height:106px;padding:14px;
- border-color:#8adbaf;background:linear-gradient(145deg,#aff1c9,#e3f9d0)
+ border-color:#b8e2cb;background:#fff;border-top:3px solid #09a56a
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
- background-color:#72d9a4
+ background-color:#79e0ac
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
  color:#295f3e
@@ -149,10 +149,10 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  color:#07583d
 }
 /* The KPI backgrounds communicate category without extra card-in-card frames. */
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#dcefff;border-color:#9fd2f5}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#ebe6ff;border-color:#cbbcff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff0c2;border-color:#e8c75a}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#d5f8e8;border-color:#8bdfbc}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#fff;border-color:#cbe6f7;border-top:3px solid #168fcc}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#fff;border-color:#dad0fb;border-top:3px solid #8561da}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #f0b300}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#fff;border-color:#b7e5ce;border-top:3px solid #20b86b}
 @media(max-width:1100px){
  #v11Public .v17-public-main>.v17-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr))
