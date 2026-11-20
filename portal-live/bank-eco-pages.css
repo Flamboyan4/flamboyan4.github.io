@@ -8,7 +8,7 @@ body.f4-direct-bank,body.f4-embedded-bank,body.f4-bank-app-private{
  --f4-bank-leaf:#20b86b;--f4-bank-teal:#009e91;
  --f4-bank-sky:#168fcc;--f4-bank-gold:#ffcc32;
  --f4-bank-ink:#153e32;--f4-bank-muted:#5d786c;
- --f4-bank-line:#cde6d8;--f4-bank-surface:#fff;--f4-bank-canvas:#edf9f2;
+ --f4-bank-line:#dbe8e1;--f4-bank-surface:#fff;--f4-bank-canvas:#f8faf9;
  --f4-bank-mint:#d9fae6;--f4-bank-aqua:#daf1ff;--f4-bank-sun:#fff0c8
 }
 /* Shared app frame: tab content expands, footer has one invariant height. */
@@ -662,9 +662,9 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{
  display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:12px;min-width:0;min-height:126px;padding:18px 12px;
- border:1px solid #d2efec;border-radius:20px;
- background:linear-gradient(150deg,#e6f9fa,#f8fffd);color:#153e32;text-align:center;font:inherit;
- box-shadow:0 5px 17px #047c7510;cursor:pointer;
+ border:1px solid #087f77;border-radius:20px;
+ background:#087f77;color:#fff;text-align:center;font:inherit;
+ box-shadow:0 7px 20px #075d582c;cursor:pointer;
  transition:box-shadow .16s ease,border-color .16s ease
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary{
@@ -673,7 +673,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-icon{
  display:grid;place-items:center;flex:none;width:36px;height:36px;
- border:0;border-radius:0;background:transparent;color:#009688
+ border:0;border-radius:0;background:transparent;color:currentColor
 }
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation.is-primary .f4-bank-admin-operation-icon{
  background:transparent;color:#183826
@@ -694,7 +694,21 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small,
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation:is(:hover,:focus-visible){
- border-color:#8dcbb6;box-shadow:0 8px 22px #153f2a1a;outline-offset:3px
+ border-color:currentColor;box-shadow:0 9px 23px #153f2a2f;outline-offset:3px
+}
+/* Desktop action arrangement lives with this component, not at the file end. */
+@media(min-width:1024px){
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations>.f4-bank-admin-operation{
+  display:flex;flex-direction:row;align-items:center;justify-content:center;
+  gap:11px;min-height:0;height:100%;min-width:0;padding:10px 13px;border-radius:19px;
+  text-align:left
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy{
+  justify-items:start;text-align:left;min-width:0
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy strong{
+  font-size:clamp(12px,1.12vw,15px);overflow-wrap:anywhere
+ }
 }
 @media(prefers-reduced-motion:reduce){
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{transition:none}
@@ -3438,7 +3452,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 @media(min-width:1024px){
  body.f4-bank-app-private #dashboardView .section{min-width:0;padding:22px clamp(18px,2.3vw,32px) 44px}
  body.f4-bank-app-admin #dashboardView .section{background:var(--bank-admin-canvas)}
- body.f4-bank-app-member #dashboardView .section{background:#f4faf7}
+ body.f4-bank-app-member #dashboardView .section{background:var(--f4-bank-canvas,#f8faf9)}
  body.f4-bank-app-private #dashboardView #pageDashboard{padding:0;background:transparent}
  body.f4-bank-app-private #dashboardView #f4BankAppHome{width:100%;max-width:1120px;margin-inline:auto;gap:14px;align-items:stretch}
  /* Member layout is defined once below, with a single composition at every width. */
@@ -3469,17 +3483,6 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{
   grid-area:actions;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   grid-template-rows:minmax(0,1fr);gap:12px;align-self:stretch;min-width:0
- }
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations>.f4-bank-admin-operation{
-  display:flex;flex-direction:row;align-items:center;justify-content:center;
-  gap:11px;min-height:0;height:100%;min-width:0;padding:10px 13px;border-radius:19px;
-  text-align:left
- }
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy{
-  justify-items:start;text-align:left;min-width:0
- }
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy strong{
-  font-size:clamp(12px,1.12vw,15px);overflow-wrap:anywhere
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{grid-area:insights}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{display:none}
