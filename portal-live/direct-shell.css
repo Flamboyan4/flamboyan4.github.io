@@ -37,6 +37,9 @@
 .f4-grid[data-compact="true"]{gap:var(--f4-grid-gap-compact)}
 .f4-grid .f4-span-full{grid-column:1/-1}
 .f4-page-width{width:100%;max-width:var(--f4-content-max);min-width:0;margin-inline:auto}
+/* Reserve the native Lucide placeholder's default 24px dimensions before SVG render.
+   Explicit w-* / h-* classes and component size rules override these zero-specificity defaults. */
+:where(i[data-lucide]){display:inline-block;width:24px;height:24px}
 @media(max-width:1023px){
  .f4-grid[data-cols="3"],.f4-grid[data-cols="4"],.f4-grid[data-cols="5"]{--f4-grid-cols:2}
  .f4-grid[data-cols="3"]>:last-child:nth-child(odd),
@@ -355,7 +358,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   margin-left:var(--f4-book-sidebar-width);
   margin-right:0;
  }
- body.f4-direct-book > main > *{min-width:0;max-width:1200px}
+ body.f4-direct-book > main > *{min-width:0;max-width:var(--f4-content-max);margin-inline:auto}
  body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
 }
 

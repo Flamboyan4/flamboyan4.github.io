@@ -1,0 +1,56 @@
+name: F4 One-Time Safe Banner Compression
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/f4-banner-compress-once.yml'
+permissions:
+  contents: write
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install deterministic image encoder
+        run: python -m pip install --quiet Pillow==12.3.0
+      - name: Rebuild only the three approved banners, guard against changed source
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from hashlib import sha256
+          from pathlib import Path
+          expected = {
+            'banner-bank-sampah.jpg': ('7ead0dcdab390bfa125de884bc0858bd7c7655855282fad66aad6baf7e0ad182', 'b996b979f9c1156311bc610f4d888f3e44c26effeb976984c55232b62e5b750b'),
+            'banner-gapura.jpg': ('640786d80619f43b428168b8644dcab30b8bcc1badcd4dbc6e3fdb9e3a98e8e0', '4c54707e8edfcb8a82aee1cbc4f27e4734e8df6e27743410165fc4c59db668bc'),
+            'banner-jersey.jpg': ('69c210f61b6de7fafa981b429306a30ddd3d91d61a56c4b5a950503a51dd435a', '3d80c37d71dc8db426cd613739dcbb3377d4fa54cf7690cb9e442ae46db95886'),
+          }
+          for name, (old_hash, new_hash) in expected.items():
+            file = Path('assets') / name
+            original = file.read_bytes()
+            assert sha256(original).hexdigest() == old_hash, f'Banner source changed: {name}'
+            with Image.open(file) as img:
+              assert img.size == (1600,500) and img.mode == 'RGB', f'Unexpected image: {name}'
+              img.save(file.with_suffix('.jpg.tmp'), format='JPEG', quality=90, optimize=True, progressive=True, subsampling=0)
+            temp = file.with_suffix('.jpg.tmp')
+            modified = temp.read_bytes()
+            assert sha256(modified).hexdigest() == new_hash, f'Encoded banner output mismatch: {name}'
+            assert len(modified) < len(original), f'Banner is not smaller: {name}'
+            temp.replace(file)
+            print(f'{name}: {len(original)} -> {len(modified)} bytes')
+          PY
+      - name: Commit optimized banners and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/banner-bank-sampah.jpg assets/banner-gapura.jpg assets/banner-jersey.jpg
+          git rm .github/workflows/f4-banner-compress-once.yml
+          git diff --cached --check
+          git commit -m "perf: compress three banners (lossless dimensions, quality 90)"
+          git push origin HEAD:main
