@@ -35,7 +35,7 @@ assert(bank.includes("title:final?'Bukti Hasil Setoran Sampah':'Bukti Penimbanga
  'Bank deposit receipt must separate final vs estimated');
 assert(bank.includes("amountLabel:final?'Hasil Setoran Sah':'Nilai Perkiraan'"),
  'Unconfirmed weights must never be presented as final revenue');
-assert(bank.includes("status:final?'TERKONFIRMASI':'ESTIMASI — BELUM SAH'"),
+assert(bank.includes("status:final?'TERKONFIRMASI':'ESTIMASI — BELUM TERJUAL'"),
  'Unconfirmed deposits need visible caution');
 assert(bank.includes("received<gross?'BAYAR SEBAGIAN'"),'Partial sale payment status missing');
 assert(bank.includes("if(x.id&&Number(x.nominal)>0&&String(x.status||'').toLowerCase()==='lunas')"),
@@ -98,9 +98,9 @@ vm.runInNewContext(engine,sandbox);
  await sandbox.window.F4TransactionReceipt.open({
   scope:'bank',id:'deposit:qa-pending',title:'Bukti Penimbangan Sampah',
   party:'Pak Heri',house:'A6/09',date:'2026-11-10',method:'Setoran sampah',
-  amount:10000,amountLabel:'Nilai Perkiraan',status:'ESTIMASI — BELUM SAH'
+  amount:10000,amountLabel:'Nilai Perkiraan',status:'ESTIMASI — BELUM TERJUAL'
  });
- assert(logs.some(x=>x.includes('ESTIMASI — BELUM SAH')),'Unconfirmed deposit must retain caution text');
+ assert(logs.some(x=>x.includes('ESTIMASI — BELUM TERJUAL')),'Unconfirmed deposit must retain caution text');
  assert(!logs.some(x=>x.includes('Pembayaran Berhasil')),'Pending deposit must not claim successful payment');
  assert(logs.some(x=>x.includes('Bukti Penimbangan Sampah')),'Estimated deposit must use correct subtitle');
  await assert.rejects(()=>sandbox.window.F4TransactionReceipt.open({id:'',amount:1}),/Nomor atau nominal/);
