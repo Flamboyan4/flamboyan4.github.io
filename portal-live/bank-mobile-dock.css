@@ -35,7 +35,7 @@
   width:100%;max-width:100%;min-width:0;
   height:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom));
   padding:7px 8px calc(6px + var(--f4-bank-dock-safe-bottom));
-  margin:0;overflow:visible;background:#fff;border-top:1px solid #e4ece5;
+  margin:0;overflow:visible;background:#fff;border-top:1px solid #dceee5;
   box-shadow:none;transform:none
  }
  body.f4-bank-app-private .f4-bank-app-dock-action{
@@ -74,8 +74,8 @@
   white-space:nowrap;text-align:center;font-size:11px;line-height:1.15
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-active{
-  background:linear-gradient(145deg,#e5f6ed,#d5f3c8);
-  color:#064a2e;font-weight:850
+  background:linear-gradient(145deg,#e2f9ed,#d8f8ec);
+  color:#08664f;font-weight:850
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
   outline:2px solid #278655;outline-offset:-2px
@@ -96,20 +96,20 @@
   display:grid;place-items:center;
   width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px);min-width:0;min-height:0;
   box-sizing:border-box;padding:0;border:3px solid #fff;border-radius:50%;
-  background:#ffc411;color:#fff;box-shadow:none;
+  background:#ffcc32;color:#143c2c;box-shadow:0 5px 15px #85631524;
   transform:translateX(-50%)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon{
-  display:block;width:44px;height:44px;fill:#fff;stroke:none
+  display:block;width:44px;height:44px;fill:#143c2c;stroke:none
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-payout-rp-icon text{
   font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
-  letter-spacing:-2px;fill:#fff;stroke:none
+  letter-spacing:-2px;fill:#143c2c;stroke:none
  }
  /* Ikon Laporan tetap SVG asli; ukuran dan badge sama dengan Pencairan warga. */
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
   width:32px;height:32px;
-  filter:brightness(0) invert(1)
+  filter:brightness(0) saturate(100%) invert(19%) sepia(28%) saturate(862%) hue-rotate(100deg) brightness(91%) contrast(95%)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:focus-visible{
   outline:2px solid #218a55;outline-offset:3px;border-radius:50%

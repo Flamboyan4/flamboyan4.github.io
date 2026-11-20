@@ -47,8 +47,8 @@
    Satu komponen, tanpa aturan prioritas atau akordeon tambahan. */
 #dashboardView #pageDashboard.f4-member-dashboard #f4MemberFlow.f4-member-flow{
  box-sizing:border-box;display:flex;flex-direction:column;min-width:0;width:100%;height:100%;
- margin:0;border:1px solid #e5ebed;border-radius:20px;
- background:#fff;color:#193b2c;overflow:hidden;box-shadow:0 5px 15px #174b360a
+ margin:0;border:1px solid #dfeee6;border-radius:19px;
+ background:#fff;color:#193b2c;overflow:hidden;box-shadow:0 7px 19px #14734a0d
 }
 #dashboardView #f4MemberFlow>.f4-member-flow-head{
  display:flex;align-items:center;gap:10px;flex:none;min-width:0;
@@ -58,7 +58,7 @@
 #dashboardView #f4MemberFlow>.f4-member-flow-head::marker{content:''}
 #dashboardView #f4MemberFlow .f4-member-flow-icon{
  display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;
- background:#e5f3ea;color:#247d50;border-radius:12px
+ background:#dff9eb;color:#078664;border-radius:12px
 }
 #dashboardView #f4MemberFlow .f4-member-flow-copy{display:grid;flex:1;min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-copy strong{
@@ -75,20 +75,20 @@
  list-style:none;margin:0;padding:0;border:0
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
- --step-bg:#eaf7ee;--step-line:#d2e8d9;--step-icon:#d3ebdb;--step-ink:#24784b;
+ --step-bg:#e6faed;--step-line:#d9f2e4;--step-icon:#bdf2d1;--step-ink:#086f50;
  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
  min-width:0;min-height:108px;margin:0;padding:10px 5px;
  border:1px solid var(--step-line);border-radius:13px;background:var(--step-bg);
  box-shadow:none;text-align:center
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(2){
- --step-bg:#eaf3fc;--step-line:#d5e6f5;--step-icon:#d8e9fb;--step-ink:#286a9d
+ --step-bg:#e5f6ff;--step-line:#d8edfc;--step-icon:#c9eafe;--step-ink:#146eaa
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(3){
- --step-bg:#fff6df;--step-line:#f2e3b7;--step-icon:#faeac0;--step-ink:#8b690b
+ --step-bg:#fff6d9;--step-line:#f6e5b8;--step-icon:#ffe9a5;--step-ink:#805f03
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li:nth-child(4){
- --step-bg:#f0f1fc;--step-line:#dfe3f5;--step-icon:#e0e5f9;--step-ink:#5359a0
+ --step-bg:#f1efff;--step-line:#e7e3fa;--step-icon:#ded5ff;--step-ink:#56539b
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li>div{min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-number{
