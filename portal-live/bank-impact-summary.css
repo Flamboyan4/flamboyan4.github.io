@@ -1,6 +1,6 @@
 /* Public Bank Sampah app — canonical hero, main canvas and metric components.
    Other application pages and the private finance block below are unaffected. */
-#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:var(--f4-bank-canvas,#edf9f2)}
+#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:var(--f4-bank-canvas,#f8faf9)}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
  background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
@@ -315,51 +315,6 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  font-size:10.5px;line-height:1.35
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-note[hidden]{display:none}
-/* Frame laporan dimiliki bank-member-navigation.css; bagian estimasi tetap datar. */
-body.f4-bank-app-member #bank-member-info #v25ReportPending{
- display:grid;gap:11px;min-width:0;
- margin:0 0 17px;padding:0 0 16px;
- border:0;border-bottom:1px solid #e0ebe3;border-radius:0;
- background:transparent;box-shadow:none
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-head{
- display:flex;align-items:center;justify-content:space-between;gap:8px
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-head h3{
- margin:0;color:#0b533b;font-size:15px;font-weight:850;line-height:1.25
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-badge{
- display:inline-flex;align-items:center;justify-content:center;
- flex:none;padding:5px 10px;border-radius:99px;
- background:#fff3cb;color:#946600;font-size:10px;font-weight:850;line-height:1.2
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-grid{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:0;min-width:0;padding:4px 0 2px
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric{
- box-sizing:border-box;display:grid;align-content:center;
- gap:6px;min-width:0;margin:0;padding:1px 8px 1px 0;
- border:0;border-radius:0;background:transparent;box-shadow:none
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric:nth-child(2){
- padding:1px 0 1px 16px;border-left:1px solid #d9e7dc
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric small{
- color:#627e6d;font-size:11px;font-weight:600;line-height:1.25
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric strong{
- color:#08775e;font-size:clamp(18px,2.1vw,24px);
- font-weight:850;line-height:1.2;overflow-wrap:anywhere;
- font-variant-numeric:tabular-nums
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric:nth-child(2) strong{
- color:#0c6541
-}
-body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-foot{
- margin:0;padding-top:4px;border:0;
- color:#6a7d71;font-size:10.5px;line-height:1.4
-}
 /* Filter merupakan dropdown asli. Di HP, native-controls.js menyisipkan
    .f4-control-trigger setelah select; trigger mendapat kolom penuh yang sama. */
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar{
@@ -455,12 +410,6 @@ body.f4-bank-app-member #bank-member-info #v25ReportMobileList{
  #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child strong{
   font-size:30px
  }
- body.f4-bank-app-member #bank-member-info #v25ReportPending{
-  padding:0 0 15px;margin-bottom:16px
- }
- body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric strong{
-  font-size:19px
- }
  body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar{
   display:grid;grid-template-columns:minmax(0,1fr) repeat(3,43px);
   align-items:center;gap:7px
@@ -515,7 +464,7 @@ body.f4-bank-app-member #bank-member-info #v25ReportMobileList{
   color:#0a6044;font-size:13px;font-weight:850;line-height:1.3
  }
  body.f4-bank-app-member #bank-member-info .f4-bank-report-mobile-values{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px
+  display:grid;grid-template-columns:minmax(0,1fr);gap:8px
  }
  body.f4-bank-app-member #bank-member-info .f4-bank-report-mobile-values>span{
   display:grid;align-content:start;gap:4px;min-width:0
