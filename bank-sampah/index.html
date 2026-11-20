@@ -654,12 +654,6 @@ z-index:48
  padding:10px 1px;list-style:none;cursor:pointer
 }
 #pageAdmin .v23-account-summary::-webkit-details-marker,#pageMaster .f4-master-summary::-webkit-details-marker{display:none}
-#pageAdmin .v23-account-avatar{
- flex:none;display:grid;place-items:center;width:38px;height:38px;
- border-radius:12px;background:#009688;color:#fff;font-size:13px;font-weight:850
-}
-#pageAdmin .v23-account-row:nth-child(3n+2) .v23-account-avatar{background:#287ab0;color:#fff}
-#pageAdmin .v23-account-row:nth-child(3n+3) .v23-account-avatar{background:#43a047;color:#fff}
 #pageAdmin .v23-account-identity,#pageMaster .f4-master-identity{
  display:grid;gap:3px;min-width:0;flex:1
 }
@@ -779,7 +773,6 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
  #pageAdmin .v23-account-tools,#pageMaster .f4-master-tools{padding:10px;gap:8px}
  #pageAdmin #v23AccountRows,#pageMaster .f4-master-rows{padding:0 11px}
  #pageAdmin .v23-account-detail{padding-left:1px}
- #pageAdmin .v23-account-avatar{width:35px;height:35px;border-radius:10px}
  #pageAdmin .v23-account-summary,#pageMaster .f4-master-summary{gap:8px}
  #pageAdmin .v23-account-identity strong,#pageMaster .f4-master-identity strong{font-size:13px}
  #pageAdmin .v23-account-detail>button,#pageMaster .f4-master-detail>button{width:auto}
@@ -1661,12 +1654,9 @@ body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank
 #pageTabungan .f4-savings-panel-title p,#pageTabungan .f4-payout-intro{margin:0;color:#738579;font-size:11px}
 body.f4-direct-bank #dashboardView #pageTabungan #v9List{width:100%;max-width:100%;max-height:470px;overflow:auto;border:0;margin:0;padding:0;background:transparent}
 #pageTabungan #v9List .f4-saldo-list{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
-#pageTabungan #v9List .f4-saldo-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:61px;min-width:0;padding:9px 11px;border:1px solid #e5ede6;border-radius:12px;background:#f9fbf8}
+#pageTabungan #v9List .f4-saldo-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:61px;min-width:0;padding:9px 11px;border:1px solid #e5ede6;border-radius:12px;background:#f9fbf8}
 #pageTabungan #v9List .f4-saldo-row:nth-child(even){background:#fff}
 #pageTabungan #v9List .f4-saldo-row[hidden]{display:none}
-#pageTabungan #v9List .f4-saldo-avatar{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#009688;color:#fff;font-size:13px;font-weight:850}
-#pageTabungan #v9List .f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar{background:#287ab0;color:#fff}
-#pageTabungan #v9List .f4-saldo-row:nth-child(3n+3) .f4-saldo-avatar{background:#43a047;color:#fff}
 #pageTabungan #v9List .f4-saldo-person{display:grid;gap:2px;min-width:0}
 #pageTabungan #v9List .f4-saldo-name{font-size:14px;line-height:1.3;color:#204535;font-weight:800;overflow-wrap:anywhere}
 #pageTabungan #v9List .f4-saldo-house{font-size:11.5px;color:#72887a;line-height:1.3}
@@ -1735,7 +1725,6 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  #pageTabungan .f4-savings-roster{padding:0;border:0;background:transparent}
  #pageTabungan .f4-savings-panel{padding:13px}
  #pageTabungan #v9List .f4-saldo-row{grid-template-columns:35px minmax(0,1fr) auto;padding:9px}
- #pageTabungan #v9List .f4-saldo-avatar{width:35px;height:35px}
  #pageTabungan #v9List .f4-saldo-amount{font-size:13.5px}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form{grid-template-columns:1fr}
  body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.field{grid-column:1/-1}
@@ -2218,6 +2207,37 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     return words.length?title+' '+words[0]:full;
   }
   window.f4BankDisplayWargaName=f4BankDisplayWargaName;
+  // One avatar rule for every Bank Sampah administrator screen.
+  function f4BankPersonInitial(name,kind="resident"){
+    const raw=String(name||"").normalize("NFKC").replace(/\([^)]*\)/g," ").trim();
+    const plain=kind==="resident"?raw.replace(/^(?:(?:pak|bapak|bpk|bp|bu|ibu|mas|mbak)\.?\s+)+/i,""):raw;
+    const words=plain.match(/\p{L}[\p{L}\p{M}]*/gu)||[];
+    if(!words.length)return "?";
+    const a=Array.from(words[0])[0];
+    const b=kind==="buyer"&&words.length>1?Array.from(words[words.length-1])[0]:"";
+    return (a+b).toLocaleUpperCase("id-ID");
+  }
+  function f4BankPersonAvatar(name,{className="",kind="resident",memberId="",hasAvatar=false}={}){
+    const avatar=document.createElement("span");
+    avatar.className=(className+" f4-bank-person-avatar").trim();
+    avatar.setAttribute("aria-hidden","true");
+    avatar.textContent=f4BankPersonInitial(name,kind);
+    const raw=String(name||"").normalize("NFKC").replace(/\([^)]*\)/g," ").trim();
+    const plain=kind==="resident"?raw.replace(/^(?:(?:pak|bapak|bpk|bp|bu|ibu|mas|mbak)\.?\s+)+/i,""):raw;
+    const seed=(plain.match(/\p{L}[\p{L}\p{M}]*/u)?.[0]||"warga").toLocaleLowerCase("id-ID");
+    const palette=["#008e83","#088a61","#1686ba","#29954c"];
+    let hash=0;for(const ch of seed)hash=(Math.imul(hash,31)+ch.codePointAt(0))>>>0;
+    avatar.style.setProperty("--f4-bank-person-bg",palette[hash%palette.length]);
+    const id=String(memberId||"").replace(/^member:/i,"").trim();
+    if(hasAvatar&&/^[a-zA-Z0-9:_-]{1,128}$/.test(id)){
+      const photo=document.createElement("img");photo.alt="";
+      photo.loading="lazy";photo.decoding="async";photo.referrerPolicy="no-referrer";
+      photo.onerror=()=>photo.remove();
+      photo.src="https://api.flamboyan4.web.id/api/v2/admin/bank/member-avatar?memberId="+encodeURIComponent(id);
+      avatar.append(photo);
+    }
+    return avatar;
+  }
   function metric(label,value){const b=document.createElement('div');b.className='metric';const small=document.createElement('small');small.textContent=label;const strong=document.createElement('strong');strong.textContent=value;b.append(small,strong);return b;}
   async function loadDashboard(){if(!profile)return;$('adminMetrics').classList.toggle('hidden',profile.peran!=='Admin');$('memberWelcome').classList.toggle('hidden',profile.peran==='Admin');if(profile.peran!=='Admin'){$('welcomeName').textContent=f4BankDisplayWargaName(profile.nama);$('welcomeHouse').textContent=profile.rumah||'—';$('welcomeId').textContent=profile.wargaId||'—';$('metricStatus').textContent='Informasi keuangan pribadi belum diaktifkan.';return;}const adminStatusToken=F4Loading.begin('metricStatus','Memuat ringkasan Bank Sampah…');try{const d=await call('bsDashboardAdmin',token);const list=[['Anggota aktif',d.wargaAktif],['Jenis barang aktif',d.jenisBarangAktif],['Total berat setoran',kg(d.beratSetoranKg)],['Setoran',d.jumlahSetoran],['Perkiraan belum sah',rupiah(d.estimasiSetoranRp)],['Penjualan lapak',d.jumlahPenjualan],['Berat terjual',kg(d.beratPenjualanKg)],['Diterima dari lapak',rupiah(d.diterimaLapakRp)],['Riwayat tabungan tercatat',rupiah(d.netMutasiTabunganRp)],['Net kas tercatat',rupiah(d.netKasRp)]];$('metricGrid').replaceChildren(...list.map(([l,v])=>metric(l,v)));$('dashboardWarnings').textContent=d.tarifBelumDitetapkan+' jenis barang masih belum memiliki Tarif Warga Aktif. Nilai estimasi tidak sama dengan tabungan terkonfirmasi.';F4Loading.success('metricStatus',adminStatusToken);}catch(e){F4Loading.error('metricStatus','Gagal mengambil dashboard: '+(e.message||e),adminStatusToken);}}
   async function loadMaster(){
@@ -2822,10 +2842,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   async function v9Load(){if(!v9Nonce)v9Nonce='N'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);$('v9List').textContent='Memuat saldo...';try{const [members,cash,history]=await Promise.all([call('bsV9SaldoAdmin',token),call('bsV9StatusKasAdmin',token),call('bsV9RiwayatPencairan',token)]);v9Members=members;const sum=members.reduce((s,x)=>s+x.saldo,0);v9RenderKas(cash,sum);const select=$('v9Member'),old=select.value;select.replaceChildren(new Option('Pilih warga',''));members.filter(m=>m.status.toLowerCase()==='aktif').forEach(m=>{const opt=new Option(f4BankDisplayWargaName(m.nama)+' • '+m.rumah,m.wargaId);opt.dataset.fullName=m.nama||'';select.appendChild(opt)});select.value=old;v9ShowBalance();const list=$('v9List');const roster=document.createElement('div');roster.className='f4-saldo-list';roster.setAttribute('role','list');
 members.filter(m=>Number(m.saldo)>0).sort((a,b)=>new Intl.Collator('id',{numeric:true,sensitivity:'base'}).compare(String(a.rumah||''),String(b.rumah||''))||String(a.nama||'').localeCompare(String(b.nama||''),'id')).forEach(m=>{
  const row=document.createElement('div');row.className='f4-saldo-row';row.setAttribute('role','listitem');
-  const avatar=document.createElement('span');avatar.className='f4-saldo-avatar';avatar.setAttribute('aria-hidden','true');
-  const words=String(m.nama||'').trim().replace(/^(pak|bapak|ibu|bu)\s+/i,'').split(/\s+/).filter(Boolean);
-  avatar.textContent=(words.length>1?words.slice(0,2).map(x=>x[0]).join(''):(words[0]||'?').slice(0,1)).toLocaleUpperCase('id-ID');
-  row.dataset.balance='positive';row.dataset.search=[m.nama||'',m.rumah||'',f4BankDisplayWargaName(m.nama)].join(' ');
+  const avatar=f4BankPersonAvatar(m.nama,{className:'f4-saldo-avatar',
+    memberId:m.wargaId,hasAvatar:m.hasAvatar===true||m.hasAvatar===1||m.hasAvatar==='1'});
+   row.dataset.balance='positive';row.dataset.search=[m.nama||'',m.rumah||'',f4BankDisplayWargaName(m.nama)].join(' ');
  const person=document.createElement('div');person.className='f4-saldo-person';
  const name=document.createElement('strong');name.className='f4-saldo-name';name.textContent=f4BankDisplayWargaName(m.nama);name.title=m.nama||'';
  const house=document.createElement('small');house.className='f4-saldo-house';house.textContent=m.rumah||'—';
@@ -3458,12 +3477,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     rows.forEach(r=>{
       const item=document.createElement('article');item.className='f4-recent-item';
       const who=document.createElement('div');
-      const avatar=document.createElement('span');avatar.className='f4-recent-avatar';
-      const rawName=String(r.namaWarga||r.nama||'').trim();
-      const personalName=rawName.replace(/^(?:(?:pak|bapak|bu|ibu|mas|mbak)\.?\s+)+/i,'').trim();
-      const words=(personalName||rawName).split(/\s+/).filter(Boolean);
-      avatar.textContent=words.length?(words.length>1?words[0][0]+words[words.length-1][0]:words[0][0]).toUpperCase():'?';
-      avatar.setAttribute('aria-hidden','true');
+      const avatar=f4BankPersonAvatar(r.namaWarga||r.nama,{className:'f4-recent-avatar',
+        memberId:r.wargaId||r.member_id,hasAvatar:r.hasAvatar===true||r.hasAvatar===1||r.hasAvatar==='1'});
       const nameLine=document.createElement('div');nameLine.className='f4-recent-name-line';
       const name=document.createElement('strong');
       name.textContent=f4BankDisplayWargaName(r.namaWarga||r.nama);
@@ -3901,7 +3916,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v15PaintAvatar(){
     const node=$('v15Avatar'),preview=$('v15PhotoPreview');if(!node)return;
     node.replaceChildren();
-    const initials=(profile?.nama||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();
+    const initials=f4BankPersonInitial(profile?.nama);
     const fallback=$('f4ProfileInitials');
     if(v15AvatarData){
       const img=document.createElement('img');img.src=v15AvatarData;img.alt='';node.appendChild(img);
@@ -4511,25 +4526,10 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const card=document.createElement('article');
     card.className='f4-admin-deposit-card'+(canceled?' is-canceled':'');
     const identity=document.createElement('div');identity.className='f4-admin-deposit-identity';
-    const avatar=document.createElement('span');avatar.className='f4-admin-deposit-avatar';
-    avatar.setAttribute('aria-hidden','true');
     const fullName=String(r.namaWarga||'Warga tidak tersedia').trim();
     const displayName=f4BankDisplayWargaName(fullName);
-    // Inisial mengambil nama depan, bukan gelar Pak/Bu atau tanda kurung di akhir nama.
-    const givenName=displayName.replace(/^(?:Pak|Bu)\s+/i,'').trim();
-    avatar.textContent=(givenName.match(/[A-Za-zÀ-ÿ]/u)?.[0]||'W').toLocaleUpperCase('id-ID');
-    // Foto dari profil akun warga (R2); bila belum ada / gagal dimuat gunakan inisial.
-    const memberId=String(r.wargaId||'').replace(/^member:/i,'').trim();
-    if(r.hasAvatar===true&&/^[a-zA-Z0-9:_-]{1,128}$/.test(memberId)){
-      const photo=document.createElement('img');
-      photo.alt='';photo.loading='lazy';photo.decoding='async';
-      photo.referrerPolicy='no-referrer';
-      avatar.style.position='relative';avatar.style.overflow='hidden';
-      photo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;';
-      photo.onerror=()=>photo.remove();
-      photo.src='https://api.flamboyan4.web.id/api/v2/admin/bank/member-avatar?memberId='+encodeURIComponent(memberId);
-      avatar.appendChild(photo);
-    }
+    const avatar=f4BankPersonAvatar(fullName,{className:'f4-admin-deposit-avatar',
+      memberId:r.wargaId,hasAvatar:r.hasAvatar===true||r.hasAvatar===1||r.hasAvatar==='1'});
     const copy=document.createElement('div');copy.className='f4-admin-deposit-copy';
     const name=document.createElement('strong');name.textContent=displayName;name.title=fullName;
     const meta=document.createElement('span');meta.className='f4-admin-deposit-meta';
@@ -4627,11 +4627,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const card=document.createElement('article');
     card.className='f4-admin-deposit-card f4-admin-sale-card'+(canceled?' is-canceled':'');
     const identity=document.createElement('div');identity.className='f4-admin-deposit-identity';
-    const avatar=document.createElement('span');avatar.className='f4-admin-deposit-avatar';
-    avatar.setAttribute('aria-hidden','true');
     const buyer=String(r.lapak||'Lapak tidak tersedia').trim();
-    const parts=buyer.split(/\s+/).filter(Boolean);
-    avatar.textContent=(parts.length>1?parts[0][0]+parts[parts.length-1][0]:parts[0]?.slice(0,2)||'L').toUpperCase();
+    const avatar=f4BankPersonAvatar(buyer,{className:'f4-admin-deposit-avatar',kind:'buyer'});
     const copy=document.createElement('div');copy.className='f4-admin-deposit-copy';
     const name=document.createElement('strong');name.textContent=buyer;
     const meta=document.createElement('span');meta.className='f4-admin-deposit-meta';
@@ -5295,10 +5292,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const row=v21Node('details','v23-account-row');
       row.dataset.active=String(a.status==='Aktif');
       const summary=v21Node('summary','v23-account-summary');
-      const avatar=v21Node('span','v23-account-avatar');
-      avatar.setAttribute('aria-hidden','true');
-      const words=String(a.nama||'').trim().replace(/^(pak|bapak|ibu|bu)\s+/i,'').split(/\s+/).filter(Boolean);
-      avatar.textContent=(words.length>1?words.slice(0,2).map(x=>x[0]).join(''):(words[0]||'?').slice(0,1)).toLocaleUpperCase('id-ID');
+      const avatar=f4BankPersonAvatar(a.nama,{className:'v23-account-avatar',
+        memberId:a.wargaId,hasAvatar:a.hasAvatar===true||a.hasAvatar===1||a.hasAvatar==='1'});
       const identity=v21Node('span','v23-account-identity');
       identity.append(v21Node('strong','',a.nama||'Tanpa nama'),v21Node('small','',a.rumah||'Rumah belum tercatat'));
       const state=v21Node('span','v23-account-state',a.status||'—');
@@ -6605,8 +6600,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 </style>
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261120-fresh-eco-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261120-fresh-eco-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261120-unified-shell-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261121-unified-avatar-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261121-unified-avatar-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261120-vivid-info-v3">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261120-fresh-eco-v1">

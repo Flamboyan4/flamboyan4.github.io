@@ -20,6 +20,50 @@ new vm.Script(mobile,{filename:'portal-live/bank-mobile-app.js'});
 const source=[...h.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].find(x=>x[1].includes('function v14Setup()'))?.[1];
 assert(source,'Bank app inline JavaScript missing');
 new vm.Script(source,{filename:'bank-sampah/index.html:inline'});
+// Canonical administrator avatars: no bracket characters, titles or row-index colors.
+const avatarStart=source.indexOf('function f4BankPersonInitial(');
+const avatarEnd=source.indexOf('function metric(',avatarStart);
+assert(avatarStart>=0&&avatarEnd>avatarStart,'Shared avatar implementation missing');
+const mockDoc={createElement(tag){
+ return {tagName:tag,children:[],attrs:{},
+   style:{values:{},setProperty(key,value){this.values[key]=value}},
+   setAttribute(key,value){this.attrs[key]=value},append(node){this.children.push(node)},
+   remove(){this.removed=true}};
+}};
+const avatarApi=vm.runInNewContext(
+ source.slice(avatarStart,avatarEnd)+'\n({f4BankPersonInitial,f4BankPersonAvatar})',
+ {document:mockDoc,encodeURIComponent});
+const initial=avatarApi.f4BankPersonInitial;
+for(const [name,kind,expected] of [
+ ['Pak Heri (Raisa)','resident','H'],
+ ['Heri Juwandi','resident','H'],
+ ['Pak Eko','resident','E'],
+ ['Saepul Hidayat','resident','S'],
+ ['Ibu Rini (Wati)','resident','R'],
+ ['Bang Jul','buyer','BJ'],
+ ['!!!','resident','?']
+])assert.equal(initial(name,kind),expected,'Invalid initial for '+name);
+const a=avatarApi.f4BankPersonAvatar('Pak Heri (Raisa)',{className:'v23-account-avatar'});
+const b=avatarApi.f4BankPersonAvatar('Heri Juwandi',{className:'f4-recent-avatar'});
+assert.equal(a.textContent,'H');
+assert.equal(a.style.values['--f4-bank-person-bg'],b.style.values['--f4-bank-person-bg'],
+ 'Same resident must retain their avatar color even when labels differ');
+const photoAvatar=avatarApi.f4BankPersonAvatar('Pak Heri (Raisa)',{
+ className:'f4-admin-deposit-avatar',memberId:'member:abc-123',hasAvatar:true
+});
+assert.equal(photoAvatar.textContent,'H');
+assert.equal(photoAvatar.children.length,1,'Available resident photo should still be shown');
+assert(photoAvatar.children[0].src.endsWith('memberId=abc-123'));
+assert(css.includes('.f4-bank-person-avatar{')&&css.includes('.f4-bank-person-avatar>img{'),
+ 'Avatar sizes, radius and photo fallback must have one canonical CSS owner');
+assert(!h.includes('.v23-account-row:nth-child(3n+2) .v23-account-avatar')&&
+ !h.includes('.f4-saldo-row:nth-child(3n+2) .f4-saldo-avatar')&&
+ !dashboard.includes('.f4-recent-item:nth-child(even) .f4-recent-avatar')&&
+ !css.includes('border-radius:50%;\n background:#08775e'),
+ 'Remove row-order avatar colors and inconsistent circular variants');
+for(const cls of ["'f4-saldo-avatar'","'f4-recent-avatar'","'f4-admin-deposit-avatar'","'v23-account-avatar'"]){
+ assert(h.includes("className:"+cls)||h.includes("className: "+cls),'Avatar route not using canonical component: '+cls);
+}
 /* Compact Tabungan history is the only member deposit list; all details live in its receipt. */
 const receiptScope=h.split("const deposits=$('v12Deposits');deposits.replaceChildren();")[1]?.split("if(!deposits.querySelector('.f4-member-tx'))")[0]||'';
 assert(receiptScope.includes("const row=document.createElement('div');row.className='f4-member-tx';") &&
