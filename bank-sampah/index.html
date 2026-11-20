@@ -3145,9 +3145,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
           details:[['Jenis transaksi',x.jenis],['Saldo sesudahnya',rupiah(x.saldo)]],
           note:'Bukti pencairan yang tercatat di mutasi tabungan anggota.'
         })):'—';
-        return [f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo),receipt];
+        return [f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo),receipt];
       });
-      history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Keluar','Saldo','Resi'],personalMutations));
+      history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Dicairkan','Koreksi','Saldo','Resi'],personalMutations));
       const deposits=$('v12Deposits');deposits.replaceChildren();deposits.classList.add('f4-member-tx-feed');
       // Daftar ringkas seperti mutasi bank. Harga awal tidak boleh disebut hasil akhir.
       // D1 hanya memberi hasil sah PER SETORAN; belum ada harga sah per jenis barang.
@@ -3232,10 +3232,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
     // Ringkasan satu baris, tanpa kartu tinggi.
     const summary=document.createElement('div');summary.className='f4-member-print-summary';
-    const activeMutasi=mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||'')));
-    const income=activeMutasi.reduce((sum,x)=>sum+Number(x.kredit||0),0);
+    const activeMutasi=mutasi.filter(x=>!['koreksi_debit','koreksi_kredit'].includes(String(x.kind||'')));
+    const canceledBatches=new Set((d.setoran||[]).filter(x=>x.status==='Dibatalkan').map(x=>String(x.batchId||'')).filter(Boolean));
+    const income=activeMutasi.filter(x=>!canceledBatches.has(String(x.batchId||''))).reduce((sum,x)=>sum+Number(x.kredit||0),0);
     const expense=activeMutasi.reduce((sum,x)=>sum+Number(x.debit||0),0);
-    [['Saldo',d.saldo],['Masuk',income],['Keluar',expense]].forEach(([label,value])=>{
+    [['Saldo',d.saldo],['Masuk',income],['Dicairkan',expense]].forEach(([label,value])=>{
       const cell=document.createElement('span');cell.className='f4-member-print-summary-item';
       const name=document.createElement('small');name.textContent=label;
       const number=document.createElement('strong');number.textContent=rupiah(value);
@@ -3243,44 +3244,32 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     });
     root.appendChild(summary);
 
-    // Semua tabel menggunakan lima kolom induk yang sama, persis satu grid Excel.
-    // Tabel rincian berisi empat kolom; status memakai gabungan dua kolom terakhir.
-    function addTable(heading,headers,rows,spanLast=false){
+    // Semua jenis, berat, dan nilai memakai data setoran yang diinput warga/pengurus.
+    // Status penjualan tidak dipakai sebagai syarat menampilkan berat di laporan.
+    function addTable(heading,headers,rows){
       const h=document.createElement('h2');h.textContent=heading;root.appendChild(h);
       const table=v12Table(headers,rows);table.className='f4-member-print-table';
-      const cols=document.createElement('colgroup');
-      [18,34,16,16,16].forEach(width=>{
-        const col=document.createElement('col');col.style.width=width+'%';cols.appendChild(col);
-      });
-      table.prepend(cols);
-      if(spanLast){
-        table.querySelectorAll('tr').forEach(row=>{
-          const last=row.lastElementChild;if(last)last.colSpan=2;
-        });
-      }
-      root.appendChild(table);
+      const colgroup=document.createElement('colgroup');
+      (headers.length===6?[16,28,14,14,14,14]:
+       headers.length===4?[20,42,18,20]:Array(headers.length).fill(100/headers.length))
+        .forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';colgroup.appendChild(col);});
+      table.prepend(colgroup);root.appendChild(table);
     }
-
-    addTable('Riwayat tabungan',['Tanggal','Keterangan','Masuk','Keluar','Saldo'],
-      mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),rupiah(x.saldo)]));
-    addTable('Ringkasan setoran',['Tanggal','Status','Timbang awal','Berat sah','Hasil jual'],
-      setoran.map(s=>{
-        const info=f4MemberDepositDisplay(s);
-        const timbang=s.beratTimbangKg??s.beratKg;
-        return [f4MemberDateID(s.tanggal),info.status,
-          timbang==null?'—':v12Kg(timbang),
-          info.status==='Sudah sah'&&s.beratSahKg!=null?v12Kg(s.beratSahKg):'—',
-          info.final==null?'—':rupiah(info.final)];
-      }));
-    addTable('Rincian barang',['Tanggal','Jenis sampah','Berat sah','Status'],
-      setoran.flatMap(s=>(s.rincian||[]).map(x=>{
-        const sahKg=v12ConfirmedItemKg(s,x);
-        return [f4MemberDateID(s.tanggal),x.barang||'—',
-          sahKg==null?'—':v12Kg(sahKg),f4MemberDepositDisplay(s).status];
-      })),true);
-
+    addTable('Riwayat tabungan',['Tanggal','Keterangan','Masuk','Dicairkan','Koreksi','Saldo'],
+      mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,
+        rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo)]));
+    addTable('Setoran warga',['Tanggal','Jumlah barang','Total berat ditimbang','Nilai awal'],
+      setoran.map(s=>[
+        f4MemberDateID(s.tanggal),(s.rincian||[]).length+' jenis',
+        v12Kg(s.beratTimbangKg??s.beratKg),
+        rupiah(s.estimasiRp)
+      ]));
+    addTable('Rincian barang disetor',['Tanggal','Jenis sampah','Berat ditimbang','Nilai awal'],
+      setoran.flatMap(s=>(s.rincian||[]).map(x=>[
+        f4MemberDateID(s.tanggal),x.barang||'—',v12Kg(x.beratKg),rupiah(x.nilai)
+      ])));
     const note=document.createElement('p');note.className='f4-member-print-note';
-    note.textContent='Berat per barang berasal dari hasil penjualan yang disahkan. Tanda — berarti berat sah belum tersedia.';
+    note.textContent='Berat dan barang adalah data yang dicatat saat penyetoran. Nilai awal bukan hasil penjualan.';
     root.appendChild(note);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
@@ -3297,22 +3286,19 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     setoran=d.setoran.filter(inPeriod).sort(v12PrintOldestFirst),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
       ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',range?range.from+' s.d. '+range.to:selected||'Semua'],
-      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||''))).reduce((n,x)=>n+Number(x.kredit||0),0)],['Keluar periode (Rp)',mutasi.filter(x=>!/koreksi|pembatalan|dibatalkan|reversal|pembalik/i.test(String(x.jenis||''))).reduce((n,x)=>n+Number(x.debit||0),0)],
+      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.filter(x=>x.kind==='kredit'&&!new Set((d.setoran||[]).filter(s=>s.status==='Dibatalkan').map(s=>String(s.batchId||'')).filter(Boolean)).has(String(x.batchId||''))).reduce((n,x)=>n+Number(x.kredit||0),0)],['Dicairkan periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
-      ['RIWAYAT TABUNGAN'],
-      ['Tanggal','Jenis','Masuk Rp','Keluar Rp','Saldo Rp'],
-      ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.saldo]),
-      [],
-      ['RINGKASAN SETORAN (HASIL JUAL = HAK WARGA SAH)'],
-      ['Tanggal','Timbang awal (kg)','Berat sah (kg)','Status','Hasil jual Rp'],
-      ...setoran.map(s=>{
-        const info=f4MemberDepositDisplay(s);
-        return [s.tanggal,s.beratTimbangKg??s.beratKg??'',info.status==='Sudah sah'?(s.beratSahKg??''):'',info.status,info.final===null?'':info.final];
-      }),
-      [],
-      ['RINCIAN BARANG (BERAT PENJUALAN SAH)'],
-      ['Tanggal','Barang','Berat sah (kg)','Status'],
-      ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,v12ConfirmedItemKg(s,x)??'',f4MemberDepositDisplay(s).status]))
+       ['RIWAYAT TABUNGAN'],
+       ['Tanggal','Jenis','Masuk Rp','Dicairkan Rp','Koreksi Rp','Saldo Rp'],
+       ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.koreksi||0,x.saldo]),
+       [],
+       ['SETORAN WARGA'],
+       ['Tanggal','Jumlah jenis','Total berat ditimbang (kg)','Nilai awal Rp'],
+       ...setoran.map(s=>[s.tanggal,(s.rincian||[]).length,s.beratTimbangKg??s.beratKg??0,s.estimasiRp]),
+       [],
+       ['RINCIAN BARANG DISETOR'],
+       ['Tanggal','Barang','Berat timbang (kg)','Nilai awal Rp'],
+       ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,x.beratKg,x.nilai]))
     ];
     const safe=v=>{
       const text=String(v??'');
