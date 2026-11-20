@@ -261,12 +261,12 @@ function ensureHome(){
   house.append(el("small","","RUMAH"),el("strong","f4-bank-card-house","—"));
   identity.append(person,house);card.append(cardHead,center,identity);
   const savings=el("div","f4-bank-app-member-balance");savings.id="f4BankAppMemberBalance";
-  savings.setAttribute("role","group");savings.setAttribute("aria-label","Ringkasan total sampah yang sudah disetorkan");
+  savings.setAttribute("role","group");savings.setAttribute("aria-label","Total saldo Bank Sampah: saldo sah dan estimasi");
   const balanceHead=el("div","f4-bank-balance-head");
   const balanceEye=el("button","f4-bank-balance-eye");balanceEye.type="button";
-  balanceEye.setAttribute("aria-label","Sembunyikan total setoran");
+  balanceEye.setAttribute("aria-label","Sembunyikan saldo");
   balanceEye.setAttribute("aria-pressed","false");
-  balanceEye.title="Sembunyikan total setoran";
+  balanceEye.title="Sembunyikan saldo";
   const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
   balanceEyeSvg.setAttribute("aria-hidden","true");
@@ -281,7 +281,7 @@ function ensureHome(){
    event.preventDefault();event.stopPropagation();
    memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();
   };
-  balanceHead.append(el("span","f4-bank-member-balance-label","Total Setoran Sampah"),balanceEye);
+  balanceHead.append(el("span","f4-bank-member-balance-label","Total Saldo"),balanceEye);
   const balanceLink=el("button","f4-bank-balance-cta","Buka Tabungan");balanceLink.type="button";
   balanceLink.onclick=()=>navigate("pribadi");
   savings.append(balanceHead,el("strong","f4-bank-member-balance-value","••••••"),balanceLink);
@@ -457,19 +457,7 @@ function memberBalancePreview(){
   const status=String(row.status||"").trim().toLowerCase();
   return !/batal/.test(status)&&!/^(terkonfirmasi|confirmed|sah|sudah sah|disahkan)$/.test(status);
  }).reduce((sum,row)=>sum+Math.max(0,Number(row.estimasiRp)||0),0);
- return {confirmed,pending};
-}
-/* Lifetime weight is the sum of recorded, non-cancelled personal deposits. */
-function memberDepositTotals(){
- if(!memberStatement)return null;
- const deposits=(Array.isArray(memberStatement.setoran)?memberStatement.setoran:[])
-  .filter(row=>!/batal/i.test(String(row?.status||"")));
- let weight=0,missing=0;
- for(const row of deposits){
-  if(row?.beratKg==null||!Number.isFinite(Number(row.beratKg))||Number(row.beratKg)<0){missing++;continue;}
-  weight+=Number(row.beratKg);
- }
- return {weight,count:deposits.length,missing};
+ return {confirmed,pending,total:confirmed+pending};
 }
 function updateDashboard(){
  if(!role||!$("f4BankAppHome"))return;
@@ -478,21 +466,23 @@ function updateDashboard(){
   const button=$("f4BankAppMemberBalance");
   // Keep the balance card and independent buttons intact on every refresh.
   const amount=button?.querySelector(".f4-bank-member-balance-value");
-  const deposits=memberDepositTotals();
-  if(amount)amount.textContent=deposits?(memberBalancePrivacy.hidden?"••••••":f4PrivateKg(deposits.weight)):"—";
+  // Beranda menampilkan saldo gabungan yang belum dicairkan; rincian hanya di Tabungan.
+  const balance=memberBalancePreview();
+  if(amount)amount.textContent=balance?(memberBalancePrivacy.hidden?"••••••":rupiah(balance.total)):"—";
   const balanceCard=$("f4BankAppMemberBalance");
   const heading=balanceCard?.querySelector(".f4-bank-member-balance-label");
-  if(heading)heading.textContent=deposits?.missing?"Berat Setoran Tercatat":"Total Setoran Sampah";
+  if(heading)heading.textContent="Total Saldo";
   let hint=balanceCard?.querySelector(".f4-bank-member-balance-hint");
   if(balanceCard&&!hint){
    hint=el("small","f4-bank-member-balance-hint");
    balanceCard.querySelector(".f4-bank-balance-cta")?.before(hint);
   }
-  if(hint)hint.textContent=!deposits?"Memuat setoran pribadi…":
-   deposits.count+" kali setoran"+(deposits.missing?" · sebagian berat belum tercatat":"");
+  if(hint)hint.textContent=balance?
+   "Gabungan saldo sah dan estimasi setoran":
+   "Memuat saldo tabungan…";
   const eye=button?.querySelector(".f4-bank-balance-eye");
   if(eye){
-   const label=memberBalancePrivacy.hidden?"Tampilkan total setoran":"Sembunyikan total setoran";
+   const label=memberBalancePrivacy.hidden?"Tampilkan saldo":"Sembunyikan saldo";
    eye.setAttribute("aria-label",label);
    eye.setAttribute("aria-pressed",String(memberBalancePrivacy.hidden));
    eye.title=label;
