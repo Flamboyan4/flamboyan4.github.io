@@ -156,7 +156,7 @@
        const total=row[key]+row[pending];
        const column=el('div','f4-activity-column');
        column.setAttribute('aria-label',row.label+': sah '+amount(row[key],state.unit)+
-         ', belum sah '+amount(row[pending],state.unit));
+         ', belum terjual '+amount(row[pending],state.unit));
        const value=el('b','',maximum===0?'—':(total>0?shortAmount(row[key],state.unit):'0'));
        const track=el('div','f4-activity-bar-track');
        const confirmed=el('span','f4-activity-bar-confirmed');
@@ -170,13 +170,13 @@
        bars.append(column);
      }
      legend.replaceChildren();
-     for(const [label,kind] of [[isRupiah?'Hasil jual sah':'Berat sah','confirmed'],[isRupiah?'Perkiraan belum sah':'Belum sah','pending']]){
+     for(const [label,kind] of [[isRupiah?'Hasil jual sah':'Berat sah','confirmed'],[isRupiah?'Perkiraan belum terjual':'Belum terjual','pending']]){
        const item=el('span');item.append(el('i','is-'+kind),document.createTextNode(label));legend.append(item);
      }
      const sum=key=>rows.reduce((t,r)=>t+r[key],0);
      footer.replaceChildren(metric(amount(sum(key),state.unit),isRupiah?'Hasil jual sah':'Berat sah','confirmed'),
-       metric(amount(sum(pending),state.unit),isRupiah?'Perkiraan':'Belum sah','pending'));
-     caption.textContent=isRupiah?'Nilai kuning belum masuk saldo.':'Hijau = hasil sah • Kuning = belum sah.';
+       metric(amount(sum(pending),state.unit),isRupiah?'Perkiraan':'Belum terjual','pending'));
+     caption.textContent=isRupiah?'Nilai kuning belum masuk saldo.':'Hijau = sudah terjual • Kuning = belum terjual.';
      if(maximum===0)bars.classList.add('is-empty');else bars.classList.remove('is-empty');
    }
    if(!dailyAvailable&&state.range!=='month')state.range='month';
