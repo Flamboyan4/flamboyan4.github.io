@@ -8,7 +8,7 @@ body.f4-direct-bank,body.f4-embedded-bank,body.f4-bank-app-private{
  --f4-bank-leaf:#20b86b;--f4-bank-teal:#009e91;
  --f4-bank-sky:#168fcc;--f4-bank-gold:#ffcc32;
  --f4-bank-ink:#153e32;--f4-bank-muted:#5d786c;
- --f4-bank-line:#dbe8e1;--f4-bank-surface:#fff;--f4-bank-canvas:#f8faf9;
+ --f4-bank-line:#d0e0d5;--f4-bank-surface:#fff;--f4-bank-canvas:#fff;
  --f4-bank-mint:#d9fae6;--f4-bank-aqua:#daf1ff;--f4-bank-sun:#fff0c8
 }
 /* Shared app frame: tab content expands, footer has one invariant height. */
@@ -39,7 +39,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-savings-panel,.v17-panel,.f4-member-progress-section),
 #v11Public :is(.v17-panel,.public-tile,.v25-report-card,.v21-album-tile){
  background:#fff;border:1px solid var(--eco-line);
- border-radius:18px;box-shadow:0 8px 22px #176b4715
+ border-radius:18px;box-shadow:0 8px 22px #176b4723
 }
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>h2,#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>.toolbar h2,
 #dashboardView :is(.f4-savings-head,.f4-savings-panel-title,.f4-approval-heading,.f4-member-progress-section-heading) :is(h2,h3),
