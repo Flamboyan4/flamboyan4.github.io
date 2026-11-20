@@ -35,11 +35,10 @@ assert(css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-deposit
        css.includes('grid-template-columns:38px minmax(0,1fr) auto 38px') &&
        !css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-tx-chevron{'),
  'Savings history receipt button must sit beside the amount, with no dead chevrons');
-assert(css.includes('--f4-bank-leaf:#20b86b') && css.includes('--f4-bank-teal:#009e91') &&
-       css.includes('--f4-bank-sky:#168fcc') && css.includes('--f4-bank-gold:#ffcc32') &&
-       css.includes('linear-gradient(112deg,#087a66,#07816b 56%,#0a8760)') &&
-       css.includes('.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}'),
- 'Savings and other roles must use the shared green, teal, sky and yellow palette');
+assert(css.includes('linear-gradient(112deg,#009688,#008e80 56%,#43a047)') &&
+       css.includes('.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}') &&
+       css.includes('background:#8bc34a') && css.includes('background:#ffc411'),
+ 'Savings page palette should use new teal, green, lime, yellow and cyan only');
 
 
 assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned theme stylesheet missing');
@@ -57,7 +56,7 @@ for(const phrase of ['#v18PublicSide',
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
-assert(css.includes('background:#d9f8e7;color:#096a4e;'),'Fresh, readable active navigation missing');
+assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation missing');
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(!css.includes('#f4MemberHero'), 'No green wrapper should surround the ATM card');
@@ -72,17 +71,14 @@ assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
  'Price shortcut must use a clear SVG price-tag icon');
 const bankingCss=css.split('/* Bank Sampah member dashboard: premium eco-banking composition.')[1]
  ?.split('/* Responsive Bank Sampah:')[0]||'';
-assert(bankingCss.includes('linear-gradient(119deg,#076956 0%,#07816b 52%,#0e805d 100%)') &&
+assert(bankingCss.includes('background:linear-gradient(120deg,#079e8f 0%,#05896e 55%,#087448 100%)') &&
        !bankingCss.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
- 'Member ATM should use a lively teal and leaf gradient with readable white text');
+ 'Premium member ATM should use the selected deep-leaf gradient without changing other portal pages');
 assert(bankingCss.includes('grid-area:balance') &&
        bankingCss.includes('padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;\n background:#fff;') &&
        bankingCss.includes('background:linear-gradient(105deg,#067747,#075030)'),
  'Member balance requires white background and working green CTA');
-assert(publicTheme.includes('linear-gradient(123deg,#086754 0%,#07816b 52%,#0a8760 100%)') &&
-       publicTheme.includes('border:0;border-radius:25px;color:#fff;') &&
-       publicTheme.includes('background:#ffcc32;color:#184735;'),
- 'Public hero must combine readable eco gradient with a visible yellow action');
+assert(publicTheme.includes('background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%)') && publicTheme.includes('border:0;border-radius:24px;color:#fff;'), 'Public hero must keep the selected saturated green gradient and white text');
 assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
        css.includes('"progress recent"') && css.includes('"guide info"'),
  'Premium desktop hierarchy must have personal progress beside mutasi and compact steps beside information');
@@ -177,10 +173,10 @@ assert(memberNav.includes('border-right:1px solid #e6eae8') &&
        memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible') &&
        memberNav.includes('font:700 13.5px/1.3'),
  'White sidebar should use readable portal-sized dark text');
-assert(bankingCss.includes('background:#f4faf7;\n min-height:calc(100dvh - 56px)') &&
-       memberNav.includes('body.f4-bank-app-member{background:#f4faf7}') &&
-       memberNav.includes('background:linear-gradient(132deg,#effbff,#fff 76%);color:#1b5138;box-shadow:0 6px 18px'),
- 'Member canvas must match across pages while information tile remains distinct');
+assert(bankingCss.includes('background:#fff;\n min-height:calc(100dvh - 56px)') &&
+       memberNav.includes('body.f4-bank-app-member{background:#fff}') &&
+       memberNav.includes('background:#fff;color:#1b5138;box-shadow:0 5px 16px'),
+ 'Member dashboard and its report surface need a pure white canvas');
 assert(h.includes('body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"]))'),
  'Legacy dashboard must not flash before member widgets are mounted');
 assert(css.includes('color:#fff;opacity:.95;transform:none') &&

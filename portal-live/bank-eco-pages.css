@@ -2640,7 +2640,7 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  }
  body.f4-bank-app-admin #sideNav #v16NavList{gap:0}
  body.f4-bank-app-admin #sideNav #v16NavList>.v16-item{
-  box-sizing:border-box;min-height:43px;margin:2px 0;padding:10px 12px;gap:10px;
+  box-sizing:border-box;min-height:40px;margin:2px 0;padding:9px 12px;gap:10px;
   border-radius:10px;color:#315347;font:650 13px/1.25 system-ui,-apple-system,sans-serif
  }
  body.f4-bank-app-admin #sideNav #v16NavList .f4-bank-nav-divider{

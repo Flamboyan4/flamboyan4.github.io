@@ -73,13 +73,13 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  /* Member navigation follows the same compact desktop grid as the admin sidebar. */
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item{
   box-sizing:border-box;display:flex;align-items:center;gap:10px;
-  min-height:43px;margin:2px 0;padding:10px 12px;border:0;border-radius:10px;
+  min-height:40px;margin:2px 0;padding:9px 12px;border:0;border-radius:10px;
   background:transparent;color:#315347;
   font:650 13px/1.25 system-ui,-apple-system,sans-serif;
-  box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:#43a047
+  box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:#20b86b
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is(.active,[aria-current="page"]){
-  background:#e4f6d5;color:#196e40;font-weight:750;box-shadow:none
+  background:#d9f8e7;color:#096a4e;font-weight:800;box-shadow:none
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:not(.active):hover{
   background:#f2f9f0;color:#2c7047
