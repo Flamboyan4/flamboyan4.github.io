@@ -5,6 +5,7 @@ const page=fs.readFileSync('bank-sampah/index.html','utf8');
 const direct=fs.readFileSync('portal-live/direct-shell.js','utf8');
 const ui=fs.readFileSync('portal-live/bank-mobile-app.js','utf8');
 const bridge=fs.readFileSync('portal-live/f4-bank-write-bridge.js','utf8');
+const readonly=fs.readFileSync('portal-live/live-bank-readonly.js','utf8');
 const sheet=fs.readFileSync('portal-live/bank-sale-sheet.js','utf8');
 const policy=fs.readFileSync('portal-live/bank-policy-admin.js','utf8');
 const superadmin=fs.readFileSync('superadmin/index.html','utf8');
@@ -16,9 +17,12 @@ assert(worker.includes("AS portal_scope") &&
        'Bank albums must be scoped in D1 reads without joining Portal Utama albums');
 assert(worker.includes("const id='album:bank:'"),
        'New Bank albums require an unambiguous origin ID');
-assert(page.includes("const list=albums(r.albums)") &&
-       !page.includes("id:'legacy-bank-20261011'"),
-       'Album list must use real D1 records, not an unopenable fake album');
+assert(page.includes('/portal-live/live-bank-readonly.js?v=') &&
+       readonly.includes("const result=await get('/api/v2/public/bank')") &&
+       readonly.includes("const list=albums(r.albums)") &&
+       !page.includes("id:'legacy-bank-20261011'") &&
+       !readonly.includes("id:'legacy-bank-20261011'"),
+       'Album list must use real D1 records from the installed read bridge, not a fake album');
 assert(direct.includes("accountId:session?.account?.id"),
        'Native login must pass a stable account ID for identity changes');
 assert(page.includes("activeAccountKey===nextAccountKey") &&
