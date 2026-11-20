@@ -200,8 +200,8 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
   display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
   grid-template-areas:
    "hero stats"
-   "chart latest"
-   "history categories";
+   "chart history"
+   "latest categories";
   grid-auto-rows:max-content;gap:16px 18px;align-items:start
  }
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHero{
