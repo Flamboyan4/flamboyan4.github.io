@@ -2911,7 +2911,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
  return b}));if(!history.length)h.textContent='Belum ada pembelian atau pengeluaran.';}catch(e){$('v10History').textContent='Gagal memuat: '+(e.message||e);}}
   async function v10SaveExpense(e){e.preventDefault();const nominal=Math.round(Number($('v10Qty').value)*Number($('v10Price').value));if(!(nominal>0)){note('v10ExpenseNotice','Isi jumlah dan harga terlebih dahulu.',true);return;}if(!await window.f4UiDialog.confirm('Apakah biaya '+$('v10Type').value+' '+rupiah(nominal)+' SUDAH DIBAYAR? Transaksi akan mengurangi kas dan anggaran pos.'))return;busy(e.target,true);note('v10ExpenseNotice','Menyimpan biaya...');try{const r=await call('bsV10CatatBiaya',token,{nonce:v10Nonce,tanggal:$('v10Date').value,jenis:$('v10Type').value,pos:$('v10Position').value,keterangan:$('v10Description').value,jumlah:Number($('v10Qty').value),hargaSatuan:Number($('v10Price').value),satuan:$('v10Unit').value,toko:$('v10Vendor').value,inventaris:$('v10Inventory').checked,bukti:$('v10Proof').value,catatan:$('v10Notes').value});v10Nonce='';e.target.reset();v10Calc();await v10LoadBiaya();note('v10ExpenseNotice',r.id+' tercatat: '+rupiah(r.nominal)+(r.inventarisId?' • inventaris '+r.inventarisId:''));window.dispatchEvent(new CustomEvent('f4-bank-expense-saved',{detail:{id:r.id}}));}catch(err){note('v10ExpenseNotice','Gagal: '+(err.message||err)+'. Jika ada Diproses, jangan ulangi sebelum audit.',true);}finally{busy(e.target,false);}}
   async function v10LoadReport(){const tokenLoading=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');try{v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value);v10RenderReport();F4Loading.success('v10ReportNotice',tokenLoading);}catch(e){F4Loading.error('v10ReportNotice','Gagal: '+(e.message||e),tokenLoading);}}
-  const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['berat','Berat sesuai status kg'],['beratTimbang','Timbang awal kg'],['nilai','Nilai (Rp)'],['status','Status']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Kredit Rp'],['debit','Debit Rp']]},setoranBank:{title:'Setoran milik Bank Sampah',fields:[['tanggal','Tanggal'],['barang','Jenis sampah'],['berat','Berat (kg)'],['diterima','Diterima Rp'],['keterangan','Catatan']]}};
+  const v10Specs={setoran:{title:'Setoran warga',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['barang','Barang disetor'],['berat','Berat (kg)'],['nilai','Nilai awal (Rp)'],['penjualan','Penjualan']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Masuk Rp'],['debit','Dicairkan Rp'],['koreksi','Koreksi Rp']]},setoranBank:{title:'Setoran milik Bank Sampah',fields:[['tanggal','Tanggal'],['barang','Jenis sampah'],['berat','Berat (kg)'],['diterima','Diterima Rp'],['keterangan','Catatan']]}};
   function v10SelectedSections(){
     if(!v10ReportData)return[];
     const choices=[...document.querySelectorAll('#v33ReportControls input[data-report-section]:checked')].map(el=>el.value);
@@ -2940,7 +2940,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
   }
   function v10MakeTable(spec,rows,kind){
     const fields=v10ReportFields(spec,kind);
-    const spans=fields.length===6?v10ReportGridSix:
+    const spans=kind==='setoran'?[4,2,5,1,2,2]:kind==='mutasi'?[4,2,4,2,2,2]:fields.length===6?v10ReportGridSix:
       fields.length===5?v10ReportGridFive:null;
     const table=document.createElement('table');
     table.className='f4-admin-report-table';
@@ -2955,7 +2955,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       });
     table.appendChild(colgroup);
     const thead=document.createElement('thead'),heading=document.createElement('tr');
-    const numeric=new Set(['berat','beratTimbang','nilai','bruto','diterima','nominal','kredit','debit']);
+    const numeric=new Set(['berat','beratTimbang','nilai','bruto','diterima','nominal','kredit','debit','koreksi']);
     fields.forEach(([key,label])=>{
       const th=document.createElement('th');th.scope='col';th.textContent=label;
       if(numeric.has(key))th.classList.add('f4-report-num');
@@ -2969,7 +2969,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       if(/batal/i.test(String(record.status||'')))tr.classList.add('f4-report-row-canceled');
       fields.forEach(([key,label])=>{
         const td=document.createElement('td');td.dataset.label=label;
-        td.textContent=typeof record[key]==='boolean'?(record[key]?'Ya':'Tidak'):String(record[key]??'');
+        td.textContent=typeof record[key]==='boolean'?(record[key]?'Ya':'Tidak'):numeric.has(key)&&typeof record[key]==='number'?record[key].toLocaleString('id-ID',{maximumFractionDigits:key==='berat'?3:0}):String(record[key]??'');
         if(numeric.has(key))td.classList.add('f4-report-num');
         if(key==='tanggal'||key==='status'||key==='disahkan')td.classList.add('f4-report-center');
         if(key==='status'){
@@ -2993,7 +2993,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     if(!v10ReportData)return;
     const r=v10ReportData.ringkasan,summary=$('v10ReportSummary');
     summary.replaceChildren(
-      v10CompactSummaryMetric('Setoran',r.jumlahSetoran),v10CompactSummaryMetric('Penjualan',r.jumlahPenjualan),
+      v10CompactSummaryMetric('Setoran tercatat',r.jumlahSetoran),v10CompactSummaryMetric('Penjualan',r.jumlahPenjualan),
       v10CompactSummaryMetric('Diterima lapak',rupiah(r.diterima)),v10CompactSummaryMetric('Kas saat laporan',rupiah(r.saldoKasKini))
     );
     let extra=$('v33ReportMore');
@@ -3004,7 +3004,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       extra.append(label,grid);summary.insertAdjacentElement('afterend',extra);
     }
     $('v33ReportMoreMetrics').replaceChildren(
-      v10CompactSummaryMetric('Menunggu sah',rupiah(r.estimasi)),v10CompactSummaryMetric('Hak warga sah',rupiah(r.hakWargaDikredit)),
+      v10CompactSummaryMetric('Setoran tersedia',r.jumlahSetoranTersedia??0),v10CompactSummaryMetric('Hak warga',rupiah(r.hakWargaDikredit)),
       v10CompactSummaryMetric('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),v10CompactSummaryMetric('Biaya dibayar',rupiah(r.biaya)),
       v10CompactSummaryMetric('Setoran milik Bank',rupiah(r.setoranBankRp||0))
     );
@@ -5806,12 +5806,12 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       box.append(caption,amount);return box;
     };
     primary.append(
-      item('Setoran sah',r.jumlahSetoran),item('Penjualan sah',r.jumlahPenjualan),
-      item('Diterima lapak',rupiah(r.diterima)),item('Hak warga',rupiah(r.hakWargaDikredit))
+      item('Setoran tercatat',r.jumlahSetoran),item('Terjual',r.jumlahSetoranTerjual??0),
+      item('Tersedia',r.jumlahSetoranTersedia??0),item('Penjualan lapak',r.jumlahPenjualan)
     );
     secondary.append(
-      item('Dicairkan',rupiah(r.tabunganDicairkan)),
-      item('Biaya',rupiah(r.biaya)),item('Setoran Bank',rupiah(r.setoranBankRp||0))
+      item('Diterima lapak',rupiah(r.diterima)),item('Hak warga aktif',rupiah(r.hakWargaDikredit)),
+      item('Dicairkan',rupiah(r.tabunganDicairkan)),item('Biaya',rupiah(r.biaya))
     );
     summary.append(primary,secondary);root.appendChild(summary);
     v10SelectedSections().forEach(({key,spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title+' ('+rows.length+')';root.append(heading,v10MakeTable(spec,rows,key));});
