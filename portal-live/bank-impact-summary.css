@@ -3,7 +3,7 @@
 #v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#f4faf7}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
- background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
+ background:#fff;border-bottom:1px solid #e3ece4;color:var(--f4-bank-ink,#153e32)
 }
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login{
  display:grid;place-items:center;width:auto;min-width:78px;
@@ -349,7 +349,7 @@ body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric small{
  color:#627e6d;font-size:11px;font-weight:600;line-height:1.25
 }
 body.f4-bank-app-member #bank-member-info .f4-bank-report-pending-metric strong{
- color:#08775e;font-size:clamp(18px,2.1vw,24px);
+ color:var(--f4-bank-deep,#08775e);font-size:clamp(18px,2.1vw,24px);
  font-weight:850;line-height:1.2;overflow-wrap:anywhere;
  font-variant-numeric:tabular-nums
 }
@@ -380,10 +380,10 @@ body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar but
  background:#e9f6ee;color:#11684b;font-size:12px;font-weight:800
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button:nth-last-child(2){
- background:#08775e;border-color:#08775e;color:#fff
+ background:var(--f4-bank-deep,#08775e);border-color:var(--f4-bank-deep,#08775e);color:#fff
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button:last-child{
- background:#ffc411;border-color:#ffc411;color:#174b36
+ background:var(--f4-bank-gold,#ffcc32);border-color:var(--f4-bank-gold,#ffcc32);color:var(--f4-bank-ink,#153e32)
 }
 body.f4-bank-app-member #bank-member-info #v25ReportRoot .v25-report-toolbar button svg{
  flex:none;width:19px;height:19px

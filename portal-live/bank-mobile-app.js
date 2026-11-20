@@ -39,7 +39,7 @@ async function api(path,payload){
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
  ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","clock.svg"],
- ["Laporan","bank-report","book.svg"]
+ ["Info","bank-member-info","book.svg"]
 ];
 // Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
 const adminDock=[
@@ -47,7 +47,7 @@ const adminDock=[
  ["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"],
  ["Laporan","laporan","book.svg"]
 ];
-let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
+let role=null,screen="dashboard",historyMonth="latest",historyKind="deposit",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
@@ -341,7 +341,7 @@ function ensureHome(){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
   const recentHeading=recent?.querySelector(".v14-panel-head h3");
-  if(recentHeading)recentHeading.textContent="Mutasi Setoran Terbaru";
+  if(recentHeading)recentHeading.textContent="Aktivitas Tabungan Terbaru";
   if(recent&&!hub.contains(recent))hub.append(recent);
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
@@ -453,7 +453,11 @@ function memberBalancePreview(){
  if(!memberStatement)return null;
  const confirmed=Math.max(0,Number(memberStatement.saldo)||0);
  const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran:[];
- const pending=deposits.filter(row=>{
+ // Prefer the D1 aggregate: includes all active setoran and partially unsold lots.
+ // Old bridges can omit this field, then fall back to a complete member statement.
+ const aggregate=memberStatement.estimasiMenungguRp;
+ const authoritative=aggregate!=null&&Number.isSafeInteger(Number(aggregate))&&Number(aggregate)>=0;
+ const pending=authoritative?Number(aggregate):deposits.filter(row=>{
   const status=String(row.status||"").trim().toLowerCase();
   return !/batal/.test(status)&&!/^(terkonfirmasi|confirmed|sah|sudah sah|disahkan)$/.test(status);
  }).reduce((sum,row)=>sum+Math.max(0,Number(row.estimasiRp)||0),0);
@@ -699,21 +703,39 @@ function populateMonths(host,values,current,onChange){
  if(host.tagName==="SELECT")host.onchange=()=>onChange(host.value);
 }
 function showHistory(){
- const page=ensureScreen("bank-history","Riwayat Transaksi");
+ const page=ensureScreen("bank-history","Riwayat");
  if(!$("f4BankHistoryList")){
+  const kinds=el("div","f4-bank-history-kinds");kinds.id="f4BankHistoryKinds";
+  kinds.setAttribute("role","group");kinds.setAttribute("aria-label","Jenis riwayat");
   const filter=el("div","f4-bank-month-filter");filter.id="f4BankHistoryMonths";
   const list=el("div","f4-bank-history-list");list.id="f4BankHistoryList";
   const panel=el("section","f4-bank-history-panel");
-  panel.append(filter,list);
-  page.append(el("p","f4-bank-screen-status","Memuat transaksi..."),panel);
+  panel.append(kinds,filter,list);
+  page.append(el("p","f4-bank-screen-status","Memuat riwayat…"),panel);
  }
- const rows=historyLines(),available=months(rows);
+ const all=historyLines();
+ const tabs=[["deposit","Setoran sampah"],["in","Hasil penjualan"],["out","Pencairan"]];
+ if(all.some(x=>x.kind==="correction"))tabs.push(["correction","Penyesuaian"]);
+ if(!tabs.some(x=>x[0]===historyKind))historyKind="deposit";
+ const kinds=$("f4BankHistoryKinds");
+ kinds.replaceChildren(...tabs.map(([key,label])=>{
+  const count=all.filter(x=>x.kind===key).length;
+  const button=el("button","f4-bank-history-kind"+(key===historyKind?" is-active":""),label);
+  button.type="button";button.setAttribute("aria-pressed",String(key===historyKind));
+  button.setAttribute("aria-label",label+", "+count+" transaksi");
+  button.onclick=()=>{historyKind=key;historyMonth="latest";showHistory();};
+  return button;
+ }));
+ const rows=all.filter(x=>x.kind===historyKind);
+ const available=months(rows);
  if(historyMonth==="latest"||!available.includes(historyMonth)&&historyMonth!=="all")
   historyMonth=available[0]||"all";
  populateMonths($("f4BankHistoryMonths"),available,historyMonth,key=>{historyMonth=key;showHistory();});
  const host=$("f4BankHistoryList");host.replaceChildren();
  for(const line of rows.filter(x=>historyMonth==="all"||x.month===historyMonth)){
   const deposit=line.kind==="deposit",out=line.debit>0,amount=out?line.debit:line.credit;
+  const title=deposit?"Setoran sampah":line.kind==="correction"?"Penyesuaian saldo":
+   out?"Pencairan tabungan":"Hasil penjualan sampah";
   const item=el("article","f4-bank-history-line");
   const badge=el("span","f4-bank-history-icon "+(deposit?"is-deposit":out?"is-out":"is-in"));
   badge.setAttribute("aria-hidden","true");
@@ -721,13 +743,18 @@ function showHistory(){
    out?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>':
    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m7-7-7 7-7-7"/></svg>';
   item.append(badge);
-  const desc=el("span","f4-bank-history-copy");desc.append(el("strong","",line.type),el("small","",line.date));
+  const desc=el("span","f4-bank-history-copy");
+  desc.append(el("strong","",title),el("small","",line.date));
   const total=el("span","f4-bank-history-amount "+(deposit?"is-deposit":out?"is-out":"is-in"));
   total.append(el("strong","",deposit?line.amountText:(out?"− ":"+ ")+rupiah(amount)),
    el("small","",deposit?line.note:"Saldo "+line.balance));
   item.append(desc,total);host.append(item);
  }
- if(!host.childElementCount)host.append(el("p","f4-bank-empty",rows.length?"Tidak ada transaksi pada bulan ini.":"Belum ada transaksi tercatat."));
+ if(!host.childElementCount){
+  const messages={deposit:"Belum ada setoran sampah tercatat.",in:"Belum ada hasil penjualan yang masuk ke tabungan.",
+   out:"Belum ada pencairan tabungan.",correction:"Belum ada penyesuaian saldo."};
+  host.append(el("p","f4-bank-empty",rows.length?"Tidak ada transaksi pada bulan ini.":messages[historyKind]));
+ }
  statusFor(page);
 }
 function showReport(){
@@ -1503,14 +1530,15 @@ function moveFeature(ids,target){
 }
 /* Badge tugas pengurus: stok belum dijual dan pencairan aktif.
    API ringkas D1 lebih diutamakan; fallback menjaga kompatibilitas selama Worker diperbarui. */
-const adminAlerts={unsold:null,payout:null};
+const adminAlerts={unsold:null,payout:null,approve:null};
 let adminAlertBusy=false,adminAlertFetched=0,adminAlertGeneration=0,adminAlertRefreshAgain=false;
 const alertRows=result=>Array.isArray(result?.data)?result.data:Array.isArray(result?.items)?result.items:[];
 function paintAdminAlerts(){
  if(role!=="admin"||roleType()!=="admin")return;
  for(const [route,count,unit] of [
   ["penjualan",adminAlerts.unsold,"setoran atau stok menunggu penjualan"],
-  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"]
+  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"],
+  ["rekonsiliasi",adminAlerts.approve,"penjualan menunggu pengesahan"]
  ]){
   for(const button of document.querySelectorAll('[data-bank-app-route="'+route+'"]')){
    if(button.tagName!=="BUTTON")continue;
@@ -1534,10 +1562,11 @@ function paintAdminAlerts(){
    button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel+" — "+count+" "+unit);
   }
  }
+ paintAdminTodo();
 }
 function resetAdminAlerts(){
  adminAlertGeneration++;adminAlertBusy=false;adminAlertRefreshAgain=false;adminAlertFetched=0;
- adminAlerts.unsold=null;adminAlerts.payout=null;
+ adminAlerts.unsold=null;adminAlerts.payout=null;adminAlerts.approve=null;
  document.querySelectorAll(".f4-bank-alert-badge").forEach(b=>b.remove());
  for(const button of document.querySelectorAll("[data-f4-alert-base-label]")){
   button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
@@ -1578,6 +1607,7 @@ async function refreshAdminAlerts(force=false){
   if(generation!==adminAlertGeneration||role!=="admin"||roleType()!=="admin")return;
   adminAlerts.unsold=Number(result.unsoldDeposits)||0;
   adminAlerts.payout=Number(result.pendingPayouts)||0;
+  adminAlerts.approve=result.pendingApprovals==null?null:Math.max(0,Number(result.pendingApprovals)||0);
   paintAdminAlerts();
  }catch(error){
   if(generation===adminAlertGeneration){
@@ -1595,9 +1625,9 @@ async function refreshAdminAlerts(force=false){
 }
 /* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
 const adminShortcuts=[
- ["Cek & Sahkan","rekonsiliasi","shield-check"],
+ ["Periksa & Sahkan","rekonsiliasi","shield-check"],
  ["Riwayat","bank-admin-history","history"],
- ["Debit/Kredit","bank-admin-cash","wallet"],
+ ["Kas Masuk & Keluar","bank-admin-cash","wallet"],
  ["Pencairan","bank-payout-admin","cash-out"],
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
@@ -1995,6 +2025,43 @@ function adminInsightFetch(force=false){
  }).finally(()=>{if(version===adminInsightVersion)adminInsightPending=null;});
  adminInsightPending=tasks;
 }
+/* Only authenticated action-counts are shown; unknown stays "—", not zero. */
+function ensureAdminTodo(home){
+ if(roleType()!=="admin"||!home)return;
+ let section=$("f4BankAdminTodo");
+ if(!section){
+  section=el("section","f4-bank-admin-todo");section.id="f4BankAdminTodo";
+  const heading=el("div","f4-bank-todo-heading");
+  heading.append(el("h3","","Perlu Tindakan"),el("small","","Ringkasan pekerjaan pengurus"));
+  const list=el("div","f4-bank-todo-list");
+  for(const [key,label,route] of [
+    ["unsold","Belum terjual","penjualan"],
+    ["approve","Penjualan perlu disahkan","rekonsiliasi"],
+    ["payout","Pengajuan pencairan","bank-payout-admin"]
+  ]){
+   const button=el("button","f4-bank-todo-item");button.type="button";
+   button.dataset.bankAppRoute=route;button.dataset.todoKey=key;
+   button.setAttribute("aria-label","Buka "+label.toLowerCase());
+   button.append(el("strong","f4-bank-todo-value","—"),el("span","f4-bank-todo-label",label));
+   const arrow=el("span","f4-bank-todo-arrow");
+   arrow.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+   button.append(arrow);button.onclick=()=>navigate(route);list.append(button);
+  }
+  section.append(heading,list);
+  const operations=$("f4BankAdminOperations");
+  if(operations)operations.after(section);else home.prepend(section);
+ }
+ paintAdminTodo();
+}
+function paintAdminTodo(){
+ const panel=$("f4BankAdminTodo");if(!panel)return;
+ for(const button of panel.querySelectorAll("[data-todo-key]")){
+  const value=adminAlerts[button.dataset.todoKey],known=Number.isFinite(value);
+  button.querySelector(".f4-bank-todo-value").textContent=known?String(value):"—";
+  button.classList.toggle("is-clear",known&&value===0);
+  button.title=known?String(value)+" "+button.querySelector(".f4-bank-todo-label").textContent:"Data belum tersedia";
+ }
+}
 function ensureAdminHome(){
  if(role!=="admin")return;
  ensureDesktopAdminSidebar();
@@ -2022,6 +2089,7 @@ function ensureAdminHome(){
   $("f4BankAdminOperations")?.after(shortcuts);
  }
  ensureAdminMenuSheet();
+ ensureAdminTodo(home);
  adminInsightMount(home);
  paintAdminAlerts();
  refreshAdminAlerts();
@@ -2202,7 +2270,7 @@ function ensureCashExpenseForm(){
  else form.append(extras);
 }
 function showAdminCash(){
- const page=ensureScreen("bank-admin-cash","Debit/Kredit");
+ const page=ensureScreen("bank-admin-cash","Kas Masuk & Keluar");
  let body=$("f4BankAdminCashBody");
  if(!body){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
@@ -2562,10 +2630,12 @@ function drawMemberHomeChart(){
    "Belum ada setoran pribadi pada periode ini."));
   return;
  }
- const max=Math.max(0,...entries.map(item=>item.weight));
+ const active=entries.filter(item=>item.count>0);
+ const max=Math.max(0,...active.map(item=>item.weight));
  const bars=el("div","f4-member-progress-bars");
- bars.style.gridTemplateColumns="repeat("+entries.length+",minmax(0,1fr))";
- for(const item of entries){
+ bars.style.gridTemplateColumns="repeat("+active.length+",minmax(0,1fr))";
+ bars.classList.toggle("is-sparse",active.length<3);
+ for(const item of active){
   const column=el("div","f4-member-progress-column");
   const amount=el("strong","",item.count?f4PrivateShort(item.weight,"kg")+" kg":"—");
   const rail=el("span","f4-member-progress-rail");
@@ -2578,7 +2648,7 @@ function drawMemberHomeChart(){
  }
  chart.setAttribute("role","img");
  chart.setAttribute("aria-label","Berat sampah pribadi per "+(monthly?"bulan":"tahun")+". "+
-  entries.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
+  active.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
  chart.append(bars);
 }
 /* Mini ringkasan PC dari laporan publik transaksi sah D1. */
@@ -2626,7 +2696,7 @@ function infoShortcut(){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
   const symbol=el("span","f4-member-info-icon");symbol.append(memberMetricIcon("report"));
   const copy=el("span","f4-member-info-copy");
-  copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
+  copy.append(el("strong","","Sekilas Bank Sampah"),el("small","","Ringkasan kegiatan dan transparansi"));
   const mini=el("span","f4-member-public-mini");mini.id="f4MemberPublicMini";
   for(const [key,label] of [["beratKg","Berat terjual"],["hasilPenjualan","Hasil jual"],["hakWarga","Hak warga"]]){
    const item=el("span","f4-member-public-mini-item");item.dataset.publicField=key;
@@ -2646,7 +2716,7 @@ function publicSnapshot(){
 }
 function memberFeature(route){
  const progress=route==="bank-member-progress",docs=route==="bank-member-docs";
- const name=progress?"Perkembangan":docs?"Dokumentasi":"Informasi & Laporan";
+ const name=progress?"Progres Program":docs?"Dokumentasi":"Info Bank Sampah";
  const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  // The report already has its own "Laporan Publik" heading; avoid repeating it.
@@ -2659,6 +2729,24 @@ function memberFeature(route){
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
+ if(!progress&&!docs){
+  let links=page.querySelector(":scope > .f4-member-info-links");
+  if(!links){
+   links=el("nav","f4-member-info-links");links.setAttribute("aria-label","Akses informasi Bank Sampah");
+   for(const [label,route] of [
+    ["Laporan Tabungan","bank-report"],
+    ["Progres Program","bank-member-progress"],
+    ["Dokumentasi","bank-member-docs"],
+    ["Daftar Harga","bank-prices"]
+   ]){
+    const button=el("button","f4-member-info-link",label);
+    button.type="button";button.dataset.bankAppRoute=route;
+    button.setAttribute("aria-label","Buka "+label);
+    button.onclick=()=>navigate(route);links.append(button);
+   }
+   page.insertBefore(links,content);
+  }
+ }
  if(progress){
   moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
   for(const button of content.querySelectorAll('[data-dev-range="period"],[data-dev-range="30"],[data-dev-mode="nilai"]')){
@@ -2860,7 +2948,7 @@ function resetRoleSurface(){
  const form=$("v10ExpenseForm"),notice=$("v10ExpenseNotice"),home=$("pageBiaya");
  if(form&&home&&form.parentElement!==home)home.append(form);
  if(notice&&home&&notice.parentElement!==home)home.append(notice);
- for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
+ for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminTodo","f4BankAdminNext"]){$(id)?.remove();}
  $("f4BankAdminBack")?.setAttribute("hidden","");
  if($("f4BankPageGreeting"))$("f4BankPageGreeting").hidden=true;
  const menu=$("f4-mobile-menu");
