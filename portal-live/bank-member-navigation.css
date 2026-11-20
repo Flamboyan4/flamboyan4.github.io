@@ -78,6 +78,12 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   font:650 13px/1.25 system-ui,-apple-system,sans-serif;
   box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:#20b86b
  }
+ /* Sidebar accents: clear category color without additional frames. */
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(2){--member-nav-accent:var(--f4-bank-teal,#009e91)}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(3){--member-nav-accent:var(--f4-bank-sky,#168fcc)}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(4){--member-nav-accent:#996f00}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(5){--member-nav-accent:#689d21}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(6){--member-nav-accent:var(--f4-bank-teal,#009e91)}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is(.active,[aria-current="page"]){
   background:#d9f8e7;color:#096a4e;font-weight:800;box-shadow:none
  }
@@ -87,7 +93,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item svg{
   box-sizing:border-box;display:block;flex:none;width:18px;height:18px;
   padding:0;border-radius:0;background:transparent;
-  color:currentColor;stroke:currentColor;stroke-width:1.9;fill:none
+  color:var(--member-nav-accent,currentColor);stroke:currentColor;stroke-width:1.9;fill:none
  }
  body.f4-bank-app-member #dashboardView #sideNav .side-footer{
   background:#fff;box-shadow:none;border-top:1px solid #ecf0ed
