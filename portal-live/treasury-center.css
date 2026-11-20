@@ -184,8 +184,7 @@ body:has(#f4-account-page){
 .tc-excluded summary{font-size:11px;font-weight:750;color:#688092;cursor:pointer}
 .tc-excluded-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:11px;border-bottom:1px solid #e8eef1;overflow-wrap:anywhere}
 .tc-custom-fund>h3{font-size:15px;font-weight:800;color:var(--tc-ink);margin:0 0 10px}
-.tc-custom-fund-form{margin-bottom:4px}
-.tc-custom-fund-form{display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr) auto;gap:9px;align-items:end}
+.tc-custom-fund-form{margin-bottom:4px;display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr) auto;gap:9px;align-items:end}
 .tc-custom-fund-form .tc-status{grid-column:1/-1}
 .tc-fund-list-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:10px;margin-top:11px;border-top:1px solid #e7eef3;color:#31536b;font-size:12px}
 .tc-fund-list-heading span{color:var(--tc-muted);font-size:10px;font-weight:500}
@@ -337,13 +336,9 @@ body:has(#f4-account-page){
  .tc-center #tc-view-transaksi .tc-mutation-panel{
   padding:12px 14px;border:0;border-radius:16px 16px 0 0;background:transparent
  }
- .tc-center #tc-view-transaksi .tc-mutation-panel>summary{
-  font-size:13px;margin:0;color:var(--tc-accent)
- }
- .tc-center #tc-view-transaksi .tc-mutation-panel[open]>summary{margin-bottom:10px}
  /* Input transaksi: ritme aplikasi mobile, satu grid dengan jarak dan tinggi konsisten. */
  .tc-center #tc-view-transaksi .tc-mutation-panel>summary{
-  list-style:none;display:flex;align-items:center;justify-content:space-between;
+  margin:0;list-style:none;display:flex;align-items:center;justify-content:space-between;
   min-height:35px;padding:0;color:var(--tc-accent);font-size:13px;font-weight:800
  }
  .tc-center #tc-view-transaksi .tc-mutation-panel>summary::-webkit-details-marker{display:none}
