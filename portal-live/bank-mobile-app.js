@@ -54,7 +54,7 @@ let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let memberHomeChartGroup="month";
-let memberBalancePrivacy={hidden:true};
+let memberBalancePrivacy={hidden:false};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
@@ -264,9 +264,9 @@ function ensureHome(){
   savings.setAttribute("role","group");savings.setAttribute("aria-label","Ringkasan total sampah yang sudah disetorkan");
   const balanceHead=el("div","f4-bank-balance-head");
   const balanceEye=el("button","f4-bank-balance-eye");balanceEye.type="button";
-  balanceEye.setAttribute("aria-label","Tampilkan saldo");
-  balanceEye.setAttribute("aria-pressed","true");
-  balanceEye.title="Tampilkan saldo";
+  balanceEye.setAttribute("aria-label","Sembunyikan total setoran");
+  balanceEye.setAttribute("aria-pressed","false");
+  balanceEye.title="Sembunyikan total setoran";
   const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
   balanceEyeSvg.setAttribute("aria-hidden","true");
@@ -482,7 +482,7 @@ function updateDashboard(){
   if(amount)amount.textContent=deposits?(memberBalancePrivacy.hidden?"••••••":f4PrivateKg(deposits.weight)):"—";
   const balanceCard=$("f4BankAppMemberBalance");
   const heading=balanceCard?.querySelector(".f4-bank-member-balance-label");
-  if(heading)heading.textContent="Total Setoran Sampah";
+  if(heading)heading.textContent=deposits?.missing?"Berat Setoran Tercatat":"Total Setoran Sampah";
   let hint=balanceCard?.querySelector(".f4-bank-member-balance-hint");
   if(balanceCard&&!hint){
    hint=el("small","f4-bank-member-balance-hint");
@@ -2843,7 +2843,7 @@ function resetRoleSurface(){
  adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
- resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
+ resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=false;
  adminInsightVersion++;adminInsightPending=null;adminInsightReport=null;
  adminInsightPublic=null;adminInsightSchedule=null;adminInsightLoadedAt=0;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
