@@ -67,11 +67,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
   box-shadow:0 4px 14px #1274510d
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-avatar{
-  display:grid;place-items:center;flex:none;width:44px;height:44px;
-  border-radius:14px;background:#009e91;color:#fff;font-size:13px;font-weight:850;line-height:1
- }
- body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item:nth-child(even) .f4-recent-avatar{
-  background:#168fcc;color:#fff
+  display:grid
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item>div:first-of-type{
   display:grid;gap:4px;min-width:0
