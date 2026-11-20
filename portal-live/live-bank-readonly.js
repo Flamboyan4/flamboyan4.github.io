@@ -143,10 +143,16 @@
    const balance=running;
    if(!Number.isSafeInteger(amount)||amount<0)throw Error('Nominal mutasi tabungan tidak valid.');
    running+=isCredit?-amount:amount;
+   const correction=x.jenis==='koreksi_debit'||x.jenis==='koreksi_kredit';
    return {id:x.id||'',tanggal:x.tanggal||'',jenis:x.jenis==='kredit'?'Tabungan masuk dari hasil penjualan':
       x.jenis==='pencairan'?'Pencairan tabungan':
-      x.jenis==='koreksi_debit'?'Koreksi pembatalan pengesahan':x.jenis||'Mutasi',
-    kredit:isCredit?amount:0,debit:isCredit?0:amount,saldo:balance,keterangan:x.keterangan||''};
+      x.jenis==='koreksi_debit'?'Koreksi pembatalan pengesahan':
+      x.jenis==='koreksi_kredit'?'Koreksi penambahan tabungan':x.jenis||'Mutasi',
+    kind:x.jenis||'',batchId:String(x.batchId||x.batch_id||''),
+    kredit:isCredit&&!correction?amount:0,
+    debit:!isCredit&&!correction?amount:0,
+    koreksi:correction?(isCredit?amount:-amount):0,
+    saldo:balance,keterangan:x.keterangan||''};
   });
   const deposits=onlyArray(r.setoran).map(x=>({
    id:x.id||'',batchId:String(x.batchId||''),tanggalPengesahan:x.tanggalPengesahan||null,
@@ -355,13 +361,35 @@
   const transactions=scope(ledger.map(x=>({
    id:x.id,tanggal:x.transaction_on,warga:wargaLabel(x.member_id),jenis:x.kind||'',
    nominal:number(x.amount_rp),status:'Aktif'})));
-  const credits=transactions.filter(x=>['kredit','koreksi_kredit'].includes(x.jenis));
-  const reversals=transactions.filter(x=>x.jenis==='koreksi_debit');
   const withdrawals=transactions.filter(x=>x.jenis==='pencairan');
-  const hakWargaDikredit=credits.reduce((n,x)=>n+x.nominal,0)-reversals.reduce((n,x)=>n+x.nominal,0);
+  // Hak warga periode mengikuti penjualan yang MASIH aktif, bukan tanggal
+  // pembatalan. Koreksi lintas bulan tidak boleh membuat hak warga minus.
+  const liveBatches=new Set(confirmedSales.map(x=>String(x.batchId||'')));
+  const liveCredits=ledger.filter(x=>liveBatches.has(String(x.batch_id||''))&&
+    ['kredit','koreksi_kredit'].includes(x.kind));
+  const liveReversals=ledger.filter(x=>liveBatches.has(String(x.batch_id||''))&&x.kind==='koreksi_debit');
+  const hakWargaDikredit=liveCredits.reduce((n,x)=>n+number(x.amount_rp),0)-
+    liveReversals.reduce((n,x)=>n+number(x.amount_rp),0);
+  // Bacaan jenis barang asli dari D1; gagal jika rincian tidak lengkap.
+  const details=[];
+  for(let start=0;start<depositRows.length;start+=12){
+    details.push(...await Promise.all(depositRows.slice(start,start+12).map(async x=>{
+      const r=await get('/api/v2/admin/bank/deposit-detail?id='+encodeURIComponent(x.id));
+      if(!Array.isArray(r.lines)||!r.lines.length)
+        throw Error('Rincian jenis sampah untuk setoran '+x.id+' belum lengkap.');
+      const weight=r.lines.reduce((n,item)=>n+number(item.grams),0)/1000;
+      if(Math.abs(weight-number(x.beratTimbang))>0.002)
+        throw Error('Berat barang setoran '+x.id+' tidak sesuai hasil timbang.');
+      const barang=r.lines.map(item=>String(item.name||'Jenis sampah')+' '+
+        new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(number(item.grams)/1000)+' kg').join(' · ');
+      return {id:x.id,tanggal:x.tanggal,warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),
+        barang,berat:weight,nilai:x.estimasi,
+        penjualan:x.status==='Terkonfirmasi'?'Terjual':x.status==='Dibatalkan'?'Dibatalkan':'Tersedia'};
+    })));
+  }
   return {
    periode:month||'semua',
-   ringkasan:{jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
+   ringkasan:{jumlahSetoran:depositRows.filter(x=>x.status!=='Dibatalkan').length,jumlahSetoranTerjual:confirmedDeposits.length,jumlahSetoranTersedia:waitingDeposits.length,jumlahPenjualan:confirmedSales.length,
     estimasi:waitingDeposits.reduce((n,x)=>n+x.estimasi,0),
     belumSah:waitingDeposits.length,
     hasilSahSetoran:confirmedDeposits.filter(x=>x.nilaiSahRp!==null).reduce((n,x)=>n+x.nilaiSahRp,0),
@@ -371,21 +399,18 @@
     tabunganDicairkan:withdrawals.reduce((n,x)=>n+x.nominal,0),
     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
-   setoran:depositRows.map(x=>({id:x.id,tanggal:x.tanggal,
-    warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),berat:x.berat==null?'—':x.berat,
-    beratTimbang:x.beratTimbang,
-    nilai:x.status==='Terkonfirmasi'?(x.nilaiSahRp===null?'—':x.nilaiSahRp):x.status==='Estimasi'?x.estimasi:'—',
-    status:x.status==='Terkonfirmasi'?'Hasil jual sah'+(x.nilaiSahRp===null?' (belum tersedia)':''):
-      x.status==='Estimasi'?'Perkiraan · belum sah':'Dibatalkan'})),
+   setoran:details,
    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,
     diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,
     pos:x.pos,nominal:x.nominal,status:x.status})),
    mutasi:transactions.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.warga,
-    jenis:x.jenis==='kredit'?'Hak warga disahkan':x.jenis==='pencairan'?'Pencairan':
-      x.jenis==='koreksi_debit'?'Pembatalan pengesahan':x.jenis,
-    kredit:['kredit','koreksi_kredit'].includes(x.jenis)?x.nominal:0,
-    debit:['kredit','koreksi_kredit'].includes(x.jenis)?0:x.nominal}))
+    jenis:x.jenis==='kredit'?'Hak warga dari penjualan':x.jenis==='pencairan'?'Pencairan':
+      x.jenis==='koreksi_debit'?'Koreksi hak warga dibatalkan':
+      x.jenis==='koreksi_kredit'?'Koreksi penambahan hak':x.jenis,
+    kredit:x.jenis==='kredit'?x.nominal:0,
+    debit:x.jenis==='pencairan'?x.nominal:0,
+    koreksi:x.jenis==='koreksi_debit'?-x.nominal:x.jenis==='koreksi_kredit'?x.nominal:0}))
   };
  };
  const bankAdminAccounts=async()=>{
