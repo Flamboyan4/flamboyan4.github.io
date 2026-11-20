@@ -597,7 +597,7 @@ function mountSavings(){
   const hero=el("section","f4-bank-savings-hero");hero.id="f4BankSavingsHero";
   hero.append(el("h2","f4-bank-savings-title","Tabungan saya"),
    el("small","","SALDO BISA DICAIRKAN"),el("strong","","—"),
-   el("span","","Saldo sah dapat diajukan pencairannya. Estimasi menunggu penjualan disahkan."));
+   el("span","","Saldo yang sudah masuk tabungan bisa dicairkan. Setoran yang belum terjual masih berupa perkiraan."));
   priv.insertBefore(hero,priv.firstChild);hero.querySelector("strong").id="f4BankSavingsBalance";
   const pending=el("div","f4-bank-savings-pending");
   pending.append(el("small","","Estimasi menunggu penjualan"),
@@ -609,7 +609,7 @@ function mountSavings(){
  if(!$("f4BankSavingsStats")){
   const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
   for(const [title,key] of [["Masuk","f4BankSavingsCredit"],["Dicairkan","f4BankSavingsDebit"],
-    ["Setoran","f4BankSavingsDepositCount"],["Belum sah","f4BankSavingsPendingWeight"]]){
+    ["Setoran","f4BankSavingsDepositCount"],["Belum terjual","f4BankSavingsPendingWeight"]]){
    const tile=el("div","f4-bank-savings-stat"+(["f4BankSavingsDepositCount","f4BankSavingsPendingWeight"].includes(key)?" is-mobile-extra":""));
    const iconType=key==="f4BankSavingsCredit"?"incoming":key==="f4BankSavingsDebit"?"payout":
     key==="f4BankSavingsDepositCount"?"deposit":"pending";
@@ -676,7 +676,7 @@ function historyLines(){
   const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
    new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
   return {iso,date,month:iso.slice(0,7),type:"Setoran Sampah",kind:"deposit",amountText:kg,
-   note:moneyNote+" • "+(isFinal?"Sudah sah":"Belum sah"),sortId:"d"};
+   note:moneyNote+" • "+(isFinal?"Sudah sah":"Belum terjual"),sortId:"d"};
  });
  return [...sales,...weights].sort((a,b)=>b.iso.localeCompare(a.iso)||a.sortId.localeCompare(b.sortId));
 }
@@ -1028,7 +1028,7 @@ function f4PrivateChartSummary(host,entries,mode){
  const title=el("span","",mode==="kg"?"Berat sah":"Hasil jual sah");
  const value=el("strong","",mode==="kg"?f4PrivateKg(actualWeight):rupiah(actualMoney));
  const caption=el("small","",count+" setoran · "+(mode==="kg"?rupiah(actualMoney):f4PrivateKg(actualWeight))+
-  (waitingWeight>0?" · "+f4PrivateKg(waitingWeight)+" belum sah":""));
+  (waitingWeight>0?" · "+f4PrivateKg(waitingWeight)+" belum terjual":""));
  summary.replaceChildren(title,value,caption);
  let legend=$("f4BankSavingsLegend");
  if(!legend){
@@ -1036,7 +1036,7 @@ function f4PrivateChartSummary(host,entries,mode){
  }
  legend.replaceChildren();
  for(const [name,kind] of [[mode==="kg"?"Berat sah":"Hasil jual sah","confirmed"],
-   [mode==="kg"?"Belum sah":"Perkiraan belum sah","estimate"]]){
+   [mode==="kg"?"Belum terjual":"Perkiraan belum terjual","estimate"]]){
   const item=el("span",""),dot=el("i","is-"+kind);
   dot.setAttribute("aria-hidden","true");item.append(dot,document.createTextNode(name));legend.append(item);
  }
@@ -1068,7 +1068,7 @@ function renderLatestComposition(){
   host.append(el("p","f4-bank-latest-empty","Belum ada setoran tercatat."));return;
  }
  const isFinal=/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test(String(latest.status||"").trim());
- heading.append(el("span","f4-bank-latest-status"+(isFinal?" is-final":""),isFinal?"Sudah sah":"Belum sah"));
+ heading.append(el("span","f4-bank-latest-status"+(isFinal?" is-final":""),isFinal?"Sudah sah":"Belum terjual"));
  const iso=String(latest.tanggal||"").slice(0,10);
  if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){
   const date=new Date(iso+"T12:00:00Z");
@@ -1299,11 +1299,11 @@ function chartSavings(){
    for(const [index,key] of fields.entries()){
     const bar=el("i",index?"is-estimate":"is-confirmed");
     bar.style.height=item[key]>0?Math.max(4,item[key]/max*100)+"%":"0%";
-    bar.title=(index?"Belum sah / perkiraan":"Sudah sah")+": "+(useKg?f4PrivateKg(item[key]):rupiah(item[key]));
+    bar.title=(index?"Belum terjual / perkiraan":"Sudah sah")+": "+(useKg?f4PrivateKg(item[key]):rupiah(item[key]));
     rail.append(bar);
    }
    column.append(rail,el("small","",item.label));
-   column.title=item.full+" • "+fields.map((key,i)=>(i?"Belum sah / perkiraan ":"Sah ")+
+   column.title=item.full+" • "+fields.map((key,i)=>(i?"Belum terjual / perkiraan ":"Sah ")+
     (useKg?f4PrivateKg(item[key]):rupiah(item[key]))).join(" • ");
    column.setAttribute("aria-label",column.title);
    host.append(column);
@@ -1320,7 +1320,7 @@ function syncSavings(){
  const title=hero?.querySelector(":scope > small");
  if(title)title.textContent="SALDO BISA DICAIRKAN";
  const description=hero?.querySelector(":scope > span");
- if(description)description.textContent="Saldo sah dapat diajukan pencairannya. Estimasi menunggu penjualan disahkan.";
+ if(description)description.textContent="Saldo yang sudah masuk tabungan bisa dicairkan. Setoran yang belum terjual masih berupa perkiraan."
  text("f4BankSavingsCredit",memberStatement?rupiah(memberStatement.totalMasuk):"—");
  text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
  const activeDeposits=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
@@ -1879,7 +1879,7 @@ function adminInsightDraw(){
   (adminInsightUnit==="kg"?"berat":"rupiah")+"; sah dan estimasi ditampilkan terpisah.");
  const note=group?.querySelector(".f4-bank-admin-chart-note");
  if(note)note.textContent=total>0?
-  "Hijau: sah · Kuning: estimasi / belum sah":
+  "Hijau: sudah terjual · Kuning: belum terjual / menunggu pengesahan":
   "Belum ada setoran pada enam bulan terakhir.";
 }
 function adminInsightScheduleDraw(){
