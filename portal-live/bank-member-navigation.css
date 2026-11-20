@@ -241,7 +241,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
   grid-column:2;grid-row:2;font-size:clamp(15px,1.6vw,20px);white-space:nowrap
  }
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsChart{
-  grid-area:chart;min-width:0;margin:0
+  grid-area:chart;min-width:0;margin:0;align-self:stretch
  }
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHistoryPanel{
   grid-area:history;min-width:0;align-self:stretch
@@ -253,9 +253,6 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankCategoryTotals{
   grid-area:categories;min-width:0;margin:0;align-self:stretch;
   padding:19px 20px
- }
- body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsChart{
-  align-self:stretch
  }
  body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
   width:100%;max-width:none;margin:0;gap:16px
