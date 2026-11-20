@@ -11,6 +11,13 @@ on:
       - qa/bank-member-dock-layout.py
       - qa/bank-member-dock-runtime.py
       - .github/workflows/f4-bank-cross-browser-layout.yml
+  pull_request:
+    paths:
+      - bank-sampah/index.html
+      - portal-live/bank-eco-pages.css
+      - portal-live/bank-member-navigation.css
+      - portal-live/bank-mobile-dock.css
+      - .github/workflows/f4-bank-cross-browser-layout.yml
   workflow_dispatch:
 permissions:
   contents: read

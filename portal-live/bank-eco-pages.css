@@ -703,7 +703,8 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-right>.f4-bank-admi
  min-width:0;min-height:0;padding:14px 17px
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-schedule{
- position:relative;gap:6px;overflow:hidden;background:linear-gradient(135deg,#e3f9ee,#fff 78%);
+ display:flex;flex-direction:column;align-items:stretch;gap:6px;
+ position:relative;overflow:hidden;background:linear-gradient(135deg,#e3f9ee,#fff 78%)
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-schedule .f4-bank-admin-next-date{
  font-size:clamp(15px,1.4vw,18px);letter-spacing:-.01em
@@ -781,9 +782,6 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-mini-action{
  min-height:30px;padding:5px 10px;margin:0;border:1px solid #cde4d5;
  border-radius:10px;background:#fff;color:#176a46;font-size:11px;font-weight:800
 }
-body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-schedule{
- display:flex;flex-direction:column;align-items:stretch;gap:6px
-}
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-schedule>.f4-bank-admin-insight-head{
  margin:0 0 2px
 }
@@ -821,10 +819,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-schedule-countdown{
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-schedule-countdown[hidden]{display:none}
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-overview{
- display:flex;flex-direction:column;gap:9px;min-width:0;flex:1
-}
-body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-overview{
- display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1
+ display:flex;flex-direction:column;justify-content:center;gap:9px;min-width:0;flex:1
 }
 body.f4-bank-app-admin #dashboardView .f4-bank-admin-stage-compact{
  display:grid;align-content:center;gap:16px;min-width:0
