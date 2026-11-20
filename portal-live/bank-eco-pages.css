@@ -998,6 +998,20 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
+/* Two financial states live ONLY on Tabungan; one thin divider, not nested cards. */
+#dashboardView #pagePribadi #f4BankSavingsHero .f4-bank-savings-pending{
+ display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+ padding:10px 0 0;margin:3px 0 0;border-top:1px solid #ffffff48;
+ min-width:0;color:#fff
+}
+#dashboardView #pagePribadi #f4BankSavingsHero .f4-bank-savings-pending small{
+ min-width:0;max-width:60%;font-size:11px;line-height:1.35;font-weight:700;
+ color:#e9fff3;letter-spacing:0
+}
+#dashboardView #pagePribadi #f4BankSavingsHero .f4-bank-savings-pending b{
+ font-size:clamp(17px,2vw,22px);font-weight:850;line-height:1.2;
+ white-space:nowrap;font-variant-numeric:tabular-nums;color:#fff
+}
 /* Masuk dan dicairkan: satu strip informasi, bukan dua kartu tambahan. */
 #dashboardView .f4-bank-savings-stats{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1404,7 +1418,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  }
  body.f4-bank-app-member #dashboardView>.grid>.section #pagePribadi.f4-bank-savings-page:not(.hidden){
   --f4-savings-gutter:15px;
-  --f4-savings-hero-height:272px;
+  --f4-savings-hero-height:296px;
   box-sizing:border-box;position:relative;isolation:isolate;
   width:calc(100% + var(--f4-savings-gutter) + var(--f4-savings-gutter));
   max-width:none;min-width:0;
@@ -1437,7 +1451,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   display:grid;align-content:start;overflow:visible;
   width:100%;min-width:0;max-width:100%;
   min-height:var(--f4-savings-hero-height);
-  padding:20px 22px 72px;margin:0;
+  padding:19px 22px 58px;margin:0;
   border:0;border-radius:0;background:transparent;
   color:#fff;box-shadow:none;gap:8px
  }
