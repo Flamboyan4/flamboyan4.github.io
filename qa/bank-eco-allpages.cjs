@@ -277,6 +277,18 @@ assert(memberPublicMiniLoader.includes('api("/api/v2/public/bank")') &&
        memberPublicMiniLoader.includes('const overview=response?.overview;') &&
        mobile.includes('resetAdminAlerts();resetMemberPublicMini();'),
   'Mini summary reads safe public operational data and resets on account change');
+/* The member sees sale progress, not internal approval terminology.
+   Keep backend "estimasi/terkonfirmasi" classification unchanged. */
+assert(mobile.includes('["Setoran","f4BankSavingsDepositCount"],["Belum terjual","f4BankSavingsPendingWeight"]') &&
+       mobile.includes('isFinal?"Sudah sah":"Belum terjual"') &&
+       mobile.includes('f4PrivateKg(waitingWeight)+" belum terjual"') &&
+       !/belum sah/i.test(mobile) &&
+       h.includes("sub.textContent=weight+' · '+(confirmed?'Sudah terjual':'Belum terjual')") &&
+       h.includes("status:confirmed?'Sudah sah':'Belum terjual'") &&
+       h.includes("status:final?'TERKONFIRMASI':'ESTIMASI — BELUM TERJUAL'") &&
+       h.includes('bank-mobile-app.js?v=20261121-member-belum-terjual-v1') &&
+       h.includes('bank-progress-app.js?v=20261121-belum-terjual-v1'),
+  'Bank member text must say Belum terjual consistently without altering backend status mapping');
 assert(memberNav.includes('#dashboardView #f4MemberPublicMini{display:none}') &&
        memberNav.includes('@media(min-width:1024px){') &&
        memberNav.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),
