@@ -1164,6 +1164,94 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 /* Tabungan HP has ONE full-bleed page backdrop, not a green hero card.
    The negative gutters cancel only the member content padding (15/11 px);
    the fixed global dock, header and other routes are never touched. */
+/* Tabungan desktop/tablet: kontrol dalam satu baris, ringkasan satu baris.
+   Area batang tetap tinggi 128px; hanya ruang di sekelilingnya dipadatkan. */
+@media screen and (min-width:761px){
+ #dashboardView #pagePribadi #f4BankSavingsChart{
+  grid-template-columns:minmax(0,1fr) auto auto;
+  column-gap:8px;row-gap:7px;padding:14px 16px 12px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart h3{
+  grid-column:1;grid-row:1;align-self:center;min-width:0;
+  margin:0;font-size:16px;line-height:1.25
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-filters{display:contents}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-groups{display:none}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-picker{
+  display:block;position:relative;grid-column:2;grid-row:1;
+  justify-self:end;align-self:center;min-width:0
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-trigger{
+  box-sizing:border-box;display:flex;justify-content:space-between;
+  align-items:center;gap:8px;min-width:104px;min-height:32px;
+  margin:0;padding:6px 10px;border:1px solid #dce9df;
+  border-radius:9px;background:#f4f8f5;box-shadow:none;
+  color:#17694e;font-size:11px;font-weight:800
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-chevron{
+  display:block;flex:none;width:14px;height:14px;transform:rotate(90deg)
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu{
+  box-sizing:border-box;display:grid;gap:2px;position:absolute;
+  top:calc(100% + 5px);right:0;left:auto;z-index:20;
+  width:max-content;min-width:143px;max-width:min(190px,calc(100vw - 36px));
+  padding:5px;border:1px solid #dce9df;border-radius:11px;
+  background:#fff;box-shadow:0 12px 25px #144f3427
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu[hidden]{display:none}
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu button{
+  display:block;width:100%;min-height:34px;margin:0;padding:7px 11px;
+  border:0;border-radius:8px;background:transparent;box-shadow:none;
+  color:#526f5d;text-align:left;font-size:11px;font-weight:700
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-period-menu button.is-active{
+  background:#e5f5ed;color:#076d50
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch{
+  box-sizing:border-box;display:flex;grid-column:3;grid-row:1;
+  align-items:center;justify-self:end;gap:2px;
+  margin:0;padding:2px;border:0;border-radius:9px;background:#eff5f0
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button{
+  flex:0 0 auto;min-width:33px;min-height:28px;margin:0;padding:5px 8px;
+  border:0;border-radius:7px;background:transparent;box-shadow:none;
+  color:#6b8171;font-size:11px;font-weight:800;white-space:nowrap
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-chart-switch button.is-active{
+  background:#087b5e;color:#fff;box-shadow:0 2px 6px #00543a24
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary{
+  display:flex;grid-column:1/-1;grid-row:2;flex-wrap:wrap;
+  align-items:baseline;gap:3px 9px;min-width:0;padding:1px 0
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>span{
+  font-size:11px;color:#698172
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>strong{
+  font-size:18px;line-height:1.2;white-space:nowrap
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-summary>small{
+  font-size:11px;line-height:1.3;min-width:0;color:#73897b
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars{
+  grid-column:1/-1;grid-row:3;min-height:185px;
+  padding:4px 2px 3px;gap:6px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars>.f4-bank-savings-bar{
+  grid-template-rows:18px minmax(0,1fr) 18px;gap:3px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsBars .f4-bank-savings-bar-rail{
+  height:128px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-legend{
+  grid-column:1/-1;grid-row:4;gap:5px 13px;
+  padding-top:7px;border-top:1px solid #e3eee6;font-size:10px
+ }
+ #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-note{
+  grid-column:1/-1;grid-row:5;margin:0
+ }
+}
+
 /* Ringkasan pribadi: gaya dasar dipakai PC, tablet, dan HP tanpa menggandakan aturan. */
 #dashboardView #pagePribadi #f4BankLatestComposition{
  box-sizing:border-box;display:grid;gap:11px;min-width:0;
