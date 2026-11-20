@@ -271,10 +271,10 @@ assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:
  "Bank ECO: Only one bottom-dock clearance should remain on mobile");
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
-assert(mobile.includes('function loadMemberPublicMini(force=false)') &&
-       mobile.includes('api("/api/v2/public/bank")') &&
-       !mobile.includes('api("/api/v2/public/bank/report")') &&
-       mobile.includes('const overview=response?.overview;') &&
+const memberPublicMiniLoader=mobile.split('function loadMemberPublicMini(force=false)')[1]?.split('function infoShortcut()')[0]||'';
+assert(memberPublicMiniLoader.includes('api("/api/v2/public/bank")') &&
+       !memberPublicMiniLoader.includes('api("/api/v2/public/bank/report")') &&
+       memberPublicMiniLoader.includes('const overview=response?.overview;') &&
        mobile.includes('resetAdminAlerts();resetMemberPublicMini();'),
   'Mini summary reads safe public operational data and resets on account change');
 assert(memberNav.includes('#dashboardView #f4MemberPublicMini{display:none}') &&
