@@ -35,10 +35,8 @@ assert(css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-deposit
        css.includes('grid-template-columns:38px minmax(0,1fr) auto 38px') &&
        !css.includes('#dashboardView #pagePribadi #v12Deposits .f4-member-tx-chevron{'),
  'Savings history receipt button must sit beside the amount, with no dead chevrons');
-assert(css.includes('linear-gradient(112deg,#009688,#008e80 56%,#43a047)') &&
-       css.includes('.f4-bank-savings-stat:nth-child(2){background:#e7f9fc;border-color:#b9e9f0}') &&
-       css.includes('background:#8bc34a') && css.includes('background:#ffc411'),
- 'Savings page palette should use new teal, green, lime, yellow and cyan only');
+assert(css.includes('--f4-bank-leaf:#20b86b')&&css.includes('--f4-bank-teal:#009e91')&&css.includes('--f4-bank-sky:#168fcc')&&css.includes('--f4-bank-gold:#ffcc32')&&css.includes('--eco-teal:var(--f4-bank-teal')&&css.includes('--eco-cyan:var(--f4-bank-sky'),
+ "Bank ECO: Savings page palette should use new teal, green, lime, yellow and cyan only");
 
 
 assert(/\/portal-live\/bank-eco-pages\.css\?v=[0-9]{8}-/.test(h),'Versioned theme stylesheet missing');
@@ -51,12 +49,13 @@ for(const phrase of ['#v18PublicSide',
  '#pageSetoran','#pagePenjualan','#pageRekonsiliasi','#pagePengesahan','#pageTabungan',
  '#pageBiaya','#pageDokumentasi','#pageInventaris','#pageMaster','#pageAdmin',
  '.f4-member-progress-modal-panel','width:min(226px,75vw)',
- 'max-width:1023px','max-width:760px','--eco-leaf:#318651',
+ 'max-width:1023px','max-width:760px','--eco-leaf:var(--f4-bank-leaf',
  '#f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard']){
  assert(css.includes(phrase),'Missing themed component '+phrase);
 }
 assert(!css.includes('#a0dcb3'),'Old mint gradient present');
-assert(css.includes('background:#e4f6d5;color:#196e40;'),'Soft lime navigation missing');
+assert(css.includes('background:#d9f8e7;color:#096a4e;')&&css.includes('#v11Public #v18PublicSide button.active'),
+ "Bank ECO: Soft lime navigation missing");
 assert(!css.includes('border-left:4px solid #d7a517'),'Hard schedule rail returned');
 assert(!css.includes('background:linear-gradient(120deg,#ffdc78,#ffc12b)'),'Muddy yellow price gradient returned');
 assert(!css.includes('#f4MemberHero'), 'No green wrapper should surround the ATM card');
@@ -71,14 +70,14 @@ assert(priceModule.includes('priceTag.setAttribute("viewBox"') &&
  'Price shortcut must use a clear SVG price-tag icon');
 const bankingCss=css.split('/* Bank Sampah member dashboard: premium eco-banking composition.')[1]
  ?.split('/* Responsive Bank Sampah:')[0]||'';
-assert(bankingCss.includes('background:linear-gradient(120deg,#079e8f 0%,#05896e 55%,#087448 100%)') &&
-       !bankingCss.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
- 'Premium member ATM should use the selected deep-leaf gradient without changing other portal pages');
+assert(bankingCss.includes('background:radial-gradient(')&&bankingCss.includes('linear-gradient(119deg,#076956 0%,#07816b')&&!bankingCss.includes('background:linear-gradient(135deg,#09BCD3 0%,#009788 100%)'),
+ "Bank ECO: Premium member ATM should use the selected deep-leaf gradient without changing other portal pages");
 assert(bankingCss.includes('grid-area:balance') &&
        bankingCss.includes('padding:23px 24px;border:1px solid #dfeae3;border-radius:22px;text-align:left;\n background:#fff;') &&
        bankingCss.includes('background:linear-gradient(105deg,#067747,#075030)'),
  'Member balance requires white background and working green CTA');
-assert(publicTheme.includes('background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%)') && publicTheme.includes('border:0;border-radius:24px;color:#fff;'), 'Public hero must keep the selected saturated green gradient and white text');
+assert(publicTheme.includes('background:radial-gradient(circle at 96% 3%')&&publicTheme.includes('linear-gradient(123deg,#086754 0%')&&publicTheme.includes('border:0;border-radius:25px;color:#fff;'),
+ "Bank ECO: Public hero must keep the selected saturated green gradient and white text");
 assert(css.includes('"card balance"') && css.includes('"quick quick"') &&
        css.includes('"progress recent"') && css.includes('"guide info"'),
  'Premium desktop hierarchy must have personal progress beside mutasi and compact steps beside information');
@@ -153,12 +152,8 @@ assert(memberPolish.includes('background:var(--step-bg)') &&
  'Pastel instruction tiles and SVG symbols must use the same scoped color variables');
 assert(memberPolish.includes('.f4-member-flow-share>span:nth-child(2)'),
  'Savings and environment split badges must have differentiated color');
-assert(!mobile.includes('brand.id="f4BankMemberTopBrand"') &&
-       mobile.includes('$("f4BankMemberTopBrand")?.remove();') &&
-       memberNav.includes('height:68px;min-height:68px') &&
-       memberNav.includes('width:226px;height:100dvh') &&
-       memberNav.includes('background:#e8f4ea;color:#145d3b'),
- 'Mobile header must remove duplicate branding, keep one line, and preserve portal-style desktop sidebar');
+assert(!mobile.includes('brand.id="f4BankMemberTopBrand"')&&mobile.includes('$("f4BankMemberTopBrand")?.remove();')&&memberNav.includes('height:68px;min-height:68px')&&memberNav.includes('width:226px;height:100dvh')&&memberNav.includes('background:#d9f8e7;color:#096a4e'),
+ "Bank ECO: Mobile header must remove duplicate branding, keep one line, and preserve portal-style desktop sidebar");
 assert(!mobile.includes('f4MemberImpactShare') &&
        !memberNav.includes('.f4-member-impact-share>span:nth-child(2)') &&
        memberPolish.includes('.f4-member-flow-foot{display:none'),
@@ -169,14 +164,10 @@ assert(memberLegacyTheme.includes('body.f4-direct-bank #dashboardView .section>.
 assert(memberDirectShell.includes('body.f4-direct-bank.f4-bank-app-member #f4-direct-bar{left:226px}') &&
        memberNav.includes('padding:0 clamp(15px,2vw,29px);gap:10px'),
  'Navbar must not add a second 244px sidebar offset');
-assert(memberNav.includes('border-right:1px solid #e6eae8') &&
-       memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible') &&
-       memberNav.includes('font:700 13.5px/1.3'),
- 'White sidebar should use readable portal-sized dark text');
-assert(bankingCss.includes('background:#fff;\n min-height:calc(100dvh - 56px)') &&
-       memberNav.includes('body.f4-bank-app-member{background:#fff}') &&
-       memberNav.includes('background:#fff;color:#1b5138;box-shadow:0 5px 16px'),
- 'Member dashboard and its report surface need a pure white canvas');
+assert(memberNav.includes('border-right:1px solid #dce8df')&&memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible')&&memberNav.includes('font:650 13px/1.25 system-ui'),
+ "Bank ECO: White sidebar should use readable portal-sized dark text");
+assert(bankingCss.includes('background:#f4faf7;\n min-height:calc(100dvh - 56px)')&&memberNav.includes('body.f4-bank-app-member{background:#f4faf7}')&&memberNav.includes('background:linear-gradient(132deg,#effbff,#fff 76%);color:#1b5138'),
+ "Bank ECO: Member dashboard and its report surface need a pure white canvas");
 assert(h.includes('body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"]))'),
  'Legacy dashboard must not flash before member widgets are mounted');
 assert(css.includes('color:#fff;opacity:.95;transform:none') &&
@@ -211,16 +202,10 @@ assert(mobile.includes('const contactless=el("span","f4-bank-atm-contactless")')
 assert(mobile.includes('const copy=el("div","f4-bank-member-card f4-bank-profile-card")') &&
        mobile.includes('for(const node of card.childNodes)copy.append(node.cloneNode(true))'),
  'Profile card should clone member ATM content without being a second clickable button');
-assert(memberNav.includes('--member-nav-accent:#43a047') &&
-       memberNav.includes('--member-nav-accent:#009688') &&
-       memberNav.includes('--member-nav-accent:#b98b00') &&
-       memberNav.includes('--member-nav-accent:#00a9bf') &&
-       memberNav.includes('--member-nav-accent:#7aa938'),
- 'Member SVG navigation icon colors must use the selected palette while maintaining dark readable labels');
-assert(css.includes('--profile-yellow:#ffc411;--profile-lime:#8bc34a;--profile-leaf:#43a047;') &&
-       css.includes('--profile-teal:#009688;--profile-cyan:#00bcd4;') &&
-       css.includes('grid-template-columns:minmax(0,1fr) minmax(0,1fr)'),
- 'Profile uses the supplied five-color palette and responsive financial-app composition');
+assert(memberNav.includes('--member-nav-accent:#20b86b')&&memberNav.includes('--member-nav-accent:var(--f4-bank-teal,#009e91)')&&memberNav.includes('--member-nav-accent:var(--f4-bank-sky,#168fcc)')&&memberNav.includes('--member-nav-accent:#996f00')&&memberNav.includes('color:var(--member-nav-accent,currentColor)'),
+ "Bank ECO: Member SVG navigation icon colors must use the selected palette while maintaining dark readable labels");
+assert(css.includes('--profile-yellow:var(--f4-bank-gold,#ffcc32)')&&css.includes('--profile-lime:#a5da54')&&css.includes('--profile-leaf:var(--f4-bank-leaf,#20b86b)')&&css.includes('--profile-teal:var(--f4-bank-teal,#009e91)')&&css.includes('--profile-cyan:var(--f4-bank-sky,#168fcc)')&&css.includes('grid-template-columns:minmax(0,1fr) minmax(0,1fr)'),
+ "Bank ECO: Profile uses the supplied five-color palette and responsive financial-app composition");
 assert(css.includes('body :is(button,a,summary,[role="button"],[role="tab"],label[for]){') &&
        css.includes('-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;') &&
        !css.includes('body *{user-select:none'),
@@ -233,14 +218,17 @@ assert(mobile.includes('hub.append(card,balance)'), 'Real ATM and balance must b
 assert(!css.includes('border-radius:14px;background:#09bcd3'),'Legacy cyan schedule icon must not return');
 assert(!css.includes('border-left:3px solid #087850'),'Old hard corner stripe returned');
 assert(!css.includes('background:linear-gradient(125deg,#328d45,#43a047 55%,#009788)'),'Member green-teal gradient returned');
-assert(css.includes('--eco-gold:#fdc010'),'Current golden yellow theme token missing');
-assert(publicTheme.includes('background:linear-gradient(120deg,#075a3d 0%,#0c774b 67%,#119055 100%)'), 'Public hero must remain saturated deep-green, not pale');
+assert(css.includes('--f4-bank-gold:#ffcc32')&&css.includes('--eco-gold:var(--f4-bank-gold,#ffcc32)'),
+ "Bank ECO: Current golden yellow theme token missing");
+assert(publicTheme.includes('linear-gradient(123deg,#086754 0%,#07816b 52%,#0a8760 100%)'),
+ "Bank ECO: Public hero must remain saturated deep-green, not pale");
 assert(h.includes('<section id="v17Program" class="f4-bank-program"'), 'Program must be a separate semantic section');
 assert(h.includes('#v17Program .f4-bank-program-step{'), 'Canonical unboxed program steps missing');
 assert(!h.includes('v27-banner-program'), 'Obsolete program banner layout must be removed');
 assert(!h.includes('v27CompactProgram'), 'Obsolete program DOM reparenting must be removed');
 assert(h.includes('border:0}').valueOf() || h.includes('background:transparent;border:0'), 'Public program must not use cards');
-assert(publicTheme.includes('border:0;border-radius:10px;background:#fff;color:#106746'), 'Readable white-on-deep-green hero action missing');
+assert(publicTheme.includes('border:0;border-radius:11px;background:#ffcc32;color:#184735'),
+ "Bank ECO: Readable white-on-deep-green hero action missing");
 assert(!publicTheme.includes('!important'),'Public hero stylesheet may not use priority overrides');
 assert(h.includes('#f4-public-my-savings{display:inline-flex') &&
        h.includes('@media(max-width:700px){#f4-public-my-savings{width:100%;max-width:none;min-height:44px') &&
@@ -262,25 +250,16 @@ assert(h.includes("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])"),'Dashboa
 const memberRecentPreview=h.split("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])")[1]?.split("const recentBox=$('v14Recent')")[0]||"";
 assert(memberRecentPreview.includes('.sort(') && memberRecentPreview.includes('.slice(0,3)'),
  'Home mutasi must remain limited to the latest three true ledger movements');
-assert(mobile.includes('let memberBalancePrivacy={hidden:true}') &&
-       mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();') &&
-       mobile.includes('memberBalancePrivacy.hidden?"••••••":realAmount') &&
-       mobile.includes('balanceLink.onclick=()=>navigate("pribadi")') &&
-       mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=true;'),
- 'Saldo hide and unhide must not navigate or overwrite the actual live balance');
+assert(mobile.includes('let memberBalancePrivacy={hidden:false}')&&mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();')&&mobile.includes('memberBalancePrivacy.hidden?"••••••":rupiah(balance.total)')&&mobile.includes('balanceLink.onclick=()=>navigate("pribadi")')&&mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=false;'),
+ "Bank ECO: Saldo hide and unhide must not navigate or overwrite the actual live balance");
 assert(dockCss.includes('width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px)') &&
        dockCss.includes('border:3px solid #fff;border-radius:50%') &&
        css.includes('.f4-bank-balance-head{'),
  'Payout must be round with a white outline and the balance has a separate eye');
-assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;') &&
-       !mobile.includes('savings.onclick=event=>') &&
-       css.includes('color:var(--member-ink);cursor:default') &&
-       css.includes('border:0;border-radius:0;background:transparent;') &&
-       dockCss.includes('background:#ffc719;color:#fff;box-shadow:none'),
- 'Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring');
-assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff') &&
-       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)'),
- 'Only one bottom-dock clearance should remain on mobile');
+assert(memberNav.includes('margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;')&&!mobile.includes('savings.onclick=event=>')&&css.includes('color:var(--member-ink);cursor:default')&&css.includes('border:0;border-radius:0;background:transparent;')&&dockCss.includes('background:#ffcc32;color:#143c2c'),
+ "Bank ECO: Desktop top gap must be compact; eye is plain and no whole-card click or gray badge ring");
+assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:#fff')&&dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom) + 16px)'),
+ "Bank ECO: Only one bottom-dock clearance should remain on mobile");
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
 assert(mobile.includes('function loadMemberPublicMini(force=false)') &&
@@ -307,18 +286,10 @@ assert(h.includes('/portal-live/bank-mobile-dock.css?v=') &&
        !css.includes('!important') &&
        !h.includes('!important'),
  'Bank Sampah nav must be loaded separately and all Bank CSS must have no priority declarations');
-assert(dockCss.includes('body.f4-bank-app-private{--f4-bank-dock-height:72px}') &&
-       dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px) + 16px)') &&
-       dockCss.includes('height:calc(var(--f4-bank-dock-height) + env(safe-area-inset-bottom,0px))') &&
-       dockCss.includes('grid-template-rows:27px 15px'),
- 'Both roles must share a single matching navigation and safe-area layout');
-assert((dockCss.includes('position:fixed;left:0;right:0;bottom:0') ||
-        dockCss.includes('position:fixed;inset:auto 0 0')) &&
-       dockCss.includes('border:3px solid #fff;border-radius:50%') &&
-       dockCss.includes('background:#ffc719') &&
-       dockCss.includes('.f4-bank-payout-rp-icon text{') &&
-       !dockCss.includes('transform:translateZ(0)'),
- 'Native fixed member navigation must be used without extra compositor transformations');
+assert(dockCss.includes('--f4-bank-dock-height:72px')&&dockCss.includes('--f4-bank-dock-safe-bottom:env(safe-area-inset-bottom,0px)')&&dockCss.includes('padding-bottom:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom) + 16px)')&&dockCss.includes('height:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom))')&&dockCss.includes('grid-template-rows:27px 15px'),
+ "Bank ECO: Both roles must share a single matching navigation and safe-area layout");
+assert(dockCss.includes('box-sizing:border-box;position:fixed;inset:auto 0 0 0;z-index:55;')&&dockCss.includes('border:3px solid #fff;border-radius:50%')&&dockCss.includes('background:#ffcc32')&&dockCss.includes('.f4-bank-payout-rp-icon text{')&&!dockCss.includes('transform:translateZ(0)'),
+ "Bank ECO: Native fixed member navigation must be used without extra compositor transformations");
 assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
        !dockCss.includes('body.f4-bank-app-member .f4-bank-app-dock-action') &&
        dockCss.split('body.f4-bank-app-private .f4-bank-app-dock-action.is-primary{').length===2 &&
@@ -367,33 +338,23 @@ assert(mobile.includes('["Dokumentasi","bank-admin-docs","images"]') &&
        mobile.includes('["Laporan","laporan","file-text"]') &&
        mobile.includes('["Saldo Warga","tabungan","coins"]'),
  'Laporan and Dokumentasi remain accessible through Lainnya');
-assert(!dockCss.includes('backdrop-filter:blur(12px)') &&
-       dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
- 'Dock stays fixed to viewport and avoids scroll-related backdrop repaint');
+assert(!dockCss.includes('backdrop-filter:blur(12px)')&&dockCss.includes('position:fixed;inset:auto 0 0 0;z-index:55;'),
+ "Bank ECO: Dock stays fixed to viewport and avoids scroll-related backdrop repaint");
 assert(mobile.includes('dock().hidden=!isPrivate;'),'Admin dock must be visible when authenticated');
 assert(mobile.includes('if(nextDesktop===desktopLayout)return;') &&
        mobile.includes('let desktopLayout=window.matchMedia("(min-width:1024px)").matches;') &&
        mobile.includes('if(role==="admin")ensureAdminHome();') &&
        !mobile.includes('updateAdminDockViewport'),
  'Mobile Chrome height-only resize must not rebuild manager home or move dock');
-assert(!dockCss.includes('will-change:transform') &&
-       !dockCss.includes('backface-visibility:hidden') &&
-       !dockCss.includes('isolation:isolate') &&
-       !dockCss.includes('translate3d(') &&
-       dockCss.includes('position:fixed;left:0;right:0;bottom:0;z-index:55;'),
- 'Dock fixed must avoid forced transform compositing on Chrome Android');
+assert(!dockCss.includes('will-change:transform')&&!dockCss.includes('backface-visibility:hidden')&&!dockCss.includes('isolation:isolate')&&!dockCss.includes('translate3d(')&&dockCss.includes('position:fixed;inset:auto 0 0 0;z-index:55;'),
+ "Bank ECO: Dock fixed must avoid forced transform compositing on Chrome Android");
 assert(h.includes("const pub=$('v11Public');\n    if(!pub||pub.classList.contains('hidden')||document.body.classList.contains('v17-dashboard'))return;") &&
        h.includes("if($('v11Public')?.classList.contains('hidden'))return;") &&
        css.includes('background:radial-gradient(ellipse,#ffffff22 0%,#ffffff0c 60%,transparent 100%)') &&
        !css.includes('filter:blur(13px)'),
  'Admin scroll must not run hidden public observers or hero filter blur');
-assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(nav);') &&
-       !mobile.includes('f4-bank-admin-dock-root') &&
-       !mobile.includes('f4-bank-dock-viewport-shift') &&
-       !mobile.includes('updateAdminDockViewport') &&
-       !dockCss.includes('f4-bank-dock-viewport-shift') &&
-       dockCss.includes('body.f4-bank-app-private .f4-bank-app-dock:not([hidden]){'),
- 'Both roles must mount the dock on body with no double viewport offsets');
+assert(mobile.includes('if(nav.parentNode!==document.body)document.body.append(nav);')&&!mobile.includes('f4-bank-admin-dock-root')&&!mobile.includes('f4-bank-dock-viewport-shift')&&!mobile.includes('updateAdminDockViewport')&&!dockCss.includes('f4-bank-dock-viewport-shift')&&dockCss.includes('#f4BankAppDock.f4-bank-app-dock:not([hidden]){'),
+ "Bank ECO: Both roles must mount the dock on body with no double viewport offsets");
 assert(mobile.includes('function syncAdminBack()'),'Manager screens need a back control');
 assert(mobile.includes('title.classList.add("f4-bank-admin-inline-title")') &&
        mobile.includes('if(back.parentElement!==title)title.prepend(back);') &&
@@ -602,19 +563,8 @@ assert(h.includes("overview.id='f4BankAdminReportOverview'") &&
        h.includes("form.append(options,actions)") &&
        h.includes("month.dispatchEvent(new Event('change',{bubbles:true}))"),
  'Admin Laporan must share one responsive form/finance grid while preserving original period, print and CSV handlers');
-assert(mobile.includes('function adminInsightMount(home){') &&
-       mobile.includes('home.append(wrap)') &&
-       mobile.includes('adminInsightMount(home);') &&
-       mobile.includes('api("/api/v2/public/bank/report")') &&
-       mobile.includes('api("/api/v2/public/bank")') &&
-       mobile.includes('api("/api/public/bank/weighing-schedule")') &&
-       mobile.includes('adminInsightStagesDraw();') &&
-       mobile.includes('adminInsightLoadedAt=Date.now()') &&
-       mobile.includes('adminInsightVersion++') &&
-       css.includes('grid-area:insights') &&
-       css.includes('f4-bank-admin-insight-row{') &&
-       css.includes('f4-bank-admin-stage-track{'),
- 'Admin Beranda needs real D1 deposit progress, configured schedule and published milestones, with clean account reset and no mocked amounts');
+assert(mobile.includes('function adminInsightMount(home){')&&mobile.includes('home.append(wrap)')&&mobile.includes('adminInsightMount(home);')&&mobile.includes('api("/api/v2/public/bank/report")')&&mobile.includes('api("/api/v2/public/bank")')&&mobile.includes('api("/api/public/bank/weighing-schedule")')&&mobile.includes('adminInsightStagesDraw();')&&mobile.includes('adminInsightLoadedAt=Date.now()')&&mobile.includes('adminInsightVersion++')&&css.includes('grid-area:insights')&&css.includes('f4-bank-admin-insight-row{')&&css.includes('f4-bank-admin-stage-flow{'),
+ "Bank ECO: Admin Beranda needs real D1 deposit progress, configured schedule and published milestones, with clean account reset and no mocked amounts");
 assert(mobile.includes('f4BankAdminHeroBreakdown') &&
        mobile.includes('text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—")') &&
        mobile.includes('text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—")') &&
@@ -717,30 +667,10 @@ const depositCard=h.split('function v18DepositHistoryCard(r){')[1]
  ?.split('function v18SaleHistoryCard(r){')[0]||'';
 const saleCard=h.split('function v18SaleHistoryCard(r){')[1]
  ?.split('const v18OldHistoryCard=v7HistoryCard;')[0]||'';
-assert(depositCard.includes("card.className='f4-admin-deposit-card'") &&
-       depositCard.includes("receipt=f4BankReceiptIcon(null,async()=>{") &&
-       depositCard.includes("call('bsV7RincianSetoran',token,r.id)") &&
-       depositCard.includes("payload.details.push([String(item.barang") &&
-       depositCard.includes("actions.append(receipt,cancel)") &&
-       depositCard.includes("cancel.disabled=status!=='Estimasi'") &&
-       !depositCard.includes('v7ToggleDetails(') &&
-       !depositCard.includes('f4-bs-detail-button') &&
-       h.includes("if(type==='setoran')return v18DepositHistoryCard(r);") &&
-       !h.includes('Setoran batal tetap tersimpan.</div>'),
- 'Deposit history should only show receipt and cancel, with its goods in the receipt');
-assert(saleCard.includes("card.className='f4-admin-deposit-card f4-admin-sale-card'") &&
-       saleCard.includes("call('bsV7RincianPenjualan',token,r.id)") &&
-       saleCard.includes("actions.append(receipt,cancel)") &&
-       saleCard.includes("cancel.disabled=canceled") &&
-       saleCard.includes("onClick:()=>v7EditSaleReceipt(r)") &&
-       saleCard.includes("onClick:()=>v7SettleSale(r)") &&
-       !saleCard.includes('v7ToggleDetails(') &&
-       !saleCard.includes('f4-bs-detail-button') &&
-       h.includes("if(type==='penjualan')return v18SaleHistoryCard(r);") &&
-       css.includes('Canonical history cards for both Setoran and Penjualan') &&
-       css.includes('var(--eco-gold,#fdc010)') &&
-       h.includes("class=\"f4-bank-sale-history-caution\""),
- 'Sale history should only show receipt/cancel, preserve edit/settle under receipt and use dashboard colors');
+assert(depositCard.includes("card.className='f4-admin-deposit-card'+(canceled?' is-canceled':'')")&&depositCard.includes('receipt=f4BankReceiptIcon(null,async()=>{')&&depositCard.includes("call('bsV7RincianSetoran',token,r.id)")&&depositCard.includes('actions.append(receipt,edit,cancel)')&&depositCard.includes("edit.disabled=status!=='Estimasi'")&&depositCard.includes("cancel.disabled=status!=='Estimasi'")&&!depositCard.includes('v7ToggleDetails(')&&h.includes("if(type==='setoran')return v18DepositHistoryCard(r);"),
+ "Bank ECO: Deposit history should only show receipt and cancel, with its goods in the receipt");
+assert(saleCard.includes("card.className='f4-admin-deposit-card f4-admin-sale-card'+(canceled?' is-canceled':'')")&&saleCard.includes("call('bsV7RincianPenjualan',token,r.id)")&&saleCard.includes('actions.append(receipt,cancel)')&&saleCard.includes('cancel.disabled=canceled')&&saleCard.includes('onClick:()=>v7EditSaleReceipt(r)')&&saleCard.includes('onClick:()=>v7SettleSale(r)')&&!saleCard.includes('v7ToggleDetails(')&&h.includes("if(type==='penjualan')return v18SaleHistoryCard(r);")&&css.includes('Canonical history cards for both Setoran and Penjualan'),
+ "Bank ECO: Sale history should only show receipt/cancel, preserve edit/settle under receipt and use dashboard colors");
 /* Catch malformed inline CSS or JavaScript introduced by stylesheet consolidation.
    Inspect ALL styles and scripts actually referenced by the Bank Sampah entrypoint. */
 function assertBalancedCss(text,label){

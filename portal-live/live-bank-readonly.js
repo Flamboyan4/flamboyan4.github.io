@@ -83,13 +83,7 @@
     if(!item.sampul)item.sampul=item.media.find(x=>x.jenis==='foto'||x.jenis==='Foto')?.url||'';
    }catch(error){console.warn('Album media tidak dapat dimuat:',item.id,error)}
   }));
-  // Manifest arsip Gorol asli dari Google Drive tetap dapat dibaca sebelum
-  // seluruh metadata album diberi scope Bank Sampah pada D1.
-  if(!list.some(x=>/gorol|drop point/i.test(x.judul)&&String(x.tanggal).startsWith('2026-10-11'))){
-   list.push({id:'legacy-bank-20261011',judul:'Gorol dan Pembuatan Bank Sampah',
-    tanggal:'2026-10-11',deskripsi:'Kegiatan warga Flamboyan 4 menyiapkan Bank Sampah',
-    sampul:gorolCover,kategori:'Kerja Bakti',sourceFolder:gorolFolder,media:[]});
-  }
+  // Only published D1 albums are returned; never add synthetic IDs that cannot be opened.
   return list.sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
  }
  async function report(period){

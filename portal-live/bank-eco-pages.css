@@ -344,8 +344,8 @@ body :is(button,a,summary,[role="button"],[role="tab"],label[for]){
 }
 /* Compact member identity profile — 2026-10-29 */
 body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hidden){
-  --profile-yellow:#ffc411;--profile-lime:#8bc34a;--profile-leaf:#43a047;
-  --profile-teal:#009688;--profile-cyan:#287ab0;
+  --profile-yellow:var(--f4-bank-gold,#ffcc32);--profile-lime:#a5da54;--profile-leaf:var(--f4-bank-leaf,#20b86b);
+  --profile-teal:var(--f4-bank-teal,#009e91);--profile-cyan:var(--f4-bank-sky,#168fcc);
   box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   align-items:start;align-content:start;gap:12px 22px;
   width:100%;max-width:1160px;margin:0;padding:22px 24px;background:#fff

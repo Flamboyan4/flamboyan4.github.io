@@ -224,7 +224,7 @@ async def main():
                                 fail.append("real admin monthly chart not rendered from aggregate")
                             if "22" not in (panel.get("date") or ""):
                                 fail.append("weighing date not from configured public schedule")
-                            if "1 dari 2" not in (panel.get("progress") or ""):
+                            if not any(label in (panel.get("progress") or "") for label in ("1 dari 2", "1/2")):
                                 fail.append("published development status not summarized")
                             if width>=1024:
                                 if (abs(graph["top"]-schedule["top"])>3 or

@@ -44,10 +44,10 @@ assert(html.includes("main.querySelector('.sa-module-nav')?.remove()"),
 assert(html.includes('window.f4SuperadminSwitchModule=openEditor;'),
  'Retain deep-linking to legacy editors');
 assert(html.includes('Data & Aturan'),'Use user-facing naming');
-assert(html.includes('treasury-center.js?v=20261111-svg-controls-v1')&&
- html.includes('treasury-center.css?v=20261111-svg-controls-v1')&&
- html.includes('superadmin-editor.js?v=20261111-svg-actions-v1'),
- 'Superadmin SVG icon assets must be versioned');
+assert(/treasury-center\.js\?v=20\d{6}-[\w-]+/.test(html) &&
+ /treasury-center\.css\?v=20\d{6}-[\w-]+/.test(html) &&
+ /superadmin-editor\.js\?v=20\d{6}-[\w-]+/.test(html),
+ 'Superadmin SVG icon assets must retain versioned URLs without an obsolete fixed build ID');
 assert(html.includes("standaloneButton.innerHTML='<svg"),'Standalone hamburger must be actual SVG');
 assert(treasury.includes("function tcSvgIcon(name)")&&!treasury.includes('el("button","‹")'),
  'Treasury calendar arrows must use real SVG');

@@ -59,7 +59,11 @@ async def main():
                               const boxes=[...root.children].map(e=>e.getBoundingClientRect());
                               const heights=boxes.map(r=>r.height);
                               const centers=boxes.map(r=>(r.top+r.bottom)/2);
-                              const ok=heights.every(n=>Math.abs(n-42)<=1)&&
+                              const target=heights[0];
+                              // Match the actual portal-owned touch target (42px standard, 44px Pembukuan).
+                              // This still rejects unequal control heights or vertical misalignment.
+                              const ok=(Math.abs(target-42)<=1||Math.abs(target-44)<=1)&&
+                                heights.every(n=>Math.abs(n-target)<=1)&&
                                 Math.max(...centers)-Math.min(...centers)<=1;
                               root.remove();return {ok,heights,centers};
                             };
