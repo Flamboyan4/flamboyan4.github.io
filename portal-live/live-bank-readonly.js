@@ -62,8 +62,10 @@
   return {
    anggotaAktif:number(o.activeMembers??o.memberCount??o.members??r.membersCount??0),
    jumlahSetoranTerkonfirmasi:number(o.confirmedDeposits??0),
+   jumlahSetoranTercatat:o.recordedDeposits==null?null:number(o.recordedDeposits),
    jenisBarang:number(o.activeItems??r.catalog?.length??0),
-   beratTerkonfirmasi:number(o.confirmedWeightKg??o.confirmedKg??0),
+   beratTerkonfirmasi:number(o.weighedConfirmedKg??o.confirmedWeightKg??o.confirmedKg??0),
+   beratSetoranTercatat:o.recordedWeightKg==null?null:number(o.recordedWeightKg),
    kegiatan:p.length,
    progres:p,
    inventaris:inventories(r.inventory)
