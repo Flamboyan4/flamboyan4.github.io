@@ -210,7 +210,7 @@ assert(memberDirectShell.includes('body.f4-direct-bank.f4-bank-app-member #f4-di
  'Navbar must not add a second 244px sidebar offset');
 assert(memberNav.includes('border-right:1px solid #dce8df')&&memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible')&&memberNav.includes('font:650 13px/1.25 system-ui'),
  "Bank ECO: White sidebar should use readable portal-sized dark text");
-assert(css.includes('--f4-bank-canvas:#edf9f2')&&
+assert(css.includes('--f4-bank-canvas:#f8faf9')&&
        memberNav.includes('body.f4-bank-app-member{background:var(--f4-bank-canvas,#edf9f2)}')&&
        memberNav.includes('background:linear-gradient(132deg,#c6ebff,#e5f6ff 72%,#f3fbff)')&&
        css.includes('body.f4-direct-bank .shell>.footer,body.f4-embedded-bank .shell>.footer{')&&
@@ -348,7 +348,7 @@ assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null")&&
        h.includes("v17PublicStat(home.jumlahSetoranTercatat==null")&&
        h.includes("const links=[['dashboard','Beranda','home',null],['docs'")&&
        !h.includes("['program','Program','leaf','v17Program'],['progress','Perkembangan'")&&
-       publicTheme.includes('[data-metric=deposit]{background:#fff0c2'),
+       publicTheme.includes('[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #f0b300}'),
   'Public summary must prioritize recorded deposits, use vivid tiles and avoid duplicate links');
 // Only one mobile dock owner: member and manager use the same markup and CSS.
 assert(!css.includes('.f4-bank-app-dock:not([hidden])') &&
@@ -371,6 +371,21 @@ assert(!dockCss.includes('body.f4-bank-app-admin .f4-bank-app-dock-action') &&
  'No role-specific dock styles; only icon and route data can differ');
 assert(!dockCss.includes('@media print') && !css.includes('@media print'),
  'Navigation CSS must not modify print output');
+// Public report uses safe deposit-only data. A logout must not retain finance rows.
+const publicReport=h.split('// Laporan SETORAN publik.')[1]?.split('// v26 — jangan biarkan logout')[0]||'';
+assert(publicReport.includes("call('bsV11PublicHome')") &&
+       publicReport.includes("call('bsV17GrafikPublik')") &&
+       !publicReport.includes('bsV25LaporanPublik') &&
+       !/Laporan Keuangan|Penjualan sah|Pengeluaran|Hasil jual sah|pendingEstimateRp/.test(publicReport) &&
+       publicReport.includes("const serial=++v25ReportSerial") &&
+       publicReport.includes('LAPORAN SETORAN BANK SAMPAH'),
+ 'Public report must only expose deposits, invalidate stale requests, and never mount old finance fields');
+assert(css.includes('background:#087f77;color:#fff;text-align:center;font:inherit;') &&
+       css.includes('--f4-bank-canvas:#f8faf9') &&
+       !css.includes('background:linear-gradient(150deg,#e6f9fa,#f8fffd);color:#153e32') &&
+       publicTheme.includes('[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #f0b300}') &&
+       !publicTheme.includes('v25ReportPending'),
+ 'Action buttons must have vivid colors; public cards white; retired report CSS removed');
 // Public progress is weight-only until authentication; financial value stays private.
 assert((h.match(/id="f4DevChart"/g)||[]).length===1,'Public progress chart must be unique');
 assert(!h.includes('id="v17ValueBars"'),'Legacy value chart must not return');
@@ -379,8 +394,10 @@ assert(!h.includes('body.f4-embedded-bank #dashboardView .section{padding-top:64
 assert(h.includes('data-dev-mode="berat" aria-pressed="true"'),'Public weight mode missing');
 assert(h.includes('data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden'),
  'Financial value tab must stay hidden for guests');
-assert(h.includes('id="v17Transparansi" class="v17-section hidden" hidden'),
- 'Public financial transparency section must remain hidden');
+assert(h.includes('id="v17Transparansi" class="v17-section"><h2>Laporan Setoran</h2>') &&
+        !h.includes('id="v17Transparansi" class="v17-section hidden" hidden') &&
+        h.includes("section.replaceChildren(v21Node('h2','','Laporan Setoran'))"),
+ 'Public should display one deposit report from the start; no hidden legacy finance report');
 assert(h.includes('f4-savings-roster f4-savings-members'),'Member roster must be frameless');
 assert(h.includes("roster.className='f4-saldo-list'"),'Inline roster missing');
 assert(h.includes("querySelectorAll('.f4-saldo-row')"),'Roster search must target row list');
@@ -497,9 +514,10 @@ assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null?'Berat setoran 
 for(const label of ['Anggota aktif','Jenis sampah diterima','Kegiatan terpublikasi']){
  assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
-assert(h.includes('<svg xmlns="http://www.w3.org/2000/svg"') && h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
- 'Guest message must explain private financial records');
-assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
+assert(h.includes("v27PrintNode('p','v27-print-note','Setoran non-batal, termasuk belum terjual. Tidak memuat uang atau data pribadi.')") &&
+       !h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
+ 'Guest report must contain only setoran and explicitly exclude private money/identity');
+assert(h.includes("const pdf=v21Node('button','secondary','PDF')"),'PDF button label not compact');
 assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
 assert(!h.includes("const print=v21Node('button','secondary','Cetak / PDF')"),'Old public PDF label returned');
 assert(!h.includes("const csv=v21Node('button','secondary','Unduh CSV')"),'Old public CSV label returned');
