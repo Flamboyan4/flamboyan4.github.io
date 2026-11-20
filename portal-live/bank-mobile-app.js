@@ -39,7 +39,7 @@ async function api(path,payload){
 const memberDock=[
  ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
  ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","clock.svg"],
- ["Laporan","bank-report","book.svg"]
+ ["Info","bank-member-info","book.svg"]
 ];
 // Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
 const adminDock=[
@@ -47,7 +47,7 @@ const adminDock=[
  ["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"],
  ["Laporan","laporan","book.svg"]
 ];
-let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
+let role=null,screen="dashboard",historyMonth="latest",historyKind="deposit",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
@@ -341,7 +341,7 @@ function ensureHome(){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
   const recent=$("v14Recent")?.closest(".v14-panel");
   const recentHeading=recent?.querySelector(".v14-panel-head h3");
-  if(recentHeading)recentHeading.textContent="Mutasi Setoran Terbaru";
+  if(recentHeading)recentHeading.textContent="Aktivitas Tabungan Terbaru";
   if(recent&&!hub.contains(recent))hub.append(recent);
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
@@ -699,21 +699,39 @@ function populateMonths(host,values,current,onChange){
  if(host.tagName==="SELECT")host.onchange=()=>onChange(host.value);
 }
 function showHistory(){
- const page=ensureScreen("bank-history","Riwayat Transaksi");
+ const page=ensureScreen("bank-history","Riwayat");
  if(!$("f4BankHistoryList")){
+  const kinds=el("div","f4-bank-history-kinds");kinds.id="f4BankHistoryKinds";
+  kinds.setAttribute("role","group");kinds.setAttribute("aria-label","Jenis riwayat");
   const filter=el("div","f4-bank-month-filter");filter.id="f4BankHistoryMonths";
   const list=el("div","f4-bank-history-list");list.id="f4BankHistoryList";
   const panel=el("section","f4-bank-history-panel");
-  panel.append(filter,list);
-  page.append(el("p","f4-bank-screen-status","Memuat transaksi..."),panel);
+  panel.append(kinds,filter,list);
+  page.append(el("p","f4-bank-screen-status","Memuat riwayat…"),panel);
  }
- const rows=historyLines(),available=months(rows);
+ const all=historyLines();
+ const tabs=[["deposit","Setoran sampah"],["in","Hasil penjualan"],["out","Pencairan"]];
+ if(all.some(x=>x.kind==="correction"))tabs.push(["correction","Penyesuaian"]);
+ if(!tabs.some(x=>x[0]===historyKind))historyKind="deposit";
+ const kinds=$("f4BankHistoryKinds");
+ kinds.replaceChildren(...tabs.map(([key,label])=>{
+  const count=all.filter(x=>x.kind===key).length;
+  const button=el("button","f4-bank-history-kind"+(key===historyKind?" is-active":""),label);
+  button.type="button";button.setAttribute("aria-pressed",String(key===historyKind));
+  button.setAttribute("aria-label",label+", "+count+" transaksi");
+  button.onclick=()=>{historyKind=key;historyMonth="latest";showHistory();};
+  return button;
+ }));
+ const rows=all.filter(x=>x.kind===historyKind);
+ const available=months(rows);
  if(historyMonth==="latest"||!available.includes(historyMonth)&&historyMonth!=="all")
   historyMonth=available[0]||"all";
  populateMonths($("f4BankHistoryMonths"),available,historyMonth,key=>{historyMonth=key;showHistory();});
  const host=$("f4BankHistoryList");host.replaceChildren();
  for(const line of rows.filter(x=>historyMonth==="all"||x.month===historyMonth)){
   const deposit=line.kind==="deposit",out=line.debit>0,amount=out?line.debit:line.credit;
+  const title=deposit?"Setoran sampah":line.kind==="correction"?"Penyesuaian saldo":
+   out?"Pencairan tabungan":"Hasil penjualan sampah";
   const item=el("article","f4-bank-history-line");
   const badge=el("span","f4-bank-history-icon "+(deposit?"is-deposit":out?"is-out":"is-in"));
   badge.setAttribute("aria-hidden","true");
@@ -721,13 +739,18 @@ function showHistory(){
    out?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5m-7 7 7-7 7 7"/></svg>':
    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m7-7-7 7-7-7"/></svg>';
   item.append(badge);
-  const desc=el("span","f4-bank-history-copy");desc.append(el("strong","",line.type),el("small","",line.date));
+  const desc=el("span","f4-bank-history-copy");
+  desc.append(el("strong","",title),el("small","",line.date));
   const total=el("span","f4-bank-history-amount "+(deposit?"is-deposit":out?"is-out":"is-in"));
   total.append(el("strong","",deposit?line.amountText:(out?"− ":"+ ")+rupiah(amount)),
    el("small","",deposit?line.note:"Saldo "+line.balance));
   item.append(desc,total);host.append(item);
  }
- if(!host.childElementCount)host.append(el("p","f4-bank-empty",rows.length?"Tidak ada transaksi pada bulan ini.":"Belum ada transaksi tercatat."));
+ if(!host.childElementCount){
+  const messages={deposit:"Belum ada setoran sampah tercatat.",in:"Belum ada hasil penjualan yang masuk ke tabungan.",
+   out:"Belum ada pencairan tabungan.",correction:"Belum ada penyesuaian saldo."};
+  host.append(el("p","f4-bank-empty",rows.length?"Tidak ada transaksi pada bulan ini.":messages[historyKind]));
+ }
  statusFor(page);
 }
 function showReport(){
@@ -2562,10 +2585,12 @@ function drawMemberHomeChart(){
    "Belum ada setoran pribadi pada periode ini."));
   return;
  }
- const max=Math.max(0,...entries.map(item=>item.weight));
+ const active=entries.filter(item=>item.count>0);
+ const max=Math.max(0,...active.map(item=>item.weight));
  const bars=el("div","f4-member-progress-bars");
- bars.style.gridTemplateColumns="repeat("+entries.length+",minmax(0,1fr))";
- for(const item of entries){
+ bars.style.gridTemplateColumns="repeat("+active.length+",minmax(0,1fr))";
+ bars.classList.toggle("is-sparse",active.length<3);
+ for(const item of active){
   const column=el("div","f4-member-progress-column");
   const amount=el("strong","",item.count?f4PrivateShort(item.weight,"kg")+" kg":"—");
   const rail=el("span","f4-member-progress-rail");
@@ -2578,7 +2603,7 @@ function drawMemberHomeChart(){
  }
  chart.setAttribute("role","img");
  chart.setAttribute("aria-label","Berat sampah pribadi per "+(monthly?"bulan":"tahun")+". "+
-  entries.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
+  active.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
  chart.append(bars);
 }
 /* Mini ringkasan PC dari laporan publik transaksi sah D1. */
