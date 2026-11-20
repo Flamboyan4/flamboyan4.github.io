@@ -453,7 +453,11 @@ function memberBalancePreview(){
  if(!memberStatement)return null;
  const confirmed=Math.max(0,Number(memberStatement.saldo)||0);
  const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran:[];
- const pending=deposits.filter(row=>{
+ // Prefer the D1 aggregate: includes all active setoran and partially unsold lots.
+ // Old bridges can omit this field, then fall back to a complete member statement.
+ const aggregate=memberStatement.estimasiMenungguRp;
+ const authoritative=aggregate!=null&&Number.isSafeInteger(Number(aggregate))&&Number(aggregate)>=0;
+ const pending=authoritative?Number(aggregate):deposits.filter(row=>{
   const status=String(row.status||"").trim().toLowerCase();
   return !/batal/.test(status)&&!/^(terkonfirmasi|confirmed|sah|sudah sah|disahkan)$/.test(status);
  }).reduce((sum,row)=>sum+Math.max(0,Number(row.estimasiRp)||0),0);
