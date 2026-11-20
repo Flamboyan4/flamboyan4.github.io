@@ -54,7 +54,7 @@ let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
 let memberHomeChartGroup="month";
-let memberBalancePrivacy={hidden:false};
+let memberBalancePrivacy={hidden:true};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
@@ -264,9 +264,9 @@ function ensureHome(){
   savings.setAttribute("role","group");savings.setAttribute("aria-label","Total saldo Bank Sampah: saldo sah dan estimasi");
   const balanceHead=el("div","f4-bank-balance-head");
   const balanceEye=el("button","f4-bank-balance-eye");balanceEye.type="button";
-  balanceEye.setAttribute("aria-label","Sembunyikan saldo");
-  balanceEye.setAttribute("aria-pressed","false");
-  balanceEye.title="Sembunyikan saldo";
+  balanceEye.setAttribute("aria-label","Tampilkan saldo");
+  balanceEye.setAttribute("aria-pressed","true");
+  balanceEye.title="Tampilkan saldo";
   const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
   balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
   balanceEyeSvg.setAttribute("aria-hidden","true");
@@ -2581,17 +2581,19 @@ function drawMemberHomeChart(){
   entries.map(item=>item.key+": "+f4PrivateKg(item.weight)).join("; "));
  chart.append(bars);
 }
-/* Mini ringkasan PC dari laporan publik transaksi sah D1. */
+/* Shared operational overview from the public Bank Sampah endpoint, never private ledger totals. */
 function renderMemberPublicMini(){
  const host=$("f4MemberPublicMini");if(!host)return;
  const summary=memberPublicMini.data;
- for(const [key,format] of [["beratKg",f4PrivateKg],["hasilPenjualan",rupiah],["hakWarga",rupiah]]){
+ for(const key of ["setoran","anggota","jenis"]){
   const n=summary?.[key],valid=n!==null&&n!==undefined&&n!==""&&
    Number.isFinite(Number(n))&&Number(n)>=0;
-  const display=valid?format(Number(n)):"—";
+  const display=valid?Number(n).toLocaleString("id-ID"):"—";
   const field=host.querySelector('[data-public-field="'+key+'"] strong');
   if(field){field.textContent=display;field.title=valid?display:"Data belum tersedia";}
  }
+ const label=host.querySelector('[data-public-field="setoran"] small');
+ if(label)label.textContent=summary?.recorded?"Setoran tercatat":"Setoran sah";
 }
 function resetMemberPublicMini(){
  memberPublicMini.version++;memberPublicMini.data=null;
@@ -2604,15 +2606,17 @@ function loadMemberPublicMini(force=false){
  if(s.pending||(!force&&s.loadedAt&&Date.now()-s.loadedAt<90000))return;
  const version=++s.version;
  s.loadedAt=Date.now();
- s.pending=api("/api/v2/public/bank/report").then(response=>{
+ s.pending=api("/api/v2/public/bank").then(response=>{
   if(version!==s.version||roleType()!=="member")return;
-  const report=response?.ringkasan||response?.summary;
-  if(!report||typeof report!=="object"||
-   !["beratKg","hasilPenjualan","hakWarga"].every(key=>
-    report[key]!==null&&report[key]!==undefined&&report[key]!==""&&
-    Number.isFinite(Number(report[key]))&&Number(report[key])>=0))
-    throw Error("Data laporan sah belum lengkap.");
-  s.data=report;renderMemberPublicMini();
+  const overview=response?.overview;
+  if(!overview||typeof overview!=="object"||
+   !["confirmedDeposits","activeMembers","activeItems"].every(key=>
+    overview[key]!=null&&Number.isFinite(Number(overview[key]))))
+    throw Error("Ringkasan publik Bank Sampah belum lengkap.");
+  const recorded=overview.recordedDeposits!=null&&Number.isFinite(Number(overview.recordedDeposits));
+  s.data={setoran:Number(recorded?overview.recordedDeposits:overview.confirmedDeposits),
+   anggota:Number(overview.activeMembers),jenis:Number(overview.activeItems),recorded};
+  renderMemberPublicMini();
  }).catch(error=>{
   if(version!==s.version)return;
   s.data=null;renderMemberPublicMini();
@@ -2626,9 +2630,9 @@ function infoShortcut(){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
   const symbol=el("span","f4-member-info-icon");symbol.append(memberMetricIcon("report"));
   const copy=el("span","f4-member-info-copy");
-  copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
+  copy.append(el("strong","","Info Bank Sampah"),el("small","","Setoran, anggota, dan kegiatan"));
   const mini=el("span","f4-member-public-mini");mini.id="f4MemberPublicMini";
-  for(const [key,label] of [["beratKg","Berat terjual"],["hasilPenjualan","Hasil jual"],["hakWarga","Hak warga"]]){
+  for(const [key,label] of [["setoran","Setoran sah"],["anggota","Anggota aktif"],["jenis","Jenis sampah"]]){
    const item=el("span","f4-member-public-mini-item");item.dataset.publicField=key;
    item.append(el("small","",label),el("strong","","—"));mini.append(item);
   }
@@ -2646,7 +2650,7 @@ function publicSnapshot(){
 }
 function memberFeature(route){
  const progress=route==="bank-member-progress",docs=route==="bank-member-docs";
- const name=progress?"Perkembangan":docs?"Dokumentasi":"Informasi & Laporan";
+ const name=progress?"Perkembangan":docs?"Dokumentasi":"Info Bank Sampah";
  const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  // The report already has its own "Laporan Publik" heading; avoid repeating it.
@@ -2833,7 +2837,7 @@ function resetRoleSurface(){
  adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
- resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=false;
+ resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
  adminInsightVersion++;adminInsightPending=null;adminInsightReport=null;
  adminInsightPublic=null;adminInsightSchedule=null;adminInsightLoadedAt=0;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";

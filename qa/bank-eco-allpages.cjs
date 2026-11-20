@@ -166,8 +166,13 @@ assert(memberDirectShell.includes('body.f4-direct-bank.f4-bank-app-member #f4-di
  'Navbar must not add a second 244px sidebar offset');
 assert(memberNav.includes('border-right:1px solid #dce8df')&&memberNav.includes('border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible')&&memberNav.includes('font:650 13px/1.25 system-ui'),
  "Bank ECO: White sidebar should use readable portal-sized dark text");
-assert(bankingCss.includes('background:#f4faf7;\n min-height:calc(100dvh - 56px)')&&memberNav.includes('body.f4-bank-app-member{background:#f4faf7}')&&memberNav.includes('background:linear-gradient(132deg,#effbff,#fff 76%);color:#1b5138'),
- "Bank ECO: Member dashboard and its report surface need a pure white canvas");
+assert(css.includes('--f4-bank-canvas:#edf9f2')&&
+       memberNav.includes('body.f4-bank-app-member{background:var(--f4-bank-canvas,#edf9f2)}')&&
+       memberNav.includes('background:linear-gradient(132deg,#c6ebff,#e5f6ff 72%,#f3fbff)')&&
+       css.includes('body.f4-direct-bank .shell>.footer,body.f4-embedded-bank .shell>.footer{')&&
+       css.includes('min-height:52px;height:52px')&&
+       !css.includes('body.f4-bank-app-admin :is(.shell,.content,#dashboardView,#dashboardView>.grid,.footer)'),
+  'Bank ECO: one shared canvas/footer and distinct information shortcut across roles');
 assert(h.includes('body.f4-bank-app-member #dashboardView #pageDashboard:not(:has(#f4BankAppHome[data-bank-role="member"]))'),
  'Legacy dashboard must not flash before member widgets are mounted');
 assert(css.includes('color:#fff;opacity:.95;transform:none') &&
@@ -250,8 +255,12 @@ assert(h.includes("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])"),'Dashboa
 const memberRecentPreview=h.split("const recent=(Array.isArray(d.mutasi)?d.mutasi:[])")[1]?.split("const recentBox=$('v14Recent')")[0]||"";
 assert(memberRecentPreview.includes('.sort(') && memberRecentPreview.includes('.slice(0,3)'),
  'Home mutasi must remain limited to the latest three true ledger movements');
-assert(mobile.includes('let memberBalancePrivacy={hidden:false}')&&mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();')&&mobile.includes('memberBalancePrivacy.hidden?"••••••":rupiah(balance.total)')&&mobile.includes('balanceLink.onclick=()=>navigate("pribadi")')&&mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=false;'),
- "Bank ECO: Saldo hide and unhide must not navigate or overwrite the actual live balance");
+assert(mobile.includes('let memberBalancePrivacy={hidden:true}')&&
+       mobile.includes('memberBalancePrivacy.hidden=!memberBalancePrivacy.hidden;updateDashboard();')&&
+       mobile.includes('memberBalancePrivacy.hidden?"••••••":rupiah(balance.total)')&&
+       mobile.includes('balanceLink.onclick=()=>navigate("pribadi")')&&
+       mobile.includes('resetMemberPublicMini();memberBalancePrivacy.hidden=true;'),
+  'Bank ECO: private balance starts masked, reveals only on demand and resets on account switch');
 assert(dockCss.includes('width:clamp(58px,17vw,66px);height:clamp(58px,17vw,66px)') &&
        dockCss.includes('border:3px solid #fff;border-radius:50%') &&
        css.includes('.f4-bank-balance-head{'),
@@ -262,11 +271,12 @@ assert(memberNav.includes('margin-inline:auto;padding:14px 15px 10px;background:
  "Bank ECO: Only one bottom-dock clearance should remain on mobile");
 assert(css.includes('max-height:184px;overflow-y:auto;overflow-x:hidden'),
  'PC member mutasi must not grow beyond its dashboard card');
-assert(mobile.includes('function loadMemberPublicMini(force=false)') &&
-       mobile.includes('api("/api/v2/public/bank/report")') &&
-       mobile.includes('const report=response?.ringkasan||response?.summary;') &&
+const memberPublicMiniLoader=mobile.split('function loadMemberPublicMini(force=false)')[1]?.split('function infoShortcut()')[0]||'';
+assert(memberPublicMiniLoader.includes('api("/api/v2/public/bank")') &&
+       !memberPublicMiniLoader.includes('api("/api/v2/public/bank/report")') &&
+       memberPublicMiniLoader.includes('const overview=response?.overview;') &&
        mobile.includes('resetAdminAlerts();resetMemberPublicMini();'),
- 'Mini summary must use authenticated D1 public report and reset on account change');
+  'Mini summary reads safe public operational data and resets on account change');
 assert(memberNav.includes('#dashboardView #f4MemberPublicMini{display:none}') &&
        memberNav.includes('@media(min-width:1024px){') &&
        memberNav.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),
@@ -277,6 +287,13 @@ assert(!h.includes("const recent=active.slice().sort((a,b)=>String(b.tanggal"),'
 assert(h.includes("document.createElementNS('http://www.w3.org/2000/svg','svg')"),'Mutation icons must be SVG');
 assert(css.includes('border:0;border-bottom:1px solid #edf3ed'), 'Mutation rows must not have separate cards');
 assert(!css.includes('"card card card card card card card card schedule schedule price price"'),'Broken legacy member grid returned');
+/* Public is about deposited material, not sales; no repeated Beranda destinations. */
+assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null")&&
+       h.includes("v17PublicStat(home.jumlahSetoranTercatat==null")&&
+       h.includes("const links=[['dashboard','Beranda','home',null],['docs'")&&
+       !h.includes("['program','Program','leaf','v17Program'],['progress','Perkembangan'")&&
+       publicTheme.includes('[data-metric=deposit]{background:#fff0c2'),
+  'Public summary must prioritize recorded deposits, use vivid tiles and avoid duplicate links');
 // Only one mobile dock owner: member and manager use the same markup and CSS.
 assert(!css.includes('.f4-bank-app-dock:not([hidden])') &&
        !css.includes('.f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon{'),
@@ -418,7 +435,10 @@ assert(!h.includes("Nilai sah berasal dari penjualan yang disahkan. Perkiraan me
  'Verbose approval note returned');
 assert(!h.includes("data.catatan+' Data pribadi warga tidak ditampilkan.'"),
  'Duplicated report footnote returned');
-for(const label of ['Berat sampah terjual','Setoran terkonfirmasi','Anggota aktif','Jenis sampah diterima','Kegiatan terpublikasi']){
+assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null?'Berat setoran disahkan':'Berat sampah disetor'")&&
+       h.includes("v17PublicStat(home.jumlahSetoranTercatat==null?'Setoran disahkan':'Setoran tercatat'"),
+  'Public KPI must describe recorded deposits and label old API fallbacks truthfully');
+for(const label of ['Anggota aktif','Jenis sampah diterima','Kegiatan terpublikasi']){
  assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
 assert(h.includes('<svg xmlns="http://www.w3.org/2000/svg"') && h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),

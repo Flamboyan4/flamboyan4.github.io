@@ -1,6 +1,6 @@
 /* Public Bank Sampah app — canonical hero, main canvas and metric components.
    Other application pages and the private finance block below are unaffected. */
-#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#f4faf7}
+#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:var(--f4-bank-canvas,#edf9f2)}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
  background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
@@ -104,8 +104,8 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);
  grid-template-rows:auto 1fr;align-items:center;column-gap:8px;row-gap:6px;
  min-width:0;min-height:106px;margin:0;padding:14px;
- border:1px solid #e2f1e9;border-radius:17px;background:#fff;
- box-shadow:0 5px 15px #126f4a0b
+ border:1px solid #c0decf;border-radius:17px;background:#fff;
+ box-shadow:0 8px 19px #0b785621
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
  content:"";box-sizing:border-box;grid-column:1;grid-row:1;
@@ -114,16 +114,16 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
- background-color:#d9f7e9;background-image:url('/assets/icons/user.svg')
+ background-color:#b0efd5;background-image:url('/assets/icons/user.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
- background-color:#e0f6ff;background-image:url('/assets/icons/inventory.svg')
+ background-color:#b5e4ff;background-image:url('/assets/icons/inventory.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
- background-color:#e7f3ff;background-image:url('/assets/icons/calendar.svg')
+ background-color:#d4caff;background-image:url('/assets/icons/calendar.svg')
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{
- background-color:#fff0c5;background-image:url('/assets/icons/cash.svg')
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]::before{
+ background-color:#ffdf7a;background-image:url('/assets/icons/bank.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
  grid-column:2;grid-row:1;min-width:0;margin:0;color:#657b6c;
@@ -137,10 +137,10 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
  grid-column:auto;min-height:106px;padding:14px;
- border-color:#d2f1df;background:linear-gradient(145deg,#d8f8e4,#e8fbd9)
+ border-color:#8adbaf;background:linear-gradient(145deg,#aff1c9,#e3f9d0)
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
- background-color:#b1eccb
+ background-color:#72d9a4
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
  color:#295f3e
@@ -149,10 +149,10 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  color:#07583d
 }
 /* The KPI backgrounds communicate category without extra card-in-card frames. */
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#ebf8ff;border-color:#def1fc}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#f1f1ff;border-color:#e9e8ff}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]{background:#fff8e8;border-color:#f9ecc5}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#edf9f3;border-color:#e0f2e8}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#dcefff;border-color:#9fd2f5}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#ebe6ff;border-color:#cbbcff}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff0c2;border-color:#e8c75a}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#d5f8e8;border-color:#8bdfbc}
 @media(max-width:1100px){
  #v11Public .v17-public-main>.v17-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr))

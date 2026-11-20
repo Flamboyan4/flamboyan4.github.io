@@ -123,7 +123,7 @@ async function authenticatedPortalCashBalance(db){
 __name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
 async function publicBank(db) {
   await f4GallerySchema(db);
-  const [catalog, albums, progress, inventory, overview, monthlyWeights] = await Promise.all([
+  const [catalog, albums, progress, inventory, overview, monthlyWeights, monthlyDeposits] = await Promise.all([
     list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
     list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,
       CASE WHEN a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%'
@@ -140,13 +140,17 @@ async function publicBank(db) {
     list(db, `SELECT i.id,i.name,i.quantity,i.unit,i.condition,im.external_url AS photoUrl
     FROM inventory i LEFT JOIN inventory_external_media im ON im.inventory_id=i.id
     WHERE i.active=1 AND i.category='bank_sampah' ORDER BY i.name LIMIT 150`),
-    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id JOIN waste_batches b ON b.id=sa.batch_id WHERE sa.status='terkonfirmasi' AND b.status='disahkan') AS confirmedWeightKg,
+    one(db, `SELECT (SELECT COUNT(*) FROM waste_deposits WHERE status='terkonfirmasi') AS confirmedDeposits,(SELECT COUNT(*) FROM waste_deposits WHERE status IN ('estimasi','terkonfirmasi')) AS recordedDeposits,(SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status IN ('estimasi','terkonfirmasi')) AS recordedWeightKg,(SELECT COUNT(*) FROM members WHERE status='aktif') AS activeMembers,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id JOIN waste_batches b ON b.id=sa.batch_id WHERE sa.status='terkonfirmasi' AND b.status='disahkan') AS confirmedWeightKg,
     (SELECT COALESCE(SUM(total_grams),0)/1000.0 FROM waste_deposits WHERE status='terkonfirmasi') AS weighedConfirmedKg,(SELECT COALESCE(SUM(sl.grams),0)/1000.0 FROM waste_sale_lines sl JOIN waste_sales sa ON sa.id=sl.sale_id WHERE sa.status='terkonfirmasi') AS confirmedSalesWeightKg,(SELECT COUNT(*) FROM waste_items WHERE active=1) AS activeItems,(SELECT COUNT(*) FROM albums WHERE visibility='publik' AND status='aktif') AS albumCount`),
     list(db, `SELECT substr(s.sold_on,1,7) AS month,COALESCE(SUM(l.grams),0)/1000.0 AS beratKg
       FROM waste_sale_lines l JOIN waste_sales s ON s.id=l.sale_id
       JOIN waste_batches b ON b.id=s.batch_id AND b.status='disahkan'
       WHERE s.status='terkonfirmasi'
-      GROUP BY substr(s.sold_on,1,7) ORDER BY month DESC LIMIT 12`)
+      GROUP BY substr(s.sold_on,1,7) ORDER BY month DESC LIMIT 12`),
+    // Aggregate weights by deposit date (estimated + confirmed; exclude cancelled).
+    list(db, `SELECT substr(deposited_on,1,7) AS month,COALESCE(SUM(total_grams),0)/1000.0 AS beratKg
+      FROM waste_deposits WHERE status IN ('estimasi','terkonfirmasi')
+      GROUP BY substr(deposited_on,1,7) ORDER BY month DESC LIMIT 12`)
   ]);
   const taggedGalleryAlbums=await list(db,`SELECT g.id,g.title,'Bank Sampah' AS category,substr(g.created_at,1,10) AS event_on,g.description,
    'bank-sampah' AS portal_scope,COUNT(p.id) AS mediaCount,
@@ -155,7 +159,7 @@ async function publicBank(db) {
    JOIN f4_gallery_categories c ON c.album_ref=g.id AND c.category='bank_sampah'
    LEFT JOIN f4_gallery_photos p ON p.album_ref=g.id AND p.status IN ('baru','ditinjau')
    WHERE g.status='aktif' GROUP BY g.id ORDER BY g.created_at DESC LIMIT 80`);
-  return ok({ catalog, albums:[...taggedGalleryAlbums.map(a=>({...a,coverUrl:a.coverDriveId?f4GalleryImageUrl(a.coverDriveId):null})),...albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)}))], progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), inventory: inventory.map((x) => ({
+  return ok({ catalog, albums:[...taggedGalleryAlbums.map(a=>({...a,coverUrl:a.coverDriveId?f4GalleryImageUrl(a.coverDriveId):null})),...albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)}))], progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), monthlyDeposits:monthlyDeposits.slice().reverse(), inventory: inventory.map((x) => ({
     ...x,
     photoUrl: urlSafe(x.photoUrl)
   })), overview });

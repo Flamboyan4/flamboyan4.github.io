@@ -62,8 +62,10 @@
   return {
    anggotaAktif:number(o.activeMembers??o.memberCount??o.members??r.membersCount??0),
    jumlahSetoranTerkonfirmasi:number(o.confirmedDeposits??0),
+   jumlahSetoranTercatat:o.recordedDeposits==null?null:number(o.recordedDeposits),
    jenisBarang:number(o.activeItems??r.catalog?.length??0),
-   beratTerkonfirmasi:number(o.confirmedWeightKg??o.confirmedKg??0),
+   beratTerkonfirmasi:number(o.weighedConfirmedKg??o.confirmedWeightKg??o.confirmedKg??0),
+   beratSetoranTercatat:o.recordedWeightKg==null?null:number(o.recordedWeightKg),
    kegiatan:p.length,
    progres:p,
    inventaris:inventories(r.inventory)
@@ -182,9 +184,12 @@
  }
  async function publicChart(){
   const r=await publicData();
-  const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
+  const recorded=Array.isArray(r.monthlyDeposits);
+  const last=(recorded?r.monthlyDeposits:Array.isArray(r.monthlyWeights)?r.monthlyWeights:[]).slice(-6);
   return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
-   catatan:'Berat akhir penjualan sah menurut bulan penjualan'};
+   source:recorded?'setoran':'penjualan',
+   catatan:recorded?'Berat seluruh setoran yang tidak dibatalkan menurut tanggal setor':
+    'Data setoran belum tersedia; grafik sementara memakai transaksi penjualan sah'};
  }
  async function publicAlbumDetail(id){
   const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
