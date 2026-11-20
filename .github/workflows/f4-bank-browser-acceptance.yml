@@ -9,6 +9,12 @@ on:
       - portal-live/live-bank-readonly.js
       - portal-live/f4-bank-write-bridge.js
       - cloudflare/worker-terpadu-operasional-teruji.js
+  pull_request:
+    paths:
+      - .github/workflows/f4-bank-browser-acceptance.yml
+      - bank-sampah/index.html
+      - portal-live/bank-development-app.css
+      - portal-live/bank-eco-pages.css
   workflow_dispatch:
 permissions:
   contents: read
@@ -65,19 +71,21 @@ jobs:
                       return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width};
                     };
                     const hero=box('.v17-public-banner'),metrics=box('#v17PublicMetrics'),
-                      statLeft=box('#f4DevStats .f4-dev-stat:first-child'),
-                      statRight=box('#f4DevStats .f4-dev-stat:nth-child(2)'),
                       chart=box('#v17Perkembangan .f4-dev-chart-card'),
                       activity=box('#v17Perkembangan .f4-dev-activity-card'),
                       docs=box('#v17Dokumentasi'),inventory=box('#v17Inventaris');
-                    const complete=[hero,metrics,statLeft,statRight,chart,activity,docs,inventory].every(Boolean);
-                    if(!complete)return {complete:false,columnsAligned:false,stacked:false,fullWidth:false};
+                    // Old mini stats are intentionally hidden: the five live KPIs replaced them.
+                    // Never use their zero-sized boxes to validate visible desktop columns.
+                    const miniStats=document.querySelector('#f4DevStats');
+                    const miniStatsHidden=!!miniStats&&getComputedStyle(miniStats).display==='none';
+                    const complete=[hero,metrics,chart,activity,docs,inventory].every(Boolean);
+                    if(!complete)return {complete:false,columnsAligned:false,stacked:false,fullWidth:false,miniStatsHidden};
                     const near=(a,b)=>Math.abs(a-b)<=2;
                     return {
                       complete:true,
+                      miniStatsHidden,
                       fullWidth:near(hero.left,metrics.left)&&near(hero.right,metrics.right),
-                      columnsAligned:near(statLeft.left,chart.left)&&near(statLeft.width,chart.width)&&
-                        near(statRight.left,activity.left)&&near(statRight.width,activity.width)&&
+                      columnsAligned:chart.right<activity.left&&near(chart.width,activity.width)&&
                         near(chart.left,docs.left)&&near(chart.width,docs.width)&&
                         near(activity.left,inventory.left)&&near(activity.width,inventory.width)&&
                         near(chart.top,activity.top)&&near(chart.bottom,activity.bottom),
@@ -101,6 +109,7 @@ jobs:
                     'no_financial_payload':no_financial_payload,'public_page_visible':state['visiblePublic'],
                     'report_hidden':state['reportHidden'],'report_note':state['reportNote'][:180],
                     'grid_complete':layout['complete'],'grid_full_width':layout['fullWidth'],
+                    'mini_stats_hidden':layout['miniStatsHidden'],
                     'grid_valid':layout['columnsAligned'] if size=='pc' else layout['stacked'],
                     'page_text_chars':state['bodyText'],
                     'overflow_px':max(0,state['scrollWidth']-state['viewport']),
@@ -115,7 +124,7 @@ jobs:
           def passed(r):
             return r.get('http')==200 and r.get('api_denied') and r.get('no_financial_payload') and \
               r.get('public_page_visible') and r.get('report_hidden') and \
-              r.get('grid_complete') and r.get('grid_full_width') and r.get('grid_valid') and \
+              r.get('grid_complete') and r.get('grid_full_width') and r.get('mini_stats_hidden') and r.get('grid_valid') and \
               r.get('print_media') and r.get('page_text_chars',0)>200 and r.get('overflow_px',99)<=4 and \
               r.get('script_legacy_requests')==0 and not r.get('js_errors') and not r.get('exception')
           result['total']=len(result['results'])
