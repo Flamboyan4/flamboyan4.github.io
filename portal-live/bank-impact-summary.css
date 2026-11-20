@@ -1,6 +1,6 @@
 /* Public Bank Sampah app — canonical hero, main canvas and metric components.
    Other application pages and the private finance block below are unaffected. */
-#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#f5f8f5}
+#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#f4faf7}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
  background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
@@ -8,24 +8,24 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login{
  display:grid;place-items:center;width:auto;min-width:78px;
  min-height:39px;padding:0 14px;border:0;border-radius:12px;
- background:#08775e;color:#fff;font-size:12px;font-weight:800
+ background:#087e68;color:#fff;font-size:12px;font-weight:800
 }
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login:hover{
  background:#065940;color:#fff
 }
 #v11Public #v18PublicContent .v17-public-main{
  box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
- width:100%;max-width:980px;min-width:0;margin:0 auto;
- padding:22px 24px 54px;column-gap:15px;row-gap:16px
+ width:100%;max-width:1080px;min-width:0;margin:0 auto;
+ padding:22px 24px 54px;column-gap:16px;row-gap:17px
 }
 #v11Public .v17-public-main>.v17-public-banner{
  position:relative;isolation:isolate;box-sizing:border-box;
- grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 156px;
- align-items:center;gap:18px;min-width:0;min-height:206px;
- width:100%;margin:0;padding:24px 26px;overflow:hidden;
- border:0;border-radius:24px;color:#fff;
- background:linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%);
- box-shadow:0 9px 22px #14563823
+ grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) 160px;
+ align-items:center;gap:18px;min-width:0;min-height:214px;
+ width:100%;margin:0;padding:26px 29px;overflow:hidden;
+ border:0;border-radius:25px;color:#fff;
+ background:radial-gradient(circle at 96% 3%,#e6ff9b2a,transparent 39%),linear-gradient(123deg,#086754 0%,#07816b 52%,#0a8760 100%);
+ box-shadow:0 12px 28px #08745425
 }
 #v11Public .v17-public-main>.v17-public-banner::before{
  content:"";position:absolute;z-index:-1;inset:auto -63px -127px auto;
@@ -39,7 +39,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  display:inline-flex;align-items:center;gap:7px;
  max-width:100%;margin:0;padding:6px 10px;
  border:1px solid #ffffff36;border-radius:999px;
- background:#ffffff16;color:#efffef;
+ background:#ffffff24;color:#fff;
  font-size:10px;line-height:1.2;font-weight:780;letter-spacing:.075em
 }
 #v11Public .v17-public-main>.v17-public-banner .v14-eyebrow svg{
@@ -57,15 +57,15 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
  display:inline-flex;align-items:center;justify-content:center;gap:8px;
  min-height:36px;margin:16px 0 0;padding:8px 13px;
- border:0;border-radius:10px;background:#fff;color:#106746;
- box-shadow:none;font-size:11px;font-weight:820;line-height:1.2;
+ border:0;border-radius:11px;background:#ffcc32;color:#184735;
+ box-shadow:0 5px 14px #07563e22;font-size:11px;font-weight:820;line-height:1.2;
  white-space:nowrap;cursor:pointer
 }
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action svg{
  display:block;flex:none;width:15px;height:15px;stroke:currentColor
 }
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:hover{
- background:#ebf9ec;color:#064e31
+ background:#ffe073;color:#164332
 }
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:focus-visible{
  outline:2px solid #f7d362;outline-offset:3px
@@ -77,8 +77,8 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc{
  display:grid;place-items:center;width:136px;height:136px;
  border:1.5px solid #ffffff54;border-radius:50%;
- background:linear-gradient(150deg,#ffffff2c,#ffffff07);
- box-shadow:inset 0 0 0 10px #ffffff08
+ background:linear-gradient(145deg,#ffffff34,#ffffff10);
+ box-shadow:inset 0 0 0 10px #ffffff0e,0 9px 27px #06493620
 }
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-disc svg{
  display:block;width:83px;height:83px;stroke:#fff
@@ -96,34 +96,34 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 /* Dashboard KPIs: one highlighted result, four restrained secondary tiles. */
 #v11Public .v17-public-main>.v17-public-metrics{
  box-sizing:border-box;grid-column:1/-1;display:grid;
- grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;
+ grid-template-columns:minmax(180px,1.25fr) repeat(4,minmax(0,1fr));gap:11px;
  align-items:stretch;min-width:0;width:100%;margin:0;padding:0;
  border:0;border-radius:0;background:transparent;overflow:visible
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
  box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);
  grid-template-rows:auto 1fr;align-items:center;column-gap:8px;row-gap:6px;
- min-width:0;min-height:107px;margin:0;padding:14px;
- border:1px solid #dee8df;border-radius:18px;background:#fff;
- box-shadow:0 3px 10px #0b3d270b
+ min-width:0;min-height:106px;margin:0;padding:14px;
+ border:1px solid #e2f1e9;border-radius:17px;background:#fff;
+ box-shadow:0 5px 15px #126f4a0b
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
  content:"";box-sizing:border-box;grid-column:1;grid-row:1;
  display:grid;place-items:center;width:30px;height:30px;margin:0;
- border-radius:10px;background:#e6f4e5
+ border-radius:10px;background:#daf7e6
  url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
- background-color:#e1f4e6;background-image:url('/assets/icons/user.svg')
+ background-color:#d9f7e9;background-image:url('/assets/icons/user.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
- background-color:#def0dd;background-image:url('/assets/icons/inventory.svg')
+ background-color:#e0f6ff;background-image:url('/assets/icons/inventory.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
- background-color:#e3f4f3;background-image:url('/assets/icons/calendar.svg')
+ background-color:#e7f3ff;background-image:url('/assets/icons/calendar.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]::before{
- background-color:#fff1cb;background-image:url('/assets/icons/cash.svg')
+ background-color:#fff0c5;background-image:url('/assets/icons/cash.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
  grid-column:2;grid-row:1;min-width:0;margin:0;color:#657b6c;
@@ -131,23 +131,28 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
  grid-column:1/-1;grid-row:2;align-self:end;min-width:0;
- display:block;margin:0;color:#135a3c;
+ display:block;margin:0;color:#11654b;
  font-size:clamp(21px,2.1vw,29px);font-weight:880;line-height:1.1;
  letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
- grid-column:auto;min-height:107px;padding:14px;
- border-color:#c9e5c7;background:#dff1d0
+ grid-column:auto;min-height:106px;padding:14px;
+ border-color:#d2f1df;background:linear-gradient(145deg,#d8f8e4,#e8fbd9)
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
- background-color:#c6e6ab
+ background-color:#b1eccb
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
  color:#295f3e
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
- color:#064e32
+ color:#07583d
 }
+/* The KPI backgrounds communicate category without extra card-in-card frames. */
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#ebf8ff;border-color:#def1fc}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#f1f1ff;border-color:#e9e8ff}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=cash]{background:#fff8e8;border-color:#f9ecc5}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#edf9f3;border-color:#e0f2e8}
 @media(max-width:1100px){
  #v11Public .v17-public-main>.v17-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr))
@@ -160,7 +165,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  }
  #v11Public .v17-public-main>.v17-public-banner{
   grid-template-columns:minmax(0,1fr) 76px;
-  gap:6px;min-height:0;padding:18px 15px 17px;
+  gap:6px;min-height:0;padding:19px 16px 18px;
   border-radius:20px;box-shadow:0 6px 14px #1456381a
  }
  #v11Public .v17-public-main>.v17-public-banner::before{
@@ -270,7 +275,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;position:relative;overflow:hidden;min-width:0;
  padding:21px 23px 18px;border-radius:20px;
  background:radial-gradient(circle at 90% 6%,#ffffff20 0,transparent 43%),
- linear-gradient(125deg,#065940 0%,#008f80 57%,#289954 100%);
+ linear-gradient(125deg,#086754 0%,#07816b 57%,#0a8760 100%);
  color:#fff
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-title{
