@@ -184,9 +184,12 @@
  }
  async function publicChart(){
   const r=await publicData();
-  const last=Array.isArray(r.monthlyWeights)?r.monthlyWeights.slice(-6):[];
+  const recorded=Array.isArray(r.monthlyDeposits);
+  const last=(recorded?r.monthlyDeposits:Array.isArray(r.monthlyWeights)?r.monthlyWeights:[]).slice(-6);
   return {bulan:last.map(x=>({bulan:x.month,beratKg:number(x.beratKg)})),
-   catatan:'Berat akhir penjualan sah menurut bulan penjualan'};
+   source:recorded?'setoran':'penjualan',
+   catatan:recorded?'Berat seluruh setoran yang tidak dibatalkan menurut tanggal setor':
+    'Data setoran belum tersedia; grafik sementara memakai transaksi penjualan sah'};
  }
  async function publicAlbumDetail(id){
   const r=await get('/api/v2/public/bank/album/'+encodeURIComponent(id));
