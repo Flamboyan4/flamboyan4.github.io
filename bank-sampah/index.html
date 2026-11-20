@@ -3162,11 +3162,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
     // Ringkasan satu baris, tanpa kartu tinggi.
     const summary=document.createElement('div');summary.className='f4-member-print-summary';
-    const activeMutasi=mutasi.filter(x=>!['koreksi_debit','koreksi_kredit'].includes(String(x.kind||'')));
-    const canceledBatches=new Set((d.setoran||[]).filter(x=>x.status==='Dibatalkan').map(x=>String(x.batchId||'')).filter(Boolean));
-    const income=activeMutasi.filter(x=>!canceledBatches.has(String(x.batchId||''))).reduce((sum,x)=>sum+Number(x.kredit||0),0);
-    const expense=activeMutasi.reduce((sum,x)=>sum+Number(x.debit||0),0);
-    [['Saldo',d.saldo],['Masuk',income],['Dicairkan',expense]].forEach(([label,value])=>{
+    // Masuk bersih berasal dari saldo ledger setelah koreksi, bukan kredit bruto
+    // dalam rentang tanggal yang mungkin sudah dibatalkan pada bulan lain.
+    const income=Number(d.totalMasuk||0);
+    const expense=mutasi.reduce((sum,x)=>sum+Number(x.debit||0),0);
+    [['Saldo',d.saldo],['Masuk bersih total',income],['Dicairkan periode',expense]].forEach(([label,value])=>{
       const cell=document.createElement('span');cell.className='f4-member-print-summary-item';
       const name=document.createElement('small');name.textContent=label;
       const number=document.createElement('strong');number.textContent=rupiah(value);
@@ -3216,7 +3216,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     setoran=d.setoran.filter(inPeriod).sort(v12PrintOldestFirst),rows=[
       ['LAPORAN TABUNGAN PRIBADI - FLAMBOYAN 4'],
       ['Nama',d.nama],['Rumah',d.rumah],['Dicetak',d.dibuatPada],['Periode',range?range.from+' s.d. '+range.to:selected||'Semua'],
-      ['Saldo saat ini (Rp)',d.saldo],['Masuk periode (Rp)',mutasi.filter(x=>x.kind==='kredit'&&!new Set((d.setoran||[]).filter(s=>s.status==='Dibatalkan').map(s=>String(s.batchId||'')).filter(Boolean)).has(String(x.batchId||''))).reduce((n,x)=>n+Number(x.kredit||0),0)],['Dicairkan periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
+      ['Saldo saat ini (Rp)',d.saldo],['Masuk bersih total (Rp)',d.totalMasuk],['Dicairkan periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
        ['RIWAYAT TABUNGAN'],
        ['Tanggal','Jenis','Masuk Rp','Dicairkan Rp','Koreksi Rp','Saldo Rp'],
