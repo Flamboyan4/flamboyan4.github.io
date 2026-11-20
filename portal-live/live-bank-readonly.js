@@ -401,7 +401,10 @@
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
    setoran:details,
    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,
-    diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status})),
+    diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status,
+    hakWarga:x.status==='Terkonfirmasi'?
+      liveCredits.filter(j=>String(j.batch_id)===String(x.batchId)).reduce((n,j)=>n+number(j.amount_rp),0)-
+      liveReversals.filter(j=>String(j.batch_id)===String(x.batchId)).reduce((n,j)=>n+number(j.amount_rp),0):0})),
    pengeluaran:expenseRows.map(x=>({id:x.id,tanggal:x.tanggal,jenis:x.jenis,keterangan:x.keterangan,
     pos:x.pos,nominal:x.nominal,status:x.status})),
    mutasi:transactions.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.warga,
