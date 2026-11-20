@@ -5754,16 +5754,19 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         const setoran=subset('setoran'),penjualan=subset('penjualan'),pengeluaran=subset('pengeluaran'),
           mutasi=subset('mutasi'),setoranBank=subset('setoranBank');
         const sum=(rows,key)=>rows.reduce((n,r)=>n+(Number(r[key])||0),0);
-        const sah=r=>String(r.status||'').toLowerCase()==='terkonfirmasi';
-        const confirmedDeposits=setoran.filter(sah),confirmedSales=penjualan.filter(sah);
+        const soldDeposits=setoran.filter(r=>r.penjualan==='Terjual');
+        const availableDeposits=setoran.filter(r=>r.penjualan==='Tersedia');
+        const confirmedSales=penjualan.filter(r=>r.status==='Terkonfirmasi');
         const activeExpenses=pengeluaran.filter(r=>String(r.status||'').toLowerCase()==='lunas');
-        const credits=mutasi.filter(r=>r.jenis==='kredit'),withdrawals=mutasi.filter(r=>r.jenis==='pencairan');
+        const withdrawals=mutasi.filter(r=>r.jenis==='Pencairan');
         v10ReportData={
           periode:start+' s.d. '+until,
           ringkasan:{
-            jumlahSetoran:confirmedDeposits.length,jumlahPenjualan:confirmedSales.length,
-            estimasi:sum(confirmedDeposits,'nilai'),diterima:sum(confirmedSales,'diterima'),
-            hakWargaDikredit:sum(credits,'kredit'),tabunganDicairkan:sum(withdrawals,'debit'),
+            jumlahSetoran:setoran.filter(r=>r.penjualan!=='Dibatalkan').length,
+            jumlahSetoranTerjual:soldDeposits.length,jumlahSetoranTersedia:availableDeposits.length,
+            jumlahPenjualan:confirmedSales.length,
+            estimasi:sum(availableDeposits,'nilai'),diterima:sum(confirmedSales,'diterima'),
+            hakWargaDikredit:sum(confirmedSales,'hakWarga'),tabunganDicairkan:sum(withdrawals,'debit'),
             biaya:sum(activeExpenses,'nominal'),setoranBankRp:sum(setoranBank,'diterima'),
             saldoKasKini:Number(full.ringkasan?.saldoKasKini||0)
           },
