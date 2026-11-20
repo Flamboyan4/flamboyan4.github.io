@@ -1526,14 +1526,15 @@ function moveFeature(ids,target){
 }
 /* Badge tugas pengurus: stok belum dijual dan pencairan aktif.
    API ringkas D1 lebih diutamakan; fallback menjaga kompatibilitas selama Worker diperbarui. */
-const adminAlerts={unsold:null,payout:null};
+const adminAlerts={unsold:null,payout:null,approve:null};
 let adminAlertBusy=false,adminAlertFetched=0,adminAlertGeneration=0,adminAlertRefreshAgain=false;
 const alertRows=result=>Array.isArray(result?.data)?result.data:Array.isArray(result?.items)?result.items:[];
 function paintAdminAlerts(){
  if(role!=="admin"||roleType()!=="admin")return;
  for(const [route,count,unit] of [
   ["penjualan",adminAlerts.unsold,"setoran atau stok menunggu penjualan"],
-  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"]
+  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"],
+  ["rekonsiliasi",adminAlerts.approve,"penjualan menunggu pengesahan"]
  ]){
   for(const button of document.querySelectorAll('[data-bank-app-route="'+route+'"]')){
    if(button.tagName!=="BUTTON")continue;
@@ -1557,10 +1558,11 @@ function paintAdminAlerts(){
    button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel+" — "+count+" "+unit);
   }
  }
+ paintAdminTodo();
 }
 function resetAdminAlerts(){
  adminAlertGeneration++;adminAlertBusy=false;adminAlertRefreshAgain=false;adminAlertFetched=0;
- adminAlerts.unsold=null;adminAlerts.payout=null;
+ adminAlerts.unsold=null;adminAlerts.payout=null;adminAlerts.approve=null;
  document.querySelectorAll(".f4-bank-alert-badge").forEach(b=>b.remove());
  for(const button of document.querySelectorAll("[data-f4-alert-base-label]")){
   button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
@@ -1601,6 +1603,7 @@ async function refreshAdminAlerts(force=false){
   if(generation!==adminAlertGeneration||role!=="admin"||roleType()!=="admin")return;
   adminAlerts.unsold=Number(result.unsoldDeposits)||0;
   adminAlerts.payout=Number(result.pendingPayouts)||0;
+  adminAlerts.approve=result.pendingApprovals==null?null:Math.max(0,Number(result.pendingApprovals)||0);
   paintAdminAlerts();
  }catch(error){
   if(generation===adminAlertGeneration){
@@ -1618,9 +1621,9 @@ async function refreshAdminAlerts(force=false){
 }
 /* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
 const adminShortcuts=[
- ["Cek & Sahkan","rekonsiliasi","shield-check"],
+ ["Periksa & Sahkan","rekonsiliasi","shield-check"],
  ["Riwayat","bank-admin-history","history"],
- ["Debit/Kredit","bank-admin-cash","wallet"],
+ ["Kas Masuk & Keluar","bank-admin-cash","wallet"],
  ["Pencairan","bank-payout-admin","cash-out"],
  ["Harga Barang","master","tags"],
  ["Data Anggota","admin","users"],
@@ -2018,6 +2021,43 @@ function adminInsightFetch(force=false){
  }).finally(()=>{if(version===adminInsightVersion)adminInsightPending=null;});
  adminInsightPending=tasks;
 }
+/* Only authenticated action-counts are shown; unknown stays "—", not zero. */
+function ensureAdminTodo(home){
+ if(roleType()!=="admin"||!home)return;
+ let section=$("f4BankAdminTodo");
+ if(!section){
+  section=el("section","f4-bank-admin-todo");section.id="f4BankAdminTodo";
+  const heading=el("div","f4-bank-todo-heading");
+  heading.append(el("h3","","Perlu Tindakan"),el("small","","Ringkasan pekerjaan pengurus"));
+  const list=el("div","f4-bank-todo-list");
+  for(const [key,label,route] of [
+    ["unsold","Belum terjual","penjualan"],
+    ["approve","Penjualan perlu disahkan","rekonsiliasi"],
+    ["payout","Pengajuan pencairan","bank-payout-admin"]
+  ]){
+   const button=el("button","f4-bank-todo-item");button.type="button";
+   button.dataset.bankAppRoute=route;button.dataset.todoKey=key;
+   button.setAttribute("aria-label","Buka "+label.toLowerCase());
+   button.append(el("strong","f4-bank-todo-value","—"),el("span","f4-bank-todo-label",label));
+   const arrow=el("span","f4-bank-todo-arrow");
+   arrow.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+   button.append(arrow);button.onclick=()=>navigate(route);list.append(button);
+  }
+  section.append(heading,list);
+  const operations=$("f4BankAdminOperations");
+  if(operations)operations.after(section);else home.prepend(section);
+ }
+ paintAdminTodo();
+}
+function paintAdminTodo(){
+ const panel=$("f4BankAdminTodo");if(!panel)return;
+ for(const button of panel.querySelectorAll("[data-todo-key]")){
+  const value=adminAlerts[button.dataset.todoKey],known=Number.isFinite(value);
+  button.querySelector(".f4-bank-todo-value").textContent=known?String(value):"—";
+  button.classList.toggle("is-clear",known&&value===0);
+  button.title=known?String(value)+" "+button.querySelector(".f4-bank-todo-label").textContent:"Data belum tersedia";
+ }
+}
 function ensureAdminHome(){
  if(role!=="admin")return;
  ensureDesktopAdminSidebar();
@@ -2045,6 +2085,7 @@ function ensureAdminHome(){
   $("f4BankAdminOperations")?.after(shortcuts);
  }
  ensureAdminMenuSheet();
+ ensureAdminTodo(home);
  adminInsightMount(home);
  paintAdminAlerts();
  refreshAdminAlerts();
@@ -2225,7 +2266,7 @@ function ensureCashExpenseForm(){
  else form.append(extras);
 }
 function showAdminCash(){
- const page=ensureScreen("bank-admin-cash","Debit/Kredit");
+ const page=ensureScreen("bank-admin-cash","Kas Masuk & Keluar");
  let body=$("f4BankAdminCashBody");
  if(!body){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
@@ -2885,7 +2926,7 @@ function resetRoleSurface(){
  const form=$("v10ExpenseForm"),notice=$("v10ExpenseNotice"),home=$("pageBiaya");
  if(form&&home&&form.parentElement!==home)home.append(form);
  if(notice&&home&&notice.parentElement!==home)home.append(notice);
- for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
+ for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminTodo","f4BankAdminNext"]){$(id)?.remove();}
  $("f4BankAdminBack")?.setAttribute("hidden","");
  if($("f4BankPageGreeting"))$("f4BankPageGreeting").hidden=true;
  const menu=$("f4-mobile-menu");
