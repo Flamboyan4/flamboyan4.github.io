@@ -3955,17 +3955,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   const v16Groups=[
     {id:'home',label:'Beranda',icon:'home',admin:true,member:true,tabs:[['dashboard','Beranda']]},
     {id:'deposit',label:'Setoran',icon:'edit',admin:true,tabs:[['setoran','Catat setoran'],['bank-admin-history','Riwayat setoran']]},
-    {id:'sale',label:'Penjualan',icon:'wallet',admin:true,tabs:[['penjualan','Catat penjualan'],['bank-admin-sale-history','Riwayat penjualan'],['rekonsiliasi','Cek & sahkan']]},
-    {id:'finance',label:'Keuangan',icon:'wallet',admin:true,tabs:[['bank-admin-cash','Debit/Kredit'],['tabungan','Saldo warga'],['bank-payout-admin','Pencairan']]},
+    {id:'sale',label:'Penjualan',icon:'wallet',admin:true,tabs:[['penjualan','Catat penjualan'],['bank-admin-sale-history','Riwayat penjualan'],['rekonsiliasi','Periksa & sahkan']]},
+    {id:'finance',label:'Keuangan',icon:'wallet',admin:true,tabs:[['bank-admin-cash','Kas masuk & keluar'],['tabungan','Saldo warga'],['bank-payout-admin','Pencairan']]},
     {id:'management',label:'Pengelolaan',icon:'user',admin:true,tabs:[['admin','Data anggota'],['master','Harga barang'],['bank-admin-docs','Dokumentasi & inventaris']]},
     {id:'report',label:'Laporan',icon:'database',admin:true,tabs:[['laporan','Laporan keuangan'],['bank-admin-progress','Perkembangan']]},
     {id:'saving',label:'Tabungan',icon:'wallet',member:true,tabs:[['pribadi','Tabungan saya']]},
     {id:'withdrawal',label:'Pencairan',icon:'wallet',member:true,tabs:[['bank-payout','Ajukan pencairan']]},
     {id:'statement',label:'Riwayat',icon:'edit',member:true,tabs:[['bank-history','Riwayat transaksi']]},
-    {id:'memberreport',label:'Laporan',icon:'database',member:true,tabs:[['bank-report','Laporan tabungan']]},
-    {id:'progress',label:'Perkembangan',icon:'leaf',member:true,tabs:[['bank-member-progress','Perkembangan']]},
-    {id:'memberinfo',label:'Informasi & Laporan',icon:'globe',member:true,tabs:[['bank-member-info','Informasi & Laporan']]},
-    {id:'memberdocs',label:'Dokumentasi',icon:'image',member:true,tabs:[['bank-member-docs','Dokumentasi']]}
+    {id:'memberinfo',label:'Info',icon:'globe',member:true,tabs:[['bank-member-info','Info & Laporan']]}
   ];
   const v16SvgPaths={
     home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
@@ -4020,11 +4017,6 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
     const list=$('v16NavList');list.replaceChildren();
     v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&v16AdminSidebar.has(g.id)):g.member).forEach(g=>{
-      if(!/admin/i.test(String(profile?.peran||''))&&g.id==='progress'){
-       const other=document.createElement('div');
-       other.className='f4-bank-nav-divider';other.textContent='LAINNYA';
-       other.setAttribute('role','presentation');list.appendChild(other);
-      }
       const b=document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
       b.append(symbol,document.createTextNode(g.label));
@@ -4062,7 +4054,10 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v16Sync(page){
     const tabs=$('v16Tabs');if(!tabs||!profile)return;
     const available=v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?g.admin:g.member);
-    const group=available.find(g=>g.tabs.some(t=>t[0]===page)||g.id==='public'&&page==='public')||
+    const memberInfoChild=!/admin/i.test(String(profile?.peran||''))&&
+      ['bank-report','bank-member-progress','bank-member-docs','bank-prices'].includes(page);
+    const group=memberInfoChild?available.find(g=>g.id==='memberinfo'):
+      available.find(g=>g.tabs.some(t=>t[0]===page)||g.id==='public'&&page==='public')||
       (page==='profile'||page==='password'?null:available.find(g=>g.id==='home'));
     document.querySelectorAll('#v16NavList .v16-item').forEach(button=>{
       const selected=button.dataset.bankAppRoute
@@ -6603,8 +6598,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 </style>
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261120-fresh-eco-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261120-fresh-eco-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261120-deposits-overview-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261120-bank-experience-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261120-bank-experience-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261120-fresh-eco-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261120-fresh-eco-v1">
@@ -6612,8 +6607,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261031-detail-eye-icon-v2"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261120-total-saldo-beranda-v2"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261120-fresh-eco-v1">
+<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261120-bank-experience-v1"></script>
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261120-bank-experience-v1">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
