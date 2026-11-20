@@ -1,0 +1,39 @@
+name: F4 Finance Read-only PR Preflight
+on:
+  pull_request:
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/treasury-center.js
+      - qa/verify-treasury-humas.cjs
+      - .github/workflows/f4-finance-guarded-deploy.yml
+      - .github/workflows/f4-finance-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Same read-only validations as production guarded deployment
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node qa/verify-jersey-back-fields.cjs
+          node qa/verify-iuran-counts.cjs
+          python3 qa/verify_bank_v3_migration.py
+          node qa/account-profile-password.cjs
+          node qa/verify-iuran-fine-auto.cjs
+          python3 qa/verify-book-rt-canonical-report.py
+          python3 qa/verify-treasury.py
+          node qa/verify-treasury-humas.cjs
+          node qa/verify-treasury-lifecycle.cjs
+          python3 qa/verify-treasury-dynamic.py
+          python3 qa/verify-treasury-bank-detection.py
+          python3 qa/verify-treasury-bank-approval.py
+          python3 qa/verify-donor-module.py
+          node --check donatur/donatur.js
+          node --check donatur/admin.js
