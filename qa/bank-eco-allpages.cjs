@@ -348,7 +348,7 @@ assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null")&&
        h.includes("v17PublicStat(home.jumlahSetoranTercatat==null")&&
        h.includes("const links=[['dashboard','Beranda','home',null],['docs'")&&
        !h.includes("['program','Program','leaf','v17Program'],['progress','Perkembangan'")&&
-       publicTheme.includes('[data-metric=deposit]{background:#fff0c2'),
+       publicTheme.includes('[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #f0b300}'),
   'Public summary must prioritize recorded deposits, use vivid tiles and avoid duplicate links');
 // Only one mobile dock owner: member and manager use the same markup and CSS.
 assert(!css.includes('.f4-bank-app-dock:not([hidden])') &&
