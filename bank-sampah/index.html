@@ -1202,8 +1202,7 @@ z-index:240;pointer-events:auto
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 </style><script src="/portal-live/ui-dialog.js?v=20261109-all-portals-v4"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><style id="f4-bank-private-navigation-fix">
-/* A member dashboard is informational{display:none}
-/* The private navigation stays in place while the iframe document scrolls. */
+/* Member navigation stays in place while the iframe document scrolls. */
 @media(min-width:1024px){
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid{display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start}
  body.v17-dashboard:not(.f4-bank-app-private) #sideNav.side{position:fixed;inset:0 auto 0 0;top:0;bottom:0;left:0;width:244px;height:100dvh;max-height:100dvh;min-height:0;z-index:25;overflow-y:auto;overscroll-behavior:contain}
@@ -3726,7 +3725,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
        v14Stat('Berat','—','Total setoran'),
        v14Stat('Setoran','—','Setoran tercatat'));
       extra.replaceChildren();
-      $('v14RecentTitle').textContent='Mutasi Setoran';
+      $('v14RecentTitle').textContent='Aktivitas Tabungan';
       $('v14RecentTitle').closest('.f4-eco-panel-heading')?.querySelector('p')?.remove();
       $('v14Recent').textContent='Memuat riwayat setoran…';
       $('v14Activities').textContent='Memuat perkembangan program…';
@@ -3775,10 +3774,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         const amountIn=Number(x.kredit||0),amountOut=Number(x.debit||0);
         const isDebit=amountOut>0;
         const jenis=String(x.jenis||'').toLowerCase();
-        const label=jenis==='pencairan'?'Pencairan Tabungan'
-          :jenis==='koreksi_debit'?'Penyesuaian Saldo Keluar'
-          :jenis==='koreksi_kredit'?'Penyesuaian Saldo Masuk'
-          :'Hasil Penjualan Sampah';
+        const corrected=/(?:koreksi|pembatalan|reversal|pembalik)/.test(jenis);
+        const label=corrected?(isDebit?'Penyesuaian Saldo Keluar':'Penyesuaian Saldo Masuk'):
+          isDebit?'Pencairan Tabungan':'Hasil Penjualan Sampah';
         const article=document.createElement('div');
         article.className='f4-member-recent'+(isDebit?' is-debit':'');
         const icon=document.createElement('span');icon.className='f4-member-recent-icon';
@@ -3792,7 +3790,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         const summary=document.createElement('div');summary.className='f4-member-recent-copy';
         const title=document.createElement('strong');title.textContent=label;
         const sub=document.createElement('small');
-        sub.textContent=f4MemberDateID(x.tanggal)+' • '+(isDebit?'Pencairan tercatat':'Saldo masuk');
+        sub.textContent=f4MemberDateID(x.tanggal)+' • '+(corrected?'Penyesuaian tercatat':isDebit?'Pencairan tercatat':'Saldo masuk');
         summary.append(title,sub);
         const value=document.createElement('div');value.className='f4-member-recent-value';
         const amount=document.createElement('b');

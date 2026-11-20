@@ -2692,7 +2692,7 @@ function infoShortcut(){
   link=el("button","f4-member-info-shortcut");link.id="f4MemberInfoShortcut";link.type="button";
   const symbol=el("span","f4-member-info-icon");symbol.append(memberMetricIcon("report"));
   const copy=el("span","f4-member-info-copy");
-  copy.append(el("strong","","Informasi & Laporan"),el("small","","Laporan dan transparansi kegiatan"));
+  copy.append(el("strong","","Sekilas Bank Sampah"),el("small","","Ringkasan kegiatan dan transparansi"));
   const mini=el("span","f4-member-public-mini");mini.id="f4MemberPublicMini";
   for(const [key,label] of [["beratKg","Berat terjual"],["hasilPenjualan","Hasil jual"],["hakWarga","Hak warga"]]){
    const item=el("span","f4-member-public-mini-item");item.dataset.publicField=key;
@@ -2712,7 +2712,7 @@ function publicSnapshot(){
 }
 function memberFeature(route){
  const progress=route==="bank-member-progress",docs=route==="bank-member-docs";
- const name=progress?"Perkembangan":docs?"Dokumentasi":"Informasi & Laporan";
+ const name=progress?"Progres Program":docs?"Dokumentasi":"Info Bank Sampah";
  const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  // The report already has its own "Laporan Publik" heading; avoid repeating it.
@@ -2725,6 +2725,24 @@ function memberFeature(route){
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
+ if(!progress&&!docs){
+  let links=page.querySelector(":scope > .f4-member-info-links");
+  if(!links){
+   links=el("nav","f4-member-info-links");links.setAttribute("aria-label","Akses informasi Bank Sampah");
+   for(const [label,route] of [
+    ["Laporan Tabungan","bank-report"],
+    ["Progres Program","bank-member-progress"],
+    ["Dokumentasi","bank-member-docs"],
+    ["Daftar Harga","bank-prices"]
+   ]){
+    const button=el("button","f4-member-info-link",label);
+    button.type="button";button.dataset.bankAppRoute=route;
+    button.setAttribute("aria-label","Buka "+label);
+    button.onclick=()=>navigate(route);links.append(button);
+   }
+   page.insertBefore(links,content);
+  }
+ }
  if(progress){
   moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
   for(const button of content.querySelectorAll('[data-dev-range="period"],[data-dev-range="30"],[data-dev-mode="nilai"]')){
