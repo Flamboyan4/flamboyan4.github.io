@@ -24,7 +24,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  align-items:center;gap:18px;min-width:0;min-height:214px;
  width:100%;margin:0;padding:26px 29px;overflow:hidden;
  border:0;border-radius:25px;color:#fff;
- background:radial-gradient(circle at 96% 3%,#e6ff9b2a,transparent 39%),linear-gradient(123deg,#086754 0%,#069781 52%,#1ca76d 100%);
+ background:radial-gradient(circle at 96% 3%,#e6ff9b2a,transparent 39%),linear-gradient(123deg,#086754 0%,#07816b 52%,#0a8760 100%);
  box-shadow:0 12px 28px #08745425
 }
 #v11Public .v17-public-main>.v17-public-banner::before{
@@ -275,7 +275,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;position:relative;overflow:hidden;min-width:0;
  padding:21px 23px 18px;border-radius:20px;
  background:radial-gradient(circle at 90% 6%,#ffffff20 0,transparent 43%),
- linear-gradient(125deg,#086754 0%,#069781 57%,#1ca76d 100%);
+ linear-gradient(125deg,#086754 0%,#07816b 57%,#0a8760 100%);
  color:#fff
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-title{

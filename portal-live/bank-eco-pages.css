@@ -282,7 +282,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
   box-sizing:border-box;width:100%;min-width:0;max-width:100%;margin-left:0;margin-right:0
  }
  html body.f4-bank-app-admin #dashboardView>.grid>.section{
-  padding:14px clamp(10px,3.2vw,18px) 20px;background:#f7faf8
+  padding:14px clamp(10px,3.2vw,18px) 20px;background:var(--bank-admin-canvas,#f4faf7)
  }
  body.f4-bank-app-admin #dashboardView>.grid>.section>:is(
   #pageDashboard,#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,
@@ -600,7 +600,7 @@ body.f4-bank-app-member #dashboardView{--bank-brand:var(--f4-bank-teal,#009e91);
  box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto;
  grid-template-areas:"brand badge" "title title" "balance balance" "secondary secondary" "breakdown breakdown";
  align-content:center;gap:7px;min-width:0;padding:20px 22px;
- background:radial-gradient(circle at 93% 9%,#b9ffb52e,transparent 38%),linear-gradient(117deg,#066b58 0%,#049d83 51%,#1aab6e 100%);color:#fff;
+ background:radial-gradient(circle at 93% 9%,#b9ffb52e,transparent 38%),linear-gradient(117deg,#066b58 0%,#07816b 51%,#0a8760 100%);color:#fff;
  border-radius:23px;box-shadow:0 12px 28px #087d5a26
 }
 #dashboardView #f4BankAppAdminHero>small{grid-area:brand;color:#e2f7e9;font-size:10px;letter-spacing:.09em;font-weight:800}
@@ -994,7 +994,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView .f4-bank-savings-page{min-width:0}
 #dashboardView .f4-bank-savings-page>h2{font-size:21px;margin:0 0 12px;color:#0f5537}
 #dashboardView .f4-bank-savings-page>.desc{display:none}
-#dashboardView .f4-bank-savings-hero{display:grid;gap:6px;padding:19px 18px;border-radius:20px;background:linear-gradient(112deg,#087a66,#009e91 56%,#20ad70);color:#fff}
+#dashboardView .f4-bank-savings-hero{display:grid;gap:6px;padding:19px 18px;border-radius:20px;background:linear-gradient(112deg,#087a66,#07816b 56%,#0a8760);color:#fff}
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
 .f4-bank-savings-hero strong{font-size:27px;letter-spacing:-.025em;line-height:1.2;font-weight:850;color:#fff}
 .f4-bank-savings-hero span{font-size:11px;color:#e4f4eb}
@@ -1409,7 +1409,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   width:calc(100% + var(--f4-savings-gutter) + var(--f4-savings-gutter));
   max-width:none;min-width:0;
   margin:0 calc(0px - var(--f4-savings-gutter));
-  padding:0 0 18px;background:#f7faf8;border:0;box-shadow:none
+  padding:0 0 18px;background:var(--f4-bank-canvas,#f4faf7);border:0;box-shadow:none
  }
  body.f4-bank-app-member #dashboardView>.grid>.section #pagePribadi.f4-bank-savings-page:not(.hidden)::before{
   content:"";position:absolute;top:0;left:0;right:0;
@@ -1422,7 +1422,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
    radial-gradient(circle 103px at 88% 29%,transparent 70%,#ffffff15 70.7%,#ffffff15 72%,transparent 72.7%),
    radial-gradient(ellipse 230px 104px at 89% 108%,transparent 74%,#ffffff0d 75%,#ffffff0d 76%,transparent 77%),
    radial-gradient(ellipse at 83% 15%,#85d97530 0%,transparent 61%),
-   linear-gradient(125deg,#066b58 0%,#009a85 57%,#20aa70 100%)
+   linear-gradient(125deg,#066b58 0%,#07816b 57%,#0a8760 100%)
  }
  body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{display:none}
  /* The V12 API toggles .hidden while loading. Never show an incomplete hero:
@@ -2388,7 +2388,7 @@ body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-acti
  line-height:1.2;box-shadow:none;white-space:nowrap
 }
 body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>.f4-admin-deposit-receipt{
- background:linear-gradient(180deg,#ffe16b,#ffc328);border-color:var(--eco-gold,#ffc411);color:var(--eco-dark,#174b36)
+ background:var(--eco-gold,#ffcc32);border-color:var(--eco-gold,#ffcc32);color:var(--eco-dark,#153e32)
 }
 body.f4-bank-app-admin :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-receipt svg{
  display:block;width:17px;height:17px;flex:none
@@ -2617,7 +2617,7 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  body.f4-bank-app-admin #dashboardView>.grid>.section{
   box-sizing:border-box;display:block;min-width:0;
   width:calc(100% - var(--bank-sidebar-width));margin-left:var(--bank-sidebar-width);
-  padding:24px clamp(22px,3vw,48px) 60px;background:#f7faf8
+  padding:24px clamp(22px,3vw,48px) 60px;background:var(--bank-admin-canvas,#f4faf7)
  }
  /* Manager pages retain multiple columns but use a readable canvas on PC. */
  body.f4-bank-app-admin #dashboardView>.grid>.section>:is(
@@ -3129,7 +3129,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  justify-content:space-between;gap:9px;position:relative;isolation:isolate;overflow:hidden;
  width:100%;height:236px;min-height:0;min-width:0;aspect-ratio:auto;margin:0;
  padding:20px 24px;border:0;border-radius:22px;text-align:left;
- background:radial-gradient(circle at 91% 15%,#bbffcf24,transparent 41%),linear-gradient(119deg,#078478 0%,#00a28f 52%,#0e805d 100%);
+ background:radial-gradient(circle at 91% 15%,#bbffcf24,transparent 41%),linear-gradient(119deg,#076956 0%,#07816b 52%,#0e805d 100%);
  box-shadow:0 11px 22px #0a59341c;color:#fff
 }
 #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard::before,

@@ -396,7 +396,7 @@ async def main():
                                     errs.append('sale history has legacy expand/misaligned controls')
                                 if card['buttons'][1]['disabled']!=(i==2):
                                     errs.append('sale cancellation button changed its eligibility')
-                                if card['receiptColor']!='rgb(253, 192, 16)':
+                                if card['receiptColor']!='rgb(255, 204, 50)':
                                     errs.append('sale receipt color is not dashboard gold')
                                 if '4.500' not in (card['amount'] or ''):
                                     errs.append('sale gross amount missing from summary')
