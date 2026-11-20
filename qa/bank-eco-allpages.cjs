@@ -514,9 +514,10 @@ assert(h.includes("v17PublicStat(home.beratSetoranTercatat==null?'Berat setoran 
 for(const label of ['Anggota aktif','Jenis sampah diterima','Kegiatan terpublikasi']){
  assert(h.includes("v17PublicStat('"+label+"'"),'Public safe metric missing: '+label);
 }
-assert(h.includes('<svg xmlns="http://www.w3.org/2000/svg"') && h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
- 'Guest message must explain private financial records');
-assert(h.includes("const print=v21Node('button','secondary','PDF')"),'PDF button label not compact');
+assert(h.includes("v27PrintNode('p','v27-print-note','Setoran non-batal, termasuk belum terjual. Tidak memuat uang atau data pribadi.')") &&
+       !h.includes('Saldo dan riwayat pribadi tersedia setelah login.'),
+ 'Guest report must contain only setoran and explicitly exclude private money/identity');
+assert(h.includes("const pdf=v21Node('button','secondary','PDF')"),'PDF button label not compact');
 assert(h.includes("const csv=v21Node('button','secondary','CSV')"),'CSV button label not compact');
 assert(!h.includes("const print=v21Node('button','secondary','Cetak / PDF')"),'Old public PDF label returned');
 assert(!h.includes("const csv=v21Node('button','secondary','Unduh CSV')"),'Old public CSV label returned');
