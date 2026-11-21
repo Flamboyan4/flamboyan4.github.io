@@ -3302,19 +3302,22 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const types=d.kodeBarang||[];
     const byName=new Map(types.map(item=>[String(item.namaAsli||item.nama||'').trim().toLocaleLowerCase('id-ID'),item.kode]));
     const format=weight=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(weight)||0);
-    const headers=['No','Nama','Tanggal',...types.map(item=>item.kode),'Total'];
-    const rows=setoran.map((s,index)=>{
-      const weights=new Map();
-      for(const line of s.rincian||[]){
-        const code=byName.get(String(line.barang||'').trim().toLocaleLowerCase('id-ID'));
-        if(!code)throw Error('Jenis barang '+line.barang+' tidak ada pada daftar kode.');
-        weights.set(code,(weights.get(code)||0)+Number(line.beratKg||0));
-      }
-      return [index+1,d.nama,f4MemberDateID(s.tanggal),
-        ...types.map(item=>weights.has(item.kode)?format(weights.get(item.kode)):'—'),
-        format(s.beratTimbangKg??s.beratKg)];
+    const headers=['No','Nama',...types.map(item=>item.kode),'Total'];
+    const groups=f4BankPeriodGroups(setoran).map(group=>{
+      const rows=group.rows.map((s,index)=>{
+        const weights=new Map();
+        for(const line of s.rincian||[]){
+          const code=byName.get(String(line.barang||'').trim().toLocaleLowerCase('id-ID'));
+          if(!code)throw Error('Jenis barang '+line.barang+' tidak ada pada daftar kode.');
+          weights.set(code,(weights.get(code)||0)+Number(line.beratKg||0));
+        }
+        return [index+1,d.nama,
+          ...types.map(item=>weights.has(item.kode)?format(weights.get(item.kode)):'—'),
+          format(s.beratTimbangKg??s.beratKg)];
+      });
+      return {...group,rows};
     });
-    return {headers,rows,types};
+    return {headers,rows:groups.flatMap(group=>group.rows),groups,types};
   }
   function v12Print(){
     if(!v12Data)return;
@@ -3347,12 +3350,20 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
     // Semua jenis, berat, dan nilai memakai data setoran yang diinput warga/pengurus.
     // Status penjualan tidak dipakai sebagai syarat menampilkan berat di laporan.
-    function addTable(heading,headers,rows,kind=''){
+    function addTable(heading,headers,rows,kind='',groups=[]){
       const h=document.createElement('h2');h.textContent=heading;root.appendChild(h);
       const table=v12Table(headers,rows);table.className='f4-member-print-table';
       if(kind)table.dataset.reportKind=kind;
+      if(kind==='setoran'&&groups.length){
+        const tbody=table.tBodies[0],dataRows=[...tbody.rows];let cursor=0;
+        tbody.replaceChildren();
+        groups.forEach(group=>{
+          tbody.appendChild(f4BankPeriodHeading(group.label,headers.length));
+          group.rows.forEach(()=>tbody.appendChild(dataRows[cursor++]));
+        });
+      }
       const colgroup=document.createElement('colgroup');
-      (kind==='setoran'?[4,26,10,...Array(Math.max(0,headers.length-4)).fill(54/Math.max(1,headers.length-4)),6]:
+      (kind==='setoran'?[4,32,...Array(Math.max(0,headers.length-3)).fill(58/Math.max(1,headers.length-3)),6]:
        headers.length===7?[5,13,27,13,13,14,15]:
        headers.length===6?[16,28,14,14,14,14]:
        headers.length===4?[20,42,18,20]:Array(headers.length).fill(100/headers.length))
@@ -3363,7 +3374,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       mutasi.map((x,index)=>[index+1,f4MemberDateID(x.tanggal),x.jenis,
         rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo)]));
     const matrix=v12MakeItemMatrix(d,setoran);
-    addTable('Setoran warga',matrix.headers,matrix.rows,'setoran');
+    addTable('Setoran warga',matrix.headers,matrix.rows,'setoran',matrix.groups);
     const legend=f4BankMakeCodeLegend(matrix.types);if(legend)root.appendChild(legend);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
@@ -3388,7 +3399,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
        ...mutasi.map((x,index)=>[index+1,x.tanggal,x.jenis,x.kredit,x.debit,x.koreksi||0,x.saldo]),
        [],
        ['SETORAN WARGA (BERAT KG)'],
-       matrix.headers,...matrix.rows,
+       matrix.headers,
+       ...matrix.groups.flatMap(group=>[[group.label],...group.rows]),
        [],
        ['KETERANGAN KODE BARANG'],
        ...(d.kodeBarang||[]).map(item=>[item.kode,item.nama])
