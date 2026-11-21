@@ -178,7 +178,7 @@
    const correction=x.jenis==='koreksi_debit'||x.jenis==='koreksi_kredit';
    return {id:x.id||'',tanggal:x.tanggal||'',jenis:x.jenis==='kredit'?'Tabungan masuk dari hasil penjualan':
       x.jenis==='pencairan'?'Pencairan tabungan':
-      x.jenis==='koreksi_debit'?'Koreksi pembatalan pengesahan':
+      x.jenis==='koreksi_debit'?'Koreksi batal':
       x.jenis==='koreksi_kredit'?'Koreksi penambahan tabungan':x.jenis||'Mutasi',
     kind:x.jenis||'',batchId:String(x.batchId||x.batch_id||''),
     kredit:isCredit&&!correction?amount:0,
@@ -466,7 +466,7 @@
     pos:x.pos,nominal:x.nominal,status:x.status})),
    mutasi:transactions.map(x=>({id:x.id,tanggal:x.tanggal,warga:x.warga,
     jenis:x.jenis==='kredit'?'Hak warga dari penjualan':x.jenis==='pencairan'?'Pencairan':
-      x.jenis==='koreksi_debit'?'Koreksi hak warga dibatalkan':
+      x.jenis==='koreksi_debit'?'Koreksi batal':
       x.jenis==='koreksi_kredit'?'Koreksi penambahan hak':x.jenis,
     kredit:x.jenis==='kredit'?x.nominal:0,
     debit:x.jenis==='pencairan'?x.nominal:0,
