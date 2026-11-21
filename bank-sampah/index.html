@@ -934,14 +934,23 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   @media screen and (max-width:720px){
     #v11Public #v25ReportRoot{padding:12px;border-radius:16px}
     #v11Public #v25ReportRoot .v25-report-toolbar{
-      grid-template-columns:minmax(0,1fr) max-content;
-      justify-content:stretch;gap:6px;margin:0 0 12px
+      display:grid;grid-template-columns:minmax(0,1fr) max-content;
+      align-items:center;justify-content:stretch;gap:6px;
+      min-width:0;width:100%;margin:0 0 12px
+    }
+    #v11Public #v25ReportRoot .v25-report-period-control{
+      min-width:0;max-width:100%;overflow:hidden
+    }
+    #v11Public #v25ReportRoot .v25-report-period-control .f4-control-trigger{
+      max-width:100%;overflow:hidden;text-overflow:ellipsis
     }
     #v11Public #v25ReportRoot .v25-report-period-control select:not(.f4-modern-native-hidden),
     #v11Public #v25ReportRoot .v25-report-period-control .f4-control-trigger{
       min-height:38px;height:38px;padding:7px 8px;font-size:11px
     }
-    #v11Public #v25ReportRoot .v25-report-actions{gap:4px}
+    #v11Public #v25ReportRoot .v25-report-actions{
+      display:flex;flex-wrap:nowrap;gap:4px;min-width:0
+    }
     #v11Public #v25ReportRoot .v25-report-actions button{
       min-height:38px;height:38px;padding:6px 9px;font-size:11px;border-radius:9px
     }
@@ -991,7 +1000,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
     #v11Public #v25ReportRoot{padding:10px}
     #v11Public #v25ReportRoot .v25-report-toolbar{column-gap:5px}
     #v11Public #v25ReportRoot .v25-report-actions{gap:3px}
-    #v11Public #v25ReportRoot .v25-report-actions button{padding-inline:7px}
+    #v11Public #v25ReportRoot .v25-report-actions button{padding-inline:6px;font-size:10px}
     #v11Public #v25ReportRoot .v25-report-actions #v25ReportRefresh{
       flex-basis:32px;width:32px
     }
