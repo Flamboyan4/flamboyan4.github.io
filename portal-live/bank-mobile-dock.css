@@ -64,8 +64,9 @@
   display:block;width:23px;height:23px;object-fit:contain;
   filter:brightness(0) saturate(100%) invert(28%) sepia(31%) saturate(726%) hue-rotate(88deg) brightness(85%) contrast(94%)
  }
- /* Ikon penjualan memakai SVG keranjang, bukan aset dompet lama. */
- body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon .f4-bank-cart-icon{
+ /* Ikon navigasi biasa memakai SVG yang mengikuti warna teks menu.
+    Keranjang penjualan juga mengikuti warna yang sama. */
+ body.f4-bank-app-private .f4-bank-app-dock-action .f4-bank-app-action-icon :is(.f4-bank-cart-icon,.f4-bank-dock-line-icon){
   display:block;width:23px;height:23px;fill:none;stroke:currentColor;
   stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round
  }
@@ -106,7 +107,7 @@
   font-family:Arial,Helvetica,sans-serif;font-size:39px;font-weight:850;
   letter-spacing:-2px;fill:#143c2c;stroke:none
  }
- /* Ikon Laporan tetap SVG asli; ukuran dan badge sama dengan Pencairan warga. */
+ /* Aset ikon tombol Setoran utama pengelola tetap terlihat jelas di atas kuning. */
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary .f4-bank-app-action-icon img{
   width:32px;height:32px;
   filter:brightness(0) saturate(100%) invert(19%) sepia(28%) saturate(862%) hue-rotate(100deg) brightness(91%) contrast(95%)
