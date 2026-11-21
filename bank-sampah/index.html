@@ -1014,6 +1014,11 @@ body.f4-embedded-bank #v17PublicAccount{display:none}
     color:#193c29;background:#edf6f0;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
+  body.f4-bank-single-print.f4-bank-print-member #v10Print table.f4-member-print-table tr.f4-report-period-row>th{
+    padding:4px 7px;background:#e7f2e9;color:#194c34;
+    text-align:left;font-size:11px;font-weight:750;white-space:normal;
+    break-after:avoid;page-break-after:avoid
+  }
   body.f4-bank-single-print.f4-bank-print-member #v10Print .f4-member-print-table td:nth-child(n+3){
     font-variant-numeric:tabular-nums;
   }
@@ -1435,6 +1440,11 @@ overflow:visible
 #pageLaporan .f4-admin-report-table tbody tr:hover{background:#eff8f1}
 #pageLaporan .f4-admin-report-table .f4-report-num{text-align:right;font-variant-numeric:tabular-nums}
 #pageLaporan .f4-admin-report-table .f4-report-center{text-align:center}
+#pageLaporan table.f4-admin-report-table tr.f4-report-period-row>th.f4-report-period-label{
+  padding:5px 9px;background:#e7f2e9;color:#194c34;font-size:12px;
+  line-height:1.3;font-weight:750;text-align:left;white-space:normal;
+  border:1px solid #bdcfbf;break-after:avoid
+}
 #pageLaporan .f4-admin-report-table .f4-report-status{font-weight:700}
 #pageLaporan .f4-admin-report-table [data-state="sah"]{color:#18724d}
 #pageLaporan .f4-admin-report-table [data-state="batal"]{color:#a43b3b}
@@ -1503,6 +1513,11 @@ overflow:visible
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-admin-report-table tr>:last-child{
     border-right:1px solid #333
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print table.f4-admin-report-table tr.f4-report-period-row>th{
+    padding:4px 7px;background:#e7f2e9;color:#194c34;
+    text-align:left;font-size:11px;font-weight:750;white-space:normal;
+    break-after:avoid;page-break-after:avoid
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"]{table-layout:fixed;width:calc(100% - 1mm)}
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] :is(th,td){
