@@ -2988,8 +2988,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     table.appendChild(tbody);return table;
   }
 
-  function v10MakeCodeLegend(){
-    const items=v10ReportData?.kodeBarang||[];
+  function f4BankMakeCodeLegend(items){
     if(!items.length)return null;
     const section=document.createElement('section');section.className='f4-bank-code-legend';
     const title=document.createElement('h3');title.textContent='Keterangan kode barang';
@@ -3002,6 +3001,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     }
     section.append(title,unit,grid);return section;
   }
+  function v10MakeCodeLegend(){return f4BankMakeCodeLegend(v10ReportData?.kodeBarang||[]);}
   function v10RenderReport(){
     if(!v10ReportData)return;
     const r=v10ReportData.ringkasan,summary=$('v10ReportSummary');
@@ -3231,6 +3231,24 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       return Number(deposit.beratSahKg);
     return null;
   }
+  function v12MakeItemMatrix(d,setoran){
+    const types=d.kodeBarang||[];
+    const byName=new Map(types.map(item=>[String(item.nama||'').trim().toLocaleLowerCase('id-ID'),item.kode]));
+    const format=weight=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(weight)||0);
+    const headers=['No','Nama','Tanggal',...types.map(item=>item.kode),'Total'];
+    const rows=setoran.map((s,index)=>{
+      const weights=new Map();
+      for(const line of s.rincian||[]){
+        const code=byName.get(String(line.barang||'').trim().toLocaleLowerCase('id-ID'));
+        if(!code)throw Error('Jenis barang '+line.barang+' tidak ada pada daftar kode.');
+        weights.set(code,(weights.get(code)||0)+Number(line.beratKg||0));
+      }
+      return [index+1,d.nama,f4MemberDateID(s.tanggal),
+        ...types.map(item=>weights.has(item.kode)?format(weights.get(item.kode)):'—'),
+        format(s.beratTimbangKg??s.beratKg)];
+    });
+    return {headers,rows,types};
+  }
   function v12Print(){
     if(!v12Data)return;
     const d=v12Data,root=$('v10Print');root.replaceChildren();
@@ -3262,11 +3280,13 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
     // Semua jenis, berat, dan nilai memakai data setoran yang diinput warga/pengurus.
     // Status penjualan tidak dipakai sebagai syarat menampilkan berat di laporan.
-    function addTable(heading,headers,rows){
+    function addTable(heading,headers,rows,kind=''){
       const h=document.createElement('h2');h.textContent=heading;root.appendChild(h);
       const table=v12Table(headers,rows);table.className='f4-member-print-table';
+      if(kind)table.dataset.reportKind=kind;
       const colgroup=document.createElement('colgroup');
-      (headers.length===6?[16,28,14,14,14,14]:
+      (kind==='setoran'?[4,20,12,...Array(Math.max(0,headers.length-4)).fill(56/Math.max(1,headers.length-4)),8]:
+       headers.length===6?[16,28,14,14,14,14]:
        headers.length===4?[20,42,18,20]:Array(headers.length).fill(100/headers.length))
         .forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';colgroup.appendChild(col);});
       table.prepend(colgroup);root.appendChild(table);
@@ -3274,19 +3294,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     addTable('Riwayat tabungan',['Tanggal','Keterangan','Masuk','Dicairkan','Koreksi','Saldo'],
       mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,
         rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo)]));
-    addTable('Setoran warga',['Tanggal','Jumlah barang','Total berat ditimbang','Nilai awal'],
-      setoran.map(s=>[
-        f4MemberDateID(s.tanggal),(s.rincian||[]).length+' jenis',
-        v12Kg(s.beratTimbangKg??s.beratKg),
-        rupiah(s.estimasiRp)
-      ]));
-    addTable('Rincian barang disetor',['Tanggal','Jenis sampah','Berat ditimbang','Nilai awal'],
-      setoran.flatMap(s=>(s.rincian||[]).map(x=>[
-        f4MemberDateID(s.tanggal),x.barang||'—',v12Kg(x.beratKg),rupiah(x.nilai)
-      ])));
-    const note=document.createElement('p');note.className='f4-member-print-note';
-    note.textContent='Berat dan barang adalah data yang dicatat saat penyetoran. Nilai awal bukan hasil penjualan.';
-    root.appendChild(note);
+    const matrix=v12MakeItemMatrix(d,setoran);
+    addTable('Setoran warga',matrix.headers,matrix.rows,'setoran');
+    const legend=f4BankMakeCodeLegend(matrix.types);if(legend)root.appendChild(legend);
     const signature=document.createElement('div');signature.className='f4-bank-report-signature';
     signature.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
@@ -3308,13 +3318,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
        ['Tanggal','Jenis','Masuk Rp','Dicairkan Rp','Koreksi Rp','Saldo Rp'],
        ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.koreksi||0,x.saldo]),
        [],
-       ['SETORAN WARGA'],
-       ['Tanggal','Jumlah jenis','Total berat ditimbang (kg)','Nilai awal Rp'],
-       ...setoran.map(s=>[s.tanggal,(s.rincian||[]).length,s.beratTimbangKg??s.beratKg??0,s.estimasiRp]),
+       ['SETORAN WARGA (BERAT KG)'],
+       ...v12MakeItemMatrix(d,setoran).headers.length?[v12MakeItemMatrix(d,setoran).headers,...v12MakeItemMatrix(d,setoran).rows]:[],
        [],
-       ['RINCIAN BARANG DISETOR'],
-       ['Tanggal','Barang','Berat timbang (kg)','Nilai awal Rp'],
-       ...setoran.flatMap(s=>(s.rincian||[]).map(x=>[s.tanggal,x.barang,x.beratKg,x.nilai]))
+       ['KETERANGAN KODE BARANG'],
+       ...(d.kodeBarang||[]).map(item=>[item.kode,item.nama])
     ];
     const safe=v=>{
       const text=String(v??'');
@@ -5877,7 +5885,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     document.getElementById('f4-bank-print-style')?.remove();
     document.getElementById('f4-bank-one-print-style')?.remove();
     const isPublic=kind==='public';
-    const isDepositMatrix=kind==='admin'&&!!root.querySelector('table[data-report-kind="setoran"]');
+    const isDepositMatrix=!!root.querySelector('table[data-report-kind="setoran"]');
     const orientation=isDepositMatrix?'landscape':'portrait';
     const pageMargins=kind==='member'?'11mm 12mm 12mm':'5mm 12mm 11mm';
     document.body.classList.toggle('f4-bank-print-member',kind==='member');
