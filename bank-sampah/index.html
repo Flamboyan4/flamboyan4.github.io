@@ -1343,9 +1343,17 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 
 /* Laporan admin: alokasi saldo dalam satu kartu, seirama dengan Beranda & Saldo. */
 /* Single report layout: input and finance side-by-side on PC, stacked on HP. */
-#pageLaporan .f4-bank-report-overview{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:stretch;min-width:0;margin:0 0 16px}
-@media(min-width:1024px){
+#pageLaporan .f4-bank-report-overview{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start;min-width:0;margin:0 0 16px}
+@media screen and (min-width:1024px){
  #pageLaporan .f4-bank-report-overview{grid-template-columns:minmax(0,1fr) minmax(0,.94fr)}
+ /* Laporan kiri: buka opsi tanpa memperpanjang dua kartu. Gulir hanya isi form kiri. */
+ #pageLaporan #v33ReportControls{
+  box-sizing:border-box;block-size:min(590px,calc(100dvh - 170px));min-block-size:400px;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
+  scrollbar-gutter:stable;scrollbar-width:thin
+ }
+ /* Posisi dana tidak ikut mengembang saat pilihan laporan berubah. */
+ #pageLaporan #v17Finance{min-block-size:min(590px,calc(100dvh - 170px));box-sizing:border-box}
 }
 #pageLaporan #v17Finance{display:flex;flex-direction:column;min-width:0;margin:0;padding:17px;border:1px solid #dce9e1;border-radius:20px;background:#fff;box-shadow:0 3px 14px #17482a08}
 #pageLaporan #v17Finance .v17-finance-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px}
