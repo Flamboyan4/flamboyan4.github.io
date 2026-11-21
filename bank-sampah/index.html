@@ -5959,7 +5959,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const report=$('pageLaporan'),type=$('v10ReportType');
     if(!report||!type||$('v29AuditFilter'))return;
     const wrap=document.createElement('div');wrap.className='field';
-    wrap.innerHTML='<label id="v29AuditFilter" class="v29-audit-filter"><input type="checkbox" id="v29ShowCanceled"> Sertakan transaksi dibatalkan</label>';
+    wrap.innerHTML='<label id="v29AuditFilter" class="v29-audit-filter"><input type="checkbox" id="v29ShowCanceled"><span>Sertakan transaksi dibatalkan</span></label>';
     type.closest('.field').before(wrap);
     $('v29ShowCanceled').addEventListener('change',()=>{
       v10ReportData=null;
@@ -7087,7 +7087,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261121-unified-avatar-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261121-range-select-v7">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261121-report-filters-grid-v8">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261120-vivid-info-v3">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261120-fresh-eco-v1">
