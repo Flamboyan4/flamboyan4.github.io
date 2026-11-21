@@ -603,8 +603,14 @@ function mountSavings(){
   pending.append(el("small","","Estimasi menunggu penjualan"),
    Object.assign(el("b","","—"),{id:"f4BankSavingsPending"}));
   hero.append(pending);
-  const payout=el("button","f4-bank-gold-action f4-bank-savings-payout","Ajukan Pencairan");
-  payout.type="button";payout.onclick=()=>navigate("bank-payout");hero.append(payout);
+  const payout=el("button","f4-bank-gold-action f4-bank-savings-payout");
+  payout.type="button";payout.setAttribute("aria-label","Ajukan Pencairan");
+  payout.append(
+   savingsStatIcon("payout").querySelector("svg"),
+   el("span","f4-bank-savings-payout-short","Cairkan"),
+   el("span","f4-bank-savings-payout-long","Ajukan Pencairan")
+  );
+  payout.onclick=()=>navigate("bank-payout");hero.append(payout);
  }
  if(!$("f4BankSavingsStats")){
   const mini=el("div","f4-bank-savings-stats");mini.id="f4BankSavingsStats";
