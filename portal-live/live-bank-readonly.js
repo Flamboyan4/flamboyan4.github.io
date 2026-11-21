@@ -336,9 +336,9 @@
  const memberIdKey=id=>String(id??'').trim().replace(/^member:/i,'');
  const cleanMemberName=value=>String(value??'').replace(/\s*\(\s*member:[^)]+\)\s*/gi,' ').trim();
  const adminReport=async(_token,period='',includeCanceled=false)=>{
-  const [deposits,sales,expenses,cash,ledger,members]=await Promise.all([
-    adminDeposits(),adminSales(),adminExpenses(),adminCash(),adminRows('ledger'),adminMembers()]);
-  if([deposits,sales,expenses,cash,ledger,members].some(x=>x.length>=300))
+  const [deposits,sales,expenses,cash,ledger,members,catalog]=await Promise.all([
+    adminDeposits(),adminSales(),adminExpenses(),adminCash(),adminRows('ledger'),adminMembers(),adminRows('catalog')]);
+  if([deposits,sales,expenses,cash,ledger,members,catalog].some(x=>x.length>=300))
    throw Error('Laporan melebihi batas 300 baris per buku. Unduh dihentikan agar tidak ada nilai terpotong.');
   const byMember=new Map(members.map(m=>[memberIdKey(m.wargaId),m]));
   const wargaLabel=(rawId,fallbackName='',fallbackHouse='')=>{
@@ -370,7 +370,41 @@
   const liveReversals=ledger.filter(x=>liveBatches.has(String(x.batch_id||''))&&x.kind==='koreksi_debit');
   const hakWargaDikredit=liveCredits.reduce((n,x)=>n+number(x.amount_rp),0)-
     liveReversals.reduce((n,x)=>n+number(x.amount_rp),0);
-  // Bacaan jenis barang asli dari D1; gagal jika rincian tidak lengkap.
+  // Kategori dan jenis asli tetap berasal dari katalog D1. Laporan SETORAN
+  // HANYA berisi daftar barang/berat, tanpa nilai rupiah, estimasi atau status.
+  const byItemId=new Map(catalog.map(item=>[String(item.id||''),item]));
+  const byItemName=new Map(catalog.map(item=>[String(item.name||'').trim().toLowerCase(),item]));
+  const categoryOf=(catalogItem,name)=>{
+    const category=String(catalogItem?.category||'').toLowerCase();
+    const combined=category+' '+String(name||'').toLowerCase();
+    if(/plastik|botol|galon|gelas aqua|pet\b/.test(combined))return 'plastik';
+    if(/logam|metal|alum|kaleng|besi|tembaga|kuningan/.test(combined))return 'logam';
+    if(/kertas|kardus|koran|karton|hvs|dupleks|buku/.test(combined))return 'kertas';
+    return 'gabruk'; // Kelompok campuran/lainnya; tidak menghilangkan barang di luar 3 kelompok.
+  };
+  const codeBase=name=>{
+    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+    // Kode yang mudah dikenali pengurus, disepakati dari nama jenis barang.
+    if(/botol.*(?:aqua.*)?bodong/.test(value))return 'BD';
+    if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
+    if(/botol.*aqua/.test(value))return 'BA';
+    if(/kardus/.test(value))return 'KD';
+    if(/kaleng/.test(value))return 'KL';
+    if(/galon/.test(value))return 'GL';
+    const words=value.split(' ').filter(word=>!['dan','atau','bekas','plastik','sampah','kering'].includes(word));
+    return words.length>1?words.slice(0,3).map(word=>word[0]).join('').toUpperCase():
+      (words[0]||'X').slice(0,2).toUpperCase();
+  };
+  const usedCodes=new Set(),codeByItem=new Map();
+  // Urut nama menjamin kode identik untuk setiap warga dalam laporan yang sama.
+  for(const item of [...catalog].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id'))){
+    const key=String(item.id||'');
+    const base=codeBase(item.name);
+    let code=base,suffix=2;
+    while(usedCodes.has(code))code=base+suffix++;
+    usedCodes.add(code);codeByItem.set(key,code);
+  }
+  const extraCodes=new Map(),codebook=new Map();
   const details=[];
   for(let start=0;start<depositRows.length;start+=12){
     details.push(...await Promise.all(depositRows.slice(start,start+12).map(async x=>{
@@ -380,13 +414,32 @@
       const weight=r.lines.reduce((n,item)=>n+number(item.grams),0)/1000;
       if(Math.abs(weight-number(x.beratTimbang))>0.002)
         throw Error('Berat barang setoran '+x.id+' tidak sesuai hasil timbang.');
-      const barang=r.lines.map(item=>String(item.name||'Jenis sampah')+' '+
-        new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(number(item.grams)/1000)+' kg').join(' · ');
+      const groups={plastik:[],logam:[],kertas:[],gabruk:[]};
+      for(const item of r.lines){
+        const itemId=String(item.waste_item_id||''),name=String(item.name||'').trim();
+        const catalogItem=byItemId.get(itemId)||byItemName.get(name.toLowerCase());
+        const group=categoryOf(catalogItem,name);
+        let code=codeByItem.get(String(catalogItem?.id||itemId));
+        if(!code){
+          const extraKey=itemId||name;
+          if(!extraCodes.has(extraKey)){
+            const base=codeBase(name);let trial=base,suffix=2;
+            while(usedCodes.has(trial))trial=base+suffix++;
+            usedCodes.add(trial);extraCodes.set(extraKey,trial);
+          }
+          code=extraCodes.get(extraKey);
+        }
+        codebook.set(code,{kode:code,nama:name,kategori:group});
+        const kg=number(item.grams)/1000;
+        if(kg<=0)throw Error('Berat barang setoran '+x.id+' tidak valid.');
+        groups[group].push(code+' '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(kg));
+      }
+      const labels=Object.fromEntries(Object.entries(groups).map(([group,items])=>[group,items.length?items.join(' · '):'—']));
       return {id:x.id,tanggal:x.tanggal,warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),
-        barang,berat:weight,nilai:x.estimasi,
-        penjualan:x.status==='Terkonfirmasi'?'Terjual':x.status==='Dibatalkan'?'Dibatalkan':'Tersedia'};
+        ...labels,total:weight};
     })));
   }
+  const kodeBarang=[...codebook.values()].sort((a,b)=>a.kategori.localeCompare(b.kategori,'id')||a.kode.localeCompare(b.kode,'id'));
   return {
    periode:month||'semua',
    ringkasan:{jumlahSetoran:depositRows.filter(x=>x.status!=='Dibatalkan').length,jumlahSetoranTerjual:confirmedDeposits.length,jumlahSetoranTersedia:waitingDeposits.length,jumlahPenjualan:confirmedSales.length,
@@ -399,7 +452,7 @@
     tabunganDicairkan:withdrawals.reduce((n,x)=>n+x.nominal,0),
     biaya:paidExpenses.reduce((n,x)=>n+x.nominal,0),
     saldoKasKini:activeCash.reduce((n,x)=>n+x.masuk-x.keluar,0)},
-   setoran:details,
+   setoran:details,kodeBarang,
    penjualan:saleRows.map(x=>({id:x.id,tanggal:x.tanggal,batch:x.batchId,lapak:x.lapak,bruto:x.bruto,
     diterima:x.diterima,disahkan:x.status==='Terkonfirmasi',status:x.status,
     hakWarga:x.status==='Terkonfirmasi'?
