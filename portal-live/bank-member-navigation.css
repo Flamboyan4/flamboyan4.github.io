@@ -344,17 +344,17 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
 #dashboardView #f4MemberInfoShortcut.f4-member-info-shortcut{
  box-sizing:border-box;display:flex;align-items:center;gap:13px;
  width:100%;height:100%;min-height:95px;margin:0;padding:17px 21px;
- border:1px solid #89cfee;border-radius:19px;cursor:pointer;text-align:left;
- background:linear-gradient(132deg,#c6ebff,#e5f6ff 72%,#f3fbff);color:#0b4867;box-shadow:0 8px 21px #137bae25
+ border:1px solid #e4eee5;border-radius:19px;cursor:pointer;text-align:left;
+ background:#fff;color:#103f2c;box-shadow:0 3px 9px #15482b0b
 }
 #dashboardView .f4-member-info-icon{
  display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;
- border-radius:13px;background:#86d6fb;color:#064b73
+ border-radius:13px;background:#e2f4df;color:#167244
 }
 #dashboardView .f4-member-info-icon svg{display:block;width:24px;height:24px;stroke:currentColor;fill:none}
 #dashboardView .f4-member-info-copy{display:grid;gap:5px;flex:1;min-width:0}
-#dashboardView .f4-member-info-copy strong{font-size:15px;line-height:1.24;color:#073f61;font-weight:850}
-#dashboardView .f4-member-info-copy small{font-size:11px;line-height:1.4;color:#286a87;font-weight:650}
+#dashboardView .f4-member-info-copy strong{font-size:15px;line-height:1.24;color:#103f2c;font-weight:850}
+#dashboardView .f4-member-info-copy small{font-size:11px;line-height:1.4;color:#587866;font-weight:650}
 #dashboardView .f4-member-info-shortcut:focus-visible{outline:3px solid #9fdca2;outline-offset:2px}
 /* Ringkasan tambahan khusus PC; kartu HP tetap tanpa angka tambahan. */
 #dashboardView #f4MemberPublicMini{display:none}
@@ -375,11 +375,11 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  }
  #dashboardView #f4MemberPublicMini .f4-member-public-mini-item{
   display:grid;align-content:center;gap:4px;min-width:0;
-  padding:7px 10px;border:0;border-right:1px solid #9acfe9;border-radius:0;background:transparent
+  padding:7px 10px;border:0;border-right:1px solid #d6e7d7;border-radius:0;background:transparent
  }
  #dashboardView #f4MemberPublicMini small{
   display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;
-  white-space:nowrap;color:#27637e;font-size:10px;line-height:1.2;font-weight:750
+  white-space:nowrap;color:#567462;font-size:10px;line-height:1.2;font-weight:750
  }
  #dashboardView #f4MemberPublicMini strong{
   display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;
@@ -389,7 +389,7 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
 }
 /* Category accents without card-inside-card frames. */
 #dashboardView #f4MemberPublicMini .f4-member-public-mini-item:last-child{border-right:0}
-#dashboardView #f4MemberPublicMini .f4-member-public-mini-item:nth-child(2) strong{color:#075f8c}
+#dashboardView #f4MemberPublicMini .f4-member-public-mini-item:nth-child(2) strong{color:#087b59}
 #dashboardView #f4MemberPublicMini .f4-member-public-mini-item:nth-child(3) strong{color:#956500}
 @media(max-width:1023px){
  #dashboardView .f4-member-environment-preview{padding:13px 12px;border-radius:18px}
@@ -400,11 +400,11 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut.f4-member-info-shortcut{
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   gap:7px;height:102px;min-height:0;padding:8px 4px;
-  border:1px solid #a0d7f0;border-radius:17px;
-  background:#d9f2ff;box-shadow:0 4px 12px #087ca01c;text-align:center
+  border:1px solid #e4eee5;border-radius:17px;
+  background:#fff;box-shadow:0 3px 9px #15482b0b;text-align:center
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-icon{
-  flex:0 0 36px;width:36px;height:36px;border-radius:11px;background:#8dd9fb;color:#07577c
+  flex:0 0 36px;width:36px;height:36px;border-radius:11px;background:#e2f4df;color:#167244
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-icon svg{
   width:21px;height:21px
