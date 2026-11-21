@@ -1548,17 +1548,44 @@ overflow:visible
     font-size:11px;font-weight:750;margin:6px 0 9px;color:#214e38
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-trend{
-    display:block;margin:6px 0 13px;break-inside:avoid;page-break-inside:avoid
+    display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+    gap:12px;align-items:start;margin:6px 0 11px;
+    break-inside:avoid;page-break-inside:avoid
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-panel{
+    min-width:0
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-trend h2{
-    font-size:13px;margin:4px 0 2px;color:#183e2e
+    font-size:11.5px;line-height:1.25;margin:0 0 5px;color:#183e2e
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-svg{
-    display:block;width:100%;height:auto;max-height:155px;overflow:visible;
+    display:block;width:100%;height:116px;overflow:visible;
     print-color-adjust:exact;-webkit-print-color-adjust:exact
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-chart-note{
-    font-size:10px;color:#647e6c;text-align:center;margin:0 0 5px
+    font-size:9px;line-height:1.25;color:#647e6c;text-align:left;margin:0
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-body{
+    display:flex;align-items:center;gap:8px;min-height:116px
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-svg{
+    display:block;width:100px;height:100px;flex:none;
+    print-color-adjust:exact;-webkit-print-color-adjust:exact
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-legend{
+    display:grid;gap:5px;min-width:0;flex:1
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-item{
+    display:flex;align-items:baseline;gap:4px;min-width:0;font-size:9px;line-height:1.2
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-dot{
+    display:inline-block;flex:none;width:7px;height:7px;border-radius:2px
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-name{
+    flex:1;min-width:0;overflow-wrap:anywhere
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-mix-weight{
+    flex:none;font-weight:750;white-space:nowrap
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table.f4-single-member-table :is(th,td){
     text-align:center;white-space:nowrap;overflow-wrap:normal;
@@ -6123,45 +6150,105 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
    * Existing v10Month is retained as the API/finance period source of truth. */
 
   // Grafik ringkas di laporan SETORAN SATU WARGA, bukan laporan administrasi semua warga.
-  function v37IndividualTrend(records){
-    const groups=f4BankPeriodGroups(records).slice(-8),section=document.createElement('section');
-    section.className='f4-single-member-trend';
-    const title=document.createElement('h2');title.textContent='Perkembangan berat setoran';
-    section.append(title);
-    if(!groups.length){
-      const empty=document.createElement('p');empty.textContent='Belum ada setoran yang tercatat.';
-      section.append(empty);return section;
-    }
-    const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
-    svg.classList.add('f4-single-member-svg');
-    svg.setAttribute('viewBox','0 0 720 155');
-    svg.setAttribute('role','img');svg.setAttribute('aria-label','Perkembangan berat setoran per tanggal penimbangan');
-    const add=(tag,attrs,label)=>{
-      const element=document.createElementNS(ns,tag);
-      Object.entries(attrs).forEach(([key,value])=>element.setAttribute(key,String(value)));
-      if(label!==undefined)element.textContent=String(label);
-      svg.appendChild(element);
+  function v37IndividualTrend(records,codes=[]){
+    const source=Array.isArray(records)?records:[];
+    const allGroups=f4BankPeriodGroups(source),groups=allGroups.slice(-8);
+    const section=document.createElement('section');section.className='f4-single-member-trend';
+    const trend=document.createElement('div');trend.className='f4-single-member-panel';
+    const mix=document.createElement('div');mix.className='f4-single-member-panel';
+    const heading=document.createElement('h2');heading.textContent='Perkembangan berat setoran';
+    trend.append(heading);
+    const ns='http://www.w3.org/2000/svg';
+    const addSvg=(parent,tag,attrs,label)=>{
+      const el=document.createElementNS(ns,tag);
+      Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,String(value)));
+      if(label!==undefined)el.textContent=String(label);
+      parent.append(el);return el;
     };
-    add('line',{x1:20,x2:700,y1:122,y2:122,stroke:'#a9bfaf','stroke-width':1});
     const fmt=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(n);
-    const max=Math.max(.001,...groups.map(g=>g.rows.reduce((n,r)=>n+Number(r.total||0),0)));
-    const slot=680/groups.length,barWidth=Math.min(52,slot*.53);
-    groups.forEach((group,i)=>{
-      const kg=group.rows.reduce((n,r)=>n+Number(r.total||0),0);
-      const height=kg>0?Math.max(5,Math.round(kg/max*83)):0;
-      const mid=20+(i+.5)*slot;
-      add('rect',{x:mid-barWidth/2,y:122-height,width:barWidth,height,rx:3,fill:'#158f68'});
-      add('text',{x:mid,y:Math.max(13,116-height),'text-anchor':'middle','font-size':11,'font-weight':'bold',fill:'#174f39'},fmt(kg));
-      const dt=String(group.date||''),label=/^\d{4}-\d{2}-\d{2}$/.test(dt)?
-        dt.slice(8,10)+'/'+dt.slice(5,7)+'/'+dt.slice(2,4):dt;
-      add('text',{x:mid,y:140,'text-anchor':'middle','font-size':11,fill:'#476b55'},label);
-    });
-    section.append(svg);
-    const caption=document.createElement('p');caption.className='f4-single-member-chart-note';
-    const all=f4BankPeriodGroups(records).length;
-    caption.textContent=all>8?'Grafik menampilkan 8 penimbangan terakhir dari '+all+' tanggal.':
-      all===1?'Baru satu tanggal penimbangan tercatat.':'Berat dalam kilogram (kg) per tanggal penimbangan.';
-    section.append(caption);return section;
+    if(groups.length){
+      const svg=document.createElementNS(ns,'svg');
+      svg.classList.add('f4-single-member-svg');
+      svg.setAttribute('viewBox','0 0 354 122');
+      svg.setAttribute('role','img');
+      svg.setAttribute('aria-label','Berat setoran per tanggal penimbangan');
+      addSvg(svg,'line',{x1:12,x2:342,y1:91,y2:91,stroke:'#a9bfaf','stroke-width':1});
+      const weights=groups.map(g=>g.rows.reduce((n,r)=>n+Math.max(0,Number(r.total)||0),0));
+      const max=Math.max(.001,...weights);
+      const slot=330/groups.length,barWidth=Math.min(40,slot*.54);
+      groups.forEach((group,i)=>{
+        const kg=weights[i],height=kg>0?Math.max(4,Math.round(kg/max*59)):0;
+        const mid=12+(i+.5)*slot;
+        if(height)addSvg(svg,'rect',{x:mid-barWidth/2,y:91-height,width:barWidth,height,rx:3,fill:'#15916d'});
+        addSvg(svg,'text',{x:mid,y:Math.max(13,85-height),'text-anchor':'middle','font-size':10,'font-weight':'bold',fill:'#174f39'},fmt(kg));
+        const dt=String(group.date||'');
+        const label=/^\d{4}-\d{2}-\d{2}$/.test(dt)?
+          dt.slice(8,10)+'/'+dt.slice(5,7)+(groups.length<=4?'/'+dt.slice(2,4):''):dt;
+        addSvg(svg,'text',{x:mid,y:109,'text-anchor':'middle','font-size':9,fill:'#476b55'},label);
+      });
+      trend.append(svg);
+    }else{
+      const empty=document.createElement('p');empty.textContent='Belum ada setoran.';
+      trend.append(empty);
+    }
+    const note=document.createElement('p');note.className='f4-single-member-chart-note';
+    note.textContent=allGroups.length>8?'8 dari '+allGroups.length+' periode timbang terakhir':
+      allGroups.length===1?'Baru satu periode penimbangan tercatat.':'Berat (kg) per tanggal penimbangan.';
+    trend.append(note);
+
+    const mixTitle=document.createElement('h2');mixTitle.textContent='Komposisi jenis sampah';
+    mix.append(mixTitle);
+    const colors={AL:'#ee8538',BR:'#4ba783',BE:'#6d87c8',BPK:'#8359b9',
+      BD:'#ffbc0b',DU:'#43b6b3',GA:'#8bbd38',GL:'#a17ad7',
+      GB:'#4084d8',KL:'#e6a146',KD:'#009e91'};
+    const fallback=['#0f9476','#e0a02e','#4786d8','#e27d45','#9c6ec4'];
+    const items=(Array.isArray(codes)?codes:[]).map((code,i)=>{
+      const key=String(code.kode||'');
+      const kg=source.reduce((sum,row)=>sum+Math.max(0,Number(row['item_'+key])||0),0);
+      return {name:String(code.nama||key),kg,color:colors[key]||fallback[i%fallback.length]};
+    }).filter(item=>item.kg>0).sort((a,b)=>b.kg-a.kg);
+    const visible=items.slice(0,5),remaining=items.slice(5);
+    if(remaining.length)visible.push({name:'Lainnya',kg:remaining.reduce((sum,item)=>sum+item.kg,0),color:'#91a89d'});
+    const total=items.reduce((sum,item)=>sum+item.kg,0);
+    if(total>0){
+      const body=document.createElement('div');body.className='f4-single-member-mix-body';
+      const donut=document.createElementNS(ns,'svg');
+      donut.classList.add('f4-single-member-mix-svg');
+      donut.setAttribute('viewBox','0 0 100 100');
+      donut.setAttribute('role','img');
+      donut.setAttribute('aria-label','Komposisi jenis sampah dari seluruh setoran warga');
+      const radius=32,circumference=2*Math.PI*radius;
+      addSvg(donut,'circle',{cx:50,cy:50,r:radius,fill:'none',stroke:'#e7efe9','stroke-width':13});
+      let offset=0;
+      visible.forEach(item=>{
+        const arc=item.kg/total*circumference;
+        addSvg(donut,'circle',{cx:50,cy:50,r:radius,fill:'none',
+          stroke:item.color,'stroke-width':13,
+          'stroke-dasharray':arc+' '+circumference,'stroke-dashoffset':-offset,
+          transform:'rotate(-90 50 50)'});
+        offset+=arc;
+      });
+      addSvg(donut,'text',{x:50,y:49,'text-anchor':'middle','font-size':fmt(total).length>7?10:13,
+        'font-weight':'bold',fill:'#104c36'},fmt(total));
+      addSvg(donut,'text',{x:50,y:60,'text-anchor':'middle','font-size':9,fill:'#617b6b'},'kg');
+      const legend=document.createElement('div');legend.className='f4-single-member-mix-legend';
+      visible.forEach(item=>{
+        const entry=document.createElement('div');entry.className='f4-single-member-mix-item';
+        const dot=document.createElement('i');dot.className='f4-single-member-mix-dot';dot.style.backgroundColor=item.color;
+        const name=document.createElement('span');name.className='f4-single-member-mix-name';name.textContent=item.name;
+        const weight=document.createElement('strong');weight.className='f4-single-member-mix-weight';
+        weight.textContent=fmt(item.kg)+' kg';
+        entry.append(dot,name,weight);legend.append(entry);
+      });
+      body.append(donut,legend);mix.append(body);
+    }else{
+      const empty=document.createElement('p');empty.textContent='Rincian jenis belum tersedia.';
+      mix.append(empty);
+    }
+    const mixNote=document.createElement('p');mixNote.className='f4-single-member-chart-note';
+    mixNote.textContent='Akumulasi seluruh setoran tercatat.';
+    mix.append(mixNote);
+    section.append(trend,mix);return section;
   }
   function v37IndividualTable(report){
     const codes=report.kodeBarang||[];
@@ -6216,7 +6303,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const fmt=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0);
       const summary=document.createElement('p');summary.className='f4-single-member-summary';
       summary.textContent=report.jumlahSetoran+' setoran tercatat · Total '+fmt(report.totalBeratKg)+' kg';
-      root.append(title,subtitle,summary,v37IndividualTrend(report.setoran||[]));
+      root.append(title,subtitle,summary,v37IndividualTrend(report.setoran||[],report.kodeBarang||[]));
       const h=document.createElement('h2');h.textContent='Rincian barang disetor ('+report.jumlahSetoran+')';
       root.append(h,v37IndividualTable(report));
       const legend=f4BankMakeCodeLegend(report.kodeBarang||[]);if(legend)root.append(legend);
