@@ -877,8 +877,18 @@ function weighingNextDate(){
 function updateWeighingCard(){
  const card=$("f4BankWeighingSchedule");if(!card)return;
  const next=weighingNextDate(),name=weighingDayNames[weighingWeekday];
- const title=card.querySelector("strong");
- if(title)title.textContent=next.days===0?"Hari ini • "+name:next.label;
+ const title=card.querySelector(".f4-bank-weigh-copy > strong");
+ if(title){
+  // Pisahkan hari dan tanggal agar tidak terpotong acak pada tiga kartu HP.
+  // Keduanya tetap satu baris di desktop, serta aman untuk status tanpa tanggal.
+  const label=String(next.label||"—"),separator=label.indexOf(",");
+  if(separator>0){
+   title.replaceChildren(
+    el("span","f4-bank-weigh-weekday",label.slice(0,separator+1)+" "),
+    el("span","f4-bank-weigh-date",label.slice(separator+1).trim())
+   );
+  }else title.textContent=label;
+ }
  const detail=card.querySelector(".f4-bank-weigh-copy > span:last-child");
  if(detail)detail.textContent=weighingRule.frequency==="biweekly"?"Setiap 2 minggu":
   weighingRule.frequency==="monthly"?"Setiap bulan":"Setiap "+name;
