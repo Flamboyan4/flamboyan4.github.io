@@ -1254,6 +1254,29 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .v33-report-actions button:nth-child(1){background:#f0f6f1;color:#174b36;border:1px solid #dce8de}
 #pageLaporan .v33-report-actions button:nth-child(2){background:#08775e;color:#fff;border:1px solid #08775e}
 #pageLaporan .v33-report-actions button:nth-child(3){background:#fff;color:#174b36;border:1px solid #d7e6dc}
+/* Cetak individu: satu baris kontrol, tanpa frame bertumpuk. */
+#pageLaporan .f4-single-member-control{
+  margin-top:7px;padding-top:12px;border-top:1px solid #e2eee5;
+  display:flex;flex-direction:column;gap:5px;min-width:0
+}
+#pageLaporan .f4-single-member-control>strong{font-size:12px;line-height:1.35;color:#15593e}
+#pageLaporan .f4-single-member-control>small{font-size:11px;line-height:1.25;color:#63806d}
+#pageLaporan .f4-single-member-fields{
+  display:grid;grid-template-columns:minmax(0,1fr) 142px;gap:8px;align-items:center;margin-top:3px
+}
+#pageLaporan .f4-single-member-fields>select{
+  width:100%;min-width:0;height:40px;margin:0;padding:7px 10px;border:1px solid #d1e3d6;
+  border-radius:10px;background:#fff;color:#214b37;font-size:12px
+}
+#pageLaporan .f4-single-member-fields>button{
+  width:100%;height:40px;margin:0;padding:6px 8px;border-radius:10px;
+  background:#108563;color:#fff;font-weight:750;font-size:12px
+}
+#pageLaporan .f4-single-member-fields>button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:480px){
+  #pageLaporan .f4-single-member-fields{grid-template-columns:minmax(0,1fr) 122px}
+  #pageLaporan .f4-single-member-fields>button{font-size:11px}
+}
 #pageLaporan #v10ReportSummary{
  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
  margin:0 0 6px;padding:0;border:0
@@ -3078,6 +3101,8 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
   function v10MakeCodeLegend(){return f4BankMakeCodeLegend(v10ReportData?.kodeBarang||[]);}
   function v10RenderReport(){
     if(!v10ReportData)return;
+    if($('v37MemberSelect'))v37FillMemberChoices().catch(error=>
+      note('v10ReportNotice','Gagal memuat daftar warga: '+(error.message||error),true));
     const r=v10ReportData.ringkasan,summary=$('v10ReportSummary');
     summary.replaceChildren(
       v10CompactSummaryMetric('Setoran tercatat',r.jumlahSetoran),v10CompactSummaryMetric('Penjualan',r.jumlahPenjualan),
@@ -6283,7 +6308,23 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
     // Existing API/print handlers remain attached to their original buttons.
     // Feedback for load/print errors stays visible beside the report actions.
-    form.append(options,actions);
+    // Independent print tool; it never narrows the normal admin report tables.
+    const individual=document.createElement('section');individual.className='f4-single-member-control';
+    const memberHeading=document.createElement('strong');memberHeading.textContent='Cetak setoran per warga';
+    const memberInfo=document.createElement('small');memberInfo.textContent='Seluruh riwayat + grafik per penimbangan';
+    const memberFields=document.createElement('div');memberFields.className='f4-single-member-fields';
+    const memberSelect=document.createElement('select');memberSelect.id='v37MemberSelect';
+    memberSelect.setAttribute('aria-label','Pilih warga untuk laporan setoran');
+    memberSelect.append(new Option('Pilih warga',''));
+    const memberPrint=document.createElement('button');memberPrint.type='button';
+    memberPrint.id='v37MemberPrint';memberPrint.textContent='Cetak + Grafik';memberPrint.disabled=true;
+    memberSelect.addEventListener('change',()=>{memberPrint.disabled=!memberSelect.value;});
+    memberSelect.addEventListener('focus',()=>v37FillMemberChoices().catch(error=>
+      note('v10ReportNotice','Gagal memuat warga: '+(error.message||error),true)));
+    memberPrint.addEventListener('click',v37PrintIndividual);
+    memberFields.append(memberSelect,memberPrint);
+    individual.append(memberHeading,memberInfo,memberFields);
+    form.append(options,actions,individual);
     const notice=$('v10ReportNotice');
     if(notice)form.append(notice);
     // A single results surface groups the summary and transaction accordions.
