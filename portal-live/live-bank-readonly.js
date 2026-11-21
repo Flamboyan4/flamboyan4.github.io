@@ -4,6 +4,32 @@
  const original=window.__f4BankDemoCall;
  const onlyArray=(data)=>Array.isArray(data)?data:Array.isArray(data?.rows)?data.rows:Array.isArray(data?.items)?data.items:Array.isArray(data?.data)?data.data:Array.isArray(data?.data?.rows)?data.data.rows:Array.isArray(data?.data?.items)?data.data.items:[];
  const number=(value)=>Number.isFinite(Number(value))?Number(value):0;
+ const bankWasteCodes=catalog=>{
+  const codeBase=name=>{
+    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+    if(/botol.*(?:aqua.*)?bodong/.test(value))return 'BD';
+    if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
+    if(/botol.*aqua/.test(value))return 'BA';
+    if(/kardus/.test(value))return 'KD';
+    if(/kaleng/.test(value))return 'KL';
+    if(/galon/.test(value))return 'GL';
+    const words=value.split(' ').filter(word=>!['dan','atau','bekas','plastik','sampah','kering'].includes(word));
+    return words.length>1?words.slice(0,3).map(word=>word[0]).join('').toUpperCase():
+      (words[0]||'X').slice(0,2).toUpperCase();
+  };
+  const usedCodes=new Set(),codeByItem=new Map();
+  const kodeBarang=[...catalog]
+    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id'))
+    .map(item=>{
+      const base=codeBase(item.name);
+      let code=base,suffix=2;
+      while(usedCodes.has(code))code=base+suffix++;
+      usedCodes.add(code);codeByItem.set(String(item.id||''),code);
+      return {kode:code,nama:String(item.name||''),id:String(item.id||'')};
+    });
+  return {kodeBarang,codeByItem};
+ };
+
  async function get(path){
   const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
   const result=await response.json().catch(()=>{throw Error('API Cloudflare tidak mengirim JSON.')});
@@ -133,7 +159,9 @@
   };
  }
  async function memberSavings(){
-  const r=await get('/api/member/savings');
+  const [r,publicInfo]=await Promise.all([
+    get('/api/member/savings'),publicData().catch(()=>({catalog:[]}))
+  ]);
   // Never generate an incomplete statement as an apparently complete CSV/PDF.
   if(r.riwayatLengkap===false)throw Error('Riwayat tabungan melebihi batas halaman API. Laporan lengkap ditahan agar tidak ada transaksi hilang.');
   const mutasi=onlyArray(r.mutasi);
@@ -178,10 +206,21 @@
   if(![saldo,totalCair,totalMasuk].every(Number.isSafeInteger) ||
      saldo<0||totalCair<0||totalMasuk<0)
    throw Error('Ringkasan tabungan tidak seimbang. Muat ulang atau hubungi pengurus.');
+  // Katalog publik menyediakan judul kolom lengkap; jenis historis yang sudah
+  // tak aktif tetap dimunculkan agar berat di laporan warga tidak hilang.
+  const catalog=onlyArray(publicInfo.catalog).map(item=>({id:String(item.id||''),name:String(item.name||'')}));
+  const known=new Set(catalog.map(item=>item.name.trim().toLowerCase()));
+  for(const name of new Set(deposits.flatMap(s=>s.rincian.map(item=>String(item.barang||'').trim())).filter(Boolean))){
+    if(!known.has(name.toLowerCase())){
+      catalog.push({id:'historical:'+catalog.length,name});
+      known.add(name.toLowerCase());
+    }
+  }
+  const {kodeBarang}=bankWasteCodes(catalog);
   return {wargaId:String(person.id||''),nama:person.nama||'',rumah:person.rumah||'',
    dibuatPada:new Date().toLocaleDateString('id-ID'),
    saldo,totalMasuk,totalCair,
-   mutasi:history,setoran:deposits};
+   mutasi:history,setoran:deposits,kodeBarang};
  }
  // Kegiatan yang telah dipublikasikan aman diakses anggota; endpoint admin tidak boleh dipanggil dari akun warga.
  async function memberPublicProgress(){
@@ -374,28 +413,7 @@
   // bukan empat kategori. Setiap kolom hanya menyimpan berat timbang (kg).
   const byItemId=new Map(catalog.map(item=>[String(item.id||''),item]));
   const byItemName=new Map(catalog.map(item=>[String(item.name||'').trim().toLowerCase(),item]));
-  const codeBase=name=>{
-    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
-    if(/botol.*(?:aqua.*)?bodong/.test(value))return 'BD';
-    if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
-    if(/botol.*aqua/.test(value))return 'BA';
-    if(/kardus/.test(value))return 'KD';
-    if(/kaleng/.test(value))return 'KL';
-    if(/galon/.test(value))return 'GL';
-    const words=value.split(' ').filter(word=>!['dan','atau','bekas','plastik','sampah','kering'].includes(word));
-    return words.length>1?words.slice(0,3).map(word=>word[0]).join('').toUpperCase():
-      (words[0]||'X').slice(0,2).toUpperCase();
-  };
-  const usedCodes=new Set(),codeByItem=new Map();
-  const kodeBarang=[...catalog]
-    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id'))
-    .map(item=>{
-      const base=codeBase(item.name);
-      let code=base,suffix=2;
-      while(usedCodes.has(code))code=base+suffix++;
-      usedCodes.add(code);codeByItem.set(String(item.id||''),code);
-      return {kode:code,nama:String(item.name||''),id:String(item.id||'')};
-    });
+  const {kodeBarang,codeByItem}=bankWasteCodes(catalog);
   const details=[];
   for(let start=0;start<depositRows.length;start+=12){
     details.push(...await Promise.all(depositRows.slice(start,start+12).map(async x=>{
