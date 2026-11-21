@@ -6075,6 +6075,116 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
   /* Bank Sampah — compact, accessible multi-section admin report controls.
    * Existing v10Month is retained as the API/finance period source of truth. */
+
+  // Grafik ringkas di laporan SETORAN SATU WARGA, bukan laporan administrasi semua warga.
+  function v37IndividualTrend(records){
+    const groups=f4BankPeriodGroups(records).slice(-8),section=document.createElement('section');
+    section.className='f4-single-member-trend';
+    const title=document.createElement('h2');title.textContent='Perkembangan berat setoran';
+    section.append(title);
+    if(!groups.length){
+      const empty=document.createElement('p');empty.textContent='Belum ada setoran yang tercatat.';
+      section.append(empty);return section;
+    }
+    const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');
+    svg.classList.add('f4-single-member-svg');
+    svg.setAttribute('viewBox','0 0 720 155');
+    svg.setAttribute('role','img');svg.setAttribute('aria-label','Perkembangan berat setoran per tanggal penimbangan');
+    const add=(tag,attrs,label)=>{
+      const element=document.createElementNS(ns,tag);
+      Object.entries(attrs).forEach(([key,value])=>element.setAttribute(key,String(value)));
+      if(label!==undefined)element.textContent=String(label);
+      svg.appendChild(element);
+    };
+    add('line',{x1:20,x2:700,y1:122,y2:122,stroke:'#a9bfaf','stroke-width':1});
+    const fmt=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(n);
+    const max=Math.max(.001,...groups.map(g=>g.rows.reduce((n,r)=>n+Number(r.total||0),0)));
+    const slot=680/groups.length,barWidth=Math.min(52,slot*.53);
+    groups.forEach((group,i)=>{
+      const kg=group.rows.reduce((n,r)=>n+Number(r.total||0),0);
+      const height=kg>0?Math.max(5,Math.round(kg/max*83)):0;
+      const mid=20+(i+.5)*slot;
+      add('rect',{x:mid-barWidth/2,y:122-height,width:barWidth,height,rx:3,fill:'#158f68'});
+      add('text',{x:mid,y:Math.max(13,116-height),'text-anchor':'middle','font-size':11,'font-weight':'bold',fill:'#174f39'},fmt(kg));
+      const dt=String(group.date||''),label=/^\d{4}-\d{2}-\d{2}$/.test(dt)?
+        dt.slice(8,10)+'/'+dt.slice(5,7)+'/'+dt.slice(2,4):dt;
+      add('text',{x:mid,y:140,'text-anchor':'middle','font-size':11,fill:'#476b55'},label);
+    });
+    section.append(svg);
+    const caption=document.createElement('p');caption.className='f4-single-member-chart-note';
+    const all=f4BankPeriodGroups(records).length;
+    caption.textContent=all>8?'Grafik menampilkan 8 penimbangan terakhir dari '+all+' tanggal.':
+      all===1?'Baru satu tanggal penimbangan tercatat.':'Berat dalam kilogram (kg) per tanggal penimbangan.';
+    section.append(caption);return section;
+  }
+  function v37IndividualTable(report){
+    const codes=report.kodeBarang||[];
+    const fmt=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0);
+    const headers=['No','Tanggal',...codes.map(code=>code.kode),'Total'];
+    const rows=(report.setoran||[]).map((r,i)=>{
+      const day=String(r.tanggal||'');
+      const label=/^\d{4}-\d{2}-\d{2}$/.test(day)?
+        day.slice(8,10)+'/'+day.slice(5,7)+'/'+day.slice(0,4):day;
+      return [i+1,label,...codes.map(code=>Number(r['item_'+code.kode])>0?fmt(r['item_'+code.kode]):'—'),fmt(r.total)];
+    });
+    const table=v12Table(headers,rows);table.className='f4-admin-report-table f4-single-member-table';
+    table.dataset.reportKind='setoran';
+    const cols=document.createElement('colgroup');
+    [5,18,...Array(codes.length).fill(70/Math.max(1,codes.length)),7].forEach(size=>{
+      const col=document.createElement('col');col.style.width=size+'%';cols.append(col);
+    });
+    table.prepend(cols);return table;
+  }
+  let v37MemberChoicesTask=null;
+  async function v37FillMemberChoices(){
+    const select=$('v37MemberSelect');
+    if(!select||select.dataset.ready==='1')return;
+    if(v37MemberChoicesTask)return v37MemberChoicesTask;
+    if(!/^(admin|superadmin)$/i.test(String(profile?.peran||'')))return;
+    const activeToken=token;
+    v37MemberChoicesTask=call('bsV37DaftarAnggotaLaporan',token).then(members=>{
+      if(activeToken!==token||!select.isConnected)return;
+      const previous=select.value;select.replaceChildren(new Option('Pilih warga',''));
+      const list=(Array.isArray(members)?members:[])
+        .filter(m=>String(m.wargaId||'').trim())
+        .sort((a,b)=>String(a.nama||'').localeCompare(String(b.nama||''),'id'));
+      list.forEach(m=>select.add(new Option(String(m.nama||'Anggota')+(m.rumah?' · '+m.rumah:''),String(m.wargaId))));
+      if([...select.options].some(o=>o.value===previous))select.value=previous;
+      select.dataset.ready='1';select.dispatchEvent(new Event('change'));
+    }).finally(()=>{v37MemberChoicesTask=null;});
+    return v37MemberChoicesTask;
+  }
+  async function v37PrintIndividual(){
+    const select=$('v37MemberSelect'),button=$('v37MemberPrint'),memberId=String(select?.value||'');
+    if(!memberId)return note('v10ReportNotice','Pilih warga terlebih dahulu.',true);
+    if(button.disabled)return;
+    const activeToken=token;button.disabled=true;button.textContent='Menyiapkan…';
+    try{
+      const report=await call('bsV37LaporanSetoranPerWarga',token,memberId);
+      if(activeToken!==token||String(report.wargaId)!==memberId)return;
+      const root=$('v10Print');root.replaceChildren();root.append(v29Kop());
+      const title=document.createElement('h1');title.textContent='LAPORAN SETORAN WARGA';
+      const subtitle=document.createElement('p');
+      subtitle.textContent=report.nama+(report.rumah?' · '+report.rumah:'')+
+        ' · Seluruh riwayat · Dicetak '+new Date().toLocaleDateString('id-ID');
+      const fmt=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0);
+      const summary=document.createElement('p');summary.className='f4-single-member-summary';
+      summary.textContent=report.jumlahSetoran+' setoran tercatat · Total '+fmt(report.totalBeratKg)+' kg';
+      root.append(title,subtitle,summary,v37IndividualTrend(report.setoran||[]));
+      const h=document.createElement('h2');h.textContent='Rincian barang disetor ('+report.jumlahSetoran+')';
+      root.append(h,v37IndividualTable(report));
+      const legend=f4BankMakeCodeLegend(report.kodeBarang||[]);if(legend)root.append(legend);
+      const sign=document.createElement('div');sign.className='f4-bank-report-signature';
+      sign.textContent='Mengetahui, Humas Flamboyan 4';
+      const name=document.createElement('strong');name.textContent='Heri Juwandi';
+      sign.append(name);root.append(sign);
+      v36BankPrint(root,'admin');
+    }catch(error){
+      note('v10ReportNotice','Gagal mencetak setoran warga: '+(error.message||error),true);
+    }finally{
+      button.disabled=!select?.value;button.textContent='Cetak + Grafik';
+    }
+  }
   function v33SetupReportControls(){
     const report=$('pageLaporan'),month=$('v10Month'),legacy=$('v10ReportType'),audit=$('v29AuditMode');
     if(!report||!month||!legacy||!audit||$('v33ReportControls'))return;
