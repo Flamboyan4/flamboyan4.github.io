@@ -11,6 +11,8 @@
     if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
     if(/botol.*aqua/.test(value))return 'BA';
     if(/kardus/.test(value))return 'KD';
+    // Aluminium kaleng termasuk jenis aluminium (AL); kaleng biasa tetap KL.
+    if(/alum(?:inium|unium)?/.test(value)&&/kaleng/.test(value))return 'AL';
     if(/kaleng/.test(value))return 'KL';
     if(/galon/.test(value))return 'GL';
     const words=value.split(' ').filter(word=>!['dan','atau','bekas','plastik','sampah','kering'].includes(word));
@@ -25,7 +27,9 @@
       let code=base,suffix=2;
       while(usedCodes.has(code))code=base+suffix++;
       usedCodes.add(code);codeByItem.set(String(item.id||''),code);
-      return {kode:code,nama:String(item.name||''),id:String(item.id||'')};
+      const original=String(item.name||'');
+      return {kode:code,nama:code==='AL'&&/alum(?:inium|unium)?.*kaleng/i.test(original)?'Aluminium':original,
+        namaAsli:original,id:String(item.id||'')};
     });
   return {kodeBarang,codeByItem};
  };
