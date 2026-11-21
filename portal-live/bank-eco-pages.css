@@ -94,7 +94,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 }
 #dashboardView :is(.tablewrap,#v9List,#v12History,#v10History,#v17FinanceDetails) table th,
 #v11Public :is(.v25-report-table,.v27-report-table) th{
- background:#fff;color:#17573c;
+ background:#edf6f0;color:#17573c;
  border-color:#cae1d2;font-weight:750
 }
 #dashboardView .tablewrap tbody tr:nth-child(even) td{background:#f9fcfa}
