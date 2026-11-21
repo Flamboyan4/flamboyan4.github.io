@@ -830,129 +830,171 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   #authView.v26-simple-login h1{margin-bottom:12px}
   #authView.v26-simple-login #loginForm>.hint{font-size:11px;margin-top:11px}
   #authView.v26-simple-login{padding-top:23px;padding-bottom:22px}
-  /* Laporan Setoran publik: white canvas, vivid lead metric, compact secondary facts. */
+  /* Public deposit report — single white surface, single-row controls, clear metric hierarchy. */
   #v11Public #v25ReportRoot{
-    padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible
+    box-sizing:border-box;width:100%;min-width:0;
+    padding:18px;border:1px solid #d7e7dc;border-radius:18px;
+    background:#fff;box-shadow:0 7px 23px #123f2910;overflow:visible
   }
-  #v11Public #v25ReportRoot .v25-report-toolbar{margin:1px 0 17px}
-  #v11Public #v25ReportRoot .v25-report-toolbar select{
-    border-color:#b9d7c8;min-height:42px;border-radius:11px;
-    background:#fff;color:#184935;font-weight:650
+  #v11Public #v25ReportRoot .v25-report-toolbar{
+    display:grid;grid-template-columns:minmax(0,255px) auto;
+    align-items:center;justify-content:space-between;
+    width:100%;min-width:0;column-gap:10px;margin:0 0 14px
+  }
+  #v11Public #v25ReportRoot .v25-report-period-control{
+    display:block;position:relative;box-sizing:border-box;
+    min-width:0;width:100%;max-width:100%
+  }
+  #v11Public #v25ReportRoot .v25-report-period-control select{
+    display:block;box-sizing:border-box;min-width:0;width:100%;
+    min-height:40px;margin:0;padding:8px 11px;
+    border:1px solid #c9dfd1;border-radius:10px;background:#fff;
+    color:#164934;font-size:12px;font-weight:650
+  }
+  #v11Public #v25ReportRoot .v25-report-period-control .f4-control-trigger{
+    display:flex;align-items:center;justify-content:space-between;
+    box-sizing:border-box;min-width:0;width:100%;max-width:100%;
+    min-height:40px;margin:0;padding:7px 10px;border:1px solid #c9dfd1;
+    border-radius:10px;background:#fff;color:#164934;
+    font-size:12px;font-weight:650;line-height:1.2;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:none
+  }
+  #v11Public #v25ReportRoot .v25-report-actions{
+    display:flex;align-items:center;justify-content:flex-end;
+    flex-wrap:nowrap;min-width:0;width:auto;gap:6px
   }
   #v11Public #v25ReportRoot .v25-report-actions button{
-    border:1px solid #bfdccc;min-height:42px;border-radius:10px;
-    background:#fff;color:#146b47;font-weight:800;box-shadow:none
+    display:inline-flex;align-items:center;justify-content:center;
+    flex:0 0 auto;box-sizing:border-box;
+    width:auto;min-width:0;min-height:40px;margin:0;padding:8px 12px;
+    border:1px solid #c9dfd1;border-radius:10px;
+    background:#fff;color:#146b47;font-size:12px;font-weight:800;
+    line-height:1.2;white-space:nowrap;box-shadow:none
   }
   #v11Public #v25ReportRoot .v25-report-actions button:hover{
-    background:#edf8f1;border-color:#90c7a8
+    background:#eff8f2;border-color:#98cbb0
   }
   #v11Public #v25ReportRoot .v25-report-actions button:nth-child(2){
-    background:#fdc010;border-color:#fdc010;color:#164731
+    background:#fdc010;border-color:#fdc010;color:#17452e
   }
   #v11Public #v25ReportRoot .v25-report-actions button:nth-child(2):hover{
-    background:#f5b900;border-color:#f5b900
+    background:#f6ba00;border-color:#f6ba00
   }
-  #v11Public #v25ReportRoot #v25ReportRefresh{
-    color:#14794e;background:#eef8f1;border-color:#d5eadc
+  #v11Public #v25ReportRoot .v25-report-actions #v25ReportRefresh{
+    flex:0 0 40px;width:40px;padding:0;
+    background:#eef8f1;border-color:#d3e9db;color:#14794e
   }
   #v11Public #v25ReportMetrics.v26-compact{
-    display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(0,.7fr));
-    gap:0;margin:0 0 17px;align-items:stretch
+    display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,.7fr));
+    gap:0;align-items:stretch;min-width:0;margin:0 0 14px
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-    position:relative;display:flex;flex-direction:column;justify-content:center;gap:6px;
-    min-width:0;min-height:106px;padding:15px 18px;margin:0;
+    display:flex;flex-direction:column;justify-content:center;gap:6px;
+    min-width:0;min-height:94px;margin:0;padding:13px 15px;
     border:0;border-radius:0;background:transparent;box-shadow:none
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{display:none}
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child{
-    min-height:108px;padding:18px 21px;overflow:hidden;border-radius:16px;
+    min-height:98px;padding:16px 19px;border-radius:14px;
     background:linear-gradient(112deg,#087144 0%,#07845d 55%,#009788 100%);
-    box-shadow:0 7px 18px #0668491c
+    box-shadow:none
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:nth-child(2){
-    margin-left:14px;border-right:1px solid #d8e8de
+    margin-left:12px;border-right:1px solid #d8e8de
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{
-    display:block;min-width:0;margin:0;font-size:12px;line-height:1.3;
-    font-weight:650;color:#64796d
+    display:block;margin:0;min-width:0;
+    font-size:12px;line-height:1.3;font-weight:650;color:#62796a
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
-    display:block;min-width:0;margin:0;padding:0;font-size:23px;line-height:1.2;
-    font-weight:850;letter-spacing:-.45px;color:#164f38;overflow-wrap:anywhere
+    display:block;margin:0;padding:0;min-width:0;
+    font-size:22px;line-height:1.2;font-weight:850;
+    letter-spacing:-.35px;color:#155139;overflow-wrap:anywhere
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child small{
-    color:#def8e9;font-size:12px;letter-spacing:.15px
+    color:#ddf8e8
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child strong{
-    color:#fff;font-size:clamp(27px,3.2vw,38px);letter-spacing:-.6px
+    color:#fff;font-size:clamp(26px,3vw,34px)
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:nth-child(3) strong{
     color:#008575
   }
-  #v11Public #v25ReportRoot .v25-report-table{border-radius:13px;border-color:#d8e5dc}
+  #v11Public #v25ReportRoot .v25-report-table{
+    border:1px solid #d9e7dd;border-radius:12px;background:#fff
+  }
   #v11Public #v25ReportRoot .v25-report-table th{
-    background:#e8f5ec;color:#18523a
+    background:#eaf6ee;color:#18523a
   }
   #v11Public #v25ReportRoot #v25ReportNote{
-    margin:11px 2px 0;color:#627a6c;font-size:12px;line-height:1.45
+    margin:10px 1px 0;color:#627a6c;
+    font-size:12px;line-height:1.45
   }
   #v11Public #v25ReportRoot #v25ReportNote[hidden]{display:none}
   @media screen and (max-width:720px){
-    #v11Public #v25ReportRoot{padding:0}
+    #v11Public #v25ReportRoot{padding:12px;border-radius:16px}
     #v11Public #v25ReportRoot .v25-report-toolbar{
-      grid-template-columns:minmax(0,1fr) auto;gap:7px;margin:0 0 14px
+      grid-template-columns:minmax(0,1fr) max-content;
+      justify-content:stretch;gap:6px;margin:0 0 12px
     }
-    #v11Public #v25ReportRoot .v25-report-toolbar select{
-      min-height:40px;width:100%;font-size:12px;padding:8px 9px
+    #v11Public #v25ReportRoot .v25-report-period-control select,
+    #v11Public #v25ReportRoot .v25-report-period-control .f4-control-trigger{
+      min-height:38px;height:38px;padding:7px 8px;font-size:11px
     }
-    #v11Public #v25ReportRoot .v25-report-actions{
-      display:flex;align-items:center;justify-content:flex-end;
-      gap:5px;width:auto;min-width:0
-    }
+    #v11Public #v25ReportRoot .v25-report-actions{gap:4px}
     #v11Public #v25ReportRoot .v25-report-actions button{
-      width:auto;min-width:0;min-height:40px;padding:7px 10px;font-size:12px
+      min-height:38px;height:38px;padding:6px 9px;font-size:11px;border-radius:9px
     }
     #v11Public #v25ReportRoot .v25-report-actions #v25ReportRefresh{
-      flex:0 0 38px;width:38px;padding:0
+      flex:0 0 35px;width:35px;padding:0
     }
     #v11Public #v25ReportMetrics.v26-compact{
-      grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0 0 14px
+      grid-template-columns:repeat(2,minmax(0,1fr));gap:0;
+      margin:0 0 12px
     }
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-      min-height:74px;padding:12px 13px
+      min-height:65px;padding:10px 13px
     }
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child{
-      grid-column:1/-1;min-height:106px;padding:17px 19px;margin-bottom:4px
+      grid-column:1/-1;min-height:95px;padding:16px 17px;margin-bottom:8px
     }
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child strong{
-      font-size:30px
+      font-size:29px
     }
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:nth-child(2){
-      margin-left:0;padding-left:3px
+      margin-left:0;padding-left:5px
     }
     #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:last-child{
-      padding-left:16px
+      padding-left:15px
     }
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:22px}
-    #v11Public #v25ReportTable table{display:table;width:100%;min-width:0;table-layout:fixed}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
+      font-size:21px
+    }
+    #v11Public #v25ReportTable table{
+      display:table;width:100%;min-width:0;table-layout:fixed
+    }
     #v11Public #v25ReportTable thead{display:table-header-group}
     #v11Public #v25ReportTable tbody{display:table-row-group}
     #v11Public #v25ReportTable tr{
       display:table-row;padding:0;border:0;border-radius:0;background:transparent
     }
     #v11Public #v25ReportTable :is(th,td){
-      display:table-cell;padding:12px 8px;font-size:12px;
-      line-height:1.35;white-space:nowrap;vertical-align:middle
+      display:table-cell;padding:11px 7px;
+      font-size:12px;line-height:1.35;white-space:nowrap;vertical-align:middle
     }
     #v11Public #v25ReportTable :is(th,td):first-child{width:34px}
-    #v11Public #v25ReportTable :is(th,td):last-child{width:105px}
+    #v11Public #v25ReportTable :is(th,td):last-child{width:100px}
     #v11Public #v25ReportTable tbody tr:nth-child(even){background:#f8fcf9}
     #v11Public #v25ReportTable .v25-report-empty{white-space:normal}
   }
   @media screen and (max-width:360px){
-    #v11Public #v25ReportRoot .v25-report-toolbar{grid-template-columns:minmax(0,1fr)}
-    #v11Public #v25ReportRoot .v25-report-actions{justify-content:flex-start}
+    #v11Public #v25ReportRoot{padding:10px}
+    #v11Public #v25ReportRoot .v25-report-toolbar{column-gap:5px}
+    #v11Public #v25ReportRoot .v25-report-actions{gap:3px}
+    #v11Public #v25ReportRoot .v25-report-actions button{padding-inline:7px}
+    #v11Public #v25ReportRoot .v25-report-actions #v25ReportRefresh{
+      flex-basis:32px;width:32px
+    }
   }
     .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49;font-size:10px}
@@ -5836,7 +5878,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     csv.setAttribute('aria-label','Unduh CSV setoran');
     const actions=v21Node('div','v25-report-actions');
     actions.append(reload,pdf,csv);
-    toolbar.append(period,actions);
+    const periodControl=v21Node('div','v25-report-period-control');
+    periodControl.append(period);
+    toolbar.append(periodControl,actions);
     const metrics=v21Node('div','v25-public-metrics');metrics.id='v25ReportMetrics';
     const table=v21Node('div','v25-report-table');table.id='v25ReportTable';
     const note=v21Node('p','v17-subtle','Memuat setoran...');
