@@ -2908,7 +2908,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
  return b}));if(!history.length)h.textContent='Belum ada pembelian atau pengeluaran.';}catch(e){$('v10History').textContent='Gagal memuat: '+(e.message||e);}}
   async function v10SaveExpense(e){e.preventDefault();const nominal=Math.round(Number($('v10Qty').value)*Number($('v10Price').value));if(!(nominal>0)){note('v10ExpenseNotice','Isi jumlah dan harga terlebih dahulu.',true);return;}if(!await window.f4UiDialog.confirm('Apakah biaya '+$('v10Type').value+' '+rupiah(nominal)+' SUDAH DIBAYAR? Transaksi akan mengurangi kas dan anggaran pos.'))return;busy(e.target,true);note('v10ExpenseNotice','Menyimpan biaya...');try{const r=await call('bsV10CatatBiaya',token,{nonce:v10Nonce,tanggal:$('v10Date').value,jenis:$('v10Type').value,pos:$('v10Position').value,keterangan:$('v10Description').value,jumlah:Number($('v10Qty').value),hargaSatuan:Number($('v10Price').value),satuan:$('v10Unit').value,toko:$('v10Vendor').value,inventaris:$('v10Inventory').checked,bukti:$('v10Proof').value,catatan:$('v10Notes').value});v10Nonce='';e.target.reset();v10Calc();await v10LoadBiaya();note('v10ExpenseNotice',r.id+' tercatat: '+rupiah(r.nominal)+(r.inventarisId?' • inventaris '+r.inventarisId:''));window.dispatchEvent(new CustomEvent('f4-bank-expense-saved',{detail:{id:r.id}}));}catch(err){note('v10ExpenseNotice','Gagal: '+(err.message||err)+'. Jika ada Diproses, jangan ulangi sebelum audit.',true);}finally{busy(e.target,false);}}
   async function v10LoadReport(){const tokenLoading=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');try{v10ReportData=await call('bsV10LaporanAdmin',token,$('v10Month').value);v10RenderReport();F4Loading.success('v10ReportNotice',tokenLoading);}catch(e){F4Loading.error('v10ReportNotice','Gagal: '+(e.message||e),tokenLoading);}}
-  const v10Specs={setoran:{title:'Setoran warga',fields:[['no','No'],['warga','Nama'],['tanggal','Tanggal'],['total','Total']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Masuk Rp'],['debit','Dicairkan Rp'],['koreksi','Koreksi Rp']]},setoranBank:{title:'Setoran milik Bank Sampah',fields:[['tanggal','Tanggal'],['barang','Jenis sampah'],['berat','Berat (kg)'],['diterima','Diterima Rp'],['keterangan','Catatan']]}};
+  const v10Specs={setoran:{title:'Setoran warga',fields:[['no','No'],['warga','Nama'],['total','Total']]},penjualan:{title:'Penjualan lapak',fields:[['lapak','Lapak'],['tanggal','Tanggal'],['bruto','Bruto Rp'],['diterima','Diterima Rp'],['disahkan','Disahkan']]},pengeluaran:{title:'Pembelian & pengeluaran',fields:[['jenis','Jenis'],['tanggal','Tanggal'],['keterangan','Keterangan'],['pos','Pos'],['nominal','Nominal Rp'],['status','Status']]},mutasi:{title:'Riwayat tabungan',fields:[['warga','Nama warga'],['tanggal','Tanggal'],['jenis','Jenis'],['kredit','Masuk Rp'],['debit','Dicairkan Rp'],['koreksi','Koreksi Rp']]},setoranBank:{title:'Setoran milik Bank Sampah',fields:[['tanggal','Tanggal'],['barang','Jenis sampah'],['berat','Berat (kg)'],['diterima','Diterima Rp'],['keterangan','Catatan']]}};
   function v10SelectedSections(){
     if(!v10ReportData)return[];
     const choices=[...document.querySelectorAll('#v33ReportControls input[data-report-section]:checked')].map(el=>el.value);
@@ -2930,7 +2930,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
   };
   function v10ReportFields(spec,kind){
     const source=kind==='setoran'?[
-      ['no','No'],['warga','Nama'],['tanggal','Tanggal'],
+      ['no','No'],['warga','Nama'],
       ...(v10ReportData?.kodeBarang||[]).map(item=>['item_'+item.kode,item.kode]),
       ['total','Total']
     ]:spec.fields;
@@ -2940,6 +2940,32 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
       preferred.map(key=>source.find(([field])=>field===key)).filter(Boolean)
         .concat(source.filter(([field])=>!preferred.includes(field))):source;
     return [['no','No'],...ordered];
+  }
+  // Group by the weighing date, not just month: two rounds can occur in one month.
+  function f4BankPeriodGroups(rows){
+    const byDate=new Map();
+    for(const record of rows){
+      const date=String(record.tanggal||'').slice(0,10);
+      if(!byDate.has(date))byDate.set(date,[]);
+      byDate.get(date).push(record);
+    }
+    return [...byDate.keys()].sort().map(date=>{
+      const records=byDate.get(date);
+      const valid=/^\d{4}-\d{2}-\d{2}$/.test(date);
+      const stamp=valid?new Date(date+'T12:00:00Z'):null;
+      const dateLabel=stamp&&!Number.isNaN(stamp.getTime())?
+        new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(stamp):
+        (date||'Tanggal belum tercatat');
+      const weight=records.reduce((sum,row)=>sum+(Number(row.total??row.beratTimbangKg??row.beratKg)||0),0);
+      return {date,rows:records,label:'Periode '+dateLabel+' · '+records.length+' setoran · '+
+        new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(weight)+' kg'};
+    });
+  }
+  function f4BankPeriodHeading(label,columns){
+    const tr=document.createElement('tr');tr.className='f4-report-period-row';
+    const th=document.createElement('th');th.colSpan=columns;th.scope='rowgroup';
+    th.className='f4-report-period-label';th.textContent=label;
+    tr.appendChild(th);return tr;
   }
   function v10MakeTable(spec,rows,kind){
     const fields=v10ReportFields(spec,kind);
@@ -2951,13 +2977,13 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     table.dataset.gridUnits=String(v10ReportGridUnits);
     table.dataset.reportKind=kind;
     if(kind==='setoran'){
-      const itemCount=Math.max(0,fields.length-4);
-      table.style.setProperty('--f4-setoran-min-width',(360+itemCount*38)+'px');
+      const itemCount=Math.max(0,fields.length-3);
+      table.style.setProperty('--f4-setoran-min-width',(280+itemCount*38)+'px');
     }
     // Jenis barang bisa 11+ kolom; nama dan tanggal tetap cukup lebar.
     const colgroup=document.createElement('colgroup');
     const columnPercents=kind==='setoran'?
-      [4,26,10,...Array(Math.max(0,fields.length-4)).fill(54/Math.max(1,fields.length-4)),6]:
+      [4,32,...Array(Math.max(0,fields.length-3)).fill(58/Math.max(1,fields.length-3)),6]:
       [5,...(spans||Array(baseCount).fill(1)).map(units=>
         units/(spans?spans.reduce((sum,n)=>sum+n,0):baseCount)*95)];
     columnPercents.forEach(percent=>{
@@ -2978,10 +3004,13 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     });
     thead.appendChild(heading);table.appendChild(thead);
     const tbody=document.createElement('tbody');
-    rows.forEach((record,rowIndex)=>{
-      const tr=document.createElement('tr');
-      if(/batal/i.test(String(record.status||'')))tr.classList.add('f4-report-row-canceled');
-      fields.forEach(([key,label])=>{
+    const displayGroups=kind==='setoran'?f4BankPeriodGroups(rows):[{rows}];
+    displayGroups.forEach(group=>{
+      if(kind==='setoran')tbody.appendChild(f4BankPeriodHeading(group.label,fields.length));
+      group.rows.forEach((record,rowIndex)=>{
+        const tr=document.createElement('tr');
+        if(/batal/i.test(String(record.status||'')))tr.classList.add('f4-report-row-canceled');
+        fields.forEach(([key,label])=>{
         const td=document.createElement('td');td.dataset.label=label;
         const value=key==='no'?rowIndex+1:record[key];
         if(kind==='setoran'){
@@ -3004,8 +3033,9 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
           else if(/sah|final|selesai|lunas/i.test(td.textContent))td.dataset.state='sah';
         }
         tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
       });
-      tbody.appendChild(tr);
     });
     if(!rows.length){
       const tr=document.createElement('tr'),td=document.createElement('td');
@@ -3079,7 +3109,16 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     }
   }
   function v10PrintReport(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const root=$('v10Print');root.replaceChildren();const title=document.createElement('h1');title.textContent='BANK SAMPAH FLAMBOYAN 4';const sub=document.createElement('p');sub.textContent='Laporan administrasi • '+v10ReportData.periode+' • Dicetak '+new Date().toLocaleDateString('id-ID');root.append(title,sub);const summary=document.createElement('p');const r=v10ReportData.ringkasan;summary.textContent='Setoran '+r.jumlahSetoran+' | Penjualan '+r.jumlahPenjualan+' | Uang diterima '+rupiah(r.diterima)+' | Hak warga '+rupiah(r.hakWargaDikredit)+' | Dicairkan '+rupiah(r.tabunganDicairkan)+' | Biaya '+rupiah(r.biaya)+' | Setoran Bank '+rupiah(r.setoranBankRp||0);root.appendChild(summary);v10SelectedSections().forEach(({key,spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title;root.append(heading,v10MakeTable(spec,rows,key));});if(v10SelectedSections().some(section=>section.key==='setoran')){const legend=v10MakeCodeLegend();if(legend)root.append(legend);}const footer=document.createElement('p');footer.style.marginTop='28px';footer.textContent='Mengetahui, Humas Flamboyan 4 — Heri Juwandi';root.appendChild(footer);window.print();}
-  function v10DownloadCSV(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const sections=v10SelectedSections(),lines=[];if(!sections.length){note('v10ReportNotice','Pilih minimal satu jenis data.',true);return;}const safe=value=>{let s=String(value??'');if(/^[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};sections.forEach(({key,spec,rows})=>{lines.push([safe(spec.title)]);const fields=v10ReportFields(spec,key);lines.push(fields.map(([,label])=>safe(label)));rows.forEach((r,index)=>lines.push(fields.map(([field])=>safe(field==='no'?index+1:(field.startsWith('item_')?(r[field]||''):r[field])))));lines.push([]);});if(sections.some(section=>section.key==='setoran')){lines.push([safe('Keterangan kode barang')]);(v10ReportData.kodeBarang||[]).forEach(item=>lines.push([safe(item.kode),safe(item.nama)]));lines.push([]);}const csv='\ufeff'+lines.map(r=>r.join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='BankSampah_Flamboyan4_'+(v10ReportData.periode||'semua')+'_'+sections.map(x=>x.key).join('-')+'.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+  function v10DownloadCSV(){if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}const sections=v10SelectedSections(),lines=[];if(!sections.length){note('v10ReportNotice','Pilih minimal satu jenis data.',true);return;}const safe=value=>{let s=String(value??'');if(/^[=+@\-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};sections.forEach(({key,spec,rows})=>{
+    lines.push([safe(spec.title)]);const fields=v10ReportFields(spec,key);
+    lines.push(fields.map(([,label])=>safe(label)));
+    const groups=key==='setoran'?f4BankPeriodGroups(rows):[{rows}];
+    groups.forEach(group=>{
+      if(key==='setoran')lines.push([safe(group.label)]);
+      group.rows.forEach((r,index)=>lines.push(fields.map(([field])=>
+        safe(field==='no'?index+1:(field.startsWith('item_')?(r[field]||''):r[field])))));
+    });lines.push([]);
+  });if(sections.some(section=>section.key==='setoran')){lines.push([safe('Keterangan kode barang')]);(v10ReportData.kodeBarang||[]).forEach(item=>lines.push([safe(item.kode),safe(item.nama)]));lines.push([]);}const csv='\ufeff'+lines.map(r=>r.join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='BankSampah_Flamboyan4_'+(v10ReportData.periode||'semua')+'_'+sections.map(x=>x.key).join('-')+'.csv';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
   let v11Albums=[];
   function v11Setup(){if($('v11Public'))return;const pub=document.createElement('section');pub.id='v11Public';pub.className='hidden';pub.innerHTML=`<div class="public-hero"><div class="toolbar"><div><span class="tag"><img src="/assets/icons/bank.svg" width="18" height="18" alt="" aria-hidden="true"> Bersama menjaga lingkungan</span><h1>Bank Sampah Flamboyan 4</h1><p>Setor sampah, rawat lingkungan, dan ikuti perkembangan kegiatan warga.</p></div><button onclick="v11ShowLogin()">Masuk akun warga / admin</button></div></div><div id="v11Metrics" class="metric-grid"></div><div class="public-section"><h2>Program dan perkembangan</h2><div id="v11ProgressCards" class="public-grid">Memuat...</div></div><div class="public-section"><h2>Dokumentasi kegiatan</h2><div id="v11AlbumCards" class="public-grid">Memuat...</div><div id="v11MediaDetail"></div></div><div class="public-section"><h2>Inventaris kegiatan</h2><div id="v11InventoryCards" class="public-grid">Memuat...</div></div><div class="public-section"><div class="notice">Data tabungan dan identitas pribadi warga hanya tersedia melalui akses akun yang sesuai. Informasi publik tidak menampilkan saldo pribadi.</div></div>`;$('authView').before(pub);const items=[['Kegiatan','Input progres'],['Dokumentasi','Kelola dokumentasi'],['Inventaris','Input inventaris']];items.forEach(([id,label])=>{const nav=document.createElement('button');nav.id='nav'+id;nav.className='secondary';nav.textContent=label;nav.onclick=()=>goPage(id.toLowerCase());$('navLaporan').after(nav)});const activity=document.createElement('div');activity.id='pageKegiatan';activity.className='card hidden';activity.innerHTML=`<h2>Input perkembangan Bank Sampah</h2><form onsubmit="v11SaveProgress(event)"><div class="field"><label for="v11ProDate">Tanggal kegiatan</label><input type="date" id="v11ProDate" required></div><div class="field"><label for="v11ProTitle">Judul kegiatan</label><input id="v11ProTitle" required maxlength="160"></div><div class="field"><label for="v11ProStep">Tahap / langkah</label><input id="v11ProStep" maxlength="100" placeholder="Contoh: persiapan drop point"></div><div class="field"><label for="v11ProDesc">Uraian perkembangan</label><textarea id="v11ProDesc" rows="4" maxlength="1500"></textarea></div><div class="field"><label for="v11ProStatus">Status kegiatan</label><select id="v11ProStatus"><option>Perencanaan</option><option>Berjalan</option><option>Selesai</option></select></div><div class="field"><label for="v11ProAgenda">Agenda berikutnya</label><input id="v11ProAgenda" maxlength="400"></div><div class="field"><label for="v11ProPhoto">Tautan foto HTTPS (opsional)</label><input id="v11ProPhoto" type="url" placeholder="https://drive.google.com/..."></div><div class="field"><label><input id="v11ProPublic" type="checkbox" checked style="width:auto"> Tampilkan di portal publik</label></div><button type="submit" class="wide">Simpan perkembangan</button></form><div id="v11ProNotice" role="status"></div>`;$('pageLaporan').after(activity);const docs=document.createElement('div');docs.id='pageDokumentasi';docs.className='card hidden';docs.innerHTML=`<h2>Kelola album dokumentasi</h2><div class="pill-note">Unggah foto/video ke Google Drive atau YouTube terlebih dahulu, lalu tempel tautannya. File besar tidak disimpan di Spreadsheet.</div><form onsubmit="v11SaveAlbum(event)"><h2 style="font-size:16px">Buat album</h2><div class="field"><label for="v11AlbumDate">Tanggal kegiatan</label><input type="date" id="v11AlbumDate" required></div><div class="field"><label for="v11AlbumTitle">Judul album</label><input id="v11AlbumTitle" required maxlength="160"></div><div class="field"><label for="v11AlbumDesc">Deskripsi</label><textarea id="v11AlbumDesc" rows="3" maxlength="1000"></textarea></div><div class="field"><label for="v11AlbumCover">Link foto sampul HTTPS (opsional)</label><input type="url" id="v11AlbumCover"></div><div class="field"><label for="v11AlbumMediaUrl">Tautan foto/video Google Drive HTTPS (opsional)</label><input id="v11AlbumMediaUrl" type="url" placeholder="https://drive.google.com/..."></div><div class="field"><label for="v11AlbumMediaType">Jenis media</label><select id="v11AlbumMediaType"><option>Foto</option><option>Video</option></select></div><div class="field"><label><input type="checkbox" id="v11AlbumPublic" checked style="width:auto"> Tampilkan di portal publik</label></div><button type="submit" class="wide">Simpan album</button></form><div id="v11AlbumNotice" role="status"></div><div class="divider block-gap"></div><form onsubmit="v11SaveMedia(event)"><h2 style="font-size:16px">Tambahkan foto / video ke album</h2><div class="field"><label for="v11MediaAlbum">Pilih album</label><select id="v11MediaAlbum" required></select></div><div class="field"><label for="v11MediaType">Jenis media</label><select id="v11MediaType"><option>Foto</option><option>Video</option></select></div><div class="field"><label for="v11MediaURL">Tautan foto / video HTTPS</label><input type="url" id="v11MediaURL" required></div><div class="field"><label for="v11MediaCaption">Keterangan</label><input id="v11MediaCaption" maxlength="350"></div><button type="submit" class="wide">Simpan media</button></form><div id="v11MediaNotice" role="status"></div>`;activity.after(docs);
 docs.querySelectorAll('form').forEach(form=>{form.hidden=true;form.setAttribute('aria-hidden','true')});
@@ -5858,7 +5897,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     );
     summary.append(primary,secondary);root.appendChild(summary);
     const selected=v10SelectedSections();
-    selected.forEach(({key,spec,rows})=>{const heading=document.createElement('h2');heading.textContent=spec.title+' ('+rows.length+')';root.append(heading,v10MakeTable(spec,rows,key));});
+    selected.forEach(({key,spec,rows})=>{
+      const heading=document.createElement('h2');
+      const groups=key==='setoran'?f4BankPeriodGroups(rows):[];
+      const sameMonth=groups.length>0&&groups.every(g=>g.date.slice(0,7)===groups[0].date.slice(0,7));
+      const monthTitle=sameMonth?new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(groups[0].date+'T12:00:00Z')):'';
+      heading.textContent=spec.title+(monthTitle?' — '+monthTitle:'')+' ('+rows.length+')';
+      root.append(heading,v10MakeTable(spec,rows,key));
+    });
     if(selected.some(section=>section.key==='setoran')){const legend=v10MakeCodeLegend();if(legend)root.appendChild(legend);}
     if(incl){const note=document.createElement('p');note.textContent='AUDIT: baris berstatus Dibatalkan disajikan sebagai riwayat dan tidak menambah saldo maupun total transaksi sah.';root.appendChild(note);}
     const footer=document.createElement('div');footer.className='f4-bank-report-signature';
