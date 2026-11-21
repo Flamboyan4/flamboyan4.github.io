@@ -3189,7 +3189,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         })):'—';
         return [f4MemberDateID(x.tanggal),x.jenis,rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo),receipt];
       });
-      history.appendChild(v12Table(['Tanggal','Mutasi','Masuk','Dicairkan','Koreksi','Saldo','Resi'],personalMutations));
+      history.appendChild(v12Table(['No','Tanggal','Mutasi','Masuk','Dicairkan','Koreksi','Saldo','Resi'],personalMutations.map((row,index)=>[index+1,...row])));
       const deposits=$('v12Deposits');deposits.replaceChildren();deposits.classList.add('f4-member-tx-feed');
       // Daftar ringkas seperti mutasi bank. Harga awal tidak boleh disebut hasil akhir.
       // D1 hanya memberi hasil sah PER SETORAN; belum ada harga sah per jenis barang.
@@ -3312,13 +3312,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       if(kind)table.dataset.reportKind=kind;
       const colgroup=document.createElement('colgroup');
       (kind==='setoran'?[4,26,10,...Array(Math.max(0,headers.length-4)).fill(54/Math.max(1,headers.length-4)),6]:
+       headers.length===7?[5,13,27,13,13,14,15]:
        headers.length===6?[16,28,14,14,14,14]:
        headers.length===4?[20,42,18,20]:Array(headers.length).fill(100/headers.length))
         .forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';colgroup.appendChild(col);});
       table.prepend(colgroup);root.appendChild(table);
     }
-    addTable('Riwayat tabungan',['Tanggal','Keterangan','Masuk','Dicairkan','Koreksi','Saldo'],
-      mutasi.map(x=>[f4MemberDateID(x.tanggal),x.jenis,
+    addTable('Riwayat tabungan',['No','Tanggal','Keterangan','Masuk','Dicairkan','Koreksi','Saldo'],
+      mutasi.map((x,index)=>[index+1,f4MemberDateID(x.tanggal),x.jenis,
         rupiah(x.kredit),rupiah(x.debit),x.koreksi?rupiah(x.koreksi):'—',rupiah(x.saldo)]));
     const matrix=v12MakeItemMatrix(d,setoran);
     addTable('Setoran warga',matrix.headers,matrix.rows,'setoran');
@@ -3342,8 +3343,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       ['Saldo saat ini (Rp)',d.saldo],['Masuk bersih total (Rp)',d.totalMasuk],['Dicairkan periode (Rp)',mutasi.reduce((n,x)=>n+Number(x.debit||0),0)],
       [],
        ['RIWAYAT TABUNGAN'],
-       ['Tanggal','Jenis','Masuk Rp','Dicairkan Rp','Koreksi Rp','Saldo Rp'],
-       ...mutasi.map(x=>[x.tanggal,x.jenis,x.kredit,x.debit,x.koreksi||0,x.saldo]),
+       ['No','Tanggal','Jenis','Masuk Rp','Dicairkan Rp','Koreksi Rp','Saldo Rp'],
+       ...mutasi.map((x,index)=>[index+1,x.tanggal,x.jenis,x.kredit,x.debit,x.koreksi||0,x.saldo]),
        [],
        ['SETORAN WARGA (BERAT KG)'],
        matrix.headers,...matrix.rows,
@@ -5590,9 +5591,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       v17PublicStat('Anggota aktif',d.anggotaAktif.toLocaleString('id-ID')));
     $('v25ReportMetrics').classList.add('v26-compact');
     const table=document.createElement('table'),thead=document.createElement('thead'),tr=document.createElement('tr');
-    tr.append(v21Node('th','','Periode'),v21Node('th','','Berat disetor'));thead.append(tr);table.append(thead);
+    tr.append(v21Node('th','','No'),v21Node('th','','Periode'),v21Node('th','','Berat disetor'));thead.append(tr);table.append(thead);
     const tbody=document.createElement('tbody');
-    rows.forEach(r=>{const line=document.createElement('tr');line.append(v21Node('td','',r.periode),v21Node('td','',kg(r.beratKg)));tbody.append(line);});
+    rows.forEach((r,index)=>{const line=document.createElement('tr');line.append(v21Node('td','',String(index+1)),v21Node('td','',r.periode),v21Node('td','',kg(r.beratKg)));tbody.append(line);});
     table.append(tbody);$('v25ReportTable').replaceChildren(table);
     if(!rows.length)$('v25ReportTable').append(v21Node('p','v17-subtle','Belum ada setoran pada periode ini.'));
     const mobile=$('v25ReportMobileList');mobile.replaceChildren();
@@ -5638,16 +5639,16 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       v27PrintNode('p','','Total setoran: '+v25ReportData.jumlahSetoran.toLocaleString('id-ID')),
       v27PrintNode('p','','Total berat: '+kg(v25ReportData.beratKg)));
     const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');
-    tr.append(v27PrintNode('th','','Periode'),v27PrintNode('th','','Berat disetor'));head.append(tr);table.append(head);
+    tr.append(v27PrintNode('th','','No'),v27PrintNode('th','','Periode'),v27PrintNode('th','','Berat disetor'));head.append(tr);table.append(head);
     const body=document.createElement('tbody');
-    v25Rows().forEach(r=>{const row=document.createElement('tr');row.append(v27PrintNode('td','',r.periode),v27PrintNode('td','',kg(r.beratKg)));body.append(row);});
+    v25Rows().forEach((r,index)=>{const row=document.createElement('tr');row.append(v27PrintNode('td','',String(index+1)),v27PrintNode('td','',r.periode),v27PrintNode('td','',kg(r.beratKg)));body.append(row);});
     table.append(body);root.append(table);
     root.append(v27PrintNode('p','v27-print-note','Setoran non-batal, termasuk belum terjual. Tidak memuat uang atau data pribadi.'));
     v36BankPrint(root,'public');
   }
   function v25DownloadReport(){
     if(!v25ReportData)return window.f4UiDialog?.alert?.('Muat laporan setoran dahulu.');
-    const csv='\uFEFF'+[['Periode','Berat disetor (kg)'],...v25Rows().map(r=>[r.periode,r.beratKg])].map(r=>r.join(';')).join('\r\n');
+    const csv='\uFEFF'+[['No','Periode','Berat disetor (kg)'],...v25Rows().map((r,index)=>[index+1,r.periode,r.beratKg])].map(r=>r.join(';')).join('\r\n');
     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
     a.href=url;a.download='Laporan_Setoran_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
   }
