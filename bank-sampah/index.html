@@ -1017,7 +1017,7 @@ body.f4-embedded-bank #v17PublicAccount{display:none}
     font-variant-numeric:tabular-nums;
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print table[data-report-kind="setoran"] :is(th,td){
-    font-size:8px;line-height:1.15;padding:3px 2px;white-space:nowrap;overflow-wrap:normal;
+    font-size:11px;line-height:1.15;padding:2px 1.5px;white-space:nowrap;overflow-wrap:normal;
     vertical-align:middle;background:#fff;color:#111;text-align:right
   }
   body.f4-bank-single-print.f4-bank-print-member #v10Print table[data-report-kind="setoran"] :is(th,td):nth-child(2){
@@ -1499,7 +1499,7 @@ overflow:visible
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"]{table-layout:fixed;width:100%}
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] :is(th,td){
-    font-size:8px;line-height:1.14;padding:3px 2px;white-space:nowrap;overflow-wrap:normal;
+    font-size:11px;line-height:1.15;padding:2px 1.5px;white-space:nowrap;overflow-wrap:normal;
     vertical-align:middle;background:#fff;color:#111
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] :is(th,td):nth-child(2){
@@ -2945,7 +2945,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     // Jenis barang bisa 11+ kolom; nama dan tanggal tetap cukup lebar.
     const colgroup=document.createElement('colgroup');
     const columnPercents=kind==='setoran'?
-      [4,20,12,...Array(Math.max(0,fields.length-4)).fill(56/Math.max(1,fields.length-4)),8]:
+      [4,26,10,...Array(Math.max(0,fields.length-4)).fill(54/Math.max(1,fields.length-4)),6]:
       (spans||Array(fields.length).fill(v10ReportGridUnits/fields.length))
         .map(units=>units/v10ReportGridUnits*100);
     columnPercents.forEach(percent=>{
@@ -3300,7 +3300,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const table=v12Table(headers,rows);table.className='f4-member-print-table';
       if(kind)table.dataset.reportKind=kind;
       const colgroup=document.createElement('colgroup');
-      (kind==='setoran'?[4,20,12,...Array(Math.max(0,headers.length-4)).fill(56/Math.max(1,headers.length-4)),8]:
+      (kind==='setoran'?[4,26,10,...Array(Math.max(0,headers.length-4)).fill(54/Math.max(1,headers.length-4)),6]:
        headers.length===6?[16,28,14,14,14,14]:
        headers.length===4?[20,42,18,20]:Array(headers.length).fill(100/headers.length))
         .forEach(width=>{const col=document.createElement('col');col.style.width=width+'%';colgroup.appendChild(col);});
@@ -5901,8 +5901,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     document.getElementById('f4-bank-print-style')?.remove();
     document.getElementById('f4-bank-one-print-style')?.remove();
     const isPublic=kind==='public';
-    const isDepositMatrix=!!root.querySelector('table[data-report-kind="setoran"]');
-    const orientation=isDepositMatrix?'landscape':'portrait';
+    const orientation='portrait';
     const pageMargins=kind==='member'?'11mm 12mm 12mm':'5mm 12mm 11mm';
     document.body.classList.toggle('f4-bank-print-member',kind==='member');
     document.body.classList.toggle('f4-bank-print-admin',kind==='admin');
