@@ -1305,30 +1305,40 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 @media(max-width:760px){
  #pageLaporan #f4BankReportResults{padding:13px 15px 10px;border-radius:17px}
 }
-#pageLaporan #v10ReportSummary>.stat,#pageLaporan #v33ReportMoreMetrics>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:12px;background:#fff}
+#pageLaporan #v10ReportSummary>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:12px;background:#fff}
 #pageLaporan #v10ReportSummary strong,#pageLaporan #v33ReportMoreMetrics strong{font-size:18px;line-height:1.3;color:#175b40}
-#pageLaporan .v33-report-more{margin:4px 0 14px;border-top:1px solid #edf1ed;padding-top:4px}
-#pageLaporan .v33-report-more>summary{cursor:pointer;color:#257757;font-size:12px;font-weight:700;padding:9px 1px}
-#pageLaporan #v33ReportMoreMetrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;margin:6px 0 8px}
-
-#pageLaporan #v33ReportMoreMetrics>.metric{
- display:flex;flex-direction:row;justify-content:space-between;align-items:center;gap:12px;
- min-height:40px;margin:0;padding:10px 3px;border:0;border-bottom:1px solid #e7eee9;
+#pageLaporan .v33-report-more{margin:5px 0 12px;border-top:1px solid #e8eee9;padding:0}
+#pageLaporan #v33ReportMoreMetrics{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ column-gap:18px;row-gap:0;margin:0 0 8px
+}
+/* Daftar rincian: tidak memakai kartu statistik bersarang. */
+#pageLaporan #v33ReportMoreMetrics>.f4-report-money-row{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ min-width:0;min-height:37px;box-sizing:border-box;
+ margin:0;padding:7px 2px;border:0;border-bottom:1px solid #e6eee9;
  border-radius:0;background:transparent;box-shadow:none
 }
-#pageLaporan #v33ReportMoreMetrics>.metric small{margin:0;font-size:12px;color:#697d70;font-weight:550}
-#pageLaporan #v33ReportMoreMetrics>.metric strong{margin:0;font-size:14px;color:#176443;text-align:right}
+#pageLaporan #v33ReportMoreMetrics>.f4-report-money-row small{
+ flex:1 1 auto;min-width:0;margin:0;font-size:12px;line-height:1.25;
+ color:#627c6c;font-weight:550
+}
+#pageLaporan #v33ReportMoreMetrics>.f4-report-money-row strong{
+ flex:none;margin:0;font-size:13px;line-height:1.25;
+ color:#175e40;font-weight:800;text-align:right;white-space:nowrap
+}
 #pageLaporan .v33-report-table-title{
  display:flex;align-items:center;gap:10px;cursor:pointer;
  margin:0;padding:12px 3px;list-style:none;font-size:14px;
  font-weight:800;line-height:1.3;color:#214a35
 }
 #pageLaporan .v33-report-table-title::-webkit-details-marker{display:none}
+#pageLaporan .v33-report-table-title::marker{content:""}
 #pageLaporan .v33-report-table-title::before{content:"";width:7px;height:7px;flex:none;border:solid #298361;border-width:0 1.8px 1.8px 0;transform:rotate(-45deg);transition:transform .15s}
-#pageLaporan .f4-report-section[open]>.v33-report-table-title::before{transform:rotate(45deg)}
+#pageLaporan :is(.f4-report-section,.v33-report-more)[open]>.v33-report-table-title::before{transform:rotate(45deg)}
 #pageLaporan .v33-report-table-title>small{margin-left:auto;display:grid;place-items:center;min-width:24px;min-height:24px;padding:2px 7px;border-radius:999px;background:#eaf5ed;color:#187450;font-size:11px;font-weight:800}
 #pageLaporan .f4-report-section>.f4-report-table-scroll{margin:0 0 11px}
-#pageLaporan .f4-report-section .v33-report-table-title:focus-visible{outline:2px solid #098b78;outline-offset:2px;border-radius:4px}
+#pageLaporan :is(.f4-report-section,.v33-report-more) .v33-report-table-title:focus-visible{outline:2px solid #098b78;outline-offset:2px;border-radius:4px}
 #pageLaporan #v10ReportNotice{margin:8px 0 0}
 @media(max-width:620px){
  #pageLaporan .v33-report-period.is-range{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -2096,22 +2106,22 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
     gap:0;margin:14px 0 5px;align-items:stretch
   }
-  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics.metric-grid{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics.f4-report-money-grid{
     display:grid;grid-template-columns:minmax(0,1fr);
     gap:0;margin:6px 0 11px;align-items:stretch
   }
-  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.f4-report-money-row{
     display:flex;flex-direction:row;justify-content:space-between;
     align-items:center;gap:12px;
     min-width:0;min-height:39px;height:auto;
     margin:0;padding:9px 2px;border:0;border-bottom:1px solid #e6eee8;
     border-radius:0;background:transparent;box-shadow:none
   }
-  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric small{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.f4-report-money-row small{
     font-size:12px;line-height:1.3;margin:0;
     color:#6c8274;font-weight:550
   }
-  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.metric strong{
+  body.f4-direct-bank #dashboardView #pageLaporan #v33ReportMoreMetrics>.f4-report-money-row strong{
     font-size:14px;line-height:1.2;margin:0;
     font-weight:800;white-space:nowrap;color:#176443;
     max-width:50%;text-align:right
@@ -3182,14 +3192,19 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     let extra=$('v33ReportMore');
     if(!extra){
       extra=document.createElement('details');extra.id='v33ReportMore';extra.className='v33-report-more';
-      const label=document.createElement('summary');label.textContent='Rincian dana';
-      const grid=document.createElement('div');grid.id='v33ReportMoreMetrics';grid.className='metric-grid';
+      const label=document.createElement('summary');label.className='v33-report-table-title';label.textContent='Rincian dana';
+      const grid=document.createElement('div');grid.id='v33ReportMoreMetrics';grid.className='f4-report-money-grid';
       extra.append(label,grid);summary.insertAdjacentElement('afterend',extra);
     }
+    const moneyRow=(label,value)=>{
+      const item=v10CompactSummaryMetric(label,value);
+      item.className='f4-report-money-row';
+      return item;
+    };
     $('v33ReportMoreMetrics').replaceChildren(
-      v10CompactSummaryMetric('Setoran tersedia',r.jumlahSetoranTersedia??0),v10CompactSummaryMetric('Hak warga',rupiah(r.hakWargaDikredit)),
-      v10CompactSummaryMetric('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),v10CompactSummaryMetric('Biaya dibayar',rupiah(r.biaya)),
-      v10CompactSummaryMetric('Setoran milik Bank',rupiah(r.setoranBankRp||0))
+      moneyRow('Setoran tersedia',r.jumlahSetoranTersedia??0),moneyRow('Hak warga',rupiah(r.hakWargaDikredit)),
+      moneyRow('Tabungan dicairkan',rupiah(r.tabunganDicairkan)),moneyRow('Biaya dibayar',rupiah(r.biaya)),
+      moneyRow('Setoran milik Bank',rupiah(r.setoranBankRp||0))
     );
     const area=$('v10ReportTable');area.replaceChildren();
     const sections=v10SelectedSections();
