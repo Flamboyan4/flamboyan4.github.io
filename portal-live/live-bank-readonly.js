@@ -375,7 +375,7 @@
   const byItemId=new Map(catalog.map(item=>[String(item.id||''),item]));
   const byItemName=new Map(catalog.map(item=>[String(item.name||'').trim().toLowerCase(),item]));
   const codeBase=name=>{
-    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\\s]/g,' ').replace(/\\s+/g,' ').trim();
+    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
     if(/botol.*(?:aqua.*)?bodong/.test(value))return 'BD';
     if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
     if(/botol.*aqua/.test(value))return 'BA';
