@@ -3589,10 +3589,6 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
   display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px
  }
- body.f4-bank-app-admin #dashboardView #pageLaporan .v33-report-row{
-  grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
-  gap:10px;align-items:start
- }
  body.f4-bank-app-member #dashboardView .f4-bank-screen{width:100%;max-width:960px;padding:21px 23px;margin-inline:auto}
  body.f4-bank-app-private #dashboardView #bank-payout{max-width:760px}
  body.f4-bank-app-private #dashboardView #bank-report{max-width:980px}
@@ -3785,9 +3781,6 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 #pageLaporan .v33-report-combine-label input{width:16px;height:16px;min-height:0;margin:0;accent-color:#167a50}
 #pageLaporan .v33-report-combine>.v29-audit-filter{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:0;margin:0;padding:0;font-size:12px;font-weight:600;line-height:1.3;white-space:normal;color:#315943;cursor:pointer}
 #pageLaporan .v33-report-combine>.v29-audit-filter input{width:16px;height:16px;min-width:16px;min-height:0;margin:0;accent-color:#167a50}
-#pageLaporan .v33-report-range-end{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;font-size:12px;color:#526d5b}
-#pageLaporan .v33-report-range-end[hidden]{display:none}
-#pageLaporan .v33-report-range-end input{max-width:190px;min-height:40px;min-width:0;border:1px solid #c7dacf;border-radius:9px;padding:7px 10px;background:#fff;color:#244a34;font:inherit}
 
 /* Harga barang: form jadwal tersembunyi dalam accordion; minggu/tanggal tidak tampil saat tak dipakai. */
 #pageMaster .f4-bank-weighing-editor{
