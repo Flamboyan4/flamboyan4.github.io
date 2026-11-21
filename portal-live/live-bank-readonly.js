@@ -473,6 +473,51 @@
     koreksi:x.jenis==='koreksi_debit'?-x.nominal:x.jenis==='koreksi_kredit'?x.nominal:0}))
   };
  };
+ // Standalone admin print: one member, all weighing sessions from D1.
+ // Does not read unrelated cash, sales or ledger information.
+ const adminMemberDepositReport=async(_token,requestedId)=>{
+  const memberId=memberIdKey(requestedId);
+  if(!memberId)throw Error('Pilih warga terlebih dahulu.');
+  const [members,deposits,catalog]=await Promise.all([
+    adminMembers(),adminDeposits(),adminRows('catalog')
+  ]);
+  if([members,deposits,catalog].some(rows=>rows.length>=300))
+    throw Error('Data lebih dari 300 baris; laporan per warga dihentikan agar tidak terpotong.');
+  const member=members.find(row=>memberIdKey(row.wargaId)===memberId);
+  if(!member)throw Error('Anggota tidak ditemukan atau tidak dapat diakses.');
+  const selected=deposits.filter(row=>
+    memberIdKey(row.wargaId)===memberId&&row.status!=='Dibatalkan'
+  ).sort((a,b)=>String(a.tanggal||'').localeCompare(String(b.tanggal||'')));
+  const byId=new Map(catalog.map(x=>[String(x.id||''),x]));
+  const byName=new Map(catalog.map(x=>[String(x.name||'').trim().toLowerCase(),x]));
+  const {kodeBarang,codeByItem}=bankWasteCodes(catalog);
+  const setoran=[];
+  for(let start=0;start<selected.length;start+=12){
+    setoran.push(...await Promise.all(selected.slice(start,start+12).map(async deposit=>{
+      const result=await get('/api/v2/admin/bank/deposit-detail?id='+encodeURIComponent(deposit.id));
+      if(!Array.isArray(result.lines)||!result.lines.length)
+        throw Error('Rincian barang setoran '+deposit.id+' belum tersedia.');
+      const weights={};
+      const total=result.lines.reduce((sum,line)=>sum+number(line.grams),0)/1000;
+      if(Math.abs(total-number(deposit.beratTimbang))>0.002)
+        throw Error('Berat rincian setoran '+deposit.id+' tidak sesuai catatan timbang.');
+      for(const line of result.lines){
+        const item=byId.get(String(line.waste_item_id||''))||
+          byName.get(String(line.name||'').trim().toLowerCase());
+        const code=codeByItem.get(String(item?.id||''));
+        if(!code)throw Error('Kode barang '+String(line.name||'')+' tidak tersedia.');
+        const kg=number(line.grams)/1000;
+        if(kg<=0)throw Error('Berat jenis barang pada setoran '+deposit.id+' tidak valid.');
+        const key='item_'+code;weights[key]=(weights[key]||0)+kg;
+      }
+      return {id:deposit.id,wargaId:memberId,tanggal:String(deposit.tanggal||''),
+        ...weights,total};
+    })));
+  }
+  return {wargaId:memberId,nama:cleanMemberName(member.nama),rumah:String(member.rumah||''),
+    setoran,kodeBarang,jumlahSetoran:setoran.length,
+    totalBeratKg:setoran.reduce((sum,row)=>sum+row.total,0)};
+ };
  const bankAdminAccounts=async()=>{
    // Admin can read members for operational forms. Superadmin uses centralized accounts.
    let list;
@@ -561,6 +606,8 @@
   bsDashboardAdmin:adminOverview,
   bsV17RingkasanKasAdmin:adminCashOverview,
   bsV10LaporanAdmin:adminReport,
+  bsV37DaftarAnggotaLaporan:adminMembers,
+  bsV37LaporanSetoranPerWarga:adminMemberDepositReport,
   bsV9StatusKasAdmin:async()=>{
    const [cash,sales,allocations]=await Promise.all([adminRows('cash'),adminRows('sales'),adminRows('allocations')]);
    if([cash,sales,allocations].some(r=>r.length>=300))throw Error('Riwayat mencapai batas 300 baris. Ringkasan dihentikan agar saldo tidak salah.');
