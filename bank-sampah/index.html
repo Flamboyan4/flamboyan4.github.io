@@ -1222,7 +1222,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  box-sizing:border-box;width:100%;height:42px;min-height:42px;min-width:0;
  padding:8px 11px;margin:0;border:1px solid #d8e5de;border-radius:11px;
  background:#fff;color:#204636;box-shadow:none;cursor:pointer;
- font:650 12px/1.25 inherit;text-align:left
+ font-family:inherit;font-size:12px;font-weight:650;line-height:1.25;text-align:left
 }
 #pageLaporan .v33-period-button>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pageLaporan .v33-period-button>svg{flex:none;color:#16775a}
@@ -6519,10 +6519,21 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       popup.setAttribute('role','dialog');popup.setAttribute('aria-label',isEnd?'Pilih bulan akhir':'Pilih bulan laporan');
       const head=document.createElement('div');head.className='v33-month-head';
       const prev=document.createElement('button');prev.type='button';prev.className='v33-month-arrow';
-      prev.setAttribute('aria-label','Tahun sebelumnya');prev.textContent='‹';
+      prev.setAttribute('aria-label','Tahun sebelumnya');
+      const makeArrow=(back)=>{
+        const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+        svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','17');
+        svg.setAttribute('height','17');svg.setAttribute('fill','none');
+        svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2');
+        svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d',back?'m15 18-6-6 6-6':'m9 18 6-6-6-6');
+        svg.append(path);return svg;
+      };
+      prev.append(makeArrow(true));
       const yearTitle=document.createElement('strong');
       const next=document.createElement('button');next.type='button';next.className='v33-month-arrow';
-      next.setAttribute('aria-label','Tahun berikutnya');next.textContent='›';
+      next.setAttribute('aria-label','Tahun berikutnya');next.append(makeArrow(false));
       const grid=document.createElement('div');grid.className='v33-month-grid';
       head.append(prev,yearTitle,next);popup.append(head,grid);
       document.body.append(popup);trigger.setAttribute('aria-expanded','true');
