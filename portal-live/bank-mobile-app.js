@@ -75,25 +75,6 @@ function bankSaleCartIcon(){
  svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
  return svg;
 }
-/* Dock icons inherit the same color as their labels in active and inactive states.
-   Keep the SVG line geometry matched to the existing portal icon assets. */
-function bankDockLineIcon(route){
- const paths={
-  dashboard:'<path d="m3 10 9-7 9 7v10H3z"/><path d="M9 21v-8h6v8"/>',
-  pribadi:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M7 15h5"/>',
-  "bank-history":'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
-  "bank-report":'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>',
-  laporan:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>',
-  tabungan:'<rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18M15 15h3"/>'
- };
- if(!paths[route])return null;
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
- svg.setAttribute("viewBox","0 0 24 24");
- svg.setAttribute("aria-hidden","true");
- svg.classList.add("f4-bank-dock-line-icon");
- svg.innerHTML=paths[route];
- return svg;
-}
 function action([title,route,asset],dock=false){
  const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
  b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
@@ -111,8 +92,6 @@ function action([title,route,asset],dock=false){
   symbol.append(svg);
  }else if(dock&&route==="penjualan"){
   symbol.append(bankSaleCartIcon());
- }else if(dock&&!isAdminDeposit){
-  symbol.append(bankDockLineIcon(route)||image(asset));
  }else symbol.append(image(asset));
  b.append(symbol);
  if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title));
