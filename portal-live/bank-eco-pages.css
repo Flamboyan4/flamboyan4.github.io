@@ -3591,7 +3591,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  }
  body.f4-bank-app-admin #dashboardView #pageLaporan .v33-report-row{
   grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
-  gap:10px;align-items:end
+  gap:10px;align-items:start
  }
  body.f4-bank-app-member #dashboardView .f4-bank-screen{width:100%;max-width:960px;padding:21px 23px;margin-inline:auto}
  body.f4-bank-app-private #dashboardView #bank-payout{max-width:760px}
