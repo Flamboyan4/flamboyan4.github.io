@@ -1403,7 +1403,7 @@ overflow:visible
   min-width:var(--f4-setoran-min-width,1040px)
 }
 #pageLaporan table.f4-admin-report-table[data-report-kind="setoran"] :is(th,td){
-  padding:7px 6px;font-size:11px;line-height:1.25;white-space:nowrap;overflow-wrap:normal
+  padding:5px 3px;font-size:11px;line-height:1.2;white-space:nowrap;overflow-wrap:normal
 }
 #pageLaporan table.f4-admin-report-table[data-report-kind="setoran"] :is(th,td):nth-child(2){
   white-space:normal;overflow-wrap:break-word
@@ -2940,7 +2940,7 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
     table.dataset.reportKind=kind;
     if(kind==='setoran'){
       const itemCount=Math.max(0,fields.length-4);
-      table.style.setProperty('--f4-setoran-min-width',(400+itemCount*56)+'px');
+      table.style.setProperty('--f4-setoran-min-width',(360+itemCount*38)+'px');
     }
     // Jenis barang bisa 11+ kolom; nama dan tanggal tetap cukup lebar.
     const colgroup=document.createElement('colgroup');
