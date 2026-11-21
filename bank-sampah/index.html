@@ -797,20 +797,27 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   .v25-progress-copy{min-width:0}.v25-progress-copy strong{display:block}.v25-progress-copy small{display:block;margin:5px 0}.v25-progress-copy p{margin:3px 0 0}
   .v25-detail-image{display:block;max-width:100%;max-height:66dvh;object-fit:contain;margin:0 auto 16px;border-radius:12px}
   .v25-detail-text{white-space:pre-wrap;color:#344d3d;line-height:1.6}
-  .v25-public-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+  .v25-public-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 16px}
   .v25-public-metrics .v17-public-metric{min-width:0}
-  .v25-report-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:12px 0 16px}
-  .v25-report-toolbar select{width:auto;min-width:155px;margin:0;background:#fff}
-  .v25-report-toolbar button{font-size:12px;padding:10px 12px}
-  .v25-report-table{overflow-x:auto;border:1px solid #dbe8dc;border-radius:12px;background:#fff}
-  .v25-report-table table{width:100%;min-width:0;border-collapse:collapse}
-  .v25-report-table th,.v25-report-table td{padding:9px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid #d6e4da;font-size:12px}
-  .v25-report-table :is(th,td):first-child{width:34px;text-align:center}
+  .v25-report-toolbar{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);align-items:center;gap:12px;margin:0 0 15px}
+  .v25-report-toolbar select{width:100%;min-width:0;min-height:42px;margin:0;padding:9px 12px;background:#fff;border:1px solid #cddfd2;border-radius:10px;color:#164d35;font-size:13px}
+  .v25-report-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-width:0}
+  .v25-report-actions button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:9px 15px;border-radius:10px;font-size:13px;line-height:1.2;background:#e3f5e9;color:#176c3f}
+  .v25-report-actions button:hover{background:#cfedd9}
+  .v25-report-actions #v25ReportRefresh{width:42px;flex:0 0 42px;padding:0}
+  .v25-report-table{overflow:hidden;border:1px solid #d8e6dc;border-radius:12px;background:#fff}
+  .v25-report-table table{width:100%;min-width:0;border-collapse:collapse;table-layout:fixed}
+  .v25-report-table th,.v25-report-table td{padding:12px 14px;text-align:right;white-space:nowrap;border-bottom:1px solid #e2ece5;font-size:13px;line-height:1.35}
+  .v25-report-table :is(th,td):first-child{width:52px;text-align:center}
   .v25-report-table :is(th,td):nth-child(2){text-align:left}
-  .v25-report-table th{background:#edf6f0;color:#355e42;font-weight:750}
+  .v25-report-table :is(th,td):last-child{width:160px;text-align:right}
+  .v25-report-table th{background:#edf7f0;color:#23583c;font-weight:750}
+  .v25-report-table tbody tr:nth-child(even){background:#f8fcf9}
+  .v25-report-table tbody tr:last-child td{border-bottom:0}
+  .v25-report-table .v25-report-empty{text-align:center;color:#607769;padding:20px 12px;white-space:normal}
+  #v25ReportNote{margin:11px 0 0;line-height:1.5}
   .v25-photo-preview{display:block;max-width:100%;width:240px;max-height:190px;object-fit:contain;border:1px solid #e0eae0;border-radius:10px;margin:8px 0}
   .v25-photo-preview.hidden{display:none}
-  @media(max-width:740px){.v25-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.v25-report-toolbar select{flex:1;min-width:120px}}
 
   /* v26 — jalur masuk singkat, kembali ke portal mudah, kartu publik ringkas. */
   body:not(.v17-dashboard):not(.v17-public) .shell>.top .brand{cursor:pointer}
@@ -823,47 +830,49 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   #authView.v26-simple-login h1{margin-bottom:12px}
   #authView.v26-simple-login #loginForm>.hint{font-size:11px;margin-top:11px}
   #authView.v26-simple-login{padding-top:23px;padding-bottom:22px}
-  /* Laporan Setoran publik: tiga indikator nonkeuangan, konsisten pada PC/HP. */
-  #v11Public #v25ReportRoot{padding:11px;border-radius:12px}
+  /* Laporan Setoran publik: satu tabel responsif, tanpa kartu ganda di HP. */
+  #v11Public #v25ReportRoot{padding:18px;border-radius:16px}
   #v11Public #v25ReportMetrics.v26-compact{
-    display:grid;grid-template-columns:repeat(3,minmax(0,165px));
-    gap:6px;margin:8px 0 10px;align-items:stretch
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;margin:0 0 16px;align-items:stretch
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-    display:flex;flex-direction:column;justify-content:center;gap:2px;
-    min-width:0;min-height:49px;padding:7px 10px;margin:0;border-radius:9px;box-shadow:none
+    display:flex;flex-direction:column;justify-content:center;gap:6px;
+    min-width:0;min-height:84px;padding:13px 16px;margin:0;
+    border:1px solid #d2ebdb;border-radius:12px;background:#f0faf4;box-shadow:none
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric::before{display:none}
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{
-    display:block;min-width:0;margin:0;font-size:11px;line-height:1.2;font-weight:600;color:#62776a
+    display:block;min-width:0;margin:0;font-size:12px;line-height:1.3;
+    font-weight:600;color:#50735d
   }
   #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{
-    display:block;min-width:0;margin:0;padding:0;font-size:15px;line-height:1.2;
-    font-weight:800;letter-spacing:-.2px;color:#164e33;overflow-wrap:anywhere
-  }
-  #v11Public #v25ReportRoot .v25-report-toolbar{gap:7px;margin:4px 0 8px}
-  #v11Public #v25ReportRoot .v25-report-toolbar :is(button,select){
-    min-height:36px;margin:0;padding:7px 11px;border-radius:9px;font-size:12px
-  }
-  #v11Public #v25ReportRoot .v25-report-toolbar select{min-width:140px}
-  #v11Public #v25ReportRoot .v25-report-toolbar button:first-of-type{
-    width:38px;padding:0;font-size:19px;line-height:1
+    display:block;min-width:0;margin:0;padding:0;font-size:22px;line-height:1.2;
+    font-weight:800;letter-spacing:-.3px;color:#086b3b;overflow-wrap:anywhere
   }
   #v11Public #v25ReportRoot #v25ReportNote[hidden]{display:none}
-  @media(max-width:640px){
-    #v11Public #v25ReportRoot{padding:10px}
-    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{
-      min-height:48px;padding:7px 8px
-    }
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric small{font-size:10px}
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:clamp(11px,3.6vw,15px)}
-    #v11Public #v25ReportRoot .v25-report-toolbar select{flex:1 1 100%;min-width:0}
-  }
-  /* Layar sempit: dua kartu agar nominal tetap terbaca tanpa ukuran huruf mini. */
-  @media(max-width:360px){
-    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr))}
-    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:14px}
+  @media screen and (max-width:720px){
+    #v11Public #v25ReportRoot{padding:13px;border-radius:15px}
+    #v11Public #v25ReportRoot .v25-report-toolbar{grid-template-columns:minmax(0,1fr);gap:8px;margin:0 0 12px}
+    #v11Public #v25ReportRoot .v25-report-toolbar select{min-height:44px}
+    #v11Public #v25ReportRoot .v25-report-actions{display:grid;width:100%;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:8px}
+    #v11Public #v25ReportRoot .v25-report-actions button{width:100%;min-width:0;min-height:42px}
+    #v11Public #v25ReportRoot .v25-report-actions #v25ReportRefresh{width:44px}
+    #v11Public #v25ReportMetrics.v26-compact{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:0 0 12px}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric{min-height:76px;padding:11px 12px}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child{grid-column:1/-1;min-height:84px;background:#e6f8ec}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric:first-child strong{font-size:25px}
+    #v11Public #v25ReportMetrics.v26-compact>.v17-public-metric strong{font-size:18px}
+    /* Override the old global mobile table-to-card rules only for this 3-column report. */
+    #v11Public #v25ReportTable table{display:table;width:100%;min-width:0;table-layout:fixed}
+    #v11Public #v25ReportTable thead{display:table-header-group}
+    #v11Public #v25ReportTable tbody{display:table-row-group}
+    #v11Public #v25ReportTable tr{display:table-row;padding:0;border:0;border-radius:0;background:transparent}
+    #v11Public #v25ReportTable :is(th,td){display:table-cell;padding:11px 8px;font-size:12px;line-height:1.35;white-space:nowrap;vertical-align:middle}
+    #v11Public #v25ReportTable :is(th,td):first-child{width:35px}
+    #v11Public #v25ReportTable :is(th,td):last-child{width:108px}
+    #v11Public #v25ReportTable tbody tr:nth-child(even){background:#f8fcf9}
+    #v11Public #v25ReportTable .v25-report-empty{white-space:normal}
   }
     .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49;font-size:10px}
@@ -2012,17 +2021,6 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
   #pageTabungan .f4-savings-main{gap:10px}
   #pageTabungan .f4-savings-panel{padding:13px}
   #pageTabungan #v9Form{row-gap:9px}
-  #v11Public #v25ReportTable.v25-report-table{
-    padding:0;border:0;border-radius:12px;overflow:visible
-  }
-  #v11Public #v25ReportTable table.f4-mobile-card-table>tbody{gap:7px}
-  #v11Public #v25ReportTable table.f4-mobile-card-table>tbody>tr.f4-compact-record{
-    min-height:55px;padding:10px 13px;border-radius:12px;
-    border-color:#dce9e0;box-shadow:none
-  }
-  #v11Public #v25ReportTable table.f4-mobile-card-table .f4-card-title{
-    padding:3px 0;font-size:15px;line-height:1.4
-  }
 
 
 
@@ -5734,6 +5732,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
 
   // Laporan SETORAN publik. No ledger, selling prices, expenses, or authenticated data.
   let v25ReportPeriod='semua',v25ReportData=null,v25ReportSerial=0;
+  function v25PeriodLabel(value){
+    const match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value||''));
+    if(!match)return String(value||'—');
+    return ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(match[2])-1]+' '+match[1];
+  }
   function v25SetupReport(){
     const section=$('v17Transparansi');if(!section||$('v25ReportRoot'))return;
     section.replaceChildren(v21Node('h2','','Laporan Setoran'));
@@ -5743,7 +5746,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     period.setAttribute('aria-label','Pilih bulan setoran');
     period.add(new Option('Seluruh periode','semua'));
     period.onchange=()=>{v25ReportPeriod=period.value;v25RenderReport();};
-    const reload=v21Node('button','secondary');reload.type='button';
+    const reload=v21Node('button','secondary');reload.id='v25ReportRefresh';reload.type='button';
     reload.setAttribute('aria-label','Muat ulang setoran');reload.title='Muat ulang';
     reload.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 0 1 16-5l2 2M21 3v5h-5M21 13a9 9 0 0 1-16 5l-2-2M3 21v-5h5"/></svg>';
     reload.onclick=v25LoadReport;
@@ -5751,13 +5754,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     pdf.setAttribute('aria-label','Cetak laporan setoran');
     const csv=v21Node('button','secondary','CSV');csv.type='button';csv.onclick=v25DownloadReport;
     csv.setAttribute('aria-label','Unduh CSV setoran');
-    toolbar.append(period,reload,pdf,csv);
+    const actions=v21Node('div','v25-report-actions');
+    actions.append(reload,pdf,csv);
+    toolbar.append(period,actions);
     const metrics=v21Node('div','v25-public-metrics');metrics.id='v25ReportMetrics';
     const table=v21Node('div','v25-report-table');table.id='v25ReportTable';
-    const mobile=v21Node('div','f4-bank-report-mobile-list');mobile.id='v25ReportMobileList';
     const note=v21Node('p','v17-subtle','Memuat setoran...');
     note.id='v25ReportNote';note.setAttribute('role','status');note.setAttribute('aria-live','polite');
-    card.append(toolbar,metrics,table,mobile,note);section.append(card);
+    card.append(toolbar,metrics,table,note);section.append(card);
   }
   function v25Rows(){
     return (v25ReportData?.bulanan||[]).filter(r=>v25ReportPeriod==='semua'||r.periode===v25ReportPeriod);
@@ -5766,25 +5770,25 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(!v25ReportData)return;
     const d=v25ReportData,rows=v25Rows(),all=v25ReportPeriod==='semua';
     $('v25ReportMetrics').replaceChildren(
-      v17PublicStat('Setoran tercatat (semua)',d.jumlahSetoran.toLocaleString('id-ID')),
-      v17PublicStat(all?'Berat sampah disetor':'Berat bulan terpilih',kg(all?d.beratKg:rows.reduce((s,r)=>s+r.beratKg,0))),
+      v17PublicStat(all?'Berat disetor':'Berat periode',kg(all?d.beratKg:rows.reduce((s,r)=>s+r.beratKg,0))),
+      v17PublicStat('Total setoran',d.jumlahSetoran.toLocaleString('id-ID')),
       v17PublicStat('Anggota aktif',d.anggotaAktif.toLocaleString('id-ID')));
     $('v25ReportMetrics').classList.add('v26-compact');
     const table=document.createElement('table'),thead=document.createElement('thead'),tr=document.createElement('tr');
+    table.dataset.reportKind='setoran';
     tr.append(v21Node('th','','No'),v21Node('th','','Periode'),v21Node('th','','Berat disetor'));thead.append(tr);table.append(thead);
     const tbody=document.createElement('tbody');
-    rows.forEach((r,index)=>{const line=document.createElement('tr');line.append(v21Node('td','',String(index+1)),v21Node('td','',r.periode),v21Node('td','',kg(r.beratKg)));tbody.append(line);});
+    rows.forEach((r,index)=>{const line=document.createElement('tr');line.append(v21Node('td','',String(index+1)),v21Node('td','',v25PeriodLabel(r.periode)),v21Node('td','',kg(r.beratKg)));tbody.append(line);});
+    if(!rows.length){
+      const empty=document.createElement('tr'),cell=v21Node('td','v25-report-empty','Belum ada setoran pada periode ini.');
+      cell.colSpan=3;empty.append(cell);tbody.append(empty);
+    }
     table.append(tbody);$('v25ReportTable').replaceChildren(table);
-    if(!rows.length)$('v25ReportTable').append(v21Node('p','v17-subtle','Belum ada setoran pada periode ini.'));
-    const mobile=$('v25ReportMobileList');mobile.replaceChildren();
-    rows.forEach(r=>{const item=v21Node('article','f4-bank-report-mobile-row'),value=v21Node('div','f4-bank-report-mobile-values'),metric=v21Node('span','');
-      metric.append(v21Node('small','','Berat disetor'),v21Node('strong','',kg(r.beratKg)));
-      value.append(metric);item.append(v21Node('strong','',r.periode),value);mobile.append(item);});
     const note=$('v25ReportNote');
-    note.hidden=false;note.textContent='Setoran tercatat yang tidak dibatalkan, termasuk yang belum terjual. Jumlah setoran adalah total seluruh periode.';
+    note.hidden=false;note.textContent='Data setoran yang tidak dibatalkan, termasuk yang belum terjual.'+(all?'':' Total setoran dan anggota aktif dihitung dari seluruh periode.');
     const picker=$('v25ReportPeriod'),selected=v25ReportPeriod;
     picker.replaceChildren(new Option('Seluruh periode','semua'));
-    d.bulanan.forEach(r=>picker.add(new Option(r.periode,r.periode)));
+    d.bulanan.forEach(r=>picker.add(new Option(v25PeriodLabel(r.periode),r.periode)));
     picker.value=d.bulanan.some(r=>r.periode===selected)?selected:'semua';
     v25ReportPeriod=picker.value;
   }
@@ -5807,7 +5811,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }catch(error){
       if(serial!==v25ReportSerial)return;
       v25ReportData=null;note.textContent='Laporan setoran belum tersedia. '+(error?.message||'Coba muat ulang.');
-      $('v25ReportMetrics').replaceChildren();$('v25ReportTable').replaceChildren();$('v25ReportMobileList').replaceChildren();
+      $('v25ReportMetrics').replaceChildren();$('v25ReportTable').replaceChildren();
     }
   }
   function v25PrintReport(){
