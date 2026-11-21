@@ -28,7 +28,7 @@
       while(usedCodes.has(code))code=base+suffix++;
       usedCodes.add(code);codeByItem.set(String(item.id||''),code);
       const original=String(item.name||'');
-      return {kode:code,nama:code==='AL'&&/alum(?:inium|unium)?.*kaleng/i.test(original)?'Aluminium':original,
+      return {kode:code,nama:code==='AL'&&/alum(?:inium|unium)?.*kaleng/i.test(original)?'Alumunium':original,
         namaAsli:original,id:String(item.id||'')};
     });
   return {kodeBarang,codeByItem};
