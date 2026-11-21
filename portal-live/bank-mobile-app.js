@@ -636,7 +636,8 @@ function mountSavings(){
  }
  if(!$("f4BankCategoryTotals")){
   const totals=el("section","f4-bank-category-totals");totals.id="f4BankCategoryTotals";
-  $("f4BankSavingsChart")?.after(totals);
+  // HP: setoran terakhir -> total per jenis -> perkembangan; PC keeps its grid areas.
+  $("f4BankLatestComposition")?.after(totals);
  }
  // Riwayat becomes the right-hand panel on PC, and remains below the chart on HP.
  const deposits=$("v12Deposits");
