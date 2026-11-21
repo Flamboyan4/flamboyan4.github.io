@@ -370,21 +370,12 @@
   const liveReversals=ledger.filter(x=>liveBatches.has(String(x.batch_id||''))&&x.kind==='koreksi_debit');
   const hakWargaDikredit=liveCredits.reduce((n,x)=>n+number(x.amount_rp),0)-
     liveReversals.reduce((n,x)=>n+number(x.amount_rp),0);
-  // Kategori dan jenis asli tetap berasal dari katalog D1. Laporan SETORAN
-  // HANYA berisi daftar barang/berat, tanpa nilai rupiah, estimasi atau status.
+  // Kolom setoran berasal dari SETIAP jenis barang pada katalog D1,
+  // bukan empat kategori. Setiap kolom hanya menyimpan berat timbang (kg).
   const byItemId=new Map(catalog.map(item=>[String(item.id||''),item]));
   const byItemName=new Map(catalog.map(item=>[String(item.name||'').trim().toLowerCase(),item]));
-  const categoryOf=(catalogItem,name)=>{
-    const category=String(catalogItem?.category||'').toLowerCase();
-    const combined=category+' '+String(name||'').toLowerCase();
-    if(/plastik|botol|galon|gelas aqua|pet\b/.test(combined))return 'plastik';
-    if(/logam|metal|alum|kaleng|besi|tembaga|kuningan/.test(combined))return 'logam';
-    if(/kertas|kardus|koran|karton|hvs|dupleks|buku/.test(combined))return 'kertas';
-    return 'gabruk'; // Kelompok campuran/lainnya; tidak menghilangkan barang di luar 3 kelompok.
-  };
   const codeBase=name=>{
-    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
-    // Kode yang mudah dikenali pengurus, disepakati dari nama jenis barang.
+    const value=String(name||'').toLowerCase().replace(/[^a-z0-9\\s]/g,' ').replace(/\\s+/g,' ').trim();
     if(/botol.*(?:aqua.*)?bodong/.test(value))return 'BD';
     if(/botol.*gelas.*plastik.*kotor/.test(value))return 'BPK';
     if(/botol.*aqua/.test(value))return 'BA';
@@ -396,15 +387,15 @@
       (words[0]||'X').slice(0,2).toUpperCase();
   };
   const usedCodes=new Set(),codeByItem=new Map();
-  // Urut nama menjamin kode identik untuk setiap warga dalam laporan yang sama.
-  for(const item of [...catalog].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id'))){
-    const key=String(item.id||'');
-    const base=codeBase(item.name);
-    let code=base,suffix=2;
-    while(usedCodes.has(code))code=base+suffix++;
-    usedCodes.add(code);codeByItem.set(key,code);
-  }
-  const extraCodes=new Map(),codebook=new Map();
+  const kodeBarang=[...catalog]
+    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'id'))
+    .map(item=>{
+      const base=codeBase(item.name);
+      let code=base,suffix=2;
+      while(usedCodes.has(code))code=base+suffix++;
+      usedCodes.add(code);codeByItem.set(String(item.id||''),code);
+      return {kode:code,nama:String(item.name||''),id:String(item.id||'')};
+    });
   const details=[];
   for(let start=0;start<depositRows.length;start+=12){
     details.push(...await Promise.all(depositRows.slice(start,start+12).map(async x=>{
@@ -414,32 +405,23 @@
       const weight=r.lines.reduce((n,item)=>n+number(item.grams),0)/1000;
       if(Math.abs(weight-number(x.beratTimbang))>0.002)
         throw Error('Berat barang setoran '+x.id+' tidak sesuai hasil timbang.');
-      const groups={plastik:[],logam:[],kertas:[],gabruk:[]};
-      for(const item of r.lines){
-        const itemId=String(item.waste_item_id||''),name=String(item.name||'').trim();
-        const catalogItem=byItemId.get(itemId)||byItemName.get(name.toLowerCase());
-        const group=categoryOf(catalogItem,name);
-        let code=codeByItem.get(String(catalogItem?.id||itemId));
-        if(!code){
-          const extraKey=itemId||name;
-          if(!extraCodes.has(extraKey)){
-            const base=codeBase(name);let trial=base,suffix=2;
-            while(usedCodes.has(trial))trial=base+suffix++;
-            usedCodes.add(trial);extraCodes.set(extraKey,trial);
-          }
-          code=extraCodes.get(extraKey);
-        }
-        codebook.set(code,{kode:code,nama:name,kategori:group});
-        const kg=number(item.grams)/1000;
-        if(kg<=0)throw Error('Berat barang setoran '+x.id+' tidak valid.');
-        groups[group].push(code+' '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(kg));
+      const itemWeights={};
+      for(const line of r.lines){
+        const id=String(line.waste_item_id||''),name=String(line.name||'').trim();
+        const item=byItemId.get(id)||byItemName.get(name.toLowerCase());
+        if(!item)throw Error('Jenis sampah "'+name+'" belum terhubung ke katalog. Periksa data sebelum mencetak.');
+        const code=codeByItem.get(String(item.id||''));
+        if(!code)throw Error('Kode barang '+name+' tidak tersedia.');
+        const kg=number(line.grams)/1000;
+        if(!Number.isFinite(kg)||kg<=0)throw Error('Berat barang setoran '+x.id+' tidak valid.');
+        const field='item_'+code;
+        itemWeights[field]=(itemWeights[field]||0)+kg;
       }
-      const labels=Object.fromEntries(Object.entries(groups).map(([group,items])=>[group,items.length?items.join(' · '):'—']));
       return {id:x.id,tanggal:x.tanggal,warga:wargaLabel(x.wargaId,x.namaWarga,x.rumahWarga),
-        ...labels,total:weight};
+        ...itemWeights,total:weight};
     })));
   }
-  const kodeBarang=[...codebook.values()].sort((a,b)=>a.kategori.localeCompare(b.kategori,'id')||a.kode.localeCompare(b.kode,'id'));
+  details.forEach((row,index)=>{row.no=index+1;});
   return {
    periode:month||'semua',
    ringkasan:{jumlahSetoran:depositRows.filter(x=>x.status!=='Dibatalkan').length,jumlahSetoranTerjual:confirmedDeposits.length,jumlahSetoranTersedia:waitingDeposits.length,jumlahPenjualan:confirmedSales.length,
