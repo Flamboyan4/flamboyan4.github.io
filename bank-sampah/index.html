@@ -1543,6 +1543,27 @@ overflow:visible
     text-align:left;font-size:11px;font-weight:750;white-space:normal;
     break-after:avoid;page-break-after:avoid
   }
+  /* Cetak individu: grafik tetap vektor dan tabel tetap A4 portrait. */
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-summary{
+    font-size:11px;font-weight:750;margin:6px 0 9px;color:#214e38
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-trend{
+    display:block;margin:6px 0 13px;break-inside:avoid;page-break-inside:avoid
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-trend h2{
+    font-size:13px;margin:4px 0 2px;color:#183e2e
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-svg{
+    display:block;width:100%;height:auto;max-height:155px;overflow:visible;
+    print-color-adjust:exact;-webkit-print-color-adjust:exact
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-chart-note{
+    font-size:10px;color:#647e6c;text-align:center;margin:0 0 5px
+  }
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print table.f4-single-member-table :is(th,td){
+    text-align:center;white-space:nowrap;overflow-wrap:normal;
+    padding:3px 2px;font-size:10.5px;line-height:1.25
+  }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"]{table-layout:fixed;width:calc(100% - 1mm)}
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] :is(th,td){
     font-size:11px;line-height:1.15;padding:2px 1.5px;white-space:nowrap;overflow-wrap:normal;
@@ -2142,7 +2163,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 </div>
 <!-- The active Cloudflare read bridge is maintained once in live-bank-readonly.js. -->
 
-<script src="/portal-live/live-bank-readonly.js?v=20261121-short-correction-member-dates-v4"></script>
+<script src="/portal-live/live-bank-readonly.js?v=20261121-individual-report-trend-v5"></script>
 <script src="/portal-live/bank-progress-app.js?v=20261121-belum-terjual-v1"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=20261115-deposit-edit-v1"></script>
 <script id="f4-bank-split-readonly">
