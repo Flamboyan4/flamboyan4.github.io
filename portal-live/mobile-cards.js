@@ -94,6 +94,9 @@ function enrichTable(table){
  // Hindari enhancer global agar 33 saldo tidak menjadi kartu tinggi yang bertabrakan.
  if(table.closest('#v9List'))return;
  if(table.closest('#v10Print,#v27PrintReport,#v25PrintReport,#f4-superadmin-confirm,[data-print-only]'))return;
+ // Rekap setoran berisi seluruh jenis barang sebagai kolom kode tetap.
+ // Jangan disulap jadi kartu yang menyembunyikan berat tiap barang.
+ if(table.dataset.reportKind==='setoran')return;
  // Do not collapse tabular data-entry forms or editable controls.
  if(table.querySelector('input:not([type=hidden]),select,textarea'))return;
  table.classList.add('f4-mobile-card-table');
