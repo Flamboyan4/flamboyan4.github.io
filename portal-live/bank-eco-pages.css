@@ -3776,11 +3776,27 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 .f4-bank-report-period label[hidden]{display:none}
 
 /* Laporan admin: kontrol gabungan bulan, satu aturan pemilik tanpa override. */
-#pageLaporan .v33-report-combine{display:flex;align-items:center;flex-wrap:wrap;gap:8px 15px;min-width:0;margin:0;padding:1px 0 2px}
-#pageLaporan .v33-report-combine-label{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:#315943;cursor:pointer}
-#pageLaporan .v33-report-combine-label input{width:16px;height:16px;min-height:0;margin:0;accent-color:#167a50}
-#pageLaporan .v33-report-combine>.v29-audit-filter{display:inline-flex;align-items:center;gap:7px;min-width:0;min-height:0;margin:0;padding:0;font-size:12px;font-weight:600;line-height:1.3;white-space:normal;color:#315943;cursor:pointer}
-#pageLaporan .v33-report-combine>.v29-audit-filter input{width:16px;height:16px;min-width:16px;min-height:0;margin:0;accent-color:#167a50}
+#pageLaporan .v33-report-combine{
+ display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;
+ min-width:0;margin:0;padding:1px 0 2px
+}
+#pageLaporan .v33-report-combine>:is(.v33-report-combine-label,.v29-audit-filter){
+ display:inline-grid;grid-template-columns:16px minmax(0,1fr);
+ align-items:center;column-gap:7px;flex:0 1 auto;
+ box-sizing:border-box;width:max-content;max-width:100%;min-height:24px;
+ margin:0;padding:0;border:0;background:transparent;
+ color:#315943;font-size:12px;font-weight:600;line-height:18px;cursor:pointer
+}
+#pageLaporan .v33-report-combine>:is(.v33-report-combine-label,.v29-audit-filter)>input[type=checkbox]{
+ display:block;box-sizing:border-box;width:16px;height:16px;
+ min-width:16px;min-height:16px;max-width:16px;max-height:16px;
+ margin:0;padding:0;align-self:center;justify-self:center;
+ accent-color:#167a50
+}
+#pageLaporan .v33-report-combine>:is(.v33-report-combine-label,.v29-audit-filter)>span{
+ display:block;min-width:0;margin:0;padding:0;
+ font-size:12px;font-weight:600;line-height:18px;white-space:normal
+}
 
 /* Harga barang: form jadwal tersembunyi dalam accordion; minggu/tanggal tidak tampil saat tak dipakai. */
 #pageMaster .f4-bank-weighing-editor{
