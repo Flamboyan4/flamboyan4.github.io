@@ -1695,7 +1695,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  font-size:clamp(17px,2.7vw,21px);font-weight:850;line-height:1.22;
  color:var(--bank-ink);letter-spacing:-.02em
 }
-#dashboardView .f4-bank-weigh-copy span{font-size:11px;color:var(--bank-muted)}
+#dashboardView .f4-bank-weigh-copy > span{font-size:11px;color:var(--bank-muted)}
 
 #dashboardView .f4-bank-savings-payout{
  display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -3445,8 +3445,16 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
   width:21px;height:21px
  }
- #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy small,.f4-bank-weigh-copy span,.f4-bank-price-shortcut-copy small){
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy > small,.f4-bank-weigh-copy > span,.f4-bank-price-shortcut-copy small){
   display:none
+ }
+ #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > strong{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;white-space:nowrap;overflow-wrap:normal
+ }
+ #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > strong :is(.f4-bank-weigh-weekday,.f4-bank-weigh-date){
+  display:block;white-space:nowrap;max-width:100%;font-size:inherit;
+  line-height:1.18;color:inherit
  }
  #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy strong,.f4-bank-price-shortcut-label){
   font-size:11px;line-height:1.18;max-width:100%;font-weight:800
