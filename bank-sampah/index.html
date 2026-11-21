@@ -1211,20 +1211,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
   margin-top:7px;padding:12px 0 2px;border-left:0;border-top:1px solid #e6efe8
  }
 }
-#pageLaporan .v33-report-row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
-#pageLaporan .v33-report-period-field>strong{display:block;font-size:12px;line-height:16px;color:#355c47;margin:0 0 6px}
-#pageLaporan .v33-report-period{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:8px}
+#pageLaporan .v33-report-row{display:block;min-width:0}
+#pageLaporan .v33-report-period{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-width:0}
+#pageLaporan .v33-report-period.is-range{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#pageLaporan .v33-report-period-group{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:8px;min-width:0}
+#pageLaporan .v33-report-period.is-range .v33-report-period-group{grid-template-columns:minmax(0,1fr) 76px;gap:6px}
+#pageLaporan .v33-report-period-group[hidden]{display:none}
 #pageLaporan .v33-report-period label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#64796c;font-weight:700;margin:0;min-width:0}
-#pageLaporan .v33-report-period select,
-#pageLaporan .v33-report-audit select{height:42px;min-height:42px;margin:0;padding:7px 11px;border:1px solid #d8e5de;border-radius:11px;background-color:#fff;color:#204636;font-size:13px;font-weight:650;width:100%;max-width:none}
-/* Match the month and year select baseline; their section has an extra "Bulan/Tahun" label. */
-#pageLaporan .v33-report-audit{min-width:0;padding-top:0}
-#pageLaporan .v33-report-audit>.field{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:16px 16px 42px;gap:5px 10px;align-items:center;margin:0;min-width:0}
-#pageLaporan .v33-report-audit>.field>label:first-child{display:block;font-size:11px;color:#64796c;font-weight:700;line-height:16px;margin:0;align-self:end}
-#pageLaporan .v33-report-audit>.field>select{grid-column:1;grid-row:3;min-width:0;max-width:100%}
-#pageLaporan .v33-report-audit>.field>small{display:none}
-#pageLaporan .v33-report-audit>.field.v33-audit-active{grid-template-columns:minmax(0,1fr)}
-#pageLaporan .v33-report-audit>.field.v33-audit-active>label:first-child{grid-column:1;grid-row:1}
+#pageLaporan .v33-report-period select{height:42px;min-height:42px;margin:0;padding:7px 9px;border:1px solid #d8e5de;border-radius:11px;background-color:#fff;color:#204636;font-size:12px;font-weight:650;width:100%;max-width:none}
 #pageLaporan .v33-report-choices{border:0;margin:0;padding:0;min-width:0}
 #pageLaporan .v33-report-choices legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #pageLaporan .v33-report-chips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:36px;gap:0 12px;align-items:stretch}
@@ -1303,16 +1297,16 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 #pageLaporan .f4-report-section>.f4-report-table-scroll{margin:0 0 11px}
 #pageLaporan .f4-report-section .v33-report-table-title:focus-visible{outline:2px solid #098b78;outline-offset:2px;border-radius:4px}
 #pageLaporan #v10ReportNotice{margin:8px 0 0}
-@media(max-width:1150px){
- #pageLaporan .v33-report-row{grid-template-columns:minmax(0,1fr)}
- #pageLaporan .v33-report-audit{padding-top:0}
+@media(max-width:620px){
+ #pageLaporan .v33-report-period.is-range{grid-template-columns:minmax(0,1fr);gap:10px}
+ #pageLaporan .v33-report-period.is-range .v33-report-period-group{grid-template-columns:minmax(0,1fr) 102px}
 }
 @media(max-width:820px){
  #pageLaporan #v10ReportSummary,#pageLaporan #v33ReportMoreMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:480px){
  #pageLaporan .v33-report-controls{padding:13px;gap:9px}
- #pageLaporan .v33-report-period{grid-template-columns:minmax(0,1fr) 102px}
+ #pageLaporan .v33-report-period-group{grid-template-columns:minmax(0,1fr) 102px}
  #pageLaporan .v33-report-chip{font-size:11px;padding:7px 9px}
  #pageLaporan .v33-report-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
  #pageLaporan .v33-report-actions button{width:100%;padding:9px 5px;font-size:11.5px}
@@ -5916,11 +5910,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   }
   v31SetupScrollTop();
   function v29SetupAudit(){
-    const report=$('pageLaporan'),type=$('v10ReportType');if(!report||!type||$('v29AuditMode'))return;
-    const wrap=document.createElement('div');wrap.className='field';wrap.innerHTML='<label for="v29AuditMode">Jenis laporan</label><select id="v29AuditMode"><option value="resmi">Laporan resmi</option><option value="audit">Laporan audit khusus admin</option></select><label id="v29AuditFilter" class="v29-audit-filter"><input type="checkbox" id="v29ShowCanceled" style="width:auto"> Sertakan transaksi dibatalkan</label><small>Setoran batal tidak dihitung.</small>';
+    const report=$('pageLaporan'),type=$('v10ReportType');
+    if(!report||!type||$('v29AuditFilter'))return;
+    const wrap=document.createElement('div');wrap.className='field';
+    wrap.innerHTML='<label id="v29AuditFilter" class="v29-audit-filter"><input type="checkbox" id="v29ShowCanceled"> Sertakan transaksi dibatalkan</label>';
     type.closest('.field').before(wrap);
-    $('v29AuditMode').addEventListener('change',()=>{v10ReportData=null;$('v10ReportTable').textContent='Muat laporan sesuai pilihan baru.';});
-    $('v29ShowCanceled').addEventListener('change',()=>{v10ReportData=null;$('v10ReportTable').textContent='Muat ulang laporan agar pilihan audit diterapkan.';});
+    $('v29ShowCanceled').addEventListener('change',()=>{
+      v10ReportData=null;
+      $('v10ReportTable').textContent='Muat ulang laporan untuk menerapkan pilihan transaksi batal.';
+    });
   }
   const v29OldSetup=v10Setup;
   v10Setup=function(){v29OldSetup();v29SetupAudit();};
@@ -5931,7 +5929,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const include=$('v29ShowCanceled')?.checked===true;
     const start=$('v10Month').value;
     const combine=$('v33ReportCombine')?.checked===true;
-    const until=combine?String($('v33ReportEndMonth')?.value||''):start;
+    const until=combine?(String($('v33EndYearSelect')?.value||'')+'-'+String($('v33EndMonthSelect')?.value||'')):start;
     const statusToken=F4Loading.begin('v10ReportNotice','Memuat laporan Bank Sampah…');
     try{
       if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(start)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(until)||until<start)
@@ -5939,7 +5937,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const span=(Number(until.slice(0,4))-Number(start.slice(0,4)))*12+Number(until.slice(5))-Number(start.slice(5))+1;
       if(span>24)throw Error('Maksimal 24 bulan per laporan. Persempit rentangnya.');
       const full=await call('bsV10LaporanAdmin',token,combine?'':start,include);
-      if(!combine||until===start){v10ReportData=full;}
+      if(!combine){v10ReportData=full;}
       else{
         const within=row=>{const date=String(row?.tanggal||'').slice(0,7);return date>=start&&date<=until;};
         const subset=key=>(Array.isArray(full[key])?full[key]:[]).filter(within);
@@ -5966,15 +5964,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         };
       }
       v10RenderReport();
-      if(include)F4Loading.empty('v10ReportNotice','Mode audit: transaksi batal tidak dihitung sebagai saldo sah.',statusToken);
+      if(include)F4Loading.empty('v10ReportNotice','Transaksi dibatalkan ditampilkan sebagai riwayat, tanpa menambah saldo sah.',statusToken);
       else F4Loading.success('v10ReportNotice',statusToken);
     }catch(e){v10ReportData=null;F4Loading.error('v10ReportNotice','Gagal memuat laporan: '+(e.message||e),statusToken);}
   };
   v10PrintReport=function(){
     if(!v10ReportData){note('v10ReportNotice','Muat laporan dahulu.',true);return;}
     const root=$('v10Print');root.replaceChildren();root.appendChild(v29Kop());
-    const audit=$('v29AuditMode')?.value==='audit',incl=$('v29ShowCanceled')?.checked===true;
-    const title=document.createElement('h1');title.textContent=audit?'LAPORAN AUDIT ADMIN':'LAPORAN ADMINISTRASI';root.appendChild(title);
+    const incl=$('v29ShowCanceled')?.checked===true;
+    const title=document.createElement('h1');title.textContent='LAPORAN ADMINISTRASI';root.appendChild(title);
     const sub=document.createElement('p');sub.textContent=v10ReportData.periode+' • Dicetak '+new Date().toLocaleDateString('id-ID')+(incl?' • Termasuk transaksi dibatalkan':'');root.appendChild(sub);
     const r=v10ReportData.ringkasan;
     const summary=document.createElement('div');summary.className='f4-admin-print-summary';
@@ -6006,7 +6004,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       root.append(heading,v10MakeTable(spec,rows,key));
     });
     if(selected.some(section=>section.key==='setoran')){const legend=v10MakeCodeLegend();if(legend)root.appendChild(legend);}
-    if(incl){const note=document.createElement('p');note.textContent='AUDIT: baris berstatus Dibatalkan disajikan sebagai riwayat dan tidak menambah saldo maupun total transaksi sah.';root.appendChild(note);}
+    if(incl){const note=document.createElement('p');note.textContent='Transaksi dibatalkan ditampilkan sebagai riwayat dan tidak menambah saldo maupun total transaksi sah.';root.appendChild(note);}
     const footer=document.createElement('div');footer.className='f4-bank-report-signature';
     footer.textContent='Mengetahui, Humas Flamboyan 4';
     const signName=document.createElement('strong');signName.textContent='Heri Juwandi';
@@ -6321,11 +6319,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
   }
   function v33SetupReportControls(){
-    const report=$('pageLaporan'),month=$('v10Month'),legacy=$('v10ReportType'),audit=$('v29AuditMode');
-    if(!report||!month||!legacy||!audit||$('v33ReportControls'))return;
+    const report=$('pageLaporan'),month=$('v10Month'),legacy=$('v10ReportType');
+    if(!report||!month||!legacy||$('v33ReportControls'))return;
     const monthField=month.closest('.field'),typeField=legacy.closest('.field'),
-          auditField=audit.closest('.field'),actions=report.querySelector('.toolbar');
-    if(!monthField||!typeField||!auditField||!actions)return;
+          actions=report.querySelector('.toolbar');
+    if(!monthField||!typeField||!actions)return;
     const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     const now=new Date(),fallback=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
     const initial=/^\d{4}-(0[1-9]|1[0-2])$/.test(month.value)?month.value:fallback;
@@ -6334,40 +6332,48 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     // Judul halaman sudah memuat 'Laporan'; tidak perlu judul kedua dalam form.
     const row=document.createElement('div');row.className='v33-report-row';
     const period=document.createElement('div');period.className='v33-report-period';
+    const startGroup=document.createElement('div');startGroup.className='v33-report-period-group';
     const monthBox=document.createElement('label');monthBox.textContent='Bulan';
-    const monthSelect=document.createElement('select');monthSelect.id='v33MonthSelect';monthSelect.setAttribute('aria-label','Pilih bulan laporan');
+    const monthSelect=document.createElement('select');monthSelect.id='v33MonthSelect';monthSelect.setAttribute('aria-label','Pilih bulan awal laporan');
     months.forEach((label,i)=>monthSelect.add(new Option(label,String(i+1).padStart(2,'0'))));
     monthBox.classList.add('f4-field-stack');monthBox.append(monthSelect);
     const yearBox=document.createElement('label');yearBox.textContent='Tahun';
-    const yearSelect=document.createElement('select');yearSelect.id='v33YearSelect';yearSelect.setAttribute('aria-label','Pilih tahun laporan');
-    // Bank Sampah Flamboyan 4 dimulai 2026: daftar 2026, 2027, …, 2046.
+    const yearSelect=document.createElement('select');yearSelect.id='v33YearSelect';yearSelect.setAttribute('aria-label','Pilih tahun awal laporan');
     for(let year=2026;year<=2046;year++)yearSelect.add(new Option(String(year),String(year)));
-    yearBox.classList.add('f4-field-stack');yearBox.append(yearSelect);period.append(monthBox,yearBox);
+    yearBox.classList.add('f4-field-stack');yearBox.append(yearSelect);
+    startGroup.append(monthBox,yearBox);
     monthSelect.value=initial.slice(5);yearSelect.value=initial.slice(0,4);
-    const periodField=document.createElement('div');periodField.className='v33-report-period-field';
-    const periodCaption=document.createElement('strong');periodCaption.textContent='Periode';
-    periodField.append(periodCaption,period);
+
+    // Saat gabungan aktif, form yang sama berubah menjadi dua pasang dropdown.
+    // Tidak memakai input[type=month] karena membuka kalender browser yang tidak konsisten.
+    const endGroup=document.createElement('div');endGroup.className='v33-report-period-group';endGroup.hidden=true;
+    const endMonthBox=document.createElement('label');endMonthBox.textContent='Sampai bulan';
+    const endMonthSelect=document.createElement('select');endMonthSelect.id='v33EndMonthSelect';
+    endMonthSelect.setAttribute('aria-label','Pilih bulan akhir laporan');
+    months.forEach((label,i)=>endMonthSelect.add(new Option(label,String(i+1).padStart(2,'0'))));
+    endMonthBox.classList.add('f4-field-stack');endMonthBox.append(endMonthSelect);
+    const endYearBox=document.createElement('label');endYearBox.textContent='Tahun';
+    const endYearSelect=document.createElement('select');endYearSelect.id='v33EndYearSelect';
+    endYearSelect.setAttribute('aria-label','Pilih tahun akhir laporan');
+    for(let year=2026;year<=2046;year++)endYearSelect.add(new Option(String(year),String(year)));
+    endYearBox.classList.add('f4-field-stack');endYearBox.append(endYearSelect);
+    endGroup.append(endMonthBox,endYearBox);
+    endMonthSelect.value=initial.slice(5);endYearSelect.value=initial.slice(0,4);
+    period.append(startGroup,endGroup);
+
     const combineRow=document.createElement('div');combineRow.className='v33-report-combine';
     const combineLabel=document.createElement('label');combineLabel.className='v33-report-combine-label';
     const combine=document.createElement('input');combine.id='v33ReportCombine';combine.type='checkbox';
     const combineText=document.createElement('span');combineText.textContent='Gabungkan beberapa bulan';
     combineLabel.append(combine,combineText);
-    const endLabel=document.createElement('label');endLabel.className='v33-report-range-end';
-    endLabel.textContent='Sampai bulan';
-    const endMonth=document.createElement('input');endMonth.id='v33ReportEndMonth';
-    endMonth.type='month';endMonth.min='2026-01';endMonth.max='2046-12';endMonth.value=initial;
-    endLabel.append(endMonth);endLabel.hidden=true;
-    const canceledFilter=$('v29AuditFilter');
+    const canceledFilter=$('v29AuditFilter'),filterField=canceledFilter?.closest('.field');
     combineRow.append(combineLabel);
-    if(canceledFilter){canceledFilter.hidden=false;canceledFilter.classList.remove('hidden');combineRow.append(canceledFilter);}
-    combineRow.append(endLabel);
-    row.append(periodField);
-    const auditHolder=document.createElement('div');auditHolder.className='v33-report-audit';
-    auditHolder.append(auditField);row.append(auditHolder);form.append(row,combineRow);
-    // Kedua pilihan laporan terlihat dan sejajar, tanpa accordion tambahan.
-    const syncAuditInline=()=>{
-      auditField.classList.toggle('v33-audit-active',audit.value==='audit');
-    };
+    if(canceledFilter){
+      canceledFilter.hidden=false;canceledFilter.classList.remove('hidden');
+      combineRow.append(canceledFilter);
+      if(filterField)filterField.remove();
+    }
+    row.append(period);form.append(row,combineRow);
     const selections=document.createElement('fieldset');selections.className='v33-report-choices';
     const legend=document.createElement('legend');legend.textContent='Jenis data laporan';
     selections.append(legend);
@@ -6464,10 +6470,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     };
     monthSelect.addEventListener('change',updateMonth);
     yearSelect.addEventListener('change',updateMonth);
-    combine.addEventListener('change',()=>{endLabel.hidden=!combine.checked;invalidate();});
-    endMonth.addEventListener('change',invalidate);
-    audit.addEventListener('change',syncAuditInline);
-    syncAuditInline();
+    const updateRange=()=>{
+      endGroup.hidden=!combine.checked;
+      period.classList.toggle('is-range',combine.checked);
+      monthBox.firstChild.textContent=combine.checked?'Dari bulan':'Bulan';
+      invalidate();
+    };
+    combine.addEventListener('change',updateRange);
+    endMonthSelect.addEventListener('change',invalidate);
+    endYearSelect.addEventListener('change',invalidate);
     const updateChoice=()=>{
       const total=list.querySelectorAll('input[data-report-section]:checked').length;
       optionsLabel.textContent='Data ('+total+'/'+Object.keys(v10Specs).length+')';
@@ -6942,7 +6953,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261121-unified-avatar-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261121-report-visible-filters-v6">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261121-range-select-v7">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261120-fresh-eco-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261120-vivid-info-v3">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261120-fresh-eco-v1">
