@@ -2465,6 +2465,8 @@ function combineAdminApproval(){
   if(note)reconDetails.append(note);
   if(reconPicker){reconPicker.hidden=true;reconDetails.append(reconPicker);}
   if(preview)reconDetails.append(preview);
+  // Pada PC panel cek selisih langsung terbuka; pada HP tetap opsional.
+  if(window.matchMedia("(min-width:1180px)").matches)reconDetails.open=true;
   root.append(reconDetails);
  }
  const selection=$("v8Batch");
