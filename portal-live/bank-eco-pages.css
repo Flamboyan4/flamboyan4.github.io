@@ -3750,8 +3750,11 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel #v14Recent{
   flex:1 1 auto;min-width:0;min-height:0;height:auto;max-height:none;margin-top:0;
-  overflow-y:auto;overflow-x:hidden;overflow-anchor:none;overscroll-behavior:contain;scrollbar-width:thin;
-  scrollbar-color:#c0ddc9 transparent
+  overflow-y:auto;overflow-x:hidden;overflow-anchor:none;overscroll-behavior:contain;
+  scrollbar-width:none;-ms-overflow-style:none
+ }
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel #v14Recent::-webkit-scrollbar{
+  display:none;width:0;height:0
  }
  /* Keep house identity readable even for members with identical display names. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"] .f4-recent-item .f4-recent-name-line{
