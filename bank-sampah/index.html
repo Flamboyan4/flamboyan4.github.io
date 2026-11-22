@@ -701,12 +701,24 @@ z-index:48
  display:flex;align-items:center;gap:9px;min-height:44px;min-width:0;
  padding:7px 1px;list-style:none;cursor:pointer
 }
-#pageMaster .f4-master-group{padding:0 0 2px;min-width:0}
+#pageMaster .f4-master-group{padding:0;min-width:0}
 #pageMaster .f4-master-group+.f4-master-group{border-top:1px solid #e3ece5}
 #pageMaster .f4-master-group-heading{
  display:flex;align-items:center;justify-content:space-between;
- gap:9px;padding:8px 3px 4px;min-width:0
+ gap:9px;min-width:0;min-height:48px;padding:10px 4px;
+ list-style:none;cursor:pointer
 }
+#pageMaster .f4-master-group-heading::-webkit-details-marker{display:none}
+#pageMaster .f4-master-group-heading::marker{content:""}
+#pageMaster .f4-master-group-heading:focus-visible{outline:2px solid #009788;outline-offset:-2px;border-radius:7px}
+#pageMaster .f4-master-group-meta{
+ display:inline-flex;align-items:center;gap:9px;flex:none
+}
+#pageMaster .f4-master-group-chevron{
+ width:17px;height:17px;flex:none;stroke:#528568;transition:transform .16s
+}
+#pageMaster .f4-master-group[open]>.f4-master-group-heading .f4-master-group-chevron{transform:rotate(90deg)}
+#pageMaster .f4-master-group[open]>.f4-master-group-heading{border-bottom:1px solid #e6eee8}
 #pageMaster .f4-master-group-heading h3{
  display:flex;align-items:center;gap:8px;margin:0;color:#185d42;
  font-size:13px;line-height:1.3;font-weight:850
@@ -720,7 +732,7 @@ z-index:48
 #pageMaster .f4-master-group-heading span{
  color:#698578;font-size:10.5px;font-weight:700;white-space:nowrap
 }
-#pageMaster .f4-master-group-list{min-width:0}
+#pageMaster .f4-master-group-list{min-width:0;padding:2px 4px 6px 16px}
 #pageMaster .f4-master-group-list .f4-master-row:last-child{border-bottom:0}
 #pageMaster .f4-master-amount{
  display:grid;justify-items:end;gap:0;flex:none;min-width:0
@@ -2505,6 +2517,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       const count=document.createElement('span');count.id='f4MasterCount';
       const list=document.createElement('div');list.className='f4-master-rows';
       const normalize=x=>String(x||'').toLocaleLowerCase('id-ID').trim();
+      // Open only categories deliberately selected by the user.
+      // Search can expand matching categories temporarily without altering this choice.
+      const expandedCategories=new Set();
       function draw(){
         const query=normalize(search.value);
         const rows=data.filter(b=>!query||[b.nama,b.kode,b.kelompok].some(v=>normalize(v).includes(query)));
@@ -2524,10 +2539,25 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           const category=categoryOf(b.kelompok);
           let group=grouped.get(category);
           if(!group){
-            const section=document.createElement('section');section.className='f4-master-group';
-            const head=document.createElement('div');head.className='f4-master-group-heading';
+            const section=document.createElement('details');section.className='f4-master-group';
+            section.dataset.category=category;
+            section.open=Boolean(query)||expandedCategories.has(category);
+            const head=document.createElement('summary');head.className='f4-master-group-heading';
+            head.setAttribute('aria-label','Lihat jenis sampah kategori '+category);
             const label=document.createElement('h3');label.textContent=category;
-            const number=document.createElement('span');head.append(label,number);
+            const meta=document.createElement('span');meta.className='f4-master-group-meta';
+            const number=document.createElement('span');number.className='f4-master-group-count';
+            const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
+            arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');
+            arrow.setAttribute('stroke-width','2');arrow.setAttribute('stroke-linecap','round');
+            arrow.setAttribute('stroke-linejoin','round');arrow.setAttribute('aria-hidden','true');
+            arrow.classList.add('f4-master-group-chevron');
+            arrow.innerHTML='<path d="m9 5 7 7-7 7"/>';
+            meta.append(number,arrow);head.append(label,meta);
+            head.addEventListener('click',()=>{
+              if(section.open)expandedCategories.delete(category);
+              else expandedCategories.add(category);
+            });
             const body=document.createElement('div');body.className='f4-master-group-list';
             section.append(head,body);
             group={section,body,number,count:0};grouped.set(category,group);
