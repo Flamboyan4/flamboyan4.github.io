@@ -2209,9 +2209,7 @@ function ensureCashExpenseForm(){
  const host=$("f4BankCashExpense"),form=$("v10ExpenseForm");
  if(!host||!form)return;
  if(form.parentElement!==host){
-  const title=el("h3","","Catat pengeluaran");
-  title.id="f4BankCashExpenseTitle";
-  host.append(title,form);
+  host.append(form);
   const notice=$("v10ExpenseNotice");if(notice)host.append(notice);
  }
  if(form.dataset.f4CompactExpense==="1")return;
@@ -2248,57 +2246,93 @@ function showAdminCash(){
   body=el("div","f4-bank-admin-cash-body");body.id="f4BankAdminCashBody";
   const tabs=el("div","f4-bank-admin-history-tabs f4-bank-admin-cash-tabs");tabs.id="f4BankCashTabs";
   for(const [key,label] of [["in","Pemasukan"],["out","Pengeluaran"]]){
-   const button=el("button","f4-bank-admin-history-tab",label);button.type="button";button.dataset.cashTab=key;
-   button.onclick=()=>{adminCashTab=key;loadAdminCash();};tabs.append(button);
+   const button=el("button","f4-bank-admin-history-tab",label);
+   button.type="button";button.dataset.cashTab=key;
+   button.onclick=()=>{
+    adminCashTab=key;
+    if(key==="out"&&window.matchMedia("(max-width:1023px)").matches){
+     const form=$("f4BankCashExpenseDisclosure");if(form)form.open=true;
+    }
+    loadAdminCash();
+   };
+   tabs.append(button);
   }
   const toolbar=el("div","f4-bank-cash-toolbar");toolbar.append(tabs);
-  const expense=el("section","f4-bank-cash-expense-section");expense.id="f4BankCashExpense";
-  body.append(toolbar,expense,el("div","f4-bank-admin-cash-stats"),
-   el("div","f4-bank-admin-cash-table","Memuat mutasi kas..."));
-  page.append(body);
+  const stats=el("div","f4-bank-admin-cash-stats");
+  const panels=el("div","f4-bank-admin-cash-panels");
+  for(const [key,label] of [["in","Pemasukan"],["out","Pengeluaran"]]){
+   const panel=el("section","f4-bank-admin-cash-panel");
+   panel.dataset.cashPanel=key;
+   panel.append(el("h3","f4-bank-admin-cash-panel-title",label));
+   if(key==="out"){
+    const disclosure=el("details","f4-bank-cash-expense-disclosure");
+    disclosure.id="f4BankCashExpenseDisclosure";
+    disclosure.append(el("summary","","Catat pengeluaran"));
+    const expense=el("section","f4-bank-cash-expense-section");
+    expense.id="f4BankCashExpense";disclosure.append(expense);
+    disclosure.addEventListener("toggle",()=>{
+     if(disclosure.open)window.v10LoadBiaya?.();
+    });
+    panel.append(disclosure);
+   }
+   const ledger=el("div","f4-bank-admin-cash-table","Memuat mutasi kas...");
+   ledger.dataset.cashList=key;
+   panel.append(ledger);panels.append(panel);
+  }
+  body.append(toolbar,stats,panels);page.append(body);
  }
  ensureCashExpenseForm();
  page.classList.remove("hidden");loadAdminCash();
 }
 async function loadAdminCash(){
  const page=$("f4BankAdminCashBody");if(!page)return;
- const target=page.querySelector(".f4-bank-admin-cash-table");
- target.textContent="Memuat mutasi kas...";
+ const targets=[...page.querySelectorAll("[data-cash-list]")];
+ targets.forEach(target=>{target.textContent="Memuat mutasi kas...";});
  page.querySelectorAll("[data-cash-tab]").forEach(button=>{
   const active=button.dataset.cashTab===adminCashTab;
   button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
  });
- const expense=$("f4BankCashExpense");
- if(expense)expense.hidden=adminCashTab!=="out";
- if(adminCashTab==="out")window.v10LoadBiaya?.();
+ page.querySelectorAll("[data-cash-panel]").forEach(panel=>{
+  panel.classList.toggle("is-active",panel.dataset.cashPanel===adminCashTab);
+ });
  try{
   const res=await api("/api/v2/admin/bank/cash?limit=300");
   const all=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
    String(b.occurred_on||"").localeCompare(String(a.occurred_on||"")));
   const incoming=all.reduce((n,x)=>n+Number(x.cash_in_rp||0),0);
   const outgoing=all.reduce((n,x)=>n+Number(x.cash_out_rp||0),0);
-  const rows=all.filter(x=>adminCashTab==="in"?Number(x.cash_in_rp)>0:Number(x.cash_out_rp)>0);
   page.querySelector(".f4-bank-admin-cash-stats").replaceChildren(...[
    ["Pemasukan",incoming],["Pengeluaran",outgoing],["Selisih mutasi",incoming-outgoing]
   ].map(([name,value])=>{
    const node=el("div","f4-bank-admin-cash-stat");
    node.append(el("small","",name),el("strong","",rupiah(value)));return node;
   }));
-  const table=el("table","f4-bank-admin-cash-ledger");
-  const thead=el("thead"),heading=el("tr");
-  for(const label of ["Tanggal","Keterangan","Pos","Nominal"])heading.append(el("th","",label));
-  thead.append(heading);table.append(thead);
-  const tbody=el("tbody");
-  for(const item of rows){
-   const tr=el("tr");
-   for(const value of [item.occurred_on||"—",item.note||item.transaction_type||"—",
-     item.fund_position||"—",rupiah(adminCashTab==="in"?item.cash_in_rp:item.cash_out_rp)])
-    tr.append(el("td","",value));
-   tbody.append(tr);
+  for(const key of ["in","out"]){
+   const target=page.querySelector('[data-cash-list="'+key+'"]');
+   if(!target)continue;
+   const rows=all.filter(x=>Number(key==="in"?x.cash_in_rp:x.cash_out_rp)>0);
+   if(!rows.length){
+    target.textContent=key==="in"?"Belum ada pemasukan.":"Belum ada pengeluaran.";
+    continue;
+   }
+   const table=el("table","f4-bank-admin-cash-ledger");
+   const thead=el("thead"),heading=el("tr");
+   for(const label of ["Tanggal","Keterangan","Pos","Nominal"])heading.append(el("th","",label));
+   thead.append(heading);table.append(thead);
+   const tbody=el("tbody");
+   for(const item of rows){
+    const tr=el("tr");
+    for(const value of [
+     item.occurred_on||"—",item.note||item.transaction_type||"—",
+     item.fund_position||"—",rupiah(key==="in"?item.cash_in_rp:item.cash_out_rp)
+    ])tr.append(el("td","",value));
+    tbody.append(tr);
+   }
+   table.append(tbody);target.replaceChildren(table);
   }
-  table.append(tbody);target.replaceChildren(table);
-  if(!rows.length)target.textContent=adminCashTab==="in"?"Belum ada pemasukan.":"Belum ada pengeluaran.";
- }catch(error){target.textContent="Mutasi kas belum dapat dibuka: "+error.message;}
+ }catch(error){
+  targets.forEach(target=>{target.textContent="Mutasi kas belum dapat dibuka: "+error.message;});
+ }
 }
 window.addEventListener("f4-bank-expense-saved",()=>{
  if(roleType()==="admin"&&$("f4BankAdminCashBody"))loadAdminCash();
