@@ -226,26 +226,104 @@
    if(entries.length>12)trendBox.append(node('p','f4-analisis-hint','Grafik menampilkan 12 periode terakhir dari rentang yang dipilih.'));
   }
   const typeBox=node('section','f4-analisis-panel f4-analisis-types');typeBox.id=cls+'-section-types';
+  const totalTypes=categories.reduce((sum,entry)=>sum+entry.kg,0);
+  const percent=kg=>totalTypes>0?kg/totalTypes*100:0;
+  const fmtPct=value=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(value)+'%';
+  const palette=['#009788','#43A047','#FDC010','#09BCD3','#5969DA','#EB6A48',
+   '#8BC24A','#277FC6','#B452BA','#CA8B22','#22A97F','#D94880',
+   '#426CB8','#CE6B43','#799126','#368EAA','#C44256','#7B62B8'];
+  // Pemetaan berdasarkan ID katalog, tidak berganti ketika urutan peringkat berubah.
+  const allSorted=d.catalog.slice().sort((a,b)=>a.id.localeCompare(b.id));
+  const itemColor=new Map(allSorted.map((entry,i)=>[entry.id,i<palette.length?palette[i]:
+   'hsl('+((i*137.508+17)%360).toFixed(1)+' 69% 43%)']));
   add(typeBox,node('h3','','Jenis Sampah'));
-  // Judul tetap terlihat; daftar bergulir di dalam kartu yang tingginya terbatas.
-  const typeList=node('div','f4-analisis-type-scroll');
-  typeList.tabIndex=0;typeList.setAttribute('role','region');
-  typeList.setAttribute('aria-label','Daftar jenis sampah menurut total berat, bisa digulir');
-  if(!categories.length)typeList.append(node('p','f4-analisis-empty','Belum ada rincian barang.'));
+  const layout=node('div','f4-analisis-type-layout');
+  const donutBox=node('div','f4-analisis-donut-box');
+  const donut=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  donut.setAttribute('viewBox','0 0 180 180');
+  donut.setAttribute('role','img');
+  donut.setAttribute('aria-label','Diagram persentase berat sampah berdasarkan jenis');
+  donut.classList.add('f4-analisis-donut');
+  const circle=(radius,stroke,width)=>{
+   const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+   el.setAttribute('cx','90');el.setAttribute('cy','90');el.setAttribute('r',String(radius));
+   el.setAttribute('fill','none');el.setAttribute('stroke',stroke);el.setAttribute('stroke-width',String(width));
+   return el;
+  };
+  donut.append(circle(68,'#eaf1ed',23));
+  const center=node('div','f4-analisis-donut-center');
+  const centerValue=node('strong','',fmtKg(totalTypes));
+  const centerText=node('small','','Total berat');
+  center.append(centerValue,centerText);
+  const resetCenter=()=>{
+   centerValue.textContent=fmtKg(totalTypes);centerText.textContent='Total berat';
+  };
+  if(totalTypes>0){
+   const top=categories.slice(0,6).map(x=>({...x}));
+   if(state.item&&!top.some(x=>x.id===state.item)){
+    const chosen=categories.find(x=>x.id===state.item);
+    if(chosen){top.pop();top.push({...chosen});}
+   }
+   const selectedIds=new Set(top.map(x=>x.id));
+   const leftover=categories.filter(x=>!selectedIds.has(x.id)).reduce((sum,x)=>sum+x.kg,0);
+   const slices=[...top];
+   if(leftover>0)slices.push({id:'',name:'Lainnya',kg:leftover,other:true});
+   let offset=0;
+   slices.forEach(entry=>{
+    const pct=percent(entry.kg);
+    if(pct<=0)return;
+    const arc=circle(68,entry.other?'#90a29b':itemColor.get(entry.id)||'#009788',23);
+    arc.setAttribute('pathLength','100');
+    const gap=Math.min(.7,pct*.18);
+    arc.setAttribute('stroke-dasharray',Math.max(.15,pct-gap).toFixed(4)+' '+(100-Math.max(.15,pct-gap)).toFixed(4));
+    arc.setAttribute('stroke-dashoffset',String(-offset-gap/2));
+    arc.setAttribute('transform','rotate(-90 90 90)');
+    arc.setAttribute('class','f4-analisis-donut-arc'+(entry.id&&state.item===entry.id?' is-selected':''));
+    arc.setAttribute('aria-label',entry.name+', '+fmtKg(entry.kg)+', '+fmtPct(pct));
+    arc.setAttribute('role',entry.other?'img':'button');
+    if(!entry.other){
+     arc.setAttribute('tabindex','0');
+     arc.addEventListener('click',()=>selectItem(entry.id));
+     arc.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectItem(entry.id);}});
+    }
+    const show=()=>{centerValue.textContent=fmtPct(pct);centerText.textContent=entry.name;};
+    arc.addEventListener('pointerenter',show);
+    arc.addEventListener('pointerleave',resetCenter);
+    arc.addEventListener('focus',show);
+    arc.addEventListener('blur',resetCenter);
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent=entry.name+' — '+fmtKg(entry.kg)+' ('+fmtPct(pct)+')';
+    arc.append(title);donut.append(arc);
+    offset+=pct;
+   });
+  }
+  donutBox.append(donut,center);
+  const list=node('div','f4-analisis-type-scroll');
+  list.tabIndex=0;list.setAttribute('role','region');
+  list.setAttribute('aria-label','Daftar semua jenis sampah, bisa digulir');
+  if(!categories.length)list.append(node('p','f4-analisis-empty','Belum ada setoran.'));
   else{
    const max=categories[0].kg;
    categories.forEach((entry,i)=>{
+    const col=itemColor.get(entry.id)||'#009788',share=percent(entry.kg);
     const btn=node('button','f4-analisis-rankrow'+(state.item===entry.id?' is-selected':''));
-    btn.type='button';btn.title='Filter jenis '+entry.name;
-    const top=add(node('div','f4-analisis-rankrow-head'),
-     node('span','',String(i+1)+'. '+entry.name),node('strong','',fmtKg(entry.kg)));
+    btn.type='button';btn.title=entry.name+' · '+fmtKg(entry.kg)+' · '+fmtPct(share);
+    btn.setAttribute('aria-label','Filter '+entry.name+', '+fmtKg(entry.kg)+', '+fmtPct(share));
+    const swatch=node('span','f4-analisis-type-swatch');swatch.style.backgroundColor=col;
+    const name=node('span','f4-analisis-type-name',entry.name);
+    const kg=node('strong','f4-analisis-type-weight',fmtKg(entry.kg));
+    const topLine=add(node('div','f4-analisis-rankrow-head'),swatch,name,kg);
+    const barLine=node('div','f4-analisis-type-barline');
     const track=node('div','f4-analisis-horizontal-track');
-    const fill=node('div','f4-analisis-horizontal-fill');fill.style.width=(100*entry.kg/max)+'%';track.append(fill);
-    btn.append(top,track);btn.addEventListener('click',()=>selectItem(entry.id));typeList.append(btn);
+    const fill=node('div','f4-analisis-horizontal-fill');
+    fill.style.width=(100*entry.kg/max)+'%';fill.style.backgroundColor=col;
+    track.append(fill);barLine.append(track,node('small','',fmtPct(share)));
+    btn.append(topLine,barLine);
+    btn.addEventListener('click',()=>selectItem(entry.id));list.append(btn);
    });
   }
-  typeBox.append(typeList);
-  if(categories.length>5)typeBox.append(node('p','f4-analisis-type-note',categories.length+' jenis · gulir untuk lainnya'));
+  layout.append(donutBox,list);typeBox.append(layout);
+  if(categories.length>4)typeBox.append(node('p','f4-analisis-type-note',categories.length+' jenis · geser daftar'));
   charts.append(trendBox,typeBox);results.append(charts);
   const lower=node('div','f4-analisis-lower');results.append(lower);
   const rankSection=node('section','f4-analisis-panel f4-analisis-people');rankSection.id=cls+'-section-people';
