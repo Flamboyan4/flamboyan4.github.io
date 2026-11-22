@@ -4,6 +4,9 @@
  const original=window.__f4BankDemoCall;
  const onlyArray=(data)=>Array.isArray(data)?data:Array.isArray(data?.rows)?data.rows:Array.isArray(data?.items)?data.items:Array.isArray(data?.data)?data.data:Array.isArray(data?.data?.rows)?data.data.rows:Array.isArray(data?.data?.items)?data.data.items:[];
  const number=(value)=>Number.isFinite(Number(value))?Number(value):0;
+ // Identitas kategori barang digunakan lintas beranda, tarif, dan laporan.
+ const itemCategory=(name,category)=>/duplex|dupleks?/i.test(String(name||''))?'Kertas':String(category||'Lainnya');
+ window.f4BankItemCategory=itemCategory;
  const bankWasteCodes=catalog=>{
   const codeBase=name=>{
     const value=String(name||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -654,7 +657,7 @@
   bsDashboardMasterBarang:async()=>{
    const r=await get('/api/v2/admin/bank/catalog');
    return onlyArray(r).map(item=>({kode:item.code||item.kode||String(item.id||'').replace(/^waste:/,''),
-    nama:item.name||item.nama,kelompok:item.category||item.kelompok||'',
+    nama:item.name||item.nama,kelompok:itemCategory(item.name||item.nama,item.category||item.kelompok),
     acuan:number(item.reference_price_rp??item.acuan??number(item.priceRpPerKg)*2),
     tarif:number(item.priceRpPerKg??item.tarif),
     status:item.active===false?'Nonaktif':'Aktif'}));
