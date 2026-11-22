@@ -1434,13 +1434,22 @@ function managerRequestsPanel(){
  }
  if(!$("f4BankManualPayout")){
   const detail=el("details","f4-bank-manual-payout");detail.id="f4BankManualPayout";
-  detail.append(el("summary","","Pencairan manual (tanpa pengajuan)"));
-  detail.append(el("p","f4-bank-screen-status","Khusus tanpa pengajuan. Cegah bayar ganda."));
+  const summary=el("summary","f4-bank-manual-heading");
+  const heading=el("span","f4-bank-manual-heading-main");
+  heading.append(el("strong","","Pencairan manual"),el("small","","Tanpa pengajuan anggota"));
+  summary.append(heading,bankUiSvg("chevron-right"));
+  detail.append(summary);
+  detail.append(el("p","f4-bank-manual-help","Untuk pembayaran yang sudah diserahkan. Pastikan belum tercatat sebelumnya."));
   const form=$("v9Form")?.closest(".f4-savings-payout");
   if(form)detail.append(form);
-  const history=$("v9History")?.closest(".f4-savings-history");
-  if(history)detail.append(history);
+  detail.open=true;
   page.append(detail);
+ }
+ // Riwayat tetap terlihat walaupun formulir manual ditutup.
+ const history=$("v9History")?.closest(".f4-savings-history");
+ if(history&&history.parentNode!==page){
+  history.classList.add("f4-bank-payout-ledger");
+  page.append(history);
  }
  const savings=$("pageTabungan");
  if(savings&&!$("f4BankPayoutLink")){
