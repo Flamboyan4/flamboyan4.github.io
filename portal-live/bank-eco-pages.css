@@ -1010,12 +1010,14 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView #bank-payout-admin:not(.hidden){
  box-sizing:border-box;display:grid;gap:14px;width:100%;max-width:1160px;
  grid-template-columns:minmax(0,1fr);
- grid-template-areas:"title" "requests" "manual" "history";
+ grid-template-areas:"title" "main" "history";
  margin:0 auto 24px;align-content:start;min-width:0
 }
 #dashboardView #bank-payout-admin>.f4-bank-screen-title{grid-area:title;min-width:0}
-#dashboardView #bank-payout-admin>.f4-bank-manager-requests{grid-area:requests;min-width:0}
-#dashboardView #bank-payout-admin>.f4-bank-manual-payout{grid-area:manual}
+#dashboardView #bank-payout-admin>.f4-bank-payout-main{
+ grid-area:main;display:grid;grid-template-columns:minmax(0,1fr);
+ gap:14px;align-content:start;min-width:0
+}
 #dashboardView #bank-payout-admin>.f4-bank-payout-ledger{grid-area:history}
 #dashboardView #bank-payout-admin .f4-bank-manual-payout{
  box-sizing:border-box;min-width:0;margin:0;padding:0 18px 18px;
@@ -1117,12 +1119,12 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 @media(min-width:1180px){
  #dashboardView #bank-payout-admin:not(.hidden){
   grid-template-columns:minmax(0,1.6fr) minmax(300px,.95fr);
-  grid-template-areas:"title title" "requests history" "manual history";
+  grid-template-areas:"title title" "main history";
   column-gap:16px;row-gap:14px
  }
  #dashboardView #bank-payout-admin>.f4-bank-payout-ledger{
-  align-self:stretch;grid-template-rows:auto minmax(0,1fr);
-  min-height:0;max-height:calc(100dvh - 215px);overflow:hidden
+  align-self:start;grid-template-rows:min-content minmax(0,1fr);
+  height:clamp(320px,52dvh,440px);min-height:0;overflow:hidden
  }
  #dashboardView #bank-payout-admin #v9History{
   min-height:0;overflow-y:auto;overscroll-behavior:contain;
