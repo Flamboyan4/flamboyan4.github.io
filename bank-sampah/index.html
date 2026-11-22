@@ -2471,7 +2471,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     const raw=String(name||"").normalize("NFKC").replace(/\([^)]*\)/g," ").trim();
     const plain=kind==="resident"?raw.replace(/^(?:(?:pak|bapak|bpk|bp|bu|ibu|mas|mbak)\.?\s+)+/i,""):raw;
     const seed=(plain.match(/\p{L}[\p{L}\p{M}]*/u)?.[0]||"warga").toLocaleLowerCase("id-ID");
-    const palette=["#008e83","#088a61","#1686ba","#29954c"];
+    const palette=["#009788","#5969da","#43a047","#277fc6","#b452ba","#d94880","#eb6a48","#087b56"];
     let hash=0;for(const ch of seed)hash=(Math.imul(hash,31)+ch.codePointAt(0))>>>0;
     avatar.style.setProperty("--f4-bank-person-bg",palette[hash%palette.length]);
     const id=String(memberId||"").replace(/^member:/i,"").trim();
@@ -7224,7 +7224,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-bright-bank-palette-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-dashboard-vivid-v2">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261121-info-card-green-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
