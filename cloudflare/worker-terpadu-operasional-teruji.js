@@ -124,7 +124,7 @@ __name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
 async function publicBank(db) {
   await f4GallerySchema(db);
   const [catalog, albums, progress, inventory, overview, monthlyWeights, monthlyDeposits] = await Promise.all([
-    list(db, `SELECT i.id,i.name,i.category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
+    list(db, `SELECT i.id,i.name,CASE WHEN LOWER(i.name) LIKE '%duplex%' OR LOWER(i.name) LIKE '%duplek%' THEN 'Kertas' ELSE i.category END AS category,i.unit, p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,i.name`),
     list(db, `SELECT a.id,a.title,a.category,a.event_on,a.description,
       CASE WHEN a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%'
        OR LOWER(a.category) LIKE 'bank sampah:%' OR LOWER(a.category) LIKE 'bank_sampah:%'
@@ -320,7 +320,7 @@ __name(publicAlbumMedia, "publicAlbumMedia");
 async function adminBank(db, url) {
   const kind = url.pathname.split("/").pop(), limit = paramLimit(url, 300);
   const tables = {
-    catalog: `SELECT i.id,i.name,i.category,i.unit,i.active,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) ORDER BY i.category,i.name LIMIT ?`,
+    catalog: `SELECT i.id,i.name,CASE WHEN LOWER(i.name) LIKE '%duplex%' OR LOWER(i.name) LIKE '%duplek%' THEN 'Kertas' ELSE i.category END AS category,i.unit,i.active,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) ORDER BY i.category,i.name LIMIT ?`,
     members: `SELECT m.id,m.display_name AS nama,h.house_code AS rumah,m.status, EXISTS(SELECT 1 FROM accounts a JOIN member_account_profiles p ON p.account_id=a.id WHERE a.member_id=m.id AND a.status='aktif' AND p.avatar_key IS NOT NULL AND p.avatar_key<>'') AS hasAvatar FROM members m LEFT JOIN households h ON h.id=m.household_id ORDER BY m.display_name LIMIT ?`,
     batches: `SELECT b.id,b.label,b.status,b.confirmed_at,COUNT(d.id) AS deposits,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.total_grams ELSE 0 END),0) AS grams,COALESCE(SUM(CASE WHEN d.status!='dibatalkan' THEN d.estimated_total_rp ELSE 0 END),0) AS estimatedRp FROM waste_batches b LEFT JOIN waste_deposits d ON d.batch_id=b.id GROUP BY b.id ORDER BY b.id DESC LIMIT ?`,
     deposits: `SELECT d.id,d.deposited_on,d.batch_id,d.member_id,m.display_name AS memberName,
@@ -6267,7 +6267,7 @@ __name(bankSalePayment,"bankSalePayment");
 // Harga warga selalu dari tarif warga. Harga jual lapak tidak dikirim ke akun anggota.
 async function bankMemberPriceList(db,who){
   const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
-  const rows=await list(db,"SELECT i.id,i.name,i.category,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id AND p2.effective_from<=date('now','+7 hours') ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,CASE WHEN p.citizen_rate_rp_per_kg IS NULL THEN 1 ELSE 0 END,p.citizen_rate_rp_per_kg ASC,i.name LIMIT 250",[]);
+  const rows=await list(db,"SELECT i.id,i.name,CASE WHEN LOWER(i.name) LIKE '%duplex%' OR LOWER(i.name) LIKE '%duplek%' THEN 'Kertas' ELSE i.category END AS category,p.citizen_rate_rp_per_kg AS priceRpPerKg,p.effective_from AS effectiveFrom FROM waste_items i LEFT JOIN waste_prices p ON p.id=(SELECT p2.id FROM waste_prices p2 WHERE p2.waste_item_id=i.id AND p2.effective_from<=date('now','+7 hours') ORDER BY p2.effective_from DESC,p2.id DESC LIMIT 1) WHERE i.active=1 ORDER BY i.category,CASE WHEN p.citizen_rate_rp_per_kg IS NULL THEN 1 ELSE 0 END,p.citizen_rate_rp_per_kg ASC,i.name LIMIT 250",[]);
   const policy=await bankV3CurrentPolicy(db);
   return json({ok:true,items:rows,method:policy.method,estimated:policy.method==="percentage",effectiveFrom:policy.effectiveFrom});
 }
