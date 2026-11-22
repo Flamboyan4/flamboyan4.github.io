@@ -77,7 +77,7 @@
     const total=lines.reduce((sum,x)=>sum+x.kg,0);
     if(Math.abs(total-(Number(deposit.total_grams)||0)/1000)>0.002)
      throw Error('Berat barang tidak cocok pada setoran '+deposit.id+'.');
-    return {id:String(deposit.id),member:normId(deposit.member_id),
+    return {id:String(deposit.id),member:normId(deposit.member_id),batch:String(deposit.batch_id||''),
      date:isoDate(deposit.deposited_on),month:isoDate(deposit.deposited_on).slice(0,7),
      total,estimate:Number(deposit.estimated_total_rp)||0,lines};
    }));
@@ -170,7 +170,7 @@
   const categories=[...itemTotals.values()].sort((a,b)=>b.kg-a.kg||a.name.localeCompare(b.name,'id'));
   const ranks=d.members.filter(m=>!state.member||m.id===state.member).map(m=>{
    const mine=filtered.filter(x=>x.member===m.id);
-   return {...m,active:new Set(mine.map(x=>x.date)).size,weight:mine.reduce((sum,x)=>sum+x.weight,0),
+   return {...m,active:new Set(mine.map(x=>x.batch||x.date)).size,weight:mine.reduce((sum,x)=>sum+x.weight,0),
     value:mine.reduce((sum,x)=>sum+x.estimate,0),records:mine.length};
   }).sort((a,b)=>b[state.ranking]-a[state.ranking]||b.weight-a.weight||a.name.localeCompare(b.name,'id'));
   const results=$(cls+'-results');results.replaceChildren();
@@ -281,9 +281,10 @@
   const official=node('button','is-active','Laporan Resmi');official.type='button';official.setAttribute('role','tab');official.setAttribute('aria-selected','true');official.id=cls+'-tab-official';
   const analysis=node('button','','Analisis Setoran');analysis.type='button';analysis.setAttribute('role','tab');analysis.setAttribute('aria-selected','false');analysis.id=cls+'-tab-analysis';
   tabs.append(official,analysis);
-  const legacy=node('div','');legacy.id=cls+'-official';legacy.setAttribute('role','tabpanel');
-  Array.from(report.children).filter(el=>el!==heading).forEach(el=>legacy.append(el));
+  // Pertahankan semua elemen laporan resmi di posisi semula agar CSS dan handler lama tidak berubah.
   const content=node('section','f4-analisis-content');content.id=cls+'-content';content.hidden=true;content.setAttribute('role','tabpanel');content.setAttribute('aria-labelledby',analysis.id);
+  const syncOfficial=()=>Array.from(report.children).filter(el=>el!==heading&&el!==tabs&&el!==content)
+   .forEach(el=>el.classList.toggle('f4-analisis-official-off',state.tab==='analysis'));
   const titlebar=node('div','f4-analisis-titlebar');
   const title=add(node('div'),node('h3','','Analisis Setoran Warga'),node('p','','Pantau keaktifan, berat, jenis barang, dan riwayat penimbangan.'));
   const refresh=node('button','f4-analisis-refresh');refresh.id=cls+'-refresh';refresh.type='button';add(refresh,svg('refresh'),node('span','','Muat ulang'));refresh.onclick=()=>ensureData(true);
@@ -306,10 +307,13 @@
   const results=node('div','f4-analisis-results');results.id=cls+'-results';
   content.append(titlebar,controls,buttons,alert,results);
   if(heading)heading.after(tabs);else report.prepend(tabs);
-  report.append(legacy,content);
+  report.append(content);
+  syncOfficial();
+  // Komponen laporan resmi lain dapat ditambahkan sesudah mount; tetap sembunyikan hanya saat tab analisis aktif.
+  new MutationObserver(syncOfficial).observe(report,{childList:true});
   function switchTo(which){
    if(!admin())return;
-   state.tab=which;legacy.hidden=which!=='official';content.hidden=which!=='analysis';
+   state.tab=which;syncOfficial();content.hidden=which!=='analysis';
    official.classList.toggle('is-active',which==='official');
    analysis.classList.toggle('is-active',which==='analysis');
    official.setAttribute('aria-selected',String(which==='official'));analysis.setAttribute('aria-selected',String(which==='analysis'));
@@ -330,7 +334,7 @@
    if(!admin()){if(state.data||state.pending)clearPrivate();switchToOfficialOnLogout();}
   });
   function switchToOfficialOnLogout(){
-   state.tab='official';legacy.hidden=false;content.hidden=true;
+   state.tab='official';syncOfficial();content.hidden=true;
    official.classList.add('is-active');analysis.classList.remove('is-active');
    official.setAttribute('aria-selected','true');analysis.setAttribute('aria-selected','false');
   }
