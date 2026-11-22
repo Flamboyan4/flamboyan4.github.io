@@ -707,7 +707,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 @media(min-width:1024px){
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations>.f4-bank-admin-operation{
   display:flex;flex-direction:row;align-items:center;justify-content:center;
-  gap:11px;min-height:68px;height:100%;min-width:0;padding:10px 13px;border-radius:17px;
+  gap:9px;min-height:0;height:100%;min-width:0;padding:8px 12px;border-radius:15px;
   text-align:left
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy{
@@ -966,9 +966,9 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{order:0}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;order:1}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{min-height:84px;gap:4px;padding:8px 3px;border-radius:12px}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:13px}
- #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:11px}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{flex-direction:row;min-height:66px;gap:7px;padding:8px 7px;border-radius:12px}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:12px}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:10px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:4}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:2}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{order:3}
@@ -3609,7 +3609,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
   display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.86fr);
   grid-template-areas:"hero recent" "actions recent" "insights insights";
-  grid-template-rows:minmax(310px,auto) minmax(68px,auto) auto;
+  grid-template-rows:clamp(220px,18vw,232px) 66px auto;
   gap:14px;align-items:stretch;min-width:0;
   width:100%;max-width:1310px;margin:0 auto
  }
