@@ -3089,6 +3089,16 @@ function sync(){
  }
  memberSide(role==="member");adminTopIdentity();
  syncAdminPageFrames();
+ // If route restoration has hidden every page, show the selected home again.
+ // Do not interfere with any currently open operational screen.
+ const dashboard=$("pageDashboard");
+ if(role==="admin"&&screen==="dashboard"&&dashboard?.classList.contains("hidden")&&
+    new URLSearchParams(location.search).get("halaman")==="dashboard"){
+  const section=dashboard.parentElement;
+  const otherVisible=[...(section?.children||[])].some(node=>node!==dashboard&&
+    (node.id.startsWith("page")||node.id.startsWith("bank-"))&&!node.classList.contains("hidden"));
+  if(!otherVisible)dashboard.classList.remove("hidden");
+ }
  ensureHome();
  if(role==="member"){
   ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();ensureMemberHowtoBanner();bindMemberDocumentation();publicSnapshot();
@@ -3306,7 +3316,7 @@ function init(){
   queueMicrotask(()=>{
    homeRepairQueued=false;
    if(!roleType()||$("dashboardView")?.classList.contains("hidden"))return;
-   if(page.querySelector("#f4BankAppHome")?.querySelector("#f4BankAdminHero")&&
+   if(page.querySelector("#f4BankAppHome")?.querySelector("#f4BankAppAdminHero")&&
       (roleType()!=="admin"||page.querySelector("#f4BankAdminOperations")))return;
    homeRepairTime=Date.now();
    sync();
