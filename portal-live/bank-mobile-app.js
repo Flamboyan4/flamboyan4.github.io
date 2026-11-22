@@ -251,8 +251,10 @@ function renderMemberAward(){
  for(const host of [$("f4BankMemberCard"),$("pageProfile")?.querySelector(".f4-bank-profile-card")]){
   if(!host)continue;
   host.querySelector(".f4-bank-activity-crown")?.remove();
+  host.classList.remove("has-activity-crown");
   const badge=memberAward.memberId===memberID()?memberAward.badge:null;
   if(!badge||badge.rank<1||badge.rank>3)continue;
+  host.classList.add("has-activity-crown");
   const head=host.querySelector(".f4-bank-member-card-head");
   if(!head)continue;
   const symbol=bankAwardNode(badge.rank,badge.active);
