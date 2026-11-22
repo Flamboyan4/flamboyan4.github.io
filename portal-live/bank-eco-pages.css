@@ -4024,7 +4024,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-metric-head{display:flex;align-items:center;gap:7px;color:#477360;font-size:11px;line-height:1.3;font-weight:650}
 #pageLaporan .f4-analisis-metric-head svg{width:17px;height:17px;flex:none;color:#43a047}
 #pageLaporan .f4-analisis-metric strong{display:block;overflow-wrap:anywhere;color:#116a47;font-size:19px;line-height:1.3;margin-top:7px;font-weight:800}
-#pageLaporan .f4-analisis-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0}
+#pageLaporan .f4-analisis-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-width:0;align-items:start}
 #pageLaporan .f4-analisis-panel{min-width:0;border:1px solid #e2eee6;border-radius:15px;padding:15px;background:#fff}
 #pageLaporan .f4-analisis-panel h3{margin:0;color:#174d34;font-size:15px;line-height:1.35;font-weight:800}
 #pageLaporan .f4-analisis-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:12px}
@@ -4038,6 +4038,12 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-trend-value{color:#3b7356;font-size:10px;font-weight:700;white-space:nowrap}
 #pageLaporan .f4-analisis-trend-track{height:128px;width:64%;max-width:40px;display:flex;align-items:flex-end;justify-content:center;border-radius:7px;background:#eff5f0;overflow:hidden}
 #pageLaporan .f4-analisis-trend-bar{width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#238a54,#8bc24a);min-height:5px}
+#pageLaporan .f4-analisis-types{display:flex;flex-direction:column;height:315px;overflow:hidden}
+#pageLaporan .f4-analisis-types>h3,#pageLaporan .f4-analisis-types>.f4-analisis-section-lead{flex:none}
+#pageLaporan .f4-analisis-type-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#pageLaporan .f4-analisis-type-scroll::-webkit-scrollbar{display:none}
+#pageLaporan .f4-analisis-type-scroll:focus-visible{outline:2px solid #43a047;outline-offset:-2px}
+#pageLaporan .f4-analisis-type-note{flex:none;margin:7px 0 0;color:#718879;font-size:11px;line-height:1.3}
 #pageLaporan .f4-analisis-rankrow{display:block;width:100%;padding:7px 0;border:0;border-radius:0;background:transparent;text-align:left;color:#245b3c}
 #pageLaporan .f4-analisis-rankrow.is-selected{background:#f0f8f0;border-radius:8px;padding-inline:6px}
 #pageLaporan .f4-analisis-rankrow-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;line-height:1.3}
@@ -4092,6 +4098,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-metric{padding:11px}
  #pageLaporan .f4-analisis-metric strong{font-size:16px}
  #pageLaporan .f4-analisis-panel{padding:12px}
+ #pageLaporan .f4-analisis-types{height:300px}
  #pageLaporan .f4-analisis-person{gap:5px 7px;grid-template-columns:28px minmax(0,1fr) auto}
  #pageLaporan .f4-analisis-person-value{font-size:11px}
  #pageLaporan .f4-analisis-record-summary{gap:7px}

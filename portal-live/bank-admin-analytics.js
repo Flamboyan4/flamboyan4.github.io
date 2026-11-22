@@ -4,7 +4,7 @@
  const API='https://api.flamboyan4.web.id';
  const $=id=>document.getElementById(id);
  const cls='f4-analisis';
- const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'session',ranking:'active',allRanks:false,allTypes:false,tab:'official'};
+ const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'session',ranking:'active',allRanks:false,tab:'official'};
  const fmtKg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0)+' kg';
  const fmtRp=n=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(Number(n)||0);
  const fmtInt=n=>new Intl.NumberFormat('id-ID').format(Number(n)||0);
@@ -89,7 +89,7 @@
  const status=(msg,error=false)=>{const el=$(cls+'-status');if(el){el.textContent=msg||'';el.hidden=!msg;el.classList.toggle('is-error',error)}};
  function clearPrivate(){
   state.generation++;state.data=null;state.loadedAt=0;state.pending=null;
-  state.member='';state.item='';state.from='';state.to='';state.allRanks=false;state.allTypes=false;
+  state.member='';state.item='';state.from='';state.to='';state.allRanks=false;
   const content=section();
   if(content){const blocks=$(cls+'-results');if(blocks)blocks.replaceChildren();}
   status('');
@@ -226,26 +226,28 @@
    trendBox.append(chart);
    if(entries.length>12)trendBox.append(node('p','f4-analisis-hint','Grafik menampilkan 12 periode terakhir dari rentang yang dipilih.'));
   }
-  const typeBox=node('section','f4-analisis-panel');typeBox.id=cls+'-section-types';
+  const typeBox=node('section','f4-analisis-panel f4-analisis-types');typeBox.id=cls+'-section-types';
   add(typeBox,node('h3','','Jenis Sampah Terbanyak'),
-   node('p','f4-analisis-section-lead','Diurutkan berdasarkan kilogram. Ketuk nama barang untuk melihat siapa penyetornya.'));
-  if(!categories.length)typeBox.append(node('p','f4-analisis-empty','Belum ada rincian barang.'));
+   node('p','f4-analisis-section-lead','Diurutkan berdasarkan berat (kg). Ketuk barang untuk melihat rincian penyetornya.'));
+  // Judul tetap terlihat; daftar bergulir di dalam kartu yang tingginya terbatas.
+  const typeList=node('div','f4-analisis-type-scroll');
+  typeList.tabIndex=0;typeList.setAttribute('role','region');
+  typeList.setAttribute('aria-label','Daftar jenis sampah menurut total berat, bisa digulir');
+  if(!categories.length)typeList.append(node('p','f4-analisis-empty','Belum ada rincian barang.'));
   else{
    const max=categories[0].kg;
-   categories.slice(0,state.allTypes?undefined:8).forEach((entry,i)=>{
+   categories.forEach((entry,i)=>{
     const btn=node('button','f4-analisis-rankrow'+(state.item===entry.id?' is-selected':''));
     btn.type='button';btn.title='Filter jenis '+entry.name;
     const top=add(node('div','f4-analisis-rankrow-head'),
      node('span','',String(i+1)+'. '+entry.name),node('strong','',fmtKg(entry.kg)));
     const track=node('div','f4-analisis-horizontal-track');
     const fill=node('div','f4-analisis-horizontal-fill');fill.style.width=(100*entry.kg/max)+'%';track.append(fill);
-    btn.append(top,track);btn.addEventListener('click',()=>selectItem(entry.id));typeBox.append(btn);
+    btn.append(top,track);btn.addEventListener('click',()=>selectItem(entry.id));typeList.append(btn);
    });
-   if(categories.length>8){
-    const toggle=node('button','f4-analisis-more',state.allTypes?'Tampilkan 8 teratas':'Lihat semua '+categories.length+' jenis');
-    toggle.type='button';toggle.addEventListener('click',()=>{state.allTypes=!state.allTypes;render();});typeBox.append(toggle);
-   }
   }
+  typeBox.append(typeList);
+  if(categories.length>5)typeBox.append(node('p','f4-analisis-type-note','Geser daftar untuk melihat seluruh '+categories.length+' jenis.'));
   charts.append(trendBox,typeBox);results.append(charts);
   const rankSection=node('section','f4-analisis-panel f4-analisis-people');rankSection.id=cls+'-section-people';
   const peopleHeading=add(node('div','f4-analisis-panel-head'),node('h3','','Peringkat Warga'),
