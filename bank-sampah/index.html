@@ -3758,7 +3758,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   v13PublicButton();
   // v14: layar dashboard baru, sumber data tetap fungsi GAS yang sudah ada.
   function v14Setup(){
-    const page=$('pageDashboard');if(page.classList.contains('v14-home'))return;
+    const page=$('pageDashboard');
+    // The live view may be reconstructed after account/route changes: a CSS class
+    // alone cannot prove its original data anchors are still present.
+    if(page.classList.contains('v14-home') &&
+       ['v14Primary','v14Extra','v14Recent','v14Activities'].every(id=>page.querySelector('#'+id)))return;
     page.classList.add('v14-home','f4-eco-dashboard');
     page.innerHTML=`<div class="v14-head"><div class="f4-eco-head-copy"><h2 id="v14Title">Ringkasan</h2><p id="v14Subtitle">Perkembangan Flamboyan 4</p></div><button class="v14-action" id="v14QuickAction" type="button">+ Catat setoran</button></div>
       <div class="v14-hero"><div class="v14-hero-content"><span class="v14-eyebrow"><img src="/assets/icons/bank.svg" width="18" height="18" alt="" aria-hidden="true"> Bank Sampah</span><h3>Sampah terpilah. Manfaat bertambah.</h3><p id="v14HeroCopy">Bersama-sama menjaga lingkungan Flamboyan 4.</p></div><div class="v14-hero-art" aria-hidden="true"><img src="/assets/icons/bank.svg" width="64" height="64" alt=""></div></div>
@@ -4103,15 +4107,6 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
     render();
   }
-  function v14BankQuickActions(){
-    let quick=$('f4-bank-quick');
-    if(!quick){quick=document.createElement('div');quick.id='f4-bank-quick';quick.className='f4-bank-quick';$('v14Primary').after(quick);}
-    quick.replaceChildren();
-    for(const [label,page] of [['Catat penjualan','penjualan'],['Laporan Bank Sampah','laporan']]){
-      const button=document.createElement('button');button.type='button';button.textContent=label;
-      button.onclick=()=>goPage(page);quick.append(button);
-    }
-  }
   async function v14LoadDashboard(){
     if(!profile)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
     $('pageDashboard').classList.toggle('f4-member-dashboard',!isAdmin);
@@ -4119,7 +4114,6 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     $('f4-member-weight-chart')?.remove();
     $('f4-monthly-trend')?.remove();
     $('v14Primary')?.parentElement?.querySelectorAll('.f4-member-finance-note').forEach(n=>n.remove());
-    if(!isAdmin)$('f4-bank-quick')?.remove();
     $('v14Title').textContent=isAdmin?'Ringkasan':'Halo, '+f4BankDisplayWargaName(profile.nama);
     $('v14Subtitle').textContent=isAdmin?'Setoran • Penjualan • Kegiatan':(profile.rumah?'Rumah '+profile.rumah+' • ':'')+'Tabungan saya';
     $('v14QuickAction').textContent=isAdmin?'+ Catat setoran':'Lihat tabungan saya';
@@ -4239,7 +4233,6 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       $('v14Extra').replaceChildren(v14ExtraStat('Menunggu sah',rupiah(d.estimasiSetoranRp)),v14ExtraStat('Barang aktif',d.jenisBarangAktif+' jenis'),v14ExtraStat('Kas gabungan',rupiah(d.kasGabunganRp)),v14ExtraStat('Berat terjual',kg(d.beratPenjualanKg)),v14ExtraStat('Riwayat tabungan',rupiah(d.netMutasiTabunganRp)),v14ExtraStat('Jumlah penjualan',d.jumlahPenjualan));
       $('v14Status').textContent=(d.tarifBelumDitetapkan?'Perhatian: '+d.tarifBelumDitetapkan+' barang belum memiliki tarif warga. ':'')+'';
     }else{$('v14Primary').textContent='Ringkasan belum tersedia.';$('v14Status').textContent=String(stats.reason?.message||stats.reason);}
-    v14BankQuickActions();
     if(deposits.status==='fulfilled')v14WeightTrend(deposits.value);
     const recent=deposits.status==='fulfilled'?deposits.value.filter(r=>r.status!=='Dibatalkan').slice(0,5):[];
     const recentBox=$('v14Recent');recentBox.replaceChildren();if(recent.length)recentBox.appendChild(v14RecentTable(recent));else recentBox.textContent='Belum ada setoran terbaru.';
@@ -4265,6 +4258,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     });
     if(!box.childElementCount)box.textContent='Belum ada pembaruan kegiatan yang dipublikasikan.';
   }
+  window.f4BankEnsureLegacyDashboard=v14Setup;
   v14Setup();loadDashboard=v14LoadDashboard;
   // v15 — panel akun di bawah sidebar dan foto profil privat.
   let v15AvatarData='',v15PendingFile=null;
