@@ -286,7 +286,6 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
  }
 }
 body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report)>.f4-bank-screen-title{margin:2px 0 8px}
-body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{margin:2px 0 14px}
 /* Member home progress: a single private weight chart, no duplicate metric tiles. */
 #dashboardView .f4-member-environment-preview{
  display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;min-width:0;
