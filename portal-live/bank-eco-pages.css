@@ -33,6 +33,32 @@ body.f4-direct-bank .shell>.footer,body.f4-embedded-bank .shell>.footer{
  --eco-purple:#ece6ff;--eco-line:var(--f4-bank-line,#dfede5);--eco-muted:var(--f4-bank-muted,#5d786c);--eco-lime:var(--f4-bank-lime,#8bc24a);--eco-teal:var(--f4-bank-teal,#009788);--eco-cyan:var(--f4-bank-cyan,#09bcd3);
  color:var(--f4-bank-ink,#153e32)
 }
+/* Per-page accent map: one canonical system for every public/member/admin view.
+   White stays as the surface; green remains the main navigation/brand color. */
+#dashboardView :is(#pageProfile,#pageProgress,#pageAdmin,#pagePassword,#pageSetoran,#pagePribadi){
+ --f4-bank-section-accent:#43a047
+}
+#dashboardView :is(#pageTabungan,#pageBiaya,#pageRekonsiliasi){
+ --f4-bank-section-accent:#009788
+}
+#dashboardView :is(#pageRiwayat,#pageLaporan){
+ --f4-bank-section-accent:#5969da
+}
+#dashboardView :is(#pagePenjualan,#pageRiwayatJual){
+ --f4-bank-section-accent:#eb6a48
+}
+#dashboardView :is(#pageMaster,#pagePengesahan,#pageKegiatan){
+ --f4-bank-section-accent:#fdc010
+}
+#dashboardView :is(#pageDokumentasi,#pageInventaris){
+ --f4-bank-section-accent:#b452ba
+}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(1){--f4-bank-metric-accent:#43a047}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(2){--f4-bank-metric-accent:#5969da}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(3){--f4-bank-metric-accent:#fdc010}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(4){--f4-bank-metric-accent:#009788}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(5){--f4-bank-metric-accent:#b452ba}
+#dashboardView :is(.stats>.stat,.metric-grid>.metric):nth-child(6){--f4-bank-metric-accent:#eb6a48}
 /* Botanical canvas gives cards breathing space without adding nested frames. */
 body.f4-direct-bank:not(.f4-bank-app-member) #dashboardView .section,
 body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
@@ -50,10 +76,17 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 }
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.desc,.hint,.section-caption,.v17-subtle),
 #v11Public :is(.v17-subtle,.v25-report-note){color:var(--eco-muted);line-height:1.45}
+/* A single short section marker, not another card or competing background. */
+#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,
+ #pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,
+ #pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>h2{
+ border-left:4px solid var(--f4-bank-section-accent,#43a047);
+ padding-left:10px
+}
 /* Navigation: sidebar, public menu, member menu and ALL submenu tabs. */
 #dashboardView #sideNav :is(button,.v16-item).active,
 #v11Public #v18PublicSide button.active{
- background:#d9f8e7;color:#096a4e;
+ background:var(--f4-bank-leaf,#43a047);color:#fff;
  box-shadow:none;border:0;border-radius:11px;font-weight:800
 }
 #dashboardView #sideNav button:not(.active):hover,
@@ -71,8 +104,8 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
  min-height:39px;padding:8px 12px;font-weight:700
 }
 #dashboardView #v16Tabs.v16-tabs button.active{
- background:#d9f8e7;color:#096a4e;
- border-color:#c5eed9
+ background:var(--f4-bank-leaf,#43a047);color:#fff;
+ border-color:var(--f4-bank-leaf,#43a047)
 }
 /* Forms, filtering, input, public report controls and account settings. */
 #dashboardView :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
@@ -102,7 +135,7 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 #dashboardView .tablewrap tbody tr:nth-child(even) td{background:#f9fcfa}
 /* Operational summaries: white surfaces, fine border, saturated type. */
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.stats>.stat,.metric-grid>.metric,.summary-box){
- background:#fff;border:1px solid #dae5dd;
+ background:#fff;border:1px solid #dae5dd;border-top:3px solid var(--f4-bank-metric-accent,var(--f4-bank-section-accent,#43a047));
  border-radius:11px;box-shadow:none
 }
 
