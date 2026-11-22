@@ -11,7 +11,7 @@ const el=(tag,cls,text)=>{
   if(text!==undefined)node.textContent=text;return node;
 };
 function bankUiSvg(name){
- const paths={'chevron-right':'m9 18 6-6-6-6','check':'m20 6-11 11-5-5','x':'M18 6 6 18M6 6l12 12'};
+ const paths={'chevron-right':'m9 18 6-6-6-6','check':'m20 6-11 11-5-5','x':'M18 6 6 18M6 6l12 12','plus':'M12 5v14M5 12h14'};
  if(!paths[name])throw Error('Unknown Bank SVG icon');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');
@@ -2236,8 +2236,28 @@ function ensureCashExpenseForm(){
   if(field)extras.append(field);
  }
  const submit=form.querySelector('button[type="submit"]');
- if(submit){submit.textContent="Simpan Pengeluaran";submit.before(extras);}
- else form.append(extras);
+ if(submit){
+  submit.textContent="Simpan Pengeluaran";
+  submit.before(extras);
+  const actions=el("div","f4-bank-expense-actions");
+  const cancel=el("button","f4-bank-expense-cancel","Batal");
+  cancel.type="button";
+  cancel.onclick=closeCashExpenseDialog;
+  actions.append(cancel,submit);
+  form.append(actions);
+ }else form.append(extras);
+}
+function closeCashExpenseDialog(){
+ const dialog=$("f4BankCashExpenseDialog");
+ if(dialog?.open)dialog.close();
+}
+function openCashExpenseDialog(){
+ const dialog=$("f4BankCashExpenseDialog");
+ if(!dialog)return;
+ ensureCashExpenseForm();
+ if(!dialog.open)dialog.showModal();
+ window.v10LoadBiaya?.();
+ $("v10Type")?.focus({preventScroll:true});
 }
 function showAdminCash(){
  const page=ensureScreen("bank-admin-cash","Debit/Kredit");
@@ -2248,13 +2268,7 @@ function showAdminCash(){
   for(const [key,label] of [["in","Pemasukan"],["out","Pengeluaran"]]){
    const button=el("button","f4-bank-admin-history-tab",label);
    button.type="button";button.dataset.cashTab=key;
-   button.onclick=()=>{
-    adminCashTab=key;
-    if(key==="out"&&window.matchMedia("(max-width:1099px)").matches){
-     const form=$("f4BankCashExpenseDisclosure");if(form)form.open=true;
-    }
-    loadAdminCash();
-   };
+   button.onclick=()=>{adminCashTab=key;loadAdminCash();};
    tabs.append(button);
   }
   const toolbar=el("div","f4-bank-cash-toolbar");toolbar.append(tabs);
@@ -2263,23 +2277,43 @@ function showAdminCash(){
   for(const [key,label] of [["in","Pemasukan"],["out","Pengeluaran"]]){
    const panel=el("section","f4-bank-admin-cash-panel");
    panel.dataset.cashPanel=key;
-   panel.append(el("h3","f4-bank-admin-cash-panel-title",label));
+   const heading=el("div","f4-bank-cash-panel-heading");
+   heading.append(el("h3","f4-bank-admin-cash-panel-title",label));
    if(key==="out"){
-    const disclosure=el("details","f4-bank-cash-expense-disclosure");
-    disclosure.id="f4BankCashExpenseDisclosure";
-    disclosure.append(el("summary","","Catat pengeluaran"));
-    const expense=el("section","f4-bank-cash-expense-section");
-    expense.id="f4BankCashExpense";disclosure.append(expense);
-    disclosure.addEventListener("toggle",()=>{
-     if(disclosure.open)window.v10LoadBiaya?.();
-    });
-    panel.append(disclosure);
+    const trigger=el("button","f4-bank-cash-add-button");
+    trigger.id="f4BankCashExpenseOpen";
+    trigger.type="button";
+    trigger.append(bankUiSvg("plus"),document.createTextNode("Catat Pengeluaran"));
+    trigger.onclick=openCashExpenseDialog;
+    heading.append(trigger);
    }
+   panel.append(heading);
    const ledger=el("div","f4-bank-admin-cash-table","Memuat mutasi kas...");
    ledger.dataset.cashList=key;
    panel.append(ledger);panels.append(panel);
   }
-  body.append(toolbar,stats,panels);page.append(body);
+  const dialog=el("dialog","f4-bank-cash-expense-modal");
+  dialog.id="f4BankCashExpenseDialog";
+  dialog.setAttribute("aria-labelledby","f4BankCashExpenseTitle");
+  const header=el("div","f4-bank-expense-modal-header");
+  const title=el("h2","","Catat Pengeluaran");title.id="f4BankCashExpenseTitle";
+  const close=el("button","f4-bank-expense-close");close.type="button";
+  close.setAttribute("aria-label","Tutup formulir");
+  close.append(bankUiSvg("x"));close.onclick=closeCashExpenseDialog;
+  header.append(title,close);
+  const expense=el("section","f4-bank-cash-expense-section");
+  expense.id="f4BankCashExpense";
+  dialog.append(header,expense);
+  dialog.addEventListener("click",event=>{
+   if(event.target!==dialog)return;
+   const rect=dialog.getBoundingClientRect();
+   if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom){
+    closeCashExpenseDialog();
+   }
+  });
+  dialog.addEventListener("close",()=>{$("f4BankCashExpenseOpen")?.focus({preventScroll:true});});
+  body.append(toolbar,stats,panels);
+  page.append(body,dialog);
  }
  ensureCashExpenseForm();
  page.classList.remove("hidden");loadAdminCash();
@@ -2335,6 +2369,7 @@ async function loadAdminCash(){
  }
 }
 window.addEventListener("f4-bank-expense-saved",()=>{
+ closeCashExpenseDialog();
  if(roleType()==="admin"&&$("f4BankAdminCashBody"))loadAdminCash();
 });
 let adminMediaRestore=[];
