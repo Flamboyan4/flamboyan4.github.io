@@ -565,6 +565,27 @@ body.f4-bank-app-member #dashboardView{--bank-brand:var(--f4-bank-teal,#009e91);
  color:#fff;font-size:clamp(11px,1.05vw,14px);font-weight:850;
  letter-spacing:.035em;line-height:1.25;min-width:0
 }
+/* One shared crown icon for member ATM cards, member profile and manager roster. */
+#dashboardView .f4-bank-activity-crown{
+ box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;
+ gap:3px;flex:0 0 auto;min-width:42px;height:29px;padding:3px 7px;
+ border:1px solid #f3d66c;border-radius:10px;
+ background:#f7c934;color:#604400;
+ font:850 13px/1 system-ui,sans-serif;box-shadow:0 2px 5px #122d2718
+}
+#dashboardView .f4-bank-activity-crown svg{width:17px;height:17px;flex:none}
+#dashboardView .f4-bank-activity-crown strong{font:inherit;color:inherit}
+#dashboardView .f4-bank-activity-crown.is-rank-2{
+ background:#d5e1ec;color:#385069;border-color:#a6bccd
+}
+#dashboardView .f4-bank-activity-crown.is-rank-3{
+ background:#eab48c;color:#623c22;border-color:#d99d70
+}
+#dashboardView .f4-bank-activity-crown.is-compact{
+ height:22px;min-width:35px;padding:2px 5px;border-radius:7px;
+ font-size:11px;vertical-align:middle;margin-left:7px
+}
+#dashboardView .f4-bank-activity-crown.is-compact svg{width:13px;height:13px}
 #dashboardView .f4-bank-atm-contactless{
  display:grid;place-items:center;flex:none;width:32px;height:32px;
  color:#fff;opacity:.95;transform:none
@@ -4429,8 +4450,16 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-people-list::-webkit-scrollbar{display:none}
 #pageLaporan .f4-analisis-person{box-sizing:border-box;display:grid;flex:0 0 auto;grid-template-columns:31px minmax(0,1fr) auto;grid-template-rows:minmax(34px,auto) 4px;align-items:center;gap:6px 10px;width:100%;height:auto;min-height:68px;max-height:none;padding:9px 5px;border:0;border-bottom:1px solid #edf2ef;border-radius:0;background:transparent;color:#194f33;text-align:left}
 #pageLaporan .f4-analisis-person.is-selected{background:#eef9f0}
+#pageLaporan .f4-analisis-person.is-podium-1{background:#fff5d9;border-left:3px solid #e5ae08;padding-left:7px}
+#pageLaporan .f4-analisis-person.is-podium-2{background:#eef4fa;border-left:3px solid #8da6bf;padding-left:7px}
+#pageLaporan .f4-analisis-person.is-podium-3{background:#fff0e5;border-left:3px solid #d48b50;padding-left:7px}
+#pageLaporan .f4-analisis-person.is-podium-1.is-selected{background:#ffedb4}
+#pageLaporan .f4-analisis-person.is-podium-2.is-selected{background:#e1ecf7}
+#pageLaporan .f4-analisis-person.is-podium-3.is-selected{background:#fce0c9}
 #pageLaporan .f4-analisis-place{display:flex;align-items:center;justify-content:center;grid-row:1;width:28px;height:28px;border-radius:8px;background:#eef5ed;color:#447251;font-size:13px;font-weight:800}
-#pageLaporan .f4-analisis-person:first-child .f4-analisis-place{background:#fff1bc;color:#866204}
+#pageLaporan .f4-analisis-person.is-podium-1 .f4-analisis-place{background:#f3c432;color:#5e4100}
+#pageLaporan .f4-analisis-person.is-podium-2 .f4-analisis-place{background:#b8c9da;color:#284458}
+#pageLaporan .f4-analisis-person.is-podium-3 .f4-analisis-place{background:#e4a478;color:#663c1e}
 #pageLaporan .f4-analisis-person-name{display:grid;gap:3px;min-width:0;align-self:center;line-height:1.3}
 #pageLaporan .f4-analisis-person-name strong{font-size:14px;overflow-wrap:anywhere}
 #pageLaporan .f4-analisis-person-name small{font-size:12px;color:#66806d}
