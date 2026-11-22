@@ -55,6 +55,7 @@ let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
 let primaryNode=null,extraNode=null;
 let ready=false,requestNonce="",requestEnabled=false;
 let memberStatement=null,memberChartMode="kg",memberChartGroup="period";
+let memberAward={badge:null,memberId:"",loadedAt:0,pending:null,generation:0};
 let memberHomeChartGroup="month";
 let memberBalancePrivacy={hidden:true};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
@@ -232,6 +233,63 @@ function statusFor(page){
  const loaded=!!memberStatement;
  msg.hidden=!!loaded;
  if(!loaded)msg.textContent=gate?.textContent?.trim()||"Memuat tabungan...";
+}
+// Private activity badge, based on all recorded weighing periods.
+function bankAwardNode(rank,active){
+ const badge=el("span","f4-bank-activity-crown is-rank-"+rank);
+ badge.setAttribute("aria-label","Peringkat "+rank+" warga teraktif");
+ badge.title="Peringkat "+rank+" warga teraktif · "+active+" periode penimbangan";
+ const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");
+ icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
+ icon.setAttribute("stroke-width","1.9");icon.setAttribute("stroke-linecap","round");
+ icon.setAttribute("stroke-linejoin","round");
+ icon.innerHTML='<path d="M2.5 7.5 6.5 11l5.5-7 5.5 7 4-3.5-2.4 11h-14z"/><path d="M6 21h12"/>';
+ badge.append(icon,el("strong","",String(rank)));return badge;
+}
+function renderMemberAward(){
+ for(const host of [$("f4BankMemberCard"),$("pageProfile")?.querySelector(".f4-bank-profile-card")]){
+  if(!host)continue;
+  host.querySelector(".f4-bank-activity-crown")?.remove();
+  const badge=memberAward.memberId===memberID()?memberAward.badge:null;
+  if(!badge||badge.rank<1||badge.rank>3)continue;
+  const head=host.querySelector(".f4-bank-member-card-head");
+  if(!head)continue;
+  const symbol=bankAwardNode(badge.rank,badge.active);
+  const contactless=head.querySelector(".f4-bank-atm-contactless");
+  if(contactless)contactless.before(symbol);else head.append(symbol);
+ }
+}
+async function loadMemberAward(force=false){
+ if(roleType()!=="member"||$("dashboardView")?.classList.contains("hidden"))return;
+ const id=memberID();
+ if(!id||id==="Administrator"||id==="—")return;
+ if(memberAward.memberId!==id){
+  memberAward.generation++;memberAward.memberId=id;memberAward.badge=null;
+  memberAward.loadedAt=0;memberAward.pending=null;renderMemberAward();
+ }
+ if(memberAward.pending)return memberAward.pending;
+ if(!force&&Date.now()-memberAward.loadedAt<60000){renderMemberAward();return;}
+ const generation=memberAward.generation;
+ const task=api("/api/v2/bank/activity-ranking").then(result=>{
+  if(generation!==memberAward.generation||roleType()!=="member"||memberID()!==id)return;
+  const found=result.badge;
+  memberAward.badge=found&&String(found.memberId||"")===id&&
+   Number.isInteger(found.rank)&&found.rank>=1&&found.rank<=3?found:null;
+  renderMemberAward();
+ }).catch(error=>{
+  if(generation!==memberAward.generation)return;
+  memberAward.badge=null;renderMemberAward();
+  console.warn("Peringkat anggota belum tersedia:",error.message);
+ }).finally(()=>{
+  if(generation===memberAward.generation){memberAward.pending=null;memberAward.loadedAt=Date.now();}
+ });
+ memberAward.pending=task;return task;
+}
+function resetMemberAward(){
+ memberAward.generation++;memberAward.badge=null;memberAward.memberId="";
+ memberAward.loadedAt=0;memberAward.pending=null;
+ document.querySelectorAll(".f4-bank-activity-crown").forEach(node=>node.remove());
 }
 function ensureHome(){
  const page=$("pageDashboard");
@@ -3007,6 +3065,7 @@ function handleRoute(route,old,args){
  return result;
 }
 function resetRoleSurface(){
+ resetMemberAward();
  adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
@@ -3104,6 +3163,7 @@ function sync(){
  ensureHome();
  if(role==="member"){
   ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();ensureMemberHowtoBanner();bindMemberDocumentation();publicSnapshot();
+  loadMemberAward();
  }else{
   managerRequestsPanel();
   ensureAdminHome();
@@ -3235,6 +3295,7 @@ function updateProfileCard(){
   const head=target.querySelector(":scope > h2");if(head)head.textContent="Profil & Pengaturan";
  }
  updateCardNumber();
+ renderMemberAward();loadMemberAward();
  inlineMemberDisplayName();
 }
 function acceptMemberStatement(event){
@@ -3248,6 +3309,7 @@ function acceptMemberStatement(event){
  if(!received||!expected||expected==="Administrator"||received!==expected)return;
  memberStatement=data;
  updateCardNumber();updateDashboard();syncSavings();progressPreview();
+ loadMemberAward();
 }
 
 function init(){
@@ -3281,9 +3343,9 @@ function init(){
  window.addEventListener("f4-bank-data-changed",()=>{
   refreshAdminAlerts(true);
   if(roleType()==="admin"&&$("f4BankAdminInsights"))adminInsightFetch(true);
-  if(roleType()==="member")loadMemberPublicMini(true);
+  if(roleType()==="member"){loadMemberPublicMini(true);loadMemberAward(true);}
  });
- window.addEventListener("focus",()=>{refreshAdminAlerts();if(roleType()==="member")loadMemberPublicMini();});
+ window.addEventListener("focus",()=>{refreshAdminAlerts();if(roleType()==="member"){loadMemberPublicMini();loadMemberAward();}});
  document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshAdminAlerts();});
  setInterval(()=>{if(!document.hidden)refreshAdminAlerts();},45000);
  const original=window.goPage;
@@ -3333,6 +3395,7 @@ function init(){
   if(roleType()&&!$("dashboardView")?.classList.contains("hidden")){
    ensureHome();
    if(roleType()==="admin")ensureAdminHome();
+   if(roleType()==="member"){renderMemberAward();loadMemberAward();}
    markDock();
   }
  });
