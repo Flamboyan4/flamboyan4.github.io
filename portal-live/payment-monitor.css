@@ -3,10 +3,10 @@
 .pm-filter,.pm-residents header{display:flex;align-items:end;gap:var(--f4-grid-gap);flex-wrap:wrap}
 .pm-filter label,.pm-residents label{display:grid;gap:5px;min-width:0;font-size:.85rem;font-weight:650;color:var(--f4-ui-muted)}
 .pm-filter label:nth-child(2){flex:1 1 14rem}
-#tab-monitor :is(input,select,button){min-height:var(--f4-control-height);min-width:0;max-width:100%;font:inherit;border:1px solid var(--f4-ui-border);border-radius:var(--f4-control-radius);padding:8px 12px;background:#fff;color:var(--f4-ui-ink)}
-#tab-monitor :is(input,select){width:100%;font-size:.95rem;font-weight:550}
-#tab-monitor :is(input,select,button):focus-visible{outline:3px solid var(--f4-nav,#7035c9);outline-offset:2px}
-#tab-monitor button{font-weight:650;cursor:pointer}
+#tab-monitor :is(#pm-month,#pm-payer,#pm-year,#pm-export,#pm-retry){min-height:var(--f4-control-height);min-width:0;max-width:100%;font:inherit;border:1px solid var(--f4-ui-border);border-radius:var(--f4-control-radius);padding:8px 12px;background:#fff;color:var(--f4-ui-ink)}
+#tab-monitor :is(#pm-month,#pm-payer,#pm-year){width:100%;font-size:.95rem;font-weight:550}
+#tab-monitor :is(#pm-month,#pm-payer,#pm-year,#pm-export,#pm-retry,.pm-month-cell):focus-visible{outline:3px solid var(--f4-nav,#7035c9);outline-offset:2px}
+#tab-monitor :is(#pm-export,#pm-retry,.pm-month-cell){font-weight:650;cursor:pointer}
 #tab-monitor #pm-export{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:white;background:#6332b5;border-color:transparent}
 #tab-monitor #pm-export:disabled{background:#e9e6ef;color:#615c6b;cursor:default}
 #tab-monitor :is(p,ol,dl,dd,h2){margin:0}
@@ -40,7 +40,7 @@
 /* Matriks tahunan: nama warga mendapat ruang tetap dan status hanya sebesar ikon. */
 .pm-year-panel{min-width:0;margin:20px 0 18px;padding:18px 0;border-top:1px solid var(--f4-ui-border)}
 .pm-year-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:10px}
-.pm-year-heading label{display:grid;gap:4px;min-width:100px;font-weight:650;font-size:.85rem}
+.pm-year-heading label{display:grid;gap:0;min-width:100px;font-weight:650;font-size:.85rem}
 .pm-year-heading p{margin-top:3px}
 .pm-year-scroll{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .pm-year-scroll::-webkit-scrollbar{display:none}
