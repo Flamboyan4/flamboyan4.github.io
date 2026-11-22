@@ -1152,7 +1152,6 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #bank-payout-admin .f4-bank-payout-ledger{padding:15px 14px;border-radius:16px}
 }
 #dashboardView .f4-bank-payout-link{max-width:max-content}
-#dashboardView .f4-bank-payout-link{max-width:max-content}
 
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-member-card,
 #dashboardView .f4-bank-app-home[data-bank-role="admin"] .f4-bank-app-member-balance,
