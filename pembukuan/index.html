@@ -1819,8 +1819,8 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-detail-v4">
-<script defer src="/portal-live/payment-monitor.js?v=20261122-detail-v4"></script>
+<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-resident-v5">
+<script defer src="/portal-live/payment-monitor.js?v=20261122-resident-v5"></script>
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
@@ -1936,7 +1936,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
         <section class="pm-year-panel" aria-labelledby="pm-year-title">
           <div class="pm-year-heading">
             <div><h2 id="pm-year-title">Pembayaran setahun</h2><p id="pm-year-count"></p></div>
-            <label>Tahun<select id="pm-year" class="field"></select></label>
+            <label aria-label="Pilih tahun"><select id="pm-year" class="field" aria-label="Tahun pembayaran"></select></label>
           </div>
           <div class="pm-year-scroll" role="region" aria-label="Status pembayaran setahun, geser ke samping untuk melihat bulan lain" tabindex="0">
             <div id="pm-year-grid" class="pm-year-grid"></div>
@@ -4393,18 +4393,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <script>
 (function(){
-  const RESIDENT_IDS=new Set(['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga']);
+  const RESIDENT_IDS=new Set(['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga','pm-payer']);
   const STATE=new WeakMap();
   function getResidentMeta(value){
     const warga=(typeof DATA!=='undefined'&&DATA&&Array.isArray(DATA.warga))?DATA.warga:[];
     const w=warga.find(x=>String(x.idWarga)===String(value));
     return w?{name:w.nama||'',house:[w.blok,w.noRumah].filter(Boolean).join('/')}:null;
   }
+  function residentMetaForOption(select,opt){
+    if(!opt||!opt.value)return null;
+    if(select.id==='pm-payer')return {name:opt.dataset.residentName||opt.textContent||'',house:opt.dataset.residentHouse||''};
+    return getResidentMeta(opt.value);
+  }
   function closeAll(except){document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{if(w!==except)w.classList.remove('open')})}
   function buildOption(select,opt,isResident){
     const btn=document.createElement('button');btn.type='button';btn.className='cs-option'+(String(select.value)===String(opt.value)?' selected':'');btn.dataset.value=opt.value;
     if(isResident && opt.value){
-      const meta=getResidentMeta(opt.value);const row=document.createElement('span');row.className='cs-resident-row';
+      const meta=residentMetaForOption(select,opt);const row=document.createElement('span');row.className='cs-resident-row';
       const n=document.createElement('span');n.className='cs-name';n.textContent=meta?.name||opt.textContent;
       const h=document.createElement('span');h.className='cs-house';h.textContent=meta?.house||'';row.append(n,h);btn.append(row);
     } else { const t=document.createElement('span');t.className='min-w-0';t.textContent=opt.textContent;btn.append(t); }
@@ -4417,12 +4422,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     const isResident=RESIDENT_IDS.has(select.id);const selected=select.options[select.selectedIndex];
     st.value.classList.remove('resident-value');st.value.innerHTML='';
     if(isResident && selected?.value){
-      const m=getResidentMeta(selected.value);
+      const m=residentMetaForOption(select,selected);
       if(m){st.value.classList.add('resident-value');const n=document.createElement('span');n.className='rv-name';n.textContent=m.name;const h=document.createElement('span');h.className='rv-house';h.textContent=m.house;st.value.append(n,h)}
       else st.value.textContent=selected.textContent;
     }else st.value.textContent=selected?.textContent||'Pilih...';
     const q=(st.search?.value||'').trim().toLowerCase();st.list.innerHTML='';
-    const opts=[...select.options].filter(o=>!o.disabled).filter(o=>!q || o.textContent.toLowerCase().includes(q) || (isResident&&getResidentMeta(o.value)&&(`${getResidentMeta(o.value).name} ${getResidentMeta(o.value).house}`).toLowerCase().includes(q)));
+    const opts=[...select.options].filter(o=>!o.disabled).filter(o=>{const m=isResident?residentMetaForOption(select,o):null;return !q||o.textContent.toLowerCase().includes(q)||(m&&(`${m.name} ${m.house}`).toLowerCase().includes(q));});
     if(isResident){const head=document.createElement('div');head.className='cs-resident-head';head.innerHTML='<span>Nama Warga</span><span style="text-align:right">Blok/No</span>';st.list.append(head)}
     if(!opts.length){const e=document.createElement('div');e.className='cs-empty';e.textContent='Tidak ada pilihan.';st.list.append(e);return}
     opts.forEach(o=>st.list.append(buildOption(select,o,isResident)));
