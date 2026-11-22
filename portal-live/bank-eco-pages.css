@@ -5,11 +5,13 @@
 @media screen {
 /* One shared, lively palette for every Bank Sampah role; no page is treated as a fixed design. */
 body.f4-direct-bank,body.f4-embedded-bank,body.f4-bank-app-private{
- --f4-bank-leaf:#20b86b;--f4-bank-teal:#009e91;
- --f4-bank-sky:#168fcc;--f4-bank-gold:#ffcc32;
+ --f4-bank-leaf:#43a047;--f4-bank-teal:#009788;
+ --f4-bank-sky:#5969da;--f4-bank-gold:#fdc010;
  --f4-bank-ink:#153e32;--f4-bank-muted:#5d786c;
  --f4-bank-line:#d0e0d5;--f4-bank-surface:#fff;--f4-bank-canvas:#fff;
- --f4-bank-mint:#d9fae6;--f4-bank-aqua:#daf1ff;--f4-bank-sun:#fff0c8
+ --f4-bank-mint:#e5f6e9;--f4-bank-aqua:#e9ecff;--f4-bank-sun:#fff3c8;
+ --f4-bank-orange:#eb6a48;--f4-bank-pink:#d94880;--f4-bank-purple:#b452ba;
+ --f4-bank-cyan:#09bcd3;--f4-bank-lime:#8bc24a;--f4-bank-blue:#5969da
 }
 /* Shared app frame: tab content expands, footer has one invariant height. */
 body.f4-direct-bank .shell,body.f4-embedded-bank .shell{
@@ -28,7 +30,7 @@ body.f4-direct-bank .shell>.footer,body.f4-embedded-bank .shell>.footer{
 #dashboardView,#v11Public,.f4-member-progress-modal{
  --eco-leaf:var(--f4-bank-leaf,#20b86b);--eco-dark:var(--f4-bank-ink,#153e32);--eco-gold:var(--f4-bank-gold,#ffcc32);--eco-gold-focus:#ffe69b;
  --eco-green:var(--f4-bank-mint,#e5f9ec);--eco-blue:var(--f4-bank-aqua,#e4f7fd);--eco-peach:var(--f4-bank-sun,#fff5d9);
- --eco-purple:#f1efff;--eco-line:var(--f4-bank-line,#dfede5);--eco-muted:var(--f4-bank-muted,#5d786c);--eco-lime:#a5da54;--eco-teal:var(--f4-bank-teal,#009e91);--eco-cyan:var(--f4-bank-sky,#168fcc);
+ --eco-purple:#ece6ff;--eco-line:var(--f4-bank-line,#dfede5);--eco-muted:var(--f4-bank-muted,#5d786c);--eco-lime:var(--f4-bank-lime,#8bc24a);--eco-teal:var(--f4-bank-teal,#009788);--eco-cyan:var(--f4-bank-cyan,#09bcd3);
  color:var(--f4-bank-ink,#153e32)
 }
 /* Botanical canvas gives cards breathing space without adding nested frames. */
@@ -145,18 +147,20 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
  display:flex;flex-direction:column;justify-content:center;
  box-sizing:border-box;min-width:0;width:100%;min-height:78px;
  padding:11px 13px;margin:0;grid-column:auto;
- border:0;border-radius:18px;
+ border:1px solid var(--f4-bank-line,#d0e0d5);border-radius:18px;
  background:#fff;box-shadow:none
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child{
- background:#e1f8e6;}
+ background:#fff;border-top:3px solid var(--f4-bank-leaf,#43a047)}
 #dashboardView #pagePribadi #v12Private>.stats>.stat:first-child :is(small,strong){
  color:#0b5738
 }
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2){
- background:#def7fd;}
+ background:#fff;border-top:3px solid var(--f4-bank-cyan,#09bcd3)}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(2) strong{color:#087e91}
 #dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3){
- background:#fff1c6;}
+ background:#fff;border-top:3px solid var(--f4-bank-gold,#fdc010)}
+#dashboardView #pagePribadi #v12Private>.stats>.stat:nth-child(3) strong{color:#7d5a00}
 #dashboardView #pagePribadi #v12Private>.stats>.stat strong{
  font-size:clamp(18px,2vw,25px);line-height:1.2;
  margin:5px 0 0;overflow-wrap:anywhere
@@ -183,11 +187,11 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
  gap:9px
 }
 #dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat{
- background:#e8f7d4;border:0;
+ background:#fff;border:1px solid var(--f4-bank-line,#d0e0d5);border-top:3px solid var(--f4-bank-leaf,#43a047);
  border-radius:17px;min-height:83px;padding:11px
 }
-#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){background:#ddf8fc}
-#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){background:#fff2b8}
+#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(2){background:#fff;border-top-color:var(--f4-bank-cyan,#09bcd3)}
+#dashboardView #pageProgress .f4-member-progress-summary>.f4-member-progress-stat:nth-child(3){background:#fff;border-top-color:var(--f4-bank-gold,#fdc010)}
 #dashboardView #pageProgress :is(h2,h3,.f4-member-progress-stat strong){
  color:var(--eco-dark)
 }
@@ -358,8 +362,8 @@ body :is(button,a,summary,[role="button"],[role="tab"],label[for]){
 }
 /* Compact member identity profile — 2026-10-29 */
 body:not(.f4-bank-app-admin) #dashboardView #pageProfile.f4-profile-card:not(.hidden){
-  --profile-yellow:var(--f4-bank-gold,#ffcc32);--profile-lime:#a5da54;--profile-leaf:var(--f4-bank-leaf,#20b86b);
-  --profile-teal:var(--f4-bank-teal,#009e91);--profile-cyan:var(--f4-bank-sky,#168fcc);
+  --profile-yellow:var(--f4-bank-gold,#fdc010);--profile-lime:var(--f4-bank-lime,#8bc24a);--profile-leaf:var(--f4-bank-leaf,#43a047);
+  --profile-teal:var(--f4-bank-teal,#009788);--profile-cyan:var(--f4-bank-cyan,#09bcd3);
   box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   align-items:start;align-content:start;gap:12px 22px;
   width:100%;max-width:1160px;margin:0;padding:22px 24px;background:#fff
@@ -2300,15 +2304,15 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  transition:transform .18s ease,color .18s ease
 }
 /* Warna per fungsi agar mudah dibedakan tanpa mengubah susunan navigasi. */
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#20b86b;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#009e91;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#168fcc;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#ffcc32;--bank-shortcut-ink:#174b36}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#78b53b;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#009e91;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#20b86b;--bank-shortcut-ink:#fff}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#dfe8e3;--bank-shortcut-ink:#315347}
-.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#ffcc32;--bank-shortcut-ink:#174b36}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#43a047;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:#009788;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#5969da;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#8bc24a;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#eb6a48;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#d94880;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#b452ba;--bank-shortcut-ink:#fff}
+:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover{
  color:var(--bank-shortcut-accent,#087b54);transform:translateY(-2px)
 }
@@ -3964,15 +3968,15 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  border:0;border-radius:14px;background:transparent;color:#2b4b3a;
  font:750 11px/1.25 system-ui,-apple-system,sans-serif;cursor:pointer;text-align:center
 }
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon{
+ .f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon{
  flex:none;width:52px;height:52px;border-radius:16px;
- background:#009688;color:#fff
+ background:var(--bank-shortcut-accent,#009788);color:var(--bank-shortcut-ink,#fff)
 }
 /* Sheet menu icons use the same meaningful hues as the Tabungan balances. */
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:nth-child(4n + 1) .f4-bank-admin-shortcut-icon{background:#20b86b}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:nth-child(4n + 2) .f4-bank-admin-shortcut-icon{background:#009e91}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:nth-child(4n + 3) .f4-bank-admin-shortcut-icon{background:#168fcc}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:nth-child(4n) .f4-bank-admin-shortcut-icon{background:#ffcc32;color:#174b36}
+
+
+
+
 .f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon svg{
  display:block;width:24px;height:24px;stroke:currentColor;fill:none;
  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round
@@ -4016,12 +4020,15 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-status.is-error{background:#fff2e8;color:#985321}
 #pageLaporan .f4-analisis-results{display:grid;gap:12px;min-width:0}
 #pageLaporan .f4-analisis-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0}
-#pageLaporan .f4-analisis-metric{min-width:0;padding:13px 14px;border-radius:13px;background:#f0f9f2}
-#pageLaporan .f4-analisis-metric:nth-child(2){background:#ebf7f8}
-#pageLaporan .f4-analisis-metric:nth-child(3){background:#fef8e7}
-#pageLaporan .f4-analisis-metric:nth-child(4){background:#edf7ed}
+#pageLaporan .f4-analisis-metric{min-width:0;padding:13px 14px;border:1px solid #deebe2;border-top:3px solid var(--f4-bank-leaf,#43a047);border-radius:13px;background:#fff}
+#pageLaporan .f4-analisis-metric:nth-child(2){border-top-color:var(--f4-bank-teal,#009788)}
+#pageLaporan .f4-analisis-metric:nth-child(3){border-top-color:var(--f4-bank-gold,#fdc010)}
+#pageLaporan .f4-analisis-metric:nth-child(4){border-top-color:var(--f4-bank-blue,#5969da)}
 #pageLaporan .f4-analisis-metric-head{display:flex;align-items:center;gap:7px;color:#477360;font-size:11px;line-height:1.3;font-weight:650}
-#pageLaporan .f4-analisis-metric-head svg{width:17px;height:17px;flex:none;color:#43a047}
+#pageLaporan .f4-analisis-metric-head svg{width:17px;height:17px;flex:none;color:var(--f4-bank-leaf,#43a047)}
+#pageLaporan .f4-analisis-metric:nth-child(2) .f4-analisis-metric-head svg{color:var(--f4-bank-teal,#009788)}
+#pageLaporan .f4-analisis-metric:nth-child(3) .f4-analisis-metric-head svg{color:#b58400}
+#pageLaporan .f4-analisis-metric:nth-child(4) .f4-analisis-metric-head svg{color:var(--f4-bank-blue,#5969da)}
 #pageLaporan .f4-analisis-metric strong{display:block;overflow-wrap:anywhere;color:#116a47;font-size:19px;line-height:1.3;margin-top:7px;font-weight:800}
 #pageLaporan .f4-analisis-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;align-items:stretch}
 #pageLaporan .f4-analisis-lower{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;align-items:stretch}
