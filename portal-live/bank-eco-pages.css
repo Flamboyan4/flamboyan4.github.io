@@ -3929,7 +3929,23 @@ body.f4-bank-app-admin #sideNav #v16NavList>.v16-item.f4-back-account{display:no
 }
 
 
-/* Harga barang: pengaturan superadmin merupakan accordion setelah daftar, bukan kartu formulir di atas. */
+/* Harga barang: satu workspace dua kolom pada PC, bertumpuk pada HP. */
+#pageMaster .f4-master-workspace{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:14px;
+ min-width:0;align-items:start
+}
+#pageMaster .f4-master-settings{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:12px;
+ min-width:0;align-content:start
+}
+#pageMaster .f4-master-settings:not(:has(> :not([hidden]))){display:none}
+#pageMaster .f4-master-workspace>#masterList{min-width:0;margin:0}
+@media(min-width:1100px){
+ #pageMaster .f4-master-workspace:has(> .f4-master-settings > :not([hidden])){
+  grid-template-columns:minmax(310px,.88fr) minmax(0,1.55fr);
+  gap:16px
+ }
+}
 body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
  margin:0 0 12px
@@ -3944,7 +3960,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 }
 #pageMaster .f4-master-refresh svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
 #pageMaster .f4-bank-policy-card{
- display:block;min-width:0;margin:9px 0 0;padding:0;
+ display:block;min-width:0;margin:0;padding:0;
  border:1px solid #ebdfb7;border-left:3px solid #e1ac27;
  border-radius:13px;background:#fffaf0;box-shadow:none
 }
@@ -3979,7 +3995,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
  margin:0 14px 11px;color:#7a8d7e;font-size:11px;line-height:1.45
 }
 #pageMaster .f4-bank-policy-form{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  align-items:end;gap:10px;margin:0 14px 13px;padding-top:12px;
  border-top:1px solid #e8efe9
 }
@@ -3987,6 +4003,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
  display:grid;gap:5px;min-width:0;margin:0;color:#355d47;font-size:11px;font-weight:700
 }
 #pageMaster .f4-bank-policy-form>label[hidden]{display:none}
+#pageMaster .f4-bank-policy-form>label:nth-child(3){grid-column:1/-1}
 #pageMaster .f4-bank-policy-form>label :is(input,select){
  box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:40px;min-height:40px;
  margin:0;padding:7px 10px;border:1px solid #d7e5dc;border-radius:10px;
@@ -4003,7 +4020,6 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 }
 @media(max-width:640px){
  #pageMaster .f4-bank-policy-form{grid-template-columns:repeat(2,minmax(0,1fr));margin-inline:12px}
- #pageMaster .f4-bank-policy-form>label:nth-child(3){grid-column:1/-1}
  #pageMaster :is(.f4-bank-policy-summary,.f4-bank-weighing-summary){padding:12px}
  #pageMaster .f4-bank-policy-desc{margin-inline:12px}
  #pageMaster .f4-bank-policy-status:not(:empty){margin-inline:12px}
@@ -4100,7 +4116,7 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 
 /* Harga barang: form jadwal tersembunyi dalam accordion; minggu/tanggal tidak tampil saat tak dipakai. */
 #pageMaster .f4-bank-weighing-editor{
- display:block;min-width:0;margin:10px 0 0;padding:0;
+ display:block;min-width:0;margin:0;padding:0;
  border:1px solid #cde7d8;border-left:3px solid #009688;
  border-radius:13px;background:#eff9f3;box-shadow:none
 }
