@@ -3309,8 +3309,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  margin:0 auto;gap:17px 19px;align-items:stretch;align-content:start;
  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
  grid-template-areas:
+  "card balance"
   "quick quick"
-  "balance card"
   "progress recent"
   "guide info"
   "banner banner"
@@ -3504,12 +3504,13 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
   width:100%;max-width:750px;grid-template-columns:repeat(3,minmax(0,1fr));
   grid-template-areas:
-   "quick quick info"
-   "balance balance balance"
    "card card card"
+   "balance balance balance"
+   "quick quick quick"
    "progress progress progress"
    "recent recent recent"
    "guide guide guide"
+   "info info info"
    "banner banner banner";
   gap:12px 10px
  }
