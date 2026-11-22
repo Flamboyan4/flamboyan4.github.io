@@ -5390,10 +5390,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(!v21Albums.length)grid.textContent='Belum ada album publik.';
     v21ShowModal('Arsip Dokumentasi Kegiatan','Pilih album untuk melihat foto dan video',grid);
   }
-  // Folder Google Drive adalah penyimpanan foto/video. D1 hanya menyimpan
-  // metadata albumnya. Gunakan pembaca folder publik yang juga dipakai Portal
-  // Utama; untuk Gorol 11 Oktober sediakan daftar cadangan 30 media terverifikasi.
-  const v21DriveFolderFeed='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+  // Media album menggunakan D1, dengan manifest terverifikasi untuk arsip Gorol.
   const v21DriveFolderCache=new Map();
   function v21FolderId(url){
     return String(url||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
@@ -5433,33 +5430,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         }catch(error){console.warn('Cadangan metadata album tidak terbaca:',error)}
       }
       const sorted=items=>[...items].sort((a,b)=>String(a.nama).localeCompare(String(b.nama),'id',{numeric:true}));
-      const readLive=async()=>{
-        const controller=new AbortController();
-        const timer=setTimeout(()=>controller.abort(),5000);
-        try{
-          const response=await fetch(v21DriveFolderFeed+'?folderId='+encodeURIComponent(id),
-            {cache:'no-store',signal:controller.signal});
-          if(!response.ok)throw Error('HTTP '+response.status);
-          const data=await response.json();
-          const files=Array.isArray(data)?data:Array.isArray(data.files)?data.files:Array.isArray(data.images)?data.images:[];
-          return v21DriveMedia(files);
-        }catch(error){
-          if(!verified.length)console.warn('Daftar foto/video Google Drive belum dapat dibaca:',error);
-          return [];
-        }finally{clearTimeout(timer)}
-      };
-      if(verified.length){
-        // Display verified Drive media immediately. Refresh in the background
-        // so newly added Drive items appear next time the album is opened.
-        readLive().then(latest=>{
-          if(!latest.length)return;
-          const merged=new Map(verified.map(x=>[x.id,x]));
-          for(const x of latest)merged.set(x.id,x);
-          v21DriveFolderCache.set(id,Promise.resolve(sorted([...merged.values()])));
-        }).catch(()=>{});
-        return sorted(verified);
-      }
-      return sorted(await readLive());
+      // Manifest lokal untuk arsip terverifikasi; media lain dibaca dari D1.
+      return sorted(verified);
     })();
     v21DriveFolderCache.set(id,load);
     try{return await load}catch(error){v21DriveFolderCache.delete(id);throw error}
@@ -6886,8 +6858,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   };
   if(inPortal){
     document.body.classList.add('f4-embedded-bank');
-    // Apps Script's <base target="_top"> redirects original anchor tabs out of
-    // an iframe. Keep original #v17... links in this Bank Sampah document.
+    // Tag <base target="_top"> dapat membuka tautan keluar dari
+    // iframe. Biarkan tautan #v17... tetap membuka bagian dalam halaman.
     const base=document.querySelector('base[target="_top"]');
     if(base)base.target='_self';
     v11ShowLogin=invokeLogin;
