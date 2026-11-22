@@ -4,7 +4,7 @@
  const API='https://api.flamboyan4.web.id';
  const $=id=>document.getElementById(id);
  const cls='f4-analisis';
- const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'session',ranking:'active',allRanks:false,tab:'official'};
+ const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'session',ranking:'active',tab:'official'};
  const fmtKg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0)+' kg';
  const fmtRp=n=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(Number(n)||0);
  const fmtInt=n=>new Intl.NumberFormat('id-ID').format(Number(n)||0);
@@ -90,7 +90,7 @@
  const status=(msg,error=false)=>{const el=$(cls+'-status');if(el){el.textContent=msg||'';el.hidden=!msg;el.classList.toggle('is-error',error)}};
  function clearPrivate(){
   state.generation++;state.data=null;state.loadedAt=0;state.pending=null;
-  state.member='';state.item='';state.from='';state.to='';state.allRanks=false;
+  state.member='';state.item='';state.from='';state.to='';
   const content=section();
   if(content){const blocks=$(cls+'-results');if(blocks)blocks.replaceChildren();}
   status('');
@@ -266,7 +266,7 @@
   const maxRank=Math.max(...ranks.map(r=>r[state.ranking]),1);
   const label=r=>state.ranking==='active'?fmtInt(r.active)+' periode':
     state.ranking==='weight'?fmtKg(r.weight):fmtRp(r.value);
-  ranks.slice(0,state.allRanks?undefined:8).forEach((r,i)=>{
+  ranks.forEach((r,i)=>{
    const row=node('button','f4-analisis-person'+(state.member===r.id?' is-selected':''));
    row.type='button';row.title='Lihat setoran '+r.name;
    const number=node('span','f4-analisis-place',i===0?'1':String(i+1));
@@ -278,7 +278,6 @@
    add(row,number,who,amount,progress);row.addEventListener('click',()=>selectMember(r.id));rankList.append(row);
   });
   rankSection.append(rankList);
-  if(ranks.length>8){const toggle=node('button','f4-analisis-more',state.allRanks?'Lebih sedikit':'Semua ('+ranks.length+')');toggle.type='button';toggle.onclick=()=>{state.allRanks=!state.allRanks;render()};rankSection.append(toggle);}
   if(!ranks.length)rankSection.append(node('p','f4-analisis-empty','Daftar anggota tidak tersedia.'));
 
   lower.append(rankSection);
