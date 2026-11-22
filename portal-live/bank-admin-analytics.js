@@ -419,7 +419,8 @@
   const label=r=>state.ranking==='active'?fmtInt(r.active)+' periode':
     state.ranking==='weight'?fmtKg(r.weight):fmtRp(r.value);
   ranks.forEach((r,i)=>{
-   const row=node('button','f4-analisis-person'+(state.member===r.id?' is-selected':''));
+   const row=node('button','f4-analisis-person'+(i<3?' is-podium-'+(i+1):'')+
+     (state.member===r.id?' is-selected':''));
    row.type='button';row.title='Lihat setoran '+r.name;
    const number=node('span','f4-analisis-place',i===0?'1':String(i+1));
    const who=node('div','f4-analisis-person-name');
