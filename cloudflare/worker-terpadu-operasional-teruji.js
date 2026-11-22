@@ -2953,6 +2953,10 @@ async function handleUnifiedApi(request, env, who) {
     try { return await authenticatedBankFinanceSummary(db); }
     catch (e) { return err("Ringkasan keuangan belum tersedia.",503); }
   }
+  if (method === "GET" && path === "/api/v2/bank/activity-ranking") {
+    try { return await bankActivityRanking(db,who); }
+    catch (e) { return err("Peringkat aktivitas belum dapat dimuat.",503); }
+  }
   if (method === "GET" && path === "/api/v2/public/bank/report") {
     if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
     try {
@@ -3378,6 +3382,39 @@ async function getAdminBankMemberAvatar(env, who, url) {
   }});
 }
 __name(getAdminBankMemberAvatar, "getAdminBankMemberAvatar");
+/* Authenticated all-time activity award; only active, noncancelled deposits count.
+   Residents only see their own badge; managers see the top three member IDs. */
+async function bankActivityRanking(db, who) {
+  const denied = requireRole(who, ["anggota", "admin", "superadmin"]);
+  if (denied) return denied;
+  const found = await db.prepare(`SELECT m.id AS member_id,
+       m.display_name AS name,
+       COUNT(DISTINCT CASE WHEN d.id IS NOT NULL
+         THEN COALESCE(NULLIF(d.batch_id,''),SUBSTR(d.deposited_on,1,10)) END) AS active,
+       COALESCE(SUM(CASE WHEN d.id IS NOT NULL THEN d.total_grams ELSE 0 END),0) AS weight_grams
+     FROM members m LEFT JOIN waste_deposits d
+       ON d.member_id=m.id AND d.status IN ('estimasi','terkonfirmasi')
+       AND d.deposited_on IS NOT NULL
+     WHERE m.status='aktif'
+     GROUP BY m.id,m.display_name`).all();
+  const ranks = (found.results || []).map(x => ({
+    memberId: String(x.member_id||'').replace(/^member:/i,''),
+    name: String(x.name||''),
+    active: Number(x.active)||0,
+    weightGrams: Number(x.weight_grams)||0
+  })).filter(x=>x.memberId&&x.active>0)
+    .sort((a,b)=>b.active-a.active||b.weightGrams-a.weightGrams||
+      a.name.localeCompare(b.name,"id")||a.memberId.localeCompare(b.memberId,"id"));
+  const top = ranks.slice(0,3).map((x,i)=>({
+    memberId:x.memberId, rank:i+1, active:x.active, weightKg:x.weightGrams/1000
+  }));
+  if (who.role === "anggota") {
+    const id = String(who.member_id||'').replace(/^member:/i,'');
+    return ok({badge:top.find(x=>x.memberId===id)||null, mode:"active", period:"all"});
+  }
+  return ok({top, mode:"active", period:"all"});
+}
+__name(bankActivityRanking, "bankActivityRanking");
 async function publicSummary(db) {
   const [members, albums, progress] = await Promise.all([
     db.prepare("SELECT COUNT(*) AS n FROM members WHERE status='aktif'").first(),
