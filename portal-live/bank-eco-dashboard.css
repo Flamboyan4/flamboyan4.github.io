@@ -21,9 +21,8 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primar
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary .f4-eco-kpi>small{font-size:12px;color:#536d59}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panels{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--f4-grid-gap);margin-bottom:var(--f4-grid-gap)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel{box-sizing:border-box;min-width:0;padding:var(--f4-panel-pad);background:#fff;border:1px solid var(--eco-line);border-radius:var(--f4-panel-radius)}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:4px}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel .f4-eco-panel-heading{display:none}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel .v14-link{margin-left:auto}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:12px}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel>.v14-panel-head{display:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading h3{font-size:16px;color:#174b36;font-weight:800}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading p{font-size:13px;color:#496757}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:#009688;font-weight:700}
@@ -60,13 +59,17 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
 /* Shared HP/PC Setoran Terbaru cards: one presentation source across
    breakpoints; only the outer panel changes with the viewport. */
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-list{
-  display:grid;gap:10px
+  display:grid;gap:0
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item{
   display:grid;grid-template-columns:44px minmax(0,1fr) auto;
-  align-items:center;gap:10px;min-width:0;margin:0;padding:12px 2px;
+  align-items:center;gap:10px;min-width:0;margin:0;padding:9px 2px;
   border:0;border-bottom:1px solid var(--eco-line);border-radius:0;background:#fff;
   box-shadow:none
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-detail-open="true"]{cursor:pointer}
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-detail-open="true"]:is(:hover,:focus-visible){
+  background:#f0faf5;outline:2px solid #009788;outline-offset:-2px;border-radius:8px
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-avatar{
   display:grid
