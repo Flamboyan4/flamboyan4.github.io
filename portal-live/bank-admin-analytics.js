@@ -4,7 +4,7 @@
  const API='https://api.flamboyan4.web.id';
  const $=id=>document.getElementById(id);
  const cls='f4-analisis';
- const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'session',ranking:'active',tab:'official'};
+ const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'period',trendUnit:'kg',ranking:'active',tab:'official'};
  const fmtKg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0)+' kg';
  const fmtRp=n=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(Number(n)||0);
  const fmtInt=n=>new Intl.NumberFormat('id-ID').format(Number(n)||0);
@@ -14,6 +14,18 @@
  const monthLabel=m=>{const names=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return names[Number(String(m).slice(5,7))-1]+' '+String(m).slice(0,4)};
  const admin=()=>['admin','superadmin'].includes(String(document.body.dataset.f4BankRole||'').toLowerCase())
     &&!$('dashboardView')?.classList.contains('hidden');
+ document.addEventListener('pointerdown',event=>{
+  const picker=$(cls+'-trend-picker');
+  if(picker&&!picker.contains(event.target)){
+   const menu=$(cls+'-trend-dropdown');if(menu)menu.hidden=true;
+   picker.querySelector('.f4-analisis-trend-trigger')?.setAttribute('aria-expanded','false');
+  }
+ });
+ document.addEventListener('keydown',event=>{
+  if(event.key!=='Escape')return;
+  const picker=$(cls+'-trend-picker'),menu=$(cls+'-trend-dropdown');
+  if(menu&&!menu.hidden){menu.hidden=true;picker?.querySelector('button')?.setAttribute('aria-expanded','false');}
+ });
  const node=(tag,className='',value)=>{const el=document.createElement(tag);if(className)el.className=className;if(value!==undefined)el.textContent=String(value);return el};
  const add=(p,...children)=>{children.forEach(x=>x&&p.append(x));return p};
  const options=(select,list,current)=>{select.replaceChildren();list.forEach(([value,label])=>select.add(new Option(label,value)));select.value=current;};
@@ -172,6 +184,8 @@
    const lines=state.item?x.lines.filter(line=>line.item===state.item):x.lines;
    return {...x,lines,weight:lines.reduce((s,line)=>s+line.kg,0)};
   }).filter(x=>x.lines.length);
+  // Nilai perkiraan yang diterima API adalah total per setoran, bukan per jenis barang.
+  if(state.item&&state.trendUnit==='rp')state.trendUnit='kg';
   const rankingDeposits=ranged.map(x=>{
    const lines=state.item?x.lines.filter(line=>line.item===state.item):x.lines;
    return {...x,lines,weight:lines.reduce((s,line)=>s+line.kg,0)};
@@ -200,31 +214,91 @@
   const trendBox=node('section','f4-analisis-panel f4-analisis-trend-panel');trendBox.id=cls+'-section-trend';
   const trendHead=node('div','f4-analisis-panel-head');
   const trendIntro=node('h3','','Tren Setoran');
-  const trendMode=node('label','f4-analisis-trend-filter');
-  const trendSelect=node('select');trendSelect.setAttribute('aria-label','Kelompok grafik berdasarkan');
-  trendSelect.add(new Option('Timbang','session'));trendSelect.add(new Option('Bulanan','month'));
-  trendSelect.value=state.trend;trendSelect.addEventListener('change',e=>{state.trend=e.target.value;render()});
-  trendMode.append(trendSelect);trendHead.append(trendIntro,trendMode);trendBox.append(trendHead);
-  const series=new Map();
-  filtered.forEach(x=>{const k=state.trend==='month'?x.month:x.date;series.set(k,(series.get(k)||0)+x.weight);});
-  const entries=[...series.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
-  if(!entries.length)trendBox.append(node('p','f4-analisis-empty','Belum ada setoran pada filter ini.'));
+  const trendControls=node('div','f4-analisis-trend-controls');
+  const picker=node('div','f4-analisis-trend-picker');picker.id=cls+'-trend-picker';
+  const trigger=node('button','f4-analisis-trend-trigger');trigger.type='button';
+  trigger.setAttribute('aria-label','Kelompok grafik');
+  trigger.setAttribute('aria-haspopup','true');trigger.setAttribute('aria-expanded','false');
+  const trendLabels={period:'Periode',days30:'30 hari',month:'Per bulan'};
+  const currentTrend=trendLabels[state.trend]||trendLabels.period;
+  const currentLabel=node('span','',currentTrend);
+  const dropdown=node('div','f4-analisis-trend-dropdown');dropdown.id=cls+'-trend-dropdown';dropdown.hidden=true;
+  trigger.setAttribute('aria-controls',dropdown.id);
+  const closeMenu=()=>{dropdown.hidden=true;trigger.setAttribute('aria-expanded','false');};
+  const openMenu=()=>{dropdown.hidden=false;trigger.setAttribute('aria-expanded','true');};
+  for(const [value,label] of Object.entries(trendLabels)){
+   const opt=node('button','f4-analisis-trend-option'+(state.trend===value?' is-active':''),label);
+   opt.type='button';opt.dataset.range=value;opt.setAttribute('aria-pressed',String(state.trend===value));
+   opt.addEventListener('click',()=>{state.trend=value;closeMenu();render();});
+   dropdown.append(opt);
+  }
+  trigger.append(currentLabel,svg('chevron'));
+  trigger.addEventListener('click',()=>dropdown.hidden?openMenu():closeMenu());
+  trigger.addEventListener('keydown',event=>{
+   if(!['ArrowDown','ArrowUp'].includes(event.key))return;
+   event.preventDefault();openMenu();
+   const options=dropdown.querySelectorAll('button');
+   (event.key==='ArrowDown'?options[0]:options[options.length-1])?.focus();
+  });
+  dropdown.addEventListener('keydown',event=>{
+   const items=[...dropdown.querySelectorAll('button')],index=items.indexOf(document.activeElement);
+   if(event.key==='Escape'){event.preventDefault();closeMenu();trigger.focus();return;}
+   if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+    event.preventDefault();items[(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();
+   }
+  });
+  picker.append(trigger,dropdown);
+  const units=node('div','f4-analisis-trend-units');
+  units.setAttribute('role','group');units.setAttribute('aria-label','Satuan grafik');
+  for(const [unit,label] of [['kg','Kg'],['rp','Rp']]){
+   const button=node('button',state.trendUnit===unit?'is-active':'',label);
+   button.type='button';button.dataset.unit=unit;
+   button.setAttribute('aria-pressed',String(state.trendUnit===unit));
+   if(unit==='rp'&&state.item){
+    button.disabled=true;button.title='Nilai per jenis belum tersedia. Pilih Semua jenis untuk melihat estimasi Rp.';
+   }else if(unit==='rp')button.title='Nilai perkiraan setoran, bukan hasil penjualan sah';
+   button.addEventListener('click',()=>{if(!button.disabled){state.trendUnit=unit;render();}});
+   units.append(button);
+  }
+  trendControls.append(picker,units);trendHead.append(trendIntro,trendControls);trendBox.append(trendHead);
+  const isMoney=state.trendUnit==='rp',series=new Map();
+  const todayLocal=Object.fromEntries(new Intl.DateTimeFormat('en-US',{
+   timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'
+  }).formatToParts(new Date()).filter(part=>['year','month','day'].includes(part.type))
+   .map(part=>[part.type,part.value]));
+  const latestDate=todayLocal.year+'-'+todayLocal.month+'-'+todayLocal.day;
+  const firstDay=new Date(Date.parse(latestDate+'T00:00:00Z')-29*86400000).toISOString().slice(0,10);
+  filtered.forEach(x=>{
+   if(state.trend==='days30'&&(x.date<firstDay||x.date>latestDate))return;
+   const key=state.trend==='month'?x.month:x.date;
+   const n=isMoney?x.estimate:x.weight;
+   series.set(key,(series.get(key)||0)+n);
+  });
+  const entries=[...series.entries()].sort((x,y)=>x[0].localeCompare(y[0]));
+  const valueLabel=n=>isMoney?fmtRp(n):fmtKg(n);
+  if(!entries.length)trendBox.append(node('p','f4-analisis-empty',
+   state.trend==='days30'?'Tidak ada setoran dalam 30 hari terakhir.':'Belum ada setoran pada filter ini.'));
   else{
    const chart=node('div','f4-analisis-trend');
    const visible=entries.slice(-12),max=Math.max(...visible.map(x=>x[1]),0.001);
+   chart.setAttribute('role','img');
+   chart.setAttribute('aria-label','Tren '+currentTrend+' dalam '+(isMoney?'rupiah estimasi':'kilogram'));
    visible.forEach(([key,total])=>{
+    const label=state.trend==='month'?monthLabel(key):dateLabel(key);
     const col=node('div','f4-analisis-trend-item');
-    col.title=(state.trend==='month'?monthLabel(key):dateLabel(key))+' — '+fmtKg(total);
-    const bar=node('div','f4-analisis-trend-track');
+    col.title=label+' — '+valueLabel(total)+(isMoney?' (perkiraan)':'');
+    const track=node('div','f4-analisis-trend-track');
     const fill=node('div','f4-analisis-trend-bar');
-    fill.style.height=Math.max(5,100*total/max)+'%';bar.append(fill);
-    add(col,node('span','f4-analisis-trend-value',fmtKg(total)),bar,
-     node('small','',state.trend==='month'?monthLabel(key):dateLabel(key).slice(0,5)));
+    fill.style.height=total>0?Math.max(5,100*total/max)+'%':'0%';
+    fill.style.minHeight=total>0?'5px':'0';track.append(fill);
+    add(col,node('span','f4-analisis-trend-value',valueLabel(total)),track,
+     node('small','',state.trend==='month'?label:label.slice(0,5)));
     chart.append(col);
    });
    trendBox.append(chart);
-   if(entries.length>12)trendBox.append(node('p','f4-analisis-hint','Grafik menampilkan 12 periode terakhir dari rentang yang dipilih.'));
+   if(entries.length>12)trendBox.append(node('p','f4-analisis-hint','Grafik menampilkan 12 periode terbaru.'));
   }
+  if(isMoney)trendBox.append(node('p','f4-analisis-trend-note','Rp adalah perkiraan setoran, bukan hasil penjualan sah.'));
   const typeBox=node('section','f4-analisis-panel f4-analisis-types');typeBox.id=cls+'-section-types';
   const totalTypes=categories.reduce((sum,entry)=>sum+entry.kg,0);
   const percent=kg=>totalTypes>0?kg/totalTypes*100:0;
