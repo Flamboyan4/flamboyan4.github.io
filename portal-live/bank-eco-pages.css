@@ -2471,7 +2471,7 @@ body.f4-bank-app-admin #sideNav .f4-bank-desktop-nav-link>.f4-bank-alert-badge{
 }
 
 /* Satu sumber layout Riwayat pengelola: desktop dua panel, HP dua tab. */
-#dashboardView #bank-admin-history.f4-bank-screen{
+#dashboardView #bank-admin-history.f4-bank-screen:not(.hidden){
  box-sizing:border-box;position:relative;display:grid;align-content:start;gap:8px;
  width:100%;max-width:1200px;min-width:0;margin:0 auto;padding:0;
  border:0;border-radius:0;background:transparent;box-shadow:none
