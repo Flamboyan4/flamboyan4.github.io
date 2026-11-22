@@ -3886,9 +3886,6 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   min-height:43px;border:1px dashed #00968899;border-radius:12px;
   background:#0096880b;color:#007e71
  }
- body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-main{
-  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px
- }
  body.f4-bank-app-member #dashboardView .f4-bank-screen{width:100%;max-width:960px;padding:21px 23px;margin-inline:auto}
  body.f4-bank-app-private #dashboardView #bank-payout{max-width:760px}
  body.f4-bank-app-private #dashboardView #bank-report{max-width:980px}
