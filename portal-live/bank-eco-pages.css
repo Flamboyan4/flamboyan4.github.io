@@ -2829,7 +2829,7 @@ body.f4-bank-app-admin #pageRekonsiliasi .f4-approval-empty svg{
 }
 body.f4-bank-app-admin #pageRekonsiliasi #v8Preview:empty{display:none}
 body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric-grid{
- grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0
 }
 body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric{
  min-width:0;padding:12px;border-radius:12px;background:#f7fbf8;
@@ -2888,13 +2888,9 @@ body.f4-bank-app-admin #pageRekonsiliasi .f4-bank-recon-details #reconResult{
   grid-column:2;min-width:0;margin:0;padding:0 15px;
   border-radius:18px;box-shadow:0 3px 13px #18463208
  }
- body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric-grid{
-  grid-template-columns:repeat(2,minmax(0,1fr))
- }
 }
 @media(max-width:760px){
  body.f4-bank-app-admin #dashboardView #pageRekonsiliasi>.f4-bank-admin-approval{padding:14px;border-radius:15px}
- body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric{padding:10px}
  body.f4-bank-app-admin #pageRekonsiliasi #v8Preview .metric strong{font-size:15px}
 }
