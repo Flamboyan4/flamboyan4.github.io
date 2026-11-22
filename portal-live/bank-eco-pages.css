@@ -3293,7 +3293,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  gap:14px;align-items:start;min-width:0
 }
 .f4-bank-admin-cash-panel{
- display:flex;flex-direction:column;gap:12px;min-width:0;
+ box-sizing:border-box;display:flex;flex-direction:column;gap:12px;min-width:0;
  padding:15px;border:1px solid #dae9df;border-radius:16px;
  background:#fff;box-shadow:0 4px 18px #153e3209
 }
@@ -3384,7 +3384,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  padding:9px 6px;text-align:left;vertical-align:top;
  border-bottom:1px solid #e4ece6;overflow-wrap:anywhere
 }
-.f4-bank-admin-cash-ledger th{background:#f1f8f3;color:#214b34;font-weight:750}
+.f4-bank-admin-cash-ledger th{position:sticky;top:0;z-index:1;background:#f1f8f3;color:#214b34;font-weight:750}
 .f4-bank-admin-cash-ledger :is(th,td):first-child{width:90px;white-space:nowrap}
 .f4-bank-admin-cash-ledger :is(th,td):nth-child(3){width:82px}
 .f4-bank-admin-cash-ledger :is(th,td):last-child{
