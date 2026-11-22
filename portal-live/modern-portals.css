@@ -14,9 +14,9 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 #f4-account-page>aside button.active{background:var(--tint);color:var(--blue)}
 #f4-account-page>aside button:hover{background:#f1f4f8}
 .sa-nav-icon{display:block;width:18px;height:18px;padding:0;border-radius:0;background:transparent;flex:none;object-fit:contain}
-#f4-account-page>main .f4-work-heading{border-bottom:1px solid var(--edge);margin-bottom:var(--f4-grid-gap);padding-bottom:var(--f4-panel-pad)}
-#f4-account-page>main .f4-work-heading h2{font-size:var(--f4-heading);line-height:1.22;letter-spacing:-.035em;font-weight:750;color:var(--modern-ink)}
-#f4-account-page>main .f4-work-heading p{font-size:14px;margin:6px 0 0;color:var(--modern-muted)}
+#f4-account-page>main .f4-work-heading{background:linear-gradient(105deg,#392786,#5c45af);color:white;border-radius:var(--f4-panel-radius);margin-bottom:var(--f4-grid-gap);padding:var(--f4-panel-pad)}
+#f4-account-page>main .f4-work-heading h2{font-size:var(--f4-heading);line-height:1.22;letter-spacing:-.035em;font-weight:750;color:#fff}
+#f4-account-page>main .f4-work-heading p{font-size:14px;margin:6px 0 0;color:#f2edff}
 #f4-account-page .sa-module-heading{background:transparent;border:0;padding:0;margin:18px 0 12px}
 #f4-account-page .sa-module-heading h3{font-size:18px;letter-spacing:-.25px;color:var(--modern-ink)}
 #f4-account-page .sa-tabbar{border:0;border-bottom:1px solid var(--edge);background:#fff;border-radius:0;padding:4px 0 10px;gap:4px;box-shadow:none}
@@ -47,7 +47,20 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 #f4-account-page .f4-obligation-grid tbody tr:hover{background:#fafbfe}
 #f4-account-page .f4-admin-action-set{gap:6px;flex-wrap:wrap}
 #f4-account-page .f4-admin-item strong{font-size:14px}#f4-account-page .f4-admin-item small{font-size:12px;margin-top:5px}
-html body #f4-account-page>main .f4-work-heading h2{color:var(--modern-ink)}
+
+#f4-account-page .sa-work-menu{border-top:1px solid var(--edge);margin-top:22px;padding-top:16px}
+.sa-work-menu header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sa-work-menu h3{font-size:20px;margin:0}
+.sa-work-menu input{width:min(100%,340px);min-height:44px;padding:8px 13px;border:1px solid #c3c5db;border-radius:10px;background:white;color:#252c44;font:inherit}
+.sa-work-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:var(--f4-grid-gap);margin:18px 0}
+.sa-work-groups section{min-width:0}
+.sa-work-groups h4{margin:0 0 5px;padding:0 0 10px;display:flex;align-items:center;gap:9px;border-bottom:2px solid #ddd5f2;font-size:16px;color:#342767}
+.sa-work-groups img{width:23px;height:23px}
+.sa-work-link:not([hidden]){width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:44px;padding:8px 4px;border:0;border-bottom:1px solid var(--edge);background:white;color:var(--navy);font:600 14px/1.35 system-ui}
+.sa-work-link::after{content:"";width:7px;height:7px;flex:none;margin-right:5px;border-top:2px solid #786da2;border-right:2px solid #786da2;transform:rotate(45deg)}
+.sa-work-link:hover{background:#f5f2ff}
+#f4-account-page .f4-work-heading .sa-overview-status{grid-column:1/-1;margin:12px 0 0}
+#f4-account-page .f4-work-heading .sa-overview-state{color:white}
 /* Bank Sampah public and signed-in workspaces. */
 #dashboardView .stat,#dashboardView .metric{background:white;border:1px solid #e2ebe6;border-radius:16px;padding:16px;box-shadow:0 3px 12px #17462e04;position:relative}
 #dashboardView .stat strong,#dashboardView .metric strong{color:#224539;font-size:24px;letter-spacing:-.5px}

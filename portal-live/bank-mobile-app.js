@@ -1770,7 +1770,7 @@ function adminOperation(label,detail,route,primary){
  button.type="button";button.dataset.bankAppRoute=route;
  const icon=el("span","f4-bank-admin-operation-icon");
  // Sama persis dengan Setoran (daur ulang) dan Penjualan (keranjang) di menu bawah.
- icon.append(route==="setoran"?image("bank.svg"):bankSaleCartIcon());
+ icon.append(route==="setoran"?image("bank.svg"):route==="rekonsiliasi"?image("book.svg"):bankSaleCartIcon());
  const copy=el("span","f4-bank-admin-operation-copy");
  copy.append(el("strong","",label));
  if(detail)copy.append(el("small","",detail));
@@ -2032,8 +2032,9 @@ function ensureAdminHome(){
  if(!$("f4BankAdminOperations")){
   const actions=el("div","f4-bank-admin-operations");actions.id="f4BankAdminOperations";
   actions.append(
-   adminOperation("Catat Setoran","","setoran",true),
-   adminOperation("Catat Penjualan","","penjualan",false)
+   adminOperation("Catat setoran","Berat per jenis","setoran",true),
+   adminOperation("Penjualan","Hasil dari lapak","penjualan",false),
+   adminOperation("Sahkan hasil","Alokasi saldo","rekonsiliasi",false)
   );
   $("f4BankAppAdminHero")?.after(actions);
  }
@@ -2044,8 +2045,8 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  // Dua tujuan sisanya tetap ada di sheet Lainnya (bersama tujuh tujuan utama).
-  grid.append(...adminShortcuts.slice(0,7).map(adminShortcut),adminMoreShortcut());
+  // Pengesahan sudah ada di baris tindakan utama. Menu Lainnya memuat semua tujuan.
+  grid.append(...adminShortcuts.slice(1,7).map(adminShortcut),adminMoreShortcut());
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
@@ -2833,7 +2834,7 @@ function handleRoute(route,old,args){
   loadManagerRequests();
   return;
  }
- if(custom.includes(route)&&roleType()==="member"){
+ if(["bank-history","bank-payout","bank-report"].includes(route)&&roleType()==="member"){
   old.call(window,"pribadi",...args);
   ensureMemberPages();
   hideCustom();
@@ -2843,7 +2844,6 @@ function handleRoute(route,old,args){
   markDock();
   if(route==="bank-history")showHistory();
   if(route==="bank-report")showReport();
-   if(route==="bank-prices")window.F4MemberPrices?.show();
   if(route==="bank-payout")requestsMember();
   return;
  }

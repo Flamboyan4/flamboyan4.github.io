@@ -1296,7 +1296,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 }
 </style>
 <link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261122-portal-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-portal-grid-v1">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-workspaces-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
@@ -4544,16 +4544,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span><strong>Bank Sampah</strong><small>Flamboyan 4</small></span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=program" data-bank-section="v17Program">Program</a><a href="?bagian=perkembangan" data-bank-section="v17Perkembangan">Perkembangan</a><a href="?bagian=dokumentasi" data-bank-section="v17Dokumentasi">Dokumentasi</a><a href="?bagian=inventaris" data-bank-section="v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
       <div class="v17-public-main"><div class="v17-public-banner">
         <div class="f4-public-hero-copy">
-          <span class="v14-eyebrow"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 19-4-6 4-6M3 13h8"/><path d="m9 4 7-1 3 6M16 3l-4 7"/><path d="m21 13-3 7h-7M18 20l-3-6"/></svg> FLAMBOYAN 4</span>
-          <h1>Setoran warga<br>Flamboyan 4</h1>
-          <p class="f4-impact-intro">Lihat berat setoran, jenis sampah, dan hasil tiap penimbangan.</p>
-          <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Lihat tren setoran<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          <h1>Bank Sampah Flamboyan 4</h1>
+          <p class="f4-impact-intro">Pantau setoran warga dari setiap penimbangan.</p>
+          <div class="bank-public-links"><button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Tren setoran</button>
+          <button id="f4PublicSeeReport" type="button">Laporan setoran</button></div>
         </div>
-        <div class="f4-public-hero-illustration" aria-hidden="true">
-          <div class="f4-public-hero-disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 2.4-3.7a2 2 0 0 1 3.4 0L16 8m0 0-4-.6M16 8l.8-4"/><path d="M18 10l2.3 3.8a2 2 0 0 1-1.7 3H14m0 0 2.2-3.4M14 17l2.2 3.2"/><path d="M11 18H5.4a2 2 0 0 1-1.7-3L6.5 11m0 0 .8 4M6.5 11 3 11.4"/></svg></div>
-          <span class="f4-public-hero-spark f4-public-spark-one"></span>
-          <span class="f4-public-hero-spark f4-public-spark-two"></span>
-        </div>
+        <section class="bank-public-schedule" aria-labelledby="bank-next-label">
+          <div><img src="/assets/icons/calendar.svg" alt=""><h2 id="bank-next-label">Penimbangan berikutnya</h2></div>
+          <strong id="bank-next-day">Memuat jadwal…</strong><span id="bank-next-date"></span>
+        </section>
       </div>
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><h2 id="f4BankProgramTitle">Cara kerja Bank Sampah</h2><span class="f4-bank-program-kicker">3 langkah</span></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
@@ -4586,6 +4585,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     $('v17Logo').src=v17Logo;
     $('v17Logo').addEventListener('error',()=>{$('v17Logo').replaceWith(Object.assign(document.createElement('img'),{src:'/assets/icons/bank.svg',alt:'Bank Sampah'}));},{once:true});
     $('v17PublicAccount').onclick=v17PublicAccountClick;
+    $('f4PublicSeeReport').onclick=()=>$('v17Transparansi')?.scrollIntoView({behavior:'smooth',block:'start'});
     $('f4PublicSeeProgress').onclick=()=>$('v17Perkembangan')?.scrollIntoView({behavior:'smooth',block:'start'});
     v17PublicAccount();
   }
@@ -4770,8 +4770,24 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       });
     });
   }
+  let scheduleReadUntil=0;
+  async function refreshPublicSchedule(){
+    if(Date.now()<scheduleReadUntil)return;
+    scheduleReadUntil=Date.now()+60000;
+    try{
+      const response=await fetch('https://api.flamboyan4.web.id/api/public/bank/weighing-schedule',{cache:'no-store'});
+      if(!response.ok)throw Error();
+      const rule=await response.json(),date=new Date(rule.nextOccurrence+'T12:00:00+07:00');
+      if(!rule.ok||!Number.isFinite(date.getTime()))throw Error();
+      $('bank-next-day').textContent=date.toLocaleDateString('id-ID',{weekday:'long',timeZone:'Asia/Jakarta'});
+      $('bank-next-date').textContent=date.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});
+    }catch{
+      $('bank-next-day').textContent='Jadwal belum tersedia';
+      $('bank-next-date').textContent='';
+    }
+  }
   async function v17LoadPublic(){
-    v17SetupPublic();const chartSerial=++v17PublicLoadSerial;$('v17PublicMetrics').textContent='Memuat informasi...';
+    v17SetupPublic();refreshPublicSchedule();const chartSerial=++v17PublicLoadSerial;$('v17PublicMetrics').textContent='Memuat informasi...';
     // Independent public resources must not block each other: chart errors should
     // never leave inventory stuck on "Memuat inventaris..." or hide valid albums.
     const [homeResult,albumResult,chartResult]=await Promise.allSettled([
@@ -7238,7 +7254,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-portal-grid-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-portal-grid-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-workspaces-v2">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-portal-grid-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
@@ -7246,8 +7262,8 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-manager-payout-modern-v1"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261122-bright-bank-palette-v1">
+<script defer src="/portal-live/bank-policy-admin.js?v=20261114-prominent-settings-v5"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-workspaces-v2"></script>
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261122-workspaces-v2">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>

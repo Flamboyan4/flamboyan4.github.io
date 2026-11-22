@@ -697,7 +697,8 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{
  font-size:15px;font-weight:850;line-height:1.25
 }
-#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small,
+#dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:12px;line-height:1.4;font-weight:500}
+
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-arrow{display:none}
 #dashboardView #f4BankAdminOperations .f4-bank-admin-operation:is(:hover,:focus-visible){
  border-color:currentColor;box-shadow:0 9px 23px #153f2a2f;outline-offset:3px
@@ -706,7 +707,7 @@ body.f4-bank-app-admin #dashboardView #roleBadge{display:none}
 @media(min-width:1024px){
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations>.f4-bank-admin-operation{
   display:flex;flex-direction:row;align-items:center;justify-content:center;
-  gap:11px;min-height:0;height:100%;min-width:0;padding:10px 13px;border-radius:19px;
+  gap:11px;min-height:76px;height:100%;min-width:0;padding:10px 13px;border-radius:19px;
   text-align:left
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations .f4-bank-admin-operation-copy{
@@ -964,10 +965,13 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   box-sizing:border-box;min-width:0;max-width:100%
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{order:0}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:none}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:1}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;order:0}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{min-height:84px;gap:4px;padding:8px 3px;border-radius:12px}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:13px}
+ #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:11px}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:3}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:2}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{order:3}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{order:1}
  #dashboardView #f4BankAppAdminHero{
   position:relative;isolation:isolate;overflow:hidden;
   grid-template-areas:"title badge" "balance balance" "secondary secondary" "breakdown breakdown";
@@ -1003,7 +1007,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 }
 
 /* Pencairan pengelola: compact professional form; a single clear visual hierarchy. */
-#dashboardView #bank-payout-admin{
+#dashboardView #bank-payout-admin:not(.hidden){
  box-sizing:border-box;display:grid;gap:14px;width:100%;max-width:960px;
  margin:0 auto 24px;align-content:start;min-width:0
 }
@@ -1830,7 +1834,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView .f4-bank-history-amount.is-deposit strong{color:#128052}
 
 
-#dashboardView .f4-bank-screen{display:grid;gap:var(--f4-grid-gap);min-width:0;align-content:start}
+#dashboardView .f4-bank-screen:not(.hidden){display:grid;gap:var(--f4-grid-gap);min-width:0;align-content:start}
 body.f4-bank-app-member #dashboardView .f4-bank-screen{
  padding:var(--f4-panel-pad);border-radius:var(--f4-panel-radius);background:#fff;border:1px solid var(--eco-line)
 }
@@ -3305,8 +3309,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  margin:0 auto;gap:17px 19px;align-items:stretch;align-content:start;
  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
  grid-template-areas:
-  "card balance"
   "quick quick"
+  "balance card"
   "progress recent"
   "guide info"
   "banner banner"
@@ -3380,7 +3384,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
 #dashboardView #f4MemberQuickActions.f4-member-shortcuts{
  grid-area:quick;box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  align-items:stretch;min-width:0;width:100%;gap:0;margin:0;padding:8px 10px;
- border:1px solid #e5ece7;border-radius:21px;
+ border:1px solid #cae5d3;border-left:5px solid #43a047;border-radius:16px;
  background:#fff;
  box-shadow:0 3px 12px #174e2f09
 }
@@ -3500,9 +3504,9 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4BankAppHome[data-bank-role="member"]{
   width:100%;max-width:750px;grid-template-columns:repeat(3,minmax(0,1fr));
   grid-template-areas:
-   "card card card"
-   "balance balance balance"
    "quick quick info"
+   "balance balance balance"
+   "card card card"
    "progress progress progress"
    "recent recent recent"
    "guide guide guide"
@@ -3555,7 +3559,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
   width:21px;height:21px
  }
- #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy > small,.f4-bank-weigh-copy > span,.f4-bank-price-shortcut-copy small){
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy > span,.f4-bank-price-shortcut-copy small){
   display:none
  }
  #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > strong{
@@ -3603,8 +3607,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
     kedua baris di kanan. Satu grid, tanpa memindah node/duplikasi data. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
   display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.86fr);
-  grid-template-areas:"hero recent" "actions recent" "insights insights";
-  grid-template-rows:228px 88px auto;
+  grid-template-areas:"actions actions" "hero recent" "insights insights";
+  grid-template-rows:auto minmax(210px,auto) auto;
   gap:14px;align-items:stretch;min-width:0;
   width:100%;max-width:1310px;margin:0 auto
  }
@@ -3624,7 +3628,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   font-size:clamp(28px,3vw,36px);letter-spacing:-.035em
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{
-  grid-area:actions;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-area:actions;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
   grid-template-rows:minmax(0,1fr);gap:12px;align-self:stretch;min-width:0
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{grid-area:insights}
@@ -3633,7 +3637,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
     inside the list, without stretching the right card or the left cards. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{
   grid-area:recent;display:flex;flex-direction:column;
-  min-width:0;min-height:0;width:100%;height:330px;align-self:start;overflow:hidden;
+  min-width:0;min-height:0;width:100%;height:255px;align-self:start;overflow:hidden;
   padding:19px 18px;border:1px solid #e4ece6;border-radius:21px;
   background:#fff;box-shadow:0 5px 20px #153f2a0b
  }
