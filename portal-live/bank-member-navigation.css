@@ -323,16 +323,16 @@ body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{marg
  min-width:0;gap:7px;align-items:end;text-align:center
 }
 #dashboardView .f4-member-progress-column strong{
- color:#126e46;font-size:12px;line-height:1.2;font-weight:850;
+ color:#008d82;font-size:12px;line-height:1.2;font-weight:850;
  font-variant-numeric:tabular-nums;white-space:nowrap
 }
 #dashboardView .f4-member-progress-rail{
  position:relative;display:block;overflow:hidden;width:100%;height:125px;
- border-radius:8px 8px 5px 5px;background:#f0f7f1
+ border-radius:8px 8px 5px 5px;background:#f1f4f3
 }
 #dashboardView .f4-member-progress-fill{
  display:block;position:absolute;inset:auto 0 0;width:100%;
- border-radius:7px 7px 4px 4px;background:linear-gradient(180deg,#43a66a,#08744a)
+ border-radius:7px 7px 4px 4px;background:linear-gradient(180deg,#19b9b0,#009788)
 }
 #dashboardView .f4-member-progress-column small{
  color:#65806b;font-size:11px;line-height:1.3;font-weight:700
