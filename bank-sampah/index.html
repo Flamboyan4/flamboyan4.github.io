@@ -1862,6 +1862,21 @@ overflow:visible
 #pageTabungan .f4-savings-head{margin:0 0 12px}
 #pageTabungan .f4-savings-head h2{margin:0;color:#174b36;font-size:22px}
 #pageTabungan .f4-savings-head p{margin:5px 0 0;color:#6a8074;font-size:12px}
+#pageTabungan .f4-saldo-workspace{
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:14px;align-items:start;min-width:0
+}
+#pageTabungan .f4-saldo-left{
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:12px;align-content:start;min-width:0
+}
+#pageTabungan .f4-saldo-right{min-width:0}
+@media(min-width:1100px){
+ #pageTabungan .f4-saldo-workspace{
+  grid-template-columns:minmax(0,1.15fr) minmax(360px,.9fr);
+  gap:18px
+ }
+}
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{display:block;padding:0;margin:0;border:0;background:transparent}
 #pageTabungan .f4-saldo-hero{
  position:relative;isolation:isolate;overflow:hidden;
@@ -1890,7 +1905,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
 #pageTabungan .f4-saldo-part:last-child{padding-right:0}
 #pageTabungan .f4-saldo-part small{font-size:clamp(9px,1vw,11px);font-weight:550;line-height:1.35;letter-spacing:-.14px;white-space:nowrap;color:#f0fff0bb}
 #pageTabungan .f4-saldo-part strong{font-size:clamp(16px,1.7vw,21px);line-height:1.2;color:#fff;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-#pageTabungan .f4-savings-utility{display:flex;justify-content:flex-end;gap:8px;min-width:0;margin:11px 0 18px}
+#pageTabungan .f4-savings-utility{display:flex;justify-content:flex-start;gap:8px;min-width:0;margin:0;flex-wrap:wrap}
 body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #287ab0;border-radius:13px;background:#287ab0;color:#fff;font-size:12.5px;font-weight:800;box-shadow:none}
 body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#009688;border-color:#009688;color:#fff}
 
@@ -1911,7 +1926,7 @@ body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank
 
 
 /* Saldo anggota — satu daftar ringkas dengan avatar, label rumah dan nominal. */
-#pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px;align-items:start}
+#pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
 #pageTabungan .f4-savings-panel,#pageTabungan .f4-savings-roster{min-width:0;padding:14px;border:1px solid #e2ebe3;border-radius:17px;background:#fff}
 #pageTabungan .f4-savings-panel-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 11px}
 #pageTabungan .f4-savings-panel-title h3,#pageTabungan #v9Form>h3,#pageTabungan .f4-savings-history h3{margin:0;color:#234735;font-size:16px;line-height:1.3}
@@ -1973,7 +1988,6 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
 #pageTabungan #v9History .stat small{display:block;font-size:11px;margin-top:3px}
 
 @media(max-width:1023px){
- #pageTabungan .f4-savings-main{grid-template-columns:minmax(0,1fr)}
  body.f4-direct-bank #dashboardView #pageTabungan #v9List{max-height:none;overflow:visible}
 }
 @media(max-width:700px){
@@ -3017,12 +3031,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       <div class="f4-savings-head">
         <h2>Saldo Warga</h2><p>Tabungan anggota dan posisi kas.</p>
       </div>
-      <section id="v9KasInfo" class="f4-savings-kpis" aria-label="Ringkasan posisi kas">Memuat ringkasan...</section>
-      <div class="f4-savings-utility">
+      <div class="f4-saldo-workspace">
+        <div class="f4-saldo-left">
+          <section id="v9KasInfo" class="f4-savings-kpis" aria-label="Ringkasan posisi kas">Memuat ringkasan...</section>
+          <div class="f4-savings-utility">
         <button id="v9Sync" type="button" class="secondary" onclick="v9PostCash()">Cek kesesuaian kas</button>
       </div>
-      <div id="v9CashCheckStatus" class="f4-savings-check-status" role="status" aria-live="polite" hidden></div>
-      <div class="f4-savings-main">
+          <div id="v9CashCheckStatus" class="f4-savings-check-status" role="status" aria-live="polite" hidden></div>
+        </div>
+        <div class="f4-saldo-right">
+          <div class="f4-savings-main">
         <section class="f4-savings-roster f4-savings-members" aria-label="Daftar saldo anggota">
           <div class="f4-savings-panel-title"><h3>Saldo anggota</h3></div>
           <div id="v9List">Memuat saldo warga...</div>
@@ -3040,6 +3058,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           </form>
           <div id="v9Notice" role="status"></div>
         </section>
+          </div>
+        </div>
       </div>
       <section class="f4-savings-history">
         <h3>Riwayat pencairan</h3>
@@ -7219,7 +7239,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-recent-link-v5">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-master-price-left-compact-v2">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-saldo-warga-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-portal-grid-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
