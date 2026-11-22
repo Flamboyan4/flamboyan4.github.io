@@ -1808,7 +1808,6 @@ overflow:visible
 #pagePengesahan .field label{display:block;margin-bottom:5px;font-weight:700;font-size:12px;color:#29463c}
 #pagePengesahan .field input,#pagePengesahan .field select{width:100%;min-width:0;min-height:41px;padding:9px 11px;border-radius:9px;border:1px solid #d8e5dc;font-size:13px;background:#fff}
 #pagePengesahan .f4-approval-summary{margin:0 0 14px}
-#pagePengesahan #v8Preview .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:0}
 #pagePengesahan #v8Preview .metric{margin:0;padding:12px 13px;border-radius:11px;min-width:0;background:#fff;border:1px solid #e0eae3;box-shadow:none}
 #pagePengesahan #v8Preview .metric small{font-size:11px;color:#658075;line-height:1.32;display:block}
 #pagePengesahan #v8Preview .metric strong{display:block;margin-top:6px;font-size:19px;line-height:1.2;color:#194a39;overflow-wrap:anywhere}
@@ -1840,13 +1839,9 @@ overflow:visible
 #pagePengesahan #v27CancelPanel form .field{margin:0 0 10px}
 #pagePengesahan #v27CancelPanel textarea{width:100%;min-height:75px;max-width:100%;padding:10px 11px;border:1px solid #d8e5dc;border-radius:9px;background:#fff;font:inherit;font-size:13px;resize:vertical}
 #pagePengesahan #v27CancelPanel button{padding:10px 13px;border-radius:9px;font-size:12px}
-@media(max-width:900px){
- #pagePengesahan #v8Preview .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
 @media(max-width:640px){
  #pagePengesahan.card{padding:15px 13px}
  #pagePengesahan .f4-approval-heading h2{font-size:18px}
- #pagePengesahan #v8Preview .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
  #pagePengesahan #v8Preview .metric{padding:10px}
  #pagePengesahan #v8Preview .metric strong{font-size:17px}
  #pagePengesahan .f4-approval-alloc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -2414,7 +2409,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   let token=sessionStorage.getItem('bs4_session')||'',profile=null,accounts=[],currentCredential=null,setCatalog=[],setNonce='',setEditId='',setEditPayload=null,saleCatalog=[],saleNonce='';
   function note(target,message,error=false){const e=$(target);if(!e)return;e.textContent=message||'';e.className=message?'notice'+(error?' error':''):'';e.hidden=!message;e.dataset.f4State=message?'notice':'success';}
   function call(name,...args){
-    // Satu jalur transaksi: bridge Cloudflare/D1. Tidak memakai google.script.run.
+    // Satu jalur transaksi: bridge Cloudflare/D1.
     return Promise.resolve().then(()=>{
       if(name==='authLogout')return {ok:true};
       if(name==='authLogin')throw Error('Masuk melalui tombol LOGIN pada portal terpadu.');
