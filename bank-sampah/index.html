@@ -1871,10 +1871,11 @@ overflow:visible
  gap:12px;align-content:start;min-width:0
 }
 #pageTabungan .f4-saldo-right{min-width:0}
-@media(min-width:1100px){
+/* Breakpoint dihitung dari lebar area konten portal, bukan lebar monitor. */
+@media(min-width:920px){
  #pageTabungan .f4-saldo-workspace{
-  grid-template-columns:minmax(0,1.15fr) minmax(360px,.9fr);
-  gap:18px
+  grid-template-columns:minmax(0,1.18fr) minmax(320px,1fr);
+  gap:16px
  }
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{display:block;padding:0;margin:0;border:0;background:transparent}
