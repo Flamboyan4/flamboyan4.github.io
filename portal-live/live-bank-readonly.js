@@ -546,16 +546,23 @@
      // Preserve the original fallback; bank members already carry hasAvatar.
      return adminMembers().then(members=>members.map(x=>({...x,akunId:'',username:'',status:x.status})));
    }
-   const avatarById=new Map();
-   try {
-     const members=await adminMembers();
-     for(const member of members){
+   const avatarById=new Map(),rankById=new Map();
+   // Neither optional avatar nor rank services may block access to account management.
+   const [memberResult,rankResult]=await Promise.allSettled([
+     adminMembers(),get('/api/v2/bank/activity-ranking')
+   ]);
+   if(memberResult.status==='fulfilled'){
+     for(const member of memberResult.value){
        const id=String(member.wargaId||'').trim().replace(/^member:/i,'');
        if(id)avatarById.set(id,member.hasAvatar===true);
      }
-   } catch(error) {
-     // Accounts stay available if the member directory is temporarily unreachable.
-     console.warn('Status foto anggota belum dapat dibaca:',error);
+   }else console.warn('Status foto anggota belum dapat dibaca:',memberResult.reason);
+   if(rankResult.status==='fulfilled'){
+     for(const entry of Array.isArray(rankResult.value.top)?rankResult.value.top:[]){
+       const id=String(entry.memberId||'').trim().replace(/^member:/i,'');
+       if(id&&[1,2,3].includes(Number(entry.rank)))
+         rankById.set(id,Number(entry.rank));
+     }
    }
    return list.filter(x=>!['superadmin','admin'].includes(String(x.role||'').toLowerCase())).map(x=>{
      const status=String(x.status||(!x.perluAktivasi?'Aktif':'Belum Aktif'));
@@ -568,7 +575,8 @@
        username:String(x.username||''),
        status:/^(aktif|active)$/i.test(status)?'Aktif':status,
        aktif:/^(aktif|active)$/i.test(status),
-       hasAvatar:avatarById.get(id)===true
+       hasAvatar:avatarById.get(id)===true,
+       activityRank:rankById.get(id)||null
      };
    });
  };
