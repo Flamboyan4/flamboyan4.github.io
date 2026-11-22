@@ -2410,7 +2410,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 </div>
 <!-- The active Cloudflare read bridge is maintained once in live-bank-readonly.js. -->
 
-<script src="/portal-live/live-bank-readonly.js?v=20261122-member-avatar-sync-v3"></script>
+<script src="/portal-live/live-bank-readonly.js?v=20261122-member-crown-v4"></script>
 <script src="/portal-live/bank-progress-app.js?v=20261121-belum-terjual-v1"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=20261115-deposit-edit-v1"></script>
 <script id="f4-bank-split-readonly">
@@ -5707,7 +5707,22 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const avatar=f4BankPersonAvatar(a.nama,{className:'v23-account-avatar',
         memberId:a.wargaId,hasAvatar:a.hasAvatar===true||a.hasAvatar===1||a.hasAvatar==='1'});
       const identity=v21Node('span','v23-account-identity');
-      identity.append(v21Node('strong','',a.nama||'Tanpa nama'),v21Node('small','',a.rumah||'Rumah belum tercatat'));
+      const name=v21Node('strong','',a.nama||'Tanpa nama');
+      const placement=Number(a.activityRank);
+      if([1,2,3].includes(placement)){
+        const crown=v21Node('span','f4-bank-activity-crown is-compact is-rank-'+placement);
+        crown.setAttribute('aria-label','Peringkat '+placement+' warga teraktif');
+        crown.title='Peringkat '+placement+' warga teraktif · seluruh periode';
+        const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');
+        icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('fill','none');
+        icon.setAttribute('stroke','currentColor');icon.setAttribute('stroke-width','1.9');
+        icon.setAttribute('stroke-linecap','round');icon.setAttribute('stroke-linejoin','round');
+        icon.setAttribute('aria-hidden','true');
+        icon.innerHTML='<path d="M2.5 7.5 6.5 11l5.5-7 5.5 7 4-3.5-2.4 11h-14z"/><path d="M6 21h12"/>';
+        crown.append(icon,v21Node('b','',String(placement)));
+        name.append(document.createTextNode(' '),crown);
+      }
+      identity.append(name,v21Node('small','',a.rumah||'Rumah belum tercatat'));
       identity.title=String(a.nama||'Tanpa nama');
       const state=v21Node('span','v23-account-state',a.status||'—');
       const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -7294,7 +7309,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-recent-link-v5">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-cash-heading-spacing-v4">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-rank-crowns-v5">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-portal-grid-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
@@ -7302,12 +7317,12 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261122-duplex-kertas-v1"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-cash-button-compact-v4"></script>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-member-crown-v5"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261122-workspaces-v2">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
-<script defer src="/portal-live/bank-admin-analytics.js?v=20261122-report-chart-v11"></script>
+<script defer src="/portal-live/bank-admin-analytics.js?v=20261122-podium-colors-v12"></script>
 
 <script id="f4-bank-public-clean-anchors">
 (()=>{
