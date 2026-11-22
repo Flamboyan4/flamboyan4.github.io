@@ -235,8 +235,17 @@ function statusFor(page){
 }
 function ensureHome(){
  const page=$("pageDashboard");
- if(!page||!page.classList.contains("v14-home"))return;
+ if(!page)return;
+ // v14-home is only a class, not proof that the live DOM was initialized.
+ // Recover the original data anchors before composing a single modern screen.
+ const anchors=["v14Primary","v14Extra","v14Recent","v14Activities"];
+ if(!page.classList.contains("v14-home")||!anchors.every(id=>page.querySelector("#"+id)))
+  window.f4BankEnsureLegacyDashboard?.();
+ if(!page.classList.contains("v14-home")||!anchors.every(id=>page.querySelector("#"+id)))return;
  let hub=$("f4BankAppHome");
+ if(hub&&(!page.contains(hub)||!hub.querySelector("#f4BankAppAdminHero"))){
+  hub.remove();hub=null;
+ }
  if(!hub){
   hub=el("section","f4-bank-app-home");hub.id="f4BankAppHome";
   const welcome=el("div","f4-bank-app-personal-greeting");welcome.id="f4BankAppWelcome";
@@ -2986,7 +2995,7 @@ function handleRoute(route,old,args){
  if(route==="dashboard"&&role==="member"){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
- if(route==="dashboard"&&role==="admin"){ensureAdminHome();refreshAdminAlerts(true);}
+ if(route==="dashboard"&&role==="admin"){ensureHome();ensureAdminHome();refreshAdminAlerts(true);}
  if(route==="laporan"&&role==="admin")ensureAdminReportLink();
  if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();
@@ -3242,7 +3251,7 @@ function init(){
   desktopLayout=nextDesktop;
   if(nextDesktop&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
   syncAdminPageFrames();
-  if(role==="admin")ensureAdminHome();
+  if(role==="admin"){ensureHome();ensureAdminHome();}
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
@@ -3284,11 +3293,37 @@ function init(){
  if(view)new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:["class"]});
  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["data-f4-bank-role"]});
  const page=$("pageDashboard");
+ // Reconcile after *actual* missing nodes, including a late class change.
+ // Normal API updates must not recreate the dashboard or interrupt scrolling.
+ let homeRepairQueued=false,homeRepairTime=0;
+ function repairMissingHome(){
+  if(!roleType()||$("dashboardView")?.classList.contains("hidden")||!page)return;
+  const home=page.querySelector("#f4BankAppHome");
+  const incomplete=!home||!home.querySelector("#f4BankAppAdminHero")||
+   (roleType()==="admin"&&!page.querySelector("#f4BankAdminOperations"));
+  if(!incomplete||homeRepairQueued||Date.now()-homeRepairTime<1000)return;
+  homeRepairQueued=true;
+  queueMicrotask(()=>{
+   homeRepairQueued=false;
+   if(!roleType()||$("dashboardView")?.classList.contains("hidden"))return;
+   if(page.querySelector("#f4BankAppHome")?.querySelector("#f4BankAdminHero")&&
+      (roleType()!=="admin"||page.querySelector("#f4BankAdminOperations")))return;
+   homeRepairTime=Date.now();
+   sync();
+  });
+ }
  if(page)new MutationObserver(()=>{
-   if(page.classList.contains("v14-home")&&!$("f4BankAppHome"))sync();
+   repairMissingHome();
    const source=$("f4BankDashboardSource"),chart=$("f4-member-weight-chart");
    if(role==="member"&&source&&chart&&chart.parentElement!==source)source.append(chart);
-  }).observe(page,{childList:true,subtree:true});
+  }).observe(page,{attributes:true,attributeFilter:["class"],childList:true,subtree:true});
+ window.addEventListener("pageshow",()=>{
+  if(roleType()&&!$("dashboardView")?.classList.contains("hidden")){
+   ensureHome();
+   if(roleType()==="admin")ensureAdminHome();
+   markDock();
+  }
+ });
  sync();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
