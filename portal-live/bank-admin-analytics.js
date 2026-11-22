@@ -24,7 +24,8 @@
    users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 1 0-1-6M17 15a5 5 0 0 1 4 5"/>',
    scale:'<path d="M12 3v18M4 7l8-4 8 4M4 7l-3 6h6zM20 7l-3 6h6zM6 21h12"/>',
    refresh:'<path d="M20 11a8 8 0 0 0-14.9-4L3 9m0-5v5h5M4 13a8 8 0 0 0 14.9 4L21 15m0 5v-5h-5"/>',
-   trophy:'<path d="M7 4h10v7a5 5 0 0 1-10 0zM7 6H4v3a4 4 0 0 0 4 4m9-7h3v3a4 4 0 0 1-4 4M12 16v4m-4 1h8"/>'
+   trophy:'<path d="M7 4h10v7a5 5 0 0 1-10 0zM7 6H4v3a4 4 0 0 0 4 4m9-7h3v3a4 4 0 0 1-4 4M12 16v4m-4 1h8"/>',
+   chevron:'<path d="m6 9 6 6 6-6"/>'
   };
   const el=document.createElementNS('http://www.w3.org/2000/svg','svg');
   el.setAttribute('viewBox','0 0 24 24');el.setAttribute('width','18');el.setAttribute('height','18');
@@ -301,7 +302,8 @@
     const main=node('div','f4-analisis-record-main');
     add(main,node('strong','',memberTitle(byId.get(r.member))),
      node('small','',dateLabel(r.date)+' · '+fmtInt(r.lines.length)+' jenis'));
-    add(summary,node('span','f4-analisis-record-index',String(i+1)),main,node('strong','f4-analisis-record-weight',fmtKg(r.weight)));
+    const caret=svg('chevron');caret.classList.add('f4-analisis-record-chevron');
+    add(summary,node('span','f4-analisis-record-index',String(i+1)),main,node('strong','f4-analisis-record-weight',fmtKg(r.weight)),caret);
     wrap.append(summary);
     const list=node('div','f4-analisis-record-lines');
     r.lines.forEach(line=>{
@@ -351,7 +353,7 @@
   new MutationObserver(syncOfficial).observe(report,{childList:true});
   function switchTo(which){
    if(!admin())return;
-   state.tab=which;syncOfficial();content.hidden=which!=='analysis';
+   state.tab=which;report.classList.toggle('f4-analisis-page-active',which==='analysis');syncOfficial();content.hidden=which!=='analysis';
    official.classList.toggle('is-active',which==='official');
    analysis.classList.toggle('is-active',which==='analysis');
    official.setAttribute('aria-selected',String(which==='official'));analysis.setAttribute('aria-selected',String(which==='analysis'));
@@ -371,7 +373,7 @@
    if(!admin()){if(state.data||state.pending)clearPrivate();switchToOfficialOnLogout();}
   });
   function switchToOfficialOnLogout(){
-   state.tab='official';syncOfficial();content.hidden=true;
+   state.tab='official';report.classList.remove('f4-analisis-page-active');syncOfficial();content.hidden=true;
    official.classList.add('is-active');analysis.classList.remove('is-active');
    official.setAttribute('aria-selected','true');analysis.setAttribute('aria-selected','false');
   }
