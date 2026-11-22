@@ -5,7 +5,6 @@ const section=document.getElementById('cerita-warga'),grid=document.getElementBy
 if(!section||!grid)return;
 const latest=document.getElementById('f4g-home-latest'),popular=document.getElementById('f4g-home-popular');
 const API='https://api.flamboyan4.web.id';
-const FOLDER_API='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 const icon=name=>{
  const paths={heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
   comment:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.8-5.2a8.5 8.5 0 1 1 16.2-4.3z"/>'};
@@ -82,22 +81,7 @@ function fromNew(photo,titles){
 async function fromLegacy(doc){
  const id=docId(doc);if(!id)return null;
  const title=String(doc.title||'').trim();
- const folder=folderId(doc.drive_url||doc.folder||doc.photo_ref||doc.url);
  let photo=null;
- if(folder){
-  try{
-   const data=await json(FOLDER_API+'?folderId='+encodeURIComponent(folder),6500);
-   const files=Array.isArray(data)?data:Array.isArray(data.files)?data.files:Array.isArray(data.images)?data.images:[];
-   const item=files.find(x=>typeof x==='string'||(!/video/i.test(String(x.mimeType||x.type||x.name||''))))||null;
-   if(item){
-    const raw=typeof item==='string'?item:(item.url||item.link||item.src||item.downloadUrl||'');
-    const source=raw|| (item.id?'https://drive.google.com/file/d/'+item.id+'/view':'');
-    const file=fileId(source)||String(item.id||item.fileId||'');
-    const url=driveImg(source);
-    if(file&&url)photo={id:'gdrive:'+file,albumId:id,url};
-   }
-  }catch(e){console.warn('Foto arsip: folder tidak tersedia',title,e.message)}
- }
  if(!photo){
   const cover=driveImg(doc.cover||doc.image_ref||'');
   const fid=fileId(cover);
