@@ -2351,19 +2351,62 @@ function showAdminDocumentation(which="albums"){
 function showAdminHistory(selected="setoran"){
  const page=ensureScreen("bank-admin-history","Riwayat");
  const title=page.querySelector(":scope > h2");
- $("f4BankAdminHistoryTabs")?.remove();
- // Two real transaction sources stay live in parallel; no tab duplication.
+ if(title)title.hidden=true;
+ page.dataset.mobileActive=selected;
+ // Desktop: two equally tall history panels. Phone: a single selected panel.
+ let controls=$("f4BankAdminHistoryControls");
+ if(!controls){
+  controls=el("div","f4-bank-admin-history-controls");
+  controls.id="f4BankAdminHistoryControls";
+  page.append(controls);
+ }
+ let tabs=$("f4BankAdminHistoryTabs");
+ if(!tabs){
+  tabs=el("div","f4-bank-admin-history-tabs");tabs.id="f4BankAdminHistoryTabs";
+  tabs.setAttribute("role","tablist");
+  tabs.setAttribute("aria-label","Jenis riwayat");
+  for(const [key,label,route] of [
+   ["setoran","Setoran","bank-admin-history"],
+   ["penjualan","Penjualan","bank-admin-sale-history"]
+  ]){
+   const button=el("button","f4-bank-admin-history-tab",label);
+   button.id="f4BankAdminHistoryTab-"+key;
+   button.type="button";button.dataset.historyTab=key;
+   button.setAttribute("role","tab");
+   button.setAttribute("aria-controls","f4BankHistoryColumn-"+key);
+   button.onclick=()=>navigate(route);
+   tabs.append(button);
+  }
+  controls.append(tabs);
+ }
+ tabs.querySelectorAll("[data-history-tab]").forEach(button=>{
+  const active=button.dataset.historyTab===selected;
+  button.classList.toggle("is-active",active);
+  button.setAttribute("aria-selected",String(active));
+  button.tabIndex=active?0:-1;
+ });
+ let refresh=$("f4BankAdminHistoryRefresh");
+ if(!refresh){
+  refresh=el("button","f4-bank-admin-history-refresh");
+  refresh.id="f4BankAdminHistoryRefresh";refresh.type="button";
+  refresh.setAttribute("aria-label","Muat ulang riwayat setoran dan penjualan");
+  refresh.title="Muat ulang kedua riwayat";
+  refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
+  refresh.onclick=()=>{
+   window.loadRiwayatV7?.();
+   window.loadRiwayatJual?.();
+  };
+ }
+ if(refresh.parentElement!==controls)controls.append(refresh);
  let grid=$("f4BankAdminHistoryGrid");
  if(!grid){
   grid=el("div","f4-bank-admin-history-grid");
-  grid.id="f4BankAdminHistoryGrid";
-  page.append(grid);
+  grid.id="f4BankAdminHistoryGrid";page.append(grid);
  }
- const columns=[
+ for(const [key,label,id] of [
   ["setoran","Setoran","pageRiwayat"],
   ["penjualan","Penjualan","pageRiwayatJual"]
- ];
- for(const [key,label,id] of columns){
+ ]){
   const panel=$(id);
   if(!panel)continue;
   let frame=$("f4BankHistoryColumn-"+key);
@@ -2373,29 +2416,16 @@ function showAdminHistory(selected="setoran"){
    const heading=el("h3","f4-bank-admin-history-column-title",label);
    heading.id="f4BankHistoryTitle-"+key;
    frame.setAttribute("aria-labelledby",heading.id);
-   frame.append(heading);
-   grid.append(frame);
+   frame.append(heading);grid.append(frame);
   }
+  frame.setAttribute("role","tabpanel");
+  frame.setAttribute("aria-labelledby","f4BankHistoryTitle-"+key);
   if(panel.parentElement!==frame)frame.append(panel);
   panel.classList.remove("hidden");
  }
  syncAdminPageFrames();
- let refresh=$("f4BankAdminHistoryRefresh");
- if(!refresh){
-  refresh=el("button","f4-bank-admin-history-refresh");
-  refresh.id="f4BankAdminHistoryRefresh";
-  refresh.type="button";
-  refresh.setAttribute("aria-label","Muat ulang riwayat setoran dan penjualan");
-  refresh.title="Muat ulang kedua riwayat";
-  refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
-  refresh.onclick=()=>{
-   window.loadRiwayatV7?.();
-   window.loadRiwayatJual?.();
-  };
- }
- if(title&&refresh.parentElement!==title)title.append(refresh);
  page.classList.remove("hidden");
- // goPage already loaded the active legacy route; fetch the other once.
+ // The legacy route already loaded the selected list. Load the other one.
  if(selected==="penjualan")window.loadRiwayatV7?.();
  else window.loadRiwayatJual?.();
 }
