@@ -1,7 +1,7 @@
 /* Shared visual language for Bank Sampah and Superadmin; no changes to data or access. */
 @media screen {
 html:has(#v11Public),html:has(#f4-account-page){background:#fff}
-:root{--modern-ink:#20333d;--modern-muted:#63757d;--modern-line:#e3ebee;--modern-green:#087f5b;--modern-purple:#6650cc}
+:root{--modern-ink:var(--f4-ui-ink,#23293c);--modern-muted:var(--f4-ui-muted,#586477);--modern-line:#e3ebee;--modern-green:#087f5b;--modern-purple:#6650cc}
 body:has(#v11Public),body:has(#f4-account-page){color:var(--modern-ink);-webkit-font-smoothing:antialiased}
 body:has(#v11Public):not(.f4-bank-app-admin),body:has(#f4-account-page){background:#fff}
 body:has(#v11Public){--forest:#43a047;--leaf:#8bc24a;--sage:#e7f7d3;--cream:#fff;--ink:#173d2d;--muted:#556f62;--line:#e1ede5;--f4-nav:#43a047;--f4-nav-tint:#e7f7d3}
@@ -14,22 +14,24 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 #f4-account-page>aside button.active{background:var(--tint);color:var(--blue)}
 #f4-account-page>aside button:hover{background:#f1f4f8}
 .sa-nav-icon{display:block;width:18px;height:18px;padding:0;border-radius:0;background:transparent;flex:none;object-fit:contain}
-#f4-account-page>main .f4-work-heading{border:0;margin-bottom:16px;padding-bottom:0}
-#f4-account-page>main .f4-work-heading h2{font-size:27px;letter-spacing:-.7px;font-weight:750;color:var(--modern-ink)}
-#f4-account-page>main .f4-work-heading p{font-size:13px;margin:7px 0 0;color:var(--modern-muted)}
+#f4-account-page>main .f4-work-heading{border-bottom:1px solid var(--edge);margin-bottom:var(--f4-grid-gap);padding-bottom:var(--f4-panel-pad)}
+#f4-account-page>main .f4-work-heading h2{font-size:var(--f4-heading);line-height:1.22;letter-spacing:-.035em;font-weight:750;color:var(--modern-ink)}
+#f4-account-page>main .f4-work-heading p{font-size:14px;margin:6px 0 0;color:var(--modern-muted)}
 #f4-account-page .sa-module-heading{background:transparent;border:0;padding:0;margin:18px 0 12px}
 #f4-account-page .sa-module-heading h3{font-size:18px;letter-spacing:-.25px;color:var(--modern-ink)}
-#f4-account-page .sa-tabbar{border:1px solid var(--edge);background:#fff;border-radius:14px;padding:5px;gap:4px;box-shadow:none}
+#f4-account-page .sa-tabbar{border:0;border-bottom:1px solid var(--edge);background:#fff;border-radius:0;padding:4px 0 10px;gap:4px;box-shadow:none}
 #f4-account-page .sa-tabbar button{background:transparent;border:0;border-radius:9px;min-height:40px;padding:9px 14px;font-size:13px;color:var(--muted);white-space:nowrap}
-#f4-account-page .sa-tabbar button[aria-selected=true]{background:var(--tint);color:var(--blue);box-shadow:none}
-#f4-account-page .sa-card,#f4-account-page .sa-section,#f4-account-page .f4-admin-editor,#f4-account-page .f4-admin-item,#f4-account-page .sa-accounts-shell{border:1px solid var(--edge);border-radius:16px;box-shadow:0 3px 14px #24364704;background:white}
-#f4-account-page .sa-card{position:relative;padding:18px;border-top:3px solid #b9a9fa}
-#f4-account-page .sa-card:nth-child(2){border-top-color:#7fdbc0}
-#f4-account-page .sa-card:nth-child(3){border-top-color:#ffce83}
-#f4-account-page .sa-card:nth-child(4){border-top-color:#8ecafb}
+#f4-account-page .sa-tabbar button[aria-selected=true]{background:var(--blue);color:white;box-shadow:none}
+#f4-account-page .sa-card,#f4-account-page .sa-section,#f4-account-page .f4-admin-editor,#f4-account-page .f4-admin-item,#f4-account-page .sa-accounts-shell{border:1px solid var(--edge);border-radius:var(--f4-panel-radius);box-shadow:var(--f4-panel-shadow);background:white}
+#f4-account-page .sa-card{position:relative;min-width:0;text-align:left;padding:var(--f4-panel-pad);border-top:3px solid #7655cd}
+#f4-account-page .sa-card img{display:block;width:26px;height:26px;margin-bottom:9px}
+#f4-account-page .sa-card:hover{border-color:var(--blue)}
+#f4-account-page .sa-card span{display:block;margin-top:7px;color:var(--blue);font-weight:650}
+#f4-account-page .sa-card:nth-child(2){border-top-color:#098674}
+#f4-account-page .sa-card:nth-child(3){border-top-color:#2279c8}
 #f4-account-page .sa-card strong{font-size:26px;letter-spacing:-.7px}
-#f4-account-page .sa-card small,#f4-account-page .sa-card span{font-size:12px}
-#f4-account-page .f4-admin-controls{padding:12px;border:1px solid var(--edge);border-radius:14px;background:#fff}
+#f4-account-page .sa-card small,#f4-account-page .sa-card span{font-size:14px}
+#f4-account-page .f4-admin-controls{padding:8px 0 14px;border:0;border-bottom:1px solid var(--edge);border-radius:0;background:#fff}
 #f4-account-page .f4-admin-controls input{background:#fafbfc;border-color:var(--edge);font-size:14px}
 #f4-account-page .f4-admin-btn,#f4-account-page .sa-action{background:#fff;border:1px solid var(--edge);color:var(--blue);font-size:13px;min-height:var(--f4-control-height,42px);display:inline-flex;align-items:center;justify-content:center;gap:7px}
 #f4-account-page .f4-admin-primary{background:var(--blue);border-color:var(--blue);color:white;min-height:42px}

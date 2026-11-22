@@ -4848,11 +4848,7 @@ async function f4PeriodObligation(db,payerId,year,month) {
   ]);
   // Pembayaran lama tidak dinilai ulang. Periode tanpa catatan memakai
   // kewajiban terbaru, walaupun bulan tagihannya mendahului tanggal perubahan.
-  if(posted)return historical;
-  if(!historical||!latest)return historical;
-  const changed=["qty_iuran_bulanan","qty_kebersihan","qty_kas_lorong","qty_arisan"]
-    .some(key=>Number(historical[key])!==Number(latest[key]));
-  return {...latest,_freezeForPayment:changed&&period<latest.effective_from};
+  return f4EffectiveObligation(historical,latest,posted,period);
 }
 function f4IuranAmounts(obligation,tariff) {
   return {
@@ -4861,6 +4857,100 @@ function f4IuranAmounts(obligation,tariff) {
     KAS_LORONG:Number(obligation.qty_kas_lorong)*tariff.TARIF_KAS_LORONG,
     ARISAN:Number(obligation.qty_arisan)*tariff.TARIF_ARISAN
   };
+}
+
+// Use the same obligation revision as the payment form. A posted period keeps its historical rates.
+function f4EffectiveObligation(historical, latest, posted, period) {
+  if (posted || !historical || !latest) return historical;
+  const changed = ["qty_iuran_bulanan", "qty_kebersihan", "qty_kas_lorong", "qty_arisan"]
+    .some(key => Number(historical[key]) !== Number(latest[key]));
+  return {...latest, _freezeForPayment: changed && period < latest.effective_from};
+}
+
+async function f4PaymentMonitor(db, period) {
+  if (!/^20\d\d-(0[1-9]|1[0-2])$/.test(period)) return safeError("Bulan iuran tidak valid.", 400);
+  const end = f4PeriodIndex(Number(period.slice(0, 4)), Number(period.slice(5)));
+  const months = Array.from({length: 6}, (_, i) => {
+    const {year, month} = f4IndexPeriod(end - 5 + i);
+    return f4IuranMonth(year, month).slice(0, 7);
+  });
+  const periodDate = period + "-01";
+  const tariff = await getIuranTariffs(db);
+  const [payers, allocations, baseline] = await db.batch([
+    db.prepare(`SELECT p.id,p.display_name AS nama,p.active,h.house_code AS rumah,
+      o.effective_from,o.qty_iuran_bulanan,o.qty_kebersihan,o.qty_kas_lorong,o.qty_arisan
+      FROM bookkeeping_payers p LEFT JOIN households h ON h.id=p.household_id
+      LEFT JOIN bookkeeping_payer_obligation_periods o ON o.payer_id=p.id
+      WHERE p.payer_type='warga' ORDER BY h.house_code,p.display_name,p.id,o.effective_from`),
+    db.prepare(`SELECT a.payer_id,a.period_year,a.period_month,a.contribution_type,
+      SUM(a.amount_rp) AS amount,MAX(CASE WHEN a.amount_rp>0 THEN p.paid_on END) AS last_paid
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif'
+        AND (a.period_year*12+a.period_month-1) BETWEEN ? AND ?
+      GROUP BY a.payer_id,a.period_year,a.period_month,a.contribution_type`).bind(end-5,end),
+    db.prepare(`SELECT MIN(printf('%04d-%02d',a.period_year,a.period_month)) AS first_month
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE a.status='aktif' AND p.status='aktif' AND a.amount_rp>0`)
+  ]);
+  const members = new Map();
+  for (const row of payers.results) {
+    if (!members.has(row.id)) members.set(row.id, {
+      id:row.id, nama:row.nama, rumah:row.rumah, active:!!row.active,
+      paid:{}, trend:months.map(() => 0), lastPaid:""
+    });
+    if (!row.effective_from) continue;
+    const member = members.get(row.id);
+    member.latest = row;
+    if (row.effective_from <= periodDate) member.historical = row;
+  }
+  for (const row of allocations.results) {
+    const member = members.get(row.payer_id);
+    if (!member) continue;
+    const index = f4PeriodIndex(row.period_year,row.period_month) - (end-5);
+    member.trend[index] += row.amount;
+    if (index !== 5) continue;
+    member.paid[row.contribution_type] = row.amount;
+    if (row.last_paid > member.lastPaid) member.lastPaid = row.last_paid;
+  }
+  const today = f4CurrentIuranMonth().slice(0,7);
+  const firstMonth = baseline.results[0]?.first_month || today;
+  const records = Array.from(members.values(), ({historical,latest,...member}) => {
+    const posted = Object.keys(member.paid).length > 0;
+    const version = f4EffectiveObligation(historical,latest,posted,periodDate);
+    const due = version && (member.active || posted) && period >= firstMonth ? f4IuranAmounts(version,tariff) : {};
+    return {...member,due};
+  });
+  // Migrated payers can share a house. Keep each receipt with its original
+  // payer, and flag ambiguous arrears before the manager follows up.
+  const historicalHouses = new Set(records.filter(r => r.rumah && r.trend[5]>0 &&
+    !Object.values(r.due).some(Boolean)).map(r => r.rumah));
+  for (const record of records) {
+    record.review = historicalHouses.has(record.rumah) && !record.trend[5] && Object.values(record.due).some(Boolean);
+  }
+  return json({ok:true,period,months,today,firstMonth,records});
+}
+
+async function f4ResidentStatement(db, payerId) {
+  if (!payerId || payerId.length > 150) return safeError("Pilih satu warga.",400);
+  const result = await db.batch([
+    db.prepare(`SELECT p.id AS statement_payer_id,p.display_name AS nama,h.house_code AS rumah,p.active,m.status AS status_anggota,r.*
+      FROM bookkeeping_payers p LEFT JOIN households h ON h.id=p.household_id
+      LEFT JOIN resident_directory_profiles r ON r.payer_id=p.id LEFT JOIN members m ON m.id=p.member_id
+      WHERE p.payer_type='warga' AND p.id=?`).bind(payerId),
+    db.prepare(`SELECT id,paid_on,payment_method,amount_rp,status,description FROM bookkeeping_payments
+      WHERE payer_id=? ORDER BY paid_on,rowid`).bind(payerId),
+    db.prepare(`SELECT a.payment_id,p.paid_on,a.period_year,a.period_month,a.contribution_type,
+      a.amount_rp,p.status AS payment_status,a.status AS allocation_status
+      FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
+      WHERE p.payer_id=? AND a.payer_id=p.payer_id ORDER BY p.paid_on,p.rowid,a.period_year,a.period_month,a.contribution_type`).bind(payerId)
+  ]);
+  const [profile] = result[0].results;
+  if (!profile) return safeError("Warga tidak ditemukan.",404);
+  profile.id = profile.statement_payer_id;
+  const fields = ["id","nama","rumah","active","status_tinggal","nomor_hp","keterangan","status_anggota",
+    "agama","tanggal_lahir","status_perkawinan","kategori_sosial"];
+  const personal = Object.fromEntries(fields.filter(key => Object.hasOwn(profile,key)).map(key => [key,profile[key]]));
+  return json({ok:true,profile:personal,payments:result[1].results,allocations:result[2].results});
 }
 
 async function getIuranOutstanding(db, request) {
@@ -7721,6 +7811,12 @@ async function handle(request, env) {
     if (denied) return denied;
     if (!who.member_id) return safeError("Akun belum ditautkan ke data anggota.", 403);
     return json(await ownSavings(env.DB, who.member_id));
+  }
+  if (path === "/api/bookkeeping/reports/payment-monitor" && request.method === "GET") {
+    return requireRole(who, ["superadmin"]) || f4PaymentMonitor(env.DB, url.searchParams.get("period") || "");
+  }
+  if (path === "/api/bookkeeping/reports/resident-statement" && request.method === "GET") {
+    return requireRole(who, ["superadmin"]) || f4ResidentStatement(env.DB, url.searchParams.get("payerId") || "");
   }
   if (path === "/api/bookkeeping/iuran/suggested-period" && request.method === "GET") {
     const denied=requireRole(who,["superadmin"]);

@@ -31,13 +31,13 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
 @media(min-width:1024px){
  body.f4-bank-app-member #dashboardView>.grid{display:block;min-width:0}
  body.f4-bank-app-member #dashboardView>.grid>.section{
-  box-sizing:border-box;display:block;min-width:0;width:calc(100% - 226px);
-  max-width:none;margin:0 0 0 226px;padding:10px clamp(20px,2.5vw,32px) 50px;
+  box-sizing:border-box;display:block;min-width:0;width:calc(100% - var(--f4-rail-width,226px));
+  max-width:none;margin:0 0 0 var(--f4-rail-width,226px);padding:10px clamp(20px,2.5vw,32px) 50px;
   background:var(--f4-bank-canvas,#edf9f2)
  }
  body.f4-bank-app-member #dashboardView #sideNav.side{
   box-sizing:border-box;display:block;position:fixed;left:0;top:0;bottom:0;z-index:210;
-  width:226px;height:100dvh;min-height:0;max-height:100dvh;
+  width:var(--f4-rail-width,226px);height:100dvh;min-height:0;max-height:100dvh;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   margin:0;padding:0 8px 16px;border:0;border-right:1px solid #dce8df;
   border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible
@@ -208,7 +208,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-report-transactions>.f4-bank-scr
    "hero stats"
    "latest categories"
    "chart history";
-  grid-auto-rows:max-content;gap:16px 18px;align-items:start
+  grid-auto-rows:max-content;gap:var(--f4-grid-gap);align-items:start
  }
  body.f4-bank-app-member #dashboardView #pagePribadi #f4BankSavingsHero{
   grid-area:hero;min-width:0;max-width:none;margin:0

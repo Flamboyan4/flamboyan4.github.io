@@ -38,7 +38,7 @@
 
 /* Input Data landing: three choice cards, then a compact back button and only relevant subnav. */
 .f4-book-heading-line{display:flex;align-items:center;gap:9px;min-width:0}
-.f4-book-heading-line>h1{min-width:0}
+.f4-book-heading-line>h1{min-width:0;font-size:var(--f4-heading);line-height:1.22;letter-spacing:-.035em;color:var(--f4-ui-ink)}
 .f4-book-home-back{
  appearance:none;display:inline-flex;align-items:center;justify-content:center;
  flex:0 0 36px;width:36px;height:36px;min-height:36px;border:1px solid #e4dbfc;
@@ -51,7 +51,7 @@
 /* Shared frame geometry for every Pembukuan menu.
    Keep overflow visible so calendar/dropdown panels are not clipped. */
 main > section.f4-book-workspace{
- --f4-workspace-radius:18px;
+ --f4-workspace-radius:var(--f4-panel-radius);border-color:var(--f4-ui-border);box-shadow:var(--f4-panel-shadow);
  border-radius:var(--f4-workspace-radius);
  background:#fff
 }
@@ -72,15 +72,15 @@ main > section.f4-book-workspace:not(:has(> .group-nav:not(.hidden))) > .tab-pan
  border-radius:17px
 }
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing>.f4-book-sections{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;border:0;min-width:0
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap);padding:0;border:0;min-width:0
 }
 #group-nav-inputdata.f4-book-tab-shell:not(.f4-book-landing)>.f4-book-sections{display:none}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing>.f4-book-subnav{display:none}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-btn{
- display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;
- gap:12px;min-width:0;min-height:138px;padding:18px 12px;background:#fff;
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative;
+ gap:10px;min-width:0;min-height:124px;padding:var(--f4-panel-pad);background:#fff;
  border:1px solid #ddd6fe;border-radius:14px;color:#30215f;
- font-size:15px;font-weight:800;line-height:1.3;text-align:center;
+ font-size:16px;font-weight:750;line-height:1.3;text-align:left;
  box-shadow:0 3px 13px rgba(56,28,107,.035);cursor:pointer
 }
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-btn:hover{
@@ -88,8 +88,12 @@ main > section.f4-book-workspace:not(:has(> .group-nav:not(.hidden))) > .tab-pan
 }
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-icon{
  display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;
- background:#ede9fe;color:#6d28d9
+ background:#7342c3;color:#fff
 }
+.f4-book-section-label{display:grid;gap:4px}
+.f4-book-section-label small{color:var(--f4-ui-muted);font-size:.8rem;line-height:1.4;font-weight:500}
+#group-nav-inputdata .f4-book-section-btn[data-book-input-section=kas] .f4-book-section-icon{background:#067e70;color:white}
+#group-nav-inputdata .f4-book-section-btn[data-book-input-section=lainnya] .f4-book-section-icon{background:#275da8;color:white}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-icon svg{width:25px;height:25px;stroke-width:2}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-arrow{display:none}
 #group-nav-inputdata.f4-book-tab-shell:not(.f4-book-landing)>.f4-book-subnav:not(.hidden){
@@ -103,7 +107,7 @@ main > section.f4-book-workspace:not(:has(> .group-nav:not(.hidden))) > .tab-pan
   grid-template-columns:minmax(0,1fr);gap:9px
  }
  #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-btn{
-  flex-direction:row;justify-content:flex-start;gap:14px;
+  flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;
   min-height:77px;padding:11px 14px;text-align:left;font-size:14px
  }
  #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-icon{

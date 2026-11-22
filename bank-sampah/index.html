@@ -226,7 +226,7 @@ max-width:none;width:100%
 background:#f2f6f0;
 padding:0;min-height:calc(100vh - 70px)
 }
-    #dashboardView>.grid{grid-template-columns:244px minmax(0,1fr);gap:0;align-items:stretch}
+    #dashboardView>.grid{grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);gap:0;align-items:stretch}
     #sideNav.side{position:sticky;top:69px;height:calc(100vh - 69px);min-height:calc(100vh - 69px);max-height:calc(100vh - 69px);border:0;border-right:1px solid #dfebe0;border-radius:0;box-shadow:none;padding:16px 12px;overflow-y:auto;overflow-x:hidden;background:#fff}
     #dashboardView .section{padding:24px 25px 45px;min-width:0}
     #v11Public{max-width:1370px;margin:auto;padding:24px}
@@ -432,7 +432,7 @@ padding:12px 10px 30px;min-width:0;width:100%
     }
     /* v19 — portal publik sepenuhnya sidebar; tidak ada header atau navbar. */
     #v11Public.v18-public-shell{
- width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start;
+ width:100%;max-width:none;margin:0;padding:0;display:grid;grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);align-items:start;
 min-width:0;min-height:100dvh
 }
     
@@ -1290,13 +1290,13 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 /* A member dashboard is informational{display:none}
 /* The private navigation stays in place while the iframe document scrolls. */
 @media(min-width:1024px){
- body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid{display:grid;grid-template-columns:244px minmax(0,1fr);align-items:start}
- body.v17-dashboard:not(.f4-bank-app-private) #sideNav.side{position:fixed;inset:0 auto 0 0;top:0;bottom:0;left:0;width:244px;height:100dvh;max-height:100dvh;min-height:0;z-index:25;overflow-y:auto;overscroll-behavior:contain}
+ body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid{display:grid;grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);align-items:start}
+ body.v17-dashboard:not(.f4-bank-app-private) #sideNav.side{position:fixed;inset:0 auto 0 0;top:0;bottom:0;left:0;width:var(--f4-rail-width,226px);height:100dvh;max-height:100dvh;min-height:0;z-index:25;overflow-y:auto;overscroll-behavior:contain}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261120-safe-width-icons-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261117-nav-stable-v4">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261122-portal-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-portal-grid-v1">
 
 <style id="f4-bank-admin-report-compact-20261027">
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
@@ -4545,9 +4545,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       <div class="v17-public-main"><div class="v17-public-banner">
         <div class="f4-public-hero-copy">
           <span class="v14-eyebrow"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 19-4-6 4-6M3 13h8"/><path d="m9 4 7-1 3 6M16 3l-4 7"/><path d="m21 13-3 7h-7M18 20l-3-6"/></svg> FLAMBOYAN 4</span>
-          <h1>Sampah dipilah,<br>manfaat bertambah.</h1>
-          <p class="f4-impact-intro">Setoran warga tercatat. Lingkungan makin terawat.</p>
-          <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Lihat perkembangan<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
+          <h1>Setoran warga<br>Flamboyan 4</h1>
+          <p class="f4-impact-intro">Lihat berat setoran, jenis sampah, dan hasil tiap penimbangan.</p>
+          <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Lihat tren setoran<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button>
         </div>
         <div class="f4-public-hero-illustration" aria-hidden="true">
           <div class="f4-public-hero-disc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 2.4-3.7a2 2 0 0 1 3.4 0L16 8m0 0-4-.6M16 8l.8-4"/><path d="M18 10l2.3 3.8a2 2 0 0 1-1.7 3H14m0 0 2.2-3.4M14 17l2.2 3.2"/><path d="M11 18H5.4a2 2 0 0 1-1.7-3L6.5 11m0 0 .8 4M6.5 11 3 11.4"/></svg></div>
@@ -4558,7 +4558,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
       <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><h2 id="f4BankProgramTitle">Cara kerja Bank Sampah</h2><span class="f4-bank-program-kicker">3 langkah</span></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
       <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
-        <header class="f4-dev-intro"><div><small class="f4-dev-kicker">BANK SAMPAH FLAMBOYAN 4</small><h2 id="f4DevTitle">Perkembangan</h2></div><span class="f4-dev-intro-chip">Data terkini</span></header>
+        <header class="f4-dev-intro"><div><h2 id="f4DevTitle">Perkembangan setoran</h2></div></header>
         <div id="f4DevStats" class="f4-dev-mini-stats" aria-live="polite"></div>
         <div class="f4-dev-grid">
           <section class="f4-dev-chart-card" aria-labelledby="f4DevChartTitle">
@@ -7237,10 +7237,10 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 </style>
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-manager-payout-modern-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-portal-grid-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-savings-heading-clean-v1">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-portal-grid-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261113-price-dialog-v12"></script>

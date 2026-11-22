@@ -7,8 +7,8 @@
 body.f4-direct-bank,body.f4-embedded-bank,body.f4-bank-app-private{
  --f4-bank-leaf:#43a047;--f4-bank-teal:#009788;
  --f4-bank-sky:#5969da;--f4-bank-gold:#fdc010;
- --f4-bank-ink:#153e32;--f4-bank-muted:#5d786c;
- --f4-bank-line:#d0e0d5;--f4-bank-surface:#fff;--f4-bank-canvas:#fff;
+ --f4-bank-ink:#153e32;--f4-bank-muted:#496757;
+ --f4-bank-line:#d7e4db;--f4-bank-surface:#fff;--f4-bank-canvas:#fff;
  --f4-bank-mint:#e5f6e9;--f4-bank-aqua:#e9ecff;--f4-bank-sun:#fff3c8;
  --f4-bank-orange:#eb6a48;--f4-bank-pink:#d94880;--f4-bank-purple:#b452ba;
  --f4-bank-cyan:#09bcd3;--f4-bank-lime:#8bc24a;--f4-bank-blue:#5969da
@@ -43,12 +43,12 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.f4-savings-panel,.v17-panel,.f4-member-progress-section),
 #v11Public :is(.v17-panel,.public-tile,.v25-report-card,.v21-album-tile){
  background:#fff;border:1px solid var(--eco-line);
- border-radius:18px;box-shadow:0 8px 22px #176b4723
+ border-radius:var(--f4-panel-radius);box-shadow:var(--f4-panel-shadow)
 }
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>h2,#dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi)>.toolbar h2,
 #dashboardView :is(.f4-savings-head,.f4-savings-panel-title,.f4-approval-heading,.f4-member-progress-section-heading) :is(h2,h3),
 #v11Public :is(.v17-section,.v17-panel) h2{
- color:var(--eco-dark);font-weight:800;line-height:1.3
+ color:var(--eco-dark);font-weight:750;line-height:1.26;letter-spacing:-.025em
 }
 #dashboardView :is(#pageProfile,#pageSetoran,#pageRiwayat,#pageRiwayatJual,#pagePenjualan,#pageRekonsiliasi,#pageMaster,#pageProgress,#pagePassword,#pageAdmin,#pagePengesahan,#pageTabungan,#pageBiaya,#pageLaporan,#pageKegiatan,#pageDokumentasi,#pageInventaris,#pagePribadi) :is(.desc,.hint,.section-caption,.v17-subtle),
 #v11Public :is(.v17-subtle,.v25-report-note){color:var(--eco-muted);line-height:1.45}
@@ -1830,11 +1830,11 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView .f4-bank-history-amount.is-deposit strong{color:#128052}
 
 
-#dashboardView .f4-bank-screen{display:grid;gap:14px;min-width:0;align-content:start}
+#dashboardView .f4-bank-screen{display:grid;gap:var(--f4-grid-gap);min-width:0;align-content:start}
 body.f4-bank-app-member #dashboardView .f4-bank-screen{
- padding:17px 14px 24px;border-radius:14px;background:#fff;border:1px solid #e1ebe4
+ padding:var(--f4-panel-pad);border-radius:var(--f4-panel-radius);background:#fff;border:1px solid var(--eco-line)
 }
-#dashboardView .f4-bank-screen-title{font-size:21px;line-height:1.25;letter-spacing:-.025em;color:#0f5937;margin:0}
+#dashboardView .f4-bank-screen-title{font-size:var(--f4-heading);line-height:1.25;letter-spacing:-.025em;color:var(--eco-dark);margin:0}
 #dashboardView .f4-bank-screen-subhead{font-size:15px;color:#21513b;margin:8px 0 0}
 #dashboardView .f4-bank-screen-status{font-size:12px;color:#728476;margin:0}
 #dashboardView .f4-bank-screen-status[hidden]{display:none}
@@ -1921,7 +1921,7 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 .f4-bank-manager-request-actions button{flex:1}
 /* Pengurus: satu sistem formulir dan aksi, tanpa menimpa scroll. */
 body.f4-bank-app-admin{
- --bank-sidebar-width:226px;
+ --bank-sidebar-width:var(--f4-rail-width,226px);
  --bank-admin-forest:var(--f4-bank-ink,#153e32);--bank-admin-leaf:var(--f4-bank-leaf,#20b86b);--bank-admin-lime:#a5da54;
  --bank-admin-gold:var(--f4-bank-gold,#ffcc32);--bank-admin-line:var(--f4-bank-line,#dfede5);
  --bank-admin-canvas:var(--f4-bank-canvas,#f4faf7);background:var(--bank-admin-canvas)
@@ -1930,19 +1930,19 @@ body.f4-bank-app-admin{
 body.f4-bank-app-admin :is(.shell,.content,#dashboardView,#dashboardView>.grid){
  background:var(--bank-admin-canvas)
 }
-body.f4-bank-app-admin #dashboardView{--bank-input-h:42px;--bank-form-gap:12px;--bank-control-font:13px}
+body.f4-bank-app-admin #dashboardView{--bank-input-h:var(--f4-control-height);--bank-form-gap:var(--f4-grid-gap);--bank-control-font:14px}
 /* Admin page shells have no outer card at any breakpoint; inner cards remain. */
 body.f4-bank-app-admin #dashboardView .section>.f4-bank-admin-unframed,
 body.f4-bank-app-admin #dashboardView .section>.f4-bank-screen{
  box-sizing:border-box;width:100%;max-width:none;min-width:0;
  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
 }
-body.f4-bank-app-admin #dashboardView .section>:is(#pageSetoran,#pagePenjualan,#pageLaporan){max-width:1120px;margin-inline:auto;min-width:0}
+body.f4-bank-app-admin #dashboardView .section>:is(#pageSetoran,#pagePenjualan,#pageLaporan){max-width:var(--f4-content-max);margin-inline:auto;min-width:0}
 body.f4-bank-app-admin #dashboardView .section>:is(#pageSetoran,#pagePenjualan)>h2{
- margin:0 0 2px;font-size:22px;line-height:1.25
+ margin:0 0 4px;font-size:var(--f4-heading);line-height:1.25
 }
 body.f4-bank-app-admin #dashboardView .section>:is(#pageSetoran,#pagePenjualan)>.desc{
- margin:0 0 12px;font-size:12px;line-height:1.45
+ margin:0 0 12px;font-size:14px;line-height:1.45
 }
 body.f4-bank-app-admin #dashboardView .section :is(form,.field,.toolbar){min-width:0}
 body.f4-bank-app-admin #dashboardView .section :is(#pageMaster,#pageAdmin,#pageRiwayat,#pageRiwayatJual,#pageTabungan,#pageLaporan)>.toolbar{

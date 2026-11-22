@@ -1,6 +1,6 @@
 /* Pembukuan: satu pemilik grid layar untuk seluruh modul. Tidak mengubah cetak. */
 @media screen{
- :root{--book-gap:12px;--book-tight:8px;--book-control:44px;--f4-control-height:var(--book-control)}
+ :root{--book-gap:var(--f4-grid-gap);--book-tight:var(--f4-grid-gap-compact);--book-control:44px;--f4-control-height:var(--book-control)}
  /* Edit Riwayat: selalu di atas navbar 200; dialog membatasi tinggi pada viewport. */
  #modal-edit{
   z-index:320;box-sizing:border-box;padding:16px;overscroll-behavior:contain;

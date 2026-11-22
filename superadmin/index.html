@@ -13,9 +13,9 @@ body{--work-bg:#fff;--work-accent:var(--blue);--work-tint:var(--tint);--work-lin
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--navy);background:#fff}button,input,select,textarea{font:inherit}
 button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 [hidden]{display:none}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
-#f4-account-page:not([hidden]){display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
+#f4-account-page:not([hidden]){display:grid;grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
 #f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:0}
-#f4-account-page>main{max-width:none;width:100%;padding:66px 22px 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
+#f4-account-page>main{max-width:none;width:100%;padding:calc(56px + var(--f4-panel-pad)) var(--f4-panel-pad) 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
 .f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
 @media(min-width:1024px){
  #f4-account-page>aside{padding-top:0}
@@ -185,7 +185,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
 #f4-account-page .sa-overview-state{font-size:12px;color:#236547;font-weight:750}
 #f4-account-page .sa-overview-state.is-warning{color:#98621c}
 @media(max-width:760px){
- #f4-account-page .sa-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #f4-account-page .sa-overview-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,10rem),1fr))}
  #f4-account-page .sa-module-nav{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
  #f4-account-page .sa-module-nav button{white-space:nowrap}
 }
@@ -316,8 +316,8 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261120-safe-width-icons-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261117-nav-stable-v4"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261122-portal-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-portal-grid-v1"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
@@ -714,10 +714,16 @@ function openEditor(kind){
 }
 window.f4SuperadminSwitchModule=openEditor;
 function overview(){
- title('Pusat Pengelolaan','Ringkasan sistem Flamboyan 4');
+ title('Ringkasan Sistem','Pilih ringkasan untuk membuka data pengelolaannya.');
  const cards=el('div',undefined,'sa-grid sa-overview-grid');main.append(cards);
- for(const [key,label] of [['accounts','Akun terdaftar'],['houses','Rumah'],['projects','Projek publik']]){
-  const item=el('div',undefined,'sa-card');
+ for(const [key,label,icon,go] of [
+  ['accounts','Akun terdaftar','user',()=>open('accounts')],
+  ['houses','Unit rumah','home',()=>openEditor('residents')],
+  ['projects','Projek portal','project',()=>openEditor('projects')]
+ ]){
+  const item=button('',go,'sa-card');
+  const symbol=el('img');symbol.src='/assets/icons/'+icon+'.svg';symbol.alt='';
+  item.append(symbol);
   item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));
   item.dataset.card=key;cards.append(item);
  }
@@ -730,8 +736,9 @@ function overview(){
   try{
    const result=rows(await get(path));
    if(!card?.isConnected)return;
-   card.querySelector('strong').textContent=String(result.length);
-   card.querySelector('span').textContent='Data tersedia';
+   const count=id==='houses'?new Set(result.map(r=>r.household_id).filter(Boolean)).size:result.length;
+   card.querySelector('strong').textContent=String(count);
+   card.querySelector('span').textContent={accounts:'Kelola akses',houses:'Lihat data warga',projects:'Kelola projek'}[id];
   }catch(error){
    if(card?.isConnected){
     card.querySelector('strong').textContent='—';
