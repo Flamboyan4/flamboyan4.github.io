@@ -2033,8 +2033,7 @@ function ensureAdminHome(){
   const actions=el("div","f4-bank-admin-operations");actions.id="f4BankAdminOperations";
   actions.append(
    adminOperation("Catat setoran","Berat per jenis","setoran",true),
-   adminOperation("Penjualan","Hasil dari lapak","penjualan",false),
-   adminOperation("Sahkan hasil","Alokasi saldo","rekonsiliasi",false)
+   adminOperation("Penjualan","Hasil dari lapak","penjualan",false)
   );
   $("f4BankAppAdminHero")?.after(actions);
  }
@@ -2045,7 +2044,7 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  // Pengesahan sudah ada di baris tindakan utama. Menu Lainnya memuat semua tujuan.
+  // Pengesahan tetap melalui menu Cek & Sahkan, tanpa aksi ganda di Beranda.
   grid.append(...adminShortcuts.slice(1,7).map(adminShortcut),adminMoreShortcut());
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
