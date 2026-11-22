@@ -67,9 +67,12 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
   border:0;border-bottom:1px solid var(--eco-line);border-radius:0;background:#fff;
   box-shadow:none
  }
- body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-detail-open="true"]{cursor:pointer}
- body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-detail-open="true"]:is(:hover,:focus-visible){
-  background:#f0faf5;outline:2px solid #009788;outline-offset:-2px;border-radius:8px
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-history-link="true"]{cursor:pointer}
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-history-link="true"]:hover{
+  background:#f7fbf8;border-radius:7px;outline:none
+ }
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-item[data-f4-history-link="true"]:focus-visible{
+  background:#f5faf7;border-radius:7px;outline:1px solid #b9ddcc;outline-offset:-1px
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-avatar{
   display:grid
