@@ -1819,8 +1819,8 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-year-v3">
-<script defer src="/portal-live/payment-monitor.js?v=20261122-year-v3"></script>
+<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-detail-v4">
+<script defer src="/portal-live/payment-monitor.js?v=20261122-detail-v4"></script>
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
@@ -1918,11 +1918,6 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
     </div>
 
     <div id="tab-monitor" class="tab-panel hidden p-4 sm:p-5">
-      <section class="pm-year-panel" aria-labelledby="pm-year-title">
-        <div class="pm-year-heading"><div><h2 id="pm-year-title">Pembayaran setahun</h2><p id="pm-year-count"></p></div><label>Tahun<select id="pm-year" class="field"></select></label></div>
-        <div id="pm-year-grid" class="pm-year-grid"></div>
-        <p id="pm-year-state" role="status"></p>
-      </section>
       <div class="pm-filter">
         <label>Bulan iuran<input id="pm-month" type="month" required min="2000-01" max="2099-12"></label>
         <label>Nama dan rumah<select id="pm-payer" class="field"><option value="">Semua warga</option></select></label>
@@ -1938,19 +1933,20 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           <div><dt>Kewajiban</dt><dd id="pm-due"></dd></div>
           <div><dt>Sisa kewajiban</dt><dd id="pm-balance"></dd></div>
         </dl>
+        <section class="pm-year-panel" aria-labelledby="pm-year-title">
+          <div class="pm-year-heading">
+            <div><h2 id="pm-year-title">Pembayaran setahun</h2><p id="pm-year-count"></p></div>
+            <label>Tahun<select id="pm-year" class="field"></select></label>
+          </div>
+          <div class="pm-year-scroll" role="region" aria-label="Status pembayaran setahun, geser ke samping untuk melihat bulan lain" tabindex="0">
+            <div id="pm-year-grid" class="pm-year-grid"></div>
+          </div>
+          <p id="pm-year-state" role="status"></p>
+        </section>
         <div class="pm-insights">
           <section><h2>Tren pembayaran</h2><p id="pm-trend-caption"></p><ol id="pm-trend" class="pm-bars"></ol></section>
           <section><h2>Pembayaran per pos</h2><p id="pm-components-caption"></p><dl id="pm-components" class="pm-components"></dl></section>
         </div>
-        <section class="pm-residents">
-          <header><div><h2>Status pembayaran warga</h2><p id="pm-count" role="status"></p></div>
-            <label>Status<select id="pm-status" class="field"><option value="">Semua status</option></select></label>
-          </header>
-          <div class="pm-table-wrap"><table>
-            <thead><tr><th scope="col">Warga / rumah</th><th scope="col">Status</th><th scope="col">Terbayar</th><th scope="col">Sisa</th></tr></thead>
-            <tbody id="pm-rows"></tbody>
-          </table></div>
-        </section>
       </div>
     </div>
 
