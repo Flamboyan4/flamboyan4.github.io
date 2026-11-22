@@ -199,6 +199,10 @@
 
 
 
+    // Arsip media tetap bisa dibuka langsung melalui tautan Drive.
+    const FOLDER_JERSEY_URL='https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
+    const FOLDER_GAPURA_URL='https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
+
     // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
     const firebaseConfig = {
       apiKey: "AIzaSyAZ8gg6e0oTJ7xGoFudQxyCdzObRipWk_4",
