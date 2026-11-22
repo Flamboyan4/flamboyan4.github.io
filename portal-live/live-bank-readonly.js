@@ -47,6 +47,9 @@
  const publicData=async()=>{
   if(cache&&Date.now()-loadedAt<15000)return cache;
   const result=await get('/api/v2/public/bank');
+  if(Array.isArray(result.catalog))result.catalog=result.catalog.map(item=>({
+   ...item,category:itemCategory(item.name,item.category)
+  }));
   cache=result;loadedAt=Date.now();return result;
  };
  const progress=items=>onlyArray(items).map(item=>({
