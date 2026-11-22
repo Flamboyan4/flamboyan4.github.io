@@ -648,7 +648,7 @@ z-index:48
  border:0;border-bottom:1px solid #e9f0ea;border-radius:0;box-shadow:none
 }
 #pageAdmin .v23-account-row:last-child,#pageMaster .f4-master-row:last-child{border-bottom:0}
-#pageAdmin .v23-account-row:not([open])>.v23-account-detail,#pageMaster .f4-master-row:not([open])>.f4-master-detail{display:none}
+#pageAdmin details.v23-account-row:not([open])>.v23-account-detail,#pageMaster .f4-master-row:not([open])>.f4-master-detail{display:none}
 #pageAdmin .v23-account-summary{
  display:flex;align-items:center;gap:10px;min-height:62px;min-width:0;
  padding:10px 1px;list-style:none;cursor:pointer
@@ -696,6 +696,30 @@ z-index:48
 }
 #pageAdmin .v23-account-empty,#pageMaster .f4-master-empty{
  padding:16px 6px;text-align:center;color:#718478;font-size:12px
+}
+/* Desktop: one uninterrupted row per member, with all information and actions visible.
+   Mobile keeps the existing native details accordion. */
+@media(min-width:1024px){
+ #pageAdmin .v23-account-row-desktop{
+  display:grid;
+  grid-template-columns:40px minmax(130px,1.6fr) minmax(85px,.8fr) minmax(125px,1fr) minmax(58px,.55fr) auto;
+  align-items:center;column-gap:12px;min-height:64px;padding:8px 2px
+ }
+ #pageAdmin .v23-account-row-desktop>.v23-account-summary,
+ #pageAdmin .v23-account-row-desktop>.v23-account-detail,
+ #pageAdmin .v23-account-row-desktop .v23-account-meta{display:contents}
+ #pageAdmin .v23-account-row-desktop .v23-account-avatar{grid-column:1;grid-row:1}
+ #pageAdmin .v23-account-row-desktop .v23-account-identity{grid-column:2;grid-row:1}
+ #pageAdmin .v23-account-row-desktop .v23-account-meta>span:first-child{grid-column:3;grid-row:1}
+ #pageAdmin .v23-account-row-desktop .v23-account-meta>span:last-child{grid-column:4;grid-row:1}
+ #pageAdmin .v23-account-row-desktop .v23-account-state{grid-column:5;grid-row:1;justify-self:start}
+ #pageAdmin .v23-account-row-desktop .v23-account-detail>button{
+  grid-column:6;grid-row:1;justify-self:end;white-space:nowrap;min-width:0
+ }
+ #pageAdmin .v23-account-row-desktop :is(.v23-account-identity,.v23-account-meta>span){overflow:hidden}
+ #pageAdmin .v23-account-row-desktop :is(.v23-account-identity strong,.v23-account-meta strong){
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+ }
 }
 #pageMaster .f4-master-summary{
  display:flex;align-items:center;gap:9px;min-height:44px;min-width:0;
@@ -5675,23 +5699,26 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       !keyword||[a.nama,a.rumah,a.username].some(x=>v23NormalizeSearch(x).includes(keyword)));
     target.replaceChildren();
     count.textContent=keyword?rows.length+' / '+(accounts||[]).length:rows.length+' anggota';
+    const desktop=window.matchMedia('(min-width:1024px)').matches;
     rows.forEach(a=>{
-      const row=v21Node('details','v23-account-row');
+      const row=v21Node(desktop?'div':'details','v23-account-row'+(desktop?' v23-account-row-desktop':''));
       row.dataset.active=String(a.status==='Aktif');
-      const summary=v21Node('summary','v23-account-summary');
+      const summary=v21Node(desktop?'div':'summary','v23-account-summary');
       const avatar=f4BankPersonAvatar(a.nama,{className:'v23-account-avatar',
         memberId:a.wargaId,hasAvatar:a.hasAvatar===true||a.hasAvatar===1||a.hasAvatar==='1'});
       const identity=v21Node('span','v23-account-identity');
       identity.append(v21Node('strong','',a.nama||'Tanpa nama'),v21Node('small','',a.rumah||'Rumah belum tercatat'));
+      identity.title=String(a.nama||'Tanpa nama');
       const state=v21Node('span','v23-account-state',a.status||'—');
       const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
       arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');arrow.setAttribute('stroke-width','2');
       arrow.setAttribute('stroke-linecap','round');arrow.setAttribute('aria-hidden','true');arrow.classList.add('v23-account-chevron');
       arrow.innerHTML='<path d="m9 5 7 7-7 7"/>';
-      summary.append(avatar,identity,state,arrow);
+      summary.append(avatar,identity,state);
+      if(!desktop)summary.append(arrow);
       const detail=v21Node('div','v23-account-detail');
       const meta=v21Node('div','v23-account-meta');
-      const field=(label,value)=>{const box=v21Node('span');box.append(v21Node('small','',label),v21Node('strong','',value||'—'));return box};
+      const field=(label,value)=>{const box=v21Node('span');box.title=label+': '+String(value||'—');box.append(v21Node('small','',label),v21Node('strong','',value||'—'));return box};
       meta.append(field('Username',a.username),field('ID anggota',a.wargaId));
       const action=v21Node('button','secondary',a.status==='Aktif'?'Reset password':'Siapkan akun');
       action.type='button';action.onclick=()=>resetDefault(a.akunId,a.nama,a.status==='Aktif');
@@ -5699,6 +5726,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     });
     if(!rows.length)target.append(v21Node('div','v23-account-empty','Tidak ada akun yang cocok.'));
   }
+  window.matchMedia('(min-width:1024px)').addEventListener('change',()=>{
+    if($('v23AccountRows'))v23RenderAccounts();
+  });
   loadAccounts=async function(){
     const target=$('accountList');target.textContent='Memuat akun...';
     try{
