@@ -2790,6 +2790,48 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       note:final?'Hasil setoran sudah disahkan. Bukan bukti pencairan tabungan.':
        'Perkiraan saat penimbangan; belum menjadi saldo tabungan atau bukti pembayaran.'};
   }
+  // Satu pemuat rincian untuk Beranda dan Resi pada Riwayat Setoran.
+  async function f4BankDepositDetailPayload(r){
+    if(!r?.id)throw Error('ID setoran tidak tersedia.');
+    const [payload,items]=await Promise.all([
+      f4BankDepositReceiptReady(r),
+      call('bsV7RincianSetoran',token,r.id)
+    ]);
+    if(!Array.isArray(items))throw Error('Rincian barang tidak dapat dibaca. Coba ulang.');
+    payload.details.push(['Jumlah jenis barang',String(items.length)]);
+    for(const item of items){
+      const grams=Number(item.berat);
+      const estimate=Number(item.nilai);
+      const desc=[Number.isFinite(grams)?kg(grams):'-',
+        Number.isFinite(estimate)?'Perkiraan '+rupiah(estimate):null].filter(Boolean).join(' · ');
+      payload.details.push([String(item.barang||'Jenis sampah'),desc]);
+    }
+    if(/batal/i.test(String(r.status||''))){
+      payload.title='Arsip Setoran Dibatalkan';
+      payload.heading='Setoran Dibatalkan';
+      payload.status='DIBATALKAN';
+      payload.amount=Number.isSafeInteger(Number(r.estimasi))?Number(r.estimasi):0;
+      payload.amountLabel='Nilai Perkiraan (Batal)';
+      payload.note='Transaksi ini dibatalkan. Nilainya tidak menambah saldo warga maupun kas lingkungan.';
+    }
+    return payload;
+  }
+  async function v14OpenSetoranDetail(r,row){
+    if(!r?.id||row.getAttribute('aria-busy')==='true')return;
+    if(!window.F4TransactionReceipt?.open){
+      window.f4UiDialog?.alert?.('Rincian setoran belum tersedia. Muat ulang halaman.');
+      return;
+    }
+    row.setAttribute('aria-busy','true');
+    try{
+      const payload=await f4BankDepositDetailPayload(r);
+      await window.F4TransactionReceipt.open(payload);
+    }catch(error){
+      window.f4UiDialog?.alert?.('Tidak dapat membuka rincian setoran: '+(error.message||error));
+    }finally{
+      row.removeAttribute('aria-busy');
+    }
+  }
   function f4BankSaleReceipt(r){
     const received=Number(r.diterima||0),gross=Number(r.bruto||0);
     const status=received<=0?'BELUM DIBAYAR':received<gross?'BAYAR SEBAGIAN':'DITERIMA';
@@ -3856,7 +3898,18 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       amount.textContent=confirmed?(r.nilaiSahRp==null?'—':rupiah(r.nilaiSahRp)):rupiah(r.estimasi);
       const hint=document.createElement('span');
       hint.textContent=confirmed?(r.nilaiSahRp==null?'Belum tersedia':'Hasil jual'):'Perkiraan';
-      value.append(amount,hint);item.append(avatar,who,value);list.append(item);
+      value.append(amount,hint);item.append(avatar,who,value);
+      if(r.id){
+        item.setAttribute('role','button');
+        item.tabIndex=0;
+        item.dataset.f4DetailOpen='true';
+        item.setAttribute('aria-label','Lihat rincian setoran '+f4BankDisplayWargaName(r.namaWarga||r.nama)+' pada '+(r.tanggal||'tanggal tidak tersedia'));
+        item.onclick=()=>v14OpenSetoranDetail(r,item);
+        item.onkeydown=event=>{
+          if(event.key==='Enter'||event.key===' '){event.preventDefault();item.click();}
+        };
+      }
+      list.append(item);
     });
     return list;
   }
@@ -4944,31 +4997,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     compactSummary.append(compactAmount,compactStatus);
     copy.appendChild(compactSummary);
     const actions=document.createElement('div');actions.className='f4-admin-deposit-actions';
-    const receipt=f4BankReceiptIcon(null,async()=>{
-      // Semua rincian barang dimuat ke resi, bukan ke kartu riwayat.
-      const [payload,items]=await Promise.all([
-        f4BankDepositReceiptReady(r),
-        call('bsV7RincianSetoran',token,r.id)
-      ]);
-      if(!Array.isArray(items))throw Error('Rincian barang tidak dapat dibaca. Coba ulang.');
-      payload.details.push(['Jumlah jenis barang',String(items.length)]);
-      for(const item of items){
-        const grams=Number(item.berat);
-        const estimate=Number(item.nilai);
-        const desc=[Number.isFinite(grams)?kg(grams):'-',
-          Number.isFinite(estimate)?'Perkiraan '+rupiah(estimate):null].filter(Boolean).join(' · ');
-        payload.details.push([String(item.barang||'Jenis sampah'),desc]);
-      }
-      if(canceled){
-        payload.title='Arsip Setoran Dibatalkan';
-        payload.heading='Setoran Dibatalkan';
-        payload.status='DIBATALKAN';
-        payload.amount=Number.isSafeInteger(Number(r.estimasi))?Number(r.estimasi):0;
-        payload.amountLabel='Nilai Perkiraan (Batal)';
-        payload.note='Transaksi ini dibatalkan. Nilainya tidak menambah saldo warga maupun kas lingkungan.';
-      }
-      return payload;
-    });
+    const receipt=f4BankReceiptIcon(null,()=>f4BankDepositDetailPayload(r));
     receipt.classList.add('f4-admin-deposit-receipt');
     receipt.title='Lihat resi setoran '+fullName;
     receipt.setAttribute('aria-label','Lihat resi setoran '+fullName);
