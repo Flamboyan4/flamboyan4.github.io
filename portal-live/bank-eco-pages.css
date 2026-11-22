@@ -4034,10 +4034,12 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-trend::-webkit-scrollbar{display:none}
 #pageLaporan .f4-analisis-trend-item{flex:1 0 46px;min-width:46px;max-width:85px;display:flex;align-items:center;flex-direction:column;gap:6px;text-align:center}
 #pageLaporan .f4-analisis-trend-item small{color:#6a8073;font-size:10px;white-space:nowrap}
-#pageLaporan .f4-analisis-trend-value{color:#3b7356;font-size:10px;font-weight:700;white-space:nowrap}
-#pageLaporan .f4-analisis-trend-track{height:128px;width:64%;max-width:40px;display:flex;align-items:flex-end;justify-content:center;border-radius:7px;background:#eff5f0;overflow:hidden}
-#pageLaporan .f4-analisis-trend-bar{width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#238a54,#8bc24a);min-height:5px}
-#pageLaporan .f4-analisis-trend-panel,#pageLaporan .f4-analisis-types{box-sizing:border-box;height:280px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#pageLaporan .f4-analisis-trend-value{color:#17664d;font-size:10px;font-weight:800;white-space:nowrap}
+#pageLaporan .f4-analisis-trend-track{height:128px;width:64%;max-width:40px;display:flex;align-items:flex-end;justify-content:center;border-radius:7px;background:#f1f4f3;overflow:hidden}
+#pageLaporan .f4-analisis-trend-bar{width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#238a54,#8bc24a);min-height:0}
+#pageLaporan .f4-analisis-trend-panel,#pageLaporan .f4-analisis-types{box-sizing:border-box;height:280px;min-height:0;display:flex;flex-direction:column}
+#pageLaporan .f4-analisis-trend-panel{overflow:visible;position:relative;z-index:1}
+#pageLaporan .f4-analisis-types{overflow:hidden}
 #pageLaporan .f4-analisis-types>h3{flex:none;margin-bottom:8px}
 #pageLaporan .f4-analisis-type-layout{display:grid;grid-template-columns:154px minmax(0,1fr);gap:12px;align-items:center;flex:1 1 auto;min-height:0;min-width:0}
 #pageLaporan .f4-analisis-donut-box{position:relative;width:150px;max-width:100%;aspect-ratio:1;display:grid;place-items:center;justify-self:center}
@@ -4133,14 +4135,29 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-reset{padding:7px 10px;white-space:nowrap;border:1px solid #bfdcca;border-radius:8px;background:#fff;color:#217c4a;font-size:11px;font-weight:750}
 
 #pageLaporan .f4-analisis-section-lead{margin:0 0 11px;color:#647c6b;font-size:12px;line-height:1.5}
-#pageLaporan .f4-analisis-trend-filter{display:grid;gap:4px;min-width:125px}
-#pageLaporan .f4-analisis-trend-filter>span{color:#64806f;font-size:10px;font-weight:650}
-#pageLaporan .f4-analisis-trend-filter select{appearance:none;width:100%;height:34px;padding:0 25px 0 9px;border:1px solid #d1e4d8;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2343a047' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center;color:#18583b;font-size:11px;font-weight:700}
+#pageLaporan .f4-analisis-trend-controls{display:flex;align-items:center;gap:7px;flex:none;min-width:0}
+#pageLaporan .f4-analisis-trend-picker{position:relative;z-index:3;flex:none;width:110px;min-width:0}
+#pageLaporan .f4-analisis-trend-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:35px;min-width:0;margin:0;padding:6px 9px;border:1px solid #d2e4da;border-radius:9px;background:#fff;color:#155c45;font:750 11px system-ui;cursor:pointer}
+#pageLaporan .f4-analisis-trend-trigger svg{flex:none;width:15px;height:15px;color:#168363;transition:transform .14s}
+#pageLaporan .f4-analisis-trend-trigger[aria-expanded="true"] svg{transform:rotate(180deg)}
+#pageLaporan .f4-analisis-trend-dropdown{position:absolute;top:calc(100% + 6px);right:0;z-index:10;display:grid;gap:3px;width:143px;max-width:calc(100vw - 50px);padding:5px;background:#fff;border:1px solid #dae7df;border-radius:11px;box-shadow:0 9px 24px #153e321a}
+#pageLaporan .f4-analisis-trend-dropdown[hidden]{display:none}
+#pageLaporan .f4-analisis-trend-option{display:block;width:100%;height:35px;min-height:0;margin:0;padding:7px 10px;border:0;border-radius:7px;background:transparent;color:#245e4b;font:700 11px system-ui;text-align:left;cursor:pointer}
+#pageLaporan .f4-analisis-trend-option:is(.is-active,:hover){background:#e5f5ee;color:#087756}
+#pageLaporan .f4-analisis-trend-units{display:flex;align-items:center;flex:none;gap:2px;padding:3px;border:1px solid #dbe8e0;border-radius:10px;background:#f3f7f4}
+#pageLaporan .f4-analisis-trend-units button{min-width:33px;height:28px;min-height:0;margin:0;padding:4px 7px;border:0;border-radius:7px;background:transparent;color:#627a6b;font:750 11px system-ui;cursor:pointer}
+#pageLaporan .f4-analisis-trend-units button.is-active{background:#009788;color:#fff}
+#pageLaporan .f4-analisis-trend-units button:disabled{opacity:.35;cursor:not-allowed}
+#pageLaporan .f4-analisis-trend-note{margin:5px 0 0;color:#718277;font-size:10px;line-height:1.4}
+#pageLaporan .f4-analisis-trend-trigger:focus-visible,#pageLaporan .f4-analisis-trend-option:focus-visible,#pageLaporan .f4-analisis-trend-units button:focus-visible{outline:2px solid #009788;outline-offset:2px}
 #pageLaporan .f4-analisis-person-open{color:#188254;font-weight:700}
 #pageLaporan .f4-analisis-metrics,#pageLaporan .f4-analisis-panel{scroll-margin-top:125px}
 @media(max-width:520px){
 
  #pageLaporan .f4-analisis-selection{align-items:flex-start}
- #pageLaporan .f4-analisis-trend-filter{min-width:110px}
- #pageLaporan .f4-analisis-trend-filter select{height:32px}
+ #pageLaporan .f4-analisis-trend-picker{width:92px}
+ #pageLaporan .f4-analisis-trend-controls{gap:5px}
+ #pageLaporan .f4-analisis-trend-units button{min-width:29px;padding:4px 5px}
+ #pageLaporan .f4-analisis-trend-panel .f4-analisis-panel-head{flex-wrap:nowrap;gap:5px}
+ #pageLaporan .f4-analisis-trend-panel .f4-analisis-panel-head h3{font-size:15px}
 }
