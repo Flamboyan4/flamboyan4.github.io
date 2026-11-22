@@ -8,7 +8,6 @@ let inventory=[{"name":"Terpal","quantity":"1","condition":"Baik","photo":""},{"
    Bank Sampah albums are a separate API collection and MUST NOT be merged. */
 const PORTAL_API='https://api.flamboyan4.web.id/api/v2/public/portal';
 const PORTAL_CSV='https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
-const FOLDER_API='https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
 const parseDate=text=>{
  const str=String(text||'').trim();
  let iso=str.match(/(\d{4})-(\d\d)-(\d\d)/);
@@ -36,7 +35,6 @@ const asPortal=(source)=>({
 const portalOnly=record=>(!record.portal||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(record.portal))&&
  !/^Bank Sampah\s*[:/]/i.test(record.category||'');
 const folderId=link=>String(link||'').match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||'';
-const photoFiles=new Map();
 let recentMedia=[];
 const mediaId=media=>{
  const raw=String(media?.url||'');
@@ -82,24 +80,14 @@ async function listMedia(doc){
   doc.media=combineCommunityMedia(doc.media,doc.communityPhotos);
   return doc.media;
  }
- if(photoFiles.has(id))return combineCommunityMedia(await photoFiles.get(id),doc.communityPhotos);
- const request=(async()=>{
-  const response=await fetch(FOLDER_API+'?folderId='+encodeURIComponent(id),{cache:'no-store'});
-  if(!response.ok)throw Error('Folder HTTP '+response.status);
-  const obj=await response.json();
-  const items=Array.isArray(obj)?obj:Array.isArray(obj.files)?obj.files:Array.isArray(obj.images)?obj.images:[];
-  return items.map((entry,i)=>{
-   const raw=typeof entry==='string'?entry:entry.url||entry.link||entry.src||entry.downloadUrl||'';
-   const entryId=typeof entry==='object'?String(entry.id||entry.fileId||''):'';
-   const label=typeof entry==='string'?String(i+1):String(entry.name||entry.title||i+1);
-   const video=(typeof entry==='object'&&(/video/i.test(entry.type||entry.mimeType||'')))||/\.(mp4|mov|webm|avi)$/i.test(label);
-   const videoUrl=video&&/^[A-Za-z0-9_-]{15,}$/.test(entryId)&&(!raw||/googleusercontent|drive\.google\.com/.test(raw))
-     ?'https://drive.google.com/file/d/'+entryId+'/preview':safe(raw);
-   return {url:video?videoUrl:driveImage(raw),type:video?'video':'foto',caption:label};
-  }).filter(item=>item.url);
- })();
- photoFiles.set(id,request);
- try{return combineCommunityMedia(await request,doc.communityPhotos)}catch(err){photoFiles.delete(id);throw err}
+ // Daftar media bersumber dari galeri D1 dan sampul tersimpan.
+ const media=combineCommunityMedia([],doc.communityPhotos);
+ if(!media.length&&doc.cover){
+  const cover=driveImage(doc.cover);
+  if(cover)media.push({url:cover,type:'foto',caption:doc.title});
+ }
+ doc.media=media;
+ return media;
 }
 async function loadPortalArchive(){
  const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
