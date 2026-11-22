@@ -577,8 +577,10 @@ function populate(){
   const item=node('article',undefined,'f4-admin-item');
   const info=node('div');
   const title=x.title||x.name||x.nama||x.contribution_type||x.setting_key||x.id;
-  info.append(node('strong',title||'Tanpa judul'));
-  const detail=[x.starts_on||x.event_on||x.meeting_on||x.rumah||'',x.status||x.visibility||''].filter(Boolean).join(' • ');
+  info.append(node('strong',active==='tariffs'?({IURAN_BULANAN:'Setoran RT',KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'}[title]||title):title||'Tanpa judul'));
+  const detail=active==='tariffs'
+    ?['Rp '+Number(x.amount_rp||0).toLocaleString('id-ID'),title==='KEBERSIHAN'?'Tidak ditagih mulai Desember 2026':''].filter(Boolean).join(' · ')
+    :[x.starts_on||x.event_on||x.meeting_on||x.rumah||'',x.status||x.visibility||''].filter(Boolean).join(' • ');
   if(detail)info.append(node('small',detail));
   else item.classList.add('f4-inline-record');
   item.append(info,def.section==='portal'?deletionActions(x):btn('Edit',()=>showForm(x)));list.append(item);

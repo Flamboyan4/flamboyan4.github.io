@@ -3465,7 +3465,7 @@ async function f4MemberPortalDues(db, memberId, requestedMonth) {
   let tariffs;
   try{tariffs=await getIuranTariffs(db)}
   catch{return safeError("Tarif iuran belum tersedia.",503)}
-  const due=f4IuranAmounts(obligation,tariffs);
+  const due=f4IuranAmounts(obligation,tariffs,period);
   const [posted,recentPayment]=await Promise.all([
     db.prepare("SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id WHERE a.payer_id=? AND a.period_year=? AND a.period_month=? AND a.status='aktif' AND p.status='aktif' GROUP BY a.contribution_type").bind(payerId,year,month).all(),
     db.prepare(`SELECT p.id,p.paid_on,p.payment_method,COALESCE(SUM(a.amount_rp),0) AS alokasi_rp
@@ -3724,7 +3724,7 @@ async function f4ContributionReport(db, request) {
         const kebersihan = Number(active.qty_kebersihan || 0) * rateKebersihan;
         if (Number.isSafeInteger(bulanan) && bulanan > 0)
           wajibBulanan.push({ periode: period, wajibRp: bulanan });
-        if (Number.isSafeInteger(kebersihan) && kebersihan > 0)
+        if (period < "2026-12" && Number.isSafeInteger(kebersihan) && kebersihan > 0)
           wajibKebersihan.push({ periode: period, wajibRp: kebersihan });
       }
       let entry = byPayer.get(id);
@@ -3767,9 +3767,10 @@ async function f4ContributionReport(db, request) {
         return { jenis, periode, dibayarPada };
       });
     }
+    const modernRt = monthlyRt && reportMonths.every(period => period >= "2026-12");
     const rows2 = [...byPayer.values()].filter(row =>
-      row.nominalBulanan > 0 || row.nominalKebersihan > 0 ||
-      (row.wajibBulananPeriode || []).length > 0 || (row.wajibKebersihanPeriode || []).length > 0);
+      row.nominalBulanan > 0 || (!modernRt && row.nominalKebersihan > 0) ||
+      (row.wajibBulananPeriode || []).length > 0 || (!modernRt && (row.wajibKebersihanPeriode || []).length > 0));
     const totalBulanan = rows2.reduce((sum, row) => sum + row.nominalBulanan, 0);
     const totalKebersihan = rows2.reduce((sum, row) => sum + row.nominalKebersihan, 0);
     // Unit setoran is separate from distinct payer count.
@@ -4850,10 +4851,10 @@ async function f4PeriodObligation(db,payerId,year,month) {
   // kewajiban terbaru, walaupun bulan tagihannya mendahului tanggal perubahan.
   return f4EffectiveObligation(historical,latest,posted,period);
 }
-function f4IuranAmounts(obligation,tariff) {
+function f4IuranAmounts(obligation,tariff,period) {
   return {
     IURAN_BULANAN:Number(obligation.qty_iuran_bulanan)*tariff.TARIF_BULANAN,
-    KEBERSIHAN:Number(obligation.qty_kebersihan)*tariff.TARIF_KEBERSIHAN,
+    KEBERSIHAN:period >= "2026-12" ? 0 : Number(obligation.qty_kebersihan)*tariff.TARIF_KEBERSIHAN,
     KAS_LORONG:Number(obligation.qty_kas_lorong)*tariff.TARIF_KAS_LORONG,
     ARISAN:Number(obligation.qty_arisan)*tariff.TARIF_ARISAN
   };
@@ -4867,11 +4868,13 @@ function f4EffectiveObligation(historical, latest, posted, period) {
   return {...latest, _freezeForPayment: changed && period < latest.effective_from};
 }
 
-async function f4PaymentMonitor(db, period) {
+async function f4PaymentMonitor(db, period, yearView = false) {
   if (!/^20\d\d-(0[1-9]|1[0-2])$/.test(period)) return safeError("Bulan iuran tidak valid.", 400);
   const end = f4PeriodIndex(Number(period.slice(0, 4)), Number(period.slice(5)));
-  const months = Array.from({length: 6}, (_, i) => {
-    const {year, month} = f4IndexPeriod(end - 5 + i);
+  const count = yearView ? 12 : 6;
+  const start = yearView ? f4PeriodIndex(Number(period.slice(0,4)),1) : end - 5;
+  const months = Array.from({length: count}, (_, i) => {
+    const {year, month} = f4IndexPeriod(start + i);
     return f4IuranMonth(year, month).slice(0, 7);
   });
   const periodDate = period + "-01";
@@ -4887,7 +4890,7 @@ async function f4PaymentMonitor(db, period) {
       FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
       WHERE a.status='aktif' AND p.status='aktif'
         AND (a.period_year*12+a.period_month-1) BETWEEN ? AND ?
-      GROUP BY a.payer_id,a.period_year,a.period_month,a.contribution_type`).bind(end-5,end),
+      GROUP BY a.payer_id,a.period_year,a.period_month,a.contribution_type`).bind(start,end),
     db.prepare(`SELECT MIN(printf('%04d-%02d',a.period_year,a.period_month)) AS first_month
       FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
       WHERE a.status='aktif' AND p.status='aktif' AND a.amount_rp>0`)
@@ -4896,7 +4899,7 @@ async function f4PaymentMonitor(db, period) {
   for (const row of payers.results) {
     if (!members.has(row.id)) members.set(row.id, {
       id:row.id, nama:row.nama, rumah:row.rumah, active:!!row.active,
-      paid:{}, trend:months.map(() => 0), lastPaid:""
+      paid:{}, paidMonths:months.map(() => ({})), trend:months.map(() => 0), lastPaid:""
     });
     if (!row.effective_from) continue;
     const member = members.get(row.id);
@@ -4906,28 +4909,38 @@ async function f4PaymentMonitor(db, period) {
   for (const row of allocations.results) {
     const member = members.get(row.payer_id);
     if (!member) continue;
-    const index = f4PeriodIndex(row.period_year,row.period_month) - (end-5);
+    const index = f4PeriodIndex(row.period_year,row.period_month) - start;
     member.trend[index] += row.amount;
-    if (index !== 5) continue;
+    member.paidMonths[index][row.contribution_type] = row.amount;
+    if (index !== count - 1) continue;
     member.paid[row.contribution_type] = row.amount;
     if (row.last_paid > member.lastPaid) member.lastPaid = row.last_paid;
   }
   const today = f4CurrentIuranMonth().slice(0,7);
   const firstMonth = baseline.results[0]?.first_month || today;
   const records = Array.from(members.values(), ({historical,latest,...member}) => {
+    const years = yearView ? months.map((month, index) => {
+      const date = month + "-01";
+      const versions = payers.results.filter(row => row.id === member.id && row.effective_from);
+      const current = versions.filter(row => row.effective_from <= date).at(-1);
+      const version = f4EffectiveObligation(current,latest,Object.keys(member.paidMonths[index]).length > 0,date);
+      const due = version && (member.active || member.trend[index]) && month >= firstMonth
+        ? f4IuranAmounts(version,tariff,month) : {};
+      return {period:month,due,paid:member.paidMonths[index]};
+    }) : undefined;
     const posted = Object.keys(member.paid).length > 0;
     const version = f4EffectiveObligation(historical,latest,posted,periodDate);
-    const due = version && (member.active || posted) && period >= firstMonth ? f4IuranAmounts(version,tariff) : {};
-    return {...member,due};
+    const due = version && (member.active || posted) && period >= firstMonth ? f4IuranAmounts(version,tariff,period) : {};
+    return {...member,due,...(yearView ? {years} : {})};
   });
   // Migrated payers can share a house. Keep each receipt with its original
   // payer, and flag ambiguous arrears before the manager follows up.
-  const historicalHouses = new Set(records.filter(r => r.rumah && r.trend[5]>0 &&
+  const historicalHouses = new Set(records.filter(r => r.rumah && r.trend[count-1]>0 &&
     !Object.values(r.due).some(Boolean)).map(r => r.rumah));
   for (const record of records) {
-    record.review = historicalHouses.has(record.rumah) && !record.trend[5] && Object.values(record.due).some(Boolean);
+    record.review = historicalHouses.has(record.rumah) && !record.trend[count-1] && Object.values(record.due).some(Boolean);
   }
-  return json({ok:true,period,months,today,firstMonth,records});
+  return json({ok:true,period,months,today,firstMonth,records,yearView});
 }
 
 async function f4ResidentStatement(db, payerId) {
@@ -4970,7 +4983,7 @@ async function getIuranOutstanding(db, request) {
   } catch {
     return safeError("Tarif D1 belum dikonfigurasi.", 503);
   }
-  const nominal=f4IuranAmounts(obligation,tariff);
+  const nominal=f4IuranAmounts(obligation,tariff,f4IuranMonth(year,month));
   const paid = await db.prepare(`SELECT a.contribution_type AS jenis,COALESCE(SUM(a.amount_rp),0) AS jumlah
     FROM bookkeeping_payment_allocations a JOIN bookkeeping_payments p ON p.id=a.payment_id
     WHERE a.payer_id=? AND a.period_year=? AND a.period_month=?
@@ -5024,7 +5037,7 @@ function f4SuggestIuranPeriod({current,versions,allocations,tariff,globalStartIn
     const historical=versionsAsc.filter(x=>String(x.effective_from)<=period).at(-1);
     if(!historical)continue;
     const version=recordedPeriods.has(index)?historical:versionsAsc.at(-1);
-    const entries=Object.entries(f4IuranAmounts(version,tariff));
+    const entries=Object.entries(f4IuranAmounts(version,tariff,period));
     if(!entries.some(([,due])=>due>0))continue;
     const paidHere=entries.reduce((sum,[kind])=>sum+(paid.get(index+':'+kind)||0),0);
     const remainingRp=entries.reduce((sum,[kind,due])=>sum+Math.max(0,due-(paid.get(index+':'+kind)||0)),0);
@@ -5162,7 +5175,7 @@ async function createIuranPayment(request, env, who) {
     const [yr,mo]=period.split(":").map(Number);
     const version=await f4PeriodObligation(env.DB,payerId,yr,mo);
     if(!version)return safeError("Pembayar belum memiliki kewajiban pada "+mo+"/"+yr+".",409);
-    const amounts=f4IuranAmounts(version,tariff);
+    const amounts=f4IuranAmounts(version,tariff,period.slice(0,7));
     if(Object.values(amounts).some(v=>!Number.isSafeInteger(v)||v<0))
       return safeError("Kewajiban periode "+mo+"/"+yr+" tidak valid.",503);
     requiredByPeriod.set(period,amounts);
@@ -7813,7 +7826,7 @@ async function handle(request, env) {
     return json(await ownSavings(env.DB, who.member_id));
   }
   if (path === "/api/bookkeeping/reports/payment-monitor" && request.method === "GET") {
-    return requireRole(who, ["superadmin"]) || f4PaymentMonitor(env.DB, url.searchParams.get("period") || "");
+    return requireRole(who, ["superadmin"]) || f4PaymentMonitor(env.DB, url.searchParams.get("period") || "", url.searchParams.get("year") === "1");
   }
   if (path === "/api/bookkeeping/reports/resident-statement" && request.method === "GET") {
     return requireRole(who, ["superadmin"]) || f4ResidentStatement(env.DB, url.searchParams.get("payerId") || "");

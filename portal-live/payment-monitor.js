@@ -12,7 +12,7 @@
   const names = {IURAN_BULANAN:'Iuran bulanan', KEBERSIHAN:'Kebersihan', KAS_LORONG:'Kas Lorong', ARISAN:'Arisan'};
   const states = {settled:'Lunas', partial:'Sebagian', unpaid:'Belum bayar', future:'Belum jatuh tempo', recorded:'Pembayaran tercatat', review:'Periksa ID warga', exempt:'Tanpa kewajiban'};
   const total = amounts => Object.values(amounts).reduce((sum, value) => sum + value, 0);
-  let model, request, exportInProgress = false;
+  let model, request, yearRequest, yearModel, exportInProgress = false;
 
   async function read(path, params, signal) {
     const response = await fetch('https://api.flamboyan4.web.id/api/bookkeeping/reports/' + path + '?' + new URLSearchParams(params), {
@@ -81,7 +81,50 @@
       td.colSpan = 4; empty.append(td); el('rows').append(empty);
     }
     el('export').disabled = !payerId || exportInProgress;
-    el('export-info').textContent = payerId ? 'Excel memuat profil dan seluruh riwayat iuran warga yang dipilih.' : 'Pilih satu warga untuk mengunduh profil dan seluruh riwayat iurannya.';
+    el('export-info').textContent = '';
+    renderYear();
+  }
+
+  function renderYear() {
+    if (!yearModel) return;
+    const selected = el('payer').value;
+    const residents = yearModel.records.filter(row => !selected || row.id === selected);
+    el('year-count').textContent = residents.length + ' warga · ' + yearModel.period.slice(0,4);
+    const grid = el('year-grid'); grid.replaceChildren();
+    const header = node('div',null,'pm-year-row pm-year-header');
+    header.append(node('strong','Warga'));
+    for (const period of yearModel.months) header.append(node('span',monthName(period,'short').split(' ')[0]));
+    grid.append(header);
+    for (const member of residents) {
+      const row = node('div',null,'pm-year-row');
+      const name = node('strong',member.nama); name.append(node('small',member.rumah));row.append(name);
+      for (const entry of member.years) {
+        const paid = total(entry.paid), due = total(entry.due);
+        const state = !due ? (paid ? 'recorded' : 'exempt') : paid >= due ? 'settled' : paid ? 'partial' : entry.period > yearModel.today ? 'future' : 'unpaid';
+        const cell = node('button',null,'pm-month-cell');cell.type = 'button';cell.dataset.state = state;
+        cell.setAttribute('aria-label', member.nama + ', ' + monthName(entry.period,'long') + ', ' + states[state]);
+        cell.title = states[state] + ' · ' + monthName(entry.period,'long');
+        const marks = {settled:'<path d="m4 9 3 3 6-7"/>',partial:'<circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 4"/>',unpaid:'<path d="M3 8h10"/>',future:'<circle cx="8" cy="8" r="6"/>',exempt:'<path d="M3 8h10"/>',recorded:'<path d="m4 9 3 3 6-7"/>',review:'<path d="M8 2v7m0 3v1"/>'};
+        const mark = node('b');mark.innerHTML='<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+marks[state]+'</svg>';
+        cell.append(node('span',monthName(entry.period,'short').split(' ')[0]),mark);
+        cell.onclick = async () => {el('payer').value=member.id;el('month').value=entry.period;await load();el('content').scrollIntoView({block:'start',behavior:'smooth'});};
+        row.append(cell);
+      }
+      grid.append(row);
+    }
+  }
+
+  async function loadYear() {
+    yearRequest?.abort();const controller = new AbortController();yearRequest = controller;
+    yearModel = null;el('year-grid').replaceChildren();el('year-state').textContent = 'Memuat pembayaran setahun…';
+    try {
+      const year = el('year').value;
+      const data = await read('payment-monitor',{period:year+'-12',year:'1'},controller.signal);
+      if (yearRequest !== controller) return;
+      yearModel = data;el('year-state').textContent = '';renderYear();
+    } catch (error) {
+      if (!controller.signal.aborted) el('year-state').textContent = error.message;
+    }
   }
 
   async function load() {
@@ -100,6 +143,7 @@
       el('payer').replaceChildren(new Option('Semua warga',''),...data.records.map(r => new Option([r.nama,r.rumah,r.active?'':'Nonaktif'].filter(Boolean).join(' · '),r.id)));
       el('payer').value = data.records.some(r => r.id === previousId) ? previousId : '';
       el('payer').disabled = false;
+      window.refreshAllCustomSelects?.();
       el('state').textContent = period < data.firstMonth ? 'Periode ini mendahului riwayat iuran pertama.' : '';
       el('content').hidden = false; render();
     } catch(error) {
@@ -135,10 +179,13 @@
   el('status').add(new Option('Sudah bayar (semua)','paid'));
   for (const [value,label] of Object.entries(states)) el('status').add(new Option(label,value));
   el('month').value = new Date(Date.now()+7*3600000).toISOString().slice(0,7);
+  const currentYear = Number(el('month').value.slice(0,4));
+  for (let year = currentYear; year >= 2026; year--) el('year').add(new Option(String(year),String(year)));
+  el('year').addEventListener('change',loadYear);
   el('month').addEventListener('change',load);
   el('retry').addEventListener('click',load);
   el('payer').addEventListener('change',render);
   el('status').addEventListener('change',render);
   el('export').addEventListener('click',download);
-  window.F4PaymentMonitor = {open:load};
+  window.F4PaymentMonitor = {open:() => {load();loadYear();}};
 })();

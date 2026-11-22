@@ -48,7 +48,29 @@
 .pm-status[data-state=partial]{background:#fff0cc;color:#7c4f00}
 .pm-status[data-state=unpaid]{background:#ffe7eb;color:#992940}
 #tab-monitor .pm-empty{text-align:center;color:var(--f4-ui-muted);padding:18px}
+.pm-year-panel{border-bottom:1px solid var(--f4-ui-border);padding:0 0 20px;margin-bottom:20px;min-width:0}
+.pm-year-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.pm-year-heading label{display:grid;gap:4px;min-width:95px;font-weight:650;font-size:.85rem}
+.pm-year-heading p{margin-top:3px}
+.pm-year-grid{display:grid;gap:0}
+.pm-year-row{display:grid;grid-template-columns:minmax(135px,1.8fr) repeat(12,minmax(0,1fr));align-items:center;gap:4px;padding:7px 0;border-bottom:1px solid var(--f4-ui-border)}
+.pm-year-row>strong{font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pm-year-row>strong small{display:block;font-weight:500;color:var(--f4-ui-muted)}
+.pm-year-header{font-size:.72rem;color:var(--f4-ui-muted);text-align:center;font-weight:700}
+.pm-year-header>strong{text-align:left}
+#tab-monitor .pm-month-cell{display:grid;place-items:center;padding:2px;min-height:32px;min-width:0;border:0;border-radius:8px;background:#f2f3f5;color:#596375;font-size:.86rem;line-height:1}
+.pm-month-cell span{display:none}
+#tab-monitor .pm-month-cell[data-state=settled]{background:#dcf5e7;color:#116840}
+#tab-monitor .pm-month-cell[data-state=partial]{background:#fff0c7;color:#784c00}
+#tab-monitor .pm-month-cell[data-state=unpaid]{background:#ffe6eb;color:#a4213d}
+#tab-monitor .pm-month-cell:is(:hover,:focus-visible){outline:2px solid #6536ba;outline-offset:1px}
+#tab-monitor #pm-export-info:empty{display:none}
 @media(max-width:760px){
+ .pm-year-header{display:none}
+ .pm-year-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:12px 0}
+ .pm-year-row>strong{grid-column:1/-1;white-space:normal}
+ #tab-monitor .pm-month-cell{display:flex;gap:5px;justify-content:space-between;padding:7px 9px;min-height:38px}
+ .pm-month-cell span{display:inline}
  .pm-insights{grid-template-columns:minmax(0,1fr)}
  .pm-filter{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:10px}
  #pm-export{grid-column:1/-1}

@@ -1040,7 +1040,7 @@ main > section.card{overflow:visible}
 
   /* Laporan: tetap ringkas tetapi tidak saling tumpuk. */
   #report-kas-panel table{width:650px;min-width:650px}
-  #report-rt-panel table{width:650px;min-width:650px}
+  #report-rt-panel table{width:100%;min-width:0}
   #report-arisan-panel table{width:640px;min-width:640px}
   #report-denda-panel table{width:675px;min-width:675px}
   #report-pinjaman-panel table{width:740px;min-width:740px}
@@ -1459,6 +1459,18 @@ main > section.card{overflow:visible}
 #report-rt-panel td{border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
 #report-rt-panel th:last-child,#report-rt-panel td:last-child{border-right:0}
 #report-rt-panel tfoot{background:#f8fafc;color:#111827}
+#report-rt-panel .rt-compact-table{width:100%;min-width:0;table-layout:fixed}
+#report-rt-panel .rt-compact-table th:first-child,#report-rt-panel .rt-compact-table td:first-child{width:38px;text-align:center}
+#report-rt-panel .rt-compact-table th:nth-child(2){width:33%}
+#report-rt-panel .rt-compact-table td small{display:block;font-size:11px;font-weight:500;color:#64748b}
+#report-rt-panel .rt-compact-table td:nth-child(n+3),#report-rt-panel .rt-compact-table th:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
+.kas-select-all{display:grid;place-items:center;width:38px;height:38px;border:1px solid #d7c7f6;border-radius:10px;color:#6736c3;background:#fff}
+@media(max-width:640px){
+ #report-rt-panel .rt-compact-table th:first-child,#report-rt-panel .rt-compact-table td:first-child{display:none}
+ #report-rt-panel .rt-compact-table th:nth-child(2){width:34%}
+ #report-rt-panel .rt-compact-table th,#report-rt-panel .rt-compact-table td{padding:7px 3px;font-size:11px;overflow-wrap:anywhere}
+ #report-rt-panel .rt-compact-table tfoot td:first-child{display:table-cell;text-align:left;width:auto}
+}
 #report-rt-panel td.report-ket-rt,#report-rt-panel td.report-ket-humas,#report-rt-panel td.report-ket-keb2x,#report-rt-panel td.report-ket-note{color:#111827;font-weight:600}
 #report-rt-panel .rt-net-highlight{background:#fde047;color:#422006;border:1px solid #eab308;border-radius:3px;padding:1px 4px;font-weight:800;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
@@ -1807,8 +1819,8 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=1">
-<script defer src="/portal-live/payment-monitor.js?v=1"></script>
+<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-year-v2">
+<script defer src="/portal-live/payment-monitor.js?v=20261122-year-v2"></script>
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261122-portal-grid-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
@@ -1906,9 +1918,14 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
     </div>
 
     <div id="tab-monitor" class="tab-panel hidden p-4 sm:p-5">
+      <section class="pm-year-panel" aria-labelledby="pm-year-title">
+        <div class="pm-year-heading"><div><h2 id="pm-year-title">Pembayaran setahun</h2><p id="pm-year-count"></p></div><label>Tahun<select id="pm-year" class="field"></select></label></div>
+        <div id="pm-year-grid" class="pm-year-grid"></div>
+        <p id="pm-year-state" role="status"></p>
+      </section>
       <div class="pm-filter">
         <label>Bulan iuran<input id="pm-month" type="month" required min="2000-01" max="2099-12"></label>
-        <label>Nama dan rumah<select id="pm-payer"><option value="">Semua warga</option></select></label>
+        <label>Nama dan rumah<select id="pm-payer" class="field"><option value="">Semua warga</option></select></label>
         <button id="pm-export" type="button" disabled title="Pilih satu warga untuk mengunduh seluruh riwayat">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>Unduh Excel warga
         </button>
@@ -1927,7 +1944,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
         </div>
         <section class="pm-residents">
           <header><div><h2>Status pembayaran warga</h2><p id="pm-count" role="status"></p></div>
-            <label>Status<select id="pm-status"><option value="">Semua status</option></select></label>
+            <label>Status<select id="pm-status" class="field"><option value="">Semua status</option></select></label>
           </header>
           <div class="pm-table-wrap"><table>
             <thead><tr><th scope="col">Warga / rumah</th><th scope="col">Status</th><th scope="col">Terbayar</th><th scope="col">Sisa</th></tr></thead>
@@ -2058,13 +2075,13 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
       <div class="kas-layout grid xl:grid-cols-[1.55fr_.85fr] gap-5 min-w-0">
         <div class="min-w-0">
           <div class="flex items-center justify-between gap-3 mb-3">
-            <div><div class="font-black text-violet-950">Transaksi Belum Dibukukan</div><div id="kas-source-hint" class="text-xs text-slate-500 mt-0.5">Hanya pembayaran baru yang belum masuk Buku Kas. Riwayat bulk CSV tetap terkunci dan tanggalnya bisa dikoreksi di Riwayat Iuran.</div></div>
-            <button type="button" onclick="pilihSemuaKas()" class="text-sm font-bold text-violet-700">Pilih semua</button>
+            <div><div class="font-black text-violet-950">Transaksi Belum Dibukukan</div><div id="kas-source-hint" class="text-xs text-slate-500 mt-0.5">Pembayaran yang siap dibukukan.</div></div>
+            <button type="button" onclick="pilihSemuaKas()" class="kas-select-all" title="Pilih semua" aria-label="Pilih semua"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 12 4 4 6-7"/><path d="m10 15 3 3 7-9"/></svg></button>
           </div>
           <div class="kas-scroll overflow-x-auto rounded-xl border border-violet-100 scrollbar-thin">
-            <table class="min-w-[760px] w-full text-sm">
-              <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 w-12"></th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal Bayar</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-left">Metode</th></tr></thead>
-              <tbody id="kas-tbody-belum" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Buka menu ini untuk memuat data.</td></tr></tbody>
+            <table class="w-full text-sm kas-pending-table">
+              <thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 w-12"></th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal / metode</th><th class="p-3 text-right">Nominal</th></tr></thead>
+              <tbody id="kas-tbody-belum" class="divide-y divide-violet-50"><tr><td colspan="4" class="p-6 text-center text-slate-400">Buka menu ini untuk memuat data.</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -2302,7 +2319,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN SETORAN IURAN WARGA</h2><p id="report-rt-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div id="rep-rt-talangan-note" class="no-print hidden mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm"></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100">
-              <table class="w-full text-sm min-w-[760px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 setoran</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 setoran</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td colspan="2" id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
+              <table class="w-full text-sm rt-compact-table"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Keterangan</th><th class="p-3 text-right">Iuran Bulanan</th><th class="p-3 text-right">Kebersihan</th></tr></thead><tbody id="report-rt-tbody" class="divide-y divide-violet-50"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL</td><td class="p-3 text-right"><div id="report-rt-foot-bulanan">Rp 0</div><div id="report-rt-foot-bulanan-count" class="mt-1 text-xs font-semibold text-slate-500">0 setoran</div></td><td class="p-3 text-right"><div id="report-rt-foot-keb">Rp 0</div><div id="report-rt-foot-keb-count" class="mt-1 text-xs font-semibold text-slate-500">0 setoran</div></td></tr><tr><td colspan="4" class="p-3 text-right">TOTAL SETORAN</td><td colspan="2" id="report-rt-foot-total" class="p-3 text-right">Rp 0</td></tr></tfoot></table>
             </div>
             <div class="mt-2 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
               <p id="report-rt-humas-note" class="min-w-0 flex-1 text-xs text-slate-600 print:text-black"></p>
@@ -3240,8 +3257,8 @@ function f4ChangeKasSource(){
  const type=document.getElementById('kas-jenis-sumber')?.value||'kas_lorong';
  const text=document.getElementById('kas-source-hint');
  if(text)text.textContent=type==='denda_gorol'
-  ?'Hanya pembayaran Denda Gorol baru yang belum masuk Buku Kas. Data lama tetap ada di riwayat.'
-  :'Centang Kas Lorong baru menurut bulan kewajiban. Data bulk CSV lama tetap terkunci di Riwayat Iuran.';
+  ?'Denda yang siap dibukukan.'
+  :'Kas Lorong yang siap dibukukan.';
  const title=document.querySelector('#tab-kas .kas-batch-card .font-black');
  if(title)title.textContent=type==='denda_gorol'?'Buat Batch Denda Gorol':'Buat Batch Kas Lorong';
  const ket=document.getElementById('kas-keterangan');if(ket){ket.dataset.edited='';ket.value=''}
@@ -3275,7 +3292,7 @@ async function loadPembukuanKas(){
 function renderPembukuanKas(){
   const r=KAS_DATA.ringkasan||{};
   document.getElementById('kas-count-belum').textContent=r.qtyBelum||0;document.getElementById('kas-nominal-belum').textContent=rupiah(r.nominalBelum||0);document.getElementById('kas-count-sudah').textContent=r.qtySudah||0;document.getElementById('kas-nominal-sudah').textContent=rupiah(r.nominalSudah||0);
-  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}"  onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}</div></td><td class="p-3">${histDate(x.tanggalBayar)}</td><td class="p-3 text-center font-bold">${x.qtyKasLorong||0}x</td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}</td><td class="p-3">${x.metode||'-'}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Tidak ada Kas Lorong yang belum dibukukan pada periode ini.</td></tr>';
+  document.getElementById('kas-tbody-belum').innerHTML=(KAS_DATA.belum||[]).map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3 text-center"><input type="checkbox" class="kas-check w-4 h-4 accent-violet-600" value="${x.idAlokasi}" data-nominal="${Number(x.nominalKasLorong)||0}"  onchange="updateKasTerpilih()"></td><td class="p-3"><div class="font-bold">${esc(x.nama||'-')}</div><div class="text-xs text-slate-400">${esc(x.blok||'')}/${esc(x.noRumah||'')}</div></td><td class="p-3">${histDate(x.tanggalBayar)}<small class="block text-slate-500">${esc(x.metode||'-')}</small></td><td class="p-3 text-right font-black">${rupiah(x.nominalKasLorong||0)}<small class="block font-normal text-slate-500">${x.qtyKasLorong||0}x</small></td></tr>`).join('')||'<tr><td colspan="4" class="p-6 text-center text-slate-400">Tidak ada transaksi yang belum dibukukan.</td></tr>';
   document.getElementById('kas-tbody-batch').innerHTML=newestFirst(KAS_DATA.batches,'tanggalPembukuan').map(x=>`<tr class="hover:bg-violet-50/30"><td class="p-3">${histDate(x.tanggalPembukuan)}</td><td class="p-3"><div class="font-bold">${f4KasCategory()==='denda_gorol'?'Denda Gorol':'Kas Lorong'}</div>${f4SystemIdDetails(x.idBatch)}</td><td class="p-3">${esc(f4BatchReadableNote(x.keterangan||'-',f4KasCategory(),x.jumlahPembayaran,x.tanggalPembukuan))} ${x.status==='dibatalkan'?'• Dibatalkan':''}</td><td class="p-3 text-center">${x.jumlahPembayaran||0}</td><td class="p-3 text-right font-black">${rupiah(x.nominal||0)}</td><td class="p-3 text-right">${x.status==='dibatalkan'?'-':`<div class="action-icons">${actionIcon('circle-x','Batal',`batalkanBatchKas('${x.idBatch}')`,'red')}</div>`}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada batch pada periode ini.</td></tr>';
   refreshHistoryIcons();
   updateKasTerpilih();
@@ -4017,8 +4034,9 @@ function f4RtCellWarning(row,type){
 const F4_RT_POTONGAN_HUMAS=25000;
 function f4RtSettlement(d){
   const rows=sortedReportRtRows(d);
-  const counted=rows.reduce((sum,x)=>sum+Number(x.nominalBulanan||0)+Number(x.nominalKebersihan||0),0);
-  const bruto=Math.max(0,Number(d?.ringkasan?.totalSetoran??counted)||0);
+  const modern=f4RtIsModern(d);
+  const counted=rows.reduce((sum,x)=>sum+Number(x.nominalBulanan||0)+(modern?0:Number(x.nominalKebersihan||0)),0);
+  const bruto=modern?counted:Math.max(0,Number(d?.ringkasan?.totalSetoran??counted)||0);
   const humas=bruto>=F4_RT_POTONGAN_HUMAS?F4_RT_POTONGAN_HUMAS:0;
   return {bruto,humas,neto:bruto-humas};
 }
@@ -4033,7 +4051,7 @@ function f4RtSettlementNoteHtml(t){
     '. Total disetor ke RT <mark class="rt-net-highlight">'+escapePrint(rupiah(t.neto))+'</mark>.';
 }
 
-function renderLaporanRt(d){d=d||{};const r=d.ringkasan||{},rows=sortedReportRtRows(d),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};// Laporan Setoran RT menghitung UNIT SETORAN, bukan jumlah warga unik.
+function renderLaporanRt(d){d=d||{};if(!f4RtIsModern(d))f4RtRefreshColumns(d);const r=d.ringkasan||{},rows=sortedReportRtRows(d),set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};// Laporan Setoran RT menghitung UNIT SETORAN, bukan jumlah warga unik.
 const unit=(fromApi,total,tariff)=>{
   if(fromApi!==null&&fromApi!==undefined&&Number.isFinite(Number(fromApi)))return Number(fromApi);
   const rate=Number(tariff||0);
@@ -4041,7 +4059,36 @@ const unit=(fromApi,total,tariff)=>{
 };
 const fmtCount=n=>Number(n).toLocaleString('id-ID',{maximumFractionDigits:2});
 const jumlahBulanan=unit(r.jumlahSetoranBulanan,r.totalBulanan,DATA.config?.TARIF_BULANAN);
-const jumlahKebersihan=unit(r.jumlahSetoranKebersihan,r.totalKebersihan,DATA.config?.TARIF_KEBERSIHAN);set('report-rt-period',`Periode ${d.labelPeriode||[d.namaBulan,d.tahun].filter(Boolean).join(' ')}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${fmtCount(jumlahBulanan)} setoran`);set('report-rt-foot-keb-count',`${fmtCount(jumlahKebersihan)} setoran`);const hasilRT=f4RtSettlement(d);set('report-rt-foot-total',rupiah(hasilRT.bruto));const noteHtml=document.getElementById('report-rt-humas-note');if(noteHtml)noteHtml.innerHTML=f4RtSettlementNoteHtml(hasilRT);const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(f4NamaCetak(x))}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${f4RtKeteranganMarkup(x)}</td><td class="p-3 text-right ${f4RtCellWarning(x,'bulanan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'bulanan')}</td><td class="p-3 text-right ${f4RtCellWarning(x,'kebersihan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'kebersihan')}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>'}
+const jumlahKebersihan=unit(r.jumlahSetoranKebersihan,r.totalKebersihan,DATA.config?.TARIF_KEBERSIHAN);set('report-rt-period',`Periode ${d.labelPeriode||[d.namaBulan,d.tahun].filter(Boolean).join(' ')}`);set('report-rt-foot-bulanan',rupiah(r.totalBulanan||0));set('report-rt-foot-keb',rupiah(r.totalKebersihan||0));set('report-rt-foot-bulanan-count',`${fmtCount(jumlahBulanan)} setoran`);set('report-rt-foot-keb-count',`${fmtCount(jumlahKebersihan)} setoran`);const hasilRT=f4RtSettlement(d);set('report-rt-foot-total',rupiah(hasilRT.bruto));const noteHtml=document.getElementById('report-rt-humas-note');if(noteHtml)noteHtml.innerHTML=f4RtSettlementNoteHtml(hasilRT);const note=document.getElementById('rep-rt-talangan-note');if(note){note.classList.toggle('hidden',!(r.talanganCount>0));note.textContent=`Catatan internal: ${r.talanganCount||0} warga pada laporan ini ditutup melalui talangan. Keterangan ini tidak ikut saat dicetak.`}const tb=document.getElementById('report-rt-tbody');if(tb)tb.innerHTML=rows.map((x,i)=>`<tr><td class="p-3 text-center">${i+1}</td><td class="p-3 font-bold">${esc(f4NamaCetak(x))}</td><td class="p-3">${esc(x.blok||'')}/${esc(x.noRumah||'')}</td><td class="p-3 ${keteranganCellClassRt(reportKeteranganRt(x))}">${f4RtKeteranganMarkup(x)}</td><td class="p-3 text-right ${f4RtCellWarning(x,'bulanan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'bulanan')}</td><td class="p-3 text-right ${f4RtCellWarning(x,'kebersihan')?'bg-red-50 text-red-800':''}">${f4RtCellMarkup(x,'kebersihan')}</td></tr>`).join('')||'<tr><td colspan="6" class="p-6 text-center text-slate-400">Belum ada data setoran pada periode ini.</td></tr>';f4RtRefreshColumns(d)}
+function f4RtIsModern(d){
+ const year=Number(d?.tahun||document.getElementById('report-tahun')?.value);
+ const month=BULAN.indexOf(d?.namaBulan)>0?BULAN.indexOf(d.namaBulan):Number(d?.bulan||document.getElementById('report-bulan')?.value);
+ return year>2026||(year===2026&&month>=12);
+}
+function f4RtShares(amount){
+ const total=Math.max(0,Number(amount)||0),rt=Math.floor(total*10/25),rw=Math.floor(total*5/25);
+ return [rt,rw,total-rt-rw];
+}
+function f4RtRefreshColumns(d){
+ const table=document.querySelector('#report-rt-panel table');
+ if(!table)return;
+ const head=table.tHead,foot=table.tFoot;
+ if(!table.dataset.legacyHead){table.dataset.legacyHead=head.innerHTML;table.dataset.legacyFoot=foot.innerHTML;}
+ if(!f4RtIsModern(d)){
+   head.innerHTML=table.dataset.legacyHead;foot.innerHTML=table.dataset.legacyFoot;
+   return;
+ }
+ const rows=sortedReportRtRows(d),sums=[0,0,0];
+ head.innerHTML='<tr><th>No</th><th>Warga / rumah</th><th>Kas RT</th><th>Kas RW</th><th>Keamanan</th></tr>';
+ document.getElementById('report-rt-tbody').innerHTML=rows.map((x,i)=>{
+   const values=f4RtShares(x.nominalBulanan);
+   values.forEach((v,k)=>sums[k]+=v);
+   const home=String(x.rumah||[x.blok,x.noRumah].filter(Boolean).join('/'));
+   const description=reportKeteranganRt(x);
+   return '<tr><td>'+(i+1)+'</td><td><strong>'+esc(f4NamaCetak(x))+'</strong><small>'+esc(home)+(description?' · '+esc(description):'')+'</small></td>'+values.map(v=>'<td>'+rupiah(v)+'</td>').join('')+'</tr>';
+ }).join('')||'<tr><td colspan="5">Belum ada setoran pada periode ini.</td></tr>';
+ foot.innerHTML='<tr><td colspan="2">Jumlah</td>'+sums.map(v=>'<td>'+rupiah(v)+'</td>').join('')+'</tr><tr><td colspan="2">Total disetor</td><td colspan="3">'+rupiah(sums.reduce((a,b)=>a+b,0))+'</td></tr>';
+}
 function renderLaporanArisan(d){
   d=d||{};
   const serverRows=Array.isArray(d.rows)?d.rows:[];
@@ -4191,6 +4238,14 @@ tfoot td{background:#f1f5f9;color:#1e293b;font-weight:800;border-top:1.5px solid
 </body></html>`); w.document.close();
 }
 function printRtSepertiLamanUtama(){
+  if(f4RtIsModern(REPORT_DATA_RT)){
+    const table=document.querySelector('#report-rt-panel table');
+    const period=document.getElementById('report-rt-period')?.textContent||'';
+    const note=document.getElementById('report-rt-humas-note')?.textContent||'';
+    const win=window.open('','_blank');if(!win)return alert('Izinkan pop-up untuk mencetak laporan.');
+    win.document.write('<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Laporan Setoran RT</title><style>@page{size:A4 portrait;margin:12mm}body{font:12px Arial,sans-serif;color:#202539}h1{font-size:18px}p{color:#526078}table{width:100%;border-collapse:collapse}th,td{border:1px solid #aab4c8;padding:8px;text-align:right}th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}th{background:#eeeaff}small{display:block;color:#657086;margin-top:2px}tfoot{font-weight:bold;background:#f5f2ff}.note{margin-top:18px}</style></head><body><h1>Laporan Setoran RT</h1><p>'+escapePrint(period)+'</p>'+table.outerHTML+'<div class="note">'+escapePrint(note)+'</div><p style="text-align:right">Humas Flamboyan 4<br>Heri Juwandi</p><script>window.onload=()=>window.print()<\/script></body></html>');
+    win.document.close();return;
+  }
   const d=REPORT_DATA_RT||{}; const rows=sortedReportRtRows(d); const periode=d.labelPeriode||[d.namaBulan,d.tahun].filter(Boolean).join(' ');
   // Kolom cetak wajib sama dengan renderLaporanRt pada layar: nominalBulanan/nominalKebersihan.
   const nominalBulanan=x=>Number(x.nominalBulanan??x.iuranBulanan??x.bulanan??0);
