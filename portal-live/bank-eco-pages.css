@@ -3297,38 +3297,49 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  padding:15px;border:1px solid #dae9df;border-radius:16px;
  background:#fff;box-shadow:0 4px 18px #153e3209
 }
+.f4-bank-cash-panel-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ min-width:0;padding-bottom:11px;border-bottom:1px solid #e5eee8
+}
 .f4-bank-admin-cash-panel-title{
- margin:0;padding:0 0 11px;border-bottom:1px solid #e5eee8;
- font-size:15px;font-weight:850;line-height:1.3;color:#17563c
+ margin:0;padding:0;font-size:15px;font-weight:850;line-height:1.3;color:#17563c
 }
-.f4-bank-cash-expense-disclosure{
- flex:none;min-width:0;margin:0;padding:0;
- border:1px solid #dceae0;border-radius:10px;background:#fbfdfb
+.f4-bank-cash-add-button{
+ display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;
+ min-height:34px;padding:7px 12px;border:0;border-radius:9px;
+ background:#FDC010;color:#204a32;font-size:12px;font-weight:800;cursor:pointer
 }
-.f4-bank-cash-expense-disclosure>summary{
- padding:10px 12px;list-style:none;cursor:pointer;
- font-size:12px;font-weight:750;color:#137c60
-}
-.f4-bank-cash-expense-disclosure>summary::-webkit-details-marker{display:none}
-.f4-bank-cash-expense-disclosure>summary::after{
- content:"";display:inline-block;width:7px;height:7px;margin-left:10px;
- border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
- transform:translateY(-2px) rotate(45deg)
-}
-.f4-bank-cash-expense-disclosure[open]>summary::after{
- transform:translateY(2px) rotate(225deg)
-}
+.f4-bank-cash-add-button svg{width:16px;height:16px;flex:none}
+.f4-bank-cash-add-button:hover{background:#efb300}
+.f4-bank-cash-add-button:focus-visible,.f4-bank-expense-close:focus-visible,
+.f4-bank-expense-actions button:focus-visible{outline:2px solid #0a9273;outline-offset:3px}
 .f4-bank-cash-toolbar{
  display:flex;align-items:center;justify-content:space-between;
  flex-wrap:wrap;gap:10px;min-width:0
 }
 .f4-bank-cash-toolbar .f4-bank-admin-cash-tabs{flex:1 1 auto}
-.f4-bank-cash-expense-section{
- display:grid;gap:12px;min-width:0;
- padding:14px;border:1px solid #d8e8dc;border-radius:14px;background:#fff
+.f4-bank-cash-expense-modal{
+ box-sizing:border-box;width:min(560px,calc(100vw - 28px));max-width:none;
+ max-height:min(90dvh,740px);margin:auto;padding:0;
+ border:1px solid #d7e7db;border-radius:18px;
+ background:#fff;color:#214b34;
+ box-shadow:0 22px 65px #0d2c2047;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:none
 }
-.f4-bank-cash-expense-section[hidden]{display:none}
-.f4-bank-cash-expense-section>h3{margin:0;font-size:15px;color:#175a3a}
+.f4-bank-cash-expense-modal::-webkit-scrollbar{display:none}
+.f4-bank-cash-expense-modal::backdrop{background:#0d271c82}
+.f4-bank-expense-modal-header{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ position:sticky;top:0;z-index:2;min-height:57px;
+ padding:12px 20px;border-bottom:1px solid #e1ece4;background:#fff
+}
+.f4-bank-expense-modal-header h2{margin:0;color:#15563d;font-size:18px;font-weight:850}
+.f4-bank-expense-close{
+ display:grid;place-items:center;width:32px;height:32px;flex:none;
+ padding:0;border:0;border-radius:9px;background:#edf5ef;color:#315c45;cursor:pointer
+}
+.f4-bank-expense-close svg{width:18px;height:18px}
+.f4-bank-cash-expense-section{min-width:0;padding:18px 20px 22px;background:#fff}
 #bank-admin-cash .f4-bank-compact-expense-form{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  gap:11px 12px;margin:0;align-items:start
@@ -3345,9 +3356,7 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  width:100%;min-width:0;min-height:41px;box-sizing:border-box;margin:0
 }
 #bank-admin-cash .f4-bank-compact-expense-form>.f4-bank-expense-extras,
-#bank-admin-cash .f4-bank-compact-expense-form>button[type="submit"]{
- grid-column:1/-1
-}
+#bank-admin-cash .f4-bank-compact-expense-form>.f4-bank-expense-actions{grid-column:1/-1}
 #bank-admin-cash .f4-bank-expense-extras{
  padding:8px 10px;border:1px solid #dfebe1;border-radius:10px
 }
@@ -3355,14 +3364,24 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  font-size:12px;font-weight:700;color:#285d41;cursor:pointer
 }
 #bank-admin-cash .f4-bank-expense-extras>.field{margin:9px 0 0}
-#bank-admin-cash .f4-bank-compact-expense-form>button[type="submit"]{
- min-height:42px;background:#fbbb23;color:#215037;border-radius:10px;border:0;
- font-weight:800;cursor:pointer
+.f4-bank-expense-actions{display:flex;justify-content:flex-end;gap:10px}
+#bank-admin-cash .f4-bank-expense-actions>button{
+ box-sizing:border-box;flex:1 1 0;width:auto;min-width:0;min-height:42px;
+ padding:9px 12px;border-radius:10px;font-weight:800;cursor:pointer
+}
+#bank-admin-cash .f4-bank-expense-actions>.f4-bank-expense-cancel{
+ border:1px solid #cbded2;background:#fff;color:#315c45
+}
+#bank-admin-cash .f4-bank-expense-actions>button[type="submit"]{
+ border:0;background:#FDC010;color:#215037
 }
 @media(max-width:540px){
  #bank-admin-cash .f4-bank-compact-expense-form{
   grid-template-columns:minmax(0,1fr);gap:10px
  }
+ .f4-bank-cash-expense-modal{width:calc(100vw - 24px);max-height:88dvh}
+ .f4-bank-expense-modal-header{padding:11px 15px}
+ .f4-bank-cash-expense-section{padding:15px}
 }
 .f4-bank-admin-cash-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
 .f4-bank-admin-cash-stat{
@@ -3397,14 +3416,9 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  }
  .f4-bank-admin-cash-panel{height:clamp(350px,57dvh,490px)}
  .f4-bank-admin-cash-table{overflow-y:auto}
- .f4-bank-cash-expense-disclosure[open]{
-  max-height:min(46dvh,315px);overflow-y:auto;scrollbar-width:none
- }
- .f4-bank-cash-expense-disclosure[open]::-webkit-scrollbar{display:none}
 }
 @media(max-width:1099px){
  .f4-bank-admin-cash-panel:not(.is-active){display:none}
- .f4-bank-cash-expense-disclosure[open]{max-height:none;overflow:visible}
  .f4-bank-admin-cash-ledger{min-width:480px}
 }
 @media(max-width:760px){
