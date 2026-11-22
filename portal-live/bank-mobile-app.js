@@ -2350,31 +2350,53 @@ function showAdminDocumentation(which="albums"){
 }
 function showAdminHistory(selected="setoran"){
  const page=ensureScreen("bank-admin-history","Riwayat");
- let tabs=$("f4BankAdminHistoryTabs");
- if(!tabs){
-  tabs=el("div","f4-bank-admin-history-tabs");tabs.id="f4BankAdminHistoryTabs";
-  page.append(tabs);
+ const title=page.querySelector(":scope > h2");
+ $("f4BankAdminHistoryTabs")?.remove();
+ // Two real transaction sources stay live in parallel; no tab duplication.
+ let grid=$("f4BankAdminHistoryGrid");
+ if(!grid){
+  grid=el("div","f4-bank-admin-history-grid");
+  grid.id="f4BankAdminHistoryGrid";
+  page.append(grid);
  }
- const setoran=$("pageRiwayat"),penjualan=$("pageRiwayatJual");
- for(const panel of [setoran,penjualan])if(panel?.parentNode!==page)page.append(panel);
+ const columns=[
+  ["setoran","Setoran","pageRiwayat"],
+  ["penjualan","Penjualan","pageRiwayatJual"]
+ ];
+ for(const [key,label,id] of columns){
+  const panel=$(id);
+  if(!panel)continue;
+  let frame=$("f4BankHistoryColumn-"+key);
+  if(!frame){
+   frame=el("section","f4-bank-admin-history-column");
+   frame.id="f4BankHistoryColumn-"+key;
+   const heading=el("h3","f4-bank-admin-history-column-title",label);
+   heading.id="f4BankHistoryTitle-"+key;
+   frame.setAttribute("aria-labelledby",heading.id);
+   frame.append(heading);
+   grid.append(frame);
+  }
+  if(panel.parentElement!==frame)frame.append(panel);
+  panel.classList.remove("hidden");
+ }
  syncAdminPageFrames();
- const options=[["setoran","Setoran",setoran],["penjualan","Penjualan",penjualan]];
- const refresh=el("button","f4-bank-admin-history-refresh","");
- refresh.id="f4BankAdminHistoryRefresh";refresh.type="button";
- refresh.title="Muat ulang riwayat "+(selected==="setoran"?"setoran":"penjualan");
- refresh.setAttribute("aria-label",refresh.title);
- refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
- refresh.onclick=()=>selected==="setoran"?window.loadRiwayatV7?.():window.loadRiwayatJual?.();
- tabs.replaceChildren(...options.map(([key,label])=>{
-  const button=el("button","f4-bank-admin-history-tab"+(selected===key?" is-active":""),label);
-  button.type="button";button.setAttribute("aria-pressed",String(selected===key));
-  button.onclick=()=>navigate(key==="penjualan"?"bank-admin-sale-history":"bank-admin-history");
-  return button;
- }),refresh);
- tabs.hidden=false;
- for(const [key,,panel] of options)panel?.classList.toggle("hidden",key!==selected);
+ let refresh=$("f4BankAdminHistoryRefresh");
+ if(!refresh){
+  refresh=el("button","f4-bank-admin-history-refresh");
+  refresh.id="f4BankAdminHistoryRefresh";
+  refresh.type="button";
+  refresh.setAttribute("aria-label","Muat ulang riwayat setoran dan penjualan");
+  refresh.title="Muat ulang kedua riwayat";
+  refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
+  refresh.onclick=()=>{
+   window.loadRiwayatV7?.();
+   window.loadRiwayatJual?.();
+  };
+ }
+ if(title&&refresh.parentElement!==title)title.append(refresh);
  page.classList.remove("hidden");
- if(selected==="setoran")window.loadRiwayatV7?.();
+ // goPage already loaded the active legacy route; fetch the other once.
+ if(selected==="penjualan")window.loadRiwayatV7?.();
  else window.loadRiwayatJual?.();
 }
 function ensureAdminReportLink(){
