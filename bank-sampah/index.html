@@ -2399,32 +2399,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
-<script id="f4-appsscript-compat">
-/* Adapter only. Every line of PortalAkun.html's original script remains unchanged below. */
-(()=>{
-  'use strict';
-  sessionStorage.removeItem('bs4_session');
-  const chain=(success,failure)=>new Proxy(Object.create(null),{
-    get(_target,prop){
-      if(prop==='withSuccessHandler')return fn=>chain(fn,failure);
-      if(prop==='withFailureHandler')return fn=>chain(success,fn);
-      if(typeof prop==='symbol')return undefined;
-      return(...args)=>{
-        Promise.resolve().then(()=>{
-          if(prop==='authLogout')return {ok:true};
-          if(prop==='authLogin')throw Error('Masuk melalui tombol LOGIN pada portal terpadu.');
-          if(prop==='authMe')throw Error('Gunakan akun dari portal terpadu.');
-          if(typeof window.__f4BankDemoCall!=='function')throw Error('Koneksi layanan belum tersedia.');
-          return window.__f4BankDemoCall(String(prop),args);
-        }).then(value=>success?.(value),error=>failure?.(error));
-      };
-    }
-  });
-  window.google=window.google||{};
-  window.google.script=window.google.script||{};
-  window.google.script.run=chain();
-})();
-</script>
 <script>
   'use strict';
   const $=id=>document.getElementById(id);
@@ -2436,9 +2410,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
     return p.year+'-'+p.month+'-'+p.day;
   };
+  sessionStorage.removeItem('bs4_session');
   let token=sessionStorage.getItem('bs4_session')||'',profile=null,accounts=[],currentCredential=null,setCatalog=[],setNonce='',setEditId='',setEditPayload=null,saleCatalog=[],saleNonce='';
   function note(target,message,error=false){const e=$(target);if(!e)return;e.textContent=message||'';e.className=message?'notice'+(error?' error':''):'';e.hidden=!message;e.dataset.f4State=message?'notice':'success';}
-  function call(name,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args));}
+  function call(name,...args){
+    // Satu jalur transaksi: bridge Cloudflare/D1. Tidak memakai google.script.run.
+    return Promise.resolve().then(()=>{
+      if(name==='authLogout')return {ok:true};
+      if(name==='authLogin')throw Error('Masuk melalui tombol LOGIN pada portal terpadu.');
+      if(name==='authMe')throw Error('Gunakan akun dari portal terpadu.');
+      if(typeof window.__f4BankDemoCall!=='function')throw Error('Koneksi layanan belum tersedia.');
+      return window.__f4BankDemoCall(name,args);
+    });
+  }
   function busy(form,active){form.querySelectorAll('button').forEach(b=>b.disabled=active);}
   function showAuth(){profile=null;token='';sessionStorage.removeItem('bs4_session');$('dashboardView').classList.add('hidden');$('authView').classList.remove('hidden');}
   function showDashboard(p){profile=p;$('authView').classList.add('hidden');$('dashboardView').classList.remove('hidden');$('greeting').textContent='Halo, '+(p.peran==='Admin'?p.nama:f4BankDisplayWargaName(p.nama));$('roleBadge').textContent=p.peran;$('pName').textContent=p.nama;$('pHome').textContent=p.rumah||'—';$('pId').textContent=String(p.wargaId||'Administrator').replace(/^member:/i,'');$('pageProfile').querySelector('.f4-profile-meta').hidden=p.peran==='Warga';if(!$('navRiwayatJual')){const btn=document.createElement('button');btn.id='navRiwayatJual';btn.className='secondary';btn.textContent='Riwayat penjualan';btn.onclick=()=>goPage('riwayatJual');$('navPenjualan').after(btn);}v7EnsureSaleReason();v8Setup();v9Setup();v10Setup();v11Setup();$('v11Public').classList.add('hidden');['Admin','Master','Setoran','Riwayat','RiwayatJual','Penjualan','Rekonsiliasi','Pengesahan','Tabungan','Biaya','Laporan','Kegiatan','Dokumentasi','Inventaris'].forEach(id=>$('nav'+id).classList.toggle('hidden',p.peran!=='Admin'));goPage('dashboard');}
