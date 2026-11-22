@@ -185,7 +185,7 @@
     }
 
     // LIST LINK CSV TERPUSAT
-    // Keuangan publik menggunakan Cloudflare D1, bukan endpoint Apps Script lama.
+    // Keuangan publik menggunakan Cloudflare D1.
     // Keuangan laman utama sekarang langsung membaca Buku Kas dari backend Pembukuan.
     // CSV_KEUANGAN_URL lama tidak dipakai lagi.
     const CSV_DOKUMENTASI_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=0&single=true&output=csv';
@@ -196,9 +196,8 @@
     const CSV_JERSEY_BAPAK_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=878370178&single=true&output=csv';
     const CSV_JERSEY_IBU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnRRJsbu9EBj7aRA1k-6Jz5tWxL7l6uZz37ckgt4POJSYm0d93qNC3rqbG048eY7a-Y5NCWNIgF3wV/pub?gid=1755921986&single=true&output=csv';
 
-    const FOLDER_JERSEY_URL = 'https://drive.google.com/drive/folders/1_VH_MHlOhA_tSXPsw1ztJEf3fVydU7gE';
-    const FOLDER_GAPURA_URL = 'https://drive.google.com/drive/folders/1Zs2RlbHTvNc9RDhbc1TlgcptXeNhnrQ5';
-    const FOLDER_API_URL = 'https://script.google.com/macros/s/AKfycbyes6A9_9EQ8vIYtf75cGgC9sKAZBvMewxEhYRSThjMAlBYqnkmKpa3yoPOtN0FEG92Zg/exec';
+
+
 
     // INISIALISASI FIREBASE REALTIME DATABASE UNTUK CHAT
     const firebaseConfig = {
@@ -240,7 +239,7 @@
     let currentArisanIdxGlobal = -1;
     let nextArisanIdxGlobal = -1;
     let arisanLastMonthKey = '';
-    const folderCache = {};
+
 
     let monthlyKeuanganList = []; 
     let currentPemasukanMonthIndex = 0;
@@ -488,57 +487,6 @@ function salinLinkAgenda(url) {
   });
 }
 
-    async function fetchFolderFiles(folderId) {
-      if (!FOLDER_API_URL || !FOLDER_API_URL.startsWith('http')) return [];
-      if (folderCache[folderId]) return folderCache[folderId];
-      
-      try {
-        const response = await fetch(`${FOLDER_API_URL}?folderId=${folderId}`);
-        const data = await response.json();
-        let rawItems = [];
-        
-        if (data && data.files && Array.isArray(data.files) && data.files.length > 0) {
-          rawItems = data.files;
-        } else if (data && data.images && Array.isArray(data.images) && data.images.length > 0) {
-          rawItems = data.images;
-        } else if (Array.isArray(data) && data.length > 0) {
-          rawItems = data;
-        }
-
-        let items = rawItems.map((f, i) => {
-          if (typeof f === 'string' || typeof f === 'number') {
-            const strVal = String(f);
-            return { type: 'image', url: fixDriveUrl(strVal), rawUrl: strVal, name: strVal };
-          }
-          const rawUrl = f.url || f.link || f.src || f.downloadUrl || '';
-          const nameVal = f.name !== undefined && f.name !== null ? String(f.name) : (f.title !== undefined && f.title !== null ? String(f.title) : String(i + 1));
-          
-          const isVid = f.type === 'video' || (f.mimeType && f.mimeType.includes('video')) || /\.(mp4|mkv|mov|webm|avi)$/i.test(nameVal);
-          
-          return {
-            type: isVid ? 'video' : 'image',
-            url: isVid ? rawUrl : fixDriveUrl(rawUrl),
-            rawUrl: rawUrl,
-            name: nameVal
-          };
-        }).filter(item => item.url && item.url !== '' && item.url !== PLACEHOLDER_IMG);
-
-        if (items.length > 0) {
-          items.sort((a, b) => {
-            const nameA = String(a.name || '');
-            const nameB = String(b.name || '');
-            return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-          });
-          
-          folderCache[folderId] = items;
-          return items;
-        }
-      } catch (e) {
-        console.error("Gagal membaca folder:", e);
-      }
-      return [];
-    }
-
     async function openGalleryGridModal(rawString, title) {
       document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
       document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat album...</p>';
@@ -548,19 +496,23 @@ function salinLinkAgenda(url) {
       const folderId = extractFolderId(rawString);
       let mediaItems = [];
 
-      if (folderId && FOLDER_API_URL.startsWith('http')) {
-        mediaItems = await fetchFolderFiles(folderId);
-      } else {
-        const rawUrls = rawString.split(',');
-        mediaItems = rawUrls.map(u => {
-          const isVid = /\.(mp4|mkv|mov|webm|avi)$/i.test(u);
-          return {
-            type: isVid ? 'video' : 'image',
-            url: isVid ? u : fixDriveUrl(u),
-            rawUrl: u
-          };
-        }).filter(u => u.url && u.url !== '');
+      if (folderId) {
+        // Arsip Drive dapat dibuka langsung tanpa layanan perantara.
+        const link=document.createElement('a');
+        link.href='https://drive.google.com/drive/folders/'+encodeURIComponent(folderId);
+        link.target='_blank';link.rel='noopener noreferrer';
+        link.textContent='Buka foto dan video di Google Drive';
+        link.className='inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white';
+        document.getElementById('gallery-grid-container').replaceChildren(link);
+        document.getElementById('gallery-grid-subtitle').textContent='Album tersimpan di Google Drive';
+        currentMediaList=[];
+        return;
       }
+      const rawUrls=rawString.split(',');
+      mediaItems=rawUrls.map(u=>{
+        const isVid=/\.(mp4|mkv|mov|webm|avi)$/i.test(u);
+        return {type:isVid?'video':'image',url:isVid?u:fixDriveUrl(u),rawUrl:u};
+      }).filter(u=>u.url);
 
       if (!mediaItems || mediaItems.length === 0) mediaItems = [{ type: 'image', url: PLACEHOLDER_IMG }];
       currentMediaList = mediaItems;
@@ -1437,7 +1389,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         const statusEl = document.getElementById('loading-status');
         const kasToken=F4Loading.begin(statusEl,'Memuat laporan keuangan warga…');
 
-        // Public D1 report; never fall back to old Google Apps Script JSONP.
+        // Laporan publik wajib memakai D1 dan tidak memakai data uji.
         const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
           mode:'cors',credentials:'include',cache:'no-store',headers:{'Accept':'application/json'}
         });
@@ -1911,38 +1863,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
     })();
 
-    (async function loadJerseyAndGapuraImages() {
-      const folderJerseyId = extractFolderId(FOLDER_JERSEY_URL);
-      if (folderJerseyId && FOLDER_API_URL.startsWith('http')) {
-        const files = await fetchFolderFiles(folderJerseyId);
-        if (files && files.length > 0) {
-          const firstImg = files.find(f => f.type === 'image') || files[0];
-          document.getElementById('container-foto-jersey-single').innerHTML = `
-            <img src="${firstImg.url}" alt="Desain Jersey" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Galeri Foto Jersey (${files.length})</span>
-            </div>
-          `;
-        }
-      }
-
-      const folderGapuraId = extractFolderId(FOLDER_GAPURA_URL);
-      if (folderGapuraId && FOLDER_API_URL.startsWith('http')) {
-        const gapuraFiles = await fetchFolderFiles(folderGapuraId);
-        if (gapuraFiles && gapuraFiles.length > 0) {
-          const firstGapuraImg = gapuraFiles.find(f => f.type === 'image') || gapuraFiles[0];
-          document.getElementById('container-foto-gapura').innerHTML = `
-            <img src="${firstGapuraImg.url}" alt="Desain Gapura" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold space-x-1 backdrop-blur-[1px]">
-              <i data-lucide="layout-grid" class="w-4 h-4"></i>
-              <span>Desain Gapura (${gapuraFiles.length})</span>
-            </div>
-          `;
-        }
-      }
-      lucide.createIcons();
-    })();
+    if(window.lucide?.createIcons)window.lucide.createIcons();
 
     function scrollDokumentasi(direction) {
       // Dipertahankan untuk kompatibilitas tombol/skrip lama jika masih terpanggil.
@@ -2088,12 +2009,6 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
             if (folderId) {
               badgeText = 'Album Media';
-              const files = await fetchFolderFiles(folderId);
-              if (files && files.length > 0) {
-                const imgItem = files.find(f => f.type === 'image') || files[0];
-                firstFoto = imgItem.url;
-                badgeText = `${files.length} Media`;
-              }
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
