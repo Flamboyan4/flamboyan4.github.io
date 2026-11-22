@@ -38,9 +38,13 @@
   if(!response.ok||payload?.ok===false)throw Error(payload?.error||'Akses data ditolak (HTTP '+response.status+').');
   return payload;
  };
- const toRows=result=>Array.isArray(result)?result:Array.isArray(result?.rows)?result.rows:
+ const toRows=result=>{
+  const rows=Array.isArray(result)?result:Array.isArray(result?.rows)?result.rows:
    Array.isArray(result?.items)?result.items:Array.isArray(result?.data?.rows)?result.data.rows:
-   Array.isArray(result?.data?.items)?result.data.items:Array.isArray(result?.data)?result.data:[];
+   Array.isArray(result?.data?.items)?result.data.items:Array.isArray(result?.data)?result.data:null;
+  if(!rows)throw Error('Daftar dari server tidak lengkap; peringkat tidak ditampilkan.');
+  return rows;
+ };
  async function loadRecords(){
   const [rawMembers,rawDeposits,rawCatalog]=await Promise.all(['members','deposits','catalog'].map(name=>
     get('/api/v2/admin/bank/'+name+'?limit=300').then(toRows)));
@@ -54,7 +58,7 @@
   const itemByName=new Map(catalog.map(x=>[x.name.toLowerCase(),x]));
   const deposits=rawDeposits.filter(x=>{
    const status=String(x.status||'').toLowerCase();
-   return !['dibatalkan','batal','canceled','cancelled','draft'].includes(status)
+   return ['estimasi','terkonfirmasi'].includes(status)
     &&memberById.has(normId(x.member_id))&&/^\d{4}-\d\d-\d\d/.test(String(x.deposited_on||''));
   });
   const output=[];
@@ -103,10 +107,9 @@
     if(run!==state.generation||!admin())return;
     state.data=data;state.loadedAt=Date.now();
     const months=[...new Set(data.deposits.map(x=>x.month))].sort();
-    if(months.length){
-     if(!months.includes(state.from))state.from=months[months.length-1];
-     if(!months.includes(state.to))state.to=months[months.length-1];
-    }else state.from=state.to='';
+    // Awali dari seluruh riwayat agar peringkat aktif/terbanyak tidak terkunci ke satu bulan.
+    if(state.from&&!months.includes(state.from))state.from='';
+    if(state.to&&!months.includes(state.to))state.to='';
     if(state.member&&!data.members.some(x=>x.id===state.member))state.member='';
     if(state.item&&!data.catalog.some(x=>x.id===state.item))state.item='';
     status('');render();
@@ -147,7 +150,11 @@
   });
   $(cls+'-trend-select').value=state.trend;
   const start=state.from||'',end=state.to||'';
-  if(start&&end&&start>end)status('Bulan awal melewati bulan akhir. Sesuaikan rentang.',true);else status('');
+  if(start&&end&&start>end){
+   status('Bulan awal melewati bulan akhir. Sesuaikan rentang.',true);
+   $(cls+'-results')?.replaceChildren();return;
+  }
+  status('');
   const filtered=d.deposits.filter(x=>(!start||x.month>=start)&&(!end||x.month<=end)
    &&(!state.member||x.member===state.member)).map(x=>{
     const lines=state.item?x.lines.filter(line=>line.item===state.item):x.lines;
@@ -267,7 +274,8 @@
   results.append(detailBox);
  }
  function mount(){
-  const report=$('pageLaporan');if(!report||$(cls+'-tabs'))return;
+  const report=$('pageLaporan');if(!report)return false;
+  if($(cls+'-tabs'))return true;
   const heading=report.querySelector(':scope > h2');
   const tabs=node('div','f4-analisis-tabs');tabs.id=cls+'-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Jenis laporan pengelola');
   const official=node('button','is-active','Laporan Resmi');official.type='button';official.setAttribute('role','tab');official.setAttribute('aria-selected','true');official.id=cls+'-tab-official';
@@ -328,6 +336,14 @@
   }
   observer.observe(document.body,{attributes:true,attributeFilter:['data-f4-bank-role']});
   const dashboard=$('dashboardView');if(dashboard)observer.observe(dashboard,{attributes:true,attributeFilter:['class']});
+  return true;
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
+ // Halaman laporan dibuat secara dinamis oleh halaman Bank Sampah lama.
+ // Pasang tab walau halaman laporannya baru muncul setelah DOM siap.
+ function start(){
+  if(mount())return;
+  const watch=new MutationObserver(()=>{if(mount())watch.disconnect();});
+  watch.observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
