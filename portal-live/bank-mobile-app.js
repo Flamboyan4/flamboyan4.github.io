@@ -1423,6 +1423,13 @@ async function submitRequest(event){
 function managerRequestsPanel(){
  if(role!=="admin")return;
  const page=ensureScreen("bank-payout-admin","Pencairan Tabungan");
+ let main=$("f4BankPayoutMain");
+ if(!main){
+  main=el("div","f4-bank-payout-main");
+  main.id="f4BankPayoutMain";
+  const heading=page.querySelector(":scope > .f4-bank-screen-title");
+  if(heading)heading.after(main);else page.prepend(main);
+ }
  if(!$("f4BankManagerRequests")){
   const section=el("section","f4-bank-manager-requests");section.id="f4BankManagerRequests";
   const head=el("div","f4-bank-mobile-section-head");
@@ -1430,7 +1437,7 @@ function managerRequestsPanel(){
   const refresh=el("button","f4-bank-refresh-button","Muat ulang");refresh.type="button";refresh.onclick=loadManagerRequests;
   head.append(refresh);
   const content=el("div","f4-bank-manager-request-list","Buka menu Pencairan untuk memuat pengajuan.");content.id="f4BankManagerRequestList";
-  section.append(head,content);page.append(section);
+  section.append(head,content);main.append(section);
  }
  if(!$("f4BankManualPayout")){
   const detail=el("details","f4-bank-manual-payout");detail.id="f4BankManualPayout";
@@ -1443,7 +1450,12 @@ function managerRequestsPanel(){
   const form=$("v9Form")?.closest(".f4-savings-payout");
   if(form)detail.append(form);
   detail.open=true;
-  page.append(detail);
+  main.append(detail);
+ }
+ // Kedua kartu kiri mempunyai alur grid sendiri, tidak memengaruhi tinggi riwayat.
+ for(const id of ["f4BankManagerRequests","f4BankManualPayout"]){
+  const panel=$(id);
+  if(panel&&panel.parentElement!==main)main.append(panel);
  }
  // Riwayat tetap terlihat walaupun formulir manual ditutup.
  const history=$("v9History")?.closest(".f4-savings-history");
