@@ -4258,7 +4258,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     v14BankQuickActions();
     if(deposits.status==='fulfilled')v14WeightTrend(deposits.value);
     const recent=deposits.status==='fulfilled'?deposits.value.filter(r=>r.status!=='Dibatalkan').slice(0,5):[];
-    $('v14Recent').replaceChildren();if(recent.length)$('v14Recent').appendChild(v14RecentTable(recent));else $('v14Recent').textContent='Belum ada setoran terbaru.';
+    const recentBox=$('v14Recent');recentBox.replaceChildren();if(recent.length)recentBox.appendChild(v14RecentTable(recent));else recentBox.textContent='Belum ada setoran terbaru.';
+    recentBox.scrollTop=0;
     if(progress.status==='fulfilled')v14Activities(progress.value);else $('v14Activities').textContent='Perkembangan belum dapat dimuat.';
   }
   function v14Activities(rows){
@@ -7283,7 +7284,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-recent-click-v3">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-recent-click-v9">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-recent-top-fix-v10">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-portal-grid-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
