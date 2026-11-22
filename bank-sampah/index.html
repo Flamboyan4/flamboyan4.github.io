@@ -2816,22 +2816,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     }
     return payload;
   }
-  async function v14OpenSetoranDetail(r,row){
-    if(!r?.id||row.getAttribute('aria-busy')==='true')return;
-    if(!window.F4TransactionReceipt?.open){
-      window.f4UiDialog?.alert?.('Rincian setoran belum tersedia. Muat ulang halaman.');
-      return;
-    }
-    row.setAttribute('aria-busy','true');
-    try{
-      const payload=await f4BankDepositDetailPayload(r);
-      await window.F4TransactionReceipt.open(payload);
-    }catch(error){
-      window.f4UiDialog?.alert?.('Tidak dapat membuka rincian setoran: '+(error.message||error));
-    }finally{
-      row.removeAttribute('aria-busy');
-    }
-  }
   function f4BankSaleReceipt(r){
     const received=Number(r.diterima||0),gross=Number(r.bruto||0);
     const status=received<=0?'BELUM DIBAYAR':received<gross?'BAYAR SEBAGIAN':'DITERIMA';
@@ -3899,16 +3883,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const hint=document.createElement('span');
       hint.textContent=confirmed?(r.nilaiSahRp==null?'Belum tersedia':'Hasil jual'):'Perkiraan';
       value.append(amount,hint);item.append(avatar,who,value);
-      if(r.id){
-        item.setAttribute('role','button');
-        item.tabIndex=0;
-        item.dataset.f4DetailOpen='true';
-        item.setAttribute('aria-label','Lihat rincian setoran '+f4BankDisplayWargaName(r.namaWarga||r.nama)+' pada '+(r.tanggal||'tanggal tidak tersedia'));
-        item.onclick=()=>v14OpenSetoranDetail(r,item);
-        item.onkeydown=event=>{
-          if(event.key==='Enter'||event.key===' '){event.preventDefault();item.click();}
-        };
-      }
+      item.setAttribute('role','link');
+      item.tabIndex=0;
+      item.dataset.f4HistoryLink='true';
+      item.setAttribute('aria-label','Buka Riwayat Setoran '+f4BankDisplayWargaName(r.namaWarga||r.nama));
+      item.onclick=()=>window.goPage('bank-admin-history');
+      item.onkeydown=event=>{
+        if(event.key==='Enter'){event.preventDefault();item.click();}
+      };
       list.append(item);
     });
     return list;
