@@ -293,9 +293,20 @@
   estimasi:number(x.estimatedRp),status:x.status||'draft'
  }));
  const adminMembers=async()=> (await adminRows('members')).map(x=>({
-  wargaId:String(x.id||'').replace(/^member:/,''),nama:x.nama||'',rumah:x.rumah||'',
+  wargaId:String(x.id||'').replace(/^member:/i,''),nama:x.nama||'',rumah:x.rumah||'',
   status:x.status==='aktif'?'Aktif':'Nonaktif',hasAvatar:Number(x.hasAvatar||0)===1
  }));
+ // Provide avatar status for dashboard latest-deposit cards as well as history.
+ // The data is joined only by the canonical member ID, never by display name.
+ const adminDepositsWithAvatars=async()=>{
+   const [deposits,members]=await Promise.all([adminDeposits(),adminMembers()]);
+   const byId=new Map(members.map(m=>[String(m.wargaId),m]));
+   return deposits.map(d=>{
+     const member=byId.get(String(d.wargaId));
+     return {...d,rumahWarga:d.rumahWarga||member?.rumah||'',
+       hasAvatar:member?.hasAvatar===true};
+   });
+ };
  const adminOverview=async()=>{
   const [members,items,deposits,sales,ledger,cash,publicInfo]=await Promise.all([
     adminMembers(),adminRows('catalog'),adminDeposits(),adminSales(),
@@ -525,25 +536,39 @@
     totalBeratKg:setoran.reduce((sum,row)=>sum+row.total,0)};
  };
  const bankAdminAccounts=async()=>{
-   // Admin can read members for operational forms. Superadmin uses centralized accounts.
+   // The accounts preview does not include a photo flag. Join its member IDs
+   // to the bank member register, which derives hasAvatar from saved R2 photos.
    let list;
    try {
      const response=await get('/api/superadmin/accounts/preview');
      list=Array.isArray(response.akun)?response.akun:Array.isArray(response.accounts)?response.accounts:onlyArray(response);
    } catch(error) {
-     // Only the account manager needs central credentials; general setoran dropdown can use bank members.
+     // Preserve the original fallback; bank members already carry hasAvatar.
      return adminMembers().then(members=>members.map(x=>({...x,akunId:'',username:'',status:x.status})));
+   }
+   const avatarById=new Map();
+   try {
+     const members=await adminMembers();
+     for(const member of members){
+       const id=String(member.wargaId||'').trim().replace(/^member:/i,'');
+       if(id)avatarById.set(id,member.hasAvatar===true);
+     }
+   } catch(error) {
+     // Accounts stay available if the member directory is temporarily unreachable.
+     console.warn('Status foto anggota belum dapat dibaca:',error);
    }
    return list.filter(x=>!['superadmin','admin'].includes(String(x.role||'').toLowerCase())).map(x=>{
      const status=String(x.status||(!x.perluAktivasi?'Aktif':'Belum Aktif'));
+     const id=String(x.wargaId||x.member_id||x.payerId||'').trim().replace(/^member:/i,'');
      return {
        akunId:String(x.id||x.accountId||x.akunId||''),
-       wargaId:String(x.wargaId||x.member_id||x.payerId||''),
+       wargaId:id,
        nama:String(x.nama||x.name||x.username||''),
        rumah:String(x.rumah||x.house||''),
        username:String(x.username||''),
        status:/^(aktif|active)$/i.test(status)?'Aktif':status,
-       aktif:/^(aktif|active)$/i.test(status)
+       aktif:/^(aktif|active)$/i.test(status),
+       hasAvatar:avatarById.get(id)===true
      };
    });
  };
@@ -641,16 +666,8 @@
    return {kasGabungan:[...byFund.values()].reduce((sum,v)=>sum+v,0),pos:keys.map(key=>({kode:key,nama:titles[key]||key,tersedia:byFund.get(key)||0}))};
   },
   bsV32DetailSetoran:editDepositDetail,
-  bsV6SetoranAdmin:adminDeposits,
-  bsV18RiwayatSetoranAdmin:async()=>{
-   const [deposits,members]=await Promise.all([adminDeposits(),adminMembers()]);
-   const memberMap=new Map(members.map(m=>[String(m.wargaId),m]));
-   return deposits.map(d=>{
-    const member=memberMap.get(String(d.wargaId));
-    return {...d,rumahWarga:d.rumahWarga||member?.rumah||'',
-      hasAvatar:member?.hasAvatar===true};
-   });
-  },
+  bsV6SetoranAdmin:adminDepositsWithAvatars,
+  bsV18RiwayatSetoranAdmin:adminDepositsWithAvatars,
   bsV7PenjualanAdmin:adminSales,
   bsV6BatchAdmin:adminBatches,
   bsV11PublicHome:home,
