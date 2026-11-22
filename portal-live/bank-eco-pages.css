@@ -1728,8 +1728,10 @@ body.f4-bank-app-member #dashboardView .f4-bank-screen{
 #dashboardView .f4-bank-screen-status[hidden]{display:none}
 #dashboardView .f4-bank-month-filter{display:flex;gap:7px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:2px 0 6px}
 #dashboardView .f4-bank-month-filter::-webkit-scrollbar{display:none}
-#dashboardView .f4-bank-month-chip{flex:none;min-height:35px;padding:7px 11px;border:1px solid #dde9e0;border-radius:9px;background:#fff;color:#345d43;font:750 11px system-ui}
-#dashboardView .f4-bank-month-chip.is-active{background:#075d3d;color:#fff;border-color:#075d3d}
+#dashboardView .f4-bank-month-chip{flex:none;min-height:35px;padding:7px 11px;border:1px solid #d8e5df;border-radius:9px;background:#fff;color:#426055;font:750 11px system-ui;cursor:pointer;transition:background-color .14s,border-color .14s,color .14s}
+#dashboardView .f4-bank-month-chip.is-active{background:var(--f4-bank-teal,#009788);color:#fff;border-color:var(--f4-bank-teal,#009788)}
+#dashboardView .f4-bank-month-chip:not(.is-active):hover{background:#f0f8f6;border-color:#9fd6c8;color:#087c70}
+#dashboardView .f4-bank-month-chip:focus-visible{outline:2px solid var(--f4-bank-teal,#009788);outline-offset:2px}
 .f4-bank-history-list{display:grid;gap:0}
 .f4-bank-history-line{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:9px;align-items:center;padding:13px 1px;border-bottom:1px solid #edf2ee}
 .f4-bank-history-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
