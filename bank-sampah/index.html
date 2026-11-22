@@ -1593,7 +1593,7 @@ overflow:visible
 #pageLaporan .f4-report-section{min-width:0;margin:0;border-bottom:1px solid #e8eee9}
 #pageLaporan .f4-report-table-scroll{
   width:100%;overflow-x:auto;overscroll-behavior-x:contain;
-  border:1px solid #ccddd2;border-radius:10px;background:#fff
+  border:1px solid #d7e0df;border-radius:10px;background:#fff
 }
 #pageLaporan table.f4-admin-report-table{
   width:100%;min-width:630px;table-layout:fixed;border-collapse:collapse;
@@ -1619,25 +1619,26 @@ overflow:visible
   #pageLaporan .f4-bank-code-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 #pageLaporan .f4-admin-report-table :is(th,td){
-  box-sizing:border-box;padding:9px 10px;border-right:1px solid #d5e2d9;
-  border-bottom:1px solid #dce8e0;font-size:13px;line-height:1.42;
+  box-sizing:border-box;padding:9px 10px;border-right:1px solid #dce3e3;
+  border-bottom:1px solid #dce3e3;font-size:13px;line-height:1.42;
   text-align:left;vertical-align:middle;overflow-wrap:break-word
 }
-#pageLaporan .f4-admin-report-table tr>:last-child{border-right:1px solid #d5e2d9}
-#pageLaporan .f4-admin-report-table tbody tr:last-child>td{border-bottom:1px solid #dce8e0}
+#pageLaporan .f4-admin-report-table tr>:last-child{border-right:1px solid #dce3e3}
+#pageLaporan .f4-admin-report-table tbody tr:last-child>td{border-bottom:1px solid #dce3e3}
 #pageLaporan .f4-admin-report-table thead th{
-  background:#edf6f0;color:#1d5039;font-weight:750;border-bottom-color:#b7d6c4
+  background:#f1f3f4;color:#344c47;font-weight:750;border-bottom-color:#ccd8d5
 }
-#pageLaporan .f4-admin-report-table tbody tr:nth-child(even){background:#f8fbf9}
-#pageLaporan .f4-admin-report-table tbody tr:hover{background:#eff8f1}
+#pageLaporan .f4-admin-report-table tbody tr:nth-child(even){background:#fafbfc}
+#pageLaporan .f4-admin-report-table tbody tr:hover{background:#f1f7f4}
 #pageLaporan .f4-admin-report-table .f4-report-num{text-align:right;font-variant-numeric:tabular-nums}
 #pageLaporan .f4-admin-report-table .f4-report-center{text-align:center}
 #pageLaporan table.f4-admin-report-table tr.f4-report-period-row{break-after:avoid-page}
 #pageLaporan table.f4-admin-report-table tr.f4-report-period-row>th.f4-report-period-label{
-  padding:5px 9px;background:#e7f2e9;color:#194c34;font-size:12px;
+  padding:5px 9px;background:#edf4ef;color:#235b42;font-size:12px;
   line-height:1.3;font-weight:750;text-align:left;white-space:normal;
-  border:1px solid #bdcfbf;break-after:avoid
+  border:1px solid #cadbd1;break-after:avoid
 }
+#pageLaporan .f4-admin-report-table[data-report-kind="setoran"] td.f4-report-empty-cell{background:#e9eef0;color:transparent}
 #pageLaporan .f4-admin-report-table .f4-report-status{font-weight:700}
 #pageLaporan .f4-admin-report-table [data-state="sah"]{color:#18724d}
 #pageLaporan .f4-admin-report-table [data-state="batal"]{color:#a43b3b}
@@ -1708,7 +1709,7 @@ overflow:visible
     border-right:1px solid #333
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table.f4-admin-report-table tr.f4-report-period-row>th{
-    padding:4px 7px;background:#e7f2e9;color:#194c34;
+    padding:4px 7px;background:#edf4ef;color:#235b42;
     text-align:left;font-size:11px;font-weight:750;white-space:normal;
     break-after:avoid;page-break-after:avoid
   }
@@ -1770,7 +1771,8 @@ overflow:visible
     vertical-align:middle;color:#111
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] td{background:#fff}
-  body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] th{background:#edf6f0}
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] td.f4-report-empty-cell{background:#e9eef0;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] th{background:#f1f3f4}
   body.f4-bank-single-print.f4-bank-print-admin #v10Print table[data-report-kind="setoran"] :is(th,td):nth-child(2){
     white-space:normal;overflow-wrap:break-word
   }
@@ -3263,8 +3265,12 @@ if(!roster.childElementCount){const empty=document.createElement('p');empty.clas
         const td=document.createElement('td');td.dataset.label=label;
         const value=key==='no'?rowIndex+1:record[key];
         if(kind==='setoran'){
+          if(key.startsWith('item_')&&!(Number(value)>0)){
+            td.classList.add('f4-report-empty-cell');
+            td.setAttribute('aria-label',label+': tidak ada setoran');
+          }
           td.textContent=key.startsWith('item_')?(Number(value)>0?
-            Number(value).toLocaleString('id-ID',{maximumFractionDigits:3}):'—'):
+            Number(value).toLocaleString('id-ID',{maximumFractionDigits:3}):''):
             key==='total'?(Number(value)||0).toLocaleString('id-ID',{maximumFractionDigits:3}):
             key==='tanggal'&&/^\d{4}-\d{2}-\d{2}$/.test(String(value||''))?
               String(value).slice(8,10)+'/'+String(value).slice(5,7)+'/'+String(value).slice(2,4):
@@ -7224,7 +7230,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-member-clean-atm-v5">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261122-report-chart-v11">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261122-bright-bank-palette-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261122-member-clean-atm-v5">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
@@ -7237,7 +7243,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
-<script defer src="/portal-live/bank-admin-analytics.js?v=20261122-waste-donut-v10"></script>
+<script defer src="/portal-live/bank-admin-analytics.js?v=20261122-report-chart-v11"></script>
 
 <script id="f4-bank-public-clean-anchors">
 (()=>{
