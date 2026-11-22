@@ -244,7 +244,13 @@
       const data = await read('payment-monitor',{period},controller.signal);
       if (request !== controller) return;
       model = data;
-      el('payer').replaceChildren(new Option('Semua warga',''),...data.records.map(r => new Option([r.nama,r.rumah,r.active?'':'Nonaktif'].filter(Boolean).join(' · '),r.id)));
+      const payerOptions = data.records.map(r => {
+        const opt = new Option([r.nama,r.rumah,r.active?'':'Nonaktif'].filter(Boolean).join(' · '),r.id);
+        opt.dataset.residentName = r.nama || '';
+        opt.dataset.residentHouse = r.rumah || '';
+        return opt;
+      });
+      el('payer').replaceChildren(new Option('Semua warga',''),...payerOptions);
       el('payer').value = data.records.some(r => r.id === previousId) ? previousId : '';
       el('payer').disabled = false;
       window.refreshAllCustomSelects?.();
