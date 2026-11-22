@@ -586,6 +586,10 @@ body.f4-bank-app-member #dashboardView{--bank-brand:var(--f4-bank-teal,#009e91);
  font-size:11px;vertical-align:middle;margin-left:7px
 }
 #dashboardView .f4-bank-activity-crown.is-compact svg{width:13px;height:13px}
+@media(max-width:600px){
+ #dashboardView .f4-bank-member-card.has-activity-crown .f4-bank-atm-contactless{display:none}
+ #dashboardView .f4-bank-member-card.has-activity-crown .f4-bank-atm-brand-label{font-size:11px}
+}
 #dashboardView .f4-bank-atm-contactless{
  display:grid;place-items:center;flex:none;width:32px;height:32px;
  color:#fff;opacity:.95;transform:none
