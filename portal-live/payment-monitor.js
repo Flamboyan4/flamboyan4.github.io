@@ -40,10 +40,9 @@
 
   function render() {
     if (!model) return;
-    const payerId = el('payer').value, chosenStatus = el('status').value;
+    const payerId = el('payer').value;
     const residents = model.records.filter(row => !payerId || row.id === payerId);
     const rows = residents.map(amounts);
-    const visible = rows.filter(row => (payerId || row.member.active || row.paid) && (!chosenStatus || chosenStatus === row.state || (chosenStatus === 'paid' && row.paid > 0)));
     for (const key of ['paid','due','balance']) {
       el(key).textContent = rupiah.format(rows.reduce((sum,row) => sum + row[key], 0));
     }
@@ -61,36 +60,135 @@
       return li;
     }));
     el('components-caption').textContent = periodLabel;
-    el('components').replaceChildren(...Object.entries(names).map(([type,name]) => {
-      const div = node('div'); div.append(node('dt',name),node('dd',rupiah.format(residents.reduce((sum,r) => sum+(r.paid[type]||0),0))));
-      return div;
-    }));
-    el('count').textContent = visible.length + ' warga · ' + periodLabel;
-    el('rows').replaceChildren(...visible.map(({member,state,paid,balance}) => {
-      const tr = node('tr'), identity = node('th'), tag = node('td');
-      identity.scope = 'row';
-      identity.append(node('strong',member.nama),node('small', [member.rumah,member.active ? '' : 'Nonaktif'].filter(Boolean).join(' · ')));
-      const badge = node('span',states[state],'pm-status'); badge.dataset.state = state; tag.append(badge);
-      if (member.review) tag.append(node('small','Ada pembayaran atas ID lain di rumah ini.'));
-      const amountCell = node('td',rupiah.format(paid)), balanceCell = node('td',rupiah.format(balance));
-      amountCell.dataset.label = 'Terbayar'; balanceCell.dataset.label = 'Sisa';
-      tr.append(identity,tag,amountCell,balanceCell); return tr;
-    }));
-    if (!visible.length) {
-      const empty = node('tr'), td = node('td','Tidak ada warga yang cocok dengan filter ini.','pm-empty');
-      td.colSpan = 4; empty.append(td); el('rows').append(empty);
-    }
+    el('components').replaceChildren(...Object.entries(names)
+      .filter(([type]) => type !== 'KEBERSIHAN' || model.period < '2026-12' ||
+        residents.some(r => (r.paid[type] || 0) > 0))
+      .map(([type,name]) => {
+        const div = node('div');
+        div.append(node('dt',name),node('dd',rupiah.format(residents.reduce((sum,r) => sum+(r.paid[type]||0),0))));
+        return div;
+      }));
     el('export').disabled = !payerId || exportInProgress;
     el('export-info').textContent = '';
     renderYear();
   }
 
+  let activeDetail = null;
+  const statementCache = new Map();
+  const formatDate = value => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return String(value || '—');
+    return new Date(value + 'T12:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+  };
+  function closeDetail() {
+    if (!activeDetail) return;
+    activeDetail.anchor.setAttribute('aria-expanded','false');
+    activeDetail.popup.remove();
+    activeDetail = null;
+  }
+  function positionDetail() {
+    if (!activeDetail) return;
+    const {anchor,popup} = activeDetail, rect = anchor.getBoundingClientRect();
+    const width = popup.offsetWidth, height = popup.offsetHeight;
+    const left = Math.max(8,Math.min(rect.left+rect.width/2-width/2,window.innerWidth-width-8));
+    const below = rect.bottom+12+height <= window.innerHeight-8 || rect.top < height+20;
+    const top = below ? Math.max(8,Math.min(rect.bottom+12,window.innerHeight-height-8))
+      : Math.max(8,rect.top-height-12);
+    popup.style.left = Math.round(left) + 'px';
+    popup.style.top = Math.round(top) + 'px';
+    popup.style.setProperty('--pm-pointer-x',Math.max(15,Math.min(width-15,rect.left+rect.width/2-left))+'px');
+    popup.dataset.placement = below ? 'bottom' : 'top';
+  }
+  function getStatement(id) {
+    if (!statementCache.has(id)) {
+      const job = read('resident-statement',{payerId:id}).catch(error => {
+        statementCache.delete(id);
+        throw error;
+      });
+      statementCache.set(id,job);
+    }
+    return statementCache.get(id);
+  }
+  function openDetail(anchor, member, entry, state) {
+    if (activeDetail?.anchor === anchor) {closeDetail();return;}
+    closeDetail();
+    const paid = total(entry.paid), due = total(entry.due);
+    const balance = Object.entries(entry.due).reduce((sum,[type,amount]) =>
+      sum + Math.max(0,amount-(entry.paid[type]||0)),0);
+    const popup = node('section',null,'pm-detail-popover');
+    popup.setAttribute('role','dialog');
+    popup.setAttribute('aria-label','Rincian pembayaran '+member.nama+' '+monthName(entry.period,'long'));
+    const heading = node('div',null,'pm-detail-heading');
+    const title = node('div');
+    title.append(node('strong',member.nama),node('small',[member.rumah,monthName(entry.period,'long')].filter(Boolean).join(' · ')));
+    const close = node('button','×','pm-detail-close');
+    close.type='button';close.setAttribute('aria-label','Tutup rincian');close.addEventListener('click',closeDetail);
+    heading.append(title,close);
+    const badge = node('span',states[state],'pm-status');badge.dataset.state=state;
+    const metrics = node('dl',null,'pm-detail-metrics');
+    for (const [label,value] of [['Terbayar',paid],['Kewajiban',due],['Sisa',balance]]) {
+      const item=node('div');item.append(node('dt',label),node('dd',rupiah.format(value)));metrics.append(item);
+    }
+    const breakdown = node('div',null,'pm-detail-breakdown');
+    breakdown.append(node('strong','Rincian pos'));
+    const items = Object.entries(names).filter(([type]) => (entry.due[type]||0)>0 || (entry.paid[type]||0)>0);
+    if (!items.length) breakdown.append(node('p','Tidak ada kewajiban tercatat untuk periode ini.'));
+    else for (const [type,label] of items) {
+      const item=node('div');
+      item.append(node('span',label),node('b',rupiah.format(entry.paid[type]||0)+' / '+rupiah.format(entry.due[type]||0)));
+      breakdown.append(item);
+    }
+    const dates = node('div',null,'pm-detail-dates');
+    dates.append(node('strong','Tanggal pembayaran'));
+    const dateContents=node('div',null,'pm-detail-date-list');
+    dateContents.append(node('p',paid > 0 ? 'Memuat tanggal transaksi…' :
+      state === 'archive' ? 'Riwayat sebelum data portal belum tersedia.' :
+      state === 'future' ? 'Belum jatuh tempo dan belum ada pembayaran.' :
+      'Belum ada pembayaran yang dialokasikan.'));
+    dates.append(dateContents);
+    popup.append(heading,badge,metrics,breakdown,dates);
+    document.body.append(popup);
+    activeDetail={anchor,popup};
+    anchor.setAttribute('aria-expanded','true');
+    positionDetail();
+    if (paid <= 0) return;
+    getStatement(member.id).then(statement => {
+      if (activeDetail?.popup !== popup) return;
+      const perDate=new Map();
+      for (const a of statement.allocations || []) {
+        if (a.period_year+'-'+String(a.period_month).padStart(2,'0') !== entry.period ||
+            a.payment_status !== 'aktif' || a.allocation_status !== 'aktif' || Number(a.amount_rp)<=0) continue;
+        perDate.set(a.paid_on,(perDate.get(a.paid_on)||0)+Number(a.amount_rp));
+      }
+      dateContents.replaceChildren();
+      if (!perDate.size) dateContents.append(node('p','Tanggal transaksi belum tersedia di riwayat aktif.'));
+      else [...perDate].sort(([a],[b])=>a.localeCompare(b)).forEach(([date,amount]) => {
+        const item=node('div');
+        item.append(node('span',formatDate(date)),node('b',rupiah.format(amount)));
+        dateContents.append(item);
+      });
+      positionDetail();
+    }).catch(error => {
+      if (activeDetail?.popup !== popup) return;
+      dateContents.replaceChildren(node('p','Tanggal tidak dapat dimuat: '+error.message));
+      positionDetail();
+    });
+  }
+  document.addEventListener('pointerdown',event => {
+    if (activeDetail && !activeDetail.popup.contains(event.target) &&
+        !activeDetail.anchor.contains(event.target)) closeDetail();
+  });
+  document.addEventListener('keydown',event => {if (event.key==='Escape') closeDetail();});
+  window.addEventListener('scroll',closeDetail,true);
+  window.addEventListener('resize',closeDetail);
+
   function renderYear() {
+    closeDetail();
     if (!yearModel) return;
     const selected = el('payer').value;
     const residents = yearModel.records.filter(row => !selected || row.id === selected);
-    el('year-count').textContent = residents.length + ' warga · ' + yearModel.period.slice(0,4) + ' · Data portal sejak ' + monthName(yearModel.firstMonth,'long');
-    const grid = el('year-grid'); grid.replaceChildren();
+    el('year-count').textContent = residents.length + ' warga · ' + yearModel.period.slice(0,4) +
+      ' · Data portal sejak ' + monthName(yearModel.firstMonth,'long');
+    const grid = el('year-grid');grid.replaceChildren();
     const header = node('div',null,'pm-year-row pm-year-header');
     header.append(node('strong','Warga'));
     for (const period of yearModel.months) header.append(node('span',monthName(period,'short').split(' ')[0]));
@@ -100,16 +198,20 @@
       const name = node('strong',member.nama); name.append(node('small',member.rumah));row.append(name);
       for (const entry of member.years) {
         const paid = total(entry.paid), due = total(entry.due);
+        const balance = Object.entries(entry.due).reduce((sum,[type,amount]) =>
+          sum+Math.max(0,amount-(entry.paid[type]||0)),0);
         const state = entry.period < yearModel.firstMonth && !paid ? 'archive' :
-          !due ? (paid ? 'recorded' : 'exempt') : paid >= due ? 'settled' : paid ? 'partial' : entry.period > yearModel.today ? 'future' : 'unpaid';
+          !due ? (paid ? 'recorded' : 'exempt') : balance === 0 ? 'settled' : paid ? 'partial' :
+          entry.period > yearModel.today ? 'future' : 'unpaid';
         const cell = node('button',null,'pm-month-cell');cell.type = 'button';cell.dataset.state = state;
-        cell.setAttribute('aria-label', member.nama + ', ' + monthName(entry.period,'long') + ', ' + states[state]);
-        cell.title = states[state] + ' · ' + monthName(entry.period,'long');
+        cell.setAttribute('aria-label',member.nama+', '+monthName(entry.period,'long')+', '+states[state]+'. Lihat rincian.');
+        cell.setAttribute('aria-haspopup','dialog');
+        cell.setAttribute('aria-expanded','false');
+        cell.title = states[state] + ' · Klik untuk rincian';
         const marks = {settled:'<path d="m4 9 3 3 6-7"/>',partial:'<circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 4"/>',unpaid:'<path d="M3 8h10"/>',future:'<circle cx="8" cy="8" r="6"/>',exempt:'<path d="M3 8h10"/>',recorded:'<path d="m4 9 3 3 6-7"/>',review:'<path d="M8 2v7m0 3v1"/>',archive:'<path d="M3 5h10M3 8h10M3 11h7"/>'};
         const mark = node('b');mark.innerHTML='<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+marks[state]+'</svg>';
-        cell.append(node('span',monthName(entry.period,'short').split(' ')[0]),mark);
-        cell.disabled = state === 'archive';
-        if (!cell.disabled) cell.onclick = async () => {el('payer').value=member.id;el('month').value=entry.period;await load();el('content').scrollIntoView({block:'start',behavior:'smooth'});};
+        cell.append(mark);
+        cell.addEventListener('click',()=>openDetail(cell,member,entry,state));
         row.append(cell);
       }
       grid.append(row);
@@ -178,8 +280,6 @@
     }
   }
 
-  el('status').add(new Option('Sudah bayar (semua)','paid'));
-  for (const [value,label] of Object.entries(states)) if (value !== 'archive') el('status').add(new Option(label,value));
   el('month').value = new Date(Date.now()+7*3600000).toISOString().slice(0,7);
   const currentYear = Number(el('month').value.slice(0,4));
   for (let year = currentYear; year >= 2026; year--) el('year').add(new Option(String(year),String(year)));
@@ -187,7 +287,6 @@
   el('month').addEventListener('change',load);
   el('retry').addEventListener('click',load);
   el('payer').addEventListener('change',render);
-  el('status').addEventListener('change',render);
   el('export').addEventListener('click',download);
   window.F4PaymentMonitor = {open:() => {load();loadYear();}};
 })();
