@@ -1,8 +1,0 @@
-/*
- * Build-only Tailwind entry. The live frontend still uses the existing CDN.
- * Compile with Tailwind 3.4.17; Tailwind 4 changes default styles and requires
- * a separate visual migration.
- */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
