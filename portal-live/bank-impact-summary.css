@@ -114,13 +114,13 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
- background-color:#b0efd5;background-image:url('/assets/icons/user.svg')
+ background-color:#90deb1;background-image:url('/assets/icons/user.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
- background-color:#b5e4ff;background-image:url('/assets/icons/inventory.svg')
+ background-color:#b4beff;background-image:url('/assets/icons/inventory.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
- background-color:#d4caff;background-image:url('/assets/icons/calendar.svg')
+ background-color:#e6afe4;background-image:url('/assets/icons/calendar.svg')
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]::before{
  background-color:#ffdf7a;background-image:url('/assets/icons/bank.svg')
@@ -137,7 +137,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
  grid-column:auto;min-height:106px;padding:14px;
- border-color:#b8e2cb;background:#fff;border-top:3px solid #09a56a
+ border-color:#b8e2cb;background:#fff;border-top:3px solid #43a047
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
  background-color:#79e0ac
@@ -149,10 +149,10 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  color:#07583d
 }
 /* The KPI backgrounds communicate category without extra card-in-card frames. */
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#fff;border-color:#cbe6f7;border-top:3px solid #168fcc}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#fff;border-color:#dad0fb;border-top:3px solid #8561da}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #f0b300}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#fff;border-color:#b7e5ce;border-top:3px solid #20b86b}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#fff;border-color:#cbe6f7;border-top:3px solid #5969da}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#fff;border-color:#dad0fb;border-top:3px solid #b452ba}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #fdc010}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#fff;border-color:#b7e5ce;border-top:3px solid #43a047}
 @media(max-width:1100px){
  #v11Public .v17-public-main>.v17-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr))
