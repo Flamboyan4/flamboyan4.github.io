@@ -4,6 +4,8 @@
 (()=>{
 "use strict";
 const $=id=>document.getElementById(id);
+// One bright waste-type palette shared with the manager's chart.
+const F4_BANK_WASTE_PALETTE=Object.freeze(["#009788","#43A047","#FDC010","#09BCD3","#5969DA","#EB6A48","#8BC24A","#277FC6","#B452BA","#CA8B22","#22A97F","#D94880","#426CB8","#CE6B43","#799126","#368EAA","#C44256","#7B62B8"]);
 const el=(tag,cls,text)=>{
   const node=document.createElement(tag);if(cls)node.className=cls;
   if(text!==undefined)node.textContent=text;return node;
@@ -1111,7 +1113,7 @@ function renderLatestComposition(){
  donut.append(center);
  const detail=el("div","f4-bank-latest-categories");
  if(validBreakdown){
-  const palette=["#009688","#ffc411","#4285d4","#eb8b39","#8c62bf","#77b85b","#d76583"];
+  const palette=F4_BANK_WASTE_PALETTE;
   let start=0;
   const stops=[];
   for(const [index,[name,weight]] of items.entries()){
@@ -1183,7 +1185,7 @@ function renderCategoryTotals(){
    "Rincian jenis sampah belum tersedia.":"Belum ada setoran tercatat."));return;
  }
  const panel=el("div","f4-bank-category-rows");
- const colors=["#009688","#ffc411","#4285d4","#eb8b39","#8c62bf","#76ad56","#d76583"];
+ const colors=F4_BANK_WASTE_PALETTE;
  const max=categories[0].weight||1;
  const limit=expanded?categories.length:4;
  for(const [index,item] of categories.slice(0,limit).entries()){
