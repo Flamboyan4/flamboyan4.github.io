@@ -2250,7 +2250,7 @@ function showAdminCash(){
    button.type="button";button.dataset.cashTab=key;
    button.onclick=()=>{
     adminCashTab=key;
-    if(key==="out"&&window.matchMedia("(max-width:1023px)").matches){
+    if(key==="out"&&window.matchMedia("(max-width:1099px)").matches){
      const form=$("f4BankCashExpenseDisclosure");if(form)form.open=true;
     }
     loadAdminCash();
