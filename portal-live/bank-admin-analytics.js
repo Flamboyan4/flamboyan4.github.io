@@ -20,7 +20,7 @@
  const svg=(name)=>{
   const paths={
    chart:'<path d="M3 3v18h18M7 16l4-5 4 3 5-8"/>',
-   recycle:'<path d="M7 7h9l-2.3-3M16 7l-3-5M16 17H6l2 3M6 17l3 5M4 10l-2 4 2 3h4M20 15l2-4-2-3h-4"/>',
+   package:'<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/>',
    users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 1 0-1-6M17 15a5 5 0 0 1 4 5"/>',
    scale:'<path d="M12 3v18M4 7l8-4 8 4M4 7l-3 6h6zM20 7l-3 6h6zM6 21h12"/>',
    refresh:'<path d="M20 11a8 8 0 0 0-14.9-4L3 9m0-5v5h5M4 13a8 8 0 0 0 14.9 4L21 15m0 5v-5h-5"/>',
@@ -194,10 +194,10 @@
   add(metrics,makeMetric('scale','Berat',fmtKg(totalKg)),
     makeMetric('chart','Setoran',fmtInt(filtered.length)),
     makeMetric('users','Warga aktif',fmtInt(uniqueActive.size)+' / '+fmtInt(state.member?1:d.members.length)),
-    makeMetric('recycle','Terbanyak',categories[0]?.name||'—'));
+    makeMetric('package','Terbanyak',categories[0]?.name||'—'));
   results.append(metrics);
   const charts=node('div','f4-analisis-charts');
-  const trendBox=node('section','f4-analisis-panel');trendBox.id=cls+'-section-trend';
+  const trendBox=node('section','f4-analisis-panel f4-analisis-trend-panel');trendBox.id=cls+'-section-trend';
   const trendHead=node('div','f4-analisis-panel-head');
   const trendIntro=node('h3','','Tren Setoran');
   const trendMode=node('label','f4-analisis-trend-filter');
@@ -314,18 +314,19 @@
   const report=$('pageLaporan');if(!report)return false;
   if($(cls+'-tabs'))return true;
   const heading=report.querySelector(':scope > h2');
+  const tabRow=node('div','f4-analisis-toprow');
   const tabs=node('div','f4-analisis-tabs');tabs.id=cls+'-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Jenis laporan pengelola');
   const official=node('button','is-active','Laporan Resmi');official.type='button';official.setAttribute('role','tab');official.setAttribute('aria-selected','true');official.id=cls+'-tab-official';
   const analysis=node('button','','Analisis Setoran');analysis.type='button';analysis.setAttribute('role','tab');analysis.setAttribute('aria-selected','false');analysis.id=cls+'-tab-analysis';
   tabs.append(official,analysis);
   // Pertahankan semua elemen laporan resmi di posisi semula agar CSS dan handler lama tidak berubah.
   const content=node('section','f4-analisis-content');content.id=cls+'-content';content.hidden=true;content.setAttribute('role','tabpanel');content.setAttribute('aria-labelledby',analysis.id);
-  const syncOfficial=()=>Array.from(report.children).filter(el=>el!==heading&&el!==tabs&&el!==content)
+  const syncOfficial=()=>Array.from(report.children).filter(el=>el!==heading&&el!==tabRow&&el!==content)
    .forEach(el=>el.classList.toggle('f4-analisis-official-off',state.tab==='analysis'));
-  const titlebar=node('div','f4-analisis-titlebar');
-  const title=node('h3','','Analisis Setoran');
-  const refresh=node('button','f4-analisis-refresh');refresh.id=cls+'-refresh';refresh.type='button';add(refresh,svg('refresh'),node('span','','Muat ulang'));refresh.onclick=()=>ensureData(true);
-  titlebar.append(title,refresh);
+  const refresh=node('button','f4-analisis-refresh');refresh.id=cls+'-refresh';refresh.type='button';
+  refresh.setAttribute('aria-label','Muat ulang analisis');refresh.title='Muat ulang';
+  refresh.append(svg('refresh'));refresh.onclick=()=>ensureData(true);
+  tabRow.append(tabs,refresh);
   const controls=node('div','f4-analisis-controls');
   function picker(id,label){const cell=node('label','f4-analisis-filter');cell.append(node('span','',label));const select=node('select');select.id=cls+'-'+id;cell.append(select);return cell;}
   controls.append(picker('from','Dari'),picker('to','Sampai'),picker('member','Warga'),picker('item','Barang'));
@@ -333,8 +334,8 @@
   const selection=node('div','f4-analisis-selection');selection.id=cls+'-selection';selection.hidden=true;
   const alert=node('div','f4-analisis-status');alert.id=cls+'-status';alert.setAttribute('role','status');alert.setAttribute('aria-live','polite');alert.hidden=true;
   const results=node('div','f4-analisis-results');results.id=cls+'-results';
-  content.append(titlebar,controls,selection,alert,results);
-  if(heading)heading.after(tabs);else report.prepend(tabs);
+  content.append(controls,selection,alert,results);
+  if(heading)heading.after(tabRow);else report.prepend(tabRow);
   report.append(content);
   syncOfficial();
   // Komponen laporan resmi lain dapat ditambahkan sesudah mount; tetap sembunyikan hanya saat tab analisis aktif.

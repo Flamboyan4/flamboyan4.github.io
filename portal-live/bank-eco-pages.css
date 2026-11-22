@@ -3990,28 +3990,26 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 /* Analisis setoran admin: satu pemilik gaya di bank-eco-pages.css (2026-11-22).
    Semua aturan hanya berlaku pada halaman laporan pengelola. */
 @media(min-width:1024px){#pageLaporan.f4-analisis-page-active{box-sizing:border-box;max-width:900px;margin-left:auto;margin-right:auto}}
-#pageLaporan .f4-analisis-tabs{display:flex;gap:5px;margin:12px 0 18px;padding:4px;border-radius:13px;background:#edf6ef;max-width:420px}
+#pageLaporan .f4-analisis-toprow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 13px;min-width:0}
+#pageLaporan .f4-analisis-tabs{display:flex;gap:5px;margin:0;padding:4px;border-radius:13px;background:#e9f6f1;max-width:420px;flex:1 1 340px}
 #pageLaporan .f4-analisis-tabs button{flex:1;min-width:0;padding:10px 12px;border:0;border-radius:10px;background:transparent;color:#3a6250;font-size:13px;font-weight:750;line-height:1.3;box-shadow:none;white-space:nowrap}
-#pageLaporan .f4-analisis-tabs button.is-active{background:#fff;color:#168451;box-shadow:0 2px 8px #07563714}
-#pageLaporan .f4-analisis-tabs button:focus-visible{outline:2px solid #078b61;outline-offset:2px}
+#pageLaporan .f4-analisis-tabs button.is-active{background:#009788;color:#fff;box-shadow:0 2px 8px #007e7226}
+#pageLaporan .f4-analisis-tabs button:focus-visible{outline:2px solid #009788;outline-offset:2px}
 #pageLaporan>.f4-analisis-official-off,#pageLaporan #f4-analisis-content[hidden],#pageLaporan #f4-analisis-status[hidden],#pageLaporan #f4-analisis-selection[hidden]{display:none}
 #pageLaporan .f4-analisis-content{display:grid;gap:10px;min-width:0}
-#pageLaporan .f4-analisis-titlebar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
-#pageLaporan .f4-analisis-titlebar h3{margin:0;color:#155d3b;font-size:19px;line-height:1.3;font-weight:800}
-
-#pageLaporan .f4-analisis-refresh{display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;border:1px solid #c7dfcd;border-radius:10px;background:#fff;color:#197b50;padding:9px 11px;font-size:12px;font-weight:750}
+#pageLaporan .f4-analisis-refresh{display:inline-flex;align-items:center;justify-content:center;flex:none;width:38px;height:38px;padding:0;border:1px solid #b7dcd6;border-radius:10px;background:#fff;color:#009788;box-shadow:none}
 #pageLaporan .f4-analisis-refresh svg{width:16px;height:16px}
 #pageLaporan .f4-analisis-refresh:disabled{opacity:.45;cursor:wait}
 #pageLaporan .f4-analisis-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;gap:10px}
 #pageLaporan .f4-analisis-filter{display:grid;align-content:start;gap:5px;min-width:0;margin:0}
 #pageLaporan .f4-analisis-filter>span{color:#527263;font-size:12px;font-weight:750}
 #pageLaporan .f4-analisis-filter select{appearance:none;display:block;width:100%;min-width:0;height:40px;border:1px solid #d1e4d8;border-radius:10px;padding:0 30px 0 11px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2343a047' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 9px center;background-repeat:no-repeat;color:#174b32;font:inherit;font-size:13px;font-weight:650}
-#pageLaporan .f4-analisis-filter select:focus-visible{outline:2px solid #0d9a6b;outline-offset:1px}
+#pageLaporan .f4-analisis-filter select:focus-visible{outline:2px solid #009788;outline-offset:1px}
 #pageLaporan .f4-analisis-mode-row{display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:0;border:0;flex-wrap:wrap}
 #pageLaporan .f4-analisis-mode-row>strong{color:#426352;font-size:12px;white-space:nowrap}
 #pageLaporan .f4-analisis-ranking{display:flex;gap:4px;flex:1;min-width:0}
 #pageLaporan .f4-analisis-ranking button{padding:8px 10px;border-radius:9px;border:1px solid #dceade;background:#fff;color:#476a57;font-size:13px;font-weight:700;line-height:1.35;white-space:nowrap}
-#pageLaporan .f4-analisis-ranking button.is-active{background:#43a047;border-color:#43a047;color:#fff}
+#pageLaporan .f4-analisis-ranking button.is-active{background:#009788;border-color:#009788;color:#fff}
 #pageLaporan .f4-analisis-ranking button:disabled{opacity:.4}
 #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%}
 #pageLaporan .f4-analisis-status{padding:11px 13px;border-radius:9px;background:#e7f6ec;color:#176341;font-size:12px;line-height:1.5}
@@ -4025,8 +4023,8 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-metric-head{display:flex;align-items:center;gap:7px;color:#477360;font-size:11px;line-height:1.3;font-weight:650}
 #pageLaporan .f4-analisis-metric-head svg{width:17px;height:17px;flex:none;color:#43a047}
 #pageLaporan .f4-analisis-metric strong{display:block;overflow-wrap:anywhere;color:#116a47;font-size:19px;line-height:1.3;margin-top:7px;font-weight:800}
-#pageLaporan .f4-analisis-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;align-items:start}
-#pageLaporan .f4-analisis-lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:12px;min-width:0;align-items:start}
+#pageLaporan .f4-analisis-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;align-items:stretch}
+#pageLaporan .f4-analisis-lower{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0;align-items:stretch}
 #pageLaporan .f4-analisis-panel{min-width:0;border:1px solid #e2eee6;border-radius:13px;padding:13px;background:#fff}
 #pageLaporan .f4-analisis-panel h3{margin:0;color:#174d34;font-size:17px;line-height:1.35;font-weight:800}
 #pageLaporan .f4-analisis-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:12px}
@@ -4040,20 +4038,22 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-trend-value{color:#3b7356;font-size:10px;font-weight:700;white-space:nowrap}
 #pageLaporan .f4-analisis-trend-track{height:128px;width:64%;max-width:40px;display:flex;align-items:flex-end;justify-content:center;border-radius:7px;background:#eff5f0;overflow:hidden}
 #pageLaporan .f4-analisis-trend-bar{width:100%;border-radius:7px 7px 2px 2px;background:linear-gradient(0deg,#238a54,#8bc24a);min-height:5px}
-#pageLaporan .f4-analisis-types{display:flex;flex-direction:column;height:280px;overflow:hidden}
+#pageLaporan .f4-analisis-trend-panel,#pageLaporan .f4-analisis-types{box-sizing:border-box;height:280px;min-height:0}
+#pageLaporan .f4-analisis-types{display:flex;flex-direction:column;overflow:hidden}
 #pageLaporan .f4-analisis-types>h3,#pageLaporan .f4-analisis-types>.f4-analisis-section-lead{flex:none}
 #pageLaporan .f4-analisis-type-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #pageLaporan .f4-analisis-type-scroll::-webkit-scrollbar{display:none}
 #pageLaporan .f4-analisis-type-scroll:focus-visible{outline:2px solid #43a047;outline-offset:-2px}
 #pageLaporan .f4-analisis-type-note{flex:none;margin:7px 0 0;color:#718879;font-size:11px;line-height:1.3}
 #pageLaporan .f4-analisis-rankrow{display:block;width:100%;padding:7px 0;border:0;border-radius:0;background:transparent;text-align:left;color:#245b3c}
-#pageLaporan .f4-analisis-rankrow.is-selected{background:#f0f8f0;border-radius:8px;padding-inline:6px}
+#pageLaporan .f4-analisis-rankrow.is-selected{background:#e9f7f4;border-radius:8px;padding-inline:6px}
 #pageLaporan .f4-analisis-rankrow-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;line-height:1.3}
 #pageLaporan .f4-analisis-rankrow-head>span{min-width:0;overflow-wrap:anywhere}
 #pageLaporan .f4-analisis-rankrow-head strong{flex:none;font-variant-numeric:tabular-nums;font-size:13px}
 #pageLaporan .f4-analisis-horizontal-track{height:9px;border-radius:99px;background:#eaf2eb;overflow:hidden;margin-top:6px}
 #pageLaporan .f4-analisis-horizontal-fill{height:100%;border-radius:99px;background:#43a047}
-#pageLaporan .f4-analisis-people-list{display:grid;gap:0;max-height:390px;overflow-y:auto;scrollbar-width:none}
+#pageLaporan .f4-analisis-people,#pageLaporan .f4-analisis-detail{box-sizing:border-box;height:435px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#pageLaporan .f4-analisis-people-list{display:grid;gap:0;flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none}
 #pageLaporan .f4-analisis-people-list::-webkit-scrollbar{display:none}
 #pageLaporan .f4-analisis-person{display:grid;grid-template-columns:31px minmax(0,1fr) auto;grid-template-rows:auto 4px;gap:4px 10px;width:100%;padding:9px 5px;border:0;border-bottom:1px solid #edf2ef;border-radius:0;background:transparent;color:#194f33;text-align:left}
 #pageLaporan .f4-analisis-person.is-selected{background:#eef9f0}
@@ -4065,8 +4065,8 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-person-value{align-self:center;font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums}
 #pageLaporan .f4-analisis-person-progress{grid-column:2/4;grid-row:2;height:4px;overflow:hidden;border-radius:99px;background:#eaf3eb}
 #pageLaporan .f4-analisis-person-progress div{height:100%;border-radius:99px;background:#009788}
-#pageLaporan .f4-analisis-more{display:block;width:auto;margin:12px auto 0;padding:8px 12px;border:1px solid #cbe4d3;border-radius:9px;background:#fff;color:#208453;font-size:12px;font-weight:750}
-#pageLaporan .f4-analisis-detail-list{max-height:430px;overflow-y:auto;scrollbar-width:none}
+#pageLaporan .f4-analisis-more{display:block;flex:none;width:auto;margin:9px auto 0;padding:8px 12px;border:1px solid #009788;border-radius:9px;background:#009788;color:#fff;font-size:12px;font-weight:750}
+#pageLaporan .f4-analisis-detail-list{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:none}
 #pageLaporan .f4-analisis-detail-list::-webkit-scrollbar{display:none}
 #pageLaporan .f4-analisis-record{border-bottom:1px solid #e4ede7}
 #pageLaporan .f4-analisis-record-summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;padding:13px 4px;color:#21573b}
@@ -4085,15 +4085,15 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
  #pageLaporan .f4-analisis-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  #pageLaporan .f4-analisis-charts,#pageLaporan .f4-analisis-lower{grid-template-columns:minmax(0,1fr)}
- #pageLaporan .f4-analisis-people-list,#pageLaporan .f4-analisis-detail-list{max-height:none;overflow:visible}
+ #pageLaporan .f4-analisis-people,#pageLaporan .f4-analisis-detail{height:auto;overflow:visible}
+ #pageLaporan .f4-analisis-people-list,#pageLaporan .f4-analisis-detail-list{max-height:none;overflow:visible;flex:none}
  #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%}
 }
 @media(max-width:520px){
- #pageLaporan .f4-analisis-tabs{max-width:none;margin:8px 0 12px}
+ #pageLaporan .f4-analisis-toprow{margin:8px 0 12px}
+ #pageLaporan .f4-analisis-tabs{max-width:none;margin:0}
  #pageLaporan .f4-analisis-content{gap:12px}
- #pageLaporan .f4-analisis-titlebar h3{font-size:15px}
- #pageLaporan .f4-analisis-titlebar p{font-size:11px}
- #pageLaporan .f4-analisis-refresh{padding:9px;min-width:36px}
+ #pageLaporan .f4-analisis-refresh{width:38px;height:38px;min-width:38px}
  #pageLaporan .f4-analisis-refresh span{display:none}
  #pageLaporan .f4-analisis-controls{gap:8px}
  #pageLaporan .f4-analisis-filter select{font-size:12px}
@@ -4104,6 +4104,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-metric{padding:11px}
  #pageLaporan .f4-analisis-metric strong{font-size:16px}
  #pageLaporan .f4-analisis-panel{padding:12px}
+ #pageLaporan .f4-analisis-trend-panel{height:auto}
  #pageLaporan .f4-analisis-types{height:300px}
  #pageLaporan .f4-analisis-person{gap:5px 7px;grid-template-columns:28px minmax(0,1fr) auto}
  #pageLaporan .f4-analisis-person-value{font-size:11px}
