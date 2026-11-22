@@ -2470,27 +2470,30 @@ body.f4-bank-app-admin #sideNav .f4-bank-desktop-nav-link>.f4-bank-alert-badge{
  top:50%;right:8px;transform:translateY(-50%)
 }
 
+/* Riwayat pengelola: satu halaman, dua panel scroll mandiri berukuran sama. */
 #dashboardView #bank-admin-history.f4-bank-screen{
- width:100%;max-width:none;min-width:0;
- align-content:start
+ box-sizing:border-box;display:grid;align-content:start;gap:12px;
+ width:100%;max-width:1200px;min-width:0;margin:0 auto;padding:0;
+ border:0;border-radius:0;background:transparent;box-shadow:none
 }
-.f4-bank-admin-history-tabs{display:flex;gap:7px}
-#dashboardView #f4BankAdminHistoryTabs{
- display:flex;align-items:center;flex-wrap:nowrap;min-width:0;gap:8px
+#dashboardView #bank-admin-history>.f4-bank-screen-title{
+ display:flex;align-items:center;gap:10px;margin:0;
+ font-size:clamp(21px,2.15vw,28px);line-height:1.25
 }
-#dashboardView #f4BankAdminHistoryTabs>.f4-bank-admin-history-refresh{
- box-sizing:border-box;display:grid;place-items:center;flex:0 0 42px;
- width:42px;min-width:42px;height:42px;min-height:42px;
+#dashboardView #bank-admin-history>.f4-bank-screen-title>.f4-bank-admin-history-refresh{
+ box-sizing:border-box;display:grid;place-items:center;flex:0 0 40px;
+ width:40px;height:40px;min-width:40px;min-height:40px;
  margin:0 0 0 auto;padding:0;
- border:1px solid #cfe3d6;border-radius:12px;background:#f6fbf7;
+ border:1px solid #cfe3d6;border-radius:11px;background:#f6fbf7;
  color:#146b4c;box-shadow:none;cursor:pointer
 }
-#dashboardView #f4BankAdminHistoryTabs>.f4-bank-admin-history-refresh svg{
- display:block;width:20px;height:20px;stroke:currentColor;fill:none
+#dashboardView #bank-admin-history>.f4-bank-screen-title>.f4-bank-admin-history-refresh svg{
+ display:block;width:19px;height:19px;stroke:currentColor;fill:none
 }
-#dashboardView #f4BankAdminHistoryTabs>.f4-bank-admin-history-refresh:focus-visible{
- outline:2px solid var(--eco-leaf,#43a047);outline-offset:2px
+#dashboardView #bank-admin-history>.f4-bank-screen-title>.f4-bank-admin-history-refresh:focus-visible{
+ outline:2px solid #009788;outline-offset:2px
 }
+.f4-bank-admin-history-tabs{display:flex;gap:7px}
 body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidden]{display:none}
 #dashboardView #f4BankAdminProgressLink{display:none}
 @media(max-width:1023px){
@@ -2504,9 +2507,69 @@ body.f4-bank-app-admin #dashboardView .section .f4-bank-admin-history-tabs[hidde
 .f4-bank-admin-history-tab.is-active{
  background:#08775e;border-color:#08775e;color:#fff
 }
-#dashboardView #bank-admin-history>.card:not(.hidden){
- width:100%;margin:0;max-width:none
+#dashboardView #bank-admin-history .f4-bank-admin-history-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ grid-template-rows:minmax(0,1fr);align-items:stretch;gap:14px;
+ width:100%;min-width:0;min-height:0;
+ height:clamp(360px,calc(100dvh - 270px),700px)
 }
+#dashboardView #bank-admin-history .f4-bank-admin-history-column{
+ box-sizing:border-box;display:flex;flex-direction:column;
+ min-width:0;min-height:0;overflow:hidden;
+ padding:14px;border:1px solid #dce9e0;border-radius:17px;
+ background:#fff;box-shadow:0 4px 16px #153f2a0a
+}
+#dashboardView #bank-admin-history .f4-bank-admin-history-column-title{
+ flex:0 0 auto;margin:0 0 12px;font-size:15px;
+ font-weight:850;line-height:1.3;color:#174b36
+}
+#dashboardView #bank-admin-history .f4-bank-admin-history-column> :is(#pageRiwayat,#pageRiwayatJual){
+ box-sizing:border-box;display:flex;flex-direction:column;flex:1 1 auto;
+ min-width:0;min-height:0;width:100%;max-width:none;
+ margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
+}
+#dashboardView #bank-admin-history .f4-bank-admin-history-column> :is(#pageRiwayat,#pageRiwayatJual).hidden{display:none}
+body.f4-bank-app-admin #dashboardView #bank-admin-history .f4-bank-admin-history-column :is(#riwayatList,#riwayatJualList){
+ box-sizing:border-box;flex:1 1 auto;min-width:0;min-height:0;
+ max-width:100%;width:100%;margin:0;padding:1px;
+ overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:none;-ms-overflow-style:none;
+ align-content:start;grid-auto-rows:max-content
+}
+#dashboardView #bank-admin-history .f4-bank-admin-history-column :is(#riwayatList,#riwayatJualList)::-webkit-scrollbar{
+ display:none;width:0;height:0
+}
+#dashboardView #bank-admin-history .f4-bank-admin-history-column :is(#riwayatNotice,#riwayatJualNotice){
+ flex:0 0 auto
+}
+@media(min-width:941px){
+ body.f4-bank-app-admin #dashboardView #bank-admin-history :is(#riwayatList,#riwayatJualList)>.f4-admin-deposit-card{
+  grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;
+  padding:11px 12px;border-radius:13px
+ }
+ body.f4-bank-app-admin #dashboardView #bank-admin-history :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-identity{
+  grid-column:1;grid-row:1;min-width:0
+ }
+ body.f4-bank-app-admin #dashboardView #bank-admin-history :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-summary{
+  grid-column:2;grid-row:1;justify-items:end;text-align:right
+ }
+ body.f4-bank-app-admin #dashboardView #bank-admin-history :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions{
+  grid-column:1/-1;grid-row:2;justify-content:flex-end;gap:6px
+ }
+ body.f4-bank-app-admin #dashboardView #bank-admin-history :is(#riwayatList,#riwayatJualList) .f4-admin-deposit-actions>button{
+  min-height:34px;padding:6px 10px;border-radius:9px;font-size:11px
+ }
+}
+@media(max-width:940px){
+ #dashboardView #bank-admin-history .f4-bank-admin-history-grid{
+  grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(2,minmax(0,1fr));
+  height:auto;gap:12px
+ }
+ #dashboardView #bank-admin-history .f4-bank-admin-history-column{
+  height:clamp(300px,52dvh,500px);padding:12px
+ }
+}
+
 /* Canonical history cards for both Setoran and Penjualan, across PC and HP.
    Penjualan keeps editable nota and payment actions in its receipt preview. */
 body.f4-bank-app-admin #dashboardView :is(#riwayatList,#riwayatJualList).f4-bs-history-list{
