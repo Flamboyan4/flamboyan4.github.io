@@ -965,12 +965,12 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   box-sizing:border-box;min-width:0;max-width:100%
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{order:0}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;order:2}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;order:1}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{min-height:84px;gap:4px;padding:8px 3px;border-radius:12px}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:13px}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:11px}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:4}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:1}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:2}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{order:3}
  #dashboardView #f4BankAppAdminHero{
   position:relative;isolation:isolate;overflow:hidden;
@@ -3608,8 +3608,8 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
     kedua baris di kanan. Satu grid, tanpa memindah node/duplikasi data. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]{
   display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.86fr);
-  grid-template-areas:"hero recent" "actions actions" "insights insights";
-  grid-template-rows:minmax(310px,auto) auto auto;
+  grid-template-areas:"hero recent" "actions recent" "insights insights";
+  grid-template-rows:minmax(310px,auto) minmax(68px,auto) auto;
   gap:14px;align-items:stretch;min-width:0;
   width:100%;max-width:1310px;margin:0 auto
  }
@@ -3638,12 +3638,12 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
     inside the list, without stretching the right card or the left cards. */
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{
   grid-area:recent;display:flex;flex-direction:column;
-  min-width:0;min-height:0;width:100%;height:310px;align-self:stretch;overflow:hidden;
+  min-width:0;min-height:0;width:100%;height:100%;align-self:stretch;overflow:hidden;
   padding:19px 18px;border:1px solid #e4ece6;border-radius:21px;
   background:#fff;box-shadow:0 5px 20px #153f2a0b
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel #v14Recent{
-  flex:1 1 auto;min-width:0;min-height:0;height:auto;max-height:265px;
+  flex:1 1 auto;min-width:0;min-height:0;height:auto;max-height:none;
   overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;
   scrollbar-color:#c0ddc9 transparent
  }
