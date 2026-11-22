@@ -3287,7 +3287,37 @@ body.f4-bank-app-admin #dashboardView #pageSetoran :is(
 /* Setoran milik Bank memakai .f4-compact-row yang sama dengan Setoran Warga. */
 .f4-bank-own-status{font-size:12px;color:#2b6a4b;min-height:0;margin:0}
 body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:start}
-.f4-bank-admin-cash-body{display:grid;gap:14px}
+.f4-bank-admin-cash-body{display:grid;gap:14px;min-width:0}
+.f4-bank-admin-cash-panels{
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:14px;align-items:start;min-width:0
+}
+.f4-bank-admin-cash-panel{
+ display:flex;flex-direction:column;gap:12px;min-width:0;
+ padding:15px;border:1px solid #dae9df;border-radius:16px;
+ background:#fff;box-shadow:0 4px 18px #153e3209
+}
+.f4-bank-admin-cash-panel-title{
+ margin:0;padding:0 0 11px;border-bottom:1px solid #e5eee8;
+ font-size:15px;font-weight:850;line-height:1.3;color:#17563c
+}
+.f4-bank-cash-expense-disclosure{
+ flex:none;min-width:0;margin:0;padding:0;
+ border:1px solid #dceae0;border-radius:10px;background:#fbfdfb
+}
+.f4-bank-cash-expense-disclosure>summary{
+ padding:10px 12px;list-style:none;cursor:pointer;
+ font-size:12px;font-weight:750;color:#137c60
+}
+.f4-bank-cash-expense-disclosure>summary::-webkit-details-marker{display:none}
+.f4-bank-cash-expense-disclosure>summary::after{
+ content:"";display:inline-block;width:7px;height:7px;margin-left:10px;
+ border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+ transform:translateY(-2px) rotate(45deg)
+}
+.f4-bank-cash-expense-disclosure[open]>summary::after{
+ transform:translateY(2px) rotate(225deg)
+}
 .f4-bank-cash-toolbar{
  display:flex;align-items:center;justify-content:space-between;
  flex-wrap:wrap;gap:10px;min-width:0
@@ -3341,14 +3371,42 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
 }
 .f4-bank-admin-cash-stat small{font-size:11px;color:#668070}
 .f4-bank-admin-cash-stat strong{font-size:17px;color:#165c3c}
-.f4-bank-admin-cash-table{max-width:100%;overflow-x:auto}
+.f4-bank-admin-cash-table{
+ flex:1 1 auto;min-height:0;min-width:0;max-width:100%;
+ overflow-x:auto;overscroll-behavior:contain;
+ scrollbar-width:none;font-size:12px;color:#687f71
+}
+.f4-bank-admin-cash-table::-webkit-scrollbar{display:none}
 .f4-bank-admin-cash-ledger{
- width:100%;border-collapse:collapse;min-width:520px;font-size:12px
+ width:100%;border-collapse:collapse;min-width:0;table-layout:fixed;font-size:11.5px
 }
 .f4-bank-admin-cash-ledger th,.f4-bank-admin-cash-ledger td{
- padding:9px 10px;text-align:left;border-bottom:1px solid #dce9df
+ padding:9px 6px;text-align:left;vertical-align:top;
+ border-bottom:1px solid #e4ece6;overflow-wrap:anywhere
 }
-.f4-bank-admin-cash-ledger th{background:#edf7f0;color:#214b34}
+.f4-bank-admin-cash-ledger th{background:#f1f8f3;color:#214b34;font-weight:750}
+.f4-bank-admin-cash-ledger :is(th,td):first-child{width:90px;white-space:nowrap}
+.f4-bank-admin-cash-ledger :is(th,td):nth-child(3){width:82px}
+.f4-bank-admin-cash-ledger :is(th,td):last-child{
+ width:100px;text-align:right;white-space:nowrap;font-weight:750;color:#176a4b
+}
+@media(min-width:1100px){
+ .f4-bank-cash-toolbar{display:none}
+ .f4-bank-admin-cash-panels{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:16px
+ }
+ .f4-bank-admin-cash-panel{height:clamp(350px,57dvh,490px)}
+ .f4-bank-admin-cash-table{overflow-y:auto}
+ .f4-bank-cash-expense-disclosure[open]{
+  max-height:min(46dvh,315px);overflow-y:auto;scrollbar-width:none
+ }
+ .f4-bank-cash-expense-disclosure[open]::-webkit-scrollbar{display:none}
+}
+@media(max-width:1099px){
+ .f4-bank-admin-cash-panel:not(.is-active){display:none}
+ .f4-bank-cash-expense-disclosure[open]{max-height:none;overflow:visible}
+ .f4-bank-admin-cash-ledger{min-width:480px}
+}
 @media(max-width:760px){
  .f4-bank-own-fields{grid-template-columns:minmax(0,1fr)}
  .f4-bank-admin-cash-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
