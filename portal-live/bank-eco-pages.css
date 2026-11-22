@@ -1026,7 +1026,6 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 .f4-bank-app-mini strong{font-size:15px;line-height:1.2;overflow-wrap:anywhere;color:#0c5835}
 #dashboardView #f4BankAppHome #v14Recent{font-size:12px}
 #dashboardView .f4-bank-savings-page{min-width:0}
-#dashboardView .f4-bank-savings-page>h2{font-size:21px;margin:0 0 12px;color:#0f5537}
 #dashboardView .f4-bank-savings-page>.desc{display:none}
 #dashboardView .f4-bank-savings-hero{display:grid;gap:6px;padding:19px 18px;border-radius:20px;background:linear-gradient(112deg,#087a66,#07816b 56%,#0a8760);color:#fff}
 .f4-bank-savings-hero small{color:#d2eee1;font-size:11px;letter-spacing:.08em;font-weight:750}
@@ -1202,7 +1201,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
 #dashboardView #pagePribadi #f4BankSavingsChart .f4-bank-private-chart-note{
  margin:-7px 0 0;font-size:10px;line-height:1.45;color:#7b907f
 }
-/* Judul desktop sudah ada pada halaman; ikon indikator tetap tampil di semua layar. */
+/* Judul hanya berada pada hero mobile; di desktop navigasi Tabungan sudah cukup. */
 #dashboardView #pagePribadi .f4-bank-savings-title{display:none}
 /* Tabungan HP has ONE full-bleed page backdrop, not a green hero card.
    The negative gutters cancel only the member content padding (15/11 px);
@@ -1472,7 +1471,6 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
    radial-gradient(ellipse at 83% 15%,#85d97530 0%,transparent 61%),
    linear-gradient(125deg,#066b58 0%,#07816b 57%,#0a8760 100%)
  }
- body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page>h2{display:none}
  /* The V12 API toggles .hidden while loading. Never show an incomplete hero:
     forcing display:block on #v12Private caused the jump before data arrived. */
  #dashboardView #pagePribadi #v12Private.hidden{display:none}
