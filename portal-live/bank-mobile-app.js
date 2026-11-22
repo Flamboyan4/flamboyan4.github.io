@@ -2292,7 +2292,9 @@ function showAdminCash(){
     const trigger=el("button","f4-bank-cash-add-button");
     trigger.id="f4BankCashExpenseOpen";
     trigger.type="button";
-    trigger.append(bankUiSvg("plus"),document.createTextNode("Catat Pengeluaran"));
+    trigger.append(bankUiSvg("plus"),document.createTextNode("Catat"));
+    trigger.setAttribute("aria-label","Catat pengeluaran");
+    trigger.title="Catat pengeluaran";
     trigger.onclick=openCashExpenseDialog;
     heading.append(trigger);
    }
