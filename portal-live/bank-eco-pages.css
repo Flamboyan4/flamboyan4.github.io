@@ -4006,13 +4006,13 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
 #pageLaporan .f4-analisis-filter>span{color:#527263;font-size:11px;font-weight:750}
 #pageLaporan .f4-analisis-filter select{appearance:none;display:block;width:100%;min-width:0;height:40px;border:1px solid #d1e4d8;border-radius:10px;padding:0 30px 0 11px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2343a047' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 9px center;background-repeat:no-repeat;color:#174b32;font:inherit;font-size:12px;font-weight:650}
 #pageLaporan .f4-analisis-filter select:focus-visible{outline:2px solid #0d9a6b;outline-offset:1px}
-#pageLaporan .f4-analisis-mode-row{display:flex;align-items:center;gap:11px;flex-wrap:wrap;border-top:1px solid #e6eee9;padding-top:12px}
+#pageLaporan .f4-analisis-mode-row{display:grid;gap:8px;margin:8px 0 4px;padding:11px 0;border-top:1px solid #e6eee9;border-bottom:1px solid #e6eee9}
 #pageLaporan .f4-analisis-mode-row>strong{color:#426352;font-size:12px;white-space:nowrap}
 #pageLaporan .f4-analisis-ranking{display:flex;gap:4px;flex:1;min-width:0}
 #pageLaporan .f4-analisis-ranking button{padding:8px 10px;border-radius:9px;border:1px solid #dceade;background:#fff;color:#476a57;font-size:12px;font-weight:700;line-height:1.35;white-space:nowrap}
 #pageLaporan .f4-analisis-ranking button.is-active{background:#43a047;border-color:#43a047;color:#fff}
 #pageLaporan .f4-analisis-ranking button:disabled{opacity:.4}
-#pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:160px}
+#pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%}
 #pageLaporan .f4-analisis-status{padding:11px 13px;border-radius:9px;background:#e7f6ec;color:#176341;font-size:12px;line-height:1.5}
 #pageLaporan .f4-analisis-status.is-error{background:#fff2e8;color:#985321}
 #pageLaporan .f4-analisis-results{display:grid;gap:15px;min-width:0}
@@ -4074,7 +4074,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
  #pageLaporan .f4-analisis-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  #pageLaporan .f4-analisis-charts{grid-template-columns:minmax(0,1fr)}
- #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%;max-width:210px}
+ #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%}
 }
 @media(max-width:520px){
  #pageLaporan .f4-analisis-tabs{max-width:none;margin:8px 0 12px}
@@ -4088,7 +4088,7 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-mode-row{display:grid;gap:7px}
  #pageLaporan .f4-analisis-ranking{gap:4px}
  #pageLaporan .f4-analisis-ranking button{flex:1;min-width:0;padding:9px 6px;font-size:10px;white-space:normal}
- #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{max-width:none}
+ #pageLaporan .f4-analisis-mode-row>.f4-analisis-filter{width:100%}
  #pageLaporan .f4-analisis-metric{padding:11px}
  #pageLaporan .f4-analisis-metric strong{font-size:16px}
  #pageLaporan .f4-analisis-panel{padding:12px}
@@ -4096,4 +4096,32 @@ dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:n
  #pageLaporan .f4-analisis-person-value{font-size:11px}
  #pageLaporan .f4-analisis-record-summary{gap:7px}
  #pageLaporan .f4-analisis-record-lines{padding-left:29px;padding-right:10px}
+}
+
+#pageLaporan .f4-analisis-shortcuts{display:flex;gap:7px;min-width:0;overflow-x:auto;padding:1px 0 4px;scrollbar-width:none}
+#pageLaporan .f4-analisis-shortcuts::-webkit-scrollbar{display:none}
+#pageLaporan .f4-analisis-shortcuts button{flex:0 0 auto;border:1px solid #cde3d3;border-radius:999px;background:#fff;color:#167748;padding:8px 13px;font-size:12px;font-weight:750}
+#pageLaporan .f4-analisis-shortcuts button:focus-visible{outline:2px solid #138b55;outline-offset:2px}
+#pageLaporan .f4-analisis-filter-intro{display:grid;gap:3px}
+#pageLaporan .f4-analisis-filter-intro strong{color:#155d3b;font-size:14px}
+#pageLaporan .f4-analisis-filter-intro span{color:#6c8273;font-size:11px;line-height:1.5}
+#pageLaporan .f4-analisis-selection{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:9px 12px;border-left:3px solid #43a047;background:#f5faf6;border-radius:5px 10px 10px 5px;min-width:0}
+#pageLaporan .f4-analisis-selection-copy{display:grid;gap:3px;min-width:0}
+#pageLaporan .f4-analisis-selection-copy strong{color:#246746;font-size:11px}
+#pageLaporan .f4-analisis-selection-copy span{overflow-wrap:anywhere;color:#54715e;font-size:11px;line-height:1.45}
+#pageLaporan .f4-analisis-reset{padding:7px 10px;white-space:nowrap;border:1px solid #bfdcca;border-radius:8px;background:#fff;color:#217c4a;font-size:11px;font-weight:750}
+#pageLaporan .f4-analisis-heading-copy{display:grid;gap:3px}
+#pageLaporan .f4-analisis-section-lead{margin:0 0 11px;color:#647c6b;font-size:11px;line-height:1.5}
+#pageLaporan .f4-analisis-trend-filter{display:grid;gap:4px;min-width:125px}
+#pageLaporan .f4-analisis-trend-filter>span{color:#64806f;font-size:10px;font-weight:650}
+#pageLaporan .f4-analisis-trend-filter select{appearance:none;width:100%;height:34px;padding:0 25px 0 9px;border:1px solid #d1e4d8;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2343a047' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center;color:#18583b;font-size:11px;font-weight:700}
+#pageLaporan .f4-analisis-person-open{color:#188254;font-weight:700}
+#pageLaporan .f4-analisis-metrics,#pageLaporan .f4-analisis-panel{scroll-margin-top:125px}
+@media(max-width:520px){
+ #pageLaporan .f4-analisis-shortcuts{margin-right:-8px;padding-bottom:5px}
+ #pageLaporan .f4-analisis-shortcuts button{padding:8px 11px;font-size:11px}
+ #pageLaporan .f4-analisis-filter-intro span{font-size:10px}
+ #pageLaporan .f4-analisis-selection{align-items:flex-start}
+ #pageLaporan .f4-analisis-trend-filter{min-width:110px}
+ #pageLaporan .f4-analisis-trend-filter select{height:32px}
 }
