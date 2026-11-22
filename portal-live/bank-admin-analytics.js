@@ -152,11 +152,10 @@
    const chosen=d.members.find(m=>m.id===state.member);
    const chosenItem=d.catalog.find(i=>i.id===state.item);
    const period=state.from||state.to?(state.from?monthLabel(state.from):'Awal')+' – '+(state.to?monthLabel(state.to):'Sekarang'):'Semua periode';
-   const summary=add(node('div','f4-analisis-selection-copy'),node('strong','','Data yang ditampilkan'),
-    node('span','',[period,chosen?memberTitle(chosen):'Semua warga',chosenItem?chosenItem.name:'Semua jenis sampah'].join(' · ')));
-   scope.append(summary);
+   // Cukup sediakan reset saat filter aktif, tanpa kartu penjelasan kedua.
+   scope.hidden=!(state.from||state.to||state.member||state.item);
    if(state.from||state.to||state.member||state.item){
-    const clear=node('button','f4-analisis-reset','Hapus filter');clear.type='button';
+    const clear=node('button','f4-analisis-reset','Reset filter');clear.type='button';
     clear.addEventListener('click',()=>{state.from='';state.to='';state.member='';state.item='';render();});scope.append(clear);
    }
   }
@@ -192,19 +191,18 @@
   }).sort((a,b)=>b[state.ranking]-a[state.ranking]||b.weight-a.weight||a.name.localeCompare(b.name,'id'));
   const results=$(cls+'-results');results.replaceChildren();
   const metrics=node('div','f4-analisis-metrics');metrics.id=cls+'-section-summary';
-  add(metrics,makeMetric('scale','Berat terkumpul',fmtKg(totalKg)),
-    makeMetric('chart','Jumlah setoran',fmtInt(filtered.length)),
-    makeMetric('users','Warga berpartisipasi',fmtInt(uniqueActive.size)+' / '+fmtInt(state.member?1:d.members.length)),
-    makeMetric('recycle','Jenis terbanyak',categories[0]?.name||'—'));
+  add(metrics,makeMetric('scale','Berat',fmtKg(totalKg)),
+    makeMetric('chart','Setoran',fmtInt(filtered.length)),
+    makeMetric('users','Warga aktif',fmtInt(uniqueActive.size)+' / '+fmtInt(state.member?1:d.members.length)),
+    makeMetric('recycle','Terbanyak',categories[0]?.name||'—'));
   results.append(metrics);
   const charts=node('div','f4-analisis-charts');
   const trendBox=node('section','f4-analisis-panel');trendBox.id=cls+'-section-trend';
   const trendHead=node('div','f4-analisis-panel-head');
-  const trendIntro=add(node('div','f4-analisis-heading-copy'),node('h3','','Perkembangan Setoran'),
-   node('small','','Grafik total berat setoran warga (kg)'));
-  const trendMode=node('label','f4-analisis-trend-filter');trendMode.append(node('span','','Tampilkan per'));
+  const trendIntro=node('h3','','Tren Setoran');
+  const trendMode=node('label','f4-analisis-trend-filter');
   const trendSelect=node('select');trendSelect.setAttribute('aria-label','Kelompok grafik berdasarkan');
-  trendSelect.add(new Option('Penimbangan','session'));trendSelect.add(new Option('Bulan','month'));
+  trendSelect.add(new Option('Timbang','session'));trendSelect.add(new Option('Bulanan','month'));
   trendSelect.value=state.trend;trendSelect.addEventListener('change',e=>{state.trend=e.target.value;render()});
   trendMode.append(trendSelect);trendHead.append(trendIntro,trendMode);trendBox.append(trendHead);
   const series=new Map();
@@ -228,8 +226,7 @@
    if(entries.length>12)trendBox.append(node('p','f4-analisis-hint','Grafik menampilkan 12 periode terakhir dari rentang yang dipilih.'));
   }
   const typeBox=node('section','f4-analisis-panel f4-analisis-types');typeBox.id=cls+'-section-types';
-  add(typeBox,node('h3','','Jenis Sampah Terbanyak'),
-   node('p','f4-analisis-section-lead','Diurutkan berdasarkan berat (kg). Ketuk barang untuk melihat rincian penyetornya.'));
+  add(typeBox,node('h3','','Jenis Sampah'));
   // Judul tetap terlihat; daftar bergulir di dalam kartu yang tingginya terbatas.
   const typeList=node('div','f4-analisis-type-scroll');
   typeList.tabIndex=0;typeList.setAttribute('role','region');
@@ -248,25 +245,23 @@
    });
   }
   typeBox.append(typeList);
-  if(categories.length>5)typeBox.append(node('p','f4-analisis-type-note','Geser daftar untuk melihat seluruh '+categories.length+' jenis.'));
+  if(categories.length>5)typeBox.append(node('p','f4-analisis-type-note',categories.length+' jenis · gulir untuk lainnya'));
   charts.append(trendBox,typeBox);results.append(charts);
+  const lower=node('div','f4-analisis-lower');results.append(lower);
   const rankSection=node('section','f4-analisis-panel f4-analisis-people');rankSection.id=cls+'-section-people';
-  const peopleHeading=add(node('div','f4-analisis-panel-head'),node('h3','','Peringkat Warga'),
-   node('small','','Selalu membandingkan semua warga pada periode dan jenis terpilih'));
+  const peopleHeading=add(node('div','f4-analisis-panel-head'),node('h3','','Peringkat Warga'));
   rankSection.append(peopleHeading);
   const rankControls=node('div','f4-analisis-mode-row');
-  rankControls.append(node('strong','','Urutkan berdasarkan'));
+  rankControls.append(node('strong','','Urut:'));
   const ranking=node('div','f4-analisis-ranking');
-  [['active','Paling aktif'],['weight','Berat terbanyak'],['value','Nilai estimasi']].forEach(([mode,label])=>{
+  [['active','Aktif'],['weight','Berat'],['value','Nilai']].forEach(([mode,label])=>{
    const button=node('button',state.ranking===mode?'is-active':'',label);button.type='button';
    button.setAttribute('aria-pressed',String(state.ranking===mode));
    if(mode==='value'&&state.item){button.disabled=true;button.title='Nilai estimasi hanya untuk semua jenis sampah.';}
    button.addEventListener('click',()=>{state.ranking=mode;render();});ranking.append(button);
   });
   rankControls.append(ranking);rankSection.append(rankControls);
-  rankSection.append(node('p','f4-analisis-section-lead',
-   state.ranking==='active'?'Paling aktif = jumlah periode penimbangan yang diikuti.':
-   state.ranking==='weight'?'Berat terbanyak = akumulasi berat setoran dalam kg.':'Nilai estimasi = nilai saat timbang, bukan saldo yang bisa dicairkan.'));
+
   const rankList=node('div','f4-analisis-people-list');
   const maxRank=Math.max(...ranks.map(r=>r[state.ranking]),1);
   const label=r=>state.ranking==='active'?fmtInt(r.active)+' periode':
@@ -276,24 +271,23 @@
    row.type='button';row.title='Lihat setoran '+r.name;
    const number=node('span','f4-analisis-place',i===0?'1':String(i+1));
    const who=node('div','f4-analisis-person-name');
-   add(who,node('strong','',memberTitle(r)),node('small','',fmtKg(r.weight)+' · '+fmtInt(r.active)+' periode'),
-    node('small','f4-analisis-person-open','Lihat rincian setoran'));
+   add(who,node('strong','',memberTitle(r)),node('small','',fmtKg(r.weight)+' · '+fmtInt(r.active)+'x timbang'));
    const amount=node('strong','f4-analisis-person-value',label(r));
    const progress=node('div','f4-analisis-person-progress');
    const fill=node('div','');fill.style.width=(100*r[state.ranking]/maxRank)+'%';progress.append(fill);
    add(row,number,who,amount,progress);row.addEventListener('click',()=>selectMember(r.id));rankList.append(row);
   });
   rankSection.append(rankList);
-  if(ranks.length>8){const toggle=node('button','f4-analisis-more',state.allRanks?'Tampilkan lebih sedikit':'Lihat seluruh '+ranks.length+' warga');toggle.type='button';toggle.onclick=()=>{state.allRanks=!state.allRanks;render()};rankSection.append(toggle);}
+  if(ranks.length>8){const toggle=node('button','f4-analisis-more',state.allRanks?'Lebih sedikit':'Semua ('+ranks.length+')');toggle.type='button';toggle.onclick=()=>{state.allRanks=!state.allRanks;render()};rankSection.append(toggle);}
   if(!ranks.length)rankSection.append(node('p','f4-analisis-empty','Daftar anggota tidak tersedia.'));
-  if(state.ranking==='active')rankSection.append(node('p','f4-analisis-hint','Satu periode timbang dihitung satu kali hadir meskipun warga menyetor beberapa jenis barang.'));
-  results.append(rankSection);
+
+  lower.append(rankSection);
   const detailBox=node('section','f4-analisis-panel f4-analisis-detail');detailBox.id=cls+'-section-detail';
-  const detailHead=add(node('div','f4-analisis-panel-head'),node('h3','','Rincian Setoran'),
-   node('small','',fmtInt(filtered.length)+' transaksi'));
+  const detailHead=add(node('div','f4-analisis-panel-head'),node('h3','','Rincian'),
+   node('small','',fmtInt(filtered.length)+' setoran'));
   detailBox.append(detailHead);
-  detailBox.append(node('p','f4-analisis-section-lead','Ketuk satu baris untuk melihat setiap jenis sampah dan beratnya.'));
-  if(!filtered.length)detailBox.append(node('p','f4-analisis-empty','Tidak ada setoran yang sesuai dengan filter.'));
+  const detailList=node('div','f4-analisis-detail-list');
+  if(!filtered.length)detailList.append(node('p','f4-analisis-empty','Belum ada setoran.'));
   else{
    const byId=new Map(d.members.map(m=>[m.id,m]));
    filtered.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).forEach((r,i)=>{
@@ -310,11 +304,11 @@
      add(list,add(node('div','f4-analisis-record-line'),node('span','',line.name),
       node('strong','',fmtKg(line.kg))));
     });
-    if(!state.item)list.append(node('p','f4-analisis-hint','Nilai setoran saat timbang: '+fmtRp(r.estimate)+' (estimasi, bukan saldo pencairan).'));
-    wrap.append(list);detailBox.append(wrap);
+    if(!state.item)list.append(node('p','f4-analisis-hint','Estimasi: '+fmtRp(r.estimate)));
+    wrap.append(list);if(state.member&&r.member===state.member&&i===0)wrap.open=true;detailList.append(wrap);
    });
   }
-  results.append(detailBox);
+  detailBox.append(detailList);lower.append(detailBox);
  }
  function mount(){
   const report=$('pageLaporan');if(!report)return false;
@@ -329,23 +323,17 @@
   const syncOfficial=()=>Array.from(report.children).filter(el=>el!==heading&&el!==tabs&&el!==content)
    .forEach(el=>el.classList.toggle('f4-analisis-official-off',state.tab==='analysis'));
   const titlebar=node('div','f4-analisis-titlebar');
-  const title=add(node('div'),node('h3','','Analisis Setoran Warga'),
-   node('p','','Cari setoran warga, lihat tren berat, barang terbanyak, dan peringkat keaktifan.'));
+  const title=node('h3','','Analisis Setoran');
   const refresh=node('button','f4-analisis-refresh');refresh.id=cls+'-refresh';refresh.type='button';add(refresh,svg('refresh'),node('span','','Muat ulang'));refresh.onclick=()=>ensureData(true);
   titlebar.append(title,refresh);
   const controls=node('div','f4-analisis-controls');
   function picker(id,label){const cell=node('label','f4-analisis-filter');cell.append(node('span','',label));const select=node('select');select.id=cls+'-'+id;cell.append(select);return cell;}
-  controls.append(picker('from','Dari bulan'),picker('to','Sampai bulan'),picker('member','Nama warga'),picker('item','Jenis sampah'));
-  const quick=node('nav','f4-analisis-shortcuts');quick.setAttribute('aria-label','Akses cepat analisis');
-  [['summary','Ringkasan'],['trend','Grafik'],['types','Jenis sampah'],['people','Peringkat'],['detail','Rincian']].forEach(([key,label])=>{
-   const btn=node('button','',label);btn.type='button';btn.addEventListener('click',()=>openSection(key));quick.append(btn);
-  });
-  const filterIntro=add(node('div','f4-analisis-filter-intro'),node('strong','','Filter Data'),
-   node('span','','Filter berlaku untuk ringkasan, grafik, dan rincian. Peringkat tetap membandingkan seluruh warga.'));
-  const selection=node('div','f4-analisis-selection');selection.id=cls+'-selection';
+  controls.append(picker('from','Dari'),picker('to','Sampai'),picker('member','Warga'),picker('item','Barang'));
+
+  const selection=node('div','f4-analisis-selection');selection.id=cls+'-selection';selection.hidden=true;
   const alert=node('div','f4-analisis-status');alert.id=cls+'-status';alert.setAttribute('role','status');alert.setAttribute('aria-live','polite');alert.hidden=true;
   const results=node('div','f4-analisis-results');results.id=cls+'-results';
-  content.append(titlebar,quick,filterIntro,controls,selection,alert,results);
+  content.append(titlebar,controls,selection,alert,results);
   if(heading)heading.after(tabs);else report.prepend(tabs);
   report.append(content);
   syncOfficial();
