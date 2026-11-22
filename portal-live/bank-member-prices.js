@@ -80,7 +80,7 @@ function show(){
    const selected=rows.filter(r=>String(r.name||"").toLocaleLowerCase("id-ID").includes(query));
    const groups=new Map();
    for(const item of selected){
-    const cat=String(item.category||"Lainnya").trim()||"Lainnya";
+    const cat=window.f4BankItemCategory?.(item.name,item.category)||String(item.category||"Lainnya").trim()||"Lainnya";
     if(!groups.has(cat))groups.set(cat,[]);
     groups.get(cat).push(item);
    }
