@@ -63,6 +63,7 @@
 #tab-monitor .pm-month-cell[data-state=settled]{background:#dcf5e7;color:#116840}
 #tab-monitor .pm-month-cell[data-state=partial]{background:#fff0c7;color:#784c00}
 #tab-monitor .pm-month-cell[data-state=unpaid]{background:#ffe6eb;color:#a4213d}
+#tab-monitor .pm-month-cell[data-state=archive]{background:#f2f3f6;color:#697387;cursor:default}
 #tab-monitor .pm-month-cell:is(:hover,:focus-visible){outline:2px solid #6536ba;outline-offset:1px}
 #tab-monitor #pm-export-info:empty{display:none}
 @media(max-width:760px){

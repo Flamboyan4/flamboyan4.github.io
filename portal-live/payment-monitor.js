@@ -10,7 +10,7 @@
   const rupiah = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0});
   const monthName = (month, style) => new Date(month + '-01T12:00:00Z').toLocaleDateString('id-ID', {month:style,year:'numeric',timeZone:'UTC'});
   const names = {IURAN_BULANAN:'Iuran bulanan', KEBERSIHAN:'Kebersihan', KAS_LORONG:'Kas Lorong', ARISAN:'Arisan'};
-  const states = {settled:'Lunas', partial:'Sebagian', unpaid:'Belum bayar', future:'Belum jatuh tempo', recorded:'Pembayaran tercatat', review:'Periksa ID warga', exempt:'Tanpa kewajiban'};
+  const states = {settled:'Lunas', partial:'Sebagian', unpaid:'Belum bayar', future:'Belum jatuh tempo', recorded:'Pembayaran tercatat', review:'Periksa ID warga', exempt:'Tanpa kewajiban', archive:'Arsip belum diimpor'};
   const total = amounts => Object.values(amounts).reduce((sum, value) => sum + value, 0);
   let model, request, yearRequest, yearModel, exportInProgress = false;
 
@@ -89,7 +89,7 @@
     if (!yearModel) return;
     const selected = el('payer').value;
     const residents = yearModel.records.filter(row => !selected || row.id === selected);
-    el('year-count').textContent = residents.length + ' warga · ' + yearModel.period.slice(0,4);
+    el('year-count').textContent = residents.length + ' warga · ' + yearModel.period.slice(0,4) + ' · Data portal sejak ' + monthName(yearModel.firstMonth,'long');
     const grid = el('year-grid'); grid.replaceChildren();
     const header = node('div',null,'pm-year-row pm-year-header');
     header.append(node('strong','Warga'));
@@ -100,14 +100,16 @@
       const name = node('strong',member.nama); name.append(node('small',member.rumah));row.append(name);
       for (const entry of member.years) {
         const paid = total(entry.paid), due = total(entry.due);
-        const state = !due ? (paid ? 'recorded' : 'exempt') : paid >= due ? 'settled' : paid ? 'partial' : entry.period > yearModel.today ? 'future' : 'unpaid';
+        const state = entry.period < yearModel.firstMonth && !paid ? 'archive' :
+          !due ? (paid ? 'recorded' : 'exempt') : paid >= due ? 'settled' : paid ? 'partial' : entry.period > yearModel.today ? 'future' : 'unpaid';
         const cell = node('button',null,'pm-month-cell');cell.type = 'button';cell.dataset.state = state;
         cell.setAttribute('aria-label', member.nama + ', ' + monthName(entry.period,'long') + ', ' + states[state]);
         cell.title = states[state] + ' · ' + monthName(entry.period,'long');
-        const marks = {settled:'<path d="m4 9 3 3 6-7"/>',partial:'<circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 4"/>',unpaid:'<path d="M3 8h10"/>',future:'<circle cx="8" cy="8" r="6"/>',exempt:'<path d="M3 8h10"/>',recorded:'<path d="m4 9 3 3 6-7"/>',review:'<path d="M8 2v7m0 3v1"/>'};
+        const marks = {settled:'<path d="m4 9 3 3 6-7"/>',partial:'<circle cx="8" cy="8" r="6"/><path d="M8 2v6l4 4"/>',unpaid:'<path d="M3 8h10"/>',future:'<circle cx="8" cy="8" r="6"/>',exempt:'<path d="M3 8h10"/>',recorded:'<path d="m4 9 3 3 6-7"/>',review:'<path d="M8 2v7m0 3v1"/>',archive:'<path d="M3 5h10M3 8h10M3 11h7"/>'};
         const mark = node('b');mark.innerHTML='<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+marks[state]+'</svg>';
         cell.append(node('span',monthName(entry.period,'short').split(' ')[0]),mark);
-        cell.onclick = async () => {el('payer').value=member.id;el('month').value=entry.period;await load();el('content').scrollIntoView({block:'start',behavior:'smooth'});};
+        cell.disabled = state === 'archive';
+        if (!cell.disabled) cell.onclick = async () => {el('payer').value=member.id;el('month').value=entry.period;await load();el('content').scrollIntoView({block:'start',behavior:'smooth'});};
         row.append(cell);
       }
       grid.append(row);
@@ -177,7 +179,7 @@
   }
 
   el('status').add(new Option('Sudah bayar (semua)','paid'));
-  for (const [value,label] of Object.entries(states)) el('status').add(new Option(label,value));
+  for (const [value,label] of Object.entries(states)) if (value !== 'archive') el('status').add(new Option(label,value));
   el('month').value = new Date(Date.now()+7*3600000).toISOString().slice(0,7);
   const currentYear = Number(el('month').value.slice(0,4));
   for (let year = currentYear; year >= 2026; year--) el('year').add(new Option(String(year),String(year)));
