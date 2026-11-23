@@ -108,6 +108,11 @@
    beratSetoranTercatat:o.recordedWeightKg==null?null:number(o.recordedWeightKg),
    kegiatan:p.length,
    progres:p,
+   depositPeriods:Array.isArray(r.depositPeriods)?r.depositPeriods.map(row=>({
+     tanggal:String(row.tanggal||''),beratKg:number(row.beratKg)})):null,
+   itemWeights:Array.isArray(r.itemWeights)?r.itemWeights.map(row=>({
+     id:String(row.id||''),nama:String(row.name||''),kelompok:String(row.category||'Lainnya'),
+     beratKg:number(row.beratKg)})):null,
    inventaris:inventories(r.inventory)
   };
  }
