@@ -121,6 +121,14 @@ async function authenticatedPortalCashBalance(db){
   return ok({data:{saldoRp,totalMasukRp,totalKeluarRp,jumlahTransaksi,source:"cloudflare-d1"},readOnly:true});
 }
 __name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
+/* One publication program for both portals, not duplicate uploads.
+   Use the original photo ID for shared D1 reactions and comments. */
+function f4BankGalleryAlbumMatch(a,c){
+ return "("+c+".category='bank_sampah' OR LOWER(COALESCE("+a+".title,'')) LIKE '%bank sampah%' OR LOWER(COALESCE("+a+".description,'')) LIKE '%bank sampah%' OR LOWER(COALESCE("+a+".title,'')) LIKE '%#banksampah%')";
+}
+function f4BankGalleryPhotoMatch(p,pc){
+ return "("+pc+".category='bank_sampah' OR LOWER(COALESCE("+p+".caption,'')) LIKE '%bank sampah%' OR LOWER(COALESCE("+p+".caption,'')) LIKE '%bank_sampah%' OR LOWER(COALESCE("+p+".caption,'')) LIKE '%bank-sampah%' OR LOWER(COALESCE("+p+".caption,'')) LIKE '%#banksampah%')";
+}
 async function publicBank(db) {
   await f4GallerySchema(db);
   const [catalog, albums, progress, inventory, overview, monthlyWeights, monthlyDeposits, depositPeriods, itemWeights] = await Promise.all([
@@ -170,13 +178,28 @@ async function publicBank(db) {
       HAVING SUM(l.grams)>0
       ORDER BY beratKg DESC,i.name COLLATE NOCASE`)
   ]);
-  const taggedGalleryAlbums=await list(db,`SELECT g.id,g.title,'Bank Sampah' AS category,substr(g.created_at,1,10) AS event_on,g.description,
-   'bank-sampah' AS portal_scope,COUNT(p.id) AS mediaCount,
-   (SELECT p2.drive_file_id FROM f4_gallery_photos p2 WHERE p2.album_ref=g.id AND p2.status IN ('baru','ditinjau') ORDER BY p2.created_at,p2.id LIMIT 1) AS coverDriveId
+  const albumTagged=f4BankGalleryAlbumMatch('g','c');
+  const photoTagged=f4BankGalleryPhotoMatch('p','pc');
+  const coverTagged=f4BankGalleryPhotoMatch('p2','pc2');
+  const taggedGalleryAlbums=await list(db,`SELECT g.id,g.title,'Bank Sampah' AS category,
+   substr(g.created_at,1,10) AS event_on,g.description,
+   'bank-sampah' AS portal_scope,COUNT(DISTINCT CASE WHEN ${albumTagged} OR ${photoTagged} THEN p.id END) AS mediaCount,
+   (SELECT p2.drive_file_id FROM f4_gallery_photos p2
+    LEFT JOIN f4_gallery_photo_categories pc2 ON pc2.photo_ref=p2.id
+    WHERE p2.album_ref=g.id AND p2.status IN ('baru','ditinjau')
+     AND (${albumTagged} OR ${coverTagged})
+    ORDER BY p2.created_at,p2.id LIMIT 1) AS coverDriveId
    FROM f4_gallery_albums g
-   JOIN f4_gallery_categories c ON c.album_ref=g.id AND c.category='bank_sampah'
+   LEFT JOIN f4_gallery_categories c ON c.album_ref=g.id
    LEFT JOIN f4_gallery_photos p ON p.album_ref=g.id AND p.status IN ('baru','ditinjau')
-   WHERE g.status='aktif' GROUP BY g.id ORDER BY g.created_at DESC LIMIT 80`);
+   LEFT JOIN f4_gallery_photo_categories pc ON pc.photo_ref=p.id
+   WHERE g.status='aktif' AND (${albumTagged} OR EXISTS(
+     SELECT 1 FROM f4_gallery_photos pf
+     LEFT JOIN f4_gallery_photo_categories pcf ON pcf.photo_ref=pf.id
+     WHERE pf.album_ref=g.id AND pf.status IN ('baru','ditinjau')
+     AND ${f4BankGalleryPhotoMatch('pf','pcf')}
+   ))
+   GROUP BY g.id ORDER BY g.created_at DESC LIMIT 80`);
   return ok({ catalog, albums:[...taggedGalleryAlbums.map(a=>({...a,coverUrl:a.coverDriveId?f4GalleryImageUrl(a.coverDriveId):null})),...albums.map(a=>({...a,coverUrl:urlSafe(a.coverUrl)}))], progress:progress.map(p=>({...p,photoUrl:urlSafe(p.photoUrl)})), monthlyWeights: monthlyWeights.slice().reverse(), monthlyDeposits:monthlyDeposits.slice().reverse(), depositPeriods:depositPeriods.slice().reverse(), itemWeights, inventory: inventory.map((x) => ({
     ...x,
     photoUrl: urlSafe(x.photoUrl)
@@ -313,10 +336,23 @@ __name(publicBankReport, "publicBankReport");
 async function publicAlbum(db, id) {
   if(String(id).startsWith('galbum:')){
    await f4GallerySchema(db);
-   const album=await one(db,"SELECT g.id,g.title,g.description,substr(g.created_at,1,10) AS event_on,'Bank Sampah' AS category FROM f4_gallery_albums g JOIN f4_gallery_categories c ON c.album_ref=g.id AND c.category='bank_sampah' WHERE g.id=? AND g.status='aktif'",[id]);
+   const album=await one(db,`SELECT g.id,g.title,g.description,substr(g.created_at,1,10) AS event_on,
+     'Bank Sampah' AS category,COALESCE(c.category,'') AS galleryCategory
+     FROM f4_gallery_albums g LEFT JOIN f4_gallery_categories c ON c.album_ref=g.id
+     WHERE g.id=? AND g.status='aktif'`,[id]);
    if(!album)return err("Album tidak ditemukan.",404);
-   const media=await list(db,"SELECT id,'foto' AS media_type,caption,drive_file_id,created_at FROM f4_gallery_photos WHERE album_ref=? AND status IN ('baru','ditinjau') ORDER BY created_at,id",[id]);
-   return ok({album,media:media.map((m,i)=>({id:m.id,media_type:m.media_type,caption:m.caption,external_url:f4GalleryImageUrl(m.drive_file_id),sort_order:i,hasStoredMedia:0,mediaUrl:null}))});
+   const allBank=f4BankGalleryAlbumMatch('g','c'),photoBank=f4BankGalleryPhotoMatch('p','pc');
+   const media=await list(db,`SELECT p.id,'foto' AS media_type,p.caption,p.drive_file_id,p.created_at
+     FROM f4_gallery_photos p
+     JOIN f4_gallery_albums g ON g.id=p.album_ref
+     LEFT JOIN f4_gallery_categories c ON c.album_ref=g.id
+     LEFT JOIN f4_gallery_photo_categories pc ON pc.photo_ref=p.id
+     WHERE p.album_ref=? AND g.status='aktif' AND p.status IN ('baru','ditinjau')
+     AND (${allBank} OR ${photoBank})
+     ORDER BY p.created_at,p.id LIMIT 400`,[id]);
+   if(!media.length)return err("Tidak ada foto Bank Sampah pada album ini.",404);
+   return ok({album,media:media.map((m,i)=>({id:m.id,media_type:m.media_type,caption:m.caption,
+     external_url:f4GalleryImageUrl(m.drive_file_id),sort_order:i,hasStoredMedia:0,mediaUrl:null}))});
   }
   const album = await one(db, `SELECT id,title,category,event_on,description FROM albums WHERE id=? AND visibility='publik' AND status='aktif'`, [id]);
   if (!album) return err("Album tidak ditemukan.", 404);
@@ -2355,7 +2391,9 @@ async function f4GallerySchema(db){
      "CREATE TABLE IF NOT EXISTS f4_gallery_share_links(code TEXT PRIMARY KEY,album_ref TEXT NOT NULL,photo_ref TEXT NOT NULL DEFAULT '',image_drive_id TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(album_ref,photo_ref))",
     "CREATE TABLE IF NOT EXISTS f4_gallery_tags(target_type TEXT NOT NULL,target_id TEXT NOT NULL,member_id TEXT NOT NULL,position_x REAL,position_y REAL,added_by TEXT NOT NULL,PRIMARY KEY(target_type,target_id,member_id))",
     "CREATE INDEX IF NOT EXISTS idx_f4_gallery_tags_member ON f4_gallery_tags(member_id)",
-    "CREATE TABLE IF NOT EXISTS f4_gallery_categories(album_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)"
+    "CREATE TABLE IF NOT EXISTS f4_gallery_categories(album_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_photo_categories(photo_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS idx_f4_gallery_photo_categories_category ON f4_gallery_photo_categories(category,photo_ref)"
    ];
    for(const statement of statements)await db.prepare(statement).run();
   })().catch(e=>{f4GallerySetup=null;throw e});
