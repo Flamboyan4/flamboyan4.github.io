@@ -2485,27 +2485,38 @@ async function f4GalleryMostLiked(db,env){
  }
  const photos=uploads.filter(x=>!deleted.has(x.driveId)).map(x=>({...x,url:f4GalleryImageUrl(x.driveId),
   likes:Number(x.likes||0),commentCount:Number(x.commentCount||0),commenterCount:Number(x.commenterCount||0),comments:[]}));
- if(archiveVotes.length&&byFolder.size&&f4GalleryDriveReady(env)){
+ // Recover historical rankings from the existing reaction/comment tables,
+ // using the published public archive to validate file membership instead of
+ // the broken Google Drive OAuth listing. No social records are modified.
+ if(archiveVotes.length&&byFolder.size){
+  let snapshot=null;
   try{
-   const token=await f4GalleryDriveToken(env);
-   // Arsip lama tidak dicari dari beberapa folder terbaru saja: gunakan ID
-   // yang sudah memperoleh like/komentar, lalu validasi folder publiknya.
-   const legacy=await Promise.all(archiveVotes.slice(0,24).map(async row=>{
-    const driveId=String(row.id||"").replace(/^gdrive:/,"");
-    if(!/^[A-Za-z0-9_-]{12,110}$/.test(driveId)||deleted.has(driveId)||photos.some(x=>x.driveId===driveId))return null;
-    try{
-     const file=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(driveId)+"?fields=id,name,mimeType,parents,createdTime,trashed&supportsAllDrives=true");
-     if(file.trashed||!String(file.mimeType||"").startsWith("image/"))return null;
-     const doc=(file.parents||[]).map(id=>byFolder.get(id)).find(Boolean);
-     if(!doc)return null;
-     const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[row.id]);
-     return {id:row.id,albumId:doc.id,driveId,url:f4GalleryImageUrl(driveId),
-      title:doc.title,caption:file.name||doc.title,date:file.createdTime||doc.event_on||"",
-      uploader:"Dokumentasi Flamboyan 4",likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),commenterCount:Number(row.commenterCount||0),comments};
-    }catch{return null;}
-   }));
-   photos.push(...legacy.filter(Boolean));
-  }catch(e){console.warn("Ranking foto arsip tidak dapat dimuat",String(e?.message||""))}
+   const response=await fetch("https://flamboyan4.web.id/assets/data/portal-photo-index.json",
+     {cf:{cacheTtl:300,cacheEverything:true}});
+   if(response.ok)snapshot=await response.json();
+  }catch(error){console.warn("Indeks foto arsip tidak terbaca untuk peringkat",String(error?.message||"").slice(0,140))}
+  const validArchive=new Map();
+  if(snapshot&&snapshot.folders&&typeof snapshot.folders==="object"){
+   for(const [folder,media] of Object.entries(snapshot.folders)){
+    const doc=byFolder.get(folder);
+    if(!doc||!Array.isArray(media))continue;
+    for(const file of media){
+     if(!file||file.type!=="foto"||!/^[A-Za-z0-9_-]{12,110}$/.test(file.id||""))continue;
+     validArchive.set("gdrive:"+file.id,{fileId:file.id,doc});
+    }
+   }
+  }
+  const legacy=await Promise.all(archiveVotes.slice(0,30).map(async row=>{
+   const match=validArchive.get(String(row.id||""));
+   if(!match||deleted.has(match.fileId)||photos.some(x=>x.driveId===match.fileId))return null;
+   const comments=await list(db,"SELECT c.message,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS nama FROM f4_gallery_comments c LEFT JOIN accounts a ON a.id=c.account_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE c.target_type='photo' AND c.target_id=? AND c.status='aktif' ORDER BY c.created_at DESC LIMIT 2",[row.id]);
+   return {id:row.id,albumId:match.doc.id,driveId:match.fileId,
+    url:f4GalleryImageUrl(match.fileId),title:match.doc.title,
+    caption:match.doc.title,date:match.doc.event_on||"",
+    uploader:"Dokumentasi Flamboyan 4",likes:Number(row.likes||0),
+    commentCount:Number(row.commentCount||0),commenterCount:Number(row.commenterCount||0),comments};
+  }));
+  photos.push(...legacy.filter(Boolean));
  }
  photos.sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
   Number(b.commenterCount||0)-Number(a.commenterCount||0)||
