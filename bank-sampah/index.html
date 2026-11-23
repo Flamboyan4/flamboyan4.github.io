@@ -342,11 +342,11 @@ padding:0
     #v17Program .f4-bank-program-step:last-child{border-bottom:0}
     #v17Program .f4-bank-program-step::before{
       position:absolute;left:1px;top:9px;display:grid;place-items:center;
-      width:27px;height:27px;border-radius:9px;background:#009788;
+      width:27px;height:27px;border-radius:9px;background:var(--f4-bank-primary,#087c6c);
       color:#fff;font-size:12px;font-weight:850
     }
     #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1";background:#159E6E}
-    #v17Program .f4-bank-program-step:nth-child(2)::before{content:"2";background:#009788}
+    #v17Program .f4-bank-program-step:nth-child(2)::before{content:"2";background:var(--f4-bank-primary,#087c6c)}
     #v17Program .f4-bank-program-step:nth-child(3)::before{content:"3";background:#EDB20C;color:#3A4A21}
     #v17Program .f4-bank-program-step strong{
       display:block;margin:0;color:#214e37;font-size:12.5px;font-weight:800;line-height:1.35
@@ -619,7 +619,7 @@ z-index:48
       margin:0;padding:0;border:0;border-radius:50%;background:#008f78;color:#fff}
     .v21-social-form button svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
     .v21-social-form button:disabled{opacity:.45}
-    .v21-social-shell button:focus-visible{outline:2px solid #009788;outline-offset:2px}
+    .v21-social-shell button:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:2px}
     .v21-video-shell{position:relative;display:flex;align-items:center;justify-content:center;
       width:100%;height:100%;min-height:0;min-width:0;overflow:hidden;background:#000;color:#fff}
     .v21-video-shell>video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
@@ -704,7 +704,7 @@ z-index:48
     @media(hover:hover) and (pointer:fine){
       .v22-doc-card.v22-photo-tile:hover>img{transform:scale(1.035)}
     }
-    .v22-doc-card.v22-photo-tile:focus-visible{outline:2px solid #009788;outline-offset:-2px}
+    .v22-doc-card.v22-photo-tile:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px}
     .v22-doc-card-info{
       position:absolute;z-index:1;inset:auto 0 0;display:grid;gap:3px;min-width:0;
       margin:0;padding:32px 10px 10px;
@@ -855,7 +855,7 @@ z-index:48
 }
 #pageMaster .f4-master-group-heading::-webkit-details-marker{display:none}
 #pageMaster .f4-master-group-heading::marker{content:""}
-#pageMaster .f4-master-group-heading:focus-visible{outline:2px solid #009788;outline-offset:-2px;border-radius:7px}
+#pageMaster .f4-master-group-heading:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px;border-radius:7px}
 #pageMaster .f4-master-group-meta{
  display:inline-flex;align-items:center;gap:9px;flex:none
 }
@@ -869,7 +869,7 @@ z-index:48
  font-size:13px;line-height:1.3;font-weight:850
 }
 #pageMaster .f4-master-group-heading h3::before{
- content:"";width:7px;height:7px;border-radius:50%;background:#009688;flex:none
+ content:"";width:7px;height:7px;border-radius:50%;background:var(--f4-bank-primary,#087c6c);flex:none
 }
 #pageMaster .f4-master-group:nth-child(2) .f4-master-group-heading h3::before{background:#287ab0}
 #pageMaster .f4-master-group:nth-child(3) .f4-master-group-heading h3::before{background:#43a047}
@@ -911,7 +911,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button{
  padding:8px 11px;border-radius:11px;font-size:11.5px;font-weight:800;white-space:nowrap
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin #bulkBtn{
- background:#009688;border:1px solid #009688;color:#fff
+ background:var(--f4-bank-primary,#087c6c);border:1px solid var(--f4-bank-primary,#087c6c);color:#fff
 }
 body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions button.secondary{
  box-sizing:border-box;display:grid;place-items:center;flex:none;
@@ -1260,8 +1260,8 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261122-portal-grid-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-workspaces-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261123-bank-teal-v3"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261123-bank-teal-v3">
 
 <style id="f4-bank-admin-report-compact-20261027">
 @media(min-width:1024px){#pageLaporan.card{padding:17px 19px;background:#fff}}
@@ -1846,7 +1846,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
  position:relative;isolation:isolate;overflow:hidden;
  display:grid;grid-template-columns:minmax(0,1fr);gap:13px;
  padding:23px;border-radius:23px;
- background:linear-gradient(120deg,#009688 0%,#43a047 100%);color:#fff;
+ background:linear-gradient(120deg,var(--f4-bank-primary,#087c6c) 0%,#43a047 100%);color:#fff;
  box-shadow:0 10px 23px #00968826
 }
 #pageTabungan .f4-saldo-hero::before{
@@ -1871,7 +1871,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
 #pageTabungan .f4-saldo-part strong{font-size:clamp(16px,1.7vw,21px);line-height:1.2;color:#fff;font-weight:850;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #pageTabungan .f4-savings-utility{display:flex;justify-content:flex-start;gap:8px;min-width:0;margin:0;flex-wrap:wrap}
 body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>button{width:auto;min-width:0;min-height:43px;margin:0;padding:10px 14px;border:1px solid #287ab0;border-radius:13px;background:#287ab0;color:#fff;font-size:12.5px;font-weight:800;box-shadow:none}
-body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:#009688;border-color:#009688;color:#fff}
+body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank-payout-link{background:var(--f4-bank-primary,#087c6c);border-color:var(--f4-bank-primary,#087c6c);color:#fff}
 
 #pageTabungan .f4-savings-cash-hint{color:#688074;font-size:11.5px;line-height:1.35}
 #pageTabungan #v9CashCheckStatus:not([hidden]){
@@ -2265,7 +2265,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261117-tabungan-palette-v11">
+<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261123-bank-teal-v3">
 
 
 
@@ -7858,18 +7858,18 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261122-bright-bank-palette-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261122-recent-link-v5">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261123-docs-uniform-v9">
-<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261123-progress-activity-grid-v2">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261123-member-docs-centered-v4">
-  <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261121-dock-original-restored-v1">
+<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261123-bank-teal-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261123-bank-teal-v3">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261123-bank-teal-v3">
+<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261123-bank-teal-v3">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261123-bank-teal-v3">
+  <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261123-bank-teal-v3">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261122-duplex-kertas-v1"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
 <script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261123-fix-double-docs-v8"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-public-charts-v10">
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-bank-teal-v3">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
