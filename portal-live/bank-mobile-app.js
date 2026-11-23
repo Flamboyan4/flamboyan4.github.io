@@ -160,7 +160,16 @@ function syncAdminBack(){
  const routeId=screen==="bank-admin-sale-history"?"bank-admin-history":
   screen.startsWith("bank-")?screen:"page"+screen.charAt(0).toUpperCase()+screen.slice(1);
  const active=show?$(routeId):null;
- let title=active?.querySelector(":scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
+ // A shared nested documentation heading must be reused, not replaced with "docs".
+ if(active?.id==="bank-admin-docs"){
+  const nested=active.querySelector(":scope > .f4-member-feature-header h2");
+  if(nested){
+   active.querySelectorAll(":scope > h2").forEach(heading=>{
+    if(heading.textContent.trim().toLowerCase()==="docs")heading.remove();
+   });
+  }
+ }
+ let title=active?.querySelector(":scope > .f4-member-feature-header h2, :scope > h2, :scope > .f4-savings-head > h2, :scope > .toolbar h2, :scope > .f4-profile-header h2");
  if(show&&active&&!title){
   // Fallback untuk halaman lama tanpa heading: tetap satu baris, tanpa Back terpisah.
   title=el("h2","",screen==="profile"?"Profil Pengurus":
