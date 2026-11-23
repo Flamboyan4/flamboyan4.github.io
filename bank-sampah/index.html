@@ -656,21 +656,6 @@ z-index:48
       border:1px solid #d9e7dd;border-radius:11px;
       background:#fff;color:#254c37;font-size:12px
     }
-    .v22-doc-filter{
-      display:flex;flex-wrap:nowrap;align-items:center;gap:7px;
-      min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;
-      margin:0 0 12px;padding:1px 0 4px;
-      scrollbar-width:none;overscroll-behavior-x:contain
-    }
-    .v22-doc-filter::-webkit-scrollbar{display:none}
-    .v22-doc-filter[hidden]{display:none}
-    .v22-doc-filter button{
-      flex:none;min-height:34px;margin:0;padding:7px 12px;
-      border:1px solid #d8e6dd;border-radius:999px;
-      background:#fff;color:#456c56;font-size:11px;font-weight:750;
-      white-space:nowrap;box-shadow:none
-    }
-    .v22-doc-filter button.active{background:#087755;color:#fff;border-color:#087755}
     .v22-doc-list{
       box-sizing:border-box;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
       align-content:start;gap:4px;width:100%;min-width:0;margin:0;padding:0
@@ -682,12 +667,14 @@ z-index:48
       background:#edf3ef;color:#fff;text-align:left;box-shadow:none;cursor:pointer
     }
     .v22-doc-card.v22-photo-tile>img,
+    .v22-doc-card.v22-photo-tile>video,
     .v22-doc-card.v22-photo-tile>.v21-placeholder{
       position:absolute;inset:0;display:block;width:100%;height:100%;
       margin:0;border:0;border-radius:0;object-fit:cover
     }
     .v22-doc-card.v22-photo-tile>.v21-placeholder{display:grid;place-items:center;color:#257d5b}
     .v22-doc-card.v22-photo-tile>img{transition:transform .22s ease}
+    .v22-doc-card.v22-photo-tile>video{pointer-events:none;object-fit:cover}
     @media(hover:hover) and (pointer:fine){
       .v22-doc-card.v22-photo-tile:hover>img{transform:scale(1.035)}
     }
@@ -6037,7 +6024,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   v21PrepareSections();
   // v22 — halaman dokumentasi kategori, tanpa tombol galeri pada kartu preview.
   const v22Categories=['Semua','Kerja Bakti','Penimbangan','Arisan','Acara','Lainnya','Inventaris'];
-  let v22ActiveCategory='Semua',v22Query='';
+  let v22Query='';
   // Label baru tanpa migrasi data lama: spreadsheet tetap menyimpan "Umum".
   function v23CategoryLabel(raw){return !raw||raw==='Umum'?'Lainnya':raw;}
   function v23CategoryValue(label){return label==='Lainnya'?'Umum':label;}
@@ -6079,12 +6066,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     back.insertAdjacentHTML('afterbegin','<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7M5 12h14"/></svg>');back.onclick=v22BackHome;
     heading.append(title,back);
     const count=v21Node('p','v17-subtle');count.id='v22DocCount';
-    const filter=v21Node('div','v22-doc-filter');filter.id='v22DocFilters';
     const search=document.createElement('input');search.id='v22DocSearch';search.className='v22-search';search.type='search';search.placeholder='Cari album kegiatan...';
     search.setAttribute('aria-label','Cari album');search.oninput=()=>{v22Query=search.value.trim().toLowerCase();v22RenderDocs();};
     const list=v21Node('div','v22-doc-list');list.id='v22DocList';
     const tools=v21Node('div','v22-doc-tools');tools.append(count,search);
-    page.append(heading,tools,filter,list);main.appendChild(page);
+    page.append(heading,tools,list);main.appendChild(page);
     const side=$('v18PublicSide');side?.querySelectorAll('button[data-public-menu]').forEach(btn=>{
       const old=btn.onclick;
       if(btn.dataset.publicMenu==='docs')btn.onclick=()=>{side.querySelectorAll('button').forEach(n=>n.classList.toggle('active',n===btn));v18ClosePublic();v22OpenDocs();};
@@ -6103,18 +6089,25 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(scroll)window.scrollTo({top:0,behavior:'smooth'});
   }
   // One shared three-column photo feed for public, member and manager documentation.
-  // The same album objects, category filters and social lightbox serve every role.
+  // The same album objects, search and social lightbox serve every role.
   function v22AlbumMedia(album){
     return (Array.isArray(album.media)?album.media:[]).map(media=>{
       const src=String(media?.src||media?.url||'').trim();
-      const thumb=String(media?.thumb||src).trim();
       const kind=String(media?.jenis||media?.type||'foto').toLowerCase();
       if(!/^https:\/\//i.test(src)||/folder|tautan_album|album google drive|external_link/.test(kind)||/\/folders\//i.test(src))return null;
-      return {
-        id:String(media?.id||''),nama:String(media?.caption||media?.nama||''),
-        jenis:/video|youtube/.test(kind)?'Video':'Foto',
-        src,thumb:/^https:\/\//i.test(thumb)?thumb:src
-      };
+      const isVideo=/video|youtube/.test(kind);
+      const rawThumb=String(media?.thumb||'').trim();
+      const explicitId=String(media?.id||'').replace(/^gdrive:/,'');
+      const driveMatch=src.match(/(?:\/file\/d\/|\/gallery\/video\/|[?&]id=)([A-Za-z0-9_-]{12,110})/i);
+      const driveId=/^[A-Za-z0-9_-]{12,110}$/.test(explicitId)?explicitId:driveMatch?.[1]||'';
+      const youtubeId=src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})(?:[?&#/]|$)/i)?.[1]||'';
+      const thumb=isVideo
+        ?(/^https:\/\//i.test(rawThumb)&&!\/\.(mp4|mov|webm)(?:[?#]|$)/i.test(rawThumb)
+          ?rawThumb:driveId?'https://drive.google.com/thumbnail?id='+encodeURIComponent(driveId)+'&sz=w1200'
+          :youtubeId?'https://img.youtube.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg':'')
+        :(/^https:\/\//i.test(rawThumb)?rawThumb:src);
+      return {id:String(media?.id||''),nama:String(media?.caption||media?.nama||''),
+        jenis:isVideo?'Video':'Foto',src,thumb};
     }).filter(Boolean);
   }
   function v22OpenFeedMedia(album,mediaIndex){
@@ -6124,24 +6117,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     v21EnsureModals();v21OpenLightbox(mediaIndex);
   }
   function v22RenderDocs(){
-    const filters=$('v22DocFilters'),list=$('v22DocList');if(!filters||!list)return;
-    filters.replaceChildren();
-    v22Categories.filter(c=>c!=='Inventaris').forEach(category=>{
-      const button=v21Node('button',v22ActiveCategory===category?'active':'',category);
-      button.type='button';button.setAttribute('aria-pressed',String(v22ActiveCategory===category));
-      button.onclick=()=>{v22ActiveCategory=category;v22RenderDocs();};
-      filters.append(button);
-    });
+    const list=$('v22DocList');if(!list)return;
     const albums=v21Albums.filter(album=>
       v23CategoryLabel(album.kategori)!=='Inventaris'&&
-      (v22ActiveCategory==='Semua'||v23CategoryLabel(album.kategori)===v22ActiveCategory)&&
       (!v22Query||[album.judul,album.deskripsi,album.kategori,
         ...(album.media||[]).map(media=>media.caption||media.nama||'')]
         .join(' ').toLowerCase().includes(v22Query)))
       .slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
     const count=$('v22DocCount');
     const hasAlbums=v21Albums.some(album=>v23CategoryLabel(album.kategori)!=='Inventaris');
-    filters.hidden=!hasAlbums;
     const search=$('v22DocSearch');if(search)search.hidden=!hasAlbums;
     list.replaceChildren();
     let photos=0;
@@ -6164,13 +6148,18 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         const tile=v21Node('button','v22-doc-card v22-photo-tile');
         tile.type='button';
         tile.setAttribute('aria-label','Lihat '+(media.jenis==='Video'?'video':'foto')+' dari album '+(album.judul||'Dokumentasi'));
-        if(media.jenis==='Foto'&&/^https:\/\//i.test(media.thumb)){
-          const img=v21Photo(media.thumb,'Dokumentasi kegiatan');
+        if(/^https:\/\//i.test(media.thumb)){
+          const img=v21Photo(media.thumb,media.jenis==='Video'?'Cuplikan video kegiatan':'Dokumentasi kegiatan');
           img.loading='lazy';tile.append(img);
+        }else if(media.jenis==='Video'&&/^https:\/\//i.test(media.src)&&/\.(mp4|webm|mov)(?:[?#]|$)/i.test(media.src)){
+          const preview=document.createElement('video');preview.src=media.src.split('#')[0]+'#t=0.1';
+          preview.preload='metadata';preview.muted=true;preview.playsInline=true;
+          preview.setAttribute('muted','');preview.setAttribute('playsinline','');
+          preview.setAttribute('aria-hidden','true');tile.append(preview);
         }else{
           tile.append(v21IconNode('div','v21-placeholder','camera'));
-          tile.classList.add('is-video');
         }
+        if(media.jenis==='Video')tile.classList.add('is-video');
         const meta=v21Node('span','v22-doc-card-info');
         meta.append(v21Node('strong','',album.judul||'Dokumentasi'),
           v21Node('small','',v23CategoryLabel(album.kategori)));
