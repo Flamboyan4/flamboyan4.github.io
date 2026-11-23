@@ -49,13 +49,13 @@
  font-size:11px;font-weight:750;line-height:1.2;white-space:nowrap;cursor:pointer;touch-action:manipulation
 }
 #v17Perkembangan .f4-dev-modes button{min-width:35px}
-#v17Perkembangan .f4-dev-controls button.is-active{background:var(--f4-bank-teal,#009788);color:#fff}
+#v17Perkembangan .f4-dev-controls button.is-active{background:var(--f4-bank-primary,#087c6c);color:#fff}
 /* Hide choices only when the public mode genuinely has no other available option. */
 #v17Perkembangan .f4-dev-controls:not(:has([data-dev-range="30"]:not([hidden]))){display:none}
 #v17Perkembangan .f4-dev-controls button:focus-visible,
 #v17Perkembangan .f4-dev-show-more:focus-visible,
 #v17Perkembangan .f4-dev-activity:focus-visible{
- outline:2px solid #14845c;outline-offset:2px
+ outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:2px
 }
 #v17Perkembangan .f4-dev-chart-summary{
  display:flex;align-items:baseline;gap:9px;min-height:0;margin:0 0 12px
@@ -142,7 +142,7 @@
 #v17Perkembangan .f4-dev-timeline-head strong{display:none}
 #v17Perkembangan .f4-dev-show-more{
  margin:0;padding:4px 1px;border:0;border-radius:4px;
- background:transparent;color:#13846b;font-size:11px;font-weight:750;cursor:pointer
+ background:transparent;color:var(--f4-bank-primary,#087c6c);font-size:11px;font-weight:750;cursor:pointer
 }
 #v17Perkembangan .f4-dev-show-more[hidden]{display:none}
 #v17Perkembangan .f4-dev-timeline{
