@@ -76,19 +76,19 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   min-height:40px;margin:2px 0;padding:9px 12px;border:0;border-radius:10px;
   background:transparent;color:#315347;
   font:650 13px/1.25 system-ui,-apple-system,sans-serif;
-  box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:#20b86b
+  box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:var(--f4-bank-primary,#087c6c)
  }
  /* Sidebar accents: clear category color without additional frames. */
- body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(2){--member-nav-accent:var(--f4-bank-teal,#009e91)}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(2){--member-nav-accent:var(--f4-bank-primary,#087c6c)}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(3){--member-nav-accent:var(--f4-bank-sky,#168fcc)}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(4){--member-nav-accent:#996f00}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(5){--member-nav-accent:#689d21}
- body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(6){--member-nav-accent:var(--f4-bank-teal,#009e91)}
+ body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:nth-child(6){--member-nav-accent:var(--f4-bank-primary,#087c6c)}
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:is(.active,[aria-current="page"]){
-  background:#d9f8e7;color:#096a4e;font-weight:800;box-shadow:none
+  background:var(--f4-bank-primary-soft,#e3f6f1);color:var(--f4-bank-primary-dark,#086356);font-weight:800;box-shadow:none
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item:not(.active):hover{
-  background:#f2f9f0;color:#2c7047
+  background:var(--f4-bank-primary-soft,#e3f6f1);color:var(--f4-bank-primary-dark,#086356)
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item svg{
   box-sizing:border-box;display:block;flex:none;width:18px;height:18px;
@@ -308,10 +308,10 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  line-height:1.2;box-shadow:none;white-space:nowrap
 }
 #dashboardView .f4-member-progress-period button.is-active{
- background:#fff;color:#086c44;box-shadow:0 1px 4px #134b271a
+ background:#fff;color:var(--f4-bank-primary-dark,#086356);box-shadow:0 1px 4px #134b271a
 }
 #dashboardView .f4-member-progress-period button:focus-visible{
- outline:2px solid #087a52;outline-offset:1px
+ outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:1px
 }
 #dashboardView .f4-member-progress-chart{display:grid;align-items:stretch;min-width:0}
 #dashboardView .f4-member-progress-bars{
@@ -322,7 +322,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  min-width:0;gap:7px;align-items:end;text-align:center
 }
 #dashboardView .f4-member-progress-column strong{
- color:#008d82;font-size:12px;line-height:1.2;font-weight:850;
+ color:var(--f4-bank-primary,#087c6c);font-size:12px;line-height:1.2;font-weight:850;
  font-variant-numeric:tabular-nums;white-space:nowrap
 }
 #dashboardView .f4-member-progress-rail{
@@ -331,7 +331,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 }
 #dashboardView .f4-member-progress-fill{
  display:block;position:absolute;inset:auto 0 0;width:100%;
- border-radius:7px 7px 4px 4px;background:linear-gradient(180deg,#19b9b0,#009788)
+ border-radius:7px 7px 4px 4px;background:linear-gradient(180deg,var(--f4-bank-primary-bright,#0b9884),var(--f4-bank-primary,#087c6c))
 }
 #dashboardView .f4-member-progress-column small{
  color:#65806b;font-size:11px;line-height:1.3;font-weight:700
