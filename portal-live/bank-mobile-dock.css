@@ -74,11 +74,11 @@
   white-space:nowrap;text-align:center;font-size:11px;line-height:1.15
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-active{
-  background:linear-gradient(145deg,#e2f9ed,#d8f8ec);
-  color:#08664f;font-weight:850
+  background:var(--f4-bank-primary-soft,#e3f6f1);
+  color:var(--f4-bank-primary-dark,#086356);font-weight:850
  }
  body.f4-bank-app-private .f4-bank-app-dock-action:focus-visible{
-  outline:2px solid #278655;outline-offset:-2px
+  outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px
  }
  /* Satu komponen tombol utama untuk Warga dan Pengelola.
     Posisi, diameter, jarak, garis putih dan interaksi sama; hanya ikon sesuai peran. */
@@ -112,7 +112,7 @@
   filter:brightness(0) saturate(100%) invert(19%) sepia(28%) saturate(862%) hue-rotate(100deg) brightness(91%) contrast(95%)
  }
  body.f4-bank-app-private .f4-bank-app-dock-action.is-primary:focus-visible{
-  outline:2px solid #218a55;outline-offset:3px;border-radius:50%
+  outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:3px;border-radius:50%
  }
 
 
