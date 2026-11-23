@@ -201,7 +201,7 @@ async function loadPortalArchive(){
  document.dispatchEvent(new Event('f4:gallery:ready'));
  const targetAlbum=new URLSearchParams(location.search).get('album');
  if(targetAlbum){
-  const selected=docs.find(d=>d.id===targetAlbum);
+  const selected=docs.find(d=>d.id===targetAlbum||(targetAlbum.startsWith('gfolder:')&&folderId(d.folder)===targetAlbum.slice(8)));
   if(selected)await openAlbum(selected);
  }
  // Batasi permintaan Drive supaya banyak album tidak membanjiri Worker.
