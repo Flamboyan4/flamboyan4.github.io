@@ -77,9 +77,12 @@
   if(document.querySelector('.f4-control-overlay')&&!document.body.classList.contains('f4-direct-bank')){grip.hidden=true;return;}
   // Never read panel geometry or overwrite the grip while a gesture is in flight.
   if(drag?.panel?.isConnected||animating?.panel?.isConnected)return;
-  // Full-screen lightbox must have no drag control on top of the photo.
-  const lightbox=document.querySelector('.v21-lightbox:not(.hidden):not([hidden])');
-  if(lightbox&&lightbox.getClientRects().length){grip.hidden=true;return;}
+  // Native Portal Utama and Bank Sampah lightboxes are never bottom sheets.
+  // A gallery sheet may remain mounted behind the fullscreen viewer.
+  const lightbox=document.querySelector(
+   '#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])'
+  );
+  if(lightbox&&lightbox.getClientRects().length){active=null;grip.hidden=true;return;}
   // Choose the uppermost currently visible sheet. A newer date picker/dialog
   // must not inherit the handle of a still-open sheet underneath it.
   let latest=null;
