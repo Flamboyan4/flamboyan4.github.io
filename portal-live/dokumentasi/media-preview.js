@@ -132,6 +132,25 @@ async function listMedia(doc){
  doc.media=combined;
  return doc.media;
 }
+
+async function hydrateArchiveCovers(){
+ const pending=docs.slice(0,75);
+ let cursor=0;
+ await Promise.allSettled(Array.from({length:Math.min(4,pending.length)},async()=>{
+  while(cursor<pending.length){
+   const doc=pending[cursor++];
+   try{
+    const media=await listMedia(doc);
+    const image=media.find(x=>x.type==='foto')||media[0];
+    if(image?.url){doc.cover=image.url;doc._recentMedia=media.slice(0,4);}
+   }catch(error){console.warn('Sampul dokumentasi belum tersedia:',doc.title,error.message||error)}
+  }
+ }));
+ // Redraw once so the cards do not reload the same images repeatedly.
+ drawAlbums();
+ publishRecentMedia();
+}
+
 async function loadPortalArchive(){
  const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
  // Try the public D1 read model first, just like the Portal Utama bridge.
@@ -212,24 +231,7 @@ async function loadPortalArchive(){
   const selected=docs.find(d=>d.id===targetAlbum||(targetAlbum.startsWith('gfolder:')&&folderId(d.folder)===targetAlbum.slice(8)));
   if(selected)await openAlbum(selected);
  }
- // Batasi permintaan Drive supaya banyak album tidak membanjiri Worker.
- const pending=docs.slice(0,75);
- let cursor=0;
- await Promise.allSettled(Array.from({length:Math.min(4,pending.length)},async()=>{
-  while(cursor<pending.length){
-   const doc=pending[cursor++];
-   try{
-    const media=await listMedia(doc);
-    const image=media.find(x=>x.type==='foto')||media[0];
-    if(image?.url){
-     doc.cover=image.url;
-     doc._recentMedia=media.slice(0,4);
-     drawAlbums();
-     publishRecentMedia();
-    }
-   }catch(error){console.warn('Sampul dokumentasi belum tersedia:',doc.title,error.message||error);}
-  }
- }));
+ await hydrateArchiveCovers();
  window.F4Loading?.success('feedback',indicator);
 }
 const $=id=>document.getElementById(id);
@@ -386,5 +388,10 @@ addEventListener('popstate',()=>tab(new URLSearchParams(location.search).get('ha
 drawFilters();drawAlbums();drawInventory();const legacyInventory=location.hash==='#inventaris';
 if(legacyInventory){const url=new URL(location.href);url.hash='';url.searchParams.set('halaman','inventaris');history.replaceState(history.state,'',url.pathname+url.search)}
 tab(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false);
-loadPortalArchive().catch(error=>{docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
- publishRecentMedia();drawAlbums();document.dispatchEvent(new Event('f4:gallery:ready'));status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');});
+loadPortalArchive().catch(async error=>{
+ docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
+ window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
+ await hydrateArchiveCovers();
+ document.dispatchEvent(new Event('f4:gallery:ready'));
+ status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');
+});
