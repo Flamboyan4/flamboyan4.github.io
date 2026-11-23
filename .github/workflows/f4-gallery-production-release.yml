@@ -1,5 +1,5 @@
 name: F4 Gallery Production Worker Release
-# Gallery hotfix 2026-11-23: publish read-only Drive folder media and public album photo proxy.
+# Gallery release 2026-11-23: restore archived photo popularity without OAuth, preserving all social records.
 run-name: "Gallery API release ${{ github.sha }}"
 on:
   push:
@@ -126,6 +126,12 @@ jobs:
                   return json.load(response)
           gallery=get("/api/v2/gallery")
           assert gallery.get("ok") is True,"Public gallery unavailable after release"
+          ranked=get("/api/v2/gallery/popular")
+          archive=[p for p in ranked.get("popular",[]) if str(p.get("id","")).startswith("gdrive:")]
+          print("LIVE_SOCIAL_RANK_ARCHIVE_COUNT="+str(len(archive)))
+          print("LIVE_SOCIAL_RANK_ARCHIVE_SAMPLE="+str([(p.get("id"),p.get("likes"),p.get("commentCount")) for p in archive[:8]]))
+          assert len(archive)>=4,"Archived popular photos with preserved likes/comments were not restored"
+          assert any(int(p.get("likes") or 0)>=2 for p in archive),"Most liked archive photo is missing from ranking"
           # Diagnostic for archival photos: only a known, formerly public documentation folder.
           # Its result is read-only and no OAuth tokens are logged.
           from urllib.error import HTTPError
