@@ -4088,19 +4088,6 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
 #pagePenjualan .f4-bank-sale-diff[data-state="difference"]{color:#986323}
 #pagePenjualan .f4-bank-sale-diff[data-state="excess"]{color:#a43d2f}
 #pagePenjualan .f4-bank-sale-receipt-action{display:inline-flex;margin:10px 0 0;padding:8px 12px;border-radius:9px}
-.f4-bank-prices-screen{max-width:900px;width:100%;margin-inline:auto}
-.f4-bank-prices-intro{color:#5c7767;font-size:13px;line-height:1.5;margin:3px 0 14px}
-.f4-bank-price-search{display:block;width:100%;min-height:43px;padding:10px 13px;
- border-radius:10px;border:1px solid #cbded1;background:#fff;color:#193c2b;font:inherit}
-.f4-bank-prices-status{font-size:12px;color:#6c7c70;margin:9px 0}
-.f4-bank-prices-groups{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
-.f4-bank-prices-group{min-width:0;padding:12px 15px;border:1px solid #e0e9e3;border-radius:12px;background:#fff}
-.f4-bank-prices-group h3{margin:0 0 5px;color:#175f40;font-size:14px}
-.f4-bank-price-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
- padding:9px 0;border-bottom:1px solid #edf1ed;font-size:13px}
-.f4-bank-price-row:last-child{border-bottom:0}
-.f4-bank-price-row span{overflow-wrap:anywhere;color:#284638}
-.f4-bank-price-row strong{white-space:nowrap;color:#18583b;font-variant-numeric:tabular-nums}
 @media(max-width:720px){
  #pagePenjualan .f4-sale-top-fields>.f4-bank-sheet-tools{
   grid-template-columns:minmax(0,1fr) auto;padding:9px 10px
@@ -4109,7 +4096,6 @@ body.f4-bank-app-admin #dashboardView #pageMaster>.toolbar h2{
  #pagePenjualan .f4-bank-sheet-actions{justify-content:flex-end}
  #pagePenjualan .f4-bank-sheet-actions button{flex:0 1 auto;min-width:95px}
  #pagePenjualan .f4-bank-sheet-actions button:not([hidden])+button:not([hidden]){flex:1 1 100%}
- .f4-bank-prices-group{padding:10px 12px}
 }
 
 /* Tanggal laporan anggota: pilihan ringkas pada panel yang sudah ada. */
@@ -4225,7 +4211,10 @@ dialog.f4-bank-sheet-modal::backdrop{background:#152b2673;backdrop-filter:blur(2
 }
 .f4-bank-schedule-dialog .f4-bank-schedule-cycle{color:#527561;font-size:12px;font-weight:650}
 .f4-bank-schedule-dialog .f4-bank-schedule-note{font-size:13px;line-height:1.45;color:#5f7467;margin:15px 2px 0}
-.f4-bank-prices-screen .f4-bank-prices-intro{color:#64786d;font-size:12px;margin:0 0 14px;line-height:1.4}
+/* Member price list: same flat illustrated category tiles as public, with a floating detail bubble. */
+.f4-bank-prices-screen .f4-bank-prices-intro{
+ color:#64786d;font-size:12px;margin:0 0 14px;line-height:1.4
+}
 .f4-bank-prices-screen .f4-bank-price-search{
  box-sizing:border-box;width:100%;height:43px;padding:10px 12px;margin:0;
  background:#f7faf8;border:1px solid #dbe8df;border-radius:11px;
@@ -4233,26 +4222,107 @@ dialog.f4-bank-sheet-modal::backdrop{background:#152b2673;backdrop-filter:blur(2
 }
 .f4-bank-prices-screen .f4-bank-prices-status{margin:11px 0;color:#6d8275;font-size:11px}
 .f4-bank-prices-screen .f4-bank-prices-groups{
- display:grid;grid-template-columns:1fr;gap:13px;min-width:0
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:2px 13px;min-width:0;margin:0;padding:0
 }
 .f4-bank-prices-screen .f4-bank-prices-group{
- margin:0;padding:0;border:0;background:transparent
+ box-sizing:border-box;min-width:0;margin:0;padding:0;
+ border:0;border-bottom:1px solid #e6eee8;border-radius:0;background:transparent
 }
-.f4-bank-prices-screen .f4-bank-prices-group h3{
- margin:0 0 7px;font-size:12px;color:#1b6b44;font-weight:850
+.f4-bank-prices-screen .f4-bank-prices-group.is-active{
+ border-bottom-color:var(--f4-bank-primary,#087c6c)
 }
+.f4-bank-prices-screen .f4-bank-price-category-btn{
+ box-sizing:border-box;display:grid;grid-template-columns:64px minmax(0,1fr);
+ grid-template-rows:auto auto;align-content:center;align-items:center;
+ column-gap:8px;row-gap:4px;width:100%;min-height:107px;
+ margin:0;padding:9px 3px;border:0;border-radius:0;
+ background:transparent;color:#164f37;text-align:left;cursor:pointer
+}
+.f4-bank-prices-screen .f4-bank-price-category-illustration{
+ grid-column:1;grid-row:1/3;display:grid;place-items:center;
+ width:64px;height:72px;min-width:0
+}
+.f4-bank-prices-screen .f4-bank-price-category-illustration svg{
+ display:block;width:64px;height:67px;max-width:100%
+}
+.f4-bank-prices-screen .f4-bank-price-category-title{
+ grid-column:2;grid-row:1;min-width:0;align-self:end;
+ color:#164f37;font-size:13px;font-weight:850;line-height:1.25
+}
+.f4-bank-prices-screen .f4-bank-price-category-btn:hover .f4-bank-price-category-title,
+.f4-bank-prices-screen .f4-bank-prices-group.is-active .f4-bank-price-category-title{
+ color:var(--f4-bank-primary,#087c6c)
+}
+.f4-bank-prices-screen .f4-bank-price-category-meta{
+ grid-column:2;grid-row:2;display:flex;align-items:center;
+ justify-content:space-between;gap:5px;min-width:0;align-self:start;
+ color:#668272;font-size:10px;font-weight:700
+}
+.f4-bank-prices-screen .f4-bank-price-category-meta svg{
+ flex:none;width:15px;height:15px;color:var(--f4-bank-primary,#087c6c);
+ transition:transform .18s
+}
+.f4-bank-prices-screen .f4-bank-prices-group.is-active .f4-bank-price-category-meta svg{
+ transform:rotate(90deg)
+}
+.f4-bank-prices-screen .f4-bank-price-category-btn:focus-visible{
+ outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px;border-radius:8px
+}
+.f4-bank-prices-screen .f4-bank-price-bubble{
+ box-sizing:border-box;position:fixed;z-index:5;
+ min-width:0;margin:0;padding:0;
+ border:1px solid var(--f4-bank-primary-line,#b9e7dc);
+ border-radius:15px;background:#fff;box-shadow:0 15px 38px #183e2d30,0 3px 10px #183e2d12;
+ color:#234c36;overflow-y:auto;overscroll-behavior:contain;
+ scrollbar-width:none
+}
+.f4-bank-prices-screen .f4-bank-price-bubble[hidden]{display:none}
+.f4-bank-prices-screen .f4-bank-price-bubble::-webkit-scrollbar{display:none}
+.f4-bank-prices-screen .f4-bank-price-bubble-head{
+ position:sticky;top:0;z-index:1;display:flex;align-items:center;
+ justify-content:space-between;gap:9px;min-height:57px;
+ padding:11px 13px;border-bottom:1px solid #e5eee9;background:#fff
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-head>div{
+ display:grid;gap:3px;min-width:0
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-head strong{
+ color:#174c34;font-size:14px;font-weight:850;line-height:1.25
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-head small{
+ color:#688274;font-size:10.5px
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-close{
+ display:grid;place-items:center;flex:none;width:30px;height:30px;
+ padding:0;border:0;border-radius:8px;background:var(--f4-bank-primary-soft,#e3f6f1);
+ color:var(--f4-bank-primary-dark,#086356);cursor:pointer
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-close svg{width:18px;height:18px}
+.f4-bank-prices-screen .f4-bank-price-bubble-list{padding:2px 13px 0}
 .f4-bank-prices-screen .f4-bank-price-row{
- display:flex;align-items:center;justify-content:space-between;gap:14px;
- padding:10px 0;margin:0;border:0;border-bottom:1px solid #ecf1ed;
- font-size:13px;color:#294835;background:transparent
+ display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+ padding:11px 0;border:0;border-bottom:1px solid #e7efe9;
+ color:#365f49;font-size:12px;line-height:1.4
 }
+.f4-bank-prices-screen .f4-bank-price-row:last-child{border-bottom:0}
+.f4-bank-prices-screen .f4-bank-price-row span{flex:1;min-width:0;overflow-wrap:anywhere}
 .f4-bank-prices-screen .f4-bank-price-row strong{
- flex:none;color:#126b43;font-weight:850;font-variant-numeric:tabular-nums
+ flex:none;color:var(--f4-bank-primary,#087c6c);font-weight:800;
+ font-variant-numeric:tabular-nums;white-space:nowrap
+}
+.f4-bank-prices-screen .f4-bank-price-bubble-note{
+ margin:5px 13px 12px;padding-top:9px;border-top:1px solid #e7efe9;
+ color:#738a7b;font-size:10px;line-height:1.4
 }
 @media(max-width:600px){
  dialog.f4-bank-sheet-modal{width:calc(100vw - 20px);max-height:88dvh;padding:16px;border-radius:17px}
  .f4-bank-sheet-modal .f4-bank-modal-heading h2{font-size:18px}
  .f4-bank-schedule-dialog .f4-bank-schedule-date{font-size:17px}
+ .f4-bank-prices-screen .f4-bank-price-category-btn{grid-template-columns:53px minmax(0,1fr);column-gap:5px;min-height:92px;padding:7px 2px}
+ .f4-bank-prices-screen .f4-bank-price-category-illustration{width:53px;height:61px}
+ .f4-bank-prices-screen .f4-bank-price-category-illustration svg{width:53px;height:60px}
+ .f4-bank-prices-screen .f4-bank-price-category-title{font-size:12px}
 }
 
 /* Bottom sheet native pengelola: sembilan menu, satu owner, tidak memakai drawer. */
