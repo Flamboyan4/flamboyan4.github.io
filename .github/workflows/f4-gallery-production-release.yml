@@ -126,6 +126,15 @@ jobs:
                   return json.load(response)
           gallery=get("/api/v2/gallery")
           assert gallery.get("ok") is True,"Public gallery unavailable after release"
+          # Diagnostic for archival photos: only a known, formerly public documentation folder.
+          # Its result is read-only and no OAuth tokens are logged.
+          from urllib.error import HTTPError
+          archive_ref="gfolder:1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA"
+          try:
+              archived=get("/api/v2/gallery/folder?"+urllib.parse.urlencode({"album":archive_ref}))
+              print("LIVE_ARCHIVE_FOLDER_HTTP=200 PHOTO_COUNT="+str(len(archived.get("media") or [])))
+          except HTTPError as e:
+              print("LIVE_ARCHIVE_FOLDER_HTTP="+str(e.code)+" (check Drive OAuth permissions if not 200)")
           assert isinstance(gallery.get("categories"),list),"New gallery API not active"
           items=gallery.get("albums") or []
           if items:
