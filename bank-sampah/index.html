@@ -5637,6 +5637,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         album.media=[{jenis:'Foto',nama:album.judul||'Dokumentasi',src:album.sampul,thumb:album.sampul}];
       }
     }
+    v22RenderDocs();
     const photos=v21PublicFeedPhotos(recent);
     if(!photos.length){area.textContent='Foto kegiatan belum tersedia.';return;}
     const galleryMedia=photos.map(({album,item,src})=>({
@@ -6047,45 +6048,90 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     page.classList.add('hidden');page.parentElement.classList.remove('v22-show-docs');
     if(scroll)window.scrollTo({top:0,behavior:'smooth'});
   }
+  // One shared three-column photo feed for public, member and manager documentation.
+  // The same album objects, category filters and social lightbox serve every role.
+  function v22AlbumMedia(album){
+    return (Array.isArray(album.media)?album.media:[]).map(media=>{
+      const src=String(media?.src||media?.url||'').trim();
+      const thumb=String(media?.thumb||src).trim();
+      const kind=String(media?.jenis||media?.type||'foto').toLowerCase();
+      if(!/^https:\/\//i.test(src)||/folder|album google drive/.test(kind))return null;
+      return {
+        id:String(media?.id||''),nama:String(media?.caption||media?.nama||''),
+        jenis:/video|youtube/.test(kind)?'Video':'Foto',
+        src,thumb:/^https:\/\//i.test(thumb)?thumb:src
+      };
+    }).filter(Boolean);
+  }
+  function v22OpenFeedMedia(album,mediaIndex){
+    const media=v22AlbumMedia(album);
+    if(!media.length){v21OpenAlbum(album.id);return;}
+    v21OpenedAlbum={judul:album.judul||'Dokumentasi',tanggal:album.tanggal||'',media};
+    v21EnsureModals();v21OpenLightbox(mediaIndex);
+  }
   function v22RenderDocs(){
     const filters=$('v22DocFilters'),list=$('v22DocList');if(!filters||!list)return;
-    filters.replaceChildren();v22Categories.filter(c=>c!=='Inventaris').forEach(c=>{
-      const btn=v21Node('button',v22ActiveCategory===c?'active':'',c);btn.type='button';
-      btn.onclick=()=>{v22ActiveCategory=c;v22RenderDocs();};filters.appendChild(btn);
+    filters.replaceChildren();
+    v22Categories.filter(c=>c!=='Inventaris').forEach(category=>{
+      const button=v21Node('button',v22ActiveCategory===category?'active':'',category);
+      button.type='button';button.setAttribute('aria-pressed',String(v22ActiveCategory===category));
+      button.onclick=()=>{v22ActiveCategory=category;v22RenderDocs();};
+      filters.append(button);
     });
-    const rows=v21Albums.filter(a=>v23CategoryLabel(a.kategori)!=='Inventaris'&&
-      (v22ActiveCategory==='Semua'||v23CategoryLabel(a.kategori)===v22ActiveCategory)&&
-      (!v22Query||(a.judul+' '+a.deskripsi+' '+a.kategori).toLowerCase().includes(v22Query)));
+    const albums=v21Albums.filter(album=>
+      v23CategoryLabel(album.kategori)!=='Inventaris'&&
+      (v22ActiveCategory==='Semua'||v23CategoryLabel(album.kategori)===v22ActiveCategory)&&
+      (!v22Query||[album.judul,album.deskripsi,album.kategori,
+        ...(album.media||[]).map(media=>media.caption||media.nama||'')]
+        .join(' ').toLowerCase().includes(v22Query)))
+      .slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
     const count=$('v22DocCount');
-    if(count){count.textContent=rows.length+' album kegiatan';count.hidden=rows.length===0;}
-    const hasAlbums=v21Albums.some(a=>v23CategoryLabel(a.kategori)!=='Inventaris');
+    const hasAlbums=v21Albums.some(album=>v23CategoryLabel(album.kategori)!=='Inventaris');
     filters.hidden=!hasAlbums;
     const search=$('v22DocSearch');if(search)search.hidden=!hasAlbums;
     list.replaceChildren();
-    const memberFeed=!!list.closest('#bank-member-docs');
-    rows.forEach(a=>{
-      const card=v21Node('button','v22-doc-card'+(memberFeed?' v22-member-feed-post':''));card.type='button';
-      if(memberFeed){
-        const header=v21Node('div','v22-feed-post-head');
-        const avatar=v21IconNode('span','v22-feed-avatar','camera');
-        const identity=v21Node('div','v22-feed-post-identity');
-        identity.append(v21Node('strong','','Bank Sampah Flamboyan 4'));
-        const meta=v21Node('small','',(a.tanggal||'')+' · '+v23CategoryLabel(a.kategori));
-        identity.append(meta);header.append(avatar,identity);card.append(header);
+    let photos=0;
+    for(const album of albums){
+      const items=v22AlbumMedia(album);
+      if(!items.length){
+        if(!/^https:\/\//i.test(String(album.sampul||'')))continue;
+        const tile=v21Node('button','v22-doc-card v22-photo-tile');
+        tile.type='button';tile.setAttribute('aria-label','Buka album '+(album.judul||'Dokumentasi'));
+        tile.appendChild(v21Photo(album.sampul,'Sampul dokumentasi'));
+        const meta=v21Node('span','v22-doc-card-info');
+        meta.append(v21Node('strong','',album.judul||'Dokumentasi'),
+          v21Node('small','',v23CategoryLabel(album.kategori)));
+        tile.append(meta);tile.onclick=()=>v21OpenAlbum(album.id);
+        list.append(tile);photos++;continue;
       }
-      card.appendChild(a.sampul?v21Photo(a.sampul,a.judul):v21IconNode('div','v21-placeholder','camera'));
-      const info=v21Node('div','v22-doc-card-info');
-      if(memberFeed){
-        info.append(v21Node('strong','',a.judul));
-        if(String(a.deskripsi||'').trim())info.append(v21Node('p','v22-feed-caption',String(a.deskripsi).trim()));
-      }else{
-        info.append(v21Node('span','v22-cat-badge',v23CategoryLabel(a.kategori)),v21Node('strong','',a.judul),v21Node('small','',a.tanggal||''));
+      // Display photos, not a single album cover; latest photos first.
+      for(let index=items.length-1;index>=0;index--){
+        const media=items[index];
+        const tile=v21Node('button','v22-doc-card v22-photo-tile');
+        tile.type='button';
+        tile.setAttribute('aria-label','Lihat '+(media.jenis==='Video'?'video':'foto')+' dari album '+(album.judul||'Dokumentasi'));
+        if(media.jenis==='Foto'&&/^https:\/\//i.test(media.thumb)){
+          const img=v21Photo(media.thumb,'Dokumentasi kegiatan');
+          img.loading='lazy';tile.append(img);
+        }else{
+          tile.append(v21IconNode('div','v21-placeholder','camera'));
+          tile.classList.add('is-video');
+        }
+        const meta=v21Node('span','v22-doc-card-info');
+        meta.append(v21Node('strong','',album.judul||'Dokumentasi'),
+          v21Node('small','',v23CategoryLabel(album.kategori)));
+        tile.append(meta);
+        if(media.jenis==='Video')tile.append(v21IconNode('span','v22-photo-play','play'));
+        tile.onclick=()=>v22OpenFeedMedia(album,index);
+        list.append(tile);photos++;
       }
-      card.appendChild(info);card.onclick=()=>v21OpenAlbum(a.id);list.appendChild(card);
-    });
-    if(!rows.length)list.textContent=!v21Albums.length
-      ?'Belum ada album Bank Sampah.'
-      :'Tidak ada album yang cocok.';
+    }
+    if(count){count.textContent=photos+' foto/video · '+albums.length+' album';count.hidden=!photos;}
+    if(!photos){
+      const empty=v21Node('p','v22-doc-empty',!v21Albums.length?
+        'Belum ada dokumentasi Bank Sampah.':'Belum ada foto yang cocok.');
+      list.append(empty);
+    }
   }
   // “Semua album” pada penampil kini kembali ke halaman kategori, bukan popup kedua.
   v21ShowAlbumArchive=v22OpenDocs;
