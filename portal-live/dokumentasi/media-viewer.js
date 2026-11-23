@@ -164,7 +164,7 @@ function ensure(){
  const photoControls=node('div','f4p-photo-controls'),zoom=node('button','f4p-photo-zoom');
  zoom.type='button';zoom.innerHTML=svg('zoomIn');zoom.setAttribute('aria-label','Perbesar foto');zoom.setAttribute('aria-pressed','false');zoom.title='Zoom foto';zoom.onclick=()=>applyPhotoZoom(photoZoom.scale>1?1:2.5);
  photoControls.append(zoom,cx);bar.append(name,photoControls);
- const stage=node('div','f4p-photo-stage'),prev=node('button','f4p-photo-arrow'),next=node('button','f4p-photo-arrow');
+ const stage=node('div','f4p-photo-stage'),prev=node('button','f4p-photo-arrow is-prev'),next=node('button','f4p-photo-arrow is-next');
  prev.innerHTML=svg('prev');next.innerHTML=svg('next');prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';
  prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');
  prev.onclick=()=>shift(-1);next.onclick=()=>shift(1);
