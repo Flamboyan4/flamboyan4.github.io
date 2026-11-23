@@ -4627,22 +4627,52 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v17SetupPublic(){
     const pub=$('v11Public');if(!pub)return;
     if(pub.classList.contains('v17-public'))return;pub.classList.add('v17-public');
-    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span><strong>Bank Sampah</strong><small>Flamboyan 4</small></span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=program" data-bank-section="v17Program">Program</a><a href="?bagian=perkembangan" data-bank-section="v17Perkembangan">Perkembangan</a><a href="?bagian=dokumentasi" data-bank-section="v17Dokumentasi">Dokumentasi</a><a href="?bagian=inventaris" data-bank-section="v17Inventaris">Inventaris</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
-      <div class="v17-public-main"><div class="v17-public-banner">
-        <div class="f4-public-hero-copy">
-          <h1>Bank Sampah Flamboyan 4</h1>
-          <p class="f4-impact-intro">Pantau setoran warga dari setiap penimbangan.</p>
-          <div class="bank-public-links"><button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Tren setoran</button>
-          <button id="f4PublicSeeReport" type="button">Laporan setoran</button></div>
+    pub.innerHTML=`<div class="v17-public-head"><div class="v17-public-logo"><img id="v17Logo" alt="Logo Flamboyan 4"><span><strong>Bank Sampah</strong><small>Flamboyan 4</small></span></div><nav class="v17-public-links" aria-label="Navigasi portal publik"><a href="?bagian=setoran" data-bank-section="v17Transparansi">Setoran</a><a href="?bagian=kegiatan" data-bank-section="v17Kegiatan">Kegiatan</a><a href="?bagian=informasi" data-bank-section="v17Informasi">Informasi</a></nav><button id="v17PublicAccount" class="v17-public-account" type="button" title="Akun atau masuk" aria-label="Akun atau masuk"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div>
+      <div class="v17-public-main">
+        <div class="v17-public-banner">
+          <div class="f4-public-hero-copy">
+            <span class="f4-public-hero-eyebrow">PROGRAM LINGKUNGAN WARGA</span>
+            <h1>Sampah terpilah, jadi tabungan warga.</h1>
+            <p class="f4-impact-intro">Pilah sampah bernilai dari rumah, setorkan saat penimbangan, lalu pantau hasilnya bersama Bank Sampah Flamboyan 4.</p>
+            <div class="bank-public-links">
+              <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Cara ikut menyetor</button>
+              <button id="f4PublicSeeReport" type="button">Lihat laporan</button>
+            </div>
+          </div>
+          <section class="bank-public-schedule" aria-labelledby="bank-next-label">
+            <div><img src="/assets/icons/calendar.svg" alt=""><h2 id="bank-next-label">Penimbangan berikutnya</h2></div>
+            <strong id="bank-next-day">Memuat jadwal…</strong><span id="bank-next-date"></span>
+            <small id="bank-next-location" hidden></small>
+          </section>
         </div>
-        <section class="bank-public-schedule" aria-labelledby="bank-next-label">
-          <div><img src="/assets/icons/calendar.svg" alt=""><h2 id="bank-next-label">Penimbangan berikutnya</h2></div>
-          <strong id="bank-next-day">Memuat jadwal…</strong><span id="bank-next-date"></span>
+        <div id="v17PublicMetrics" class="v17-public-metrics" aria-label="Hasil bersama Bank Sampah">Memuat ringkasan...</div>
+        <section id="v17WasteTypes" class="f4-public-waste" aria-labelledby="f4PublicWasteHeading">
+          <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">MULAI DARI RUMAH</span><h2 id="f4PublicWasteHeading">Sampah apa yang bisa disetor?</h2><p>Pilih kategorinya untuk melihat jenis sampah yang diterima serta harga acuan warga.</p></div><span id="f4PublicWasteCount" class="f4-public-count" aria-live="polite"></span></div>
+          <div id="f4PublicWasteList" class="f4-public-waste-list" aria-live="polite">Memuat jenis sampah...</div>
+          <p class="f4-public-waste-note">Harga adalah acuan dan dapat berubah mengikuti hasil penjualan. Nilai tabungan mengikuti hasil yang telah disahkan.</p>
         </section>
-      </div>
-      <div id="v17PublicMetrics" class="v17-public-metrics">Memuat ringkasan...</div>
-      <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle"><div class="f4-bank-program-heading"><h2 id="f4BankProgramTitle">Cara kerja Bank Sampah</h2><span class="f4-bank-program-kicker">3 langkah</span></div><ol class="f4-bank-program-flow"><li class="f4-bank-program-step"><strong>Pilah & setor</strong><p>Warga membawa sampah terpilah untuk ditimbang.</p></li><li class="f4-bank-program-step"><strong>Jual & sahkan</strong><p>Pengurus mencatat hasil jual dan mengesahkannya.</p></li><li class="f4-bank-program-step"><strong>Tabungan & lingkungan</strong><p>Hasil dibagi untuk tabungan warga dan kas lingkungan.</p></li></ol></section>
-      <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
+        <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle">
+          <div class="f4-bank-program-heading"><h2 id="f4BankProgramTitle">Dari sampah menjadi tabungan</h2><span class="f4-bank-program-kicker">3 langkah</span></div>
+          <ol class="f4-bank-program-flow">
+            <li class="f4-bank-program-step"><strong>Pilah &amp; setor</strong><p>Siapkan sampah sesuai jenisnya dan bawa ke penimbangan.</p></li>
+            <li class="f4-bank-program-step"><strong>Timbang &amp; jual</strong><p>Pengurus mencatat berat dan menjualnya ke lapak.</p></li>
+            <li class="f4-bank-program-step"><strong>Tabungan tercatat</strong><p>Hasil yang disahkan dibagi sesuai aturan untuk tabungan warga dan dana program.</p></li>
+          </ol>
+          <p class="f4-public-program-note">Warga dapat melihat riwayat setoran, memantau saldo, dan mengajukan pencairan lewat akun masing-masing.</p>
+        </section>
+        <section id="v17Kegiatan" class="f4-public-stories" aria-labelledby="f4PublicStoriesTitle">
+          <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">BUKTI KEGIATAN</span><h2 id="f4PublicStoriesTitle">Kegiatan nyata warga</h2><p>Dokumentasi dari kegiatan Bank Sampah Flamboyan 4.</p></div></div>
+          <section id="v17Dokumentasi" class="v17-section"><h2>Galeri kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
+        </section>
+        <section id="v17Transparansi" class="v17-section f4-public-transparency" aria-labelledby="f4PublicReportHeading">
+          <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">TRANSPARANSI</span><h2 id="f4PublicReportHeading">Laporan setoran warga</h2><p>Data penimbangan yang tercatat, termasuk sampah yang belum terjual. Tanpa menampilkan saldo pribadi.</p></div></div>
+        </section>
+        <section id="v17Informasi" class="f4-public-info" aria-labelledby="f4PublicInfoHeading">
+          <h2 id="f4PublicInfoHeading">Informasi lainnya</h2>
+          <details id="f4PublicMoreInfo" class="f4-public-more">
+            <summary><span><strong>Perkembangan program &amp; inventaris</strong><small>Lihat grafik perkembangan, tahapan persiapan, dan perlengkapan program.</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+            <div class="f4-public-more-content">
+                    <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
         <header class="f4-dev-intro"><div><h2 id="f4DevTitle">Perkembangan setoran</h2></div></header>
         <div id="f4DevStats" class="f4-dev-mini-stats" aria-live="polite"></div>
         <div class="f4-dev-grid">
@@ -4658,21 +4688,24 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
             <p id="f4DevChartNote" class="f4-dev-chart-note" aria-live="polite">Memuat grafik...</p>
           </section>
           <section class="f4-dev-activity-card" aria-labelledby="f4DevActivityTitle">
-            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Aktivitas warga</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
+            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Progres program</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
             <div id="f4DevStepTrack" class="f4-dev-step-track" aria-label="Tahapan kegiatan"></div>
             <div class="f4-dev-timeline-head"><strong>Kegiatan terbaru</strong><button id="f4DevShowAll" class="f4-dev-show-more" type="button" hidden>Lihat semua</button></div>
             <ol id="v17Timeline" class="f4-dev-timeline"><li class="f4-dev-empty-activity">Memuat kegiatan...</li></ol>
           </section>
         </div>
       </section>
-      <section id="v17Dokumentasi" class="v17-section"><h2>Galeri kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
-      <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
-      <section id="v17Transparansi" class="v17-section"><h2>Laporan Setoran</h2></section></div>`;
+
+              <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
+            </div>
+          </details>
+        </section>
+      </div>`;
     $('v17Logo').src=v17Logo;
     $('v17Logo').addEventListener('error',()=>{$('v17Logo').replaceWith(Object.assign(document.createElement('img'),{src:'/assets/icons/bank.svg',alt:'Bank Sampah'}));},{once:true});
     $('v17PublicAccount').onclick=v17PublicAccountClick;
     $('f4PublicSeeReport').onclick=()=>$('v17Transparansi')?.scrollIntoView({behavior:'smooth',block:'start'});
-    $('f4PublicSeeProgress').onclick=()=>$('v17Perkembangan')?.scrollIntoView({behavior:'smooth',block:'start'});
+    $('f4PublicSeeProgress').onclick=()=>$('v17WasteTypes')?.scrollIntoView({behavior:'smooth',block:'start'});
     v17PublicAccount();
   }
   function v17PublicAccount(){
@@ -4690,6 +4723,50 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v17PublicStat(label,value){
     const c=document.createElement('div');c.className='v17-public-metric';c.dataset.metric=/setoran/i.test(label)?'deposit':/anggota/i.test(label)?'user':/jenis/i.test(label)?'inventory':/berat/i.test(label)?'bank':/kegiatan/i.test(label)?'calendar':'cash';const small=document.createElement('small');small.textContent=label;
     const strong=document.createElement('strong');strong.textContent=value;c.append(small,strong);return c;
+  }
+  function v17RenderPublicWaste(items){
+    const root=$('f4PublicWasteList'),count=$('f4PublicWasteCount');if(!root)return;
+    root.replaceChildren();
+    const categories=new Map();
+    const names=['Kertas','Plastik','Logam','Campuran','Lainnya'];
+    const classify=value=>{
+      const key=String(value||'').trim().toLocaleLowerCase('id-ID');
+      return names.find(name=>name.toLocaleLowerCase('id-ID')===key)||
+        (key==='umum'?'Campuran':'Lainnya');
+    };
+    const goods=Array.isArray(items)?items.filter(x=>x&&String(x.nama||'').trim()):[];
+    if(count)count.textContent=goods.length?goods.length+' jenis':'';
+    for(const good of goods){
+      const group=classify(good.kelompok);
+      if(!categories.has(group))categories.set(group,[]);
+      categories.get(group).push(good);
+    }
+    for(const category of names){
+      const goodsInCategory=categories.get(category);
+      if(!goodsInCategory?.length)continue;
+      const details=document.createElement('details');details.className='f4-public-waste-category';
+      const summary=document.createElement('summary');summary.className='f4-public-waste-category-head';
+      const title=document.createElement('strong');title.textContent=category;
+      const meta=document.createElement('span');meta.className='f4-public-waste-category-meta';
+      const amount=document.createElement('small');amount.textContent=goodsInCategory.length+' jenis';
+      const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');arrow.setAttribute('stroke','currentColor');
+      arrow.setAttribute('stroke-width','2');arrow.setAttribute('stroke-linecap','round');arrow.setAttribute('stroke-linejoin','round');
+      arrow.setAttribute('aria-hidden','true');arrow.innerHTML='<path d="m9 18 6-6-6-6"/>';
+      meta.append(amount,arrow);summary.append(title,meta);
+      const list=document.createElement('div');list.className='f4-public-waste-items';
+      for(const item of goodsInCategory.sort((a,b)=>a.nama.localeCompare(b.nama,'id'))){
+        const row=document.createElement('div');row.className='f4-public-waste-item';
+        const label=document.createElement('span');label.textContent=item.nama;
+        const price=document.createElement('strong');
+        const rate=Number(item.hargaAcuan);
+        price.textContent=Number.isFinite(rate)&&rate>0?'Rp '+rate.toLocaleString('id-ID')+'/kg':'Tarif belum tersedia';
+        row.append(label,price);list.append(row);
+      }
+      details.append(summary,list);root.append(details);
+    }
+    if(!root.childElementCount)root.textContent=Array.isArray(items)?
+      'Jenis sampah yang diterima belum dipublikasikan.':'Jenis sampah belum dapat dimuat.';
   }
   function v17AlbumCard(a){
     const d=document.createElement('details');d.className='v17-album';
@@ -4867,9 +4944,13 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       if(!rule.ok||!Number.isFinite(date.getTime()))throw Error();
       $('bank-next-day').textContent=date.toLocaleDateString('id-ID',{weekday:'long',timeZone:'Asia/Jakarta'});
       $('bank-next-date').textContent=date.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});
+      const location=$('bank-next-location');
+      const place=String(rule.lokasi||rule.location||'').trim();
+      if(location){location.hidden=!place;location.textContent=place?'Lokasi: '+place:'';}
     }catch{
       $('bank-next-day').textContent='Jadwal belum tersedia';
       $('bank-next-date').textContent='';
+      const location=$('bank-next-location');if(location){location.textContent='';location.hidden=true;}
     }
   }
   async function v17LoadPublic(){
@@ -4887,10 +4968,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
           kg(home.beratSetoranTercatat??home.beratTerkonfirmasi)),
         v17PublicStat(home.jumlahSetoranTercatat==null?'Setoran disahkan':'Setoran tercatat',
           home.jumlahSetoranTercatat??home.jumlahSetoranTerkonfirmasi),
-        v17PublicStat('Anggota aktif',home.anggotaAktif),
-        v17PublicStat('Jenis sampah diterima',home.jenisBarang),
-        v17PublicStat('Kegiatan terpublikasi',home.kegiatan)
+        v17PublicStat('Anggota aktif',home.anggotaAktif)
       );
+      v17RenderPublicWaste(home.barangDiterima);
       v25RenderTimeline(home.progres||[]);
       const inv=$('v17Inventory');
       if(inv){
@@ -4900,6 +4980,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       }
     }else{
       $('v17PublicMetrics').textContent='Informasi publik gagal dimuat: '+(homeResult.reason?.message||'Gangguan layanan.');
+      v17RenderPublicWaste(null);
       const inv=$('v17Inventory');
       if(inv)inv.textContent='Gagal memuat inventaris. Coba buka kembali halaman.';
       console.error('Bank Sampah: data publik dan inventaris gagal dimuat',homeResult.reason);
@@ -5203,14 +5284,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     head.querySelector('.v17-public-links')?.remove();
     // Beranda already contains Program and Perkembangan; avoid duplicating their
     // destinations in the sidebar. Direct section URLs and hero CTA still work.
-    const links=[['dashboard','Beranda','home',null],['docs','Dokumentasi','database','v17Dokumentasi'],['stock','Inventaris','wallet','v17Inventaris']];
+    const links=[['dashboard','Beranda','home',null],['setoran','Setoran','database','v17Transparansi'],['kegiatan','Kegiatan','image','v17Kegiatan'],['informasi','Informasi','leaf','v17Informasi']];
     links.forEach(([id,label,icon,target],i)=>{
       const b=document.createElement('button');b.type='button';b.dataset.publicMenu=id;
       if(i===0)b.classList.add('active');b.append(v16Icon(icon),document.createTextNode(label));
       b.onclick=()=>{
         side.querySelectorAll('button').forEach(n=>n.classList.toggle('active',n===b));
         v18ClosePublic();
-        if(target)$(target)?.scrollIntoView({behavior:'smooth',block:'start'});
+        if(target){if(target==='v17Informasi')$('f4PublicMoreInfo').open=true;$(target)?.scrollIntoView({behavior:'smooth',block:'start'});}
         else window.scrollTo({top:0,behavior:'smooth'});
       };side.appendChild(b);
     });
@@ -5266,10 +5347,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   // bukan hanya saat tombol menu diklik. Berfungsi pada scroll window atau kontainer.
   let v19ScrollSpyInstalled=false,v19ScrollSpyFrame=0;
   const v19PublicSections=[
-    ['program','v17Program'],
-    ['progress','v17Perkembangan'],
-    ['docs','v17Dokumentasi'],
-    ['stock','v17Inventaris']
+    ['setoran','v17Transparansi'],
+    ['kegiatan','v17Kegiatan'],
+    ['informasi','v17Informasi']
   ];
   function v19ScheduleScrollSpy(){
     // Jangan jalankan pemantau menu publik selama pengelola melakukan scroll.
@@ -5362,8 +5442,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     img.addEventListener('error',()=>{if(img.parentNode){const fall=v21IconNode('div','v21-placeholder','camera');img.replaceWith(fall);}}, {once:true});return img;
   }
   function v21PrepareSections(){
-    const docs=$('v17Dokumentasi'),inv=$('v17Inventaris');if(!docs||!inv||$('v21MediaLayout'))return;
-    const layout=v21Node('div','v21-media-layout');layout.id='v21MediaLayout';docs.before(layout);layout.append(docs,inv);
+    const docs=$('v17Dokumentasi'),inv=$('v17Inventaris');if(!docs||!inv||docs.dataset.f4PreviewReady==='1')return;
+    docs.dataset.f4PreviewReady='1';
     docs.querySelector(':scope > .v17-subtle')?.remove();inv.querySelector(':scope > .v17-subtle')?.remove();
     const dbar=v21Node('div','v21-section-bar');const dh=docs.querySelector(':scope > h2');
     if(dh){dh.classList.add('v22-section-title');dbar.appendChild(dh);}
@@ -5955,7 +6035,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   }
   function v25SetupReport(){
     const section=$('v17Transparansi');if(!section||$('v25ReportRoot'))return;
-    section.replaceChildren(v21Node('h2','','Laporan Setoran'));
+    if(!section.querySelector('.f4-public-section-heading'))
+      section.replaceChildren(v21Node('h2','','Laporan Setoran'));
     const card=v21Node('div','v17-panel');card.id='v25ReportRoot';
     const toolbar=v21Node('div','v25-report-toolbar');
     const period=document.createElement('select');period.id='v25ReportPeriod';
@@ -7326,20 +7407,25 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <script id="f4-bank-public-clean-anchors">
 (()=>{
- const sections={program:'v17Program',perkembangan:'v17Perkembangan',dokumentasi:'v17Dokumentasi',inventaris:'v17Inventaris'};
+ const sections={setoran:'v17Transparansi',kegiatan:'v17Kegiatan',informasi:'v17Informasi'};
  document.addEventListener('click',event=>{
   const link=event.target.closest?.('a[data-bank-section]');
   if(!link)return;
   const target=document.getElementById(link.dataset.bankSection);
   if(!target)return;
   event.preventDefault();
+  if(target.id==='v17Informasi')document.getElementById('f4PublicMoreInfo')?.setAttribute('open','');
   const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(x=>sections[x]===target.id));url.hash='';
   history.pushState({...history.state,f4BankPublicSection:target.id},'',url.pathname+url.search);
   target.scrollIntoView({behavior:'smooth',block:'start'});
  });
  const previous=location.hash.slice(1);
  if(sections[new URLSearchParams(location.search).get('bagian')]){
-  window.addEventListener('load',()=>document.getElementById(sections[new URLSearchParams(location.search).get('bagian')])?.scrollIntoView({block:'start'}),{once:true});
+  window.addEventListener('load',()=>{
+    const section=sections[new URLSearchParams(location.search).get('bagian')];
+    if(section==='v17Informasi')document.getElementById('f4PublicMoreInfo')?.setAttribute('open','');
+    document.getElementById(section)?.scrollIntoView({block:'start'});
+  },{once:true});
  }else if(Object.values(sections).includes(previous)){
   const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(k=>sections[k]===previous));url.hash='';
   history.replaceState(history.state,'',url.pathname+url.search);
