@@ -289,7 +289,9 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;flex:none;min-width:118px;max-width:145px;
  min-height:35px;height:35px;margin:0;padding:7px 27px 7px 11px;
  border:1px solid #d5e4d9;border-radius:9px;background-color:#fff;
- color:#245b43;font:700 11px/1.2 system-ui;cursor:pointer
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23008770' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ background-position:right 9px center;background-size:14px;background-repeat:no-repeat;
+ appearance:none;color:#245b43;font:700 11px/1.2 system-ui;cursor:pointer
 }
 #v11Public #f4PubTrendMode:focus-visible{outline:2px solid #009788;outline-offset:2px}
 #v11Public .f4-public-trend-bars{
@@ -437,6 +439,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  #v11Public .f4-public-insights{grid-template-columns:minmax(0,1fr);gap:10px}
  #v11Public .f4-public-insight{min-height:0;padding:14px;border-radius:15px}
  #v11Public .f4-public-trend-bars{height:196px}
+ #v11Public .f4-public-bar-number{font-size:9.5px}
  #v11Public .f4-public-types-layout{grid-template-columns:minmax(115px,.8fr) minmax(0,1.2fr)}
  #v11Public .f4-public-types-list{height:194px;max-height:194px}
  #v11Public .f4-public-donut-label strong{font-size:16px}
