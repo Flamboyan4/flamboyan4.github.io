@@ -302,46 +302,57 @@ padding:0
     .v17-timeline li:before{content:'';position:absolute;left:-6px;top:2px;width:10px;height:10px;border-radius:50%;background:#4a9869}
     .v17-timeline strong{display:block;color:#24573d}.v17-timeline small{color:#799080}.v17-timeline p{margin:5px 0;color:#586f60;font-size:12px}
     .v17-albums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
-    /* Program publik: satu compact app card, bukan heading dan strip penuh lebar. */
+    /* Canonical public program card: illustrated flow with compact readable steps. */
     #v17Program.f4-bank-program{
-      box-sizing:border-box;grid-column:1/-1;min-width:0;width:100%;
-      margin:1px 0 0;padding:16px 18px;
+      box-sizing:border-box;grid-column:auto;display:flex;flex-direction:column;
+      min-width:0;width:100%;height:100%;margin:0;padding:18px;
       border:1px solid #dce9dd;border-radius:19px;background:#fff;
       box-shadow:0 5px 18px #123a2710;scroll-margin-top:76px;color:#214d36
     }
     #v17Program .f4-bank-program-heading{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:9px;margin:0 0 17px
+      display:flex;align-items:flex-start;justify-content:space-between;
+      gap:10px;margin:0 0 12px
     }
+    #v17Program .f4-bank-program-heading>div{min-width:0}
     #v17Program .f4-bank-program-heading h2{
-      min-width:0;margin:0;color:#1b4a34;font-size:16px;font-weight:830;line-height:1.3
+      min-width:0;margin:0;color:#1b4a34;font-size:19px;font-weight:850;line-height:1.3;
+      letter-spacing:-.025em
     }
     #v17Program .f4-bank-program-kicker{
-      flex:none;padding:5px 9px;border-radius:999px;
+      flex:none;margin-top:12px;padding:5px 8px;border-radius:999px;
       background:#eef6e9;color:#287848;font-size:10px;
       font-weight:780;letter-spacing:.02em;line-height:1.2
     }
+    #v17Program .f4-bank-program-illustration{
+      box-sizing:border-box;display:grid;place-items:center;
+      width:100%;min-width:0;margin:0 0 11px;padding:7px 8px;
+      border:1px solid #deeee5;border-radius:13px;background:#fff
+    }
+    #v17Program .f4-bank-program-illustration svg{
+      display:block;width:100%;max-width:470px;height:auto;max-height:132px
+    }
     #v17Program .f4-bank-program-flow{
-      display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:12px;list-style:none;margin:0;padding:0
+      display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+      list-style:none;margin:0;padding:0
     }
     #v17Program .f4-bank-program-step{
-      position:relative;min-width:0;margin:0;padding:1px 4px 0 32px;
-      border:0;background:transparent
+      position:relative;min-width:0;margin:0;padding:9px 2px 9px 39px;
+      border:0;border-bottom:1px solid #e5eee8;background:transparent
     }
+    #v17Program .f4-bank-program-step:last-child{border-bottom:0}
     #v17Program .f4-bank-program-step::before{
-      position:absolute;left:0;top:0;display:grid;place-items:center;
-      width:24px;height:24px;border-radius:9px;background:#16825a;
-      color:#fff;font-size:11px;font-weight:800
+      position:absolute;left:1px;top:9px;display:grid;place-items:center;
+      width:27px;height:27px;border-radius:9px;background:#009788;
+      color:#fff;font-size:12px;font-weight:850
     }
-    #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1"}
-    #v17Program .f4-bank-program-step:nth-child(2)::before{content:"2"}
-    #v17Program .f4-bank-program-step:nth-child(3)::before{content:"3"}
+    #v17Program .f4-bank-program-step:nth-child(1)::before{content:"1";background:#159E6E}
+    #v17Program .f4-bank-program-step:nth-child(2)::before{content:"2";background:#009788}
+    #v17Program .f4-bank-program-step:nth-child(3)::before{content:"3";background:#EDB20C;color:#3A4A21}
     #v17Program .f4-bank-program-step strong{
-      display:block;margin:0;color:#214e37;font-size:12px;font-weight:790;line-height:1.35
+      display:block;margin:0;color:#214e37;font-size:12.5px;font-weight:800;line-height:1.35
     }
     #v17Program .f4-bank-program-step p{
-      margin:4px 0 0;color:#758a7c;font-size:11px;line-height:1.45
+      margin:3px 0 0;color:#667F70;font-size:11px;line-height:1.42
     }
     .v17-feature{background:#fff;border:1px solid var(--line);border-radius:13px;padding:17px}
     .v17-feature strong{display:block;color:#2b6445;font-size:14px}.v17-feature p{font-size:12px;color:#657a69;margin-bottom:0}
@@ -356,18 +367,14 @@ padding:0
       .v17-public-head{padding:8px 11px;gap:8px}.v17-public-logo{min-width:0;font-size:11px;max-width:140px}.v17-public-logo img{width:31px;height:31px}.v17-public-links{gap:0}.v17-public-links a{padding:9px 6px;font-size:11px}
       
       .v17-albums,.v17-inventory{grid-template-columns:1fr}.v17-section{scroll-margin-top:65px}
-      #v17Program.f4-bank-program{margin:0;padding:14px 13px;scroll-margin-top:70px}
-      #v17Program .f4-bank-program-heading{margin-bottom:13px}
-      #v17Program .f4-bank-program-heading h2{font-size:15px}
-      #v17Program .f4-bank-program-kicker{font-size:10px}
-      #v17Program .f4-bank-program-flow{grid-template-columns:minmax(0,1fr);gap:12px}
-      #v17Program .f4-bank-program-step{padding:2px 0 2px 38px;min-height:36px;text-align:left}
-      #v17Program .f4-bank-program-step::before{left:0;top:3px;transform:none;width:27px;height:27px;font-size:12px}
-      #v17Program .f4-bank-program-step strong{font-size:13px;line-height:1.3}
-      #v17Program .f4-bank-program-step p{
-        position:static;width:auto;height:auto;margin:3px 0 0;padding:0;
-        overflow:visible;white-space:normal;clip-path:none;font-size:11px;line-height:1.4
-      }
+      #v17Program.f4-bank-program{margin:0;padding:15px;scroll-margin-top:70px}
+      #v17Program .f4-bank-program-heading{margin-bottom:11px}
+      #v17Program .f4-bank-program-heading h2{font-size:18px}
+      #v17Program .f4-bank-program-kicker{margin-top:13px;font-size:10px}
+      #v17Program .f4-bank-program-illustration{padding:4px 6px;margin-bottom:9px}
+      #v17Program .f4-bank-program-step{padding:9px 1px 9px 40px}
+      #v17Program .f4-bank-program-step strong{font-size:12.5px}
+      #v17Program .f4-bank-program-step p{font-size:11px;line-height:1.42}
       .v17-finance-kpis{gap:8px}.v17-finance-kpi{padding:13px}.v17-finance-kpi strong{font-size:17px}
     }
     /* v18 — tampilan HP satu kolom, menu drawer kiri, tanpa navigasi warisan. */
@@ -4640,20 +4647,60 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
           </section>
         </div>
         <div id="v17PublicMetrics" class="v17-public-metrics" aria-label="Hasil bersama Bank Sampah">Memuat ringkasan...</div>
+        <div class="f4-public-participation">
         <section id="v17WasteTypes" class="f4-public-waste" aria-labelledby="f4PublicWasteHeading">
           <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">MULAI DARI RUMAH</span><h2 id="f4PublicWasteHeading">Sampah apa yang bisa disetor?</h2><p>Pilih kategorinya untuk melihat jenis sampah yang diterima serta harga acuan warga.</p></div><span id="f4PublicWasteCount" class="f4-public-count" aria-live="polite"></span></div>
           <div id="f4PublicWasteList" class="f4-public-waste-list" aria-live="polite">Memuat jenis sampah...</div>
           <p class="f4-public-waste-note">Harga adalah acuan dan dapat berubah mengikuti hasil penjualan. Nilai tabungan mengikuti hasil yang telah disahkan.</p>
         </section>
         <section id="v17Program" class="f4-bank-program" aria-labelledby="f4BankProgramTitle">
-          <div class="f4-bank-program-heading"><h2 id="f4BankProgramTitle">Dari sampah menjadi tabungan</h2><span class="f4-bank-program-kicker">3 langkah</span></div>
+          <div class="f4-bank-program-heading">
+            <div><span class="f4-public-eyebrow">CARA KERJA</span><h2 id="f4BankProgramTitle">Dari sampah menjadi tabungan</h2></div>
+            <span class="f4-bank-program-kicker">3 langkah</span>
+          </div>
+          <div class="f4-bank-program-illustration">
+            <svg viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi sampah terpilah, penimbangan, dan tabungan warga" preserveAspectRatio="xMidYMid meet">
+              <rect x="8" y="12" width="173" height="136" rx="24" fill="#EDFAF3"/>
+              <rect x="214" y="12" width="173" height="136" rx="24" fill="#E9F9FB"/>
+              <rect x="420" y="12" width="173" height="136" rx="24" fill="#FFF7DF"/>
+              <path d="M188 80h19m-7-7 8 7-8 7M394 80h19m-7-7 8 7-8 7" fill="none" stroke="#0D987C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="45" cy="39" r="6" fill="#81C650"/><circle cx="151" cy="118" r="7" fill="#9DDBAF"/>
+              <path d="M58 65h75l8 58H50z" fill="#009F75" stroke="#047957" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M73 68V56a22 22 0 0 1 44 0v12" fill="none" stroke="#047957" stroke-width="7" stroke-linecap="round"/>
+              <path d="M84 97c10-17 22-18 31-14-4 14-13 22-28 21" fill="#BAEC80"/>
+              <path d="M84 103c6-8 15-14 25-18" fill="none" stroke="#27824F" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="29" y="49" width="23" height="37" rx="7" fill="#43B5E1" stroke="#127C99" stroke-width="3" transform="rotate(-12 40 65)"/>
+              <path d="M35 43h12" stroke="#127C99" stroke-width="5" stroke-linecap="round" transform="rotate(-12 40 65)"/>
+              <path d="M128 44c10-13 26-12 33-2-11 11-24 15-32 9" fill="#FDC010"/>
+              <circle cx="332" cy="39" r="8" fill="#98E6E3"/>
+              <path d="M244 82h114l-11 14h-92z" fill="#009788"/>
+              <rect x="260" y="96" width="84" height="37" rx="10" fill="#0B8F87"/>
+              <rect x="274" y="105" width="56" height="19" rx="6" fill="#FFFFFF"/>
+              <path d="M281 117h42" stroke="#0D8A83" stroke-width="3" stroke-linecap="round"/>
+              <path d="M304 110v9" stroke="#0D8A83" stroke-width="3" stroke-linecap="round"/>
+              <path d="M285 80v-33h33v33" fill="none" stroke="#207D83" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M275 50h50" stroke="#207D83" stroke-width="5" stroke-linecap="round"/>
+              <path d="M282 51h36l-4-11h-28z" fill="#FDC010" stroke="#DD9F0D" stroke-width="2"/>
+              <path d="M368 107l9-9m-9 9-2-12" fill="none" stroke="#5ECDC7" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="540" cy="36" r="7" fill="#FFD65C"/>
+              <rect x="445" y="72" width="119" height="63" rx="16" fill="#F2B90B"/>
+              <rect x="453" y="76" width="102" height="54" rx="13" fill="#FFC93A"/>
+              <rect x="502" y="89" width="62" height="25" rx="8" fill="#D58B04"/>
+              <circle cx="526" cy="101" r="7" fill="#FFF3C7"/>
+              <path d="M477 68c8-12 30-12 38 0" fill="none" stroke="#B27808" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="492" cy="54" r="19" fill="#FFD459" stroke="#D69A08" stroke-width="4"/>
+              <path d="M492 44v20m-7-15c4-4 15-3 15 2 0 6-15 3-15 9 0 5 12 6 15 1" fill="none" stroke="#A96E07" stroke-width="3" stroke-linecap="round"/>
+              <path d="M561 51c6-13 17-12 23-6-7 11-16 14-23 10" fill="#37AD6C"/>
+            </svg>
+          </div>
           <ol class="f4-bank-program-flow">
-            <li class="f4-bank-program-step"><strong>Pilah &amp; setor</strong><p>Siapkan sampah sesuai jenisnya dan bawa ke penimbangan.</p></li>
-            <li class="f4-bank-program-step"><strong>Timbang &amp; jual</strong><p>Pengurus mencatat berat dan menjualnya ke lapak.</p></li>
-            <li class="f4-bank-program-step"><strong>Tabungan tercatat</strong><p>Hasil yang disahkan dibagi sesuai aturan untuk tabungan warga dan dana program.</p></li>
+            <li class="f4-bank-program-step"><strong>Pilah &amp; setor</strong><p>Pisahkan sampah bernilai, lalu bawa saat penimbangan.</p></li>
+            <li class="f4-bank-program-step"><strong>Timbang &amp; jual</strong><p>Berat dicatat dan hasil penjualan disahkan pengurus.</p></li>
+            <li class="f4-bank-program-step"><strong>Tabungan tercatat</strong><p>Hasil dibagi sesuai aturan untuk warga dan dana program.</p></li>
           </ol>
-          <p class="f4-public-program-note">Warga dapat melihat riwayat setoran, memantau saldo, dan mengajukan pencairan lewat akun masing-masing.</p>
+          <p class="f4-public-program-note">Pantau setoran dan tabungan, serta ajukan pencairan melalui akun warga.</p>
         </section>
+        </div>
         <section id="v17Kegiatan" class="f4-public-stories" aria-labelledby="f4PublicStoriesTitle">
           <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">BUKTI KEGIATAN</span><h2 id="f4PublicStoriesTitle">Kegiatan nyata warga</h2><p>Dokumentasi dari kegiatan Bank Sampah Flamboyan 4.</p></div></div>
           <section id="v17Dokumentasi" class="v17-section"><h2>Galeri kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
