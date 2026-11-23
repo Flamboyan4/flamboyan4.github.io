@@ -6033,25 +6033,132 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(!$('v21Lightbox').classList.contains('hidden'))return;
     $('v21Lightbox').classList.remove('hidden');v21PaintLightbox();v21NotifyOverlay();
   }
+  // One video renderer shared by the public, member and manager documentation.
+  // Six public archived Drive MP4s use the tested Cloudflare byte-range proxy.
+  const v21PublicMP4Ids=new Set([
+    '1xfukAMXTvLEIdGejCdHN8R4OgHvgZKJR','1aFCJdelBT3KJmvVkJsZN48ZwXO1cXECZ',
+    '1-tjDEoNoBbS57S5f_S8lveQeq8lhW8xl','1z_OvFon4dQ_CD8ucIvfR22ZZZp0rYYr9',
+    '1GYWfE40Vc58XT1PLrYIOj6vvQZOZ72xp','1g0sdII2uOPhwdFvNeCHkmpclbUuOCbTS'
+  ]);
+  function v21VideoSource(media){
+    const raw=String(media.src||media.url||'');
+    const fileId=String(media.id||'').replace(/^gdrive:/,'');
+    const matched=raw.match(/(?:\/file\/d\/|\/gallery\/(?:public-video|video)\/|[?&]id=)([A-Za-z0-9_-]{12,110})/i);
+    const id=/^[A-Za-z0-9_-]{12,110}$/.test(fileId)?fileId:matched?.[1]||'';
+    const youtube=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([A-Za-z0-9_-]{11})/i)?.[1]||'';
+    const proxyId=v21PublicMP4Ids.has(id)?id:'';
+    const src=proxyId?'https://api.flamboyan4.web.id/api/v2/gallery/public-video/'+encodeURIComponent(proxyId):
+       /^https:\/\/.+\.(?:mp4|webm|ogg|mov)(?:[?#]|$)/i.test(raw)?raw:
+       id?'https://drive.usercontent.google.com/download?id='+encodeURIComponent(id)+'&export=download&confirm=t':'';
+    const poster=/^https:\/\//i.test(media.thumb||'')?media.thumb:
+       id?'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1200':'';
+    return {src,poster,youtube,raw};
+  }
+  const v21VideoClock=value=>Number.isFinite(value)&&value>=0?
+    Math.floor(value/60)+':'+String(Math.floor(value%60)).padStart(2,'0'):'0:00';
+  function v21VideoIcon(name){
+    const icons={
+      play:'<path d="m8 5 11 7-11 7V5z"/>',
+      pause:'<rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>',
+      volume:'<path d="M11 5 6 9H3v6h3l5 4zM15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/>',
+      muted:'<path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/>',
+      full:'<path d="M8 3H4a1 1 0 0 0-1 1v4m13-5h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4m13-5v4a1 1 0 0 1-1 1h-4"/>'
+    };
+    return '<svg viewBox="0 0 24 24" width="20" height="20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
+  }
+  function v21CreateVideoPlayer(media,source){
+    const shell=v21Node('div','v21-video-shell'),video=v21Node('video');
+    video.src=source.src;video.preload='metadata';video.playsInline=true;
+    video.setAttribute('playsinline','');video.controls=false;
+    if(source.poster)video.poster=source.poster;
+    video.setAttribute('aria-label','Video '+(v21OpenedAlbum?.judul||'kegiatan'));
+    const center=v21Node('button','v21-video-big-play');center.type='button';center.innerHTML=v21VideoIcon('play');
+    center.setAttribute('aria-label','Putar video');
+    const controls=v21Node('div','v21-video-controls');
+    const toggle=v21Node('button');toggle.type='button';toggle.innerHTML=v21VideoIcon('play');toggle.setAttribute('aria-label','Putar video');
+    const progress=v21Node('input','v21-video-progress');progress.type='range';progress.min='0';progress.max='1000';
+    progress.step='1';progress.value='0';progress.setAttribute('aria-label','Posisi pemutaran video');
+    const time=v21Node('output','v21-video-time','0:00 / 0:00');
+    const mute=v21Node('button');mute.type='button';mute.innerHTML=v21VideoIcon('volume');mute.setAttribute('aria-label','Bisukan suara');
+    const full=v21Node('button');full.type='button';full.innerHTML=v21VideoIcon('full');full.setAttribute('aria-label','Layar penuh');
+    controls.append(toggle,progress,time,mute,full);shell.append(video,center,controls);
+    let timer=0;
+    const showControls=()=>{
+      shell.classList.add('is-controls-visible');clearTimeout(timer);
+      if(!video.paused)timer=setTimeout(()=>shell.classList.remove('is-controls-visible'),3200);
+    };
+    const update=()=>{
+      const duration=Number.isFinite(video.duration)?video.duration:0;
+      progress.value=duration?String(Math.round(video.currentTime/duration*1000)):'0';
+      progress.disabled=!duration;
+      time.textContent=v21VideoClock(video.currentTime)+' / '+v21VideoClock(duration);
+      const playing=!video.paused&&!video.ended;
+      toggle.innerHTML=v21VideoIcon(playing?'pause':'play');
+      toggle.setAttribute('aria-label',playing?'Jeda video':'Putar video');
+      center.hidden=playing;
+      shell.classList.toggle('v21-video-playing',playing);
+      mute.innerHTML=v21VideoIcon(video.muted?'muted':'volume');
+      mute.setAttribute('aria-label',video.muted?'Aktifkan suara':'Bisukan suara');
+      if(!playing)showControls();
+    };
+    const play=()=>{
+      if(video.paused||video.ended){
+        if(video.ended)video.currentTime=0;
+        video.play().catch(showControls);
+      }else video.pause();
+      showControls();
+    };
+    center.onclick=toggle.onclick=play;
+    video.addEventListener('click',showControls);
+    progress.addEventListener('input',()=>{if(Number.isFinite(video.duration)&&video.duration>0)video.currentTime=video.duration*Number(progress.value)/1000;showControls()});
+    mute.onclick=()=>{video.muted=!video.muted;update();showControls()};
+    full.onclick=()=>{
+      if(document.fullscreenElement){document.exitFullscreen?.();return}
+      if(shell.requestFullscreen)shell.requestFullscreen().catch(()=>{});
+      else video.webkitEnterFullscreen?.();
+    };
+    shell.addEventListener('pointermove',showControls);
+    shell.addEventListener('touchstart',showControls,{passive:true});
+    for(const event of ['timeupdate','durationchange','loadedmetadata','play','pause','ended','volumechange'])
+      video.addEventListener(event,update);
+    video.addEventListener('error',()=>{
+      if(shell.isConnected){
+        clearTimeout(timer);
+        shell.replaceChildren(v21Node('p','v21-video-error','Video belum dapat diputar.'));
+      }
+    });
+    update();return shell;
+  }
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
-    const scene=$('v21StageContent');scene.replaceChildren();
+    const scene=$('v21StageContent');
+    scene.querySelector('video')?.pause();
+    scene.replaceChildren();
     if($('v21MediaTitle'))$('v21MediaTitle').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
     if($('v21SocialAlbumName'))$('v21SocialAlbumName').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
     if(m.jenis==='Video'){
-      const raw=String(m.src||m.url||''),driveId=raw.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^#]*?id=)|[?&]id=)([A-Za-z0-9_-]{12,})/i)?.[1];
-      const youtube=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
-      if(!driveId&&!youtube&&/\.(?:mp4|webm|ogg)(?:[?#]|$)/i.test(raw)){
-       const video=document.createElement('video');video.src=raw;video.controls=true;video.playsInline=true;video.preload='metadata';video.style.cssText='width:min(100%,900px);max-height:100%;object-fit:contain';
-       video.onerror=()=>{if(!video.isConnected)return;const link=v21Node('a','v21-back','Video tidak dapat diputar. Buka sumber');link.href=raw;link.target='_blank';link.rel='noopener noreferrer';video.replaceWith(link);};
-       scene.appendChild(video);
-      }else{
-       const video=document.createElement('iframe');
-       video.src=driveId?'https://drive.google.com/file/d/'+driveId+'/preview':youtube?'https://www.youtube-nocookie.com/embed/'+youtube:raw;
-       video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
-      }
-    }else scene.appendChild(v21Photo(m.src,'Foto kegiatan Bank Sampah'));
+      const source=v21VideoSource(m);
+      if(source.src)scene.append(v21CreateVideoPlayer(m,source));
+      else if(source.youtube){
+        const frame=document.createElement('iframe');
+        frame.src='https://www.youtube-nocookie.com/embed/'+encodeURIComponent(source.youtube);
+        frame.title='Video kegiatan';frame.allow='autoplay; fullscreen; picture-in-picture';frame.allowFullscreen=true;
+        scene.append(frame);
+      }else scene.append(v21Node('p','v21-video-error','Video ini belum tersedia.'));
+    }else{
+      const img=v21Photo(m.src||m.url,'Foto kegiatan Bank Sampah');
+      img.loading='eager';
+      img.addEventListener('dblclick',()=>{
+        const enlarged=img.dataset.zoomed==='true';
+        img.style.transform=enlarged?'':'scale(2)';
+        img.dataset.zoomed=enlarged?'false':'true';
+        img.style.cursor=enlarged?'zoom-in':'zoom-out';
+      });
+      img.style.cursor='zoom-in';scene.append(img);
+    }
     $('v21LightboxCount').textContent=(v21MediaIndex+1)+' / '+list.length;
+    const arrows=$('v21Lightbox')?.querySelectorAll('.v21-arrow')||[];
+    arrows.forEach(button=>{button.hidden=list.length<2});
     v21LoadSocial();
   }
   function v21ShiftMedia(delta){
@@ -6060,7 +6167,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   }
   function v21CloseLightbox(fromHistory=false){
     const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
-    modal.classList.add('hidden');v21SocialSerial++;$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
+    modal.classList.add('hidden');v21SocialSerial++;$('v21StageContent')?.querySelector('video')?.pause();$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
   }
   function v21ShowInventory(item){
     const view=v21Node('div');
