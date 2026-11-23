@@ -4783,10 +4783,104 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     svg.innerHTML=icons[category]||icons.Lainnya;
     return svg;
   }
+  // Exactly one anchored, floating price bubble; category tiles never change height.
+  let v17WasteBubble=null,v17WasteBubbleTrigger=null;
+  function v17CloseWasteBubble(restoreFocus=false){
+    if(!v17WasteBubble)return;
+    v17WasteBubble.hidden=true;
+    if(v17WasteBubbleTrigger){
+      const trigger=v17WasteBubbleTrigger;
+      trigger.setAttribute('aria-expanded','false');
+      trigger.closest('.f4-public-waste-category')?.classList.remove('is-active');
+      v17WasteBubbleTrigger=null;
+      if(restoreFocus&&trigger.isConnected)trigger.focus({preventScroll:true});
+    }
+  }
+  function v17PlaceWasteBubble(){
+    if(!v17WasteBubble||v17WasteBubble.hidden||!v17WasteBubbleTrigger)return;
+    const rect=v17WasteBubbleTrigger.getBoundingClientRect();
+    const viewport=window.visualViewport;
+    const vWidth=viewport?.width||window.innerWidth;
+    const vHeight=viewport?.height||window.innerHeight;
+    const vLeft=viewport?.offsetLeft||0;
+    const vTop=viewport?.offsetTop||0;
+    if(rect.bottom<vTop||rect.top>vTop+vHeight){v17CloseWasteBubble();return;}
+    const bubble=v17WasteBubble;
+    bubble.style.maxHeight=Math.max(140,vHeight-24)+'px';
+    const width=bubble.offsetWidth;
+    const height=bubble.offsetHeight;
+    const x=Math.max(vLeft+12,Math.min(rect.left,vLeft+vWidth-width-12));
+    const gap=9;
+    const spaceBelow=vTop+vHeight-rect.bottom-12;
+    const spaceAbove=rect.top-vTop-12;
+    const placeAbove=spaceBelow<height+gap&&spaceAbove>spaceBelow;
+    let y=placeAbove?rect.top-height-gap:rect.bottom+gap;
+    y=Math.max(vTop+12,Math.min(y,vTop+vHeight-height-12));
+    bubble.style.left=Math.round(x)+'px';
+    bubble.style.top=Math.round(y)+'px';
+    bubble.classList.toggle('is-above',placeAbove);
+  }
+  function v17EnsureWasteBubble(){
+    if(v17WasteBubble?.isConnected)return v17WasteBubble;
+    const bubble=document.createElement('section');
+    bubble.id='f4PublicWasteBubble';bubble.className='f4-public-waste-bubble';bubble.hidden=true;
+    bubble.setAttribute('role','dialog');bubble.setAttribute('aria-modal','false');
+    bubble.setAttribute('aria-labelledby','f4PublicWasteBubbleTitle');
+    const header=document.createElement('div');header.className='f4-public-waste-bubble-head';
+    const info=document.createElement('div');
+    const title=document.createElement('strong');title.id='f4PublicWasteBubbleTitle';
+    const count=document.createElement('small');count.id='f4PublicWasteBubbleCount';
+    info.append(title,count);
+    const close=document.createElement('button');close.type='button';
+    close.className='f4-public-waste-bubble-close';
+    close.setAttribute('aria-label','Tutup rincian harga sampah');
+    close.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    close.onclick=()=>v17CloseWasteBubble(true);
+    header.append(info,close);
+    const list=document.createElement('div');list.id='f4PublicWasteBubbleItems';list.className='f4-public-waste-bubble-list';
+    const hint=document.createElement('p');hint.className='f4-public-waste-bubble-note';hint.textContent='Harga acuan per kg, dapat berubah mengikuti hasil penjualan.';
+    bubble.append(header,list,hint);document.body.append(bubble);
+    v17WasteBubble=bubble;
+    document.addEventListener('pointerdown',event=>{
+      if(bubble.hidden)return;
+      if(!bubble.contains(event.target)&&!v17WasteBubbleTrigger?.contains(event.target))v17CloseWasteBubble();
+    },true);
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&!bubble.hidden){event.preventDefault();v17CloseWasteBubble(true);}
+    });
+    // Capture scrolling in nested content too; the bubble stays anchored without layout shifts.
+    window.addEventListener('scroll',v17PlaceWasteBubble,true);
+    window.addEventListener('resize',v17PlaceWasteBubble,{passive:true});
+    window.visualViewport?.addEventListener('resize',v17PlaceWasteBubble,{passive:true});
+    window.visualViewport?.addEventListener('scroll',v17PlaceWasteBubble,{passive:true});
+    return bubble;
+  }
+  function v17OpenWasteBubble(trigger,category,goods){
+    const bubble=v17EnsureWasteBubble();
+    if(!bubble.hidden&&v17WasteBubbleTrigger===trigger){
+      v17CloseWasteBubble(true);return;
+    }
+    v17CloseWasteBubble();
+    v17WasteBubbleTrigger=trigger;
+    trigger.setAttribute('aria-expanded','true');
+    trigger.closest('.f4-public-waste-category')?.classList.add('is-active');
+    $('f4PublicWasteBubbleTitle').textContent=category;
+    $('f4PublicWasteBubbleCount').textContent=goods.length+' jenis sampah';
+    const list=$('f4PublicWasteBubbleItems');list.replaceChildren();
+    for(const item of goods){
+      const row=document.createElement('div');row.className='f4-public-waste-bubble-item';
+      const label=document.createElement('span');label.textContent=item.nama;
+      const price=document.createElement('strong');const rate=Number(item.hargaAcuan);
+      price.textContent=Number.isFinite(rate)&&rate>0?'Rp '+rate.toLocaleString('id-ID')+'/kg':'Tarif belum tersedia';
+      row.append(label,price);list.append(row);
+    }
+    bubble.hidden=false;
+    v17PlaceWasteBubble();
+    bubble.querySelector('.f4-public-waste-bubble-close')?.focus({preventScroll:true});
+  }
   function v17RenderPublicWaste(items){
     const root=$('f4PublicWasteList'),count=$('f4PublicWasteCount');if(!root)return;
-    // Remember open categories when catalog data is reloaded.
-    const expanded=new Set([...root.querySelectorAll('details[open]')].map(x=>x.dataset.category));
+    v17CloseWasteBubble();
     root.replaceChildren();
     const categories=new Map();
     const names=['Kertas','Plastik','Logam','Campuran','Lainnya'];
@@ -4805,12 +4899,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     for(const category of names){
       const goodsInCategory=categories.get(category);
       if(!goodsInCategory?.length)continue;
-      const details=document.createElement('details');
-      details.className='f4-public-waste-category';
-      details.dataset.category=category;
-      details.open=expanded.has(category);
-      const summary=document.createElement('summary');summary.className='f4-public-waste-category-head';
-      summary.setAttribute('aria-label','Lihat jenis sampah '+category);
+      goodsInCategory.sort((a,b)=>a.nama.localeCompare(b.nama,'id'));
+      const tile=document.createElement('div');tile.className='f4-public-waste-category';
+      tile.dataset.category=category;
+      const button=document.createElement('button');button.type='button';
+      button.className='f4-public-waste-category-head';
+      button.setAttribute('aria-label','Lihat jenis dan harga sampah '+category);
+      button.setAttribute('aria-controls','f4PublicWasteBubble');
+      button.setAttribute('aria-haspopup','dialog');
+      button.setAttribute('aria-expanded','false');
       const picture=document.createElement('span');picture.className='f4-public-waste-picture';
       picture.append(v17PublicWasteIcon(category));
       const title=document.createElement('strong');title.textContent=category;
@@ -4820,17 +4917,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');arrow.setAttribute('stroke','currentColor');
       arrow.setAttribute('stroke-width','2');arrow.setAttribute('stroke-linecap','round');arrow.setAttribute('stroke-linejoin','round');
       arrow.setAttribute('aria-hidden','true');arrow.innerHTML='<path d="m9 18 6-6-6-6"/>';
-      meta.append(amount,arrow);summary.append(picture,title,meta);
-      const list=document.createElement('div');list.className='f4-public-waste-items';
-      for(const item of goodsInCategory.sort((a,b)=>a.nama.localeCompare(b.nama,'id'))){
-        const row=document.createElement('div');row.className='f4-public-waste-item';
-        const label=document.createElement('span');label.textContent=item.nama;
-        const price=document.createElement('strong');
-        const rate=Number(item.hargaAcuan);
-        price.textContent=Number.isFinite(rate)&&rate>0?'Rp '+rate.toLocaleString('id-ID')+'/kg':'Tarif belum tersedia';
-        row.append(label,price);list.append(row);
-      }
-      details.append(summary,list);root.append(details);
+      meta.append(amount,arrow);button.append(picture,title,meta);
+      button.onclick=()=>v17OpenWasteBubble(button,category,goodsInCategory);
+      tile.append(button);root.append(tile);
     }
     if(!root.childElementCount)root.textContent=Array.isArray(items)?
       'Jenis sampah yang diterima belum dipublikasikan.':'Jenis sampah belum dapat dimuat.';
