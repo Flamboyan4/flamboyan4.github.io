@@ -72,10 +72,169 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  outline:2px solid #f7d362;outline-offset:3px
 }
 
-/* Dashboard KPIs: one highlighted result, four restrained secondary tiles. */
+/* Public information path: motivation → accepted items → participation → evidence → report.
+   These are the canonical rules for the newly introduced public components. */
+#v11Public .f4-public-hero-eyebrow{
+ display:inline-flex;align-items:center;min-height:22px;padding:4px 9px;
+ border:1px solid #ffffff55;border-radius:999px;background:#ffffff16;
+ color:#e8fff2;font-size:10px;font-weight:800;line-height:1.3;letter-spacing:.06em
+}
+#v11Public .v17-public-main>.v17-public-banner h1{margin:11px 0 10px}
+#v11Public .bank-public-schedule #bank-next-location{
+ display:block;margin-top:9px;color:#577264;font-size:11.5px;line-height:1.45
+}
+#v11Public .bank-public-schedule #bank-next-location[hidden]{display:none}
+#v11Public :is(.f4-public-waste,.f4-public-stories,.f4-public-info,.f4-public-transparency){
+ box-sizing:border-box;grid-column:1/-1;min-width:0;width:100%;scroll-margin-top:82px
+}
+#v11Public .f4-public-waste{
+ margin:2px 0 0;padding:21px 23px 16px;
+ border:1px solid #dce9e0;border-radius:19px;background:#fff;
+ box-shadow:0 6px 18px #103b2710
+}
+#v11Public .f4-public-section-heading{
+ display:flex;align-items:flex-start;justify-content:space-between;
+ gap:15px;min-width:0;margin:0 0 14px
+}
+#v11Public .f4-public-section-heading>div{min-width:0}
+#v11Public .f4-public-eyebrow{
+ display:block;margin:0 0 5px;color:#008f78;
+ font-size:10px;font-weight:850;letter-spacing:.095em;line-height:1.3
+}
+#v11Public .f4-public-section-heading h2{
+ margin:0;color:#174d36;font-size:clamp(18px,2vw,23px);
+ font-weight:850;line-height:1.3;letter-spacing:-.025em
+}
+#v11Public .f4-public-section-heading p{
+ margin:5px 0 0;color:#648073;font-size:12px;line-height:1.5
+}
+#v11Public .f4-public-count{
+ flex:none;align-self:center;margin:0;padding:6px 10px;
+ border-radius:999px;background:#eaf6ec;color:#237349;
+ font-size:11px;font-weight:800;white-space:nowrap
+}
+#v11Public .f4-public-count:empty{display:none}
+#v11Public .f4-public-waste-list{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:0 24px;min-width:0;margin:0;border-top:1px solid #e0ebe3;
+ color:#607e6b;font-size:12px
+}
+#v11Public .f4-public-waste-category{
+ box-sizing:border-box;min-width:0;border-bottom:1px solid #e2ede5
+}
+#v11Public .f4-public-waste-category-head{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:11px;min-height:54px;padding:9px 2px;
+ list-style:none;cursor:pointer;color:#164f37
+}
+#v11Public .f4-public-waste-category-head::-webkit-details-marker{display:none}
+#v11Public .f4-public-waste-category-head::marker{content:""}
+#v11Public .f4-public-waste-category-head::before{
+ content:"";flex:none;width:9px;height:9px;border-radius:50%;background:#0d9a7a
+}
+#v11Public .f4-public-waste-category:nth-child(2)>.f4-public-waste-category-head::before{background:#327ccc}
+#v11Public .f4-public-waste-category:nth-child(3)>.f4-public-waste-category-head::before{background:#e3a60e}
+#v11Public .f4-public-waste-category:nth-child(4)>.f4-public-waste-category-head::before{background:#ae54b7}
+#v11Public .f4-public-waste-category-head>strong{
+ flex:1;min-width:0;color:#174e36;font-size:14px;font-weight:800
+}
+#v11Public .f4-public-waste-category-meta{
+ display:inline-flex;align-items:center;gap:10px;flex:none;
+ color:#668272;font-size:11px;font-weight:700
+}
+#v11Public .f4-public-waste-category-meta svg{
+ width:16px;height:16px;flex:none;color:#2b7557;transition:transform .18s
+}
+#v11Public .f4-public-waste-category[open] .f4-public-waste-category-meta svg{transform:rotate(90deg)}
+#v11Public .f4-public-waste-category-head:focus-visible{outline:2px solid #009788;outline-offset:-2px;border-radius:8px}
+#v11Public .f4-public-waste-items{
+ display:grid;min-width:0;padding:1px 6px 10px 21px
+}
+#v11Public .f4-public-waste-item{
+ display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+ padding:10px 0;border-top:1px dashed #e1ebe4;
+ color:#345b45;font-size:12px;line-height:1.35
+}
+#v11Public .f4-public-waste-item span{flex:1;min-width:0}
+#v11Public .f4-public-waste-item strong{
+ flex:none;color:#05835f;font-size:12px;font-weight:800;
+ font-variant-numeric:tabular-nums;text-align:right
+}
+#v11Public .f4-public-waste-note{
+ margin:12px 0 0;color:#728679;font-size:11px;line-height:1.5
+}
+#v11Public #v17Program .f4-public-program-note{
+ margin:16px 0 0;padding:10px 13px;
+ border-left:3px solid #fdc010;border-radius:0 9px 9px 0;
+ background:#fff9e6;color:#385c44;font-size:11.5px;line-height:1.5
+}
+#v11Public .f4-public-stories{
+ margin:2px 0 0;padding:20px 23px 23px;
+ border:1px solid #dce9e0;border-radius:19px;background:#fff;
+ box-shadow:0 6px 18px #103b2710
+}
+#v11Public .f4-public-stories #v17Dokumentasi{
+ min-width:0;margin:0;padding:0;border:0;background:transparent;box-shadow:none
+}
+#v11Public .f4-public-stories .v21-section-bar h2{
+ margin:0;color:#24533a;font-size:13px
+}
+#v11Public .f4-public-stories #v17Albums{width:100%;min-width:0}
+#v11Public .f4-public-transparency{
+ margin:5px 0 0;padding:0;border:0;background:transparent
+}
+#v11Public .f4-public-info{margin:0;padding:0 0 10px}
+#v11Public .f4-public-info>h2{
+ margin:0 0 10px;color:#22543a;font-size:18px;font-weight:850
+}
+#v11Public .f4-public-more{
+ box-sizing:border-box;min-width:0;margin:0;padding:0;
+ border:1px solid #deebe1;border-radius:16px;background:#fff;overflow:hidden
+}
+#v11Public .f4-public-more>summary{
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ min-height:65px;padding:14px 17px;list-style:none;cursor:pointer
+}
+#v11Public .f4-public-more>summary::-webkit-details-marker{display:none}
+#v11Public .f4-public-more>summary::marker{content:""}
+#v11Public .f4-public-more>summary span{display:grid;gap:4px;min-width:0}
+#v11Public .f4-public-more>summary strong{
+ color:#1e553b;font-size:13px;font-weight:800
+}
+#v11Public .f4-public-more>summary small{
+ color:#718677;font-size:11px;line-height:1.45
+}
+#v11Public .f4-public-more>summary svg{
+ width:19px;height:19px;flex:none;color:#358565;transition:transform .18s
+}
+#v11Public .f4-public-more[open]>summary svg{transform:rotate(180deg)}
+#v11Public .f4-public-more>summary:focus-visible{outline:2px solid #009788;outline-offset:-2px}
+#v11Public .f4-public-more-content{
+ display:grid;gap:21px;min-width:0;padding:19px 17px 22px;
+ border-top:1px solid #e6efe8
+}
+#v11Public .f4-public-more-content #v17Perkembangan{min-width:0;margin:0}
+#v11Public .f4-public-more-content #v17Inventaris{
+ min-width:0;margin:0;padding:0
+}
+#v11Public .f4-public-more-content #v17Inventaris>h2{
+ margin:0 0 10px;color:#1e553b;font-size:15px
+}
+@media(max-width:760px){
+ #v11Public .f4-public-waste,#v11Public .f4-public-stories{padding:16px;border-radius:17px}
+ #v11Public .f4-public-section-heading{margin-bottom:12px;gap:9px}
+ #v11Public .f4-public-section-heading h2{font-size:19px}
+ #v11Public .f4-public-section-heading p{font-size:11px}
+ #v11Public .f4-public-waste-list{grid-template-columns:minmax(0,1fr);gap:0}
+ #v11Public .f4-public-waste-category-head{min-height:50px}
+ #v11Public .f4-public-waste-item strong{font-size:11px}
+ #v11Public .f4-public-more-content{padding:15px 12px}
+}
+
+/* Three public outcomes are easier to scan than operational counters. */
 #v11Public .v17-public-main>.v17-public-metrics{
  box-sizing:border-box;grid-column:1/-1;display:grid;
- grid-template-columns:minmax(180px,1.25fr) repeat(4,minmax(0,1fr));gap:11px;
+ grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;
  align-items:stretch;min-width:0;width:100%;margin:0;padding:0;
  border:0;border-radius:0;background:transparent;overflow:visible
 }
