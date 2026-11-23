@@ -76,7 +76,7 @@ function combineCommunityMedia(legacy,extra){
 let photoIndexPromise=null;
 function publicPhotoIndex(){
  if(!photoIndexPromise){
-  photoIndexPromise=fetch('/assets/data/portal-photo-index.json?v=20261123-public-only-b',{cache:'force-cache'})
+  photoIndexPromise=fetch('/assets/data/portal-photo-index.json?v=20261123-nine-public-albums-101-v2',{cache:'force-cache'})
    .then(r=>r.ok?r.json():{folders:{}}).catch(()=>({folders:{}}));
  }
  return photoIndexPromise;
