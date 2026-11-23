@@ -4981,7 +4981,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     let rows=[];
     if(f4PublicTrendMode==='period'){
       rows=(days||[]).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.tanggal))
-        .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).slice(-9)
+        .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).slice(-6)
         .map(x=>({label:x.tanggal.slice(8,10)+'/'+x.tanggal.slice(5,7),
           full:x.tanggal,kg:Math.max(0,Number(x.beratKg)||0)}));
     }else{
@@ -7602,7 +7602,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
 <script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-member-crown-mobile-v6"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-public-charts-v9">
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-public-charts-v10">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
