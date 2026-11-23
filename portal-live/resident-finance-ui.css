@@ -93,7 +93,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   cursor:pointer;
 }
 #keuangan .f4-cash-overview .f4-cash-date-control:focus-within {
-  border-color:#8472ee;box-shadow:0 0 0 2px #ddd8ff;
+  border-color:var(--f4-portal-primary,#4f46e5);box-shadow:0 0 0 2px var(--f4-portal-soft-hover,#e0e7ff);
 }
 #keuangan .f4-cash-overview .f4-cash-date-trigger {
   display:flex;align-items:center;gap:7px;min-height:25px;
@@ -123,7 +123,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 .f4-cash-calendar * {box-sizing:border-box}
 .f4-cash-calendar button {border:0;background:transparent;color:inherit;cursor:pointer}
 .f4-cash-calendar select {font:inherit}
-.f4-cash-calendar :focus-visible {outline:2px solid #8b7df0;outline-offset:2px}
+.f4-cash-calendar :focus-visible {outline:2px solid var(--f4-portal-primary,#4f46e5);outline-offset:2px}
 .f4-cash-calendar-grip {display:none}
 .f4-cash-calendar-header {
   display:flex;align-items:center;justify-content:space-between;
@@ -143,7 +143,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   display:grid;place-items:center;width:32px;height:33px;
   background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary-ink,#3730a3);border-radius:9px;
 }
-.f4-cash-calendar-nav>button:hover {background:#e8e3ff}
+.f4-cash-calendar-nav>button:hover {background:var(--f4-portal-soft-hover,#e0e7ff)}
 .f4-cash-calendar-selects {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px}
 .f4-cash-calendar-selects select {
   min-width:0;height:33px;padding:5px 6px;border:1px solid #e1def1;
@@ -165,7 +165,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 }
 .f4-cash-calendar .f4-cash-calendar-day:hover {background:var(--f4-portal-soft-hover,#e0e7ff);color:var(--f4-portal-primary,#4f46e5)}
 .f4-cash-calendar .f4-cash-calendar-day.is-outside {color:#b0b6c5}
-.f4-cash-calendar .f4-cash-calendar-day.is-today {box-shadow:inset 0 0 0 1px #afa3fa}
+.f4-cash-calendar .f4-cash-calendar-day.is-today {box-shadow:inset 0 0 0 1px var(--f4-portal-primary,#4f46e5)}
 .f4-cash-calendar .f4-cash-calendar-day.is-selected {
   background:var(--f4-portal-primary,#4f46e5);color:#fff;box-shadow:none;font-weight:800;
 }
@@ -178,7 +178,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary-ink,#3730a3);font-size:12px;font-weight:750;
 }
 .f4-cash-calendar-footer button:last-child {background:#fff;border:1px solid #e1def1}
-.f4-cash-calendar-footer button:hover {background:#e6e0ff}
+.f4-cash-calendar-footer button:hover {background:var(--f4-portal-soft-hover,#e0e7ff)}
 .f4-cash-calendar-backdrop {display:none}
 @media(max-width:767px){
   body.f4-cash-calendar-open {overflow:hidden}
@@ -290,7 +290,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-cash-mobile-actions button {
     display:flex;align-items:center;justify-content:center;gap:9px;
     min-width:0;min-height:45px;padding:10px 12px;
-    border:1px solid #dfddf5;border-radius:12px;
+    border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:12px;
     background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5);
     font-size:13px;font-weight:800;line-height:1.2;
     cursor:pointer;
@@ -391,7 +391,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   flex:none;padding-top:10px;margin-top:auto;border-top:1px solid #e8eaf3;font-weight:800;
   color:#283651;
 }
-#keuangan .f4-resident-dues-total strong {font-size:18px;color:#5646ce;font-variant-numeric:tabular-nums}
+#keuangan .f4-resident-dues-total strong {font-size:18px;color:var(--f4-portal-primary,#4f46e5);font-variant-numeric:tabular-nums}
 /* Mini-resi: compact enough for the equal-height desktop grid. */
 #keuangan .f4-resident-right {
   display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden;
@@ -399,20 +399,20 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-resident-status-heading {
   display:flex;flex:none;align-items:center;justify-content:space-between;
   gap:10px;padding:10px 13px;color:#fff;
-  background:linear-gradient(115deg,#4338ca 0%,#4f46e5 100%);
+  background:var(--f4-portal-primary,#4f46e5);
 }
 #keuangan .f4-resident-status-heading h3 {
   margin:2px 0 0;color:#fff;font-size:14px;font-weight:800;line-height:1.3;
 }
 #keuangan .f4-resident-status-heading p {
-  margin:1px 0 0;font-size:10px;color:#e9e5ff;
+  margin:1px 0 0;font-size:10px;color:#e0e7ff;
 }
 #keuangan .f4-resident-ticket-brand {
-  color:#e6dfff;font-size:9px;letter-spacing:.065em;font-weight:850;
+  color:#e0e7ff;font-size:9px;letter-spacing:.065em;font-weight:850;
 }
 #keuangan .f4-resident-ticket-mark {
   flex:none;display:grid;place-items:center;width:32px;height:32px;
-  border-radius:50%;background:#fff;color:#5742d5;
+  border-radius:50%;background:#fff;color:var(--f4-portal-primary,#4f46e5);
 }
 #keuangan .f4-resident-ticket-mark svg {width:21px;height:21px}
 #keuangan .f4-resident-status-content {
@@ -427,10 +427,10 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   display:flex;flex-direction:column;gap:1px;flex:none;
 }
 #keuangan .f4-resident-receipt-total>span {
-  color:#6e638d;font-size:9px;font-weight:850;letter-spacing:.045em;
+  color:#64748b;font-size:9px;font-weight:850;letter-spacing:.045em;
 }
 #keuangan .f4-resident-receipt-total>strong {
-  color:#4e2bbd;font-size:23px;font-weight:900;line-height:1.17;
+  color:var(--f4-portal-primary,#4f46e5);font-size:23px;font-weight:900;line-height:1.17;
   font-variant-numeric:tabular-nums;
 }
 #keuangan .f4-resident-receipt-details {display:flex;flex-direction:column;gap:4px;margin:0;min-width:0}
@@ -448,7 +448,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-resident-receipt-id {
   margin-top:auto;padding-top:6px;min-width:0;
   display:flex;align-items:center;justify-content:space-between;gap:5px;
-  border-top:1px dashed #d7d1f2;color:#7b8295;font-size:9px;
+  border-top:1px dashed #cbd5e1;color:#7b8295;font-size:9px;
 }
 #keuangan .f4-resident-receipt-id span:last-child {
   min-width:0;max-width:56%;overflow:hidden;text-overflow:ellipsis;
@@ -554,7 +554,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-resident-mobile-actions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
   #keuangan .f4-resident-mobile-actions button.f4-resident-sheet-opener {
     display:flex;align-items:center;justify-content:space-between;gap:5px;
-    min-width:0;min-height:48px;padding:10px 9px;background:#f7f7fe;
+    min-width:0;min-height:48px;padding:10px 9px;background:var(--f4-portal-soft,#eef2ff);
     border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:10px;color:var(--f4-portal-primary-ink,#3730a3);
     font-size:11px;font-weight:800;text-align:left;
   }
