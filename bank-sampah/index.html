@@ -4718,6 +4718,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     svg.innerHTML=icons[category]||icons.Lainnya;
     return svg;
   }
+  // Reuse the public category artwork in the authenticated member price dialog.
+  window.f4BankWasteCategoryIcon=v17PublicWasteIcon;
   // Exactly one anchored, floating price bubble; category tiles never change height.
   let v17WasteBubble=null,v17WasteBubbleTrigger=null;
   function v17CloseWasteBubble(restoreFocus=false){
