@@ -36,20 +36,24 @@ jobs:
                       for p in data["photos"][:5]:
                           print("GPHOTO",json.dumps({k:p.get(k) for k in ["id","albumId","driveId","url"]}))
               except Exception as e:print("API_FAIL",path,str(e)[:250])
-          video="1z_OvFon4dQ_CD8ucIvfR22ZZZp0rYYr9"
-          urls=[
-           "https://drive.usercontent.google.com/download?id="+video+"&export=download&confirm=t",
-           "https://drive.google.com/uc?export=download&id="+video,
-           "https://drive.google.com/thumbnail?id="+video+"&sz=w800",
-           base+"/api/v2/gallery/video/"+video
+          videos=[
+            "1xfukAMXTvLEIdGejCdHN8R4OgHvgZKJR",
+            "1aFCJdelBT3KJmvVkJsZN48ZwXO1cXECZ",
+            "1-tjDEoNoBbS57S5f_S8lveQeq8lhW8xl",
+            "1z_OvFon4dQ_CD8ucIvfR22ZZZp0rYYr9",
+            "1GYWfE40Vc58XT1PLrYIOj6vvQZOZ72xp",
+            "1g0sdII2uOPhwdFvNeCHkmpclbUuOCbTS"
           ]
-          for url in urls:
-              label=url.split("/")[2]+(" proxy" if "api.flamboyan4" in url else " video-or-image")
+          urls=["https://drive.usercontent.google.com/download?id="+id+"&export=download&confirm=t" for id in videos]
+          for position,url in enumerate(urls,1):
+              label="PUBLIC_VIDEO_"+str(position)
               try:
                   request=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Range":"bytes=0-4095"})
                   with urllib.request.urlopen(request,timeout=18) as rsp:
                       body=rsp.read(256)
-                      print("VIDEO_PROBE",label,"status",rsp.status,"type",rsp.headers.get("Content-Type"),"length",rsp.headers.get("Content-Length"),"range",rsp.headers.get("Content-Range"),"sig",repr(body[:24]),"finalhost",urllib.request.urlparse(rsp.url).hostname)
+                      mp4=body[4:8]==b"ftyp" and rsp.status==206 and (rsp.headers.get("Content-Type") or "").startswith("video/")
+                      print("VIDEO_PROBE",label,"status",rsp.status,"type",rsp.headers.get("Content-Type"),"range",rsp.headers.get("Content-Range"),"MP4_RANGE_OK",mp4)
+                      if not mp4:raise RuntimeError("Video bytes or Range support are invalid")
               except urllib.error.HTTPError as e:
                   print("VIDEO_HTTP_FAIL",label,"status",e.code,"type",e.headers.get("Content-Type"),"body",repr(e.read(80)))
               except Exception as e:
