@@ -83,7 +83,7 @@
 #f4-direct-sideback{position:fixed;inset:56px 0 0;z-index:109;background:#0e19276b;border:0;width:100%;padding:0}
 body.f4-direct-portal{padding-top:56px;padding-left:226px;min-height:100dvh}
 body.f4-direct-portal>main{max-width:var(--f4-content-max);margin:0 auto}
-body.f4-direct-bank{--f4-nav:#2c6547;--f4-nav-tint:#e5f2e6;--f4-nav-line:#d6e6d9;
+body.f4-direct-bank{--f4-nav:#087c6c;--f4-nav-tint:#e3f6f1;--f4-nav-line:#b9e7dc;
 padding-top:56px}
 body.f4-direct-book{--f4-nav:#7035c9;--f4-nav-tint:#eee7ff;--f4-nav-line:#e5dafa;
 padding-top:56px}
