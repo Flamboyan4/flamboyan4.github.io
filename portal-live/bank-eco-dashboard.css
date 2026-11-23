@@ -25,7 +25,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel>.v14-panel-head{display:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading h3{font-size:16px;color:#174b36;font-weight:800}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading p{font-size:13px;color:#496757}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:#009688;font-weight:700}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:var(--f4-bank-primary,#087c6c);font-weight:700}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid #eaf0eb;background:transparent}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-avatar{display:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item):last-child{border-bottom:0}
@@ -33,7 +33,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-re
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard :is(.f4-recent-item,.v14-activity-item) small{color:#687e6c;font-size:11px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-recent-value{color:#43A047;text-align:right}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-activity-item{display:block;position:relative;padding:12px 3px;border-bottom:1px solid #eaf0eb}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:grid;place-items:center;color:#009688}
+body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:grid;place-items:center;color:var(--f4-bank-primary,#087c6c)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-activity-arrow svg{width:19px;height:19px;stroke:currentColor;fill:none}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;margin-bottom:15px;background:#fff;border:1px solid #e2e9e3;border-radius:18px}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head h2{font-size:23px;color:#174b36}
@@ -90,7 +90,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
   display:grid;gap:3px;align-content:center;min-width:68px
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-value b{
-  display:block;white-space:nowrap;color:#0d986b;font-size:13px;font-weight:850
+  display:block;white-space:nowrap;color:var(--f4-bank-primary,#087c6c);font-size:13px;font-weight:850
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-value span{
   display:block;white-space:nowrap;color:#536d59;font-size:12px
