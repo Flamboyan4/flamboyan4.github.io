@@ -2672,6 +2672,47 @@ async function f4GalleryAdmin(req,env,who){
  return err("Aksi pengelolaan tidak dikenal.",400);
 }
 __name(f4GalleryAdmin,"f4GalleryAdmin");
+/* Verified public archive only: video proxy with byte ranges, independent from
+   expired Google OAuth. IDs are publicly shared MP4s in documented public albums.
+   Unknown Drive IDs are never proxied; retain original authenticated route. */
+const F4_PUBLIC_ARCHIVE_VIDEO_IDS=new Set([
+ "1xfukAMXTvLEIdGejCdHN8R4OgHvgZKJR",
+ "1aFCJdelBT3KJmvVkJsZN48ZwXO1cXECZ",
+ "1-tjDEoNoBbS57S5f_S8lveQeq8lhW8xl",
+ "1z_OvFon4dQ_CD8ucIvfR22ZZZp0rYYr9",
+ "1GYWfE40Vc58XT1PLrYIOj6vvQZOZ72xp",
+ "1g0sdII2uOPhwdFvNeCHkmpclbUuOCbTS"
+]);
+async function f4PublicArchiveVideoStream(req,url){
+ const fileId=url.pathname.split("/").at(-1)||"";
+ if(!F4_PUBLIC_ARCHIVE_VIDEO_IDS.has(fileId))return err("Video publik tidak ditemukan.",404);
+ if(!["GET","HEAD"].includes(req.method))return err("Metode tidak didukung.",405);
+ const range=req.headers.get("range");
+ if(range&&(!/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/.test(range)||range.length>80))
+  return err("Rentang video tidak valid.",416);
+ const source="https://drive.usercontent.google.com/download?id="+encodeURIComponent(fileId)+"&export=download&confirm=t";
+ try{
+  const upstreamHeaders=new Headers({"accept":"video/mp4,*/*;q=0.8"});
+  if(range)upstreamHeaders.set("range",range);
+  const response=await fetch(source,{method:req.method,headers:upstreamHeaders,redirect:"follow"});
+  if(response.status===416)return new Response(null,{status:416,headers:{"accept-ranges":"bytes","cache-control":"no-store"}});
+  if(![200,206].includes(response.status))return err("Video sedang tidak tersedia.",502);
+  const receivedType=String(response.headers.get("content-type")||"");
+  if(!receivedType.startsWith("video/"))return err("Sumber video tidak mengirim MP4.",502);
+  const contentRange=response.headers.get("content-range");
+  if(range&&(response.status!==206||!contentRange))return err("Sumber video tidak mendukung rentang.",502);
+  const h=new Headers({"content-type":"video/mp4","accept-ranges":"bytes",
+    "content-disposition":"inline","cache-control":"public, max-age=600",
+    "x-content-type-options":"nosniff","cross-origin-resource-policy":"cross-origin"});
+  for(const k of ["content-length","content-range","etag","last-modified"]){
+   const value=response.headers.get(k);if(value)h.set(k,value);
+  }
+  return new Response(req.method==="HEAD"?null:response.body,{status:response.status,headers:h});
+ }catch(e){
+  console.warn("Gagal mengalirkan video arsip publik",String(e?.message||e).slice(0,180));
+  return err("Video sementara belum dapat diputar.",502);
+ }
+}
 /* Video publik: alirkan byte Drive melalui Worker; tidak memuat iframe Google.
    Hanya file video dalam album publik aktif yang boleh diakses. */
 async function f4GalleryVideoStream(req,env,url){
@@ -2917,6 +2958,7 @@ async function f4GalleryApi(req,env,who,url){
  const path=url.pathname,method=req.method;
  if(path.startsWith("/api/v2/gallery/image/"))return f4GalleryPublicImageStream(req,env,url);
   if(path==="/api/v2/gallery/folder"&&method==="GET")return f4GalleryPublicFolderMedia(req,env,url);
+  if(path.startsWith("/api/v2/gallery/public-video/"))return f4PublicArchiveVideoStream(req,url);
   if(path.startsWith("/api/v2/gallery/video/"))return f4GalleryVideoStream(req,env,url);
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
  if(path==="/api/v2/gallery/popular"&&method==="GET")return f4GalleryMostLiked(env.DB,env);
