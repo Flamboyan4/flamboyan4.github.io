@@ -15,7 +15,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public #v18PublicContent .v17-public-main{
  box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
- width:100%;max-width:1080px;min-width:0;margin:0 auto;
+ width:100%;max-width:980px;min-width:0;margin:0 auto;
  padding:22px 24px 54px;column-gap:16px;row-gap:17px
 }
 #v11Public .v17-public-main>.v17-public-banner{
@@ -84,11 +84,21 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  display:block;margin-top:9px;color:#577264;font-size:11.5px;line-height:1.45
 }
 #v11Public .bank-public-schedule #bank-next-location[hidden]{display:none}
-#v11Public :is(.f4-public-waste,.f4-public-stories,.f4-public-info,.f4-public-transparency){
+#v11Public :is(.f4-public-stories,.f4-public-info,.f4-public-transparency){
  box-sizing:border-box;grid-column:1/-1;min-width:0;width:100%;scroll-margin-top:82px
 }
+#v11Public .v17-public-main>.f4-public-participation{
+ box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:stretch;gap:15px;min-width:0;width:100%;margin:0;
+ grid-column:1/-1
+}
+#v11Public .f4-public-participation>.f4-public-waste,
+#v11Public .f4-public-participation>#v17Program{
+ min-width:0;width:100%;height:100%;grid-column:auto;scroll-margin-top:82px
+}
 #v11Public .f4-public-waste{
- margin:2px 0 0;padding:21px 23px 16px;
+ box-sizing:border-box;display:flex;flex-direction:column;
+ margin:0;padding:18px;
  border:1px solid #dce9e0;border-radius:19px;background:#fff;
  box-shadow:0 6px 18px #103b2710
 }
@@ -115,8 +125,8 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .f4-public-count:empty{display:none}
 #v11Public .f4-public-waste-list{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
- gap:0 24px;min-width:0;margin:0;border-top:1px solid #e0ebe3;
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:0;min-width:0;margin:0;border-top:1px solid #e0ebe3;
  color:#607e6b;font-size:12px
 }
 #v11Public .f4-public-waste-category{
@@ -161,7 +171,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  font-variant-numeric:tabular-nums;text-align:right
 }
 #v11Public .f4-public-waste-note{
- margin:12px 0 0;color:#728679;font-size:11px;line-height:1.5
+ margin:auto 0 0;padding-top:13px;color:#728679;font-size:11px;line-height:1.5
 }
 #v11Public #v17Program .f4-public-program-note{
  margin:16px 0 0;padding:10px 13px;
@@ -219,6 +229,11 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .f4-public-more-content #v17Inventaris>h2{
  margin:0 0 10px;color:#1e553b;font-size:15px
+}
+@media(max-width:1050px){
+ #v11Public .v17-public-main>.f4-public-participation{
+  grid-template-columns:minmax(0,1fr);gap:13px
+ }
 }
 @media(max-width:760px){
  #v11Public .f4-public-waste,#v11Public .f4-public-stories{padding:16px;border-radius:17px}
