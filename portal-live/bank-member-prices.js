@@ -123,15 +123,13 @@ function show(){
   svg.innerHTML='<path d="M18 6 6 18M6 6l12 12"/>';close.append(svg);
   close.onclick=()=>page.close();heading.append(close);page.append(heading);
   page.append(el("p","f4-bank-prices-intro","Tarif khusus anggota per kg."));
-  const search=el("input","f4-bank-price-search");search.type="search";search.id="f4BankPriceSearch";
-  search.placeholder="Cari jenis sampah...";search.setAttribute("aria-label","Cari jenis sampah");
   const status=el("p","f4-bank-prices-status","Memuat harga warga...");status.id="f4BankPriceStatus";
   status.setAttribute("role","status");
   const list=el("div","f4-bank-prices-groups");list.id="f4BankPriceList";
   const bubble=el("section","f4-bank-price-bubble");bubble.id="f4BankPriceBubble";
   bubble.setAttribute("role","region");bubble.setAttribute("aria-labelledby","f4BankPriceBubbleTitle");
   bubble.hidden=true;
-  page.append(search,status,list,bubble);
+  page.append(status,list,bubble);
   page.addEventListener("click",event=>{
    if(event.target===page){page.close();return;}
    if(!bubble.hidden&&!bubble.contains(event.target)&&!event.target.closest(".f4-bank-price-category-btn"))closeCategory();
@@ -150,8 +148,7 @@ function show(){
  closeCategory();
  page.classList.remove("hidden");
  if(!page.open)page.showModal();
- const req=++requestId,status=$("f4BankPriceStatus"),host=$("f4BankPriceList"),search=$("f4BankPriceSearch");
- search.value="";
+ const req=++requestId,status=$("f4BankPriceStatus"),host=$("f4BankPriceList");
  host.replaceChildren();
  status.textContent="Memuat daftar harga terbaru...";
  fetch("https://api.flamboyan4.web.id/api/member/bank/prices",{
@@ -169,10 +166,7 @@ function show(){
    "Tarif perkiraan warga per kg. Nilai akhir setelah penjualan sah.";
   const render=()=>{
    closeCategory();
-   const query=search.value.trim().toLocaleLowerCase("id-ID");
-   const selected=rows.filter(item=>
-    String(item.name||"").toLocaleLowerCase("id-ID").includes(query)||
-    normalizedCategory(item).toLocaleLowerCase("id-ID").includes(query));
+   const selected=rows;
    const groups=new Map();
    for(const item of selected){
     const category=normalizedCategory(item);
@@ -204,10 +198,10 @@ function show(){
     button.onclick=()=>openCategory(button,category,items,method);
     tile.append(button);host.append(tile);
    }
-   status.textContent=selected.length+" jenis sampah"+(query?" ditemukan":" tersedia");
-   if(!selected.length)host.append(el("p","f4-bank-empty","Tidak ada jenis sampah yang cocok."));
+   status.textContent=selected.length+" jenis sampah tersedia";
+   if(!selected.length)host.append(el("p","f4-bank-empty","Belum ada harga sampah yang tersedia."));
   };
-  search.oninput=render;render();
+  render();
  }).catch(error=>{
   if(requestId!==req)return;
   status.textContent="Tidak dapat memuat harga: "+(error.message||error);
