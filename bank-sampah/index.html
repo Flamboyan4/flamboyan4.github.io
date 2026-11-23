@@ -329,7 +329,8 @@ padding:0
       border:0;border-radius:0;background:transparent
     }
     #v17Program .f4-bank-program-illustration svg{
-      display:block;width:100%;max-width:470px;height:auto;max-height:130px
+      display:block;width:100%;max-width:470px;height:auto;aspect-ratio:600 / 180;
+      max-height:none;flex:none
     }
     #v17Program .f4-bank-program-flow{
       display:grid;grid-template-columns:minmax(0,1fr);gap:0;
@@ -4585,14 +4586,15 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
             <span class="f4-bank-program-kicker">3 langkah</span>
           </div>
           <div class="f4-bank-program-illustration">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 166" role="img" aria-label="Alur sampah terpilah, ditimbang, kemudian menjadi tabungan dalam rupiah" preserveAspectRatio="xMidYMid meet">
-              <rect x="6" y="8" width="178" height="150" rx="21" fill="#EBF8EF"/>
-              <rect x="211" y="8" width="178" height="150" rx="21" fill="#EAF8FA"/>
-              <rect x="416" y="8" width="178" height="150" rx="21" fill="#FFF6DC"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" role="img" aria-label="Alur sampah terpilah, ditimbang, kemudian menjadi tabungan dalam rupiah" preserveAspectRatio="xMidYMid meet">
+              <rect x="6" y="8" width="178" height="164" rx="22" fill="#EBF8EF"/>
+              <rect x="211" y="8" width="178" height="164" rx="22" fill="#EAF8FA"/>
+              <rect x="416" y="8" width="178" height="164" rx="22" fill="#FFF6DC"/>
               <g stroke="#089882" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
-                <path d="M189 83h16m-7-7 7 7-7 7M394 83h16m-7-7 7 7-7 7"/>
+                <path d="M189 90h16m-7-7 7 7-7 7M394 90h16m-7-7 7 7-7 7"/>
               </g>
-              <g stroke-linejoin="round" stroke-linecap="round">
+              <!-- Each illustration is optically centred within its own tile. -->
+              <g transform="translate(-8 14) scale(1.08)" stroke-linejoin="round" stroke-linecap="round">
                 <rect x="46" y="57" width="25" height="51" rx="6" fill="#51BBD7" stroke="#1687A6" stroke-width="3"/>
                 <path d="M52 49h13v8H52zm-3 26h19" fill="#51BBD7" stroke="#1687A6" stroke-width="3"/>
                 <path d="M79 46h62l-6 77H85z" fill="#0B9C74"/>
@@ -4601,7 +4603,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
                 <path d="M95 95c8-8 16-14 26-19" fill="none" stroke="#3F944E" stroke-width="2.8"/>
                 <rect x="131" y="75" width="16" height="35" rx="3" fill="#FDC010" transform="rotate(12 139 92)"/>
               </g>
-              <g stroke-linejoin="round" stroke-linecap="round">
+              <g transform="translate(-18 -5) scale(1.06)" stroke-linejoin="round" stroke-linecap="round">
                 <path d="M252 70h96l-11 20h-74z" fill="#17A8A0"/>
                 <rect x="255" y="92" width="90" height="46" rx="12" fill="#0B978F"/>
                 <rect x="272" y="102" width="56" height="26" rx="7" fill="#FFFFFF"/>
@@ -4610,16 +4612,17 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
                 <rect x="283" y="47" width="34" height="23" rx="3" fill="#FDC010"/>
                 <path d="M278 45h44l-5 10h-34z" fill="#E4A40E"/>
               </g>
+              <!-- Taller wallet, rounder body and a balanced coin/wallet composition. -->
               <g stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="508" cy="55" r="25" fill="#F7B900" stroke="#CB8B00" stroke-width="3"/>
-                <circle cx="508" cy="55" r="19" fill="#FFD85D" stroke="#E9AE0B" stroke-width="1.5"/>
-                <text x="508" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="800" fill="#835300">Rp</text>
-                <path d="M460 77h85c10 0 17 7 17 17v37c0 9-7 16-17 16h-85c-9 0-16-7-16-16V94c0-10 7-17 16-17z" fill="#D38F07" stroke="#AC7004" stroke-width="2.5"/>
-                <path d="M458 85h92c11 0 17 7 17 18v33c0 9-7 15-16 15h-94c-9 0-16-6-16-15v-35c0-9 7-16 17-16z" fill="#F8BF19" stroke="#D99A06" stroke-width="2.8"/>
-                <path d="M456 95h87" stroke="#FFDF76" stroke-width="3"/>
-                <path d="M452 141h55" stroke="#EBA913" stroke-width="2.5"/>
-                <path d="M518 106h43c6 0 10 4 10 10v18c0 6-4 10-10 10h-43c-7 0-11-4-11-11v-16c0-6 4-11 11-11z" fill="#D99208" stroke="#B67403" stroke-width="2.5"/>
-                <circle cx="554" cy="125" r="5.6" fill="#FFF1BC"/>
+                <rect x="449" y="78" width="113" height="69" rx="17" fill="#D38F07" stroke="#AC7004" stroke-width="2.5"/>
+                <rect x="445" y="86" width="119" height="62" rx="16" fill="#F8BF19" stroke="#D99A06" stroke-width="2.8"/>
+                <path d="M456 97h85" stroke="#FFDF76" stroke-width="3.5"/>
+                <path d="M453 135h48" stroke="#EBA913" stroke-width="2.5"/>
+                <circle cx="505" cy="54" r="25" fill="#F7B900" stroke="#CB8B00" stroke-width="3"/>
+                <circle cx="505" cy="54" r="19" fill="#FFD85D" stroke="#E9AE0B" stroke-width="1.5"/>
+                <text x="505" y="61" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" font-weight="800" fill="#835300">Rp</text>
+                <path d="M525 108h33c7 0 11 5 11 11v18c0 7-5 11-11 11h-33c-8 0-13-5-13-12v-16c0-7 5-12 13-12z" fill="#D99208" stroke="#B67403" stroke-width="2.5"/>
+                <circle cx="554" cy="127" r="5.6" fill="#FFF1BC"/>
               </g>
             </svg>
           </div>
