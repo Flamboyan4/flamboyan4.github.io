@@ -68,6 +68,7 @@ const timeLabel=value=>Number.isFinite(value)&&value>=0?Math.floor(value/60)+':'
 function makeVideoPlayer(item){
  const shell=node('div','f4p-video-shell'),video=node('video','f4p-media-video');
  video.src=item.url;video.preload='metadata';video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');
+ if(item.poster)video.poster=item.poster;
  video.controls=false;video.setAttribute('aria-label',item.caption||'Video kegiatan');
  const center=node('button','f4p-video-big-play');center.type='button';center.setAttribute('aria-label','Putar video');
  center.innerHTML=svg('play');
@@ -316,13 +317,17 @@ function renderPhoto(){
  photo.querySelector('.f4p-photo-name').textContent=albumTitle;
  const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
-  // Historical Drive videos are public to anyone with the link and can play
-  // through Drive's native embedded preview without the inactive Worker proxy.
-  if(item.embed){
+  // Restore the portal's own player and its controls. The publicly shared
+  // Drive file is served as MP4 bytes (Range/206), not a Google Drive iframe.
+  if(item.driveId){
+   const url='https://drive.usercontent.google.com/download?id='+
+    encodeURIComponent(item.driveId)+'&export=download&confirm=t';
+   view.append(makeVideoPlayer({...item,url}));
+  }else if(item.embed){
+   // External embeds are only for supported non-Drive providers.
    const frame=node('iframe','f4p-media-frame');frame.src=item.embed;
    frame.title=item.caption||albumTitle;frame.allowFullscreen=true;
-   frame.allow='autoplay; fullscreen; picture-in-picture';frame.referrerPolicy='no-referrer';
-   view.append(frame);
+   frame.allow='autoplay; fullscreen; picture-in-picture';view.append(frame);
   }else view.append(makeVideoPlayer(item));
  }else{
   const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;
