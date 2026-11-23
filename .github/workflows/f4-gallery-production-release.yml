@@ -39,7 +39,7 @@ jobs:
           from pathlib import Path
           source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_text()
           for path in ('/api/v2/gallery/tags','/api/v2/gallery/category','/api/v2/gallery/people',
-                       '/api/v2/gallery/folder','/api/v2/gallery/image/'):
+                       '/api/v2/gallery/folder','/api/v2/gallery/image/','/api/v2/gallery/public-video/'):
               if path not in source:
                   raise RuntimeError("Missing gallery API route: "+path)
           if 'CREATE TABLE IF NOT EXISTS f4_gallery_tags' not in source:
@@ -135,6 +135,15 @@ jobs:
               print("LIVE_ARCHIVE_FOLDER_HTTP=200 PHOTO_COUNT="+str(len(archived.get("media") or [])))
           except HTTPError as e:
               print("LIVE_ARCHIVE_FOLDER_HTTP="+str(e.code)+" (check Drive OAuth permissions if not 200)")
+          # Verify a real MP4 response and Range semantics from the public archive stream.
+          video="1z_OvFon4dQ_CD8ucIvfR22ZZZp0rYYr9"
+          request=urllib.request.Request(base+"/api/v2/gallery/public-video/"+video,
+              headers={**headers,"Range":"bytes=0-4095"})
+          with urllib.request.urlopen(request,timeout=30) as response:
+              chunk=response.read(4096)
+              if response.status!=206 or response.headers.get("Content-Type")!="video/mp4" or chunk[4:8]!=b"ftyp":
+                  raise RuntimeError("Public video proxy did not return playable MP4 byte-range data")
+              print("LIVE_PUBLIC_ARCHIVE_MP4_STREAM_OK status=206 bytes="+str(len(chunk)))
           assert isinstance(gallery.get("categories"),list),"New gallery API not active"
           items=gallery.get("albums") or []
           if items:
