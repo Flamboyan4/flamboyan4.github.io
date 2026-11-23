@@ -5616,20 +5616,22 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       .sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
     for(const album of recent){
       if(v21PublicFeedPhotos(recent).length>=6)break;
-      if(album.sourceFolder&&!Array.isArray(album.media)||album.sourceFolder&&album.media.length===0){
+      if(album.sourceFolder){
         try{
           const detail=await v21LegacyAlbum(album);
-          if(Array.isArray(detail.media)&&detail.media.length)album.media=detail.media;
+          if(Array.isArray(detail.media)&&detail.media.length>(album.media?.length||0)){
+            album.media=detail.media;
+          }
         }catch(error){console.warn('Foto album lama belum tersedia:',album.id,error)}
       }
     }
     // A published cover is used only if no photo is available for that album.
     for(const album of recent){
-      if(!v21PublicFeedPhotos(recent).length||v21PublicFeedPhotos(recent).length<6){
-        if(!album.media?.some(m=>/^https:\/\//i.test(String(m.src||m.url||m.thumb||''))&&!/video/i.test(String(m.jenis||m.type||'')))&&
-          /^https:\/\//i.test(album.sampul||'')){
-          album.media=[{jenis:'Foto',nama:album.judul||'Dokumentasi',src:album.sampul,thumb:album.sampul}];
-        }
+      if(v21PublicFeedPhotos(recent).length>=6)break;
+      const hasPhoto=album.media?.some(m=>
+        /^https:\/\//i.test(String(m.src||m.url||m.thumb||''))&&!/video/i.test(String(m.jenis||m.type||'')));
+      if(!hasPhoto&&/^https:\/\//i.test(album.sampul||'')){
+        album.media=[{jenis:'Foto',nama:album.judul||'Dokumentasi',src:album.sampul,thumb:album.sampul}];
       }
     }
     const photos=v21PublicFeedPhotos(recent);
