@@ -119,7 +119,7 @@
    try{
     const d=await get('/api/v2/public/bank/album/'+encodeURIComponent(item.id));
     item.media=onlyArray(d.media).map(x=>({
-     caption:x.caption||x.title||'',jenis:x.media_type||x.type||'foto',
+     id:String(x.id||''),caption:x.caption||x.title||'',jenis:x.media_type||x.type||'foto',
      url:x.mediaUrl?(x.mediaUrl.startsWith('/')?API+x.mediaUrl:x.mediaUrl):(x.external_url||x.url||'')
     }));
     if(!item.sampul)item.sampul=item.media.find(x=>x.jenis==='foto'||x.jenis==='Foto')?.url||'';
