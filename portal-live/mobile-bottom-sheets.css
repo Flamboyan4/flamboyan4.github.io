@@ -353,6 +353,8 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  }
 @media (max-width:767px) {
  
+ /* Fullscreen photo viewers must completely cover the sheet underneath. */
+ body:has(#lightbox-modal:not(.hidden),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])) > .f4-sheet-handle {display:none}
  body > .f4-sheet-handle[hidden] {display:none}
  body > .f4-sheet-handle::before {
   content:"";display:block;width:44px;height:5px;
