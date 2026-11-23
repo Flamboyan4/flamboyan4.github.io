@@ -71,6 +71,16 @@ function combineCommunityMedia(legacy,extra){
   return !id||(!uploadedIds.has(id)&&!suppressed.has(id));
  }),...additions.filter(item=>!suppressed.has(idOf(item)))];
 }
+// Indeks hanya berisi ID foto dari folder dokumentasi yang telah dipublikasikan.
+// Ini cadangan baca-saja apabila OAuth Google Drive pada Worker sedang gagal.
+let photoIndexPromise=null;
+function publicPhotoIndex(){
+ if(!photoIndexPromise){
+  photoIndexPromise=fetch('/assets/data/portal-photo-index.json?v=20261123-a',{cache:'force-cache'})
+   .then(r=>r.ok?r.json():{folders:{}}).catch(()=>({folders:{}}));
+ }
+ return photoIndexPromise;
+}
 async function listMedia(doc){
  if(doc.media)return doc.media;
  const folder=folderId(doc.folder);
@@ -94,6 +104,17 @@ async function listMedia(doc){
  }else{
   archive=String(doc.folder||'').split(',').map(x=>x.trim()).filter(Boolean)
    .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
+ }
+ if(folder&&!archive.length){
+  const snapshot=await publicPhotoIndex();
+  archive=(snapshot.folders?.[folder]||[]).filter(x=>
+   x&&/^[A-Za-z0-9_-]{12,110}$/.test(x.id||'')).map(x=>({
+    id:'gdrive:'+x.id,
+    url:x.type==='video'
+     ?'https://api.flamboyan4.web.id/api/v2/gallery/video/'+encodeURIComponent(x.id)
+     :'https://lh3.googleusercontent.com/d/'+encodeURIComponent(x.id),
+    type:x.type==='video'?'video':'foto',caption:''
+   }));
  }
  const combined=combineCommunityMedia(archive,doc.communityPhotos);
  if(!combined.length&&doc.cover){
