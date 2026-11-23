@@ -3038,7 +3038,8 @@ body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{
  color:#164d35;font:850 15px/1.2 system-ui
 }
 body.f4-bank-app-admin #dashboardView #bank-admin-docs{
- align-content:start;max-width:none;width:100%
+ display:grid;align-content:start;gap:12px;max-width:none;width:100%;min-width:0;
+ margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
 }
 
 /* Dokumentasi pengurus — galeri foto ringkas seperti Portal Utama. */
@@ -3056,7 +3057,7 @@ body.f4-bank-app-admin #bank-admin-docs #f4BankAdminDocsTabs>.f4-bank-admin-hist
  background:#146b48;color:#fff
 }
 body.f4-bank-app-admin #bank-admin-docs .f4-bank-admin-doc-content{
- display:grid;min-width:0;gap:8px
+ display:grid;min-width:0;gap:12px
 }
 body.f4-bank-app-admin #bank-admin-docs :is(#v22DocsPage,#v17Inventaris){
  display:block;min-width:0;width:100%;box-sizing:border-box;
