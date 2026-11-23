@@ -561,6 +561,10 @@ z-index:48
       width:100%;padding:9px 17px;border-bottom:1px solid #ffffff20;color:#fff
     }
     .v21-media-head strong{font-size:14px;font-weight:750;line-height:1.35;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .v21-media-actions{display:flex;align-items:center;gap:2px;flex:none}
+    .v21-media-zoom{display:grid;place-items:center;flex:none;width:36px;height:36px;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#fff}
+    .v21-media-zoom svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
+    .v21-media-zoom[hidden]{display:none}
     .v21-media-close{display:grid;place-items:center;flex:none;width:36px;height:36px;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#fff}
     .v21-media-close svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
     .v21-stage{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-width:0;min-height:0;margin:0;padding:0}
@@ -596,6 +600,7 @@ z-index:48
     .v21-social-actions svg{display:block;width:20px;height:20px;stroke:currentColor;fill:none}
     .v21-social-like.is-liked svg{fill:#f43f5e;stroke:#f43f5e}
     .v21-social-likes{flex:none;margin:0;color:#235941;font-size:12px;font-weight:800}
+    .v21-comment-heading{font-size:13px;font-weight:760;color:#254f3a}
     .v21-social-comments{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
       margin:0;padding:4px 0 10px;scrollbar-width:none;color:#4d6a57;font-size:12px;line-height:1.5}
     .v21-social-empty{color:#7b9483;margin:2px 0;font-size:12px}
@@ -647,7 +652,7 @@ z-index:48
       .v21-gallery-count{font-size:11px;padding:4px 0}
       .v21-social-panel{flex:0 0 auto;max-height:30dvh;min-height:0;gap:6px;padding:8px 13px calc(8px + env(safe-area-inset-bottom,0px));
         background:#141d18;color:#fff;border-top:1px solid #ffffff2b;overflow-y:auto}
-      .v21-social-header{display:none}
+      .v21-social-header,.v21-comment-heading{display:none}
       .v21-social-actions{order:0;flex-wrap:nowrap;gap:7px;padding:0 0 3px;border:0}
       .v21-social-actions button{min-height:34px;height:34px;padding:5px 7px;background:transparent;color:#fff}
       .v21-social-likes{color:#e5f3e8;font-size:11px}
@@ -5761,7 +5766,13 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const mediaClose=v21Node('button','v21-media-close');mediaClose.type='button';mediaClose.title='Tutup foto/video';
     mediaClose.setAttribute('aria-label','Tutup foto dan video');
     mediaClose.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
-    mediaClose.onclick=v21CloseLightbox;mediaHead.append(mediaTitle,mediaClose);
+    mediaClose.onclick=v21CloseLightbox;
+    const mediaActions=v21Node('div','v21-media-actions');
+    const mediaZoom=v21Node('button','v21-media-zoom');mediaZoom.type='button';mediaZoom.id='v21MediaZoom';
+    mediaZoom.title='Perbesar foto';mediaZoom.setAttribute('aria-label','Perbesar foto');mediaZoom.setAttribute('aria-pressed','false');
+    mediaZoom.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7.5"/><path d="M16 16l5 5M7.5 10.5h6m-3-3v6"/></svg>';
+    mediaZoom.onclick=()=>v21TogglePhotoZoom();
+    mediaActions.append(mediaZoom,mediaClose);mediaHead.append(mediaTitle,mediaActions);
     const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';
     mediaPane.append(mediaHead,stage,counter);
     let navTimer=0;
@@ -5814,7 +5825,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     form.append(input,send);
     form.addEventListener('submit',event=>{event.preventDefault();v21SocialAction('comment');});
     footer.append(status,form);
-    panel.append(socialHead,actions,count,comments,footer);
+    const commentTitle=v21Node('strong','v21-comment-heading','Komentar Warga');
+    panel.append(socialHead,actions,count,commentTitle,comments,footer);
     shell.append(mediaPane,panel);lightbox.appendChild(shell);document.body.appendChild(lightbox);
     // Click on the dark/empty backdrop to return to the album.
     lightbox.addEventListener('click',e=>{
@@ -6129,6 +6141,19 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     });
     update();return shell;
   }
+  function v21TogglePhotoZoom(){
+    const image=$('v21StageContent')?.querySelector('img');
+    if(!image)return;
+    const zoomed=image.dataset.zoomed==='true';
+    image.dataset.zoomed=zoomed?'false':'true';
+    image.style.transform=zoomed?'':'scale(2)';
+    image.style.cursor=zoomed?'zoom-in':'zoom-out';
+    const button=$('v21MediaZoom');if(button){
+      button.setAttribute('aria-pressed',String(!zoomed));
+      button.setAttribute('aria-label',zoomed?'Perbesar foto':'Kembalikan ukuran foto');
+      button.title=zoomed?'Perbesar foto':'Kembalikan ukuran foto';
+    }
+  }
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
     const scene=$('v21StageContent');
@@ -6136,6 +6161,10 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     scene.replaceChildren();
     if($('v21MediaTitle'))$('v21MediaTitle').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
     if($('v21SocialAlbumName'))$('v21SocialAlbumName').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
+    const zoom=$('v21MediaZoom');if(zoom){
+      zoom.hidden=m.jenis==='Video';zoom.setAttribute('aria-pressed','false');
+      zoom.setAttribute('aria-label','Perbesar foto');zoom.title='Perbesar foto';
+    }
     if(m.jenis==='Video'){
       const source=v21VideoSource(m);
       if(source.src)scene.append(v21CreateVideoPlayer(m,source));
@@ -6148,12 +6177,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }else{
       const img=v21Photo(m.src||m.url,'Foto kegiatan Bank Sampah');
       img.loading='eager';
-      img.addEventListener('dblclick',()=>{
-        const enlarged=img.dataset.zoomed==='true';
-        img.style.transform=enlarged?'':'scale(2)';
-        img.dataset.zoomed=enlarged?'false':'true';
-        img.style.cursor=enlarged?'zoom-in':'zoom-out';
-      });
+      img.addEventListener('dblclick',v21TogglePhotoZoom);
       img.style.cursor='zoom-in';scene.append(img);
     }
     $('v21LightboxCount').textContent=(v21MediaIndex+1)+' / '+list.length;
