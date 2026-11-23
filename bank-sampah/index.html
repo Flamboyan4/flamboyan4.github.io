@@ -325,11 +325,11 @@ padding:0
     }
     #v17Program .f4-bank-program-illustration{
       box-sizing:border-box;display:grid;place-items:center;
-      width:100%;min-width:0;margin:0 0 11px;padding:7px 8px;
-      border:1px solid #deeee5;border-radius:13px;background:#fff
+      width:100%;min-width:0;margin:0 0 10px;padding:0;
+      border:0;border-radius:0;background:transparent
     }
     #v17Program .f4-bank-program-illustration svg{
-      display:block;width:100%;max-width:470px;height:auto;max-height:132px
+      display:block;width:100%;max-width:470px;height:auto;max-height:130px
     }
     #v17Program .f4-bank-program-flow{
       display:grid;grid-template-columns:minmax(0,1fr);gap:0;
@@ -4659,38 +4659,40 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
             <span class="f4-bank-program-kicker">3 langkah</span>
           </div>
           <div class="f4-bank-program-illustration">
-            <svg viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi sampah terpilah, penimbangan, dan tabungan warga" preserveAspectRatio="xMidYMid meet">
-              <rect x="8" y="12" width="173" height="136" rx="24" fill="#EDFAF3"/>
-              <rect x="214" y="12" width="173" height="136" rx="24" fill="#E9F9FB"/>
-              <rect x="420" y="12" width="173" height="136" rx="24" fill="#FFF7DF"/>
-              <path d="M188 80h19m-7-7 8 7-8 7M394 80h19m-7-7 8 7-8 7" fill="none" stroke="#0D987C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="45" cy="39" r="6" fill="#81C650"/><circle cx="151" cy="118" r="7" fill="#9DDBAF"/>
-              <path d="M58 65h75l8 58H50z" fill="#009F75" stroke="#047957" stroke-width="3" stroke-linejoin="round"/>
-              <path d="M73 68V56a22 22 0 0 1 44 0v12" fill="none" stroke="#047957" stroke-width="7" stroke-linecap="round"/>
-              <path d="M84 97c10-17 22-18 31-14-4 14-13 22-28 21" fill="#BAEC80"/>
-              <path d="M84 103c6-8 15-14 25-18" fill="none" stroke="#27824F" stroke-width="2.5" stroke-linecap="round"/>
-              <rect x="29" y="49" width="23" height="37" rx="7" fill="#43B5E1" stroke="#127C99" stroke-width="3" transform="rotate(-12 40 65)"/>
-              <path d="M35 43h12" stroke="#127C99" stroke-width="5" stroke-linecap="round" transform="rotate(-12 40 65)"/>
-              <path d="M128 44c10-13 26-12 33-2-11 11-24 15-32 9" fill="#FDC010"/>
-              <circle cx="332" cy="39" r="8" fill="#98E6E3"/>
-              <path d="M244 82h114l-11 14h-92z" fill="#009788"/>
-              <rect x="260" y="96" width="84" height="37" rx="10" fill="#0B8F87"/>
-              <rect x="274" y="105" width="56" height="19" rx="6" fill="#FFFFFF"/>
-              <path d="M281 117h42" stroke="#0D8A83" stroke-width="3" stroke-linecap="round"/>
-              <path d="M304 110v9" stroke="#0D8A83" stroke-width="3" stroke-linecap="round"/>
-              <path d="M285 80v-33h33v33" fill="none" stroke="#207D83" stroke-width="4" stroke-linejoin="round"/>
-              <path d="M275 50h50" stroke="#207D83" stroke-width="5" stroke-linecap="round"/>
-              <path d="M282 51h36l-4-11h-28z" fill="#FDC010" stroke="#DD9F0D" stroke-width="2"/>
-              <path d="M368 107l9-9m-9 9-2-12" fill="none" stroke="#5ECDC7" stroke-width="4" stroke-linecap="round"/>
-              <circle cx="540" cy="36" r="7" fill="#FFD65C"/>
-              <rect x="445" y="72" width="119" height="63" rx="16" fill="#F2B90B"/>
-              <rect x="453" y="76" width="102" height="54" rx="13" fill="#FFC93A"/>
-              <rect x="502" y="89" width="62" height="25" rx="8" fill="#D58B04"/>
-              <circle cx="526" cy="101" r="7" fill="#FFF3C7"/>
-              <path d="M477 68c8-12 30-12 38 0" fill="none" stroke="#B27808" stroke-width="5" stroke-linecap="round"/>
-              <circle cx="492" cy="54" r="19" fill="#FFD459" stroke="#D69A08" stroke-width="4"/>
-              <path d="M492 44v20m-7-15c4-4 15-3 15 2 0 6-15 3-15 9 0 5 12 6 15 1" fill="none" stroke="#A96E07" stroke-width="3" stroke-linecap="round"/>
-              <path d="M561 51c6-13 17-12 23-6-7 11-16 14-23 10" fill="#37AD6C"/>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 166" role="img" aria-label="Alur sampah terpilah, ditimbang, kemudian menjadi tabungan dalam rupiah" preserveAspectRatio="xMidYMid meet">
+              <rect x="6" y="8" width="178" height="150" rx="21" fill="#EBF8EF"/>
+              <rect x="211" y="8" width="178" height="150" rx="21" fill="#EAF8FA"/>
+              <rect x="416" y="8" width="178" height="150" rx="21" fill="#FFF6DC"/>
+              <g stroke="#089882" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+                <path d="M189 83h16m-7-7 7 7-7 7M394 83h16m-7-7 7 7-7 7"/>
+              </g>
+              <g stroke-linejoin="round" stroke-linecap="round">
+                <rect x="46" y="57" width="25" height="51" rx="6" fill="#51BBD7" stroke="#1687A6" stroke-width="3"/>
+                <path d="M52 49h13v8H52zm-3 26h19" fill="#51BBD7" stroke="#1687A6" stroke-width="3"/>
+                <path d="M79 46h62l-6 77H85z" fill="#0B9C74"/>
+                <path d="M94 46v-9c0-11 8-19 16-19 9 0 16 8 16 19v9" fill="none" stroke="#087858" stroke-width="7"/>
+                <path d="M93 90c6-15 19-20 31-17-2 14-15 25-31 23z" fill="#B5DF56"/>
+                <path d="M95 95c8-8 16-14 26-19" fill="none" stroke="#3F944E" stroke-width="2.8"/>
+                <rect x="131" y="75" width="16" height="35" rx="3" fill="#FDC010" transform="rotate(12 139 92)"/>
+              </g>
+              <g stroke-linejoin="round" stroke-linecap="round">
+                <path d="M252 70h96l-11 20h-74z" fill="#17A8A0"/>
+                <rect x="255" y="92" width="90" height="46" rx="12" fill="#0B978F"/>
+                <rect x="272" y="102" width="56" height="26" rx="7" fill="#FFFFFF"/>
+                <path d="M283 115h34" stroke="#0B978F" stroke-width="3"/>
+                <path d="M294 122h12" stroke="#0B978F" stroke-width="2.4"/>
+                <rect x="283" y="47" width="34" height="23" rx="3" fill="#FDC010"/>
+                <path d="M278 45h44l-5 10h-34z" fill="#E4A40E"/>
+              </g>
+              <g stroke-linecap="round" stroke-linejoin="round">
+                <rect x="448" y="83" width="112" height="55" rx="14" fill="#FDC010"/>
+                <rect x="449" y="94" width="112" height="44" rx="14" fill="#EAB008"/>
+                <rect x="509" y="101" width="51" height="29" rx="9" fill="#B67B06"/>
+                <circle cx="532" cy="115" r="6" fill="#FFF4CC"/>
+                <path d="M459 82V71h72" fill="none" stroke="#D99A04" stroke-width="5"/>
+                <circle cx="493" cy="54" r="25" fill="#FFD454" stroke="#D79B06" stroke-width="4"/>
+                <text x="493" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#8A5B00">Rp</text>
+              </g>
             </svg>
           </div>
           <ol class="f4-bank-program-flow">
@@ -4765,8 +4767,26 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const c=document.createElement('div');c.className='v17-public-metric';c.dataset.metric=/setoran/i.test(label)?'deposit':/anggota/i.test(label)?'user':/jenis/i.test(label)?'inventory':/berat/i.test(label)?'bank':/kegiatan/i.test(label)?'calendar':'cash';const small=document.createElement('small');small.textContent=label;
     const strong=document.createElement('strong');strong.textContent=value;c.append(small,strong);return c;
   }
+  // Flat, illustrated category tiles. All categories and rates still come from live catalog data.
+  function v17PublicWasteIcon(category){
+    const icons={
+      Kertas:'<rect x="18" y="12" width="45" height="50" rx="5" fill="#F4F9FF" stroke="#2D80BF" stroke-width="3"/><path d="M29 27h24M29 36h24M29 45h17" stroke="#6DB5E4" stroke-width="3" stroke-linecap="round"/><path d="M38 12V7h31v43h-6" fill="none" stroke="#70B5E2" stroke-width="3" stroke-linecap="round"/>',
+      Plastik:'<path d="M30 13h23v8H30z" fill="#3A91CA"/><path d="M34 21h15v8c0 6 9 10 9 19v12c0 5-4 8-8 8H33c-5 0-8-3-8-8V48c0-9 9-13 9-19z" fill="#61C7E5" stroke="#2386BB" stroke-width="3"/><path d="M27 43h29M27 55h29" stroke="#DDF8FB" stroke-width="3"/><path d="M30 13h23" stroke="#2386BB" stroke-width="3" stroke-linecap="round"/>',
+      Logam:'<ellipse cx="41" cy="17" rx="21" ry="8" fill="#E0E8F1" stroke="#537698" stroke-width="3"/><path d="M20 17v42c0 5 9 8 21 8s21-3 21-8V17" fill="#AAC4DD" stroke="#537698" stroke-width="3"/><path d="M21 34h40v20H21z" fill="#E4F2FB"/><path d="M30 44h22" stroke="#5A8DB3" stroke-width="4" stroke-linecap="round"/><path d="M34 17h14" stroke="#537698" stroke-width="3" stroke-linecap="round"/>',
+      Campuran:'<rect x="15" y="26" width="53" height="38" rx="5" fill="#E9C6F0" stroke="#9B4AAF" stroke-width="3"/><path d="M15 36h53M41 26v38" stroke="#9B4AAF" stroke-width="3"/><path d="m26 25 6-12 22 12" fill="#F5DB9E" stroke="#BF8D32" stroke-width="3" stroke-linejoin="round"/><circle cx="56" cy="19" r="8" fill="#74C9A6" stroke="#30996B" stroke-width="2.5"/>',
+      Lainnya:'<rect x="20" y="23" width="46" height="43" rx="9" fill="#C5E6A6" stroke="#569B38" stroke-width="3"/><path d="M31 23v-9h24v9M43 36l-8 13h16l-5 7" fill="none" stroke="#367C36" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    };
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 84 78');
+    svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('focusable','false');
+    svg.innerHTML=icons[category]||icons.Lainnya;
+    return svg;
+  }
   function v17RenderPublicWaste(items){
     const root=$('f4PublicWasteList'),count=$('f4PublicWasteCount');if(!root)return;
+    // Remember open categories when catalog data is reloaded.
+    const expanded=new Set([...root.querySelectorAll('details[open]')].map(x=>x.dataset.category));
     root.replaceChildren();
     const categories=new Map();
     const names=['Kertas','Plastik','Logam','Campuran','Lainnya'];
@@ -4785,8 +4805,14 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     for(const category of names){
       const goodsInCategory=categories.get(category);
       if(!goodsInCategory?.length)continue;
-      const details=document.createElement('details');details.className='f4-public-waste-category';
+      const details=document.createElement('details');
+      details.className='f4-public-waste-category';
+      details.dataset.category=category;
+      details.open=expanded.has(category);
       const summary=document.createElement('summary');summary.className='f4-public-waste-category-head';
+      summary.setAttribute('aria-label','Lihat jenis sampah '+category);
+      const picture=document.createElement('span');picture.className='f4-public-waste-picture';
+      picture.append(v17PublicWasteIcon(category));
       const title=document.createElement('strong');title.textContent=category;
       const meta=document.createElement('span');meta.className='f4-public-waste-category-meta';
       const amount=document.createElement('small');amount.textContent=goodsInCategory.length+' jenis';
@@ -4794,7 +4820,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       arrow.setAttribute('viewBox','0 0 24 24');arrow.setAttribute('fill','none');arrow.setAttribute('stroke','currentColor');
       arrow.setAttribute('stroke-width','2');arrow.setAttribute('stroke-linecap','round');arrow.setAttribute('stroke-linejoin','round');
       arrow.setAttribute('aria-hidden','true');arrow.innerHTML='<path d="m9 18 6-6-6-6"/>';
-      meta.append(amount,arrow);summary.append(title,meta);
+      meta.append(amount,arrow);summary.append(picture,title,meta);
       const list=document.createElement('div');list.className='f4-public-waste-items';
       for(const item of goodsInCategory.sort((a,b)=>a.nama.localeCompare(b.nama,'id'))){
         const row=document.createElement('div');row.className='f4-public-waste-item';
@@ -4809,6 +4835,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(!root.childElementCount)root.textContent=Array.isArray(items)?
       'Jenis sampah yang diterima belum dipublikasikan.':'Jenis sampah belum dapat dimuat.';
   }
+
   function v17AlbumCard(a){
     const d=document.createElement('details');d.className='v17-album';
     if(/^https:\/\//.test(a.sampul||'')){const img=document.createElement('img');img.src=a.sampul;img.alt='Sampul '+a.judul;img.loading='lazy';d.appendChild(img);}
