@@ -112,7 +112,7 @@ body.theme-home .app-body section[id]{scroll-margin-top:84px}
 #portal-scroll-top{background:#293650}
 .portal-suggestion-dialog{width:min(92vw,480px);border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);box-shadow:0 25px 70px #080c2840;max-height:90vh;overflow-y:auto}
 .portal-suggestion-dialog::backdrop{background:#0b1225a8;backdrop-filter:blur(3px)}
-.suggestion-heading{background:#5654bf;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.suggestion-heading{background:var(--f4-portal-primary,#4f46e5);color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
 .suggestion-heading h2{font-size:18px;margin:0}.suggestion-heading button{font-size:24px;background:transparent;border:0;color:white}
 .portal-suggestion-dialog form{padding:20px;display:grid;gap:13px}
 .portal-suggestion-dialog .btn{display:inline-flex;align-items:center;justify-content:center;min-height:var(--f4-control-height,42px);justify-self:stretch}
@@ -161,11 +161,11 @@ body.theme-home .app-body section[id]{scroll-margin-top:84px}
 
 /* Portal utama: ungu-biru lebih berani, bukan pastel. */
 body.theme-home{--accent:#5041dd;--accent-dark:#3428a2;--accent-soft:#edeaff;--bg:#f4f5fb;--ink:#1a2240}
-body.theme-home .shell-mark{background:linear-gradient(135deg,#4848d7,#7462ff);color:#fff}
+body.theme-home .shell-mark{background:linear-gradient(135deg,var(--f4-portal-primary-hover,#4338ca),var(--f4-portal-primary,#4f46e5));color:#fff}
 body.theme-home .shell-side-link.current{background:#ebe9ff;color:#3930b5}
 body.theme-home .shell-side-link:hover{background:#f0efff;color:#3d34c5}
-body.theme-home .banner-frame{background:linear-gradient(130deg,#302189,#5745ce)}
-body.theme-home .banner-slide{background:linear-gradient(135deg,#32249a,#5e47d8)}
+body.theme-home .banner-frame{background:linear-gradient(130deg,#312e81,var(--f4-portal-primary,#4f46e5))}
+body.theme-home .banner-slide{background:linear-gradient(135deg,#3730a3,var(--f4-portal-primary,#4f46e5))}
 body.theme-home .banner-dot[aria-current=true]{background:#fff}
 body.theme-home .stat em{color:#5140d6}
 body.theme-home .portal-floating-actions #portal-suggestion-open{background:#5542e8;display:grid;place-items:center}
@@ -363,7 +363,7 @@ body.theme-home .portal-floating-actions #portal-suggestion-open{background:#554
 .portal-finance-card strong{font-size:clamp(20px,2vw,29px);line-height:1.25;letter-spacing:-.4px;color:#12875a}
 .portal-finance-card:nth-child(2) strong{color:#d64065}
 .portal-finance-sub{font-size:12px;color:#5b6683}
-.portal-finance-balance{background:linear-gradient(135deg,#35258d,#5847cb);color:#fff}
+.portal-finance-balance{background:linear-gradient(135deg,#312e81,var(--f4-portal-primary,#4f46e5));color:#fff}
 .portal-finance-balance small,.portal-finance-balance strong,.portal-finance-balance .portal-finance-sub{color:#fff}
 .portal-finance-note{font-size:12px;margin:9px 0 0;color:var(--soft)}
 .portal-finance-dialog{width:min(94vw,1020px);max-height:90vh;border:0;border-radius:17px;padding:0;background:#fff;color:var(--ink);overflow:hidden}
