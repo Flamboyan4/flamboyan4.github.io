@@ -86,35 +86,43 @@ async function listMedia(doc){
  const folder=folderId(doc.folder);
  let archive=[];
  if(folder){
-  // Folder media lama dibaca lewat Worker; Apps Script tidak lagi digunakan.
-  const albumRef=doc.id||'gfolder:'+folder;
-  try{
-   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),4500);
-   let response;
-   try{response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
-     encodeURIComponent(albumRef),{cache:'no-store',signal:controller.signal})}
-   finally{clearTimeout(timeout)}
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const payload=await response.json();
-   archive=Array.isArray(payload.media)?payload.media.filter(x=>
-    x&&['foto','video'].includes(x.type)&&safe(x.url)).map(x=>({...x,caption:''})):[];
-  }catch(error){
-   console.warn('Foto arsip Drive belum terbaca:',doc.title,error.message||error);
+  // The verified public archive is the primary source for legacy albums.
+  // It is complete for the eight folders in the existing Dokumentasi workbook.
+  const snapshot=await publicPhotoIndex();
+  archive=(snapshot.folders?.[folder]||[]).filter(x=>
+   x&&/^[A-Za-z0-9_-]{12,110}$/.test(x.id||'')&&['foto','video'].includes(x.type)).map(x=>({
+    id:'gdrive:'+x.id,
+    type:x.type,
+    url:x.type==='video'
+     ?'https://drive.google.com/file/d/'+encodeURIComponent(x.id)+'/view'
+     :'https://lh3.googleusercontent.com/d/'+encodeURIComponent(x.id),
+    thumb:'https://drive.google.com/thumbnail?id='+encodeURIComponent(x.id)+'&sz=w1000',
+    caption:''
+   }));
+  // Only unindexed folders require the Worker. If Drive OAuth is unavailable,
+  // the existing indexed archive must remain complete and immediately visible.
+  if(!archive.length){
+   const albumRef=doc.id||'gfolder:'+folder;
+   try{
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),3500);
+    let response;
+    try{response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
+      encodeURIComponent(albumRef),{cache:'no-store',signal:controller.signal})}
+    finally{clearTimeout(timeout)}
+    if(!response.ok)throw Error('HTTP '+response.status);
+    const payload=await response.json();
+    archive=Array.isArray(payload.media)?payload.media.filter(x=>
+      x&&['foto','video'].includes(x.type)&&safe(x.url)).map(x=>{
+       const id=String(x.id||'').match(/^gdrive:([A-Za-z0-9_-]{12,110})$/)?.[1]||'';
+       return {...x,caption:'',
+        url:x.type==='video'&&id?'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view':x.url,
+        thumb:id?'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1000':x.thumb};
+      }):[];
+   }catch(error){console.warn('Folder belum terindeks atau Drive Worker tidak tersedia:',doc.title,error.message||error)}
   }
  }else{
   archive=String(doc.folder||'').split(',').map(x=>x.trim()).filter(Boolean)
-   .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
- }
- if(folder&&!archive.length){
-  const snapshot=await publicPhotoIndex();
-  archive=(snapshot.folders?.[folder]||[]).filter(x=>
-   x&&/^[A-Za-z0-9_-]{12,110}$/.test(x.id||'')).map(x=>({
-    id:'gdrive:'+x.id,
-    url:x.type==='video'
-     ?'https://api.flamboyan4.web.id/api/v2/gallery/video/'+encodeURIComponent(x.id)
-     :'https://lh3.googleusercontent.com/d/'+encodeURIComponent(x.id),
-    type:x.type==='video'?'video':'foto',caption:''
-   }));
+   .map(url=>({url:driveImage(url),type:/\\.(mp4|webm|mov)(?:\\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
  }
  const combined=combineCommunityMedia(archive,doc.communityPhotos);
  if(!combined.length&&doc.cover){
