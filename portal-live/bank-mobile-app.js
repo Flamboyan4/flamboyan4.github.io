@@ -2937,21 +2937,6 @@ function memberFeature(route){
  if(!memberSnapshotsLoaded)publicSnapshot();
  window.scrollTo(0,0);
 }
-function bindMemberDocumentation(){
- const section=$("v17Dokumentasi");if(!section||section.dataset.f4MemberDocsBound)return;
- section.dataset.f4MemberDocsBound="1";
- section.addEventListener("click",event=>{
-  if(roleType()!=="member"||!section.closest("#bank-member-info"))return;
-  if(!event.target.closest("#v17Albums button, .v22-section-title, .v21-section-all"))return;
-  event.preventDefault();event.stopImmediatePropagation();
-  navigate("bank-member-docs");
- },true);
- section.addEventListener("keydown",event=>{
-  if(roleType()!=="member"||!section.closest("#bank-member-info"))return;
-  if(!["Enter"," "].includes(event.key)||!event.target.closest(".v22-section-title"))return;
-  event.preventDefault();event.stopImmediatePropagation();navigate("bank-member-docs");
- },true);
-}
 function visibleMemberRoute(){
  for(const id of [...featureRoutes,...custom,"pagePribadi","pageProfile","pageDashboard"]){
   if($(id)&&!$(id).classList.contains("hidden"))
@@ -3181,7 +3166,7 @@ function sync(){
  }
  ensureHome();
  if(role==="member"){
-  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();ensureMemberHowtoBanner();bindMemberDocumentation();publicSnapshot();
+  ensureMemberPages();progressPreview();infoShortcut();orderMemberHome();ensureMemberHowtoBanner();publicSnapshot();
   loadMemberAward();
  }else{
   managerRequestsPanel();

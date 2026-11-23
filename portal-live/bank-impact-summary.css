@@ -241,51 +241,55 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  margin:2px 0 0;padding:0;
  border:0;border-radius:0;background:transparent;box-shadow:none
 }
-#v11Public .f4-public-stories #v17Dokumentasi{
- min-width:0;margin:0;padding:0;
+#v17Dokumentasi.v17-section{
+ box-sizing:border-box;width:100%;min-width:0;margin:0;padding:0;
  border:0;background:transparent;box-shadow:none
 }
-:is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) #v17Albums{
+#v17Dokumentasi #v17Albums.v17-photo-feed{
  box-sizing:border-box;display:grid;
  grid-template-columns:repeat(3,minmax(0,1fr));
- gap:5px;width:100%;min-width:0
+ gap:5px;width:100%;max-width:100%;min-width:0;margin:0;padding:0;align-items:start
 }
-:is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) .v17-feed-photo{
+#v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo{
  box-sizing:border-box;display:block;position:relative;
- min-width:0;width:100%;aspect-ratio:1/1;
- margin:0;padding:0;border:0;border-radius:4px;
+ min-width:0;min-height:0;width:100%;max-width:100%;height:auto;aspect-ratio:1/1;
+ margin:0;padding:0;border:0;border-radius:4px;box-shadow:none;
  background:#edf3ef;overflow:hidden;cursor:pointer
 }
-:is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) .v17-feed-photo img{
- display:block;width:100%;height:100%;
+#v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo img{
+ position:absolute;inset:0;display:block;width:100%;height:100%;max-width:100%;
  object-fit:cover;transition:transform .18s ease
 }
-:is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) .v17-feed-photo:hover img{transform:scale(1.035)}
-:is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) .v17-feed-photo:focus-visible{
+#v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo>.v21-placeholder{
+ position:absolute;inset:0;display:grid;place-items:center;color:#087c6c
+}
+#v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo:hover img{transform:scale(1.035)}
+#v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo:focus-visible{
  outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:2px
 }
-#v11Public .f4-public-transparency{
- margin:5px 0 0;padding:0;border:0;background:transparent
+#v17Transparansi.f4-public-transparency{
+ box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;
+ width:100%;min-width:0;margin:5px 0 0;padding:0;border:0;background:transparent
 }
 /* Shared weighing charts: the same DOM moves from public to member info. */
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insights{
+#v17Transparansi.f4-public-transparency .f4-public-insights{
  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));
  align-items:stretch;gap:12px;width:100%;min-width:0
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insight{
+#v17Transparansi.f4-public-transparency .f4-public-insight{
  box-sizing:border-box;min-width:0;min-height:319px;
  padding:16px;border:1px solid #dce9e0;
  border-radius:17px;background:#fff
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insight-top{
+#v17Transparansi.f4-public-transparency .f4-public-insight-top{
  display:flex;align-items:center;justify-content:space-between;
  gap:10px;min-width:0;min-height:34px;margin:0 0 12px
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insight-top h2{
+#v17Transparansi.f4-public-transparency .f4-public-insight-top h2{
  min-width:0;margin:0;color:#174b36;
  font-size:16px;font-weight:850;line-height:1.3
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi #f4PubTrendMode:not(.f4-modern-native-hidden){
+#v17Transparansi.f4-public-transparency #f4PubTrendMode:not(.f4-modern-native-hidden){
  box-sizing:border-box;flex:none;width:118px;min-width:0;max-width:145px;
  min-height:35px;height:35px;margin:0;padding:7px 27px 7px 11px;
  border:1px solid #d5e4d9;border-radius:9px;background-color:#fff;
@@ -293,102 +297,102 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  background-position:right 9px center;background-size:14px;background-repeat:no-repeat;
  appearance:none;color:#245b43;font:700 11px/1.2 system-ui;cursor:pointer
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi :is(#f4PubTrendMode,.f4-control-trigger):focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:2px}
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-trend-bars{
+#v17Transparansi.f4-public-transparency :is(#f4PubTrendMode,.f4-control-trigger):focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:2px}
+#v17Transparansi.f4-public-transparency .f4-public-trend-bars{
  display:grid;grid-template-columns:repeat(var(--f4-bar-count,1),minmax(0,1fr));
  align-items:stretch;gap:8px;height:228px;min-width:0;
  padding:12px 7px 0;border-bottom:1px solid #e9efeb
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-trend-bars.is-empty{
+#v17Transparansi.f4-public-transparency .f4-public-trend-bars.is-empty{
  display:grid;place-items:center;color:#708979;
  font-size:12px;text-align:center;border:0
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-item{
+#v17Transparansi.f4-public-transparency .f4-public-bar-item{
  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
  gap:7px;min-width:0;height:100%
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-number{
+#v17Transparansi.f4-public-transparency .f4-public-bar-number{
  display:block;max-width:100%;color:#236e45;
  font-size:10.5px;font-weight:820;line-height:1.25;
  white-space:nowrap;font-variant-numeric:tabular-nums
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-shaft{
+#v17Transparansi.f4-public-transparency .f4-public-bar-shaft{
  display:flex;align-items:flex-end;justify-content:center;
  flex:1;min-width:0;width:100%;min-height:0
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-fill{
+#v17Transparansi.f4-public-transparency .f4-public-bar-fill{
  display:block;width:min(78%,44px);max-height:100%;
  border-radius:7px 7px 2px 2px;
  background:linear-gradient(180deg,#8bc24a 0%,#43a047 100%);
  transition:height .2s ease
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-item small{
+#v17Transparansi.f4-public-transparency .f4-public-bar-item small{
  display:block;height:19px;max-width:100%;min-width:0;
  color:#748d7d;font-size:10px;line-height:1.4;
  text-align:center;white-space:nowrap
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-layout{
+#v17Transparansi.f4-public-transparency .f4-public-types-layout{
  display:grid;grid-template-columns:minmax(142px,.9fr) minmax(0,1.1fr);
  gap:10px;align-items:center;min-width:0
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut-stage{
+#v17Transparansi.f4-public-transparency .f4-public-donut-stage{
  position:relative;display:grid;place-items:center;
  min-width:0;width:100%;max-width:185px;justify-self:center;aspect-ratio:1
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut{
+#v17Transparansi.f4-public-transparency .f4-public-donut{
  display:block;width:100%;height:auto;max-width:185px;max-height:185px;
  overflow:visible
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut-label{
+#v17Transparansi.f4-public-transparency .f4-public-donut-label{
  position:absolute;inset:0;display:flex;flex-direction:column;
  justify-content:center;align-items:center;gap:3px;
  text-align:center;pointer-events:none
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut-label strong{
+#v17Transparansi.f4-public-transparency .f4-public-donut-label strong{
  color:#14533b;font-size:clamp(14px,1.75vw,19px);
  font-weight:850;white-space:nowrap;line-height:1.2
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut-label small{color:#71897c;font-size:10px}
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-list{
+#v17Transparansi.f4-public-transparency .f4-public-donut-label small{color:#71897c;font-size:10px}
+#v17Transparansi.f4-public-transparency .f4-public-types-list{
  display:flex;flex-direction:column;min-width:0;
  height:226px;max-height:226px;overflow-y:auto;scrollbar-width:none;
  overscroll-behavior:contain;color:#638072;font-size:12px
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-list::-webkit-scrollbar{display:none}
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-row{
+#v17Transparansi.f4-public-transparency .f4-public-types-list::-webkit-scrollbar{display:none}
+#v17Transparansi.f4-public-transparency .f4-public-type-row{
  display:grid;gap:6px;min-width:0;
  padding:8px 0;border-bottom:1px solid #e8efe9
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-row:last-child{border-bottom:0}
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-head,
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-sub{
+#v17Transparansi.f4-public-transparency .f4-public-type-row:last-child{border-bottom:0}
+#v17Transparansi.f4-public-transparency .f4-public-type-head,
+#v17Transparansi.f4-public-transparency .f4-public-type-sub{
  display:flex;align-items:center;justify-content:space-between;gap:7px;min-width:0
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-name{
+#v17Transparansi.f4-public-transparency .f4-public-type-name{
  display:flex;align-items:center;gap:6px;flex:1;min-width:0;
  color:#245641;font-size:10.5px;font-weight:780
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-name span{
+#v17Transparansi.f4-public-transparency .f4-public-type-name span{
  display:block;min-width:0;overflow:hidden;
  text-overflow:ellipsis;white-space:nowrap
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-dot{
+#v17Transparansi.f4-public-transparency .f4-public-type-dot{
  width:9px;height:9px;border-radius:4px;flex:none
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-weight{
+#v17Transparansi.f4-public-transparency .f4-public-type-weight{
  flex:none;color:#176345;font-size:10.5px;font-weight:850;white-space:nowrap
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-track{
+#v17Transparansi.f4-public-transparency .f4-public-type-track{
  height:7px;flex:1;min-width:0;border-radius:999px;background:#eaf0eb;overflow:hidden
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-track span{
+#v17Transparansi.f4-public-transparency .f4-public-type-track span{
  display:block;height:100%;border-radius:999px
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-type-sub small{
+#v17Transparansi.f4-public-transparency .f4-public-type-sub small{
  flex:none;width:40px;color:#285944;
  font-size:10px;text-align:right;white-space:nowrap
 }
-:is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-note{
+#v17Transparansi.f4-public-transparency .f4-public-types-note{
  display:block;margin:7px 0 0;color:#7e9788;
  font-size:10px;line-height:1.4
 }
@@ -436,21 +440,21 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  }
 }
 @media(max-width:760px){
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insights{grid-template-columns:minmax(0,1fr);gap:10px}
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-insight{min-height:0;padding:14px;border-radius:15px}
- :is(#v11Public,#bank-member-info) #v17Transparansi #f4PubTrendMode+.f4-control-trigger{
+ #v17Transparansi.f4-public-transparency .f4-public-insights{grid-template-columns:minmax(0,1fr);gap:10px}
+ #v17Transparansi.f4-public-transparency .f4-public-insight{min-height:0;padding:14px;border-radius:15px}
+ #v17Transparansi.f4-public-transparency #f4PubTrendMode+.f4-control-trigger{
   flex:none;width:118px;min-width:0;max-width:145px;height:35px;min-height:35px;
   margin:0;padding:7px 10px;border:1px solid #d5e4d9;border-radius:9px;
   background:#fff;color:#245b43;font:700 11px/1.2 system-ui;box-shadow:none
  }
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-trend-bars{height:196px}
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-bar-number{font-size:9.5px}
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-layout{grid-template-columns:minmax(115px,.8fr) minmax(0,1.2fr)}
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-types-list{height:194px;max-height:194px}
- :is(#v11Public,#bank-member-info) #v17Transparansi .f4-public-donut-label strong{font-size:16px}
+ #v17Transparansi.f4-public-transparency .f4-public-trend-bars{height:196px}
+ #v17Transparansi.f4-public-transparency .f4-public-bar-number{font-size:9.5px}
+ #v17Transparansi.f4-public-transparency .f4-public-types-layout{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)}
+ #v17Transparansi.f4-public-transparency .f4-public-types-list{height:194px;max-height:194px}
+ #v17Transparansi.f4-public-transparency .f4-public-donut-label strong{font-size:16px}
  #v11Public .f4-public-waste{padding:16px;border-radius:17px}
- :is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) #v17Albums{gap:3px}
- :is(#v11Public .f4-public-stories,#bank-member-info #v17Dokumentasi) .v17-feed-photo{border-radius:2px}
+ #v17Dokumentasi #v17Albums.v17-photo-feed{gap:3px}
+ #v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo{border-radius:2px}
  #v11Public .f4-public-section-heading{margin-bottom:12px;gap:9px}
  #v11Public .f4-public-section-heading h2{font-size:19px}
  #v11Public .f4-public-section-heading p{font-size:11px}
@@ -603,7 +607,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 /* Laporan keuangan anggota — gaya mobile banking, seirama dengan Beranda Pengelola.
    Satu hero, satu panel estimasi, kemudian kontrol dan rekap tanpa kartu bersarang. */
 #f4BankPrivateFinancialSummary{
- min-width:0;margin:0 0 19px
+ box-sizing:border-box;width:100%;min-width:0;margin:0
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-hero{
  box-sizing:border-box;position:relative;overflow:hidden;min-width:0;
@@ -618,20 +622,19 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  letter-spacing:.04em;line-height:1.3
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-grid{
- position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
  gap:0;min-width:0
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card{
  box-sizing:border-box;display:flex;flex-direction:column;gap:7px;
- justify-content:center;min-width:0;margin:0;padding:12px 2px 0;
+ justify-content:center;min-width:0;margin:0;padding:0 16px;
  border:0;border-radius:0;background:transparent;box-shadow:none
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child{
- grid-column:1/-1;padding:0 0 17px;margin:0 0 3px;
- border-bottom:1px solid #ffffff59
+ padding-left:0
 }
-#f4BankPrivateFinancialSummary .f4-bank-private-finance-card:nth-child(3){
- padding-left:16px;border-left:1px solid #ffffff45
+#f4BankPrivateFinancialSummary .f4-bank-private-finance-card+.f4-bank-private-finance-card{
+ border-left:1px solid #ffffff45
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card small{
  display:block;color:#dcf7ed;font-size:12px;font-weight:600;line-height:1.25
@@ -642,7 +645,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  font-variant-numeric:tabular-nums
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child strong{
- font-size:clamp(29px,3.2vw,36px)
+ font-size:clamp(18px,2vw,24px)
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-note{
  margin:8px 2px 0;color:#b42318;
@@ -717,8 +720,8 @@ body.f4-bank-app-member #bank-member-info #v25ReportMobileList{
  body.f4-bank-app-member #bank-member-info #v17Transparansi>h2{
   color:#084b36;font-size:21px;line-height:1.25;margin:0 0 15px
  }
- #f4BankPrivateFinancialSummary{
-  margin:0 0 17px
+ #f4BankPrivateFinancialSummary .f4-bank-private-finance-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))
  }
  #f4BankPrivateFinancialSummary .f4-bank-private-finance-hero{
   padding:18px 20px 16px;border-radius:19px
@@ -730,8 +733,9 @@ body.f4-bank-app-member #bank-member-info #v25ReportMobileList{
   padding:12px 1px 0
  }
  #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:first-child{
-  padding:0 0 17px;margin-bottom:0
+  grid-column:1/-1;padding:0 0 12px;margin:0 0 2px;border-bottom:1px solid #ffffff59
  }
+ #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:nth-child(2){border-left:0}
  #f4BankPrivateFinancialSummary .f4-bank-private-finance-card:nth-child(3){
   padding-left:14px
  }

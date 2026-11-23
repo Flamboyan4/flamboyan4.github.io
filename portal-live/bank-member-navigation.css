@@ -482,11 +482,11 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  margin:0;min-width:0;padding:0;border:0;border-radius:0;
  background:transparent;box-shadow:none
 }
-#dashboardView #bank-member-info :is(#v17Dokumentasi,#v17Inventaris).v17-section{
- margin:0;min-width:0;padding:16px;border:1px solid #dce8df;
- border-radius:20px;background:#fff;box-shadow:0 7px 22px #143b250b
+#dashboardView #bank-member-info #v17Inventaris.v17-section{
+ box-sizing:border-box;width:100%;margin:0;min-width:0;padding:16px;border:1px solid #dce8df;
+ border-radius:17px;background:#fff;box-shadow:none
 }
-#dashboardView #bank-member-info .v17-section h2{
+#dashboardView #bank-member-info #v17Inventaris h2, #dashboardView #bank-member-info #v25ReportRoot h2{
  margin:0 0 12px;font-size:17px;font-weight:850;color:#1c5137
 }
 #dashboardView #bank-member-info #v25ReportRoot.v17-panel{
@@ -538,9 +538,6 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  display:table-cell;padding:9px 8px;border-bottom:1px solid #e6ece7;
  background:#fff;font-size:11px;text-align:left
 }
-#dashboardView #bank-member-info .v17-albums{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px
-}
 #dashboardView #bank-member-info .v21-section-bar{
  display:flex;align-items:center;justify-content:space-between;gap:10px;
  margin:0 0 12px
@@ -558,7 +555,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 #dashboardView #bank-member-docs #v22DocsPage>.v22-doc-heading{display:none}
 @media(min-width:1024px){
  body.f4-bank-app-member #dashboardView #bank-member-info .f4-member-feature-content{
-  grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:20px
+  grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:16px
  }
  body.f4-bank-app-member #dashboardView #bank-member-info #v17Transparansi{grid-column:1/-1}
  body.f4-bank-app-member #dashboardView #bank-member-info #v17Dokumentasi{grid-column:1/span 7}
@@ -566,7 +563,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 }
 
 #dashboardView #bank-member-info .v17-inventory{
- display:grid;grid-template-columns:minmax(0,1fr);gap:9px
+ display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;gap:0
 }
 @media(max-width:640px){
  #dashboardView #bank-member-progress #v17PublicMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -575,7 +572,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  #dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
   padding:0;border-radius:0
  }
- #dashboardView #bank-member-info :is(#v17Dokumentasi,#v17Inventaris).v17-section{padding:13px}
+ #dashboardView #bank-member-info #v17Inventaris.v17-section{padding:13px}
  #dashboardView #bank-member-info #v25ReportMetrics.v25-public-metrics{
   grid-template-columns:repeat(3,minmax(0,1fr));gap:5px
  }
