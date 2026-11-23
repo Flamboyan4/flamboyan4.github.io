@@ -128,8 +128,8 @@
 .f4p-photo-arrow{position:absolute;top:50%;z-index:5;transform:translateY(-50%);
  width:42px;height:42px;background:#191b24bd;color:#fff;border-radius:50%;
  opacity:0;transition:opacity .18s ease,background .18s ease}
-.f4p-photo-arrow:first-child{left:clamp(6px,1.4vw,16px)}
-.f4p-photo-arrow:last-child{right:clamp(6px,1.4vw,16px)}
+.f4p-photo-arrow.is-prev{left:clamp(6px,1.4vw,16px);right:auto}
+.f4p-photo-arrow.is-next{right:clamp(6px,1.4vw,16px);left:auto}
 .f4p-photo-arrow:hover{background:#494254d9}
 @media(hover:hover){.f4p-photo-stage:hover>.f4p-photo-arrow:not([hidden]){opacity:1}}
 .f4p-photo-stage.f4p-nav-visible>.f4p-photo-arrow:not([hidden]){opacity:1}
