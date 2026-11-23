@@ -320,8 +320,10 @@ function renderPhoto(){
   // Restore the portal's own player and its controls. The publicly shared
   // Drive file is served as MP4 bytes (Range/206), not a Google Drive iframe.
   if(item.driveId){
-   const url='https://drive.usercontent.google.com/download?id='+
-    encodeURIComponent(item.driveId)+'&export=download&confirm=t';
+   // Verified public MP4 proxy returns real byte ranges (206) from our API.
+   // Keep our own video controls; never embed Google's player.
+   const url='https://api.flamboyan4.web.id/api/v2/gallery/public-video/'+
+    encodeURIComponent(item.driveId);
    view.append(makeVideoPlayer({...item,url}));
   }else if(item.embed){
    // External embeds are only for supported non-Drive providers.
