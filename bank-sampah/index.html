@@ -5152,6 +5152,113 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       });
     });
   }
+  // Public charts share weighed data only: date totals and waste-type totals.
+  let f4PublicInsightHome=null,f4PublicTrendMode='period';
+  const f4PublicNum=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:2}).format(Math.max(0,Number(n)||0));
+  const f4PublicKg=n=>f4PublicNum(n)+' kg';
+  const f4PublicColors=['#5965DA','#D58C1B','#F7B916','#39A04D','#0EAD84','#B043BB','#91A49A','#149DD1','#F06E3B','#774CD1','#35B4B1','#C55A89'];
+  function f4PublicRenderInsights(){
+    const root=$('f4PubTrendBars'),donut=$('f4PubTypesDonut'),legend=$('f4PubTypesLegend');
+    const totalLabel=$('f4PubTypesTotal'),note=$('f4PubTypesNote'),picker=$('f4PubTrendMode');
+    if(!root||!donut||!legend||!totalLabel||!note||!picker)return;
+    if(picker.dataset.bound!=='1'){
+      picker.dataset.bound='1';
+      picker.onchange=()=>{f4PublicTrendMode=picker.value;f4PublicRenderInsights();};
+    }
+    const days=Array.isArray(f4PublicInsightHome?.depositPeriods)?f4PublicInsightHome.depositPeriods:null;
+    const monthly=v17PublicChartSource==='setoran'?v17PublicChartRows:[];
+    const hasPeriods=Array.isArray(days);
+    picker.querySelector('option[value="period"]').disabled=!hasPeriods;
+    if(!hasPeriods&&f4PublicTrendMode==='period')f4PublicTrendMode='month';
+    picker.value=f4PublicTrendMode;
+    const months=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    let rows=[];
+    if(f4PublicTrendMode==='period'){
+      rows=(days||[]).filter(x=>/^\d{4}-\d{2}-\d{2}$/.test(x.tanggal))
+        .sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).slice(-9)
+        .map(x=>({label:x.tanggal.slice(8,10)+'/'+x.tanggal.slice(5,7),
+          full:x.tanggal,kg:Math.max(0,Number(x.beratKg)||0)}));
+    }else{
+      rows=(monthly||[]).filter(x=>/^\d{4}-\d{2}$/.test(String(x.bulan||x.periode||'')))
+        .slice(-6).map(x=>{
+          const date=String(x.bulan||x.periode);
+          return {label:months[Number(date.slice(5,7))-1]||date,full:date,
+            kg:Math.max(0,Number(x.beratKg)||0)};
+        });
+    }
+    root.replaceChildren();
+    if(!rows.length){
+      root.classList.add('is-empty');root.textContent='Belum ada setoran untuk ditampilkan.';
+      root.setAttribute('aria-label','Belum ada data perkembangan setoran.');
+    }else{
+      root.classList.remove('is-empty');
+      root.style.setProperty('--f4-bar-count',String(rows.length));
+      const top=Math.max(1,...rows.map(x=>x.kg));
+      root.setAttribute('aria-label',rows.map(x=>x.full+': '+f4PublicKg(x.kg)).join('; '));
+      rows.forEach(row=>{
+        const item=document.createElement('div');item.className='f4-public-bar-item';
+        item.title=row.full+' • '+f4PublicKg(row.kg);
+        const value=document.createElement('strong');value.className='f4-public-bar-number';value.textContent=f4PublicKg(row.kg);
+        const shaft=document.createElement('div');shaft.className='f4-public-bar-shaft';
+        const bar=document.createElement('span');bar.className='f4-public-bar-fill';
+        bar.style.height=row.kg>0?Math.max(3,row.kg/top*100)+'%':'0%';
+        shaft.append(bar);
+        const caption=document.createElement('small');caption.textContent=row.label;
+        item.append(value,shaft,caption);root.append(item);
+      });
+    }
+    const kinds=Array.isArray(f4PublicInsightHome?.itemWeights)?f4PublicInsightHome.itemWeights:null;
+    const items=(kinds||[]).filter(x=>Number(x.beratKg)>0).slice()
+      .sort((a,b)=>Number(b.beratKg)-Number(a.beratKg)||String(a.nama).localeCompare(String(b.nama),'id'));
+    const total=items.reduce((sum,x)=>sum+Number(x.beratKg),0);
+    const svgNS='http://www.w3.org/2000/svg',r=65,stroke=24,circ=2*Math.PI*r;
+    donut.replaceChildren();legend.replaceChildren();
+    const ring=(color,dash,offset)=>{
+      const circle=document.createElementNS(svgNS,'circle');
+      circle.setAttribute('cx','90');circle.setAttribute('cy','90');circle.setAttribute('r',String(r));
+      circle.setAttribute('fill','none');circle.setAttribute('stroke',color);
+      circle.setAttribute('stroke-width',String(stroke));
+      circle.setAttribute('transform','rotate(-90 90 90)');
+      if(dash!==undefined){
+        circle.setAttribute('stroke-dasharray',dash+' '+circ);
+        circle.setAttribute('stroke-dashoffset',String(-offset));
+      }
+      donut.append(circle);return circle;
+    };
+    ring('#e9efea');
+    totalLabel.textContent=total>0?f4PublicKg(total):'—';
+    if(total<=0){
+      legend.append(document.createTextNode(kinds?'Belum ada berat sampah yang tercatat.':'Rincian jenis sampah belum tersedia.'));
+      note.textContent=kinds?'0 jenis tercatat':'Menunggu data jenis sampah dari server.';
+      donut.setAttribute('aria-label','Komposisi belum tersedia');
+      return;
+    }
+    let offset=0;const descriptions=[];
+    items.forEach((row,i)=>{
+      const color=f4PublicColors[i%f4PublicColors.length],kg=Number(row.beratKg),percentage=kg/total*100;
+      const length=kg/total*circ;
+      ring(color,Math.max(0,length-(items.length>1?2.2:0)),offset+0.85);
+      offset+=length;
+      descriptions.push(row.nama+': '+f4PublicKg(kg)+' ('+f4PublicNum(percentage)+'%)');
+      const line=document.createElement('div');line.className='f4-public-type-row';
+      const head=document.createElement('div');head.className='f4-public-type-head';
+      const name=document.createElement('strong');name.className='f4-public-type-name';
+      const marker=document.createElement('i');marker.className='f4-public-type-dot';marker.style.backgroundColor=color;
+      const label=document.createElement('span');label.textContent=String(row.nama||'Sampah');
+      name.append(marker,label);
+      const weight=document.createElement('strong');weight.className='f4-public-type-weight';weight.textContent=f4PublicKg(kg);
+      head.append(name,weight);
+      const sub=document.createElement('div');sub.className='f4-public-type-sub';
+      const track=document.createElement('div');track.className='f4-public-type-track';
+      const fill=document.createElement('span');fill.style.width=(kg/Number(items[0].beratKg)*100)+'%';
+      fill.style.backgroundColor=color;track.append(fill);
+      const percent=document.createElement('small');percent.textContent=f4PublicNum(percentage)+'%';
+      sub.append(track,percent);
+      line.append(head,sub);legend.append(line);
+    });
+    donut.setAttribute('aria-label',descriptions.join('; '));
+    note.textContent=items.length+' jenis · geser daftar';
+  }
   let scheduleReadUntil=0;
   async function refreshPublicSchedule(){
     if(Date.now()<scheduleReadUntil)return;
@@ -5182,6 +5289,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(chartSerial!==v17PublicLoadSerial)return;
     if(homeResult.status==='fulfilled'){
       const home=homeResult.value;
+      f4PublicInsightHome=home;
       $('v17PublicMetrics').replaceChildren(
         v17PublicStat(home.beratSetoranTercatat==null?'Berat setoran disahkan':'Berat sampah disetor',
           kg(home.beratSetoranTercatat??home.beratTerkonfirmasi)),
@@ -5198,6 +5306,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         if(!inv.childElementCount)inv.textContent='Inventaris yang dapat dilihat publik belum tersedia.';
       }
     }else{
+      f4PublicInsightHome=null;
       $('v17PublicMetrics').textContent='Informasi publik gagal dimuat: '+(homeResult.reason?.message||'Gangguan layanan.');
       v17RenderPublicWaste(null);
       const inv=$('v17Inventory');
@@ -5226,6 +5335,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       console.error('Bank Sampah: grafik publik gagal dimuat',chartResult.reason);
     }
     v17RenderPublicChart();
+    f4PublicRenderInsights();
     v17PublicAccount();
   }
   // Rekap harian dan nominal hanya dimuat untuk akun aktif.
