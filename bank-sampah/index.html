@@ -6102,7 +6102,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const driveId=/^[A-Za-z0-9_-]{12,110}$/.test(explicitId)?explicitId:driveMatch?.[1]||'';
       const youtubeId=src.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})(?:[?&#/]|$)/i)?.[1]||'';
       const thumb=isVideo
-        ?(/^https:\/\//i.test(rawThumb)&&!\/\.(mp4|mov|webm)(?:[?#]|$)/i.test(rawThumb)
+        ?(/^https:\/\//i.test(rawThumb)&&!/\.(mp4|mov|webm)(?:[?#]|$)/i.test(rawThumb)
           ?rawThumb:driveId?'https://drive.google.com/thumbnail?id='+encodeURIComponent(driveId)+'&sz=w1200'
           :youtubeId?'https://img.youtube.com/vi/'+encodeURIComponent(youtubeId)+'/hqdefault.jpg':'')
         :(/^https:\/\//i.test(rawThumb)?rawThumb:src);
