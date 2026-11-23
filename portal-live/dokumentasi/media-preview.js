@@ -73,21 +73,35 @@ function combineCommunityMedia(legacy,extra){
 }
 async function listMedia(doc){
  if(doc.media)return doc.media;
- const id=folderId(doc.folder);
- if(!id){
-  doc.media=String(doc.folder||'').split(',').map(s=>s.trim()).filter(Boolean)
-    .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
-  doc.media=combineCommunityMedia(doc.media,doc.communityPhotos);
-  return doc.media;
+ const folder=folderId(doc.folder);
+ let archive=[];
+ if(folder){
+  // Folder media lama dibaca lewat Worker; Apps Script tidak lagi digunakan.
+  const albumRef=doc.id||'gfolder:'+folder;
+  try{
+   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+   let response;
+   try{response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
+     encodeURIComponent(albumRef),{cache:'no-store',signal:controller.signal})}
+   finally{clearTimeout(timeout)}
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const payload=await response.json();
+   archive=Array.isArray(payload.media)?payload.media.filter(x=>
+    x&&['foto','video'].includes(x.type)&&safe(x.url)):[];
+  }catch(error){
+   console.warn('Foto arsip Drive belum terbaca:',doc.title,error.message||error);
+  }
+ }else{
+  archive=String(doc.folder||'').split(',').map(x=>x.trim()).filter(Boolean)
+   .map(url=>({url:driveImage(url),type:/\.(mp4|webm|mov)(?:\?|$)/i.test(url)?'video':'foto',caption:doc.title}));
  }
- // Daftar media bersumber dari galeri D1 dan sampul tersimpan.
- const media=combineCommunityMedia([],doc.communityPhotos);
- if(!media.length&&doc.cover){
+ const combined=combineCommunityMedia(archive,doc.communityPhotos);
+ if(!combined.length&&doc.cover){
   const cover=driveImage(doc.cover);
-  if(cover)media.push({url:cover,type:'foto',caption:doc.title});
+  if(cover)combined.push({url:cover,type:'foto',caption:doc.title});
  }
- doc.media=media;
- return media;
+ doc.media=combined;
+ return doc.media;
 }
 async function loadPortalArchive(){
  const indicator=window.F4Loading?.begin('feedback','Memeriksa pembaruan dokumentasi…');
@@ -147,7 +161,7 @@ async function loadPortalArchive(){
     const docById=new Map(docs.filter(d=>d.id).map(d=>[d.id,d]));
     for(const a of collection.albums||[]){
      if(docById.has(a.id))continue;
-     const album={id:a.id,date:a.date,title:a.title,description:a.description||'',folder:'',cover:'',category:'Lainnya',communityPhotos:[]};
+     const album={id:a.id,date:a.date,title:a.title,description:a.description||'',folder:a.folder?('https://drive.google.com/drive/folders/'+a.folder):'',cover:'',category:'Lainnya',communityPhotos:[]};
      docs.push(album);docById.set(a.id,album);
     }
     for(const p of collection.photos||[]){
@@ -169,13 +183,23 @@ async function loadPortalArchive(){
   const selected=docs.find(d=>d.id===targetAlbum);
   if(selected)await openAlbum(selected);
  }
- // Covers are read from original Drive folder listing, identical to landing.
- await Promise.allSettled(docs.slice(0,40).map(async doc=>{
+ // Batasi permintaan Drive supaya banyak album tidak membanjiri Worker.
+ const pending=docs.slice(0,75);
+ let cursor=0;
+ await Promise.allSettled(Array.from({length:Math.min(4,pending.length)},async()=>{
+  while(cursor<pending.length){
+   const doc=pending[cursor++];
    try{
     const media=await listMedia(doc);
     const image=media.find(x=>x.type==='foto')||media[0];
-    if(image?.url){doc.cover=image.url;doc._recentMedia=media.slice(0,4);drawAlbums();publishRecentMedia();}
-   }catch{} // Source folder remains openable even when thumbnails cannot be read.
+    if(image?.url){
+     doc.cover=image.url;
+     doc._recentMedia=media.slice(0,4);
+     drawAlbums();
+     publishRecentMedia();
+    }
+   }catch(error){console.warn('Sampul dokumentasi belum tersedia:',doc.title,error.message||error);}
+  }
  }));
  window.F4Loading?.success('feedback',indicator);
 }
