@@ -5749,21 +5749,32 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const shell=v21Node('div','v21-social-shell');
     const mediaPane=v21Node('div','v21-social-media-pane');
     const stage=v21Node('div','v21-stage');
-    const prev=v21Node('button','v21-arrow'),next=v21Node('button','v21-arrow');
+    const prev=v21Node('button','v21-arrow is-prev'),next=v21Node('button','v21-arrow is-next');
     prev.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
     next.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
     prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';
     prev.setAttribute('aria-label','Foto sebelumnya');next.setAttribute('aria-label','Foto berikutnya');
     prev.onclick=()=>v21ShiftMedia(-1);next.onclick=()=>v21ShiftMedia(1);
     const scene=v21Node('div','v21-stage-content');scene.id='v21StageContent';stage.append(prev,scene,next);
+    const mediaHead=v21Node('header','v21-media-head');
+    const mediaTitle=v21Node('strong','','Dokumentasi');mediaTitle.id='v21MediaTitle';
+    const mediaClose=v21Node('button','v21-media-close');mediaClose.type='button';mediaClose.title='Tutup foto/video';
+    mediaClose.setAttribute('aria-label','Tutup foto dan video');
+    mediaClose.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    mediaClose.onclick=v21CloseLightbox;mediaHead.append(mediaTitle,mediaClose);
     const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';
-    mediaPane.append(stage,counter);
+    mediaPane.append(mediaHead,stage,counter);
+    let navTimer=0;
+    const revealNavigation=()=>{stage.classList.add('is-navigation-visible');clearTimeout(navTimer);navTimer=setTimeout(()=>stage.classList.remove('is-navigation-visible'),2300)};
+    stage.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')revealNavigation()},{passive:true});
+    stage.addEventListener('pointerdown',revealNavigation,{passive:true});
     const panel=v21Node('aside','v21-social-panel');
     const socialHead=v21Node('header','v21-social-header');
     const identity=v21Node('div','v21-social-identity');
     const avatar=v21Node('img','v21-social-avatar');avatar.src='/assets/icons/bank.svg';avatar.alt='';
     const brand=v21Node('div','v21-social-brand');
-    brand.append(v21Node('strong','','Bank Sampah Flamboyan 4'),v21Node('small','','Dokumentasi kegiatan warga'));
+    const socialTitle=v21Node('strong','','Dokumentasi');socialTitle.id='v21SocialAlbumName';
+    brand.append(socialTitle,v21Node('small','','DOKUMENTASI BANK SAMPAH'));
     identity.append(avatar,brand);
     const socialClose=v21Node('button','v21-close v21-social-close');socialClose.type='button';
     socialClose.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
@@ -5780,17 +5791,30 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const talk=v21Node('button','v21-social-talk');talk.type='button';talk.setAttribute('aria-label','Tulis komentar');
     talk.innerHTML='<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.4 8.4 0 0 1-4-.9L3 21l1.9-5.5a8.5 8.5 0 1 1 16.1-4Z"/></svg>';
     talk.onclick=()=>$('v21SocialInput')?.focus();
-    actions.append(like,talk);
+    const share=v21Node('button','v21-social-share');share.type='button';
+    share.setAttribute('aria-label','Bagikan dokumentasi');share.title='Bagikan';
+    share.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><path d="m8 11 8-5M8 13l8 5"/></svg>';
+    share.onclick=async()=>{
+      const label=v21OpenedAlbum?.judul||'Dokumentasi Bank Sampah';
+      const url=new URL('/bank-sampah/',location.origin);url.searchParams.set('halaman','bank-member-docs');
+      try{
+        if(navigator.share){await navigator.share({title:label,url:url.href});return}
+        if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url.href);$('v21SocialStatus').textContent='Tautan dokumentasi disalin.';return}
+        window.prompt('Salin tautan dokumentasi',url.href);
+      }catch(error){if(error?.name!=='AbortError')$('v21SocialStatus').textContent='Tautan belum dapat dibagikan.'}
+    };
+    actions.append(like,talk,share);
     const count=v21Node('div','v21-social-likes','Memuat suka...');count.id='v21SocialLikes';
     const status=v21Node('p','v21-social-status');status.id='v21SocialStatus';status.setAttribute('role','status');
     const form=v21Node('form','v21-social-form');form.id='v21SocialForm';
     const input=v21Node('input','v21-social-input');input.id='v21SocialInput';input.type='text';
     input.maxLength=500;input.autocomplete='off';input.placeholder='Tulis komentar...';input.setAttribute('aria-label','Tulis komentar');
-    const send=v21Node('button','v21-social-send','Kirim');send.type='submit';
+    const send=v21Node('button','v21-social-send');send.type='submit';send.setAttribute('aria-label','Kirim komentar');
+    send.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>';
     form.append(input,send);
     form.addEventListener('submit',event=>{event.preventDefault();v21SocialAction('comment');});
-    footer.append(actions,count,status,form);
-    panel.append(socialHead,comments,footer);
+    footer.append(status,form);
+    panel.append(socialHead,actions,count,comments,footer);
     shell.append(mediaPane,panel);lightbox.appendChild(shell);document.body.appendChild(lightbox);
     // Click on the dark/empty backdrop to return to the album.
     lightbox.addEventListener('click',e=>{
@@ -6012,6 +6036,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   function v21PaintLightbox(){
     const list=v21OpenedAlbum?.media||[],m=list[v21MediaIndex];if(!m)return;
     const scene=$('v21StageContent');scene.replaceChildren();
+    if($('v21MediaTitle'))$('v21MediaTitle').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
+    if($('v21SocialAlbumName'))$('v21SocialAlbumName').textContent=v21OpenedAlbum?.judul||'Dokumentasi';
     if(m.jenis==='Video'){
       const raw=String(m.src||m.url||''),driveId=raw.match(/(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?[^#]*?id=)|[?&]id=)([A-Za-z0-9_-]{12,})/i)?.[1];
       const youtube=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
