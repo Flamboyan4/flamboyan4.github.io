@@ -75,6 +75,31 @@ jobs:
             await overlay.locator('.v21-media-close').click();
             console.log('BANK_CLOSE_OK',await page.locator('#v21Lightbox').evaluate(x=>x.classList.contains('hidden')&&getComputedStyle(x).display==='none'));
             if(!(await page.locator('#v21Lightbox').evaluate(x=>x.classList.contains('hidden')&&getComputedStyle(x).display==='none')))throw Error('Close did not hide overlay');
+            await page.setViewportSize({width:390,height:844});
+            await page.evaluate(()=>{
+              const p=document.getElementById('v22DocsPage');
+              p?.classList.remove('hidden');p?.parentElement?.classList.add('v22-show-docs');
+            });
+            await page.locator('#v22DocList .v22-doc-card:not(.is-video)').first().click();
+            const mobile=await page.evaluate(()=>{
+              const outer=document.getElementById('v21Lightbox');
+              const shell=outer.querySelector('.v21-social-shell').getBoundingClientRect();
+              const media=outer.querySelector('.v21-social-media-pane').getBoundingClientRect();
+              const comments=outer.querySelector('.v21-social-panel').getBoundingClientRect();
+              return {width:shell.width,mediaHeight:media.height,commentsHeight:comments.height,
+                commentsBelow:comments.top>=media.bottom-2,
+                mediaZoomVisible:getComputedStyle(document.getElementById('v21MediaZoom')).display!=='none'};
+            });
+            console.log('BANK_MOBILE_MEDIA_LAYOUT',JSON.stringify(mobile));
+            if(mobile.width>391||mobile.mediaHeight<390||!mobile.commentsBelow||!mobile.mediaZoomVisible)
+              throw Error('Mobile media viewer does not match full-screen portrait design');
+            await page.locator('#v21MediaZoom').click();
+            const zoom=await page.locator('#v21StageContent img').evaluate(img=>img.dataset.zoomed);
+            console.log('BANK_MOBILE_PHOTO_ZOOM',zoom);
+            if(zoom!=='true')throw Error('Zoom button does not enlarge photo');
+            await page.locator('.v21-media-close').click();
+            if(!(await page.locator('#v21Lightbox').evaluate(x=>x.classList.contains('hidden'))))
+              throw Error('Mobile viewer did not close');
             console.log('BANK_PUBLIC_SHARED_MEDIA_BROWSER_SMOKE_OK');
           }finally{await browser.close()}
           JS
