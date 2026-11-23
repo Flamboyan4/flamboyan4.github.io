@@ -5934,11 +5934,12 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   let v21SocialSerial=0;
   const v21SocialPhotoId=media=>{
     const id=String(media?.id||'').trim();
-    if(/^(?:f4photo:|media:|gdrive:)[-\w:]{3,180}$/.test(id))return id;
+    if(/^(?:f4photo:|gdrive:)[-\w:]{3,180}$/.test(id))return id;
     if(/^[A-Za-z0-9_-]{12,110}$/.test(id))return 'gdrive:'+id;
     const src=String(media?.src||media?.url||'');
     const match=src.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/i);
-    return match?'gdrive:'+match[1]:'';
+    if(match)return 'gdrive:'+match[1];
+    return /^media:[-\w:]{3,180}$/.test(id)?id:'';
   };
   async function v21SocialRequest(path,payload){
     const response=await fetch('https://api.flamboyan4.web.id'+path,{
