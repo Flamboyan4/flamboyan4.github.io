@@ -3023,6 +3023,15 @@ async function f4GalleryApi(req,env,who,url){
   return ok({tags,canEdit});
  }
  if(path==="/api/v2/gallery/category"&&method==="GET"){
+  if(url.searchParams.get("type")==="photo"){
+   const photoId=String(url.searchParams.get("id")||"");
+   const photo=await one(env.DB,`SELECT p.id,p.uploader_id AS actor FROM f4_gallery_photos p
+     JOIN f4_gallery_albums a ON a.id=p.album_ref
+     WHERE p.id=? AND p.status IN ('baru','ditinjau') AND a.status='aktif'`,[photoId]);
+   if(!photo)return err("Foto publik tidak ditemukan.",404);
+   const record=await one(env.DB,"SELECT category FROM f4_gallery_photo_categories WHERE photo_ref=?",[photoId]);
+   return ok({category:record?.category||"",canEdit:Boolean(who&&(who.role==="superadmin"||who.id===photo.actor))});
+  }
   const albumId=String(url.searchParams.get("album")||"");
   if(!await f4GalleryAlbum(env.DB,albumId))return err("Album tidak ditemukan.",404);
   const record=await one(env.DB,"SELECT category FROM f4_gallery_categories WHERE album_ref=?",[albumId]);
@@ -3065,14 +3074,31 @@ async function f4GalleryApi(req,env,who,url){
  }
  if(path==="/api/v2/gallery/category"&&method==="POST"){
   let p;try{p=await body(req)}catch{return err("Kategori tidak valid.",400)}
-  const albumId=String(p.albumId||""),category=String(p.category||"");
+  const category=String(p.category||"");
   if(!["","bank_sampah","kerja_bakti","rapat","kegiatan"].includes(category))return err("Kategori tidak tersedia.",400);
+  if(p.type==="photo"){
+   const photoId=String(p.id||"");
+   const owner=await one(env.DB,`SELECT p.uploader_id AS actor FROM f4_gallery_photos p
+     JOIN f4_gallery_albums a ON a.id=p.album_ref
+     WHERE p.id=? AND p.status IN ('baru','ditinjau') AND a.status='aktif'`,[photoId]);
+   if(!owner)return err("Foto publik tidak ditemukan.",404);
+   if(who.role!=="superadmin"&&owner.actor!==who.id)
+    return err("Hanya pengunggah atau superadmin yang dapat mengubah tag program foto.",403);
+   if(category){
+    await env.DB.prepare("INSERT INTO f4_gallery_photo_categories(photo_ref,category,updated_by) VALUES(?,?,?) ON CONFLICT(photo_ref) DO UPDATE SET category=excluded.category,updated_by=excluded.updated_by")
+     .bind(photoId,category,who.id).run();
+   }else await env.DB.prepare("DELETE FROM f4_gallery_photo_categories WHERE photo_ref=?").bind(photoId).run();
+   return ok({saved:true,type:"photo",id:photoId,category});
+  }
+  const albumId=String(p.albumId||"");
   if(!await f4GalleryAlbum(env.DB,albumId))return err("Album tidak ditemukan.",404);
   const owner=await one(env.DB,"SELECT created_by AS actor FROM f4_gallery_albums WHERE id=?",[albumId]);
-  if(who.role!=="superadmin"&&owner?.actor!==who.id)return err("Hanya pembuat album atau pengelola yang dapat mengubah kategori.",403);
+  if(who.role!=="superadmin"&&owner?.actor!==who.id)
+   return err("Hanya pembuat album atau pengelola yang dapat mengubah kategori.",403);
   await env.DB.prepare("INSERT INTO f4_gallery_categories(album_ref,category,updated_by) VALUES(?,?,?) ON CONFLICT(album_ref) DO UPDATE SET category=excluded.category,updated_by=excluded.updated_by").bind(albumId,category,who.id).run();
   return ok({saved:true,category});
  }
+
  if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
  if(path==="/api/v2/gallery/album"&&method==="POST"){
   let p;try{p=await body(req)}catch{return err("Format album tidak valid.",400)}
