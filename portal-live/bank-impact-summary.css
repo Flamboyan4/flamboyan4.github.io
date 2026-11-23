@@ -236,18 +236,34 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  border-left:3px solid #fdc010;border-radius:0 9px 9px 0;
  background:#fff9e6;color:#385c44;font-size:11.5px;line-height:1.5
 }
+/* Instagram-style public activity feed: no surrounding card, captions, or nested boxes. */
 #v11Public .f4-public-stories{
- margin:2px 0 0;padding:20px 23px 23px;
- border:1px solid #dce9e0;border-radius:19px;background:#fff;
- box-shadow:0 6px 18px #103b2710
+ margin:2px 0 0;padding:0;
+ border:0;border-radius:0;background:transparent;box-shadow:none
 }
 #v11Public .f4-public-stories #v17Dokumentasi{
- min-width:0;margin:0;padding:0;border:0;background:transparent;box-shadow:none
+ min-width:0;margin:0;padding:0;
+ border:0;background:transparent;box-shadow:none
 }
-#v11Public .f4-public-stories .v21-section-bar h2{
- margin:0;color:#24533a;font-size:13px
+#v11Public .f4-public-stories #v17Albums{
+ box-sizing:border-box;display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:5px;width:100%;min-width:0
 }
-#v11Public .f4-public-stories #v17Albums{width:100%;min-width:0}
+#v11Public .f4-public-stories .v17-feed-photo{
+ box-sizing:border-box;display:block;position:relative;
+ min-width:0;width:100%;aspect-ratio:1/1;
+ margin:0;padding:0;border:0;border-radius:4px;
+ background:#edf3ef;overflow:hidden;cursor:pointer
+}
+#v11Public .f4-public-stories .v17-feed-photo img{
+ display:block;width:100%;height:100%;
+ object-fit:cover;transition:transform .18s ease
+}
+#v11Public .f4-public-stories .v17-feed-photo:hover img{transform:scale(1.035)}
+#v11Public .f4-public-stories .v17-feed-photo:focus-visible{
+ outline:2px solid #009788;outline-offset:2px
+}
 #v11Public .f4-public-transparency{
  margin:5px 0 0;padding:0;border:0;background:transparent
 }
@@ -294,7 +310,9 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  }
 }
 @media(max-width:760px){
- #v11Public .f4-public-waste,#v11Public .f4-public-stories{padding:16px;border-radius:17px}
+ #v11Public .f4-public-waste{padding:16px;border-radius:17px}
+ #v11Public .f4-public-stories #v17Albums{gap:3px}
+ #v11Public .f4-public-stories .v17-feed-photo{border-radius:2px}
  #v11Public .f4-public-section-heading{margin-bottom:12px;gap:9px}
  #v11Public .f4-public-section-heading h2{font-size:19px}
  #v11Public .f4-public-section-heading p{font-size:11px}
