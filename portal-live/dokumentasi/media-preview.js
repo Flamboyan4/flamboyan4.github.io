@@ -87,7 +87,7 @@ async function listMedia(doc){
    if(!response.ok)throw Error('HTTP '+response.status);
    const payload=await response.json();
    archive=Array.isArray(payload.media)?payload.media.filter(x=>
-    x&&['foto','video'].includes(x.type)&&safe(x.url)):[];
+    x&&['foto','video'].includes(x.type)&&safe(x.url)).map(x=>({...x,caption:''})):[];
   }catch(error){
    console.warn('Foto arsip Drive belum terbaca:',doc.title,error.message||error);
   }
