@@ -5774,16 +5774,16 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';
     mediaPane.append(stage,counter);
     const panel=v21Node('aside','v21-social-panel');
-    const head=v21Node('header','v21-social-header');
+    const socialHead=v21Node('header','v21-social-header');
     const identity=v21Node('div','v21-social-identity');
     const avatar=v21Node('img','v21-social-avatar');avatar.src='/assets/icons/bank.svg';avatar.alt='';
     const brand=v21Node('div','v21-social-brand');
     brand.append(v21Node('strong','','Bank Sampah Flamboyan 4'),v21Node('small','','Dokumentasi kegiatan warga'));
     identity.append(avatar,brand);
-    const close=v21Node('button','v21-close v21-social-close');close.type='button';
-    close.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
-    close.title='Tutup foto';close.setAttribute('aria-label','Tutup penampil foto');close.onclick=v21CloseLightbox;
-    head.append(identity,close);
+    const socialClose=v21Node('button','v21-close v21-social-close');socialClose.type='button';
+    socialClose.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    socialClose.title='Tutup foto';socialClose.setAttribute('aria-label','Tutup penampil foto');socialClose.onclick=v21CloseLightbox;
+    socialHead.append(identity,socialClose);
     const comments=v21Node('div','v21-social-comments');comments.id='v21SocialComments';
     comments.setAttribute('aria-live','polite');
     const footer=v21Node('footer','v21-social-footer');
@@ -5805,7 +5805,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     form.append(input,send);
     form.addEventListener('submit',event=>{event.preventDefault();v21SocialAction('comment');});
     footer.append(actions,count,status,form);
-    panel.append(head,comments,footer);
+    panel.append(socialHead,comments,footer);
     shell.append(mediaPane,panel);lightbox.appendChild(shell);document.body.appendChild(lightbox);
     // Click on the dark/empty backdrop to return to the album.
     lightbox.addEventListener('click',e=>{
