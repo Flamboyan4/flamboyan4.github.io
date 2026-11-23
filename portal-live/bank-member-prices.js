@@ -33,6 +33,80 @@ function shortcut(home){
  b.onclick=show;
  home.append(b);
 }
+const categories=["Kertas","Plastik","Logam","Campuran","Lainnya"];
+let activeCategory=null;
+function normalizedCategory(item){
+ const value=window.f4BankItemCategory?.(item.name,item.category)||item.category||"Lainnya";
+ const key=String(value).trim().toLocaleLowerCase("id-ID");
+ if(/duplex|dupleks?/i.test(String(item.name||"")))return "Kertas";
+ if(key==="umum")return "Campuran";
+ return categories.find(cat=>cat.toLocaleLowerCase("id-ID")===key)||"Lainnya";
+}
+function closeCategory(restoreFocus=false){
+ const bubble=$("f4BankPriceBubble");
+ if(!bubble||bubble.hidden)return;
+ bubble.hidden=true;
+ if(activeCategory){
+  const button=activeCategory;
+  activeCategory=null;
+  button.setAttribute("aria-expanded","false");
+  button.closest(".f4-bank-prices-group")?.classList.remove("is-active");
+  if(restoreFocus&&button.isConnected)button.focus({preventScroll:true});
+ }
+}
+function positionCategory(){
+ const page=$("bank-prices"),bubble=$("f4BankPriceBubble"),trigger=activeCategory;
+ if(!page||!bubble||bubble.hidden||!trigger)return;
+ const frame=page.getBoundingClientRect(),anchor=trigger.getBoundingClientRect();
+ if(!frame.width||!frame.height)return;
+ const width=Math.max(180,Math.min(350,frame.width-26));
+ bubble.style.width=width+"px";
+ bubble.style.maxHeight=Math.max(150,frame.height-26)+"px";
+ const height=bubble.getBoundingClientRect().height;
+ const left=Math.max(frame.left+12,Math.min(anchor.left,frame.right-width-12));
+ const below=anchor.bottom+8,above=anchor.top-height-8;
+ const top=below+height<=frame.bottom-12?below:
+  above>=frame.top+12?above:Math.max(frame.top+12,Math.min(below,frame.bottom-height-12));
+ bubble.style.left=Math.round(left)+"px";
+ bubble.style.top=Math.round(top)+"px";
+}
+function openCategory(button,category,goods,method){
+ const bubble=$("f4BankPriceBubble");
+ if(!bubble)return;
+ if(!bubble.hidden&&activeCategory===button){closeCategory(true);return;}
+ closeCategory();
+ activeCategory=button;
+ button.setAttribute("aria-expanded","true");
+ button.closest(".f4-bank-prices-group")?.classList.add("is-active");
+ bubble.replaceChildren();
+ const head=el("div","f4-bank-price-bubble-head");
+ const info=el("div","");
+ const title=el("strong","",category);
+ title.id="f4BankPriceBubbleTitle";
+ info.append(title,el("small","",goods.length+" jenis sampah"));
+ const close=el("button","f4-bank-price-bubble-close");
+ close.type="button";close.setAttribute("aria-label","Tutup rincian "+category);
+ close.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+ close.onclick=()=>closeCategory(true);
+ head.append(info,close);
+ const list=el("div","f4-bank-price-bubble-list");
+ for(const item of goods){
+  const row=el("div","f4-bank-price-row");
+  const amount=Number(item.priceRpPerKg);
+  row.append(
+   el("span","",item.name||"Barang"),
+   el("strong","",Number.isSafeInteger(amount)&&amount>0?rp(amount)+"/kg":"Belum ditetapkan")
+  );
+  list.append(row);
+ }
+ const note=el("p","f4-bank-price-bubble-note",
+  method==="fixed_buy_price"?"Harga beli warga per kg sesuai periode.":
+  "Harga perkiraan per kg. Nilai akhir setelah penjualan sah.");
+ bubble.append(head,list,note);
+ bubble.hidden=false;
+ positionCategory();
+ close.focus({preventScroll:true});
+}
 function show(){
  let page=$("bank-prices");
  if(!page){
@@ -54,13 +128,31 @@ function show(){
   const status=el("p","f4-bank-prices-status","Memuat harga warga...");status.id="f4BankPriceStatus";
   status.setAttribute("role","status");
   const list=el("div","f4-bank-prices-groups");list.id="f4BankPriceList";
-  page.append(search,status,list);
-  page.addEventListener("click",event=>{if(event.target===page)page.close();});
+  const bubble=el("section","f4-bank-price-bubble");bubble.id="f4BankPriceBubble";
+  bubble.setAttribute("role","region");bubble.setAttribute("aria-labelledby","f4BankPriceBubbleTitle");
+  bubble.hidden=true;
+  page.append(search,status,list,bubble);
+  page.addEventListener("click",event=>{
+   if(event.target===page){page.close();return;}
+   if(!bubble.hidden&&!bubble.contains(event.target)&&!event.target.closest(".f4-bank-price-category-btn"))closeCategory();
+  });
+  page.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&!bubble.hidden){
+    event.preventDefault();event.stopPropagation();closeCategory(true);
+   }
+  },true);
+  page.addEventListener("scroll",()=>{if(!bubble.hidden)closeCategory();},{passive:true});
+  page.addEventListener("close",()=>{closeCategory();requestId++;});
+  window.addEventListener("resize",positionCategory,{passive:true});
+  window.visualViewport?.addEventListener("resize",positionCategory,{passive:true});
   document.body.append(page);
  }
+ closeCategory();
  page.classList.remove("hidden");
  if(!page.open)page.showModal();
  const req=++requestId,status=$("f4BankPriceStatus"),host=$("f4BankPriceList"),search=$("f4BankPriceSearch");
+ search.value="";
+ host.replaceChildren();
  status.textContent="Memuat daftar harga terbaru...";
  fetch("https://api.flamboyan4.web.id/api/member/bank/prices",{
   credentials:"include",mode:"cors",cache:"no-store",headers:{Accept:"application/json"}
@@ -69,37 +161,48 @@ function show(){
   if(!response.ok||data.ok===false)throw Error(data.error||"Layanan harga belum tersedia");
   return {rows:Array.isArray(data.items)?data.items:[],method:data.method||"percentage"};
  }).then(result=>{
-  const rows=result.rows;
-  const intro=$("bank-prices")?.querySelector(".f4-bank-prices-intro");
-  if(intro)intro.textContent=result.method==="fixed_buy_price"?
+  if(requestId!==req)return;
+  const rows=result.rows,method=result.method;
+  const intro=page.querySelector(".f4-bank-prices-intro");
+  if(intro)intro.textContent=method==="fixed_buy_price"?
    "Harga beli warga per kg. Berlaku sesuai periode.":
    "Tarif perkiraan warga per kg. Nilai akhir setelah penjualan sah.";
-  if(requestId!==req)return;
   const render=()=>{
+   closeCategory();
    const query=search.value.trim().toLocaleLowerCase("id-ID");
-   const selected=rows.filter(r=>String(r.name||"").toLocaleLowerCase("id-ID").includes(query));
+   const selected=rows.filter(item=>
+    String(item.name||"").toLocaleLowerCase("id-ID").includes(query)||
+    normalizedCategory(item).toLocaleLowerCase("id-ID").includes(query));
    const groups=new Map();
    for(const item of selected){
-    const cat=window.f4BankItemCategory?.(item.name,item.category)||String(item.category||"Lainnya").trim()||"Lainnya";
-    if(!groups.has(cat))groups.set(cat,[]);
-    groups.get(cat).push(item);
+    const category=normalizedCategory(item);
+    if(!groups.has(category))groups.set(category,[]);
+    groups.get(category).push(item);
    }
    host.replaceChildren();
-   for(const cat of [...groups.keys()].sort((a,b)=>a.localeCompare(b,"id"))){
-    const block=el("section","f4-bank-prices-group");
-    block.append(el("h3","",cat));
-    const sorted=groups.get(cat).sort((a,b)=>{
-     const price=x=>Number.isSafeInteger(Number(x.priceRpPerKg))&&Number(x.priceRpPerKg)>0?Number(x.priceRpPerKg):Infinity;
-     return price(a)-price(b)||String(a.name||"").localeCompare(String(b.name||""),"id");
-    });
-    for(const item of sorted){
-     const row=el("div","f4-bank-price-row");
-     const price=Number(item.priceRpPerKg);
-     row.append(el("span","",item.name||"Barang"),
-      el("strong","",Number.isSafeInteger(price)&&price>0?rp(price)+"/kg":"Belum ditetapkan"));
-     block.append(row);
-    }
-    host.append(block);
+   for(const category of categories){
+    const items=groups.get(category);
+    if(!items?.length)continue;
+    items.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"id"));
+    const tile=el("div","f4-bank-prices-group");
+    const button=el("button","f4-bank-price-category-btn");
+    button.type="button";button.setAttribute("aria-label","Lihat harga "+category);
+    button.setAttribute("aria-controls","f4BankPriceBubble");
+    button.setAttribute("aria-haspopup","true");button.setAttribute("aria-expanded","false");
+    const picture=el("span","f4-bank-price-category-illustration");
+    const icon=window.f4BankWasteCategoryIcon?.(category);
+    if(icon)picture.append(icon);
+    const title=el("strong","f4-bank-price-category-title",category);
+    const meta=el("span","f4-bank-price-category-meta");
+    const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("fill","none");
+    arrow.setAttribute("stroke","currentColor");arrow.setAttribute("stroke-width","2");
+    arrow.setAttribute("stroke-linecap","round");arrow.setAttribute("stroke-linejoin","round");
+    arrow.setAttribute("aria-hidden","true");arrow.innerHTML='<path d="m9 18 6-6-6-6"/>';
+    meta.append(el("small","",items.length+" jenis"),arrow);
+    button.append(picture,title,meta);
+    button.onclick=()=>openCategory(button,category,items,method);
+    tile.append(button);host.append(tile);
    }
    status.textContent=selected.length+" jenis sampah"+(query?" ditemukan":" tersedia");
    if(!selected.length)host.append(el("p","f4-bank-empty","Tidak ada jenis sampah yang cocok."));
