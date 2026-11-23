@@ -4763,37 +4763,43 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
             <div id="v17Albums" class="v17-photo-feed" aria-live="polite">Memuat foto terbaru...</div>
           </section>
         </section>
-        <section id="v17Transparansi" class="v17-section f4-public-transparency" aria-labelledby="f4PublicReportHeading">
-          <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">TRANSPARANSI</span><h2 id="f4PublicReportHeading">Laporan setoran warga</h2><p>Data penimbangan yang tercatat, termasuk sampah yang belum terjual. Tanpa menampilkan saldo pribadi.</p></div></div>
+        <section id="v17Transparansi" class="v17-section f4-public-transparency" aria-label="Tren dan jenis sampah yang disetor">
+          <div class="f4-public-insights">
+            <section class="f4-public-insight" aria-labelledby="f4PubTrendTitle">
+              <div class="f4-public-insight-top">
+                <h2 id="f4PubTrendTitle">Tren Setoran</h2>
+                <select id="f4PubTrendMode" aria-label="Tampilan grafik setoran"><option value="period">Periode</option><option value="month">Bulanan</option></select>
+              </div>
+              <div id="f4PubTrendBars" class="f4-public-trend-bars" role="img" aria-label="Grafik berat setoran per periode">Memuat tren setoran...</div>
+            </section>
+            <section class="f4-public-insight" aria-labelledby="f4PubTypesTitle">
+              <div class="f4-public-insight-top"><h2 id="f4PubTypesTitle">Jenis Sampah</h2></div>
+              <div class="f4-public-types-layout">
+                <div class="f4-public-donut-stage">
+                  <svg id="f4PubTypesDonut" class="f4-public-donut" viewBox="0 0 180 180" role="img" aria-label="Persentase berat per jenis sampah"></svg>
+                  <div class="f4-public-donut-label"><strong id="f4PubTypesTotal">—</strong><small>Total berat</small></div>
+                </div>
+                <div id="f4PubTypesLegend" class="f4-public-types-list" aria-live="polite">Memuat jenis sampah...</div>
+              </div>
+              <small id="f4PubTypesNote" class="f4-public-types-note"></small>
+            </section>
+          </div>
         </section>
         <section id="v17Informasi" class="f4-public-info" aria-labelledby="f4PublicInfoHeading">
           <h2 id="f4PublicInfoHeading">Informasi lainnya</h2>
           <details id="f4PublicMoreInfo" class="f4-public-more">
-            <summary><span><strong>Perkembangan program &amp; inventaris</strong><small>Lihat grafik perkembangan, tahapan persiapan, dan perlengkapan program.</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+            <summary><span><strong>Perkembangan program &amp; inventaris</strong><small>Lihat kegiatan terbaru, tahapan program, dan perlengkapan.</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
             <div class="f4-public-more-content">
-                    <section id="v17Perkembangan" class="v17-section f4-dev" aria-labelledby="f4DevTitle">
-        <header class="f4-dev-intro"><div><h2 id="f4DevTitle">Perkembangan setoran</h2></div></header>
-        <div id="f4DevStats" class="f4-dev-mini-stats" aria-live="polite"></div>
-        <div class="f4-dev-grid">
-          <section class="f4-dev-chart-card" aria-labelledby="f4DevChartTitle">
-            <div class="f4-dev-head"><h3 id="f4DevChartTitle">Grafik setoran</h3><small class="f4-dev-head-note" id="f4DevChartPeriod">Per bulan</small></div>
-            <div class="f4-dev-controls">
-              <div class="f4-dev-periods" role="group" aria-label="Rentang perkembangan"><button type="button" data-dev-range="period" aria-pressed="false" class="hidden" hidden>Periode</button><button type="button" data-dev-range="30" aria-pressed="false" class="hidden" hidden>30 hari</button><button type="button" data-dev-range="bulan" aria-pressed="true">Per bulan</button></div>
-              <div class="f4-dev-modes" role="group" aria-label="Jenis grafik"><button type="button" data-dev-mode="berat" aria-pressed="true">Kg</button><button type="button" data-dev-mode="nilai" aria-pressed="false" class="hidden" hidden>Rp</button></div>
-            </div>
-            <div id="f4DevChartSummary" class="f4-dev-chart-summary"></div>
-            <div id="f4DevChart" class="f4-dev-chart" role="img" aria-label="Grafik perkembangan setoran"></div>
-            <div id="f4DevLegend" class="f4-dev-legend"></div>
-            <p id="f4DevChartNote" class="f4-dev-chart-note" aria-live="polite">Memuat grafik...</p>
-          </section>
-          <section class="f4-dev-activity-card" aria-labelledby="f4DevActivityTitle">
-            <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Progres program</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
-            <div id="f4DevStepTrack" class="f4-dev-step-track" aria-label="Tahapan kegiatan"></div>
-            <div class="f4-dev-timeline-head"><strong>Kegiatan terbaru</strong><button id="f4DevShowAll" class="f4-dev-show-more" type="button" hidden>Lihat semua</button></div>
-            <ol id="v17Timeline" class="f4-dev-timeline"><li class="f4-dev-empty-activity">Memuat kegiatan...</li></ol>
-          </section>
-        </div>
-      </section>
+                    <section id="v17Perkembangan" class="v17-section f4-dev" aria-label="Tahapan kegiatan program">
+          <div class="f4-dev-grid">
+            <section class="f4-dev-activity-card" aria-labelledby="f4DevActivityTitle">
+              <div class="f4-dev-head"><h3 id="f4DevActivityTitle">Progres program</h3><small id="f4DevStepCount" class="f4-dev-head-note"></small></div>
+              <div id="f4DevStepTrack" class="f4-dev-step-track" aria-label="Tahapan kegiatan"></div>
+              <div class="f4-dev-timeline-head"><strong>Kegiatan terbaru</strong><button id="f4DevShowAll" class="f4-dev-show-more" type="button" hidden>Lihat semua</button></div>
+              <ol id="v17Timeline" class="f4-dev-timeline"><li class="f4-dev-empty-activity">Memuat kegiatan...</li></ol>
+            </section>
+          </div>
+        </section>
 
               <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
             </div>
@@ -6425,124 +6431,6 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   v24OpenEditor=function(id){v25OldOpenEditor(id);v25AttachPreview('v24Photo');v25PreviewURL('v24Photo');};
 
 
-  // Laporan SETORAN publik. No ledger, selling prices, expenses, or authenticated data.
-  let v25ReportPeriod='semua',v25ReportData=null,v25ReportSerial=0;
-  function v25PeriodLabel(value){
-    const match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value||''));
-    if(!match)return String(value||'—');
-    return ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][Number(match[2])-1]+' '+match[1];
-  }
-  function v25SetupReport(){
-    const section=$('v17Transparansi');if(!section||$('v25ReportRoot'))return;
-    if(!section.querySelector('.f4-public-section-heading'))
-      section.replaceChildren(v21Node('h2','','Laporan Setoran'));
-    const card=v21Node('div','v17-panel');card.id='v25ReportRoot';
-    const toolbar=v21Node('div','v25-report-toolbar');
-    const period=document.createElement('select');period.id='v25ReportPeriod';
-    period.setAttribute('aria-label','Pilih bulan setoran');
-    period.add(new Option('Seluruh periode','semua'));
-    period.onchange=()=>{v25ReportPeriod=period.value;v25RenderReport();};
-    const reload=v21Node('button','secondary');reload.id='v25ReportRefresh';reload.type='button';
-    reload.setAttribute('aria-label','Muat ulang setoran');reload.title='Muat ulang';
-    reload.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11a9 9 0 0 1 16-5l2 2M21 3v5h-5M21 13a9 9 0 0 1-16 5l-2-2M3 21v-5h5"/></svg>';
-    reload.onclick=v25LoadReport;
-    const pdf=v21Node('button','secondary','PDF');pdf.type='button';pdf.onclick=v25PrintReport;
-    pdf.setAttribute('aria-label','Cetak laporan setoran');
-    const csv=v21Node('button','secondary','CSV');csv.type='button';csv.onclick=v25DownloadReport;
-    csv.setAttribute('aria-label','Unduh CSV setoran');
-    const actions=v21Node('div','v25-report-actions');
-    actions.append(reload,pdf,csv);
-    const periodControl=v21Node('div','v25-report-period-control');
-    periodControl.append(period);
-    toolbar.append(periodControl,actions);
-    const metrics=v21Node('div','v25-public-metrics');metrics.id='v25ReportMetrics';
-    const table=v21Node('div','v25-report-table');table.id='v25ReportTable';
-    const note=v21Node('p','v17-subtle','Memuat setoran...');
-    note.id='v25ReportNote';note.setAttribute('role','status');note.setAttribute('aria-live','polite');
-    card.append(toolbar,metrics,table,note);section.append(card);
-  }
-  function v25Rows(){
-    return (v25ReportData?.bulanan||[]).filter(r=>v25ReportPeriod==='semua'||r.periode===v25ReportPeriod);
-  }
-  function v25RenderReport(){
-    if(!v25ReportData)return;
-    const d=v25ReportData,rows=v25Rows(),all=v25ReportPeriod==='semua';
-    $('v25ReportMetrics').replaceChildren(
-      v17PublicStat(all?'Berat disetor':'Berat periode',kg(all?d.beratKg:rows.reduce((s,r)=>s+r.beratKg,0))),
-      v17PublicStat('Total setoran',d.jumlahSetoran.toLocaleString('id-ID')),
-      v17PublicStat('Anggota aktif',d.anggotaAktif.toLocaleString('id-ID')));
-    $('v25ReportMetrics').classList.add('v26-compact');
-    const table=document.createElement('table'),thead=document.createElement('thead'),tr=document.createElement('tr');
-    table.dataset.reportKind='setoran';
-    tr.append(v21Node('th','','No'),v21Node('th','','Periode'),v21Node('th','','Berat disetor'));thead.append(tr);table.append(thead);
-    const tbody=document.createElement('tbody');
-    rows.forEach((r,index)=>{const line=document.createElement('tr');line.append(v21Node('td','',String(index+1)),v21Node('td','',v25PeriodLabel(r.periode)),v21Node('td','',kg(r.beratKg)));tbody.append(line);});
-    if(!rows.length){
-      const empty=document.createElement('tr'),cell=v21Node('td','v25-report-empty','Belum ada setoran pada periode ini.');
-      cell.colSpan=3;empty.append(cell);tbody.append(empty);
-    }
-    table.append(tbody);$('v25ReportTable').replaceChildren(table);
-    const note=$('v25ReportNote');
-    note.hidden=false;note.textContent='Data setoran yang tidak dibatalkan, termasuk yang belum terjual.'+(all?'':' Total setoran dan anggota aktif dihitung dari seluruh periode.');
-    const picker=$('v25ReportPeriod'),selected=v25ReportPeriod;
-    picker.replaceChildren(new Option('Seluruh periode','semua'));
-    d.bulanan.forEach(r=>picker.add(new Option(v25PeriodLabel(r.periode),r.periode)));
-    picker.value=d.bulanan.some(r=>r.periode===selected)?selected:'semua';
-    v25ReportPeriod=picker.value;
-  }
-  async function v25LoadReport(){
-    v25SetupReport();
-    const serial=++v25ReportSerial,note=$('v25ReportNote');if(!note)return;
-    note.hidden=false;note.textContent='Memuat laporan setoran...';
-    try{
-      const [home,trend]=await Promise.all([call('bsV11PublicHome'),call('bsV17GrafikPublik')]);
-      if(serial!==v25ReportSerial)return;
-      const bulanan=(Array.isArray(trend?.bulan)?trend.bulan:[])
-        .filter(r=>/^\d{4}-(0[1-9]|1[0-2])$/.test(String(r.bulan||'')))
-        .map(r=>({periode:String(r.bulan),beratKg:Math.max(0,Number(r.beratKg)||0)}))
-        .sort((a,b)=>a.periode.localeCompare(b.periode));
-      v25ReportData={
-        jumlahSetoran:Math.max(0,Number(home.jumlahSetoranTercatat??home.jumlahSetoranTerkonfirmasi)||0),
-        beratKg:Math.max(0,Number(home.beratSetoranTercatat??home.beratTerkonfirmasi)||0),
-        anggotaAktif:Math.max(0,Number(home.anggotaAktif)||0),bulanan};
-      v25RenderReport();
-    }catch(error){
-      if(serial!==v25ReportSerial)return;
-      v25ReportData=null;note.textContent='Laporan setoran belum tersedia. '+(error?.message||'Coba muat ulang.');
-      $('v25ReportMetrics').replaceChildren();$('v25ReportTable').replaceChildren();
-    }
-  }
-  function v25PrintReport(){
-    if(!v25ReportData)return window.f4UiDialog?.alert?.('Muat laporan setoran dahulu.');
-    let root=$('v27PrintReport');if(!root){root=document.createElement('section');root.id='v27PrintReport';document.body.append(root);}
-    root.replaceChildren();
-    root.append(v29Kop(),v27PrintNode('p','v27-print-sub','LAPORAN SETORAN BANK SAMPAH'),v27PrintNode('div','v27-print-divider'),
-      v27PrintNode('p','','Periode: '+(v25ReportPeriod==='semua'?'Seluruh periode':v25ReportPeriod)),
-      v27PrintNode('p','','Total setoran: '+v25ReportData.jumlahSetoran.toLocaleString('id-ID')),
-      v27PrintNode('p','','Total berat: '+kg(v25ReportData.beratKg)));
-    const table=document.createElement('table'),head=document.createElement('thead'),tr=document.createElement('tr');
-    tr.append(v27PrintNode('th','','No'),v27PrintNode('th','','Periode'),v27PrintNode('th','','Berat disetor'));head.append(tr);table.append(head);
-    const body=document.createElement('tbody');
-    v25Rows().forEach((r,index)=>{const row=document.createElement('tr');row.append(v27PrintNode('td','',String(index+1)),v27PrintNode('td','',r.periode),v27PrintNode('td','',kg(r.beratKg)));body.append(row);});
-    table.append(body);root.append(table);
-    root.append(v27PrintNode('p','v27-print-note','Setoran non-batal, termasuk belum terjual. Tidak memuat uang atau data pribadi.'));
-    v36BankPrint(root,'public');
-  }
-  function v25DownloadReport(){
-    if(!v25ReportData)return window.f4UiDialog?.alert?.('Muat laporan setoran dahulu.');
-    const csv='\uFEFF'+[['No','Periode','Berat disetor (kg)'],...v25Rows().map((r,index)=>[index+1,r.periode,r.beratKg])].map(r=>r.join(';')).join('\r\n');
-    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
-    a.href=url;a.download='Laporan_Setoran_BankSampah_'+v25ReportPeriod+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
-  }
-  const v25PreviousPublicLoader=v11LoadPublic;
-  v11LoadPublic=async function(){
-    v25SetupReport();await v25PreviousPublicLoader();
-    const home=await call('bsV11PublicHome').catch(()=>null);
-    if(home)v25RenderTimeline(home.progres||[]);
-    await v25LoadReport();
-  };
-  v25SetupReport();
-  if($('v11Public')&&!$('v11Public').classList.contains('hidden'))v25LoadReport();
   // v26 — jangan biarkan logout tertahan oleh permintaan server.
   doLogout=function(){
     const oldToken=token;
