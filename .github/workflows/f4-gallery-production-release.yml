@@ -1,5 +1,5 @@
 name: F4 Gallery Production Worker Release
-# Gallery release 2026-11-23: restore archived photo popularity without OAuth, preserving all social records.
+# Gallery release 2026-11-23: one Portal photo upload, shared Bank Sampah visibility and social IDs.
 run-name: "Gallery API release ${{ github.sha }}"
 on:
   push:
@@ -161,5 +161,17 @@ jobs:
               assert category.get("ok") is True,"Category endpoint failed"
           bank=get("/api/v2/public/bank")
           assert bank.get("ok") is True and isinstance(bank.get("albums"),list),"Bank gallery unavailable"
+          # Existing Portal photo categories remain read-only for visitors.
+          if gallery.get("photos"):
+              photo_id=str(gallery["photos"][0]["id"])
+              photo_query=urllib.parse.urlencode({"type":"photo","id":photo_id})
+              assigned=get("/api/v2/gallery/category?"+photo_query)
+              assert assigned.get("ok") is True and "category" in assigned and assigned.get("canEdit") is False,"Shared photo program tag route failed"
+              print("LIVE_PHOTO_PROGRAM_TAG_READ_OK")
+          for item in bank.get("albums",[]):
+              if str(item.get("id","")).startswith("galbum:"):
+                  detail=get("/api/v2/public/bank/album/"+urllib.parse.quote(item["id"],safe=""))
+                  assert detail.get("ok") is True and len(detail.get("media") or [])>0,"Tagged bank album has no linked public gallery photos"
+                  assert all(str(x.get("id","")).startswith("f4photo:") for x in detail["media"]),"Bank gallery replaced original photo IDs"
           print("LIVE_GALLERY_TAG_AND_BANK_READ_SMOKE_OK")
           PY
