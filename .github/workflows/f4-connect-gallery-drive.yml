@@ -1,4 +1,5 @@
 name: F4 Connect Google Drive Gallery
+# 2026-11-23: verify archived public photo access after Apps Script removal.
 on:
   workflow_dispatch:
   push:
@@ -100,6 +101,17 @@ jobs:
           if folder.get("id")!=folder_id or folder.get("mimeType")!="application/vnd.google-apps.folder" or folder.get("capabilities",{}).get("canAddChildren") is not True:
               raise RuntimeError("Google account cannot write to verified Upload Warga folder")
           print("GOOGLE_DRIVE_FOLDER_WRITE_PERMISSION_OK")
+          # Public documentation folders require read scope in addition to new uploads.
+          from urllib.parse import urlencode
+          query=urlencode({"q":"'1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA' in parents and trashed = false",
+                           "fields":"files(id),nextPageToken","pageSize":1,"supportsAllDrives":"true"})
+          archive_request=urllib.request.Request("https://www.googleapis.com/drive/v3/files?"+query,
+              headers={"Authorization":"Bearer "+access})
+          with urllib.request.urlopen(archive_request,timeout=20) as response:
+              archive=json.load(response)
+          if not archive.get("files"):
+              raise RuntimeError("Google OAuth cannot list archived public photos; no secret changes made")
+          print("GOOGLE_DRIVE_ARCHIVE_READ_PERMISSION_OK")
           # Write only Gallery secrets. Cloudflare PUT creates a new Worker version.
           for name,value in secrets.items():
               call("/secrets","PUT",{"name":name,"text":value,"type":"secret_text"})
