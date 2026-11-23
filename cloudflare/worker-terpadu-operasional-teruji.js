@@ -2833,10 +2833,91 @@ async function f4SharePage(req,env,url){
  return new Response(req.method==="HEAD"?null:html,{headers});
 }
 
+/* Public historical documentation: restore Drive folder discovery through the Worker.
+   No Apps Script. Every album and file must belong to a published album. */
+const F4_PUBLIC_LEGACY_DOCUMENTATION_FOLDERS=new Set([
+ "1azMUqjso0ZTVb87ZfO07cGd2beZ5WjWL","1hzTnOA8D1NQTwyIaodyEAyNc6-BEbvah",
+ "1QU5ty5W_K6j2JRjaZGpRlGHyBoXyfHuN","16b6TV8BzH1PaUpa93O1WQo-ahWsDasBb",
+ "1nqVWaxe8uHqMkTrAYjpIziSNQqxFnF4E","1X3dpY5muogRxcO6ky7Ntg4JAmCrmjr7k",
+ "1vdFbmk-GtKvMgbFII0ZWyX-Z43FQXN2K","1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA"
+]);
+async function f4GalleryPublishedFolder(db,ref){
+ const album=await f4GalleryAlbum(db,ref);
+ if(album&&/^[A-Za-z0-9_-]{12,110}$/.test(album.folder||""))return album;
+ const match=/^gfolder:([A-Za-z0-9_-]{12,110})$/.exec(ref);
+ if(match&&F4_PUBLIC_LEGACY_DOCUMENTATION_FOLDERS.has(match[1]))
+  return {id:ref,folder:match[1]};
+ return null;
+}
+async function f4GalleryPublicFolderMedia(req,env,url){
+ const albumRef=String(url.searchParams.get("album")||"");
+ if(!albumRef||albumRef.length>180)return err("Album dokumentasi tidak valid.",400);
+ const album=await f4GalleryPublishedFolder(env.DB,albumRef);
+ if(!album)return err("Album dokumentasi tidak ditemukan.",404);
+ if(!f4GalleryDriveReady(env))return err("Koneksi Google Drive pada Worker belum tersedia.",503);
+ try{
+  const token=await f4GalleryDriveToken(env);
+  const q="'"+album.folder+"' in parents and trashed = false";
+  const all=[];let pageToken="";
+  for(let page=0;page<4;page++){
+   const params=new URLSearchParams({q,fields:"nextPageToken,files(id,name,mimeType,createdTime)",pageSize:"100",
+    orderBy:"createdTime desc",supportsAllDrives:"true",includeItemsFromAllDrives:"true"});
+   if(pageToken)params.set("pageToken",pageToken);
+   const result=await f4GalleryDriveRequest(token,"files?"+params);
+   for(const file of result.files||[]){
+    const kind=String(file.mimeType||"");
+    if(!/^[A-Za-z0-9_-]{12,110}$/.test(file.id||"")||!(kind.startsWith("image/")||kind.startsWith("video/")))continue;
+    const type=kind.startsWith("video/")?"video":"foto";
+    const fileRoute=type==="foto"?"image":"video";
+    const imageQuery=type==="foto"?"?album="+encodeURIComponent(albumRef):"";
+    all.push({id:"gdrive:"+file.id,type,
+     url:"https://api.flamboyan4.web.id/api/v2/gallery/"+fileRoute+"/"+encodeURIComponent(file.id)+imageQuery,
+     caption:String(file.name||"Dokumentasi").slice(0,200),date:file.createdTime||""});
+   }
+   pageToken=String(result.nextPageToken||"");
+   if(!pageToken)break;
+  }
+  return ok({albumId:albumRef,media:all});
+ }catch(e){
+  console.warn("Tidak dapat membaca folder dokumentasi publik",String(e?.message||""));
+  return err("Folder dokumentasi belum dapat dibaca. Periksa koneksi dan izin Google Drive.",502);
+ }
+}
+async function f4GalleryPublicImageStream(req,env,url){
+ if(!["GET","HEAD"].includes(req.method))return err("Metode tidak didukung.",405);
+ const fileId=url.pathname.split("/").at(-1)||"",albumRef=String(url.searchParams.get("album")||"");
+ if(!/^[A-Za-z0-9_-]{12,110}$/.test(fileId)||!albumRef||albumRef.length>180)return err("Foto tidak ditemukan.",404);
+ const album=await f4GalleryPublishedFolder(env.DB,albumRef);
+ if(!album)return err("Foto bukan bagian dokumentasi publik.",404);
+ if(!f4GalleryDriveReady(env))return err("Koneksi Google Drive belum tersedia.",503);
+ try{
+  const token=await f4GalleryDriveToken(env);
+  const fields="id,mimeType,parents,size,trashed";
+  const meta=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(fileId)+"?fields="+encodeURIComponent(fields)+"&supportsAllDrives=true");
+  if(meta.trashed||!String(meta.mimeType||"").startsWith("image/")||!(meta.parents||[]).includes(album.folder))
+   return err("Foto bukan bagian album publik.",404);
+  const mime=["image/jpeg","image/png","image/webp","image/gif","image/avif","image/heic","image/heif"].includes(meta.mimeType)?meta.mimeType:"application/octet-stream";
+  const headers=new Headers({"content-type":mime,"cache-control":"public, max-age=900",
+   "x-content-type-options":"nosniff","cross-origin-resource-policy":"cross-origin"});
+  if(req.method==="HEAD")return new Response(null,{status:200,headers});
+  const upstream=await fetch("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(fileId)+"?alt=media&supportsAllDrives=true",{
+   headers:{"authorization":"Bearer "+token},redirect:"follow"
+  });
+  if(!upstream.ok||!upstream.body)return err("Foto sementara tidak dapat dimuat.",502);
+  const length=upstream.headers.get("content-length");
+  if(length)headers.set("content-length",length);
+  return new Response(upstream.body,{status:200,headers});
+ }catch(e){
+  console.warn("Foto dokumentasi belum dapat diakses",String(e?.message||""));
+  return err("Foto sementara tidak dapat dimuat.",502);
+ }
+}
 async function f4GalleryApi(req,env,who,url){
  await f4GallerySchema(env.DB);
  const path=url.pathname,method=req.method;
- if(path.startsWith("/api/v2/gallery/video/"))return f4GalleryVideoStream(req,env,url);
+ if(path.startsWith("/api/v2/gallery/image/"))return f4GalleryPublicImageStream(req,env,url);
+  if(path==="/api/v2/gallery/folder"&&method==="GET")return f4GalleryPublicFolderMedia(req,env,url);
+  if(path.startsWith("/api/v2/gallery/video/"))return f4GalleryVideoStream(req,env,url);
  if(path==="/api/v2/gallery"&&method==="GET")return f4GalleryPublic(env.DB,env);
  if(path==="/api/v2/gallery/popular"&&method==="GET")return f4GalleryMostLiked(env.DB,env);
  if(path==="/api/v2/gallery/social"&&method==="GET")return f4GallerySocial(env.DB,who,url);
