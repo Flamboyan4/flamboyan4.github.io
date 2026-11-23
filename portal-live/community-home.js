@@ -26,7 +26,16 @@ function card(item){
  const block=el('article','f4g-home-card');
  const href=pathFor(item),photo=el('a','f4g-home-photo');photo.href=href;photo.title='Buka foto di Dokumentasi Warga';
  const img=el('img');img.src=item.url;img.loading='lazy';img.alt=item.caption||item.title||'Foto kegiatan warga';
- img.addEventListener('error',()=>{block.remove()},{once:true});photo.append(img);
+ const file=fileId(item.url),sources=file?[
+   'https://drive.google.com/thumbnail?id='+encodeURIComponent(file)+'&sz=w1200',
+   'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file)
+  ]:[];
+ let fallbackIndex=0;
+ img.addEventListener('error',()=>{
+  if(fallbackIndex<sources.length){img.src=sources[fallbackIndex++];return}
+  img.replaceWith(el('div','f4g-home-photo-unavailable','Foto belum dapat dimuat'));
+ });
+ photo.append(img);
  const body=el('div','f4g-home-card-content'),title=el('a','f4g-home-title',item.title||item.caption||'Dokumentasi Warga');title.href=href;
  const info=el('div','f4g-home-info');
  info.append(el('span','',item.uploader||'Dokumentasi Flamboyan 4'),el('span','',textDate(item)));
@@ -78,60 +87,101 @@ function fromNew(photo,titles){
   id:photo.id||'',
   comments:photo.comments||[],likes:Number(photo.likes||0),commentCount:Number(photo.commentCount??photo.comments?.length??0)}
 }
-async function fromLegacy(doc){
- const id=docId(doc);if(!id)return null;
- const title=String(doc.title||'').trim();
- let photo=null;
- if(!photo){
-  const cover=driveImg(doc.cover||doc.image_ref||'');
-  const fid=fileId(cover);
-  if(cover&&fid)photo={id:'gdrive:'+fid,albumId:id,url:cover};
- }
- if(!photo)return null;
- const item={...photo,title,caption:title,date:textDate(doc),uploader:'Dokumentasi Flamboyan 4',
-  likes:0,commentCount:0,comments:[]};
+// Sumber yang sama dengan halaman Dokumentasi; hanya album publik yang terdaftar.
+async function publicPhotoIndex(){
  try{
-  const reactions=await json(API+'/api/v2/gallery/social?type=photo&id='+encodeURIComponent(item.id),3500);
+  const response=await fetch('/assets/data/portal-photo-index.json?v=20261123-album-meta-v2');
+  if(!response.ok)throw Error('HTTP '+response.status);
+  return await response.json();
+ }catch(error){
+  console.warn('Indeks foto publik belum terbaca:',error.message||error);
+  return {folders:{},albums:[]};
+ }
+}
+async function fromLegacy(doc,index){
+ const id=docId(doc);
+ if(!id)return null;
+ const title=String(doc.title||'').trim();
+ const folder=folderId(doc.drive_url||doc.folder);
+ const available=(index.folders?.[folder]||[]).filter(x=>x.type==='foto'&&/^[A-Za-z0-9_-]{12,110}$/.test(x.id||''));
+ const direct=driveImg(doc.cover||doc.image_ref||'');
+ const fid=fileId(direct)||available[0]?.id||'';
+ const url=direct|| (fid?'https://lh3.googleusercontent.com/d/'+encodeURIComponent(fid):'');
+ if(!url)return null;
+ const item={id:fid?'gdrive:'+fid:'',albumId:id,url,title,caption:title,date:textDate(doc),
+  uploader:'Dokumentasi Flamboyan 4',likes:0,commentCount:0,comments:[]};
+ if(!item.id)return null;
+ try{
+  const reactions=await json(API+'/api/v2/gallery/social?type=photo&id='+encodeURIComponent(item.id),2500);
   if(reactions.ok!==false){
-   item.likes=Number(reactions.likes||0);item.commentCount=Number(reactions.comments?.length||0);
+   item.likes=Number(reactions.likes||0);
+   item.commentCount=Number(reactions.commentCount??reactions.comments?.length??0);
    item.comments=(reactions.comments||[]).slice(0,2);
+   item.commenterCount=Number(reactions.commenterCount||0);
   }
  }catch{}
  return item;
 }
 (async()=>{
- let gallery={highlights:[],popular:[],albums:[]},portal={documentation:[]},ranking={popular:[]};
+ let gallery={highlights:[],photos:[],popular:[],albums:[]},portal={documentation:[]},ranking={popular:[]};
  try{
-  const [g,p,r]=await Promise.allSettled([
+  const [g,p,r,archived]=await Promise.allSettled([
    json(API+'/api/v2/gallery',6500),
    json(API+'/api/v2/public/portal',6500),
-   json(API+'/api/v2/gallery/popular',10000)
+   json(API+'/api/v2/gallery/popular',8500),
+   publicPhotoIndex()
   ]);
   if(g.status==='fulfilled')gallery=g.value;
   if(p.status==='fulfilled')portal=p.value;
   if(r.status==='fulfilled'&&Array.isArray(r.value.popular))ranking=r.value;
+  const index=archived.status==='fulfilled'?archived.value:{folders:{},albums:[]};
   const titles=new Map((gallery.albums||[]).map(x=>[x.id,x.title]));
   const docs=(portal.documentation||[]).filter(x=>String(x.title||'').trim())
-    .filter(x=>x.active===undefined||x.active===null||x.active===true||x.active===1||String(x.active)==='1')
-    .filter(x=>!x.visibility||x.visibility==='publik')
-    .filter(x=>!/^Bank Sampah\s*[:/]/i.test(x.category||''))
-    .sort((a,b)=>String(b.event_on||b.date||'').localeCompare(String(a.event_on||a.date||'')));
+   .filter(x=>x.active===undefined||x.active===null||x.active===true||x.active===1||String(x.active)==='1')
+   .filter(x=>!x.visibility||x.visibility==='publik')
+   .filter(x=>!/^Bank Sampah\\s*[:/]/i.test(x.category||''));
+  const knownFolders=new Set(docs.map(x=>folderId(x.drive_url||x.folder)).filter(Boolean));
+  // Arsip terverifikasi tetap ditampilkan jika belum seluruhnya termigrasi ke D1.
+  for(const album of index.albums||[]){
+   const folder=album.folderId;
+   if(!/^[A-Za-z0-9_-]{12,110}$/.test(folder||'')||!index.folders?.[folder]?.length||knownFolders.has(folder))continue;
+   docs.push({title:album.title,date:album.date,event_on:album.date,
+    drive_url:'https://drive.google.com/drive/folders/'+folder});
+   knownFolders.add(folder);
+  }
+  docs.sort((a,b)=>String(b.event_on||b.date||'').localeCompare(String(a.event_on||a.date||'')));
   for(const d of docs)titles.set(docId(d),d.title);
-  const newPhotos=(gallery.highlights||[]).map(x=>fromNew(x,titles));
-  const popPhotos=(gallery.popular||[]).map(x=>fromNew(x,titles));
+  const byId=new Map();
+  for(const p of [...(gallery.highlights||[]),...(gallery.photos||[])]){
+   const item=fromNew(p,titles);
+   if(item.id&&!byId.has(item.id))byId.set(item.id,item);
+  }
+  const newPhotos=[...byId.values()];
   const rankedPhotos=(ranking.popular||[]).map(x=>fromNew(x,titles));
-  // Batasi permintaan folder untuk mempercepat Beranda. Album tanpa unggahan baru
-  // tetap terwakili agar website tidak terlihat kosong.
-  const legacy=await Promise.all(docs.slice(0,8).map(fromLegacy));
-  const past=legacy.filter(Boolean);
-  newest=[...newPhotos,...past].sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
-  // Peringkat dari seluruh histori D1 + arsip publik terverifikasi.
-  // Like utama; jika sama, jumlah orang berbeda yang berkomentar; tanggal terakhir.
-  const fallback=new Map([...newest,...popPhotos].filter(x=>x.id).map(x=>[x.id,x]));
-  const candidates=rankedPhotos.length?rankedPhotos:[...fallback.values()];
-  popularRows=candidates.sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
-    Number(b.commenterCount||0)-Number(a.commenterCount||0)||
-    String(b.date||'').localeCompare(String(a.date||'')));
+  const popPhotos=(gallery.popular||[]).map(x=>fromNew(x,titles));
+  // Maksimal satu unggulan per album lama, tetapi semua album publik
+  // dapat menyumbang satu kartu saat unggahan baru masih sedikit.
+  const legacy=await Promise.allSettled(docs.slice(0,35).map(x=>fromLegacy(x,index)));
+  const past=legacy.filter(x=>x.status==='fulfilled'&&x.value).map(x=>x.value);
+  const all=new Map();
+  for(const item of [...newPhotos,...past,...popPhotos,...rankedPhotos]){
+   if(!item.id||!item.url||!item.albumId)continue;
+   const existing=all.get(item.id);
+   if(!existing){all.set(item.id,item);continue}
+   all.set(item.id,{...existing,...item,
+    likes:Math.max(Number(existing.likes||0),Number(item.likes||0)),
+    commentCount:Math.max(Number(existing.commentCount||0),Number(item.commentCount||0)),
+    commenterCount:Math.max(Number(existing.commenterCount||0),Number(item.commenterCount||0)),
+    date:item.date||existing.date});
+  }
+  const candidates=[...all.values()];
+  newest=candidates.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  // Populer tidak boleh berhenti pada satu foto dari API ranking.
+  // Lengkapi dengan foto publik lain; urutkan berdasarkan interaksi asli.
+  popularRows=candidates.slice().sort((a,b)=>Number(b.likes||0)-Number(a.likes||0)||
+   Number(b.commenterCount||0)-Number(a.commenterCount||0)||
+   Number(b.commentCount||0)-Number(a.commentCount||0)||
+   String(b.date||'').localeCompare(String(a.date||'')));
   render();
  }catch(e){console.warn('Cerita Warga:',e.message);render()}
 })();
