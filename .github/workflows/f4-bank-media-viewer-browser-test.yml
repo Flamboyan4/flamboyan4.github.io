@@ -1,0 +1,80 @@
+name: F4 Bank Media Viewer Browser Test
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/f4-bank-media-viewer-browser-test.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-public-shared-component:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Prepare Chromium browser
+        run: |
+          npm install --no-save --ignore-scripts playwright-core@1.57.0
+          command -v google-chrome || command -v chromium || command -v chromium-browser
+      - name: Test shared Bank Sampah public media viewer, video source, arrows, comments and close
+        run: |
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright-core';
+          import {existsSync} from 'node:fs';
+          const executablePath=['/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(existsSync);
+          const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
+          const page=await browser.newPage({viewport:{width:1366,height:768}});
+          page.on('pageerror',e=>console.log('BANK_PAGE_ERROR',String(e).slice(0,340)));
+          try{
+            await page.goto('https://flamboyan4.web.id/bank-sampah/',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForFunction(()=>document.querySelectorAll('#v22DocList .v22-doc-card.is-video').length>0,null,{timeout:65000});
+            const hidden=await page.locator('#v21Lightbox').evaluate(x=>({hidden:x.classList.contains('hidden'),display:getComputedStyle(x).display}));
+            console.log('BANK_LIGHTBOX_INITIAL_STATE',JSON.stringify(hidden));
+            if(!hidden.hidden||hidden.display!=='none')throw Error('Lightbox shown when hidden');
+            await page.evaluate(()=>{
+              const p=document.getElementById('v22DocsPage');
+              p?.classList.remove('hidden');
+              p?.parentElement?.classList.add('v22-show-docs');
+              window.f4BankRenderDocumentation?.();
+            });
+            const tiles=page.locator('#v22DocList .v22-doc-card.is-video');
+            console.log('BANK_VIDEO_TILES',await tiles.count());
+            await tiles.first().click();
+            const overlay=page.locator('#v21Lightbox:not(.hidden)');
+            await overlay.waitFor({timeout:10000});
+            const video=overlay.locator('video').first();
+            await video.waitFor({timeout:13000});
+            const geometry=await page.evaluate(()=>{
+              const outer=document.getElementById('v21Lightbox');
+              const shell=outer.querySelector('.v21-social-shell');
+              const media=outer.querySelector('.v21-social-media-pane');
+              const comments=outer.querySelector('.v21-social-panel');
+              const stage=outer.querySelector('.v21-stage');
+              const left=stage.querySelector('.v21-arrow.is-prev').getBoundingClientRect();
+              const right=stage.querySelector('.v21-arrow.is-next').getBoundingClientRect();
+              const sr=stage.getBoundingClientRect();
+              return {outer:outer.getBoundingClientRect().width,shell:shell.getBoundingClientRect().width,
+                pane:media.getBoundingClientRect().width,comments:comments.getBoundingClientRect().width,
+                arrowLeft:left.left-sr.left,arrowRight:sr.right-right.right,
+                title:document.getElementById('v21MediaTitle')?.textContent};
+            });
+            console.log('BANK_VIEWER_LAYOUT',JSON.stringify(geometry));
+            if(geometry.pane<700||geometry.comments<260||geometry.arrowLeft>45||geometry.arrowRight>45)throw Error('Shared media layout incorrect');
+            const src=await video.getAttribute('src');
+            console.log('BANK_VIDEO_SOURCE',src);
+            if(!src.includes('/api/v2/gallery/public-video/'))throw Error('Video source is not Cloudflare byte-range proxy');
+            await overlay.locator('.v21-video-big-play').click();
+            await page.waitForFunction(()=>{
+              const v=document.querySelector('#v21Lightbox:not(.hidden) video');
+              return v&&v.currentTime>0.1&&v.readyState>=2;
+            },null,{timeout:32000});
+            console.log('BANK_VIDEO_PLAYED',JSON.stringify(await video.evaluate(v=>({time:v.currentTime,ready:v.readyState}))));
+            await overlay.locator('.v21-media-close').click();
+            console.log('BANK_CLOSE_OK',await page.locator('#v21Lightbox').evaluate(x=>x.classList.contains('hidden')&&getComputedStyle(x).display==='none'));
+            if(!(await page.locator('#v21Lightbox').evaluate(x=>x.classList.contains('hidden')&&getComputedStyle(x).display==='none')))throw Error('Close did not hide overlay');
+            console.log('BANK_PUBLIC_SHARED_MEDIA_BROWSER_SMOKE_OK');
+          }finally{await browser.close()}
+          JS
