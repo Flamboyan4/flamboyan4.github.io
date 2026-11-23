@@ -26,7 +26,7 @@
 }
 #pagePribadi #v12Private>.f4-member-tools>.f4-member-refresh svg{display:block;flex:none}
 #pagePribadi #v12Private>.f4-member-tools>button:not(.f4-member-refresh){flex:0 1 auto}
-#pagePribadi #v12Private>.f4-member-tools>.f4-member-refresh:focus-visible{outline:3px solid #3a9e70;outline-offset:2px}
+#pagePribadi #v12Private>.f4-member-tools>.f4-member-refresh:focus-visible{outline:3px solid var(--f4-bank-primary,#087c6c);outline-offset:2px}
 #pagePribadi .hint,#pagePribadi .desc{color:#51695c}
 @media(max-width:760px){
  #pagePribadi #v12Private>.f4-member-tools{
@@ -58,7 +58,7 @@
 #dashboardView #f4MemberFlow>.f4-member-flow-head::marker{content:''}
 #dashboardView #f4MemberFlow .f4-member-flow-icon{
  display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;
- background:#dff9eb;color:#078664;border-radius:12px
+ background:#dff9eb;color:var(--f4-bank-primary,#087c6c);border-radius:12px
 }
 #dashboardView #f4MemberFlow .f4-member-flow-copy{display:grid;flex:1;min-width:0}
 #dashboardView #f4MemberFlow .f4-member-flow-copy strong{
@@ -75,7 +75,7 @@
  list-style:none;margin:0;padding:0;border:0
 }
 #dashboardView #f4MemberFlow .f4-member-flow-steps>li{
- --step-bg:#fff;--step-line:#dce9df;--step-icon:var(--f4-bank-leaf,#43a047);--step-ink:#fff;--step-label:#086f50;
+ --step-bg:#fff;--step-line:#dce9df;--step-icon:var(--f4-bank-leaf,#43a047);--step-ink:#fff;--step-label:var(--f4-bank-primary-dark,#086356);
  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
  min-width:0;min-height:108px;margin:0;padding:10px 5px;
  border:1px solid var(--step-line);border-radius:13px;background:var(--step-bg);
