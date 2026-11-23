@@ -90,7 +90,7 @@ function fromNew(photo,titles){
 // Sumber yang sama dengan halaman Dokumentasi; hanya album publik yang terdaftar.
 async function publicPhotoIndex(){
  try{
-  const response=await fetch('/assets/data/portal-photo-index.json?v=20261123-album-meta-v2');
+  const response=await fetch('/assets/data/portal-photo-index.json?v=20261123-nine-public-albums-101-v2');
   if(!response.ok)throw Error('HTTP '+response.status);
   return await response.json();
  }catch(error){
