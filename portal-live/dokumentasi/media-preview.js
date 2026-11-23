@@ -226,10 +226,11 @@ async function loadPortalArchive(){
  publishRecentMedia();
  drawAlbums();
  document.dispatchEvent(new Event('f4:gallery:ready'));
- const targetAlbum=new URLSearchParams(location.search).get('album');
+ // Shared links are one-shot; refresh must not reopen an old media overlay.
+ const targetAlbum=firstPageDeepLink?.album||'';
  if(targetAlbum){
   const selected=docs.find(d=>d.id===targetAlbum||(targetAlbum.startsWith('gfolder:')&&folderId(d.folder)===targetAlbum.slice(8)));
-  if(selected)await openAlbum(selected);
+  if(selected)await openAlbum(selected,firstPageDeepLink.photo);
  }
  await hydrateArchiveCovers();
  window.F4Loading?.success('feedback',indicator);
@@ -253,14 +254,14 @@ const status=(message,type='loading',token)=>{
  if(!message)return loading.success('feedback',token);
  return loading.begin('feedback',message);
 };
-async function openAlbum(a){
+async function openAlbum(a,sharedPhoto=''){
  const token=status('Memuat foto dan video dari folder dokumentasi…');
  let media=[],failure=null;
  try{media=await listMedia(a)}catch(e){failure=e;status('Folder media belum dapat dibaca: '+(e.message||e),'error',token);}
  openMediaGallery(a.title,media,{albumId:a.id,folderURL:safe(a.folder),
   empty:'Media album ini belum dapat dibaca. Periksa izin akses dokumentasi atau sinkronisasi sumber media.'});
  if(!failure){if(media.length)status('', 'success',token);else status('Belum ada foto/video yang dapat dibaca untuk album ini.','empty',token);}
- if(!window.f4GallerySharedOpened){const target=new URLSearchParams(location.search).get('foto');if(target&&window.f4MediaGallery?.openPhotoById(target))window.f4GallerySharedOpened=true;}
+ if(sharedPhoto&&window.f4MediaGallery?.openPhotoById(sharedPhoto))window.f4GallerySharedOpened=true;
 }
 function drawAlbums(){
  const q=$('media-search').value.toLowerCase().trim();
@@ -401,6 +402,20 @@ $('media-tab-albums').onclick=()=>tab('dokumentasi',true);
 $('media-tab-inventory').onclick=()=>tab('inventaris',true);
 $('media-search').oninput=drawAlbums;
 addEventListener('popstate',()=>tab(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false));
+// Links from Beranda/share are handled once; remove photo and album query
+// parameters immediately so reload and browser restore don't resurrect an overlay.
+const navType=performance.getEntriesByType?.('navigation')?.[0]?.type||'';
+const deepLinkURL=new URL(location.href);
+const firstPageDeepLink=navType==='reload'?null:{
+ album:deepLinkURL.searchParams.get('album')||'',
+ photo:deepLinkURL.searchParams.get('foto')||''
+};
+if(deepLinkURL.searchParams.has('album')||deepLinkURL.searchParams.has('foto')){
+ deepLinkURL.searchParams.delete('album');
+ deepLinkURL.searchParams.delete('foto');
+ history.replaceState({...history.state,f4DocOverlay:null,f4DocSession:null},'',
+  deepLinkURL.pathname+deepLinkURL.search+deepLinkURL.hash);
+}
 drawFilters();drawAlbums();drawInventory();const legacyInventory=location.hash==='#inventaris';
 if(legacyInventory){const url=new URL(location.href);url.hash='';url.searchParams.set('halaman','inventaris');history.replaceState(history.state,'',url.pathname+url.search)}
 tab(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false);
