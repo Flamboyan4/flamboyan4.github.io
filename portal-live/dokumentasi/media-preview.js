@@ -89,7 +89,7 @@ async function listMedia(doc){
   // Folder media lama dibaca lewat Worker; Apps Script tidak lagi digunakan.
   const albumRef=doc.id||'gfolder:'+folder;
   try{
-   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),4500);
    let response;
    try{response=await fetch('https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
      encodeURIComponent(albumRef),{cache:'no-store',signal:controller.signal})}
