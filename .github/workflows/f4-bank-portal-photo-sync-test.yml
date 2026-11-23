@@ -1,0 +1,110 @@
+name: F4 Bank Portal Photo Sync Regression
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/f4-bank-portal-photo-sync-test.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Extract actual live Worker program-matching SQL
+        run: |
+          node <<'JS'
+          const fs=require('fs');
+          const source=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          new Function(source.replace(/export\s*\{\s*worker_default\s+as\s+default\s*\};?/,''));
+          const start=source.indexOf('function f4BankGalleryAlbumMatch(');
+          const end=source.indexOf('async function publicBank(',start);
+          if(start<0||end<0)throw Error('Shared bank matching helpers missing');
+          const helper=new Function(source.slice(start,end)+';return {album:f4BankGalleryAlbumMatch,photo:f4BankGalleryPhotoMatch};')();
+          const listMatch=source.match(/taggedGalleryAlbums=await list\(db,`([\s\S]*?)`\);/);
+          const detailMatch=source.match(/const media=await list\(db,`SELECT p.id,'foto' AS media_type([\s\S]*?)`,\[id\]\);/);
+          if(!listMatch||!detailMatch)throw Error('Production SQL query not found');
+          const albumTagged=helper.album('g','c'),photoTagged=helper.photo('p','pc'),coverTagged=helper.photo('p2','pc2');
+          const sqlList=new Function('albumTagged','photoTagged','coverTagged','f4BankGalleryPhotoMatch',
+            'return `'+listMatch[1]+'`;')(albumTagged,photoTagged,coverTagged,helper.photo);
+          const allBank=helper.album('g','c'),photoBank=helper.photo('p','pc');
+          const sqlDetail=new Function('allBank','photoBank','return `SELECT p.id,\'foto\' AS media_type'+detailMatch[1]+'`;')(allBank,photoBank);
+          fs.writeFileSync('/tmp/f4-bank-photo-queries.json',JSON.stringify({list:sqlList,detail:sqlDetail}));
+          console.log('SOURCE_WORKER_SQL_EXTRACTED');
+          JS
+      - name: Validate cross-portal filtering, original IDs and privacy using SQLite
+        run: |
+          python3 - <<'PY'
+          import sqlite3,json
+          conn=sqlite3.connect(':memory:')
+          conn.row_factory=sqlite3.Row
+          conn.executescript("""
+          CREATE TABLE f4_gallery_albums(id TEXT PRIMARY KEY,title TEXT,description TEXT,created_at TEXT,status TEXT);
+          CREATE TABLE f4_gallery_categories(album_ref TEXT PRIMARY KEY,category TEXT,updated_by TEXT);
+          CREATE TABLE f4_gallery_photos(id TEXT PRIMARY KEY,album_ref TEXT,status TEXT,caption TEXT,drive_file_id TEXT,created_at TEXT);
+          CREATE TABLE f4_gallery_photo_categories(photo_ref TEXT PRIMARY KEY,category TEXT,updated_by TEXT);
+          CREATE TABLE f4_gallery_reactions(target_type TEXT,target_id TEXT,account_id TEXT);
+          CREATE TABLE f4_gallery_comments(target_type TEXT,target_id TEXT,message TEXT,status TEXT);
+          """)
+          albums=[
+            ('galbum:mixed','Kegiatan Warga','','2026-11-23','aktif'),
+            ('galbum:category','Kegiatan Lingkungan','','2026-11-22','aktif'),
+            ('galbum:title','Gorol Bank Sampah','','2026-11-21','aktif'),
+            ('galbum:unrelated','Arisan Biasa','','2026-11-20','aktif'),
+            ('galbum:hidden','Bank Sampah Arsip','','2026-11-19','disembunyikan')
+          ]
+          photos=[
+            ('f4photo:plain','galbum:mixed','baru','Foto arisan','file_plain','2026-11-23'),
+            ('f4photo:caption','galbum:mixed','baru','Penimbangan Bank Sampah','file_caption','2026-11-23'),
+            ('f4photo:tagged','galbum:mixed','baru','Botol plastik terkumpul','file_tagged','2026-11-23'),
+            ('f4photo:hidden','galbum:mixed','disembunyikan','Foto Bank Sampah disembunyikan','file_hidden','2026-11-23'),
+            ('f4photo:category-one','galbum:category','baru','Foto pertama','file_cat1','2026-11-22'),
+            ('f4photo:category-two','galbum:category','baru','Foto kedua','file_cat2','2026-11-22'),
+            ('f4photo:title','galbum:title','baru','Foto kegiatan','file_title','2026-11-21'),
+            ('f4photo:unrelated','galbum:unrelated','baru','Warga berkumpul','file_unrelated','2026-11-20'),
+            ('f4photo:archived','galbum:hidden','baru','Gorol sampah','file_archived','2026-11-19')
+          ]
+          conn.executemany('INSERT INTO f4_gallery_albums VALUES(?,?,?,?,?)',albums)
+          conn.executemany('INSERT INTO f4_gallery_photos VALUES(?,?,?,?,?,?)',photos)
+          conn.execute("INSERT INTO f4_gallery_categories VALUES('galbum:category','bank_sampah','admin')")
+          conn.execute("INSERT INTO f4_gallery_photo_categories VALUES('f4photo:tagged','bank_sampah','admin')")
+          conn.execute("INSERT INTO f4_gallery_reactions VALUES('photo','f4photo:caption','member:1')")
+          conn.execute("INSERT INTO f4_gallery_comments VALUES('photo','f4photo:tagged','Sudah dikumpulkan','aktif')")
+          queries=json.load(open('/tmp/f4-bank-photo-queries.json'))
+          rows=conn.execute(queries['list']).fetchall()
+          ids={row['id'] for row in rows}
+          assert ids=={'galbum:mixed','galbum:category','galbum:title'},ids
+          expected={'galbum:mixed':{'f4photo:caption','f4photo:tagged'},
+            'galbum:category':{'f4photo:category-one','f4photo:category-two'},
+            'galbum:title':{'f4photo:title'}}
+          for album_id,media_ids in expected.items():
+            got={row['id'] for row in conn.execute(queries['detail'],(album_id,)).fetchall()}
+            assert got==media_ids,(album_id,got,media_ids)
+          likes=conn.execute("SELECT COUNT(*) FROM f4_gallery_reactions WHERE target_id='f4photo:caption'").fetchone()[0]
+          comments=conn.execute("SELECT COUNT(*) FROM f4_gallery_comments WHERE target_id='f4photo:tagged'").fetchone()[0]
+          assert likes==1 and comments==1
+          print('CROSS_PORTAL_ALBUMS',sorted(ids))
+          print('CROSS_PORTAL_PHOTO_COUNTS',{k:len(v) for k,v in expected.items()})
+          print('SHARED_ORIGINAL_PHOTO_IDS_REACTIONS_OK',likes,comments)
+          print('HIDDEN_AND_UNTAGGED_PHOTOS_EXCLUDED_OK')
+          PY
+      - name: Validate frontend single upload and social identity
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          worker=Path('cloudflare/worker-terpadu-operasional-teruji.js').read_text()
+          portal=Path('portal-live/dokumentasi/community-gallery.js').read_text()
+          bank=Path('bank-sampah/index.html').read_text()
+          assert "post('/category',{type:'photo',id:target.id,category:next})" in portal
+          assert "post('/upload?'+params" not in portal or "endpoint('/upload?'+params)" in portal
+          assert "f4BankPhotoProgramControl(actions,target)" in portal
+          assert "f4_gallery_photo_categories" in worker
+          assert "v21SocialPhotoId" in bank
+          assert "v21SocialRequest('/api/v2/gallery/social?type=photo&id='" in bank
+          assert "v21SocialRequest('/api/v2/gallery/'+(kind==='react'?'react':'comment')" in bank
+          print('SINGLE_UPLOAD_SHARED_SOCIAL_AND_PROGRAM_TAG_OK')
+          PY
