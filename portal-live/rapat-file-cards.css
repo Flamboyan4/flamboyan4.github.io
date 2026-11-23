@@ -17,7 +17,7 @@
   transition:border-color .18s ease,box-shadow .18s ease;
 }
 .f4-rapat-file-card:hover {
-  border-color:#ad9eea;
+  border-color:var(--f4-nav-line,#c7d2fe);
   box-shadow:0 8px 24px rgba(59,43,109,.08);
 }
 .f4-rapat-file-icon {
@@ -29,12 +29,12 @@
   padding:10px 5px;
   border-right:1px solid #e6e9f1;
   background:#f7f8fc;
-  color:#6740c5;
+  color:var(--f4-nav,#4f46e5);
 }
 .f4-rapat-file-icon svg {width:27px;height:27px;stroke-width:1.8}
 .f4-rapat-file-type {
   border-radius:5px;
-  background:#6740c5;
+  background:var(--f4-nav,#4f46e5);
   color:white;
   font-size:10px;
   font-weight:800;
@@ -67,7 +67,7 @@
   -webkit-box-orient:vertical;
   -webkit-line-clamp:2;
 }
-.f4-rapat-file-title:hover {color:#5d3eb0}
+.f4-rapat-file-title:hover {color:var(--f4-nav,#4f46e5)}
 .f4-rapat-file-meta {
   display:flex;
   align-items:center;
@@ -112,21 +112,21 @@
   transition:background .18s ease,border-color .18s ease;
 }
 .f4-rapat-file-view {
-  border:1px solid #5839bd;
+  border:1px solid var(--f4-nav,#4f46e5);
   color:white;
-  background:#5839bd;
+  background:var(--f4-nav,#4f46e5);
 }
-.f4-rapat-file-view:hover {background:#472e99}
+.f4-rapat-file-view:hover {background:#4338ca;border-color:#4338ca}
 .f4-rapat-file-download {
-  border:1px solid #c9d2e6;
-  color:#3f57a5;
+  border:1px solid var(--f4-nav-line,#c7d2fe);
+  color:#3730a3;
   background:#fff;
 }
-.f4-rapat-file-download:hover {background:#f2f5ff;border-color:#9caedc}
+.f4-rapat-file-download:hover {background:var(--f4-nav-tint,#eef2ff);border-color:#a5b4fc}
 .f4-rapat-file-title:focus-visible,
 .f4-rapat-file-view:focus-visible,
 .f4-rapat-file-download:focus-visible {
-  outline:3px solid #b9a8ef;
+  outline:3px solid #a5b4fc;
   outline-offset:2px;
 }
 .f4-rapat-file-empty {color:#8b95a6;font-size:11px}
