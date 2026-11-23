@@ -139,7 +139,7 @@ async function fromLegacy(doc,index){
   const docs=(portal.documentation||[]).filter(x=>String(x.title||'').trim())
    .filter(x=>x.active===undefined||x.active===null||x.active===true||x.active===1||String(x.active)==='1')
    .filter(x=>!x.visibility||x.visibility==='publik')
-   .filter(x=>!/^Bank Sampah\\s*[:/]/i.test(x.category||''));
+   .filter(x=>!/^Bank Sampah\s*[:/]/i.test(x.category||''));
   const knownFolders=new Set(docs.map(x=>folderId(x.drive_url||x.folder)).filter(Boolean));
   // Arsip terverifikasi tetap ditampilkan jika belum seluruhnya termigrasi ke D1.
   for(const album of index.albums||[]){
