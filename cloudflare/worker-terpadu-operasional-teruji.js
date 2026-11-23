@@ -2409,8 +2409,19 @@ __name(f4GalleryAlbum,"f4GalleryAlbum");
 async function f4GalleryCheckTarget(db,type,id){
  if(!["album","photo"].includes(type)||!id||id.length>190)return false;
  if(type==="album")return Boolean(await f4GalleryAlbum(db,id));
- if(/^gdrive:[A-Za-z0-9_-]{12,100}$/.test(id))return true; // Foto arsip lama, hanya untuk interaksi warga login.
- return Boolean(await one(db,"SELECT id FROM f4_gallery_photos WHERE id=? AND status IN ('baru','ditinjau')",[id]));
+ if(/^gdrive:[A-Za-z0-9_-]{12,100}$/.test(id))return true; // Foto arsip Drive; interaksi tulis tetap perlu login.
+ const citizenPhoto=await one(db,"SELECT id FROM f4_gallery_photos WHERE id=? AND status IN ('baru','ditinjau')",[id]);
+ if(citizenPhoto)return true;
+ // Foto pada album publik Bank Sampah menggunakan tabel album_media, bukan f4_gallery_photos.
+ // Gunakan ID media asli sebagai target reaksi/komentar; tabel sosial yang sama tetap dipakai.
+ const bankPhoto=await one(db,`SELECT m.id FROM album_media m JOIN albums a ON a.id=m.album_id
+  WHERE m.id=? AND m.media_type='foto' AND m.status='aktif'
+   AND a.visibility='publik' AND a.status='aktif'
+   AND (a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%'
+    OR LOWER(a.category) LIKE 'bank sampah:%' OR LOWER(a.category) LIKE 'bank_sampah:%'
+    OR (LOWER(TRIM(a.title))='gorol membersihkan drop point' AND LOWER(TRIM(a.category))='kerja bakti'))
+  LIMIT 1`,[id]);
+ return Boolean(bankPhoto);
 }
 __name(f4GalleryCheckTarget,"f4GalleryCheckTarget");
 async function f4GalleryPublic(db,env){
