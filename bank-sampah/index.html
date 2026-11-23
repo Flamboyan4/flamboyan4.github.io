@@ -5959,6 +5959,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     if(!panel||!like||!count||!status||!input||!send)return;
     const id=v21SocialPhotoId(v21OpenedAlbum?.media?.[v21MediaIndex]);
     const serial=++v21SocialSerial;
+    if(input.dataset.mediaId!==id){input.value='';input.dataset.mediaId=id;}
     panel.dataset.mediaId=id;panel.replaceChildren();
     like.classList.remove('is-liked');like.setAttribute('aria-pressed','false');
     count.textContent='';status.textContent='';
@@ -6037,7 +6038,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
        video.src=driveId?'https://drive.google.com/file/d/'+driveId+'/preview':youtube?'https://www.youtube-nocookie.com/embed/'+youtube:raw;
        video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
       }
-    }else scene.appendChild(v21Photo(m.src,m.nama||'Foto kegiatan'));
+    }else scene.appendChild(v21Photo(m.src,'Foto kegiatan Bank Sampah'));
     $('v21LightboxCount').textContent=(v21MediaIndex+1)+' / '+list.length;
     v21LoadSocial();
   }
