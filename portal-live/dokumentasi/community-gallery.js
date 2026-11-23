@@ -163,6 +163,40 @@ async function share(target){
  if(navigator.share){try{await navigator.share({title:target.title||'Dokumentasi Flamboyan 4',url});return}catch(e){if(e.name==='AbortError')return}}
  try{await navigator.clipboard.writeText(url);toast('Tautan berhasil disalin.')}catch{manualCopy(url)}
 }
+// An existing Portal Utama photo can be cross-published by its uploader.
+// This edits a program tag, not the file or a second copy of its reactions.
+async function f4BankPhotoProgramControl(host,target){
+ host.querySelector('.f4g-bank-program-button')?.remove();
+ if(!/^f4photo:[-\w:]{8,180}$/.test(String(target?.id||'')))return;
+ try{
+  const state=await get('/category?type=photo&id='+encodeURIComponent(target.id));
+  if(!host.isConnected||photoTarget?.id!==target.id)return;
+  if(!state.canEdit&&state.category!=='bank_sampah')return;
+  let category=String(state.category||'');
+  const tag=button(null,'images',null,'f4g-bank-program-button');
+  tag.setAttribute('aria-label','Tag program Bank Sampah');
+  tag.title='Tampilkan foto yang sama di Dokumentasi Bank Sampah';
+  const label=elem('span');tag.append(label);
+  const draw=()=>{
+   label.textContent=category==='bank_sampah'?'Bank Sampah ✓':'Tag Bank Sampah';
+   tag.setAttribute('aria-pressed',String(category==='bank_sampah'));
+  };
+  draw();tag.disabled=!state.canEdit;
+  if(state.canEdit)tag.onclick=async()=>{
+   tag.disabled=true;
+   const next=category==='bank_sampah'?'':'bank_sampah';
+   try{
+    await post('/category',{type:'photo',id:target.id,category:next});
+    category=next;draw();
+    toast(next?'Foto juga tampil di Dokumentasi Bank Sampah.':'Tag program Bank Sampah dihapus.');
+   }catch(error){notice('Tag program belum dapat diubah: '+error.message)}
+   finally{tag.disabled=false}
+  };
+  host.append(tag);
+ }catch(error){
+  if(!/HTTP 404|tidak ditemukan/.test(String(error.message||'')))console.warn('Tag program foto belum dimuat:',error);
+ }
+}
 function socialButtons(host,target,isPhoto,onLoaded){
  host.replaceChildren();
  if(!target?.id)return;
@@ -904,7 +938,7 @@ document.addEventListener('f4:gallery:photo',e=>{
   }
  };
  const actions=side.querySelector('.f4g-photo-actions');
- if(target.id)socialButtons(actions,target,true,renderPreview);
+ if(target.id){socialButtons(actions,target,true,renderPreview);void f4BankPhotoProgramControl(actions,target);}
  else{
   actions.replaceChildren(button('Bagikan','share',()=>share(target)));
   renderPreview({comments:[]});
