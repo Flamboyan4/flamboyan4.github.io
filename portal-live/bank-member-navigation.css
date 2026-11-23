@@ -548,8 +548,9 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 #dashboardView #bank-member-info .v21-section-bar h2{margin:0}
 /* Member documentation shares the same three-column photo feed as the manager. */
 #dashboardView #bank-member-docs.f4-bank-screen:not(.hidden){
- display:grid;gap:12px;min-width:0;width:100%;
- padding:0;margin:0 auto;border:0;background:transparent;box-shadow:none
+ display:grid;gap:12px;box-sizing:border-box;min-width:0;
+ width:100%;max-width:1080px;margin:0 auto;padding:0;
+ justify-self:center;border:0;background:transparent;box-shadow:none
 }
 #dashboardView #bank-member-docs #v22DocsPage{
  display:block;min-width:0;width:100%;margin:0;padding:0;background:transparent
