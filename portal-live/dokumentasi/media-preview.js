@@ -270,7 +270,23 @@ function drawAlbums(){
  if(!rows.length)list.append(el('p','muted','Album tidak ditemukan.'));
  for(const a of rows){
   const btn=el('button','media-album-card f4g-album-card');btn.type='button';
-  const cover=el('div','media-album-cover');if(a.cover){const img=document.createElement('img');img.src=driveImage(a.cover);img.alt='Sampul '+a.title;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(photoPlaceholder())};cover.append(img)}else cover.append(photoPlaceholder());
+  const cover=el('div','media-album-cover');
+  if(a.cover){
+   const img=document.createElement('img');img.src=driveImage(a.cover);
+   img.alt='Sampul '+a.title;img.loading='lazy';
+   const id=String(a.cover).match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/)?.[1]||'';
+   const candidates=id?[
+    'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1200',
+    'https://lh3.googleusercontent.com/d/'+encodeURIComponent(id)
+   ].filter(url=>url!==img.src):[];
+   let next=0;
+   img.onerror=()=>{
+    if(!img.isConnected)return;
+    if(next<candidates.length){img.src=candidates[next++];return}
+    img.replaceWith(photoPlaceholder());
+   };
+   cover.append(img);
+  }else cover.append(photoPlaceholder());
   const content=el('div','media-album-info');
   // The album index is a compact cover/title/date list. Descriptions are intentionally not displayed.
   content.append(el('small','media-category-tag',category(a)),el('strong','',a.title),el('small','muted',a.date));
