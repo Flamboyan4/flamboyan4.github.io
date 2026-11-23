@@ -491,63 +491,120 @@ function salinLinkAgenda(url) {
   });
 }
 
+    // Satu indeks foto publik untuk galeri Portal Utama, termasuk album Projek.
+    // Folder Google Drive hanya menjadi sumber ID; foto tetap dibuka di website.
+    let f4PortalPhotoIndexPromise=null;
+    function f4ReadPortalPhotoIndex(){
+      if(!f4PortalPhotoIndexPromise){
+        f4PortalPhotoIndexPromise=fetch('/assets/data/portal-photo-index.json?v=20261123-project-media-v1',{cache:'no-store'})
+          .then(response=>{if(!response.ok)throw Error('Indeks foto tidak tersedia');return response.json();})
+          .catch(error=>{f4PortalPhotoIndexPromise=null;throw error;});
+      }
+      return f4PortalPhotoIndexPromise;
+    }
+    function f4ProjectFolderItems(rows){
+      return (Array.isArray(rows)?rows:[]).map(record=>{
+        const raw=String(record?.id||'').replace(/^gdrive:/,'');
+        const id=/^[A-Za-z0-9_-]{12,110}$/.test(raw)?raw:
+          String(record?.url||'').match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/)?.[1];
+        if(!id)return null;
+        const video=String(record?.type||'').toLowerCase()==='video';
+        return {
+          type:video?'video':'image',driveId:id,
+          url:video
+            ?'https://api.flamboyan4.web.id/api/v2/gallery/public-video/'+encodeURIComponent(id)
+            :'https://lh3.googleusercontent.com/d/'+encodeURIComponent(id),
+          rawUrl:'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view',
+          thumb:'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1000'
+        };
+      }).filter(Boolean);
+    }
+    async function f4LoadProjectFolderItems(folderId){
+      const index=await f4ReadPortalPhotoIndex();
+      const stored=f4ProjectFolderItems(index.folders?.[folderId]);
+      if(stored.length)return stored;
+      // Untuk album lain yang belum diindeks, gunakan endpoint galeri publik
+      // tanpa menampilkan tombol Drive kepada warga.
+      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),5000);
+      try{
+        const response=await fetch(
+          'https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
+          encodeURIComponent('gfolder:'+folderId),{cache:'no-store',signal:ctrl.signal});
+        if(!response.ok)throw Error('Album belum dapat dimuat');
+        const data=await response.json();
+        return f4ProjectFolderItems(data.media);
+      }finally{clearTimeout(timer);}
+    }
+    let f4ProjectGalleryRequest=0;
     async function openGalleryGridModal(rawString, title) {
-      document.getElementById('gallery-grid-title').innerText = title || "Galeri Album";
-      document.getElementById('gallery-grid-container').innerHTML = '<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat album...</p>';
-      
+      const id=++f4ProjectGalleryRequest;
+      const grid=document.getElementById('gallery-grid-container');
+      const caption=document.getElementById('gallery-grid-subtitle');
+      document.getElementById('gallery-grid-title').textContent=title||'Galeri Album';
+      grid.innerHTML='<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat foto album...</p>';
+      caption.textContent='Foto dan video kegiatan';
+      currentMediaList=[];
       openModal('modal-gallery-grid');
 
-      const folderId = extractFolderId(rawString);
-      let mediaItems = [];
-
-      if (folderId) {
-        // Arsip Drive dapat dibuka langsung tanpa layanan perantara.
-        const link=document.createElement('a');
-        link.href='https://drive.google.com/drive/folders/'+encodeURIComponent(folderId);
-        link.target='_blank';link.rel='noopener noreferrer';
-        link.textContent='Buka foto dan video di Google Drive';
-        link.className='inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white';
-        document.getElementById('gallery-grid-container').replaceChildren(link);
-        document.getElementById('gallery-grid-subtitle').textContent='Album tersimpan di Google Drive';
-        currentMediaList=[];
+      let mediaItems=[];
+      const folderId=extractFolderId(rawString);
+      try{
+        if(folderId)mediaItems=await f4LoadProjectFolderItems(folderId);
+        else mediaItems=String(rawString||'').split(',').map(x=>x.trim()).filter(Boolean).map(url=>{
+          const video=/\.(mp4|mkv|mov|webm|avi)(?:[?#]|$)/i.test(url);
+          return {type:video?'video':'image',url:video?url:fixDriveUrl(url),rawUrl:url};
+        });
+      }catch(error){
+        if(id!==f4ProjectGalleryRequest)return;
+        console.warn('Galeri Projek:',error.message||error);
+      }
+      if(id!==f4ProjectGalleryRequest)return;
+      if(!mediaItems.length){
+        grid.replaceChildren();
+        const note=document.createElement('p');
+        note.className='text-slate-500 text-sm col-span-full text-center py-8';
+        note.textContent='Foto album ini belum dapat ditampilkan. Silakan coba lagi nanti.';
+        grid.append(note);
+        caption.textContent='Belum ada media yang dapat dimuat';
         return;
       }
-      const rawUrls=rawString.split(',');
-      mediaItems=rawUrls.map(u=>{
-        const isVid=/\.(mp4|mkv|mov|webm|avi)$/i.test(u);
-        return {type:isVid?'video':'image',url:isVid?u:fixDriveUrl(u),rawUrl:u};
-      }).filter(u=>u.url);
-
-      if (!mediaItems || mediaItems.length === 0) mediaItems = [{ type: 'image', url: PLACEHOLDER_IMG }];
-      currentMediaList = mediaItems;
-      currentPhotoCaption = title;
-
-      let gridHTML = '';
-      mediaItems.forEach((item, index) => {
-        if (item.type === 'video') {
-          gridHTML += `
-            <div class="h-40 md:h-48 relative group cursor-pointer bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 flex items-center justify-center" onclick="openLightboxFromIndex(${index})">
-              <div class="p-3 bg-red-600/90 text-white rounded-full shadow-lg group-hover:scale-110 transition duration-300 z-10">
-                <i data-lucide="play" class="w-6 h-6 fill-current"></i>
-              </div>
-              <span class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase z-10">Video</span>
-            </div>
-          `;
-        } else {
-          gridHTML += `
-            <div class="h-40 md:h-48 relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm border border-slate-200" onclick="openLightboxFromIndex(${index})">
-              <img src="${item.url}" alt="Foto ${index+1}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
-                <i data-lucide="maximize-2" class="w-5 h-5"></i>
-              </div>
-            </div>
-          `;
+      currentMediaList=mediaItems;
+      currentPhotoCaption=title;
+      grid.replaceChildren();
+      for(const [index,item] of mediaItems.entries()){
+        const tile=document.createElement('button');
+        tile.type='button';
+        tile.className='h-40 md:h-48 relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm border border-slate-200';
+        tile.setAttribute('aria-label',(item.type==='video'?'Putar video ':'Lihat foto ')+(index+1));
+        tile.onclick=()=>openLightboxFromIndex(index);
+        if(item.type==='video'){
+          tile.classList.add('bg-slate-900');
+          const thumb=document.createElement('img');
+          thumb.src=item.thumb||'';
+          thumb.alt='Cuplikan video '+(index+1);
+          thumb.loading='lazy';thumb.className='w-full h-full object-cover';
+          thumb.onerror=()=>thumb.remove();
+          if(item.thumb)tile.append(thumb);
+          const play=document.createElement('span');
+          play.className='absolute inset-0 flex items-center justify-center text-white';
+          play.innerHTML='<svg viewBox="0 0 24 24" width="42" height="42" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
+          tile.append(play);
+        }else{
+          const image=document.createElement('img');
+          image.src=item.url;image.alt='Foto '+(index+1);
+          image.loading='lazy';image.className='w-full h-full object-cover group-hover:scale-105 transition duration-300';
+          if(item.driveId){
+            let fallback=false;
+            image.onerror=()=>{
+              if(!fallback){fallback=true;image.src=item.thumb;}
+              else image.onerror=null;
+            };
+          }
+          tile.append(image);
         }
-      });
-
-      document.getElementById('gallery-grid-subtitle').innerText = `${mediaItems.length} File media ditemukan - Klik untuk membuka/memutar`;
-      document.getElementById('gallery-grid-container').innerHTML = gridHTML;
-      lucide.createIcons();
+        grid.append(tile);
+      }
+      caption.textContent=mediaItems.length+' foto/video · Klik untuk melihat';
     }
 
     function openLightboxFromIndex(index) {
@@ -1996,6 +2053,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           });
 
           const displayData = [...rawData].reverse();
+          const f4IndexedPhotos = await f4ReadPortalPhotoIndex().catch(()=>({folders:{}}));
           let allHTML = '';
           globalDokumentasiPreview = [];
 
@@ -2012,7 +2070,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             let badgeText = '';
 
             if (folderId) {
-              badgeText = 'Album Media';
+              const indexed=f4ProjectFolderItems(f4IndexedPhotos.folders?.[folderId]);
+              firstFoto=indexed.find(item=>item.type==='image')?.url||PLACEHOLDER_IMG;
+              badgeText=indexed.length?indexed.length+' Foto/Video':'Album Media';
             } else {
               const photoList = rawFotoString.split(',').filter(p => p.trim() !== '');
               firstFoto = fixDriveUrl(photoList[0] || '');
