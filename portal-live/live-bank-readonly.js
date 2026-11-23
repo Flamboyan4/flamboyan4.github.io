@@ -100,6 +100,10 @@
    jumlahSetoranTerkonfirmasi:number(o.confirmedDeposits??0),
    jumlahSetoranTercatat:o.recordedDeposits==null?null:number(o.recordedDeposits),
    jenisBarang:number(o.activeItems??r.catalog?.length??0),
+   barangDiterima:(Array.isArray(r.catalog)?r.catalog:[])
+     .filter(item=>item&&String(item.name||'').trim())
+     .map(item=>({nama:String(item.name),kelompok:String(item.category||'Lainnya'),
+       hargaAcuan:item.priceRpPerKg==null?null:number(item.priceRpPerKg)})),
    beratTerkonfirmasi:number(o.weighedConfirmedKg??o.confirmedWeightKg??o.confirmedKg??0),
    beratSetoranTercatat:o.recordedWeightKg==null?null:number(o.recordedWeightKg),
    kegiatan:p.length,
