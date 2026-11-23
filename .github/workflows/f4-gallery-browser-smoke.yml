@@ -1,0 +1,71 @@
+name: F4 Gallery Browser Smoke
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/f4-gallery-browser-smoke.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install lightweight browser automation
+        run: |
+          npm install --no-save --ignore-scripts playwright-core@1.57.0
+          command -v google-chrome || command -v chromium || command -v chromium-browser
+      - name: Test public album, custom MP4, arrows, reload behavior
+        run: |
+          node --input-type=module <<'JS'
+          import {chromium} from 'playwright-core';
+          import {existsSync} from 'node:fs';
+          const bin=['/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(existsSync);
+          if(!bin)throw Error('Browser binary unavailable');
+          const browser=await chromium.launch({headless:true,executablePath:bin,args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
+          const page=await browser.newPage({viewport:{width:1366,height:768}});
+          const errors=[];
+          page.on('pageerror',e=>errors.push(String(e).slice(0,300)));
+          page.on('console',m=>{if(m.type()==='error')console.log('BROWSER_CONSOLE_ERROR',m.text().slice(0,270))});
+          try{
+            const album='https://flamboyan4.web.id/dokumentasi/?album=gfolder:1hzTnOA8D1NQTwyIaodyEAyNc6-BEbvah';
+            await page.goto(album,{waitUntil:'domcontentloaded',timeout:55000});
+            await page.locator('.f4p-album-overlay:not([hidden]) .f4p-album-tile').first().waitFor({timeout:60000});
+            const tiles=page.locator('.f4p-album-overlay:not([hidden]) .f4p-album-tile');
+            const count=await tiles.count();
+            console.log('BROWSER_ALBUM_MEDIA_COUNT',count);
+            if(count!==5)throw Error('Expected 5 media in Menghias album');
+            await tiles.nth(3).click();
+            const video=page.locator('.f4p-photo-overlay:not([hidden]) video.f4p-media-video');
+            await video.waitFor({timeout:20000});
+            console.log('BROWSER_VIDEO_SOURCE',await video.getAttribute('src'));
+            const src=await video.getAttribute('src');
+            if(!src.includes('/api/v2/gallery/public-video/'))throw Error('Custom proxy is not used');
+            await page.locator('.f4p-video-big-play').click();
+            await page.waitForFunction(()=>{
+             const v=document.querySelector('.f4p-photo-overlay:not([hidden]) video.f4p-media-video');
+             return v&&v.currentTime>0.08&&v.readyState>=2;
+            },null,{timeout:24000});
+            console.log('BROWSER_VIDEO_PLAYBACK_OK',await video.evaluate(v=>({time:v.currentTime,readyState:v.readyState,networkState:v.networkState})));
+            const arrows=await page.evaluate(()=>{
+             const stage=document.querySelector('.f4p-photo-overlay:not([hidden]) .f4p-photo-stage');
+             const left=stage.querySelector('.f4p-photo-arrow.is-prev'),right=stage.querySelector('.f4p-photo-arrow.is-next');
+             const sr=stage.getBoundingClientRect(),a=left.getBoundingClientRect(),b=right.getBoundingClientRect();
+             return {left:a.x-sr.x,right:sr.right-b.right,centered:Math.abs(b.x-sr.x-sr.width/2)<60};
+            });
+            console.log('BROWSER_SLIDE_ARROWS',JSON.stringify(arrows));
+            if(arrows.centered||arrows.left>50||arrows.right>50)throw Error('Next slide arrow is not at the right edge');
+            await page.reload({waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForTimeout(1800);
+            const reopened=await page.locator('.f4p-photo-overlay:not([hidden])').count();
+            const url=page.url();
+            console.log('BROWSER_REFRESH_RESULT',JSON.stringify({reopened,url}));
+            if(reopened||/[?&](album|foto)=/.test(url))throw Error('Refresh resurrected old photo deep link');
+            if(errors.length)console.log('BROWSER_RUNTIME_WARNINGS',JSON.stringify(errors));
+            console.log('BROWSER_GALLERY_SMOKE_OK');
+          }finally{await browser.close()}
+          JS
