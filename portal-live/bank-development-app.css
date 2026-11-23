@@ -15,7 +15,7 @@
 /* The two duplicate summary cards are redundant with the five public KPIs. */
 #v17Perkembangan .f4-dev-mini-stats{display:none}
 #v17Perkembangan .f4-dev-grid{
- display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ display:grid;grid-template-columns:minmax(0,1fr);
  align-items:stretch;gap:12px
 }
 #v17Perkembangan .f4-dev-chart-card,
