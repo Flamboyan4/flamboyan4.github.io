@@ -23,11 +23,18 @@ const normalize=item=>{
  if(typeof item==='string')item={url:item};
  if(!item||typeof item!=='object')return null;
  const raw=String(item.url||item.src||'');
- const type=/video|mp4|webm/i.test(String(item.type||item.mimeType||'')+' '+raw)?'video':'foto';
- const id=raw.match(/(?:\/d\/|[?&]id=|\/d\/)([A-Za-z0-9_-]{12,})/)?.[1];
- const yt=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1];
- return {url:safe(raw),type,id:String(item.id|| (id?'gdrive:'+id:'')).slice(0,190),albumId:String(item.albumId||'').slice(0,180),caption:String(item.caption||item.nama||'').slice(0,140),
-  embed:type==='video'&&id&&/drive\.google\.com/.test(raw)?'https://drive.google.com/file/d/'+id+'/preview':
+ const type=/video|mp4|webm|mov/i.test(String(item.type||item.mimeType||'')+' '+raw)?'video':'foto';
+ const driveId=String(item.id||'').match(/^gdrive:([A-Za-z0-9_-]{12,110})$/)?.[1]||
+  raw.match(/(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=|googleusercontent\.com\/d\/|\/gallery\/(?:video|image)\/)([A-Za-z0-9_-]{12,110})/i)?.[1]||
+  (/drive\.google\.com/.test(raw)?raw.match(/[?&]id=([A-Za-z0-9_-]{12,110})/)?.[1]:'')||'';
+ const yt=raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{11})/i)?.[1]||'';
+ const poster=safe(String(item.thumb||item.poster||'')||
+  (type==='video'&&driveId?'https://drive.google.com/thumbnail?id='+encodeURIComponent(driveId)+'&sz=w1200':
+   type==='video'&&yt?'https://img.youtube.com/vi/'+yt+'/hqdefault.jpg':''));
+ return {url:safe(raw),type,driveId,poster,
+  id:String(item.id||(driveId?'gdrive:'+driveId:'')).slice(0,190),
+  albumId:String(item.albumId||'').slice(0,180),caption:String(item.caption||item.nama||'').slice(0,140),
+  embed:type==='video'&&driveId?'https://drive.google.com/file/d/'+encodeURIComponent(driveId)+'/preview':
    type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
 let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',mediaContext='gallery',lastTile=null,closing=false;
@@ -309,19 +316,27 @@ function renderPhoto(){
  photo.querySelector('.f4p-photo-name').textContent=albumTitle;
  const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
-  const driveVideo=item.embed&&item.id&&item.embed.startsWith('https://drive.google.com/file/d/');
-  if(driveVideo&&mediaContext==='gallery'){
-   // Video publik tetap disimpan di Drive, tetapi kontrol milik portal sendiri.
-   // URL proxy tidak memuat link asli dan OAuth hanya tersimpan di Worker.
-   view.append(makeVideoPlayer({...item,url:'https://api.flamboyan4.web.id/api/v2/gallery/video/'+encodeURIComponent(item.id.replace(/^gdrive:/,''))}));
-  }else if(item.embed){
-   // Viewer inventaris/YouTube di luar galeri tetap seperti sebelumnya.
-   const frame=node('iframe','f4p-media-frame');frame.src=item.embed;frame.title=item.caption||albumTitle;
-   frame.allowFullscreen=true;frame.allow='autoplay; fullscreen';view.append(frame);
+  // Historical Drive videos are public to anyone with the link and can play
+  // through Drive's native embedded preview without the inactive Worker proxy.
+  if(item.embed){
+   const frame=node('iframe','f4p-media-frame');frame.src=item.embed;
+   frame.title=item.caption||albumTitle;frame.allowFullscreen=true;
+   frame.allow='autoplay; fullscreen; picture-in-picture';frame.referrerPolicy='no-referrer';
+   view.append(frame);
   }else view.append(makeVideoPlayer(item));
  }else{
-  const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='eager';img.decoding='async';
-  img.onerror=()=>{if(img.isConnected)img.replaceWith(node('p','f4p-media-error','Foto tidak dapat dimuat.'))};
+  const img=node('img','f4p-media-photo');img.src=item.url;img.alt=item.caption||albumTitle;
+  img.loading='eager';img.decoding='async';
+  const candidates=item.driveId?[
+   'https://drive.google.com/thumbnail?id='+encodeURIComponent(item.driveId)+'&sz=w1600',
+   'https://lh3.googleusercontent.com/d/'+encodeURIComponent(item.driveId)
+  ].filter(url=>url!==item.url):[];
+  let nextSource=0;
+  img.onerror=()=>{
+   if(!img.isConnected)return;
+   if(nextSource<candidates.length){img.src=candidates[nextSource++];return}
+   img.replaceWith(node('p','f4p-media-error','Foto tidak dapat dimuat.'));
+  };
   view.append(img);
  }
  photo.querySelector('.f4p-photo-zoom').hidden=item.type==='video';
@@ -358,10 +373,31 @@ function openMediaGallery(title,records,opts={}){
  items.forEach((item,index)=>{
   const button=node('button','f4p-album-tile');button.type='button';button.title=item.caption||albumTitle;
   if(item.type==='video'){
-   if(item.embed){const marker=node('div','f4p-video-thumb');marker.innerHTML='<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="m9 7 7 5-7 5z"/></svg>';button.append(marker)}
-   else {const video=node('video','f4p-tile-video');video.muted=true;video.preload='metadata';video.src=item.url;
-    const play=node('span','f4p-tile-play');play.innerHTML=svg('play');button.append(video,play)}
-  }else{const img=node('img','f4p-tile-image');img.src=item.url;img.alt=item.caption||albumTitle;img.loading='lazy';img.onerror=()=>{if(img.isConnected)img.replaceWith(node('div','f4p-video-thumb','Foto'))};button.append(img)}
+   if(item.poster){
+    const image=node('img','f4p-tile-image');image.src=item.poster;
+    image.alt='Cuplikan video '+(item.caption||albumTitle);image.loading='lazy';
+    image.onerror=()=>{if(image.isConnected)image.replaceWith(node('div','f4p-video-thumb','Video'))};
+    button.append(image);
+   }else if(!item.embed){
+    const video=node('video','f4p-tile-video');video.muted=true;video.preload='metadata';
+    video.playsInline=true;video.src=item.url;button.append(video);
+   }else button.append(node('div','f4p-video-thumb','Video'));
+   const play=node('span','f4p-tile-play');play.innerHTML=svg('play');button.append(play);
+  }else{
+   const img=node('img','f4p-tile-image');img.src=item.url;img.alt=item.caption||albumTitle;
+   img.loading='lazy';
+   const others=item.driveId?[
+    'https://drive.google.com/thumbnail?id='+encodeURIComponent(item.driveId)+'&sz=w1000',
+    'https://lh3.googleusercontent.com/d/'+encodeURIComponent(item.driveId)
+   ].filter(url=>url!==item.url):[];
+   let remaining=0;
+   img.onerror=()=>{
+    if(!img.isConnected)return;
+    if(remaining<others.length){img.src=others[remaining++];return}
+    img.replaceWith(node('div','f4p-video-thumb','Foto'));
+   };
+   button.append(img);
+  }
   button.onclick=()=>{lastTile=button;openPhoto(index)};
   // Bila warga mencoba mencubit thumbnail, buka foto lalu zoom gambar,
   // bukan memperbesar keseluruhan halaman/album.
