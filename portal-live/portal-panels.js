@@ -295,17 +295,17 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 
 
 
-"#keuangan .f4-user-finance-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid #e4e6f1;border-radius:13px;padding:4px;gap:4px;margin:0 0 18px;background:#f8f9fd}\n"+
+"#keuangan .f4-user-finance-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:13px;padding:4px;gap:4px;margin:0 0 18px;background:#fff}\n"+
 "#keuangan .f4-user-finance-controls>button{width:100%;min-width:0;min-height:44px;padding:9px 8px;border:0;border-radius:10px;background:transparent;color:#59627a;font-size:13px;font-weight:750;white-space:normal}\n"+
-"#keuangan .f4-user-finance-controls>button.active{background:#6555e7;color:#fff;box-shadow:0 2px 8px #5140c02a}\n"+
+"#keuangan .f4-user-finance-controls>button.active{background:var(--f4-portal-primary,#4f46e5);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.16)}\n"+
 "#keuangan .f4-user-finance-intro{display:flex;gap:12px;align-items:center;padding:0 0 15px;margin-bottom:12px;border-bottom:1px solid #edf0f5}\n"+
-"#keuangan .f4-user-finance-icon{display:grid;place-items:center;background:#f0eeff;color:#6555d7;border-radius:12px;flex:0 0 44px;width:44px;height:44px}\n"+
+"#keuangan .f4-user-finance-icon{display:grid;place-items:center;background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5);border-radius:12px;flex:0 0 44px;width:44px;height:44px}\n"+
 "#keuangan .f4-user-finance-icon svg{width:23px;height:23px}\n"+
 "#keuangan .f4-user-finance-intro h3{font-size:17px;line-height:1.3;font-weight:800;margin:0;color:#26344f}\n"+
 "#keuangan .f4-user-finance-intro p{margin:4px 0 0;color:#79839a;font-size:12px;line-height:1.4}\n"+
 "#keuangan .f4-user-finance-sub{display:flex;gap:7px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 1px 9px;margin-bottom:12px}\n"+
 "#keuangan .f4-user-finance-sub>button{flex:0 0 auto;padding:9px 13px;min-height:39px;white-space:nowrap;border:1px solid #e0e4ed;background:#fff;color:#59657d;border-radius:10px;font-size:12px;font-weight:750}\n"+
-"#keuangan .f4-user-finance-sub>button.active{background:#efedff;border-color:#aea5fa;color:#5745c5;box-shadow:none}\n"+
+"#keuangan .f4-user-finance-sub>button.active{background:var(--f4-portal-soft,#eef2ff);border-color:var(--f4-portal-line,#c7d2fe);color:var(--f4-portal-primary-ink,#3730a3);box-shadow:none}\n"+
 "#keuangan .f4-user-category-heading,#keuangan .f4-user-list-heading{display:flex;align-items:center;justify-content:space-between;gap:9px;margin:9px 0 11px}\n"+
 "#keuangan .f4-user-category-heading h4{margin:0;color:#293550;font-size:16px;font-weight:800}\n"+
 "#keuangan .f4-user-count{background:#f4f5f9;color:#6e778a;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}\n"+
@@ -313,8 +313,8 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "#keuangan .f4-user-metric{min-width:0;border:1px solid #e8eaf2;background:#fbfcfe;border-radius:13px;padding:13px 12px}\n"+
 "#keuangan .f4-user-metric span{display:block;color:#7d8595;font-size:11px;font-weight:650;line-height:1.45}\n"+
 "#keuangan .f4-user-metric strong{display:block;color:#283752;font-size:17px;line-height:1.3;font-weight:800;margin-top:6px;overflow-wrap:anywhere}\n"+
-"#keuangan .f4-user-metric-primary{border-color:#dedafa;background:#f8f7ff}\n"+
-"#keuangan .f4-user-metric-primary strong{color:#5949d2}\n"+
+"#keuangan .f4-user-metric-primary{border-color:var(--f4-portal-line,#c7d2fe);background:var(--f4-portal-soft,#eef2ff)}\n"+
+"#keuangan .f4-user-metric-primary strong{color:var(--f4-portal-primary,#4f46e5)}\n"+
 "#keuangan .f4-user-list-heading{margin:0 0 5px;padding-top:2px}\n"+
 "#keuangan .f4-user-list-heading strong{font-size:14px;color:#35435a}\n"+
 "#keuangan .f4-user-list-heading span{font-size:11px;color:#909aaa}\n"+
@@ -332,21 +332,21 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 css.textContent+=[
  '#keuangan .f4-user-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:7px 0 6px}',
  '#keuangan .f4-user-year-filter{display:flex;align-items:center;gap:8px;margin-left:auto;color:#6f7b8f;font-size:11px;font-weight:700}',
- '#keuangan .f4-user-year-picker{position:relative;min-width:110px;z-index:12;color:#5545b7}',
- '#keuangan .f4-user-year-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:112px;min-height:40px;padding:9px 12px;border:1px solid #ddd9f4;border-radius:10px;background:#fff;color:#5544b5;font:750 12px system-ui;cursor:pointer;list-style:none;user-select:none}',
+ '#keuangan .f4-user-year-picker{position:relative;min-width:110px;z-index:12;color:var(--f4-portal-primary-ink,#3730a3)}',
+ '#keuangan .f4-user-year-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:112px;min-height:40px;padding:9px 12px;border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:10px;background:#fff;color:var(--f4-portal-primary-ink,#3730a3);font:750 12px system-ui;cursor:pointer;list-style:none;user-select:none}',
  '#keuangan .f4-user-year-trigger::-webkit-details-marker{display:none}',
  '#keuangan .f4-user-year-trigger:after{content:"";width:7px;height:7px;flex:none;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(45deg) translateY(-2px)}',
- '#keuangan .f4-user-year-picker[open]>.f4-user-year-trigger{background:#f7f5ff;border-color:#afa5ed}',
+ '#keuangan .f4-user-year-picker[open]>.f4-user-year-trigger{background:var(--f4-portal-soft,#eef2ff);border-color:var(--f4-portal-line-hover,#a5b4fc)}',
  '#keuangan .f4-user-year-picker[open]>.f4-user-year-trigger:after{transform:rotate(225deg) translateY(-1px)}',
- '#keuangan .f4-user-year-popover{position:absolute;z-index:100;right:0;top:calc(100% + 7px);width:max-content;min-width:100%;max-width:min(82vw,240px);max-height:240px;overflow-y:auto;padding:5px;background:#fff;border:1px solid #e4def8;border-radius:12px;box-shadow:0 14px 34px rgba(39,38,93,.15)}',
+ '#keuangan .f4-user-year-popover{position:absolute;z-index:100;right:0;top:calc(100% + 7px);width:max-content;min-width:100%;max-width:min(82vw,240px);max-height:240px;overflow-y:auto;padding:5px;background:#fff;border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:12px;box-shadow:0 14px 34px rgba(39,38,93,.15)}',
  '#keuangan .f4-user-year-popover button.f4-user-year-option{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;background:#fff;color:#495670;font:650 12px system-ui;text-align:left;white-space:nowrap}',
- '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]{background:#f1eeff;color:#5944c5;font-weight:800}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]{background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5);font-weight:800}',
  '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]:after{content:"✓";font-weight:900}',
- '#keuangan .f4-user-year-popover button.f4-user-year-option:hover{background:#f7f6ff}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option:hover{background:var(--f4-portal-soft,#eef2ff)}',
  '#keuangan .f4-user-year-context{font-size:11px;color:#80899a;margin:0 0 12px}',
  '#keuangan .f4-user-more-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}',
  '#keuangan .f4-user-more-controls>span{font-size:11px;color:#8b94a3}',
- '#keuangan .f4-user-more-controls button.f4-user-more-button{background:#f4f1ff;border:1px solid #ddd7f5;color:#5544bb;border-radius:10px;padding:9px 13px;min-height:39px;font-size:12px;font-weight:800}',
+ '#keuangan .f4-user-more-controls button.f4-user-more-button{background:var(--f4-portal-soft,#eef2ff);border:1px solid var(--f4-portal-line,#c7d2fe);color:var(--f4-portal-primary-ink,#3730a3);border-radius:10px;padding:9px 13px;min-height:39px;font-size:12px;font-weight:800}',
  '@media(max-width:760px){#keuangan .f4-user-category-heading{align-items:center}#keuangan .f4-user-category-heading h4{font-size:15px}#keuangan .f4-user-year-filter span{font-size:11px}#keuangan .f4-user-more-controls button{margin-left:auto}}'
 ].join('\n');
 document.addEventListener('pointerdown',event=>{
