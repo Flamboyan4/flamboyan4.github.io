@@ -559,32 +559,7 @@ z-index:48
       .v21-gallery-tile{height:140px}.v21-album-tile>img,.v21-album-tile>.v21-placeholder{height:105px}
       .v21-lightbox{padding:7px}.v21-stage{height:75dvh;gap:4px}.v21-arrow{width:32px;height:40px;font-size:20px}
     }
-    /* v22 — small preview + full documentation category page. */
-    .v22-section-title{cursor:default}
-    #v17Albums.v22-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-    #v17Albums .v22-preview-card{height:185px;min-width:0}
-    #v17Albums.v22-preview-grid:has(> :only-child){grid-template-columns:minmax(0,1fr)}
-    #v17Albums .v22-preview-card:only-child{
-      display:grid;grid-template-columns:210px minmax(0,1fr);
-      align-items:center;height:170px;border:1px solid #e0eae2;
-      background:#fff;color:#245038;border-radius:12px
-    }
-    #v17Albums .v22-preview-card:only-child:before{display:none}
-    #v17Albums .v22-preview-card:only-child>img,
-    #v17Albums .v22-preview-card:only-child>.v21-empty-photo{
-      position:static;inset:auto;display:grid;place-items:center;
-      width:210px;height:100%;border-radius:0;object-fit:cover
-    }
-    #v17Albums .v22-preview-card:only-child .v21-cover-caption{
-      position:static;background:transparent;color:#254c37;padding:9px 11px
-    }
-    #v17Albums .v22-preview-card:only-child .v21-cover-caption small{color:#7a9380}
-    #v17Albums .v22-preview-card:only-child .v21-cover-caption strong{
-      color:#244e36;font-size:12px;line-height:1.35
-    }
-    #v17Albums .v22-preview-card .v21-cover-caption{padding:11px}
-    #v17Albums .v22-preview-card .v21-cover-caption strong{font-size:13px;line-height:1.25}
-    #v17Albums .v22-preview-card .v21-cover-caption small{font-size:10px}
+    /* v22 — full documentation archive is separate from the public photo feed. */
     #v11Public .v17-public-main.v22-show-docs>:not(#v22DocsPage){display:none}
     #v22DocsPage{min-width:0;width:100%;padding:4px 0 24px}
     #v22DocsPage.hidden{display:none}
@@ -600,7 +575,7 @@ z-index:48
     .v22-search{max-width:450px;margin:12px 0 18px}
     .v22-doc-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
     .v22-doc-card{background:#fff;color:#234f38;display:flex;flex-direction:column;text-align:left;padding:0;border:1px solid #d9e7dc;border-radius:13px;overflow:hidden;min-width:0}
-    .v22-doc-card:hover,.v22-preview-card:hover{box-shadow:0 5px 18px #24543922;transform:translateY(-1px)}
+    .v22-doc-card:hover{box-shadow:0 5px 18px #24543922;transform:translateY(-1px)}
     .v22-doc-card img,.v22-doc-card .v21-placeholder{width:100%;height:170px;object-fit:cover;display:grid;place-items:center;background:#e5efe7;font-size:30px}
     .v22-doc-card-info{padding:13px;display:grid;gap:6px;min-width:0}
     .v22-doc-card-info strong{font-size:14px;overflow-wrap:anywhere}.v22-doc-card-info small{font-size:11px;color:#768d7b}
@@ -611,10 +586,7 @@ z-index:48
     .v22-edit-row:last-child{border:0}.v22-edit-row span{flex:1;font-size:12px;min-width:0;overflow-wrap:anywhere}
     .v22-edit-row select{width:auto;min-width:145px;padding:7px;font-size:12px}
     @media(max-width:900px){.v22-doc-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:720px){#v17Albums.v22-preview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-      #v17Albums .v22-preview-card{height:165px}#v17Albums .v22-preview-card:only-child{height:130px;grid-template-columns:115px minmax(0,1fr)}
-      #v17Albums .v22-preview-card:only-child>img,#v17Albums .v22-preview-card:only-child>.v21-empty-photo{width:115px}
-      .v22-doc-heading h1{font-size:23px}.v22-doc-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    @media(max-width:720px){      .v22-doc-heading h1{font-size:23px}.v22-doc-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
       .v22-doc-card img,.v22-doc-card .v21-placeholder{height:116px}.v22-doc-card-info{padding:9px}
       .v22-edit-row{flex-wrap:wrap}.v22-edit-row select{width:100%}
     }
@@ -4705,9 +4677,10 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
           <p class="f4-public-program-note">Pantau setoran dan tabungan, serta ajukan pencairan melalui akun warga.</p>
         </section>
         </div>
-        <section id="v17Kegiatan" class="f4-public-stories" aria-labelledby="f4PublicStoriesTitle">
-          <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">BUKTI KEGIATAN</span><h2 id="f4PublicStoriesTitle">Kegiatan nyata warga</h2><p>Dokumentasi dari kegiatan Bank Sampah Flamboyan 4.</p></div></div>
-          <section id="v17Dokumentasi" class="v17-section"><h2>Galeri kegiatan</h2><div id="v17Albums" class="v17-albums">Memuat album...</div></section>
+        <section id="v17Kegiatan" class="f4-public-stories" aria-label="Enam foto kegiatan Bank Sampah terbaru">
+          <section id="v17Dokumentasi" class="v17-section">
+            <div id="v17Albums" class="v17-photo-feed" aria-live="polite">Memuat foto terbaru...</div>
+          </section>
         </section>
         <section id="v17Transparansi" class="v17-section f4-public-transparency" aria-labelledby="f4PublicReportHeading">
           <div class="f4-public-section-heading"><div><span class="f4-public-eyebrow">TRANSPARANSI</span><h2 id="f4PublicReportHeading">Laporan setoran warga</h2><p>Data penimbangan yang tercatat, termasuk sampah yang belum terjual. Tanpa menampilkan saldo pribadi.</p></div></div>
@@ -5146,7 +5119,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
     if(albumResult.status==='fulfilled'){
       const albums=albumResult.value;
-      v21RenderAlbumCover(albums);
+      await v21RenderAlbumCover(albums);
     }else{
       const list=$('v22DocList'),covers=$('v17Albums');
       if(list)list.textContent='Gagal memuat album. Coba buka kembali halaman.';
@@ -5601,29 +5574,82 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     img.addEventListener('error',()=>{if(img.parentNode){const fall=v21IconNode('div','v21-placeholder','camera');img.replaceWith(fall);}}, {once:true});return img;
   }
   function v21PrepareSections(){
-    const docs=$('v17Dokumentasi'),inv=$('v17Inventaris');if(!docs||!inv||docs.dataset.f4PreviewReady==='1')return;
+    const docs=$('v17Dokumentasi'),inv=$('v17Inventaris');
+    if(!docs||docs.dataset.f4PreviewReady==='1')return;
     docs.dataset.f4PreviewReady='1';
-    docs.querySelector(':scope > .v17-subtle')?.remove();inv.querySelector(':scope > .v17-subtle')?.remove();
-    const dbar=v21Node('div','v21-section-bar');const dh=docs.querySelector(':scope > h2');
-    if(dh){dh.classList.add('v22-section-title');dbar.appendChild(dh);}
-    const all=v21Node('button','v21-section-all');all.type='button';
-    all.innerHTML='Lihat semua<svg viewBox="0 0 24 24" width="14" height="14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-    all.onclick=v22OpenDocs;dbar.appendChild(all);
-    docs.prepend(dbar);
-    const ibar=v21Node('div','v21-section-bar');const ih=inv.querySelector(':scope > h2');if(ih)ibar.appendChild(ih);inv.prepend(ibar);
+    docs.querySelector(':scope > .v17-subtle')?.remove();
+    docs.querySelector(':scope > h2')?.remove();
+    if(inv){
+      inv.querySelector(':scope > .v17-subtle')?.remove();
+      const ibar=v21Node('div','v21-section-bar');
+      const ih=inv.querySelector(':scope > h2');
+      if(ih)ibar.appendChild(ih);
+      inv.prepend(ibar);
+    }
     v21EnsureModals();
   }
-  function v21RenderAlbumCover(albums){
-    v21PrepareSections();v21Albums=Array.isArray(albums)?albums:[];
-    // Keep the full album directory synchronized when the public D1 fetch finishes.
+  function v21PublicFeedPhotos(albums){
+    const chosen=[];
+    const sorted=[...(Array.isArray(albums)?albums:[])].filter(a=>v23CategoryLabel(a.kategori)!=='Inventaris')
+      .sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
+    for(const album of sorted){
+      const media=Array.isArray(album.media)?album.media:[];
+      // Newest album first; last uploaded photo of each album first.
+      for(let i=media.length-1;i>=0;i--){
+        const item=media[i];
+        const src=String(item?.src||item?.url||item?.thumb||'').trim();
+        const type=String(item?.jenis||item?.type||'').toLowerCase();
+        if(!/^https:\/\//i.test(src)||/video|youtube|folder/i.test(type))continue;
+        chosen.push({album,item,src});
+        if(chosen.length===6)return chosen;
+      }
+    }
+    return chosen;
+  }
+  async function v21RenderAlbumCover(albums){
+    v21PrepareSections();
+    v21Albums=Array.isArray(albums)?albums:[];
     v22RenderDocs();
-    const area=$('v17Albums');if(!area)return;area.className='v22-preview-grid';area.replaceChildren();
-    if(!v21Albums.length){area.textContent='Belum ada album dokumentasi yang dipublikasikan.';return;}
-    v21Albums.slice(0,2).forEach(a=>{const button=v21Node('button','v21-feature-cover v22-preview-card');button.type='button';
-      if(a.sampul)button.appendChild(v21Photo(a.sampul,'Sampul '+a.judul));
-      else button.appendChild(v21IconNode('span','v21-empty-photo','camera'));
-      const text=v21Node('span','v21-cover-caption');text.append(v21Node('small','',a.kategori||'Umum'),v21Node('strong','',a.judul||'Kegiatan Bank Sampah'));
-      button.appendChild(text);button.onclick=()=>v21OpenAlbum(a.id);area.appendChild(button);});
+    const area=$('v17Albums');if(!area)return;
+    area.className='v17-photo-feed';area.replaceChildren();
+    const recent=[...v21Albums].filter(a=>v23CategoryLabel(a.kategori)!=='Inventaris')
+      .sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));
+    for(const album of recent){
+      if(v21PublicFeedPhotos(recent).length>=6)break;
+      if(album.sourceFolder&&!Array.isArray(album.media)||album.sourceFolder&&album.media.length===0){
+        try{
+          const detail=await v21LegacyAlbum(album);
+          if(Array.isArray(detail.media)&&detail.media.length)album.media=detail.media;
+        }catch(error){console.warn('Foto album lama belum tersedia:',album.id,error)}
+      }
+    }
+    // A published cover is used only if no photo is available for that album.
+    for(const album of recent){
+      if(!v21PublicFeedPhotos(recent).length||v21PublicFeedPhotos(recent).length<6){
+        if(!album.media?.some(m=>/^https:\/\//i.test(String(m.src||m.url||m.thumb||''))&&!/video/i.test(String(m.jenis||m.type||'')))&&
+          /^https:\/\//i.test(album.sampul||'')){
+          album.media=[{jenis:'Foto',nama:album.judul||'Dokumentasi',src:album.sampul,thumb:album.sampul}];
+        }
+      }
+    }
+    const photos=v21PublicFeedPhotos(recent);
+    if(!photos.length){area.textContent='Foto kegiatan belum tersedia.';return;}
+    const galleryMedia=photos.map(({album,item,src})=>({
+      nama:item.nama||item.caption||album.judul||'Foto kegiatan',
+      jenis:'Foto',src,thumb:item.thumb||src
+    }));
+    photos.forEach(({album,item,src},index)=>{
+      const button=v21Node('button','v17-feed-photo');
+      button.type='button';
+      button.title=item.nama||item.caption||album.judul||'Lihat foto kegiatan';
+      button.setAttribute('aria-label','Lihat foto '+(index+1)+' dari '+photos.length);
+      button.appendChild(v21Photo(item.thumb||src,button.title));
+      button.onclick=()=>{
+        v21OpenedAlbum={judul:'Dokumentasi Bank Sampah',media:galleryMedia};
+        v21EnsureModals();v21OpenLightbox(index);
+      };
+      area.appendChild(button);
+    });
   }
   function v21InventoryRow(x){
     const row=v21Node('button','v21-inventory-row');row.type='button';
@@ -7558,7 +7584,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
 <script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261122-member-crown-mobile-v6"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-flat-waste-labels-v7">
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261123-instagram-photo-feed-v8">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261115-remove-finance-caption-v3"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>
