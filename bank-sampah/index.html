@@ -5637,7 +5637,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     const photos=v21PublicFeedPhotos(recent);
     if(!photos.length){area.textContent='Foto kegiatan belum tersedia.';return;}
     const galleryMedia=photos.map(({album,item,src})=>({
-      nama:item.nama||item.caption||album.judul||'Foto kegiatan',
+      id:String(item.id||''),nama:item.nama||item.caption||album.judul||'Foto kegiatan',
       jenis:'Foto',src,thumb:item.thumb||src
     }));
     photos.forEach(({album,item,src},index)=>{
@@ -5677,15 +5677,55 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     meta.id='v21GalleryMeta';const close=v21Node('button','v21-close');close.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6 18 18"/></svg>';close.type='button';close.title='Tutup galeri';close.setAttribute('aria-label','Tutup galeri');close.onclick=v21CloseGallery;
     head.append(meta,close);const body=v21Node('div','v21-modal-body');body.id='v21GalleryBody';card.append(head,body);modal.appendChild(card);document.body.appendChild(modal);
     modal.addEventListener('click',e=>{if(e.target===modal)v21CloseGallery();});
-    const lightbox=v21Node('div','v21-modal v21-lightbox hidden');lightbox.id='v21Lightbox';lightbox.setAttribute('role','dialog');lightbox.setAttribute('aria-modal','true');
-    const lhead=v21Node('div','v21-modal-head');const lm=v21Node('div');lm.id='v21LightboxName';
-    const lc=v21Node('button','v21-close');lc.innerHTML='<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6 18 18"/></svg>';lc.type='button';lc.title='Tutup foto/video';lc.setAttribute('aria-label','Tutup foto atau video');lc.onclick=v21CloseLightbox;
-    lhead.append(lm,lc);const stage=v21Node('div','v21-stage');const prev=v21Node('button','v21-arrow'),next=v21Node('button','v21-arrow');
+    const lightbox=v21Node('div','v21-modal v21-lightbox hidden');lightbox.id='v21Lightbox';
+    lightbox.setAttribute('role','dialog');lightbox.setAttribute('aria-modal','true');
+    lightbox.setAttribute('aria-label','Foto dan interaksi Bank Sampah');
+    const shell=v21Node('div','v21-social-shell');
+    const mediaPane=v21Node('div','v21-social-media-pane');
+    const stage=v21Node('div','v21-stage');
+    const prev=v21Node('button','v21-arrow'),next=v21Node('button','v21-arrow');
     prev.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
     next.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
-    prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';prev.setAttribute('aria-label','Media sebelumnya');next.setAttribute('aria-label','Media berikutnya');prev.onclick=()=>v21ShiftMedia(-1);next.onclick=()=>v21ShiftMedia(1);
+    prev.type=next.type='button';prev.title='Sebelumnya';next.title='Berikutnya';
+    prev.setAttribute('aria-label','Foto sebelumnya');next.setAttribute('aria-label','Foto berikutnya');
+    prev.onclick=()=>v21ShiftMedia(-1);next.onclick=()=>v21ShiftMedia(1);
     const scene=v21Node('div','v21-stage-content');scene.id='v21StageContent';stage.append(prev,scene,next);
-    const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';lightbox.append(lhead,stage,counter);document.body.appendChild(lightbox);
+    const counter=v21Node('div','v21-gallery-count');counter.id='v21LightboxCount';
+    mediaPane.append(stage,counter);
+    const panel=v21Node('aside','v21-social-panel');
+    const head=v21Node('header','v21-social-header');
+    const identity=v21Node('div','v21-social-identity');
+    const avatar=v21Node('img','v21-social-avatar');avatar.src='/assets/icons/bank.svg';avatar.alt='';
+    const brand=v21Node('div','v21-social-brand');
+    brand.append(v21Node('strong','','Bank Sampah Flamboyan 4'),v21Node('small','','Dokumentasi kegiatan warga'));
+    identity.append(avatar,brand);
+    const close=v21Node('button','v21-close v21-social-close');close.type='button';
+    close.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';
+    close.title='Tutup foto';close.setAttribute('aria-label','Tutup penampil foto');close.onclick=v21CloseLightbox;
+    head.append(identity,close);
+    const comments=v21Node('div','v21-social-comments');comments.id='v21SocialComments';
+    comments.setAttribute('aria-live','polite');
+    const footer=v21Node('footer','v21-social-footer');
+    const actions=v21Node('div','v21-social-actions');
+    const like=v21Node('button','v21-social-like');like.id='v21SocialLike';like.type='button';
+    like.setAttribute('aria-label','Sukai foto');
+    like.innerHTML='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.9l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.4a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
+    like.onclick=()=>v21SocialAction('react');
+    const talk=v21Node('button','v21-social-talk');talk.type='button';talk.setAttribute('aria-label','Tulis komentar');
+    talk.innerHTML='<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 8.4 8.4 0 0 1-4-.9L3 21l1.9-5.5a8.5 8.5 0 1 1 16.1-4Z"/></svg>';
+    talk.onclick=()=>$('v21SocialInput')?.focus();
+    actions.append(like,talk);
+    const count=v21Node('div','v21-social-likes','Memuat suka...');count.id='v21SocialLikes';
+    const status=v21Node('p','v21-social-status');status.id='v21SocialStatus';status.setAttribute('role','status');
+    const form=v21Node('form','v21-social-form');form.id='v21SocialForm';
+    const input=v21Node('input','v21-social-input');input.id='v21SocialInput';input.type='text';
+    input.maxLength=500;input.autocomplete='off';input.placeholder='Tulis komentar...';input.setAttribute('aria-label','Tulis komentar');
+    const send=v21Node('button','v21-social-send','Kirim');send.type='submit';
+    form.append(input,send);
+    form.addEventListener('submit',event=>{event.preventDefault();v21SocialAction('comment');});
+    footer.append(actions,count,status,form);
+    panel.append(head,comments,footer);
+    shell.append(mediaPane,panel);lightbox.appendChild(shell);document.body.appendChild(lightbox);
     // Click on the dark/empty backdrop to return to the album.
     lightbox.addEventListener('click',e=>{
       if(e.target===lightbox||e.target===stage||e.target===scene)v21CloseLightbox();
@@ -5698,7 +5738,10 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     });
     document.addEventListener('keydown',e=>{
       if(e.key==='Escape'){if(!$('v21Lightbox').classList.contains('hidden'))v21CloseLightbox();else v21CloseGallery();}
-      if(!$('v21Lightbox').classList.contains('hidden')){if(e.key==='ArrowRight')v21ShiftMedia(1);if(e.key==='ArrowLeft')v21ShiftMedia(-1);}
+      if(!/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName||'')&&!$('v21Lightbox').classList.contains('hidden')){
+        if(e.key==='ArrowRight')v21ShiftMedia(1);
+        if(e.key==='ArrowLeft')v21ShiftMedia(-1);
+      }
     });
   }
   function v21ShowModal(title,subtitle,body){
@@ -5806,6 +5849,92 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       v21ShowModal(data.judul,data.tanggal+' • '+(data.deskripsi||''),wrap);
     }catch(e){v21ShowModal(a.judul,'',v21Node('p','', 'Galeri belum dapat dimuat: '+(e.message||e)));}
   }
+  // Reuse the verified portal gallery social API; no browser-only likes.
+  let v21SocialSerial=0;
+  const v21SocialPhotoId=media=>{
+    const id=String(media?.id||'').trim();
+    if(/^(?:f4photo:|media:|gdrive:)[-\w:]{3,180}$/.test(id))return id;
+    if(/^[A-Za-z0-9_-]{12,110}$/.test(id))return 'gdrive:'+id;
+    const src=String(media?.src||media?.url||'');
+    const match=src.match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/i);
+    return match?'gdrive:'+match[1]:'';
+  };
+  async function v21SocialRequest(path,payload){
+    const response=await fetch('https://api.flamboyan4.web.id'+path,{
+      method:payload?'POST':'GET',credentials:'include',mode:'cors',cache:'no-store',
+      ...(payload?{headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}:{})
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok||data.ok===false){
+      const error=new Error(data.error||'Layanan interaksi belum tersedia.');
+      error.status=response.status;throw error;
+    }
+    return data;
+  }
+  async function v21LoadSocial(){
+    const panel=$('v21SocialComments'),like=$('v21SocialLike');
+    const count=$('v21SocialLikes'),status=$('v21SocialStatus'),input=$('v21SocialInput');
+    const send=$('v21SocialForm')?.querySelector('button[type="submit"]');
+    if(!panel||!like||!count||!status||!input||!send)return;
+    const id=v21SocialPhotoId(v21OpenedAlbum?.media?.[v21MediaIndex]);
+    const serial=++v21SocialSerial;
+    panel.dataset.mediaId=id;panel.replaceChildren();
+    like.classList.remove('is-liked');like.setAttribute('aria-pressed','false');
+    count.textContent='';status.textContent='';
+    like.disabled=!id;input.disabled=!id;send.disabled=!id;
+    if(!id){panel.textContent='Interaksi foto ini belum tersedia.';return;}
+    panel.textContent='Memuat komentar...';
+    try{
+      const data=await v21SocialRequest('/api/v2/gallery/social?type=photo&id='+encodeURIComponent(id));
+      if(serial!==v21SocialSerial||panel.dataset.mediaId!==id)return;
+      const liked=Boolean(data.liked);
+      like.classList.toggle('is-liked',liked);like.setAttribute('aria-pressed',String(liked));
+      like.setAttribute('aria-label',liked?'Batal sukai foto':'Sukai foto');
+      count.textContent=(Number(data.likes)||0)+' suka';
+      panel.replaceChildren();
+      const comments=Array.isArray(data.comments)?data.comments:[];
+      if(!comments.length)panel.appendChild(v21Node('p','v21-social-empty','Belum ada komentar. Jadilah yang pertama.'));
+      comments.forEach(item=>{
+        const row=v21Node('div','v21-social-comment');
+        row.append(v21Node('strong','',item.author||'Warga'),v21Node('p','',item.message||''),
+          v21Node('small','',String(item.date||'').slice(0,10)));
+        panel.appendChild(row);
+      });
+    }catch(error){
+      if(serial!==v21SocialSerial)return;
+      panel.textContent=error.status===404?'Interaksi foto ini belum tersedia.':'Komentar belum dapat dimuat.';
+      status.textContent=error.status===404?'Foto masih bisa dilihat, tetapi fitur interaksi belum tersedia di server.':'';
+      like.disabled=true;input.disabled=true;send.disabled=true;
+    }
+  }
+  async function v21SocialAction(kind){
+    const panel=$('v21SocialComments'),id=panel?.dataset.mediaId;
+    const like=$('v21SocialLike'),input=$('v21SocialInput');
+    const send=$('v21SocialForm')?.querySelector('button[type="submit"]');
+    const status=$('v21SocialStatus');
+    if(!id||!input||!status)return;
+    const message=input.value.trim();
+    if(kind==='comment'&&!message)return;
+    const serial=v21SocialSerial;
+    if(like)like.disabled=true;if(send)send.disabled=true;
+    status.textContent='';
+    try{
+      await v21SocialRequest('/api/v2/gallery/'+(kind==='react'?'react':'comment'),{
+        type:'photo',id,...(kind==='comment'?{message}:{})
+      });
+      if(serial!==v21SocialSerial)return;
+      if(kind==='comment')input.value='';
+      await v21LoadSocial();
+    }catch(error){
+      if(serial===v21SocialSerial){
+        status.textContent=error.status===401?'Masuk dengan akun warga untuk memberi suka atau komentar.':error.message;
+      }
+    }finally{
+      if(serial===v21SocialSerial){
+        if(like)like.disabled=false;if(send)send.disabled=false;
+      }
+    }
+  }
   function v21OpenLightbox(index){
     if(!v21OpenedAlbum?.media?.length)return;
     v21MediaIndex=index;
@@ -5828,8 +5957,8 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
        video.title=m.nama||'Video kegiatan';video.allow='autoplay; fullscreen; picture-in-picture';video.allowFullscreen=true;scene.appendChild(video);
       }
     }else scene.appendChild(v21Photo(m.src,m.nama||'Foto kegiatan'));
-    $('v21LightboxName').replaceChildren(v21Node('h2','',m.nama||m.jenis));
-    $('v21LightboxCount').textContent=(v21MediaIndex+1)+' dari '+list.length;
+    $('v21LightboxCount').textContent=(v21MediaIndex+1)+' / '+list.length;
+    v21LoadSocial();
   }
   function v21ShiftMedia(delta){
     const list=v21OpenedAlbum?.media||[];if(!list.length)return;
@@ -5837,7 +5966,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
   }
   function v21CloseLightbox(fromHistory=false){
     const modal=$('v21Lightbox');if(!modal||modal.classList.contains('hidden'))return;
-    modal.classList.add('hidden');$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
+    modal.classList.add('hidden');v21SocialSerial++;$('v21StageContent')?.replaceChildren();v21NotifyOverlay();
   }
   function v21ShowInventory(item){
     const view=v21Node('div');
