@@ -8,7 +8,7 @@
   margin:0 0 13px;padding:0;min-width:0;
 }
 #keuangan .f4-user-finance-heading svg {
-  width:24px;height:24px;flex:none;color:#5c4ce1;
+  width:24px;height:24px;flex:none;color:var(--f4-portal-primary,#4f46e5);
 }
 #keuangan .f4-user-finance-heading h3 {
   margin:0;color:#111d38;font-size:23px;line-height:1.25;
@@ -89,7 +89,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-cash-overview .f4-cash-date-control {
   display:flex;align-items:center;gap:6px;min-width:0;
   min-height:35px;padding:5px 8px;border:1px solid #dbdef0;
-  border-radius:9px;background:#f9f9ff;color:#604ec4;
+  border-radius:9px;background:#f9f9ff;color:var(--f4-portal-primary,#4f46e5);
   cursor:pointer;
 }
 #keuangan .f4-cash-overview .f4-cash-date-control:focus-within {
@@ -98,7 +98,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-cash-overview .f4-cash-date-trigger {
   display:flex;align-items:center;gap:7px;min-height:25px;
   width:100%;padding:0;background:transparent;border:0;cursor:pointer;
-  color:#5544b5;font-size:12px;font-weight:750;
+  color:var(--f4-portal-primary-ink,#3730a3);font-size:12px;font-weight:750;
 }
 #keuangan .f4-cash-overview .f4-cash-date-trigger>span {
   min-width:0;flex:1;text-align:left;white-space:nowrap;
@@ -134,14 +134,14 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   display:grid;place-items:center;width:30px;height:30px;
   border-radius:9px;color:#69748b;
 }
-.f4-cash-calendar-header button:hover {background:#f3f1ff;color:#5848c5}
+.f4-cash-calendar-header button:hover {background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5)}
 .f4-cash-calendar-nav {
   display:grid;grid-template-columns:32px minmax(0,1fr) 32px;
   align-items:center;gap:7px;margin-bottom:10px;
 }
 .f4-cash-calendar-nav>button {
   display:grid;place-items:center;width:32px;height:33px;
-  background:#f4f2ff;color:#5b4ac4;border-radius:9px;
+  background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary-ink,#3730a3);border-radius:9px;
 }
 .f4-cash-calendar-nav>button:hover {background:#e8e3ff}
 .f4-cash-calendar-selects {display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:7px}
@@ -163,11 +163,11 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   padding:0;border-radius:9px;font-size:12px;font-weight:650;
   font-variant-numeric:tabular-nums;
 }
-.f4-cash-calendar .f4-cash-calendar-day:hover {background:#efecff;color:#5340c5}
+.f4-cash-calendar .f4-cash-calendar-day:hover {background:var(--f4-portal-soft-hover,#e0e7ff);color:var(--f4-portal-primary,#4f46e5)}
 .f4-cash-calendar .f4-cash-calendar-day.is-outside {color:#b0b6c5}
 .f4-cash-calendar .f4-cash-calendar-day.is-today {box-shadow:inset 0 0 0 1px #afa3fa}
 .f4-cash-calendar .f4-cash-calendar-day.is-selected {
-  background:#6451df;color:#fff;box-shadow:none;font-weight:800;
+  background:var(--f4-portal-primary,#4f46e5);color:#fff;box-shadow:none;font-weight:800;
 }
 .f4-cash-calendar-footer {
   display:flex;justify-content:space-between;gap:8px;
@@ -175,7 +175,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 }
 .f4-cash-calendar-footer button {
   min-height:33px;padding:7px 11px;border-radius:9px;
-  background:#f2efff;color:#5b49c2;font-size:12px;font-weight:750;
+  background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary-ink,#3730a3);font-size:12px;font-weight:750;
 }
 .f4-cash-calendar-footer button:last-child {background:#fff;border:1px solid #e1def1}
 .f4-cash-calendar-footer button:hover {background:#e6e0ff}
@@ -291,7 +291,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
     display:flex;align-items:center;justify-content:center;gap:9px;
     min-width:0;min-height:45px;padding:10px 12px;
     border:1px solid #dfddf5;border-radius:12px;
-    background:#f2efff;color:#5745c5;
+    background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5);
     font-size:13px;font-weight:800;line-height:1.2;
     cursor:pointer;
   }
@@ -366,7 +366,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-resident-card-heading {display:flex;align-items:center;gap:10px;flex:none}
 #keuangan .f4-resident-card-icon {
   flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
-  color:#5e51df;background:#f0eeff;
+  color:var(--f4-portal-primary,#4f46e5);background:var(--f4-portal-soft,#eef2ff);
 }
 #keuangan .f4-resident-card-heading h3,
 #keuangan .f4-resident-status-heading h3 {
@@ -399,7 +399,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-resident-status-heading {
   display:flex;flex:none;align-items:center;justify-content:space-between;
   gap:10px;padding:10px 13px;color:#fff;
-  background:linear-gradient(115deg,#5132c7 0%,#6750ec 100%);
+  background:linear-gradient(115deg,#4338ca 0%,#4f46e5 100%);
 }
 #keuangan .f4-resident-status-heading h3 {
   margin:2px 0 0;color:#fff;font-size:14px;font-weight:800;line-height:1.3;
@@ -555,7 +555,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-resident-mobile-actions button.f4-resident-sheet-opener {
     display:flex;align-items:center;justify-content:space-between;gap:5px;
     min-width:0;min-height:48px;padding:10px 9px;background:#f7f7fe;
-    border:1px solid #e2defa;border-radius:10px;color:#5346bf;
+    border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:10px;color:var(--f4-portal-primary-ink,#3730a3);
     font-size:11px;font-weight:800;text-align:left;
   }
   #keuangan .f4-resident-sheet-opener svg {flex:none;width:17px;height:17px}
