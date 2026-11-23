@@ -2463,6 +2463,14 @@ let bankAdminDocsLastRefresh=0;
 let bankAdminDocsRefreshPromise=null;
 function showAdminDocumentation(which="albums"){
  const page=ensureScreen("bank-admin-docs","Dokumentasi");
+ // Same heading markup as the member Dokumentasi screen.
+ page.querySelector(":scope > .f4-bank-screen-title")?.remove();
+ if(!page.querySelector(":scope > .f4-member-feature-header")){
+  const header=el("header","f4-member-feature-header");
+  const title=el("div","");
+  title.append(el("h2","","Dokumentasi"));
+  header.append(title);page.prepend(header);
+ }
  let tabs=$("f4BankAdminDocsTabs");
  if(!tabs){
   tabs=el("div","f4-bank-admin-history-tabs");tabs.id="f4BankAdminDocsTabs";
