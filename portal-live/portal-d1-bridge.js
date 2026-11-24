@@ -26,6 +26,23 @@
   const match=String(s||'').match(/^(\d{4})-(\d\d)-(\d\d)/);
   return match?match[3]+'/'+match[2]+'/'+match[1]:String(s||'');
  };
+ // Day 01 is the monthly placeholder, not the date of the gathering.
+ // A partial first week beginning on Thursday, Friday or Saturday does not count.
+ function defaultArisanDate(month){
+  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(month))return '';
+  const first=new Date(month+'-01T00:00:00Z');
+  const weekday=first.getUTCDay();
+  const day=1+(6-weekday+7)%7+7+(weekday>=4?7:0);
+  return month+'-'+String(day).padStart(2,'0');
+ }
+ function resolveArisanDate(period,manual){
+  const value=String(period||'').slice(0,10);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return '';
+  if(!value.endsWith('-01'))return value;
+  const month=value.slice(0,7),explicit=String(manual?.starts_on||'').slice(0,10);
+  if(explicit.startsWith(month+'-')&&/^\d{4}-\d{2}-(0[2-9]|[12]\d|3[01])$/.test(explicit))return explicit;
+  return defaultArisanDate(month);
+ }
  const csv=rows=>rows.map(row=>row.map(esc).join(',')).join('\r\n')+'\r\n';
  async function portalData(){
   if(stored&&Date.now()<until)return stored;
@@ -55,9 +72,9 @@
     return csv([['Nama Barang','Jumlah / Satuan','Kondisi','URL Gambar'],
       ...(data.inventory||[]).map(x=>[x.name,[x.quantity,x.unit].filter(v=>v!==null&&v!==undefined&&v!=='').join(' '),x.condition||x.description,x.photo_ref])]);
    case 'agenda': {
-    // Jadwal Arisan adalah acuan tanggal untuk kalender publik.
-    // Rencana Kegiatan bertema arisan yang sudah dibuat manual digabung,
-    // sehingga tidak muncul dua acara atau tanggal lama dalam bulan yang sama.
+    // Jadwal Arisan stores the month and any explicit confirmed date.
+    // Resolve monthly placeholders with the agreed Saturday rule. Merge a
+    // manually scheduled gathering for the same month rather than duplicate it.
     const agenda=Array.isArray(data.agenda)?data.agenda:[];
     const arisan=(Array.isArray(data.arisan)?data.arisan:[])
       .filter(x=>/^20\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(String(x.period_on||'')));
@@ -73,7 +90,7 @@
         const host=String(x.host_name||'').trim();
         const desc=[host?'Tuan rumah: '+host:'',String(manual?.description||'').trim()].filter(Boolean).join(' • ');
         const status=/sudah|selesai|terlaksana/i.test(String(x.status||''))?'Selesai':String(manual?.status||'Direncanakan');
-        return [dmy(x.period_on),manual?.title||'Arisan Warga',desc,status,manual?.image_ref||''];
+        return [dmy(resolveArisanDate(x.period_on,manual)),manual?.title||'Arisan Warga',desc,status,manual?.image_ref||''];
       });
     return csv([['Tanggal','Judul','Deskripsi','Status','Foto'],
       ...others.map(x=>[dmy(x.starts_on),x.title,x.description,x.status||'Direncanakan',x.image_ref]),

@@ -2327,8 +2327,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const today = new Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
-      // Tanggal arisan berasal dari jadwal resmi D1 melalui data agenda,
-      // bukan perkiraan Sabtu kedua setiap bulan.
+      // Agenda bridge resolves monthly arisan placeholders to the agreed Saturday
+      // and preserves explicitly scheduled dates from D1.
 
       let gridHTML = '';
 
