@@ -5130,11 +5130,11 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
       const home=homeResult.value;
       f4PublicInsightHome=home;
       $('v17PublicMetrics').replaceChildren(
-        v17PublicStat(home.beratSetoranTercatat==null?'Berat setoran disahkan':'Berat sampah disetor',
+        v17PublicStat('Berat Setoran',
           kg(home.beratSetoranTercatat??home.beratTerkonfirmasi)),
-        v17PublicStat(home.jumlahSetoranTercatat==null?'Setoran disahkan':'Setoran tercatat',
+        v17PublicStat('Total Setoran',
           home.jumlahSetoranTercatat??home.jumlahSetoranTerkonfirmasi),
-        v17PublicStat('Anggota aktif',home.anggotaAktif)
+        v17PublicStat('Anggota Aktif',home.anggotaAktif)
       );
       v17RenderPublicWaste(home.barangDiterima);
       v25RenderTimeline(home.progres||[]);
