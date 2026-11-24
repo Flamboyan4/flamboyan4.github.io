@@ -3749,14 +3749,18 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy > span,.f4-bank-price-shortcut-copy small){
   display:none
  }
- #dashboardView #f4MemberQuickActions #f4BankWeighingSchedule .f4-bank-weigh-icon{display:none}
- #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy{gap:6px}
+ #dashboardView #f4MemberQuickActions>#f4BankWeighingSchedule{gap:4px;padding-block:6px}
+ #dashboardView #f4MemberQuickActions #f4BankWeighingSchedule .f4-bank-weigh-icon{
+  display:grid;flex:0 0 30px;width:30px;height:30px;border-radius:9px
+ }
+ #dashboardView #f4MemberQuickActions #f4BankWeighingSchedule .f4-bank-weigh-icon svg{width:19px;height:19px}
+ #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy{gap:3px}
  #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > strong{
   display:grid;justify-items:center;gap:5px;width:100%;min-width:0
  }
  #dashboardView #f4MemberQuickActions .f4-bank-weigh-desktop-date{display:none}
  #dashboardView #f4MemberQuickActions .f4-bank-weigh-countdown{
-  display:block;color:var(--f4-bank-primary,#087c6c);font-size:clamp(18px,5.2vw,23px);
+  display:block;color:var(--f4-bank-primary,#087c6c);font-size:clamp(16px,4.8vw,21px);
   font-weight:850;line-height:1.15;white-space:normal;font-variant-numeric:tabular-nums
  }
  #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-label{
