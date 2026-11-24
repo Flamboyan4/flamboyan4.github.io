@@ -886,6 +886,9 @@ function salinLinkAgenda(url) {
       }, { passive: true });
 
       card.addEventListener('touchend', function(e) {
+        // On mobile, native horizontal swipe switches the overview card.
+        // Month navigation remains available through its own arrow buttons.
+        if(window.matchMedia('(max-width:767px)').matches)return;
         touchEndX = e.changedTouches[0].screenX;
         touchEndY = e.changedTouches[0].screenY;
         const diffX = touchEndX - touchStartX;
@@ -918,7 +921,33 @@ function salinLinkAgenda(url) {
       });
     }
 
+    function initHomeSummarySlides(){
+      const mobile=window.matchMedia('(max-width:767px)');
+      for(const [id,labels] of [['f4-cash-summary-slides',['Saldo kas','Kas masuk','Kas keluar']],['f4-arisan-slides',['Arisan bulan ini','Tuan rumah berikutnya']]]){
+        const track=document.getElementById(id),nav=document.querySelector('[data-slide-nav="'+id+'"]');
+        if(!track||!nav)continue;
+        const cards=[...track.children];
+        const dots=cards.map((card,index)=>{
+          const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',labels[index]||('Kartu '+(index+1)));
+          b.addEventListener('click',()=>{track.scrollTo({left:card.getBoundingClientRect().left-track.getBoundingClientRect().left+track.scrollLeft,behavior:'smooth'});});
+          return b;
+        });
+        nav.replaceChildren(...dots);
+        const update=()=>{
+          if(!mobile.matches||!track.clientWidth)return;
+          const left=track.getBoundingClientRect().left;
+          let index=0;
+          for(let i=1;i<cards.length;i++)if(Math.abs(cards[i].getBoundingClientRect().left-left)<Math.abs(cards[index].getBoundingClientRect().left-left))index=i;
+          dots.forEach((dot,i)=>dot.setAttribute('aria-current',String(i===index)));
+        };
+        track.addEventListener('scroll',update,{passive:true});
+        window.addEventListener('resize',update,{passive:true});
+        if(typeof ResizeObserver==='function')new ResizeObserver(update).observe(track);
+        dots[0]?.setAttribute('aria-current','true');update();
+      }
+    }
     document.addEventListener('DOMContentLoaded', () => {
+      initHomeSummarySlides();
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
       listenKomentarFirebase();

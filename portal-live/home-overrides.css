@@ -71,6 +71,18 @@
 #slider-projek>#f4-project-empty[hidden]{display:none}
 
 
+/* Mobile home carousels: native swipe, no visible scrollbar. */
+.f4-home-slide-nav{display:none}
+@media(max-width:767px){
+ #arisan #f4-arisan-slides{display:flex;gap:10px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+ #f4-arisan-slides::-webkit-scrollbar{display:none}
+ #arisan #f4-arisan-slides>div{box-sizing:border-box;flex:0 0 100%;width:100%;max-width:100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;transform:none;touch-action:auto}
+ .f4-home-slide-nav{display:flex;align-items:center;justify-content:center;gap:2px;height:16px;margin-top:5px}
+ .f4-home-slide-nav button{display:grid;place-items:center;width:21px;height:16px;padding:0;border:0;background:transparent;cursor:pointer}
+ .f4-home-slide-nav button::before{content:"";display:block;width:6px;height:6px;border-radius:9px;background:#c7cde0}
+ .f4-home-slide-nav button[aria-current="true"]::before{width:15px;background:var(--f4-portal-primary,#4f46e5)}
+ .f4-home-slide-nav button:focus-visible{outline:2px solid var(--f4-portal-primary,#4f46e5);outline-offset:0;border-radius:4px}
+}
 /* Portal home: agenda cards and mobile calendar/compose disclosure. */
 .f4-home-mobile-action,#f4-upcoming-agenda,#f4-agenda-pagination{display:none}
 .f4-agenda-row{box-sizing:border-box;display:grid;gap:6px;width:100%;min-width:0;text-align:left;padding:11px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;color:#26334b;cursor:pointer}

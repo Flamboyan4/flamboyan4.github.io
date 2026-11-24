@@ -46,11 +46,11 @@
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261123-unified-indigo-v2"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261123-unified-indigo-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-agenda-date-card-v5">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-arisan-slides-v6">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261123-portal-lightbox-grip-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261123-portal-lightbox-grip-v1"></script>
-<link rel="stylesheet" href="/portal-live/community-home.css?v=20261124-instagram-feed-v5">
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261124-edge-feed-v6">
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261123-unified-indigo-v2">
 <script defer src="/portal-live/native-controls.js?v=20261113-portal-v2"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
@@ -158,7 +158,7 @@
 
 
       <div class="f4-cash-overview">
-        <div class="f4-cash-summary">
+        <div id="f4-cash-summary-slides" class="f4-cash-summary" role="group" aria-label="Ringkasan saldo, pemasukan dan pengeluaran">
           <!-- Sisa Saldo Kas Utama -->
         <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-5 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
           <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -183,7 +183,7 @@
           </div>
         </div>
           <!-- Pemasukan Card -->
-        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
+        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Masuk</span>
@@ -211,7 +211,7 @@
           </div>
         </div>
           <!-- Pengeluaran Card -->
-        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between touch-pan-y focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
+        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Keluar</span>
@@ -239,6 +239,7 @@
           </div>
         </div>
         </div>
+        <div class="f4-home-slide-nav" data-slide-nav="f4-cash-summary-slides" role="group" aria-label="Pilih ringkasan kas"></div>
 
       <div class="f4-cash-mobile-actions" role="group" aria-label="Laporan Kas Warga">
         <button type="button" class="f4-cash-mobile-detail" onclick="openModalKeuangan()">
@@ -306,7 +307,7 @@
         <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
       </div>
 
-      <div class="grid f4-grid w-full" data-cols="2">
+      <div id="f4-arisan-slides" class="grid f4-grid w-full" data-cols="2" role="group" aria-label="Arisan bulan ini dan berikutnya">
         <div onclick="openModalArisan('current')" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
@@ -335,6 +336,7 @@
           </div>
         </div>
       </div>
+      <div class="f4-home-slide-nav" data-slide-nav="f4-arisan-slides" role="group" aria-label="Pilih jadwal arisan"></div>
     </section>
 
     <!-- SECTION 3: SLIDER PROJEK WARGA -->
@@ -1026,7 +1028,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261124-agenda-date-card-v6"></script>
+  <script src="/portal-live/home-legacy.js?v=20261124-home-slides-v7"></script>
 <script defer src="/portal-live/payment-footer.js?v=20261117-desktop-inline-v2"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1048,7 +1050,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=20261123-finance-theme-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261123-personal-finance-indigo-v3"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
+</script><script src="/portal-live/portal-panels.js?v=20261123-finance-theme-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261124-mobile-cash-slides-v4"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261117-touch-guard-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');
