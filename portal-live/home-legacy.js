@@ -2191,21 +2191,40 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
     function f4UpdateAgendaPagination(){
       const count=f4AgendaPreview.querySelectorAll('button').length;
-      f4AgendaPagination.textContent=count>1?(f4AgendaCurrentIndex()+1)+' / '+count:'';
+      if(count<=1){f4AgendaPagination.replaceChildren();return;}
+      const index=f4AgendaCurrentIndex(),progress=document.createElement('span');
+      progress.className='f4-agenda-page-track';progress.setAttribute('aria-hidden','true');
+      const thumb=document.createElement('span');thumb.className='f4-agenda-page-thumb';
+      const width=Math.max(15,100/count);
+      thumb.style.width=width+'%';
+      thumb.style.left=((100-width)*index/(count-1))+'%';
+      progress.append(thumb);
+      const label=document.createElement('span');label.className='f4-agenda-page-count';label.textContent=(index+1)+' / '+count;
+      f4AgendaPagination.replaceChildren(progress,label);
     }
     f4AgendaPreview.addEventListener('scroll',f4UpdateAgendaPagination,{passive:true});
     window.addEventListener('resize',f4UpdateAgendaPagination,{passive:true});
     function f4AgendaPreviewCard(item){
-      const card=f4AgendaRow(item,true);
+      const card=document.createElement('button');card.type='button';card.className='f4-agenda-preview-card';
       card.dataset.agendaKey=f4AgendaKey(item);
+      card.dataset.kind=item.isBank?'bank':item.isGorol?'gorol':'community';
       card.setAttribute('aria-controls','calendar-wrapper');
       card.setAttribute('aria-expanded','false');
-      const arrow=document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
+      const make=(className,value)=>{const node=document.createElement('span');node.className=className;if(value!==undefined)node.textContent=value;return node;};
+      const date=f4ScheduleDate(item.parsedDate);
+      const format=options=>date?new Intl.DateTimeFormat('id-ID',{...options,timeZone:'UTC'}).format(date):'';
+      const tile=make('f4-agenda-date-tile');
+      tile.append(make('f4-agenda-tile-month',format({month:'short'})),make('f4-agenda-tile-day',date?String(date.getUTCDate()).padStart(2,'0'):'—'),make('f4-agenda-tile-year',format({year:'numeric'})));
+      const copy=make('f4-agenda-preview-copy');
+      const category=item.isBank?'Bank Sampah':item.isGorol?'Kerja Bakti':/arisan/i.test(item.judul||'')?'Arisan':'Kegiatan warga';
+      copy.append(make('f4-agenda-preview-category',category),make('f4-agenda-preview-title',item.judul),make('f4-agenda-preview-weekday',format({weekday:'long',day:'numeric',month:'long'})));
+      const arrow=make('f4-agenda-chevron');arrow.setAttribute('aria-hidden','true');
       arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
-      card.append(arrow);
+      card.append(tile,copy,arrow);
+      card.addEventListener('click',()=>f4ToggleAgendaCalendar(item));
       return card;
     }
-    function f4AgendaRow(item,preview=false){
+    function f4AgendaRow(item){
       const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
       const header=document.createElement('span');header.className='f4-agenda-row-top';
       const date=document.createElement('span');date.className='f4-agenda-date';date.textContent=item.tanggalStr;
@@ -2218,7 +2237,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       header.append(date,badge);
       const title=document.createElement('span');title.className='f4-agenda-title';title.textContent=item.judul;
       button.append(header,title);
-      button.addEventListener('click',()=>preview?f4ToggleAgendaCalendar(item):openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
+      button.addEventListener('click',()=>openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
       return button;
     }
     // Bank Sampah uses the exact same published D1 schedule as its own portal.
@@ -2299,9 +2318,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       f4AgendaSignature=signature;
       const cards=next.map(f4AgendaPreviewCard);
       if(!cards.length){
-        const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
+        const button=document.createElement('button');button.type='button';button.className='f4-agenda-preview-card is-empty';
         button.dataset.agendaKey='';button.setAttribute('aria-controls','calendar-wrapper');
-        const title=document.createElement('span');title.className='f4-agenda-title';title.textContent='Belum ada agenda mendatang';
+        const title=document.createElement('span');title.className='f4-agenda-preview-title';title.textContent='Belum ada agenda mendatang';
         const arrow=document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
         arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
         button.append(title,arrow);button.addEventListener('click',()=>f4ToggleAgendaCalendar(null));cards.push(button);
