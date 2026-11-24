@@ -46,11 +46,11 @@
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261123-unified-indigo-v2"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261123-unified-indigo-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261112-mobile-cash-clean-v1">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-mobile-agenda-chat-v2">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261123-portal-lightbox-grip-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261123-portal-lightbox-grip-v1"></script>
-<link rel="stylesheet" href="/portal-live/community-home.css?v=20261123-gallery-no-scrollbar-v3">
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261124-six-story-grid-v4">
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261123-unified-indigo-v2">
 <script defer src="/portal-live/native-controls.js?v=20261113-portal-v2"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
@@ -498,13 +498,18 @@
     </section>
 
     <!-- SECTION 5: KALENDER KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20 w-full space-y-6">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
+    <section id="rencana" class="scroll-mt-20 w-full space-y-6" data-calendar-open="false">
+      <div class="f4-calendar-heading flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
+        </div>
+        <button id="f4-calendar-toggle" class="f4-home-mobile-action" type="button" aria-expanded="false" aria-controls="calendar-wrapper">
+          <span>Lihat kalender</span><i data-lucide="chevron-down" aria-hidden="true"></i>
+        </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y h-full">
           <div class="flex items-center justify-between mb-4">
             <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
@@ -539,12 +544,13 @@
           <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
         </div>
 
-        <div class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
+        <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
           <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
             <span>Agenda Berikutnya</span>
           </h4>
 
+          <div id="f4-upcoming-agenda" aria-live="polite"><p class="text-slate-400 text-xs">Memuat agenda terdekat...</p></div>
           <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
             <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
           </div>
@@ -553,22 +559,27 @@
     </section>
 
     <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
-    <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4">
+    <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4" data-compose-open="false">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan Warga</h3>
         </div>
-        <!-- BADGE STATUS LIVE -->
-        <div class="flex items-center space-x-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
+        <!-- Status and mobile compose action -->
+        <div class="f4-chat-actions flex items-center gap-2">
+          <div class="f4-chat-online flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
+          </div>
+          <button id="f4-chat-toggle" class="f4-home-mobile-action" type="button" aria-expanded="false" aria-controls="f4-chat-compose">
+            <i data-lucide="message-square-plus" aria-hidden="true"></i><span>Tulis pesan</span>
+          </button>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div class="f4-chat-layout bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- FORM KIRIM KOMENTAR -->
-        <div class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div id="f4-chat-compose" class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
             <i data-lucide="message-square-plus" class="w-4 h-4 text-indigo-600"></i>
             <span>Tulis Pesan</span>
@@ -642,7 +653,7 @@
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm"></div>
+      <div id="modal-event-body" class="p-5 space-y-3 text-xs md:text-sm overflow-y-auto max-h-[72dvh]"></div>
     </div>
   </div>
 
@@ -1013,7 +1024,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261123-project-photo-gallery-v1"></script>
+  <script src="/portal-live/home-legacy.js?v=20261124-mobile-agenda-chat-v2"></script>
 <script defer src="/portal-live/payment-footer.js?v=20261117-desktop-inline-v2"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1057,6 +1068,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 })();
 </script>
 <script src="/portal-live/home-accessibility.js?v=20261028-maintenance"></script>
-<script defer src="/portal-live/community-home.js?v=20261123-nine-albums-101-v2"></script>
+<script defer src="/portal-live/community-home.js?v=20261124-six-stories-v3"></script>
 </body>
 </html>

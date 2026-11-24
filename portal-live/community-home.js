@@ -66,7 +66,14 @@ function render(){
   // Terbaru: satu per album. Populer: foto dari album sama boleh bersaing.
   const key=mode==='populer'?photo?.id:photo?.albumId;
   if(!photo?.url||!photo?.albumId||!key||seen.has(key))continue;
-  seen.add(key);unique.push(photo);if(unique.length>=3)break;
+  seen.add(key);unique.push(photo);if(unique.length>=6)break;
+ }
+ // If fewer than six albums are available, fill with distinct photos, never duplicates.
+ const photoIds=new Set(unique.map(photo=>photo.id));
+ for(const photo of candidates){
+  if(unique.length>=6)break;
+  if(!photo?.url||!photo?.albumId||!photo?.id||photoIds.has(photo.id))continue;
+  photoIds.add(photo.id);unique.push(photo);
  }
  grid.replaceChildren(...(unique.length?unique.map(card):[empty()]));
  section.hidden=false;

@@ -329,6 +329,21 @@
         if(container)container.textContent='Riwayat Firebase tidak dapat dibaca: '+(error?.message||'Periksa izin baca Firebase dan jaringan');
       });
     }
+    function f4SetChatCompose(open,focus=false){
+      const section=document.getElementById('komentar-warga'),button=document.getElementById('f4-chat-toggle');
+      if(!section||!button)return;
+      section.dataset.composeOpen=String(open);
+      button.setAttribute('aria-expanded',String(open));
+      button.querySelector('span').textContent=open?'Tutup':'Tulis pesan';
+      if(focus&&open){
+        const name=document.getElementById('komentar-nama');
+        (name?.value.trim()?document.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
+      }
+    }
+    document.getElementById('f4-chat-toggle')?.addEventListener('click',()=>{
+      const open=document.getElementById('komentar-warga').dataset.composeOpen!=='true';
+      f4SetChatCompose(open,true);
+    });
     let f4LastChatAt=0;
     async function tambahKomentarWarga(e){
       e.preventDefault();
@@ -354,6 +369,7 @@
         await dbRef.push({nama,pesan,waktu,timestamp:firebase.database.ServerValue.TIMESTAMP});
         f4LastChatAt=Date.now();
         document.getElementById('komentar-pesan').value='';
+        f4SetChatCompose(false);
         // Realtime listener updates the visible chat; no D1 write or page reset.
       }catch(error){alert('Gagal mengirim pesan ke Firebase: '+error.message)}
       finally{
@@ -433,11 +449,12 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     function openModalSaran() { openModal('modal-saran'); }
 
    function openModalEventDetail(dateStr, eventItems, dateIso) {
+  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
   
   // Gunakan Query Parameter ?event= agar aman dibuka dari WhatsApp/Browser
   const baseUrl = window.location.origin + window.location.pathname;
-  const shareUrl = dateIso ? `${baseUrl}?event=${dateIso}` : baseUrl;
+  const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `${baseUrl}?event=${dateIso}` : baseUrl;
 
   let html = `
     <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
@@ -467,9 +484,9 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     html += `
       <div class="p-3 rounded-xl border ${badgeBg} space-y-1 mb-2">
         <span class="font-extrabold text-[10px] uppercase tracking-wider block">${typeLabel}</span>
-        <h5 class="font-bold text-sm text-slate-800">${item.judul}</h5>
-        <p class="text-slate-600 text-xs">${item.deskripsi || 'Tidak ada catatan tambahan.'}</p>
-        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${item.status}</span>
+        <h5 class="font-bold text-sm text-slate-800">${escape(item.judul)}</h5>
+        <p class="text-slate-600 text-xs">${escape(item.deskripsi || 'Tidak ada catatan tambahan.')}</p>
+        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${escape(item.status)}</span>
       </div>
     `;
   });
@@ -2136,6 +2153,38 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
     loadInventarisWarga();
 
+    // Mobile calendar and upcoming preview use the same official agenda records.
+    const f4CalendarToggle=document.getElementById('f4-calendar-toggle');
+    f4CalendarToggle?.addEventListener('click',()=>{
+      const section=document.getElementById('rencana');
+      const open=section.dataset.calendarOpen!=='true';
+      section.dataset.calendarOpen=String(open);
+      f4CalendarToggle.setAttribute('aria-expanded',String(open));
+      f4CalendarToggle.querySelector('span').textContent=open?'Tutup kalender':'Lihat kalender';
+    });
+    function f4AgendaRow(item){
+      const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
+      const header=document.createElement('span');header.className='f4-agenda-row-top';
+      const date=document.createElement('span');date.className='f4-agenda-date';date.textContent=item.tanggalStr;
+      const badge=document.createElement('span');badge.className='f4-agenda-status';
+      const status=String(item.status||'').toLowerCase();
+      if(/progress|rancang|jalan/.test(status)){badge.classList.add('is-progress');badge.textContent='On Progress'}
+      else if(/selesai/.test(status)){badge.classList.add('is-done');badge.textContent='Selesai'}
+      else{badge.textContent='Direncanakan'}
+      header.append(date,badge);
+      const title=document.createElement('strong');title.textContent=item.judul;
+      button.append(header,title);
+      button.addEventListener('click',()=>openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
+      return button;
+    }
+    function f4RenderAgenda(displayData,todayKey){
+      const list=document.getElementById('container-rencana'),preview=document.getElementById('f4-upcoming-agenda');
+      const empty=text=>{const p=document.createElement('p');p.className='text-slate-500 text-xs';p.textContent=text;return p};
+      list.replaceChildren(...(displayData.length?displayData.map(f4AgendaRow):[empty('Belum ada agenda.')]));
+      const next=globalRencanaData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
+       .sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate)).slice(0,3);
+      preview.replaceChildren(...(next.length?next.map(f4AgendaRow):[empty('Belum ada agenda mendatang.')]));
+    }
     // FUNGSI RENDER KALENDER TERBARU
     function renderCalendar() {
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -2368,30 +2417,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           selesaiList.sort(latestFirst);
           const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
 
-          let rencanaHTML = '';
-          displayData.forEach(item => {
-            let statusBadge = `<span class="bg-blue-100 text-blue-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Direncanakan</span>`;
-            if (item.status.toLowerCase().includes('progress') || item.status.toLowerCase().includes('rancang') || item.status.toLowerCase().includes('jalan')) {
-              statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">On Progress</span>`;
-            } else if (item.status.toLowerCase().includes('selesai')) {
-              statusBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap">Selesai</span>`;
-            }
-
-            const gorolTag = item.isGorol ? `<span class="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded mr-1">🧹 Gorol</span>` : '';
-
-            rencanaHTML += `
-              <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-col justify-between gap-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-indigo-600">${item.tanggalStr}</span>
-                  ${statusBadge}
-                </div>
-                <h5 class="font-bold text-slate-800 text-xs md:text-sm mt-0.5">${gorolTag}${item.judul}</h5>
-                <p class="text-slate-500 text-[11px]">${item.deskripsi}</p>
-              </div>
-            `;
-          });
-
-          document.getElementById('container-rencana').innerHTML = rencanaHTML || '<p class="text-slate-400 text-xs">Belum ada agenda.</p>';
+          f4RenderAgenda(displayData,todayKey);
           renderCalendar();
           // Deteksi Otomatis parameter ?event=YYYY-MM-DD saat link dibuka dari WhatsApp
           const urlParams = new URLSearchParams(window.location.search);
@@ -2425,10 +2451,14 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             const retry=document.createElement('button');retry.textContent='Coba Lagi';retry.type='button';retry.onclick=()=>location.reload();
             area.append(msg,retry);
           }
+          const preview=document.getElementById('f4-upcoming-agenda');
+          if(preview)preview.textContent='Agenda gagal dimuat. Muat ulang halaman.';
           renderCalendar();
         }
       });
     } else {
+      const preview=document.getElementById('f4-upcoming-agenda');
+      if(preview)preview.textContent='Agenda belum tersedia.';
       const area=document.getElementById('container-rencana');
       if(area)area.textContent='Agenda belum tersedia.';
       renderCalendar();
