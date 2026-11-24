@@ -162,13 +162,13 @@
           <!-- Sisa Saldo Kas Utama -->
         <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-5 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
           <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-          <div class="flex items-center justify-between mb-1">
+          <div class="f4-cash-card-heading flex items-center justify-between mb-1">
             <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
             <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
           </div>
-          <p id="sisa-saldo" class="text-2xl md:text-3xl font-black tracking-tight text-white mt-1">—</p>
+          <p id="sisa-saldo" class="f4-cash-card-value text-2xl md:text-3xl font-black tracking-tight text-white mt-1">—</p>
 
-          <div class="mt-2 pt-2 border-t border-white/15 flex items-center gap-2">
+          <div class="f4-cash-card-footer mt-2 pt-2 border-t border-white/15 flex items-center gap-2">
             <button onclick="changeMonthSaldo(-1)" class="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-indigo-100 transition shrink-0" title="Bulan Sebelumnya">
               <i data-lucide="chevron-left" class="w-3 h-3"></i>
             </button>
@@ -184,8 +184,8 @@
         </div>
           <!-- Pemasukan Card -->
         <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
-          <div>
-            <div class="flex items-center justify-between mb-2">
+          <div class="f4-cash-card-main">
+            <div class="f4-cash-card-heading flex items-center justify-between mb-2">
               <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Masuk</span>
               <div class="flex items-center space-x-1">
                 <button onclick="changeMonthPemasukan(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
@@ -197,7 +197,7 @@
               </div>
             </div>
             
-            <div onclick="openModalKeuanganFiltered('pemasukan')" class="cursor-pointer group">
+            <div onclick="openModalKeuanganFiltered('pemasukan')" class="f4-cash-card-value cursor-pointer group">
               <div class="flex items-center justify-between">
                 <p id="pemasukan-bulan-ini" class="text-xl md:text-2xl font-bold text-emerald-600">—</p>
                 <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600 transition"></i>
@@ -205,15 +205,15 @@
             </div>
           </div>
 
-          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+          <div class="f4-cash-card-footer mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Total:</span>
             <span id="total-pemasukan-all" class="font-bold text-slate-700">—</span>
           </div>
         </div>
           <!-- Pengeluaran Card -->
         <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
-          <div>
-            <div class="flex items-center justify-between mb-2">
+          <div class="f4-cash-card-main">
+            <div class="f4-cash-card-heading flex items-center justify-between mb-2">
               <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Keluar</span>
               <div class="flex items-center space-x-1">
                 <button onclick="changeMonthPengeluaran(-1)" class="p-1 hover:bg-slate-100 rounded text-slate-500 transition" title="Bulan Sebelumnya">
@@ -225,7 +225,7 @@
               </div>
             </div>
             
-            <div onclick="openModalKeuanganFiltered('pengeluaran')" class="cursor-pointer group">
+            <div onclick="openModalKeuanganFiltered('pengeluaran')" class="f4-cash-card-value cursor-pointer group">
               <div class="flex items-center justify-between">
                 <p id="pengeluaran-bulan-ini" class="text-xl md:text-2xl font-bold text-rose-600">—</p>
                 <i data-lucide="external-link" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-600 transition"></i>
@@ -233,7 +233,7 @@
             </div>
           </div>
 
-          <div class="mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
+          <div class="f4-cash-card-footer mt-4 pt-2 border-t border-slate-100 flex justify-between items-center text-xs">
             <span class="text-slate-400">Total:</span>
             <span id="total-pengeluaran-all" class="font-bold text-slate-700">—</span>
           </div>
@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=20261123-finance-theme-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261124-equal-cash-amounts-v6"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261124-slide-in-notifications-v6"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
+</script><script src="/portal-live/portal-panels.js?v=20261123-finance-theme-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261124-compact-cash-v7"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261124-slide-in-notifications-v6"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');
