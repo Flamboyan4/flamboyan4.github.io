@@ -11,7 +11,7 @@ const fields=[
 ];
 let panel=null,busy=false,loaded=false,serial=0;
 const isMember=()=>document.body.classList.contains('f4-bank-app-member');
-const target=()=>document.querySelector('#bank-member-info #v17Transparansi');
+const target=()=>document.querySelector('#bank-member-info > .f4-member-feature-content:has(> #v17Transparansi)');
 function reset(){
   if(panel){panel.remove();panel=null;}
   busy=false;loaded=false;serial++;
@@ -72,8 +72,7 @@ function mount(){
     hero.className='f4-bank-private-finance-hero';
     hero.append(title,grid);
     panel.append(hero,note);
-    const anchor=host.querySelector('#v25ReportRoot');
-    if(anchor)host.insertBefore(panel,anchor);else host.append(panel);
+    host.prepend(panel);
   }
   render();
 }
