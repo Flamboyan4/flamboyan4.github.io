@@ -966,8 +966,7 @@ function updateWeighingCard(){
   const label=String(next.label||"—");
   title.replaceChildren(
    el("span","f4-bank-weigh-desktop-date",label),
-   el("span","f4-bank-weigh-countdown",weighingCountdown(next.days)),
-   el("span","f4-bank-weigh-mobile-date",next.days==null?"Jadwal belum tersedia":label)
+   el("span","f4-bank-weigh-countdown",next.days==null?"Belum tersedia":weighingCountdown(next.days))
   );
  }
  const detail=card.querySelector(".f4-bank-weigh-copy > span:last-child");
