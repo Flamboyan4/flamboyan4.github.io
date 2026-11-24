@@ -473,7 +473,10 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     let badgeBg = 'bg-indigo-50 text-indigo-900 border-indigo-100';
     let typeLabel = '📌 KEGIATAN WARGA';
 
-    if (isGorol) {
+    if(item.isBank){
+      badgeBg='bg-emerald-50 text-emerald-900 border-emerald-200';
+      typeLabel='BANK SAMPAH';
+    } else if (isGorol) {
       badgeBg = 'bg-amber-100 text-amber-900 border-amber-200';
       typeLabel = '🧹 GOROL / KERJA BAKTI';
     } else if (isArisan) {
@@ -484,7 +487,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     html += `
       <div class="p-3 rounded-xl border ${badgeBg} space-y-1 mb-2">
         <span class="font-extrabold text-[10px] uppercase tracking-wider block">${typeLabel}</span>
-        <h5 class="font-bold text-sm text-slate-800">${escape(item.judul)}</h5>
+        <h5 class="font-medium text-sm text-slate-800">${escape(item.judul)}</h5>
         <p class="text-slate-600 text-xs">${escape(item.deskripsi || 'Tidak ada catatan tambahan.')}</p>
         <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-white border border-slate-200 mt-1">${escape(item.status)}</span>
       </div>
@@ -2171,17 +2174,84 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if(/progress|rancang|jalan/.test(status)){badge.classList.add('is-progress');badge.textContent='On Progress'}
       else if(/selesai/.test(status)){badge.classList.add('is-done');badge.textContent='Selesai'}
       else{badge.textContent='Direncanakan'}
+      if(item.isBank){badge.classList.add('is-bank');badge.textContent='Bank Sampah';}
       header.append(date,badge);
-      const title=document.createElement('strong');title.textContent=item.judul;
+      const title=document.createElement('span');title.className='f4-agenda-title';title.textContent=item.judul;
       button.append(header,title);
       button.addEventListener('click',()=>openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
       return button;
     }
+    // Bank Sampah uses the exact same published D1 schedule as its own portal.
+    let f4BaseAgenda=[],f4BankAgenda=[],f4AgendaReady=false,f4BankAgendaBusy=false,f4BankAgendaCheckedAt=0;
+    const f4AgendaToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).reduce((parts,p)=>{parts[p.type]=p.value;return parts;},{}); 
+    function f4AgendaTodayKey(){const p=f4AgendaToday();return p.year+'-'+p.month+'-'+p.day;}
+    function f4ScheduleDate(value){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return null;
+      const date=new Date(value+'T00:00:00Z');
+      return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
+    }
+    function f4BankScheduleRows(rule){
+      const first=f4ScheduleDate(rule?.nextOccurrence);
+      if(!rule?.ok||!first)return [];
+      const rows=[],limit=new Date(first);
+      limit.setUTCMonth(limit.getUTCMonth()+6);
+      const frequency=rule.frequency,day=Number(rule.dayOfMonth);
+      const format=new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'});
+      for(let i=0;i<28;i++){
+        let date=new Date(first);
+        if(i){
+          if(frequency==='weekly'||frequency==='biweekly')date.setUTCDate(date.getUTCDate()+i*(frequency==='weekly'?7:14));
+          else if(frequency==='monthly'&&Number.isInteger(day)&&day>=1&&day<=31){
+            const month=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+i,1));
+            const last=new Date(Date.UTC(month.getUTCFullYear(),month.getUTCMonth()+1,0)).getUTCDate();
+            date=new Date(Date.UTC(month.getUTCFullYear(),month.getUTCMonth(),Math.min(day,last)));
+          }else break;
+        }
+        if(date>=limit)break;
+        const iso=date.toISOString().slice(0,10);
+        const place=String(rule.lokasi||rule.location||'').trim();
+        rows.push({tanggalStr:format.format(date),parsedDate:iso,judul:'Penimbangan Bank Sampah',deskripsi:'Jadwal penimbangan rutin dari Portal Bank Sampah.'+(place?' Lokasi: '+place:''),status:'Direncanakan',isBank:true,isGorol:false,source:'bank-weighing'});
+      }
+      return rows;
+    }
+    function f4UpdateUnifiedAgenda(){
+      const today=f4AgendaTodayKey();
+      const isBank=item=>item.isBank||/penimbangan.*(?:bank\s*sampah|sampah)|bank\s*sampah.*penimbangan/i.test(item.judul||'');
+      const base=f4BaseAgenda.map(item=>isBank(item)?{...item,isBank:true}:item);
+      const manualDates=new Set(base.filter(isBank).map(item=>item.parsedDate));
+      globalRencanaData=[...base,...f4BankAgenda.filter(item=>!manualDates.has(item.parsedDate))];
+      // Show the next scheduled bank event once in the overview; all recurring
+      // dates are visible on the calendar and can be opened individually.
+      const bankNext=globalRencanaData.filter(x=>x.source==='bank-weighing'&&x.parsedDate>=today).sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate))[0];
+      const display=globalRencanaData.filter(x=>x.source!=='bank-weighing'||x===bankNext);
+      const group=x=>/selesai/i.test(x.status)?3:x.parsedDate>=today?0:/progress|rancang|jalan/i.test(x.status)?1:2;
+      display.sort((a,b)=>group(a)-group(b)||(group(a)===0?a.parsedDate.localeCompare(b.parsedDate):b.parsedDate.localeCompare(a.parsedDate)));
+      f4RenderAgenda(display,today);
+      renderCalendar();
+    }
+    async function f4RefreshBankAgenda(force=false){
+      if(f4BankAgendaBusy||(!force&&Date.now()-f4BankAgendaCheckedAt<60000))return;
+      f4BankAgendaBusy=true;
+      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+      try{
+        const response=await fetch('https://api.flamboyan4.web.id/api/public/bank/weighing-schedule',{cache:'no-store',signal:controller.signal});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        const rule=await response.json();
+        const rows=f4BankScheduleRows(rule);
+        if(!rows.length)throw Error('Jadwal penimbangan tidak valid');
+        f4BankAgenda=rows;f4BankAgendaCheckedAt=Date.now();
+        if(f4AgendaReady)f4UpdateUnifiedAgenda();
+      }catch(error){console.warn('Jadwal Bank Sampah belum tersedia:',error.message);}
+      finally{clearTimeout(timer);f4BankAgendaBusy=false;}
+    }
+    const f4InitialBankAgenda=f4RefreshBankAgenda(true);
+    window.addEventListener('focus',()=>{if(f4AgendaReady)f4RefreshBankAgenda();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&f4AgendaReady)f4RefreshBankAgenda();});
     function f4RenderAgenda(displayData,todayKey){
       const list=document.getElementById('container-rencana'),preview=document.getElementById('f4-upcoming-agenda');
       const empty=text=>{const p=document.createElement('p');p.className='text-slate-500 text-xs';p.textContent=text;return p};
       list.replaceChildren(...(displayData.length?displayData.map(f4AgendaRow):[empty('Belum ada agenda.')]));
-      const next=globalRencanaData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
+      const next=displayData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
        .sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate)).slice(0,3);
       preview.replaceChildren(...(next.length?next.map(f4AgendaRow):[empty('Belum ada agenda mendatang.')]));
     }
@@ -2222,6 +2292,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         let isGorol = false;
         let isArisan = false;
+        const isBank=dayEvents.some(e=>e.isBank);
         let hasEvent = dayEvents.length > 0;
 
         if (hasEvent) {
@@ -2245,6 +2316,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           if (isGorol) {
             badgeClass = "bg-amber-500 text-white font-bold";
             dayClass += " bg-amber-50 border-amber-300 hover:bg-amber-100";
+          } else if(isBank&&!isArisan){
+            badgeClass = "f4-calendar-bank-badge";
+            dayClass += " f4-calendar-bank-day";
           } else {
             badgeClass = "bg-indigo-600 text-white font-bold";
             dayClass += " bg-indigo-50 border-indigo-300 hover:bg-indigo-100";
@@ -2252,11 +2326,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         }
 
         const safeDateStr = `${day} ${monthNames[month]} ${year}`;
-       const clickAttr = hasEvent ? `onclick='openModalEventDetail("${safeDateStr}", ${JSON.stringify(dayEvents).replace(/'/g, "&apos;")}, "${dateKey}")'` : '';
+       const clickAttr = hasEvent ? `role="button" tabindex="0" data-agenda-date="${dateKey}" aria-label="${safeDateStr}, ${dayEvents.length} kegiatan"` : '';
         
         let badgeLabel = '📌 Acara';
         if (isArisan) badgeLabel = '🏠 Arisan';
         else if (isGorol) badgeLabel = '🧹 Gorol';
+        else if (isBank) badgeLabel = 'Bank Sampah';
+        if(dayEvents.length>1)badgeLabel += ' +' +(dayEvents.length-1);
 
         gridHTML += `
           <div class="${dayClass}" ${clickAttr}>
@@ -2282,8 +2358,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         `;
       }
 
-      document.getElementById('calendar-days-grid').innerHTML = gridHTML;
-      lucide.createIcons();
+      const grid=document.getElementById('calendar-days-grid');grid.innerHTML=gridHTML;
+      for(const cell of grid.querySelectorAll('[data-agenda-date]')){
+        const activate=()=>{const iso=cell.dataset.agendaDate;openModalEventDetail(new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(iso+'T00:00:00Z')),globalRencanaData.filter(x=>x.parsedDate===iso),iso);};
+        cell.addEventListener('click',activate);cell.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}});
+      }
+      window.lucide?.createIcons?.();
     }
 
     function changeMonth(direction) {
@@ -2332,13 +2412,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       Papa.parse(CSV_RENCANA_URL, {
         download: true,
         header: true,
-        complete: function(results) {
+        complete: async function(results) {
           const rawData = results.data.filter(row => {
             const values = Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
-          globalRencanaData = rawData.map(row => {
+          f4BaseAgenda = rawData.map(row => {
             const keys = Object.keys(row);
             const tanggalStr = row[keys[0]] || '';
             const judul = row[keys[1]] || '';
@@ -2378,47 +2458,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             };
           });
 
-          const onProgressList = [];
-          const direncanakanList = [];
-          const selesaiList = [];
-
-          globalRencanaData.forEach(item => {
-            const statusLcase = item.status.toLowerCase();
-            if (statusLcase.includes('progress') || statusLcase.includes('rancang') || statusLcase.includes('jalan')) {
-              onProgressList.push(item);
-            } else if (statusLcase.includes('selesai')) {
-              selesaiList.push(item);
-            } else {
-              direncanakanList.push(item);
-            }
-          });
-
-          // Agenda Berikutnya: kegiatan mendatang (termasuk seluruh jadwal
-          // Arisan dari D1) harus urut terdekat dahulu, bukan tahun terjauh.
-          // Status tetap: On Progress → Direncanakan → Selesai.
-          // Rencana yang sudah lewat diletakkan setelah jadwal mendatang.
-          const validAgendaDate=item=>{
-            const value=String(item.parsedDate||'');
-            return /^\d{4}-\d{2}-\d{2}$/.test(value)?value:'';
-          };
-          const latestFirst=(a,b)=>validAgendaDate(b).localeCompare(validAgendaDate(a));
-          const today=new Date();
-          const todayKey=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
-          const closestUpcoming=(a,b)=>{
-            const ad=validAgendaDate(a),bd=validAgendaDate(b);
-            const af=ad>=todayKey,bf=bd>=todayKey;
-            if(af!==bf)return af?-1:1;
-            // Jadwal mendatang: terdekat lebih dulu. Yang lewat: terbaru lebih dulu.
-            if(af)return ad.localeCompare(bd);
-            return bd.localeCompare(ad);
-          };
-          onProgressList.sort(latestFirst);
-          direncanakanList.sort(closestUpcoming);
-          selesaiList.sort(latestFirst);
-          const displayData = [...onProgressList, ...direncanakanList, ...selesaiList];
-
-          f4RenderAgenda(displayData,todayKey);
-          renderCalendar();
+          f4AgendaReady=true;
+          f4UpdateUnifiedAgenda();
+          await f4InitialBankAgenda;
+          f4UpdateUnifiedAgenda();
           // Deteksi Otomatis parameter ?event=YYYY-MM-DD saat link dibuka dari WhatsApp
           const urlParams = new URLSearchParams(window.location.search);
           const targetDateIso = urlParams.get('event');
@@ -2442,7 +2485,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             }
           }
         },
-        error:function(err){
+        error:async function(err){
+          f4AgendaReady=true;
+          await f4InitialBankAgenda;
+          if(f4BankAgenda.length){f4UpdateUnifiedAgenda();return;}
           const area=document.getElementById('container-rencana');
           if(area){
             area.replaceChildren();
@@ -2457,6 +2503,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         }
       });
     } else {
+      f4AgendaReady=true;
+      f4InitialBankAgenda.then(()=>{if(f4BankAgenda.length)f4UpdateUnifiedAgenda();});
       const preview=document.getElementById('f4-upcoming-agenda');
       if(preview)preview.textContent='Agenda belum tersedia.';
       const area=document.getElementById('container-rencana');
