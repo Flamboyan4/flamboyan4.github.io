@@ -46,7 +46,7 @@
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261123-unified-indigo-v2"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261123-unified-indigo-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-bank-agenda-sync-v3">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-agenda-swipe-v4">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261123-portal-lightbox-grip-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261123-portal-lightbox-grip-v1"></script>
@@ -504,10 +504,7 @@
           <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
           <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
         </div>
-        <button id="f4-calendar-toggle" class="f4-home-mobile-action" type="button" aria-expanded="false" aria-controls="calendar-wrapper">
-          <span>Lihat kalender</span><i data-lucide="chevron-down" aria-hidden="true"></i>
-        </button>
-      </div>
+       </div>
 
       <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y h-full">
@@ -549,12 +546,13 @@
         </div>
 
         <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
-          <h4 class="font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
+          <h4 class="f4-agenda-desktop-heading font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
             <span>Agenda Berikutnya</span>
           </h4>
 
-          <div id="f4-upcoming-agenda" aria-live="polite"><p class="text-slate-400 text-xs">Memuat agenda terdekat...</p></div>
+          <div id="f4-upcoming-agenda" role="region" aria-label="Geser untuk melihat agenda berikutnya"><p class="text-slate-400 text-xs">Memuat agenda terdekat...</p></div>
+          <div id="f4-agenda-pagination" aria-live="polite"></div>
           <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
             <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
           </div>
@@ -1028,7 +1026,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261124-bank-agenda-sync-v3"></script>
+  <script src="/portal-live/home-legacy.js?v=20261124-agenda-swipe-v4"></script>
 <script defer src="/portal-live/payment-footer.js?v=20261117-desktop-inline-v2"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{

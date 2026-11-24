@@ -2157,15 +2157,55 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     loadInventarisWarga();
 
     // Mobile calendar and upcoming preview use the same official agenda records.
-    const f4CalendarToggle=document.getElementById('f4-calendar-toggle');
-    f4CalendarToggle?.addEventListener('click',()=>{
-      const section=document.getElementById('rencana');
-      const open=section.dataset.calendarOpen!=='true';
+    const f4AgendaPreview=document.getElementById('f4-upcoming-agenda');
+    const f4AgendaPagination=document.getElementById('f4-agenda-pagination');
+    let f4OpenAgendaKey='',f4AgendaSignature=null;
+    function f4AgendaKey(item){return (item.parsedDate||'')+'|'+(item.judul||'');}
+    function f4SyncAgendaCards(){
+      const open=document.getElementById('rencana').dataset.calendarOpen==='true';
+      for(const card of f4AgendaPreview.querySelectorAll('button')){
+        const expanded=open&&card.dataset.agendaKey===f4OpenAgendaKey;
+        card.setAttribute('aria-expanded',String(expanded));
+        const arrow=card.querySelector('.f4-agenda-chevron');
+        if(arrow)arrow.setAttribute('data-expanded',String(expanded));
+      }
+    }
+    function f4ToggleAgendaCalendar(item){
+      const section=document.getElementById('rencana'),key=item?f4AgendaKey(item):'';
+      const open=section.dataset.calendarOpen!=='true'||f4OpenAgendaKey!==key;
+      f4OpenAgendaKey=open?key:'';
       section.dataset.calendarOpen=String(open);
-      f4CalendarToggle.setAttribute('aria-expanded',String(open));
-      f4CalendarToggle.querySelector('span').textContent=open?'Tutup kalender':'Lihat kalender';
-    });
-    function f4AgendaRow(item){
+      if(open&&item){
+        const date=f4ScheduleDate(item.parsedDate);
+        if(date)calendarDate=new Date(date.getUTCFullYear(),date.getUTCMonth(),1);
+        renderCalendar();
+      }
+      f4SyncAgendaCards();
+    }
+    function f4AgendaCurrentIndex(){
+      const cards=[...f4AgendaPreview.children].filter(x=>x.matches('button'));
+      if(!cards.length)return 0;
+      let index=0;
+      cards.forEach((card,i)=>{if(Math.abs(card.offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft)<Math.abs(cards[index].offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft))index=i;});
+      return index;
+    }
+    function f4UpdateAgendaPagination(){
+      const count=f4AgendaPreview.querySelectorAll('button').length;
+      f4AgendaPagination.textContent=count>1?(f4AgendaCurrentIndex()+1)+' / '+count:'';
+    }
+    f4AgendaPreview.addEventListener('scroll',f4UpdateAgendaPagination,{passive:true});
+    window.addEventListener('resize',f4UpdateAgendaPagination,{passive:true});
+    function f4AgendaPreviewCard(item){
+      const card=f4AgendaRow(item,true);
+      card.dataset.agendaKey=f4AgendaKey(item);
+      card.setAttribute('aria-controls','calendar-wrapper');
+      card.setAttribute('aria-expanded','false');
+      const arrow=document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
+      arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+      card.append(arrow);
+      return card;
+    }
+    function f4AgendaRow(item,preview=false){
       const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
       const header=document.createElement('span');header.className='f4-agenda-row-top';
       const date=document.createElement('span');date.className='f4-agenda-date';date.textContent=item.tanggalStr;
@@ -2178,7 +2218,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       header.append(date,badge);
       const title=document.createElement('span');title.className='f4-agenda-title';title.textContent=item.judul;
       button.append(header,title);
-      button.addEventListener('click',()=>openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
+      button.addEventListener('click',()=>preview?f4ToggleAgendaCalendar(item):openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
       return button;
     }
     // Bank Sampah uses the exact same published D1 schedule as its own portal.
@@ -2250,10 +2290,26 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     function f4RenderAgenda(displayData,todayKey){
       const list=document.getElementById('container-rencana'),preview=document.getElementById('f4-upcoming-agenda');
       const empty=text=>{const p=document.createElement('p');p.className='text-slate-500 text-xs';p.textContent=text;return p};
-      list.replaceChildren(...(displayData.length?displayData.map(f4AgendaRow):[empty('Belum ada agenda.')]));
-      const next=displayData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
-       .sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate)).slice(0,3);
-      preview.replaceChildren(...(next.length?next.map(f4AgendaRow):[empty('Belum ada agenda mendatang.')]));
+      list.replaceChildren(...(displayData.length?displayData.map(item=>f4AgendaRow(item)):[empty('Belum ada agenda.')]));
+      const next=globalRencanaData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
+       .sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate));
+      const signature=JSON.stringify(next.map(x=>[f4AgendaKey(x),x.tanggalStr,x.status,x.isBank]));
+      if(signature===f4AgendaSignature)return;
+      const previous=preview.children[f4AgendaCurrentIndex()]?.dataset.agendaKey;
+      f4AgendaSignature=signature;
+      const cards=next.map(f4AgendaPreviewCard);
+      if(!cards.length){
+        const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
+        button.dataset.agendaKey='';button.setAttribute('aria-controls','calendar-wrapper');
+        const title=document.createElement('span');title.className='f4-agenda-title';title.textContent='Belum ada agenda mendatang';
+        const arrow=document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
+        arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+        button.append(title,arrow);button.addEventListener('click',()=>f4ToggleAgendaCalendar(null));cards.push(button);
+      }
+      preview.replaceChildren(...cards);
+      const restored=cards.find(x=>x.dataset.agendaKey===previous)||cards[0];
+      preview.scrollLeft=restored.offsetLeft-cards[0].offsetLeft;
+      f4SyncAgendaCards();f4UpdateAgendaPagination();
     }
     // FUNGSI RENDER KALENDER TERBARU
     function renderCalendar() {
