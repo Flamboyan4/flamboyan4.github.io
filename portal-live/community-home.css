@@ -31,9 +31,9 @@
  .f4g-home-heading h3{font-size:19px}
  .f4g-home-grid{grid-template-columns:minmax(0,1fr);gap:0;width:100vw;margin-inline:calc(50% - 50vw);background:#fff}
  .f4g-home-card{border:0;border-bottom:1px solid #e8ebf0;border-radius:0;box-shadow:none;background:#fff;overflow:visible;padding:0 0 15px;gap:0}
- .f4g-home-photo{order:-1;height:auto;aspect-ratio:auto;border-radius:0}
- .f4g-home-photo img{height:auto;width:100%;max-height:125vw;object-fit:contain;background:#f3f4f6}
- .f4g-home-photo-unavailable{min-height:180px}
+ .f4g-home-photo{position:relative;order:-1;width:100%;height:auto;aspect-ratio:1/1;border-radius:0;overflow:hidden}
+ .f4g-home-photo img{position:absolute;inset:0;display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center}
+ .f4g-home-photo-unavailable{position:absolute;inset:0;width:100%;height:100%}
  .f4g-home-card-content{display:contents}
  .f4g-home-info{order:-2;font-size:11px;flex-wrap:wrap;padding:12px 14px;color:#566176}
  .f4g-home-info>span:first-child{font-weight:650;color:#25324a}
