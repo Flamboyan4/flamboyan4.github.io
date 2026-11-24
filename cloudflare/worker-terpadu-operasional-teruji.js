@@ -2391,6 +2391,7 @@ async function f4GallerySchema(db){
      "CREATE TABLE IF NOT EXISTS f4_gallery_share_links(code TEXT PRIMARY KEY,album_ref TEXT NOT NULL,photo_ref TEXT NOT NULL DEFAULT '',image_drive_id TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,UNIQUE(album_ref,photo_ref))",
     "CREATE TABLE IF NOT EXISTS f4_gallery_tags(target_type TEXT NOT NULL,target_id TEXT NOT NULL,member_id TEXT NOT NULL,position_x REAL,position_y REAL,added_by TEXT NOT NULL,PRIMARY KEY(target_type,target_id,member_id))",
     "CREATE INDEX IF NOT EXISTS idx_f4_gallery_tags_member ON f4_gallery_tags(member_id)",
+    "CREATE TABLE IF NOT EXISTS f4_gallery_tag_reads(member_id TEXT NOT NULL,target_id TEXT NOT NULL,read_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(member_id,target_id))",
     "CREATE TABLE IF NOT EXISTS f4_gallery_categories(album_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)",
     "CREATE TABLE IF NOT EXISTS f4_gallery_photo_categories(photo_ref TEXT PRIMARY KEY,category TEXT NOT NULL DEFAULT '',updated_by TEXT NOT NULL)",
     "CREATE INDEX IF NOT EXISTS idx_f4_gallery_photo_categories_category ON f4_gallery_photo_categories(category,photo_ref)"
@@ -3054,6 +3055,41 @@ async function f4GalleryApi(req,env,who,url){
   }catch(e){return ok({connected:false,writable:false,detail:String(e?.message||"Koneksi Drive gagal.").slice(0,240)});}
  }
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
+ // Private photo-tag inbox: the member ID comes only from the authenticated session.
+ if(path==="/api/v2/gallery/tag-notifications"&&method==="GET"){
+  if(!who.member_id)return ok({items:[],unread:0});
+  const tags=await list(env.DB,`SELECT t.target_id AS id,CASE WHEN r.target_id IS NULL THEN 0 ELSE 1 END AS isRead,
+   p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,
+   COALESCE((SELECT s.album_ref FROM f4_gallery_share_links s WHERE s.photo_ref=t.target_id LIMIT 1),'') AS archiveAlbum
+   FROM f4_gallery_tags t
+   LEFT JOIN f4_gallery_tag_reads r ON r.member_id=t.member_id AND r.target_id=t.target_id
+   LEFT JOIN f4_gallery_photos p ON p.id=t.target_id AND p.status IN ('baru','ditinjau')
+   WHERE t.member_id=? AND t.target_type='photo'
+   AND (p.id IS NOT NULL OR t.target_id LIKE 'gdrive:%')
+   ORDER BY isRead ASC,COALESCE(p.created_at,'') DESC,t.target_id LIMIT 200`,[who.member_id]);
+  const items=[],albums=new Map();
+  for(const tag of tags){
+   const ref=tag.albumId||tag.archiveAlbum||"";
+   if(ref&&!albums.has(ref))albums.set(ref,await f4GalleryAlbum(env.DB,ref));
+   const album=albums.get(ref);
+   if(tag.albumId&&!album)continue;
+   if(!tag.albumId&&!/^gdrive:[A-Za-z0-9_-]{12,100}$/.test(tag.id))continue;
+   const driveId=tag.driveId||tag.id.slice(7);
+   items.push({id:tag.id,albumId:album?.id||"",title:album?.title||"Dokumentasi Warga",
+    photoUrl:f4GalleryImageUrl(driveId),date:tag.date||"",read:Boolean(tag.isRead)});
+  }
+  return ok({items,unread:items.filter(x=>!x.read).length});
+ }
+ if(path==="/api/v2/gallery/tag-notifications/read"&&method==="POST"){
+  if(!who.member_id)return err("Akun tidak memiliki ID anggota.",403);
+  let p;try{p=await body(req)}catch{return err("Data notifikasi tidak valid.",400)}
+  const id=String(p.id||"");
+  if(!id||id.length>190)return err("ID foto tidak valid.",400);
+  // Do not allow an account to mark another resident's notification.
+  if(!await one(env.DB,"SELECT target_id FROM f4_gallery_tags WHERE target_type='photo' AND target_id=? AND member_id=?",[id,who.member_id]))return err("Notifikasi tidak ditemukan.",404);
+  await env.DB.prepare("INSERT INTO f4_gallery_tag_reads(member_id,target_id) VALUES(?,?) ON CONFLICT(member_id,target_id) DO UPDATE SET read_at=CURRENT_TIMESTAMP").bind(who.member_id,id).run();
+  return ok({read:true});
+ }
  if(path==="/api/v2/gallery/people"&&method==="GET"){
   const members=await list(env.DB,"SELECT m.id,m.display_name AS name,COALESCE(h.house_code,'') AS house FROM members m LEFT JOIN households h ON h.id=m.household_id WHERE m.status='aktif' ORDER BY m.display_name LIMIT 250");
   return ok({members});
@@ -3068,8 +3104,16 @@ async function f4GalleryApi(req,env,who,url){
   const ids=[...new Set(p.memberIds.map(String))];
   if(ids.some(x=>!/^[-\w:]{1,100}$/.test(x)))return err("ID warga tidak valid.",400);
   for(const memberId of ids)if(!await one(env.DB,"SELECT id FROM members WHERE id=? AND status='aktif'",[memberId]))return err("Warga tidak ditemukan.",400);
-  await env.DB.prepare("DELETE FROM f4_gallery_tags WHERE target_type=? AND target_id=?").bind(type,id).run();
-  for(const memberId of ids)await env.DB.prepare("INSERT INTO f4_gallery_tags(target_type,target_id,member_id,added_by) VALUES(?,?,?,?)").bind(type,id,memberId,who.id).run();
+  // Keep existing tags/read state when an unrelated tag is edited; a removed
+  // tag becomes a new unread notification if the resident is tagged again.
+  const old=await list(env.DB,"SELECT member_id FROM f4_gallery_tags WHERE target_type=? AND target_id=?",[type,id]);
+  const wanted=new Set(ids),existing=new Set(old.map(x=>x.member_id)),changes=[];
+  for(const row of old)if(!wanted.has(row.member_id)){
+   changes.push(env.DB.prepare("DELETE FROM f4_gallery_tags WHERE target_type=? AND target_id=? AND member_id=?").bind(type,id,row.member_id));
+   if(type==="photo")changes.push(env.DB.prepare("DELETE FROM f4_gallery_tag_reads WHERE member_id=? AND target_id=?").bind(row.member_id,id));
+  }
+  for(const memberId of ids)if(!existing.has(memberId))changes.push(env.DB.prepare("INSERT OR IGNORE INTO f4_gallery_tags(target_type,target_id,member_id,added_by) VALUES(?,?,?,?)").bind(type,id,memberId,who.id));
+  if(changes.length)await env.DB.batch(changes);
   return ok({saved:true,count:ids.length});
  }
  if(path==="/api/v2/gallery/category"&&method==="POST"){

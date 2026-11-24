@@ -1,5 +1,5 @@
 name: F4 Gallery Production Worker Release
-# Gallery release 2026-11-23: one Portal photo upload, shared Bank Sampah visibility and social IDs.
+# Gallery release 2026-11-24: private photo tag inbox, preserving shared social IDs and bindings.
 run-name: "Gallery API release ${{ github.sha }}"
 on:
   push:
@@ -39,7 +39,8 @@ jobs:
           from pathlib import Path
           source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_text()
           for path in ('/api/v2/gallery/tags','/api/v2/gallery/category','/api/v2/gallery/people',
-                       '/api/v2/gallery/folder','/api/v2/gallery/image/','/api/v2/gallery/public-video/'):
+                       '/api/v2/gallery/folder','/api/v2/gallery/image/','/api/v2/gallery/public-video/',
+                       '/api/v2/gallery/tag-notifications','/api/v2/gallery/tag-notifications/read'):
               if path not in source:
                   raise RuntimeError("Missing gallery API route: "+path)
           if 'CREATE TABLE IF NOT EXISTS f4_gallery_tags' not in source:
@@ -124,6 +125,12 @@ jobs:
           def get(path):
               with urllib.request.urlopen(urllib.request.Request(base+path,headers=headers),timeout=25) as response:
                   return json.load(response)
+          from urllib.error import HTTPError
+          try:
+              get("/api/v2/gallery/tag-notifications")
+              raise RuntimeError("Private notification inbox exposed without login")
+          except HTTPError as e:
+              assert e.code==401,"Expected private tag inbox to require login"
           gallery=get("/api/v2/gallery")
           assert gallery.get("ok") is True,"Public gallery unavailable after release"
           ranked=get("/api/v2/gallery/popular")

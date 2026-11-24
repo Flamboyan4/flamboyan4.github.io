@@ -1,0 +1,22 @@
+/* Photo tag inbox: separate component, no overrides of existing cards. */
+#f4-direct-bar #f4-tag-bell{position:relative}
+#f4-direct-bar #f4-tag-bell[hidden]{display:none}
+.f4-tag-bell-count{position:absolute;top:0;right:0;min-width:16px;height:16px;display:grid;place-items:center;padding:0 3px;border:2px solid #fff;border-radius:20px;background:#e53850;color:#fff;font:700 9px/1 system-ui;box-sizing:content-box}
+.f4-tag-bell-count[hidden]{display:none}
+.f4-tag-inbox{box-sizing:border-box;width:min(420px,calc(100vw - 24px));max-height:min(75dvh,600px);padding:0;border:1px solid #dfe4ef;border-radius:16px;background:#fff;color:#24324a;box-shadow:0 15px 48px #17234030;font:14px/1.4 system-ui;overflow:auto;scrollbar-width:none}
+.f4-tag-inbox::backdrop{background:#19233c66}
+.f4-tag-inbox-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;background:#fff;border-bottom:1px solid #e6e9f0;z-index:1}
+.f4-tag-inbox-head h2{margin:0;font-size:17px;font-weight:750;color:#24324a}
+.f4-tag-inbox-close{display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:9px;background:#eef2ff;color:#4f46e5;cursor:pointer}
+.f4-tag-inbox-close svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round}
+.f4-tag-inbox-list{padding:8px}
+.f4-tag-inbox-item{box-sizing:border-box;width:100%;display:flex;align-items:center;gap:11px;padding:10px;border:0;border-bottom:1px solid #edf0f5;background:#fff;text-align:left;color:#24324a;cursor:pointer}
+.f4-tag-inbox-item.is-unread{background:#eef2ff;border-radius:9px}
+.f4-tag-inbox-photo{width:51px;height:51px;flex:none;object-fit:cover;border-radius:8px;background:#e7eaf2}
+.f4-tag-inbox-copy{display:grid;gap:4px;flex:1;min-width:0}
+.f4-tag-inbox-copy strong{font-size:13px;font-weight:650;line-height:1.35}
+.f4-tag-inbox-copy small{font-size:11px;color:#64748b;overflow-wrap:anywhere}
+.f4-tag-inbox-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#4f46e5}
+.f4-tag-inbox-empty{padding:18px 12px;font-size:13px;color:#64748b;text-align:center}
+.f4-tag-inbox-retry{padding:8px 12px;color:#4f46e5;background:#eef2ff;border:0;border-radius:8px}
+.f4-tag-inbox-copy .f4-tag-inbox-error{color:#b42318}
