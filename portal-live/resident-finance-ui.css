@@ -254,8 +254,10 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   }
   #keuangan .f4-cash-summary>div:first-child {justify-content:space-between;gap:6px}
   #keuangan .f4-cash-overview>.f4-home-slide-nav {margin-top:-5px}
-  #keuangan .f4-cash-summary #sisa-saldo {
-    display:block;line-height:1.18;white-space:nowrap;overflow-wrap:normal;font-size:clamp(20px,6.5vw,29px);
+  #keuangan .f4-cash-summary :is(#sisa-saldo,#pemasukan-bulan-ini,#pengeluaran-bulan-ini) {
+    display:block;line-height:1.18;white-space:nowrap;overflow-wrap:normal;
+    font-size:clamp(20px,6.5vw,29px);font-weight:900;letter-spacing:-.025em;
+    font-variant-numeric:tabular-nums;
   }
   #keuangan .f4-cash-summary .flex.items-center.justify-between.mb-2 {
     gap:4px;align-items:flex-start;
