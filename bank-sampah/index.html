@@ -4407,7 +4407,7 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
     }
     const list=$('v16NavList');list.replaceChildren();
     v16Groups.filter(g=>/admin/i.test(String(profile?.peran||''))?(g.admin&&v16AdminSidebar.has(g.id)):g.member).forEach(g=>{
-      if(!/admin/i.test(String(profile?.peran||''))&&g.id==='progress'){
+      if(!/admin/i.test(String(profile?.peran||''))&&g.id==='memberinfo'){
        const other=document.createElement('div');
        other.className='f4-bank-nav-divider';other.textContent='LAINNYA';
        other.setAttribute('role','presentation');list.appendChild(other);
@@ -7828,7 +7828,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261123-bank-teal-v3">
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261123-prices-no-search-v5">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261123-bank-teal-v3">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261124-member-info-merged-v3">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261124-full-photo-grid-v4">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261123-bank-teal-v3">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261123-prices-no-search-v3"></script>

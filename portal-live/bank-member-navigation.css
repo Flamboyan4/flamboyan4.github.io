@@ -554,9 +554,9 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  body.f4-bank-app-member #dashboardView #bank-member-info .f4-member-feature-content{
   grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:16px
  }
- body.f4-bank-app-member #dashboardView #bank-member-info :is(#v17PublicMetrics,#v17Transparansi){grid-column:1/-1}
- body.f4-bank-app-member #dashboardView #bank-member-info #v17Dokumentasi{grid-column:1/span 7;grid-row:3/span 2}
- body.f4-bank-app-member #dashboardView #bank-member-info :is(#v17Perkembangan,#v17Inventaris){grid-column:8/-1}
+ body.f4-bank-app-member #dashboardView #bank-member-info :is(#v17PublicMetrics,#v17Transparansi,#v17Dokumentasi){grid-column:1/-1}
+ body.f4-bank-app-member #dashboardView #bank-member-info #v17Perkembangan{grid-column:1/span 6}
+ body.f4-bank-app-member #dashboardView #bank-member-info #v17Inventaris{grid-column:7/-1}
 }
 
 #dashboardView #bank-member-info .v17-inventory{
