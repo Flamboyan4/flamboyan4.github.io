@@ -2851,7 +2851,7 @@ function resetMemberPublicMini(){
  memberPublicMini.pending=null;memberPublicMini.loadedAt=0;
 }
 function loadMemberPublicMini(force=false){
- if(roleType()!=="member"||!window.matchMedia("(min-width:1024px)").matches)return;
+ if(roleType()!=="member")return;
  const s=memberPublicMini;
  renderMemberPublicMini();
  if(s.pending||(!force&&s.loadedAt&&Date.now()-s.loadedAt<90000))return;

@@ -355,8 +355,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 #dashboardView .f4-member-info-copy strong{font-size:15px;line-height:1.24;color:#103f2c;font-weight:850}
 #dashboardView .f4-member-info-copy small{font-size:11px;line-height:1.4;color:#587866;font-weight:650}
 #dashboardView .f4-member-info-shortcut:focus-visible{outline:3px solid #9fdca2;outline-offset:2px}
-/* Ringkasan tambahan khusus PC; kartu HP tetap tanpa angka tambahan. */
-#dashboardView #f4MemberPublicMini{display:none}
+/* Shared public summary on desktop and mobile. */
 @media(min-width:1024px){
  #dashboardView #f4MemberInfoShortcut.f4-member-info-shortcut{
   display:grid;grid-template-columns:43px minmax(0,1fr) 18px;
@@ -367,7 +366,8 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  #dashboardView #f4MemberInfoShortcut .f4-member-info-icon{grid-column:1;grid-row:1}
  #dashboardView #f4MemberInfoShortcut .f4-member-info-copy{grid-column:2;grid-row:1}
  #dashboardView #f4MemberInfoShortcut .f4-member-next{grid-column:3;grid-row:1}
- #dashboardView #f4MemberPublicMini{
+}
+#dashboardView #f4MemberPublicMini{
   display:grid;grid-column:1/-1;grid-row:2;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:7px;min-width:0;width:100%;min-height:0
@@ -385,7 +385,6 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
   white-space:nowrap;color:#066d56;font-size:clamp(11px,1.05vw,14px);
   line-height:1.2;font-weight:850;font-variant-numeric:tabular-nums
  }
-}
 /* Category accents without card-inside-card frames. */
 #dashboardView #f4MemberPublicMini .f4-member-public-mini-item:last-child{border-right:0}
 #dashboardView #f4MemberPublicMini .f4-member-public-mini-item:nth-child(2) strong{color:#087b59}
@@ -397,29 +396,27 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  #dashboardView .f4-member-progress-bars{gap:7px}
  #dashboardView .f4-member-progress-rail{height:98px}
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut.f4-member-info-shortcut{
-  display:flex;flex-direction:column;justify-content:center;align-items:center;
-  gap:7px;height:102px;min-height:0;padding:8px 4px;
+  display:grid;grid-template-columns:36px minmax(0,1fr) 18px;grid-template-rows:auto auto;
+  align-items:center;justify-content:stretch;gap:11px 10px;height:auto;min-height:0;padding:12px 13px;
   border:1px solid #e4eee5;border-radius:17px;
-  background:#fff;box-shadow:0 3px 9px #15482b0b;text-align:center
+  background:#fff;box-shadow:0 3px 9px #15482b0b;text-align:left
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-icon{
-  flex:0 0 36px;width:36px;height:36px;border-radius:11px;background:#e2f4df;color:#167244
+  grid-column:1;grid-row:1;flex:none;width:36px;height:36px;border-radius:11px;background:#e2f4df;color:#167244
  }
- #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-icon svg{
-  width:21px;height:21px
- }
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-icon svg{width:21px;height:21px}
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-copy{
-  display:grid;justify-items:center;align-content:center;flex:none
+  grid-column:2;grid-row:1;display:grid;justify-items:start;align-content:center;min-width:0
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-copy strong{
-  color:#103f2c;font-size:11px;line-height:1.18;font-weight:800
+  color:#103f2c;font-size:14px;line-height:1.25;font-weight:800
  }
- #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut :is(.f4-member-info-copy small,.f4-member-next){
-  display:none
- }
-}
-@media(max-width:380px){
- #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut.f4-member-info-shortcut{height:94px}
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-info-copy small{display:none}
+ #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut .f4-member-next{grid-column:3;grid-row:1;display:grid;place-items:center}
+ #dashboardView #f4MemberPublicMini{gap:0;padding-top:10px;border-top:1px solid #e4eee5}
+ #dashboardView #f4MemberPublicMini .f4-member-public-mini-item{padding:1px 7px;gap:5px;text-align:center}
+ #dashboardView #f4MemberPublicMini small{white-space:normal;overflow:visible;font-size:10px;line-height:1.3}
+ #dashboardView #f4MemberPublicMini strong{font-size:19px;line-height:1.2}
 }
 #dashboardView #bank-member-info.f4-bank-screen{
  display:grid;gap:18px;min-width:0;
