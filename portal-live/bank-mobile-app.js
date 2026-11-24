@@ -62,7 +62,7 @@ let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
 let adminOverview=null;
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
-const featureRoutes=["bank-member-progress","bank-member-info","bank-member-docs"];
+const featureRoutes=["bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false;
 const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
@@ -2900,12 +2900,12 @@ function publicSnapshot(){
  }).catch(()=>{}).finally(()=>{snapshotBusy=false});
 }
 function memberFeature(route){
- const progress=route==="bank-member-progress",docs=route==="bank-member-docs";
- const name=progress?"Perkembangan":docs?"Dokumentasi":"Info Bank Sampah";
+ const docs=route==="bank-member-docs";
+ const name=docs?"Dokumentasi":"Info Bank Sampah";
  const page=ensureScreen(route,name);
  page.querySelector(":scope > .f4-bank-screen-title")?.remove();
  // The report already has its own "Laporan Publik" heading; avoid repeating it.
- if(!progress&&!docs)page.querySelector(".f4-member-feature-header")?.remove();
+ if(!docs)page.querySelector(".f4-member-feature-header")?.remove();
  else if(!page.querySelector(".f4-member-feature-header")){
   const header=el("header","f4-member-feature-header");
   const title=el("div");
@@ -2914,21 +2914,14 @@ function memberFeature(route){
  }
  let content=page.querySelector(".f4-member-feature-content");
  if(!content){content=el("div","f4-member-feature-content");page.append(content);}
- if(progress){
-  moveFeature(["v17PublicMetrics","v17Perkembangan"],content);
-  for(const button of content.querySelectorAll('[data-dev-range="period"],[data-dev-range="30"],[data-dev-mode="nilai"]')){
-   button.hidden=false;button.classList.remove("hidden");
-  }
-  window.f4BankLoadPrivateChart?.();
- }
- else if(docs){
+ if(docs){
   moveFeature(["v22DocsPage"],content);
   const albumPage=$("v22DocsPage");
   albumPage?.classList.remove("hidden");
   window.f4BankRenderDocumentation?.();
   // Original public-page back action remains untouched. Member uses its top navigation.
  }else{
-  moveFeature(["v17Transparansi","v17Dokumentasi","v17Inventaris"],content);
+  moveFeature(["v17PublicMetrics","v17Transparansi","v17Dokumentasi","v17Perkembangan","v17Inventaris"],content);
   const finance=content.querySelector("#v17Transparansi");
   if(finance){finance.hidden=false;finance.classList.remove("hidden");}
   if(typeof window.v25LoadReport==="function")window.v25LoadReport();
@@ -2964,6 +2957,8 @@ function navigate(route){
  if(typeof window.goPage==="function")window.goPage(route);
 }
 function handleRoute(route,old,args){
+ // Legacy bookmarks resolve to the consolidated member information page.
+ if(roleType()==="member"&&route==="bank-member-progress")route="bank-member-info";
  if(roleType()==="member"&&route==="bank-prices"){
   window.F4MemberPrices?.show();return;
  }

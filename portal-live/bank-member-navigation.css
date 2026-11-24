@@ -421,12 +421,12 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 @media(max-width:380px){
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4MemberInfoShortcut.f4-member-info-shortcut{height:94px}
 }
-#dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
+#dashboardView #bank-member-info.f4-bank-screen{
  display:grid;gap:18px;min-width:0;
  margin:0;padding:0;border:0;border-radius:0;
  background:transparent;box-shadow:none
 }
-#dashboardView :is(#bank-member-progress,#bank-member-info).hidden{display:none}
+#dashboardView #bank-member-info.hidden{display:none}
 #dashboardView .f4-member-feature-header{
  display:flex;align-items:center;gap:10px;padding:2px 0 10px;
  border-bottom:1px solid #e8eee9
@@ -437,45 +437,42 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 }
 #dashboardView .f4-member-feature-header small{font-size:11px;color:#718477}
 #dashboardView .f4-member-feature-content{min-width:0;display:grid;gap:18px}
-#dashboardView #bank-member-progress #v17PublicMetrics{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;
- min-width:0;margin:0
+#dashboardView #bank-member-info #v17PublicMetrics{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+ width:100%;min-width:0;margin:0
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric{
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric{
  display:grid;grid-template-columns:35px minmax(0,1fr);grid-template-rows:auto auto;
  align-content:center;gap:3px 9px;min-width:0;padding:12px;
  border:1px solid #e0ebe3;
  border-radius:14px;background:#fff
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(even){
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric:nth-child(even){
  border-color:#e0ebe3
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric::before{
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric::before{
  content:"";grid-column:1;grid-row:1 / span 2;align-self:center;
- width:35px;height:35px;background:#e7f7ef url("/assets/icons/user.svg") center/19px no-repeat;
+ width:35px;height:35px;background:#e7f7ef url("/assets/icons/bank.svg") center/19px no-repeat;
  border-radius:11px
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(2)::before{
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric:nth-child(2)::before{
  background-color:#def6fc;background-image:url("/assets/icons/inventory.svg")
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(3)::before{
- background-color:#fff0d9;background-image:url("/assets/icons/bank.svg")
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric:nth-child(3)::before{
+ background-color:#fff0d9;background-image:url("/assets/icons/user.svg")
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric:nth-child(4)::before{
- background-color:#eaf8dd;background-image:url("/assets/icons/calendar.svg")
-}
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric small{
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric small{
  grid-column:2;grid-row:1;min-width:0;color:#738779;
  font-size:11px;font-weight:650;line-height:1.2
 }
-#dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric strong{
+#dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric strong{
  grid-column:2;grid-row:2;color:#10593c;font-weight:850;
  font-size:19px;line-height:1.2;overflow-wrap:anywhere
 }
-#dashboardView #bank-member-progress #f4DevStats{display:none}
-#dashboardView #bank-member-progress #v17Perkembangan{margin:0}
-#dashboardView #bank-member-progress #v17Perkembangan>.f4-dev-intro{display:none}
-#dashboardView #bank-member-progress :is(.f4-dev-chart-card,.f4-dev-activity-card){
+#dashboardView #bank-member-info #f4DevStats{display:none}
+#dashboardView #bank-member-info #v17Perkembangan{margin:0;min-width:0;width:100%}
+#dashboardView #bank-member-info #v17Perkembangan>.f4-dev-intro{display:none}
+#dashboardView #bank-member-info :is(.f4-dev-chart-card,.f4-dev-activity-card){
  box-shadow:none
 }
 #dashboardView #bank-member-info #v17Transparansi.v17-section{
@@ -557,19 +554,21 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
  body.f4-bank-app-member #dashboardView #bank-member-info .f4-member-feature-content{
   grid-template-columns:repeat(12,minmax(0,1fr));align-items:start;gap:16px
  }
- body.f4-bank-app-member #dashboardView #bank-member-info #v17Transparansi{grid-column:1/-1}
- body.f4-bank-app-member #dashboardView #bank-member-info #v17Dokumentasi{grid-column:1/span 7}
- body.f4-bank-app-member #dashboardView #bank-member-info #v17Inventaris{grid-column:8/-1}
+ body.f4-bank-app-member #dashboardView #bank-member-info :is(#v17PublicMetrics,#v17Transparansi){grid-column:1/-1}
+ body.f4-bank-app-member #dashboardView #bank-member-info #v17Dokumentasi{grid-column:1/span 7;grid-row:3/span 2}
+ body.f4-bank-app-member #dashboardView #bank-member-info :is(#v17Perkembangan,#v17Inventaris){grid-column:8/-1}
 }
 
 #dashboardView #bank-member-info .v17-inventory{
  display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;gap:0
 }
 @media(max-width:640px){
- #dashboardView #bank-member-progress #v17PublicMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}
- #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric{padding:10px 8px;gap:3px 7px}
- #dashboardView #bank-member-progress #v17PublicMetrics .v17-public-metric strong{font-size:17px}
- #dashboardView :is(#bank-member-progress,#bank-member-info).f4-bank-screen{
+ #dashboardView #bank-member-info #v17PublicMetrics{gap:6px}
+ #dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;align-content:start;padding:9px 7px;gap:5px}
+ #dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric::before{grid-column:1;grid-row:1;width:28px;height:28px;background-size:16px}
+ #dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric small{grid-column:1;grid-row:2;font-size:10px}
+ #dashboardView #bank-member-info #v17PublicMetrics .v17-public-metric strong{grid-column:1;grid-row:3;font-size:15px}
+ #dashboardView #bank-member-info.f4-bank-screen{
   padding:0;border-radius:0
  }
  #dashboardView #bank-member-info #v17Inventaris.v17-section{padding:13px}
