@@ -53,8 +53,8 @@ const logout=el('button');logout.type='button';logout.textContent='Keluar';logou
 menu.append(menuName,settings,logout);
 bar.append(hamburger,links,login,avatar,menu);document.body.prepend(bar);
 // Shared resident notification component for all native portals.
-const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261124-shared-v2';document.head.append(notificationStyle);
-const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261124-shared-v2';document.head.append(notificationScript);
+const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261124-slide-in-v3';document.head.append(notificationStyle);
+const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261124-slide-in-v3';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
 dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
