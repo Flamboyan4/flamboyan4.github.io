@@ -65,7 +65,7 @@ function showPanel(panel,recordHistory=true){
  if(isMember(current.role)&&['keuangan','kas-warga'].includes(panel)){createFinanceTabs();setFinanceMode(false);}
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
- const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
+ const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-64);
  __f4.window.scrollTo({top:panel==='beranda'?0:top,behavior:panel==='beranda'||prefersReduced()?'instant':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel==='kas-warga'?'keuangan':panel);

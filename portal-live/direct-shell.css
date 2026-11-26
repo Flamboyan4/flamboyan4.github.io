@@ -133,7 +133,7 @@ body.f4-denied .f4-access-denied-back:focus-visible{outline:3px solid #a5ddc2;ou
  body.f4-denied .f4-access-denied-panel h1{font-size:22px}
 }
 body.f4-direct-superadmin .f4-sa-standalone-menu{display:none}
-body.f4-direct-superadmin #f4-account-page>main{padding-top:84px}
+body.f4-direct-superadmin #f4-account-page>main{padding-top:66px}
 body.f4-direct-portal #f4-unified-account,body.f4-direct-bank #f4-unified-account,body.f4-direct-book #f4-unified-account,body.f4-direct-superadmin #f4-unified-account{z-index:400}
 body.f4-account-open #f4-direct-bar{z-index:500}
 body.f4-account-open #f4-direct-sidebar{display:none}
@@ -273,11 +273,11 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 /* Eliminate double top padding inherited from the old iframe wrapper. */
 
 body.f4-direct-bank #v11Public .v17-public-main{padding-top:16px}
-body.f4-direct-book>main{padding-top:18px}
+body.f4-direct-book>main{padding-top:10px}
 @media(max-width:1023px){
  body.f4-direct-bank #v18PublicContent{padding-top:0}
  body.f4-direct-bank #v11Public .v17-public-main{padding-top:12px}
- body.f4-direct-book>main{padding-top:12px}
+ body.f4-direct-book>main{padding-top:8px}
 }
 
 /* Native Bank Sampah: remove the 64px/68px clearance left from iframe navigation. */

@@ -187,7 +187,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
    window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
   }
-  if(key==='bank'&&session?.account&&['dashboard','profile','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
+  if(key==='bank'&&session?.account&&(!route||/^(?:dashboard|profile|pribadi|setoran|penjualan|tabungan|laporan|riwayat|riwayatJual|rekonsiliasi|master|admin|bank-[a-z-]+)$/.test(route))){openBankRoute(route||'dashboard');return true}
   if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
   if(key==='superadmin'&&!route)return true;
  }
@@ -215,7 +215,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   await current.dispose();mountedContent=null;detached=true;
   if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
-  history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
+  history[replace||pop?'replaceState':'pushState'](pop?{...history.state,f4PortalKey:key}:{f4PortalKey:key},'',target.pathname+target.search+target.hash);
   await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
@@ -275,7 +275,7 @@ function openBankRoute(route){
 function openBookRoute(route){
  if(role!=='superadmin')return;
  if(portal==='book'&&typeof window.pilihMenu==='function'){window.pilihMenu(route);return;}
- void navigatePortal(paths.book+(route==='input'?'?halaman=input':''));
+ void navigatePortal(paths.book+(route&&route!=='inputdata'?'?halaman='+encodeURIComponent(route):''));
 }
 function dockAction(key){
  if(!session?.account){

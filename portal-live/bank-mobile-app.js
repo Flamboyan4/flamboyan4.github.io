@@ -2977,6 +2977,7 @@ function sync(){
   ensureAdminProfile();
  }
  markDock();refreshSources();
+ __f4.window.f4BankPageHistory?.restore?.();
  // Reset stale horizontal pan only when entering an authenticated surface.
  if(__f4.window.scrollX>0)__f4.window.scrollTo(0,__f4.window.scrollY);
 }

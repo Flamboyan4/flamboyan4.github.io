@@ -44,7 +44,7 @@
  * sekarang sidebar/menu + utility bar berasal dari shell terpadu. */
 body>header, body>section:first-of-type { display:none; }
 body {background:#fff;color:var(--f4-portal-text)}
-#f4-portal-home-main {padding:24px 16px;max-width:var(--f4-content-max,1040px)}
+#f4-portal-home-main {padding:10px 16px 24px;max-width:var(--f4-content-max,1040px)}
 #banner-slider-container {border-radius:var(--f4-portal-card-radius)}
 
 
@@ -85,7 +85,7 @@ body[data-preview-role="public"] #f4-private-transactions{display:none}
 @media(max-width:1023px){
  /* Clip hanya arah horizontal tanpa membuat body jadi kontainer scroll tersendiri; lebih cocok untuk screenshot panjang Android. */
  html,body{max-width:100%;overflow-x:clip;overflow-y:visible}
- #f4-portal-home-main{padding:14px 13px 24px;max-width:100%;min-width:0;gap:18px}
+ #f4-portal-home-main{padding:8px 13px 24px;max-width:100%;min-width:0;gap:18px}
  body>main>section{min-width:0;margin-bottom:0}
  /* Pakai rasio banner sumber 1600:500 agar visual tidak terpotong kiri/kanan. */
  #banner-slider-container{aspect-ratio:1600/500;min-height:0;max-height:none}

@@ -68,8 +68,8 @@ window.F4PortalRuntime.define("/portal-live/bank-page-history.js",function(__f4)
    }finally{restoring=false}
  });
  function restoreBookmark(){
-   if(!pending||__f4.globals.document.getElementById('dashboardView')?.classList.contains('hidden'))return;
-   const target=pending;pending='';
+   if(!pending||!__f4.window.f4BankAppCurrentRoute||!__f4.globals.document.body.classList.contains('f4-bank-app-private')||__f4.globals.document.getElementById('dashboardView')?.classList.contains('hidden'))return;
+   const target=pending;pending='';initialized=true;
    restoring=true;
    try{if(target!=='public')__f4.window.goPage(target);route=__f4.window.f4BankAppCurrentRoute?.()||current()}
    finally{restoring=false}
@@ -81,7 +81,11 @@ window.F4PortalRuntime.define("/portal-live/bank-page-history.js",function(__f4)
  else restoreBookmark();
  __f4.window.f4BankPageHistory={
   current:()=>route,
-  begin:()=>{depth++},
+  begin:()=>{
+    if(!depth&&!initialized&&!restoring&&!pending){route=__f4.window.f4BankAppCurrentRoute?.()||current();initialized=true;__f4.globals.history.replaceState({...__f4.globals.history.state,f4BankRoute:route},'',cleanUrl(route))}
+    depth++
+  },
+  restore:restoreBookmark,
   end:page=>{
     depth=__f4.globals.Math.max(0,depth-1);
     if(depth||restoring||pending)return;

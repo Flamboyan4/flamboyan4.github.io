@@ -1852,7 +1852,13 @@ function printLaporan(){
 function bukaMenu(){__f4.globals.document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));const d=__f4.globals.document.getElementById('side-drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');__f4.globals.document.body.style.overflow='hidden';__f4.globals.lucide.createIcons()}
 function tutupMenu(){const d=__f4.globals.document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');__f4.globals.document.body.style.overflow=''}
 
+let f4BookRouteInitialized=false,f4BookRestoring=false;
 function pilihMenu(n){
+  if(!__f4.globals.document.getElementById('tab-'+n))n='inputdata';
+  const u=new __f4.globals.URL(__f4.globals.location.href),prior=u.searchParams.get('halaman')||'inputdata';
+  if(n==='inputdata')u.searchParams.delete('halaman');else u.searchParams.set('halaman',n);
+  if(!f4BookRestoring&&(!f4BookRouteInitialized||prior!==n))__f4.globals.history[f4BookRouteInitialized?'pushState':'replaceState']({...__f4.globals.history.state,f4BookRoute:n},'',u.pathname+u.search);
+  f4BookRouteInitialized=true;
   const viewToken=__f4.globals.F4PortalNavigation?.beginView();
   try{
   // Keterangan pemeriksaan periode tidak boleh tersimpan lintas menu.
@@ -1955,10 +1961,11 @@ function renderRumah(){const q=(__f4.globals.document.getElementById('cari-rumah
 function renderWarga(){const q=(__f4.globals.document.getElementById('cari-warga')?.value||'').toLowerCase();const a=DATA.warga.filter(r=>[r.nama,r.blok,r.noRumah,r.statusTinggal,r.keterangan].join(' ').toLowerCase().includes(q));__f4.globals.document.getElementById('tbody-warga').innerHTML=a.map((r,i)=>`<tr class="hover:bg-violet-50/40"><td class="p-3 text-center text-slate-400">${i+1}</td><td class="p-3 font-bold">${r.nama||'-'}</td><td class="p-3">${r.blok}/${r.noRumah}</td><td class="p-3">${r.statusTinggal||'-'}</td><td class="p-3 text-center">${r.statusAktif||'-'}</td><td class="p-3 text-center font-bold">${r.qtyIuranBulanan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKebersihan||0}x</td><td class="p-3 text-center font-bold">${r.qtyKasLorong||0}x</td><td class="p-3 text-center font-bold">${r.qtyArisan||0}x</td><td class="p-3 text-slate-500">${r.keterangan||'-'}</td></tr>`).join('')||'<tr><td colspan="10" class="p-5 text-center text-slate-400">Tidak ada data.</td></tr>'}
 function renderConfig(){const m={TARIF_BULANAN:'Tarif Iuran Bulanan',TARIF_KEBERSIHAN:'Tarif Kebersihan',TARIF_KAS_LORONG:'Tarif Kas Lorong',TARIF_ARISAN:'Tarif Arisan',TANGGAL_SETOR_RT:'Tanggal Setor RT',BATAS_PERIODE_KAS:'Batas Periode Kas'};__f4.globals.document.getElementById('config-list').innerHTML=__f4.globals.Object.entries(DATA.config).map(([k,v])=>`<div class="rounded-xl border border-violet-100 bg-white p-4"><div class="text-[11px] font-bold text-slate-400 uppercase">${m[k]||k}</div><div class="mt-1 font-black text-lg text-violet-950">${k.startsWith('TARIF_')?rupiah(v):v}</div></div>`).join('')}
 function gantiTab(n,b){pilihMenu(n)}
+__f4.window.addEventListener('popstate',()=>{const target=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'inputdata';const active=__f4.globals.document.querySelector('.tab-panel:not(.hidden)');if(active?.id==='tab-'+target)return;f4BookRestoring=true;try{pilihMenu(target)}finally{f4BookRestoring=false}});
 __f4.globals.document.addEventListener('DOMContentLoaded',()=>{
   __f4.globals.lucide.createIcons();
   initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
-  pilihMenu(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')==='input'?'input':'inputdata');
+  pilihMenu(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'inputdata');
   muatUlang();
 });
 

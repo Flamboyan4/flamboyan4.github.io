@@ -105,9 +105,9 @@
    fixed content, touch interception or overscroll lock on these pages. */
 html:has(body.f4-resident-page),body.f4-resident-page{max-width:100%;overflow-x:clip;overflow-y:visible}
 body.f4-resident-page{box-sizing:border-box;margin:0;min-height:100dvh;background:#fff;color:#26344f;font:14px/1.5 system-ui,-apple-system,sans-serif}
-body.f4-resident-page>#f4-resident-main{box-sizing:border-box;max-width:1080px;width:100%;margin:0 auto;padding:24px;min-width:0}
+body.f4-resident-page>#f4-resident-main{box-sizing:border-box;max-width:1080px;width:100%;margin:0 auto;padding:10px 24px 24px;min-width:0}
 @media(max-width:1023px){
- body.f4-resident-page>#f4-resident-main{padding:16px 14px 22px}
+ body.f4-resident-page>#f4-resident-main{padding:8px 14px 22px}
 }
 
 /* Seamless profile tabs, with full-width grid on phones. */
