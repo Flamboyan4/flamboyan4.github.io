@@ -37,7 +37,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  }
  body.f4-bank-app-member #dashboardView #sideNav.side{
   box-sizing:border-box;display:block;position:fixed;left:0;top:0;bottom:0;z-index:210;
-  width:var(--f4-rail-width,226px);height:100dvh;min-height:0;max-height:100dvh;
+  width:var(--f4-side-width,var(--f4-rail-width,226px));height:100dvh;min-height:0;max-height:100dvh;
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
   margin:0;padding:0 8px 16px;border:0;border-right:1px solid #dce8df;
   border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible
@@ -160,7 +160,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
 /* Member page shells are unboxed; individual functional cards keep their own borders. */
 body.f4-bank-app-member #dashboardView #pagePribadi.f4-bank-savings-page:not(.hidden),
 body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-report).f4-bank-screen:not(.hidden){
- display:grid;min-width:0;width:100%;max-width:1080px;
+ display:grid;min-width:0;width:100%;max-width:var(--f4-content-max,1080px);
  margin:0 auto;padding:0;border:0;border-radius:0;
  background:transparent;box-shadow:none;align-content:start
 }
@@ -540,7 +540,7 @@ body.f4-bank-app-member #dashboardView :is(#bank-payout,#bank-history,#bank-repo
 /* Member documentation shares the same three-column photo feed as the manager. */
 #dashboardView #bank-member-docs.f4-bank-screen:not(.hidden){
  display:grid;gap:12px;box-sizing:border-box;min-width:0;
- width:100%;max-width:1080px;margin:0 auto;padding:0;
+ width:100%;max-width:var(--f4-content-max,1080px);margin:0 auto;padding:0;
  justify-self:center;border:0;background:transparent;box-shadow:none
 }
 #dashboardView #bank-member-docs #v22DocsPage{

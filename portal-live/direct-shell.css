@@ -194,11 +194,11 @@ body.f4-account-open #f4-direct-bar{z-index:500}
 }
 /* 26 Oct — Unified top rail: same geometry as the approved Superadmin header. */
 @media(min-width:1024px){
- body:is(.f4-direct-portal,.f4-direct-simple){--f4-content-max:1040px}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin){--f4-content-max:1040px}
  body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:var(--f4-portal-rail,226px)}
  body:is(.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin) #f4-direct-bar{left:var(--f4-rail-width,226px)}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0;bottom:0;height:100dvh;padding-top:0}
- body.f4-direct-bank #v18PublicSide{position:fixed;top:0;left:0;bottom:0;width:var(--f4-rail-width,226px);height:100dvh;max-height:100dvh}
+ body.f4-direct-bank #v18PublicSide{position:fixed;top:0;left:0;bottom:0;width:var(--f4-side-width,var(--f4-rail-width,226px));height:100dvh;max-height:100dvh}
  body.f4-direct-bank #v11Public.v18-public-shell{grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr)}
  body.f4-direct-bank #v18PublicContent{grid-column:2;min-width:0}
  body.f4-direct-book #side-drawer{top:0}
@@ -348,7 +348,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 @media screen and (min-width:1024px){
  body.f4-direct-book{--f4-book-sidebar-width:var(--f4-rail-width,226px);overflow-x:clip}
  body.f4-direct-book > #side-drawer{
-  left:0;right:auto;width:var(--f4-book-sidebar-width);
+  left:0;right:auto;width:var(--f4-side-width,var(--f4-book-sidebar-width));
  }
  body.f4-direct-book > main{
   box-sizing:border-box;
@@ -359,12 +359,14 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  }
  body.f4-direct-book > main > *{min-width:0;max-width:var(--f4-content-max);margin-inline:auto}
  body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
+ body.f4-direct-bank #v11Public #v18PublicContent .v17-public-main{box-sizing:border-box;width:100%;max-width:var(--f4-content-max);margin-inline:auto}
+ body.f4-direct-superadmin #f4-account-page>main{max-width:var(--f4-content-max);margin-inline:auto}
 }
 
 /* Portal Utama desktop: stable 72px icon rail; expand over content on hover
    or keyboard focus, never change the content coordinate system. */
 @media screen and (min-width:1024px) and (hover:hover) and (pointer:fine){
- body:is(.f4-direct-portal,.f4-direct-simple){--f4-portal-rail:72px}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin){--f4-portal-rail:72px;--f4-rail-width:72px}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{
   overflow-x:hidden;transition:width .18s ease,box-shadow .18s ease;z-index:210
  }
@@ -380,9 +382,58 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) :is(.f4-direct-menu-label,.f4-direct-brand>div){opacity:0;pointer-events:none}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-group-label{color:transparent}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button:focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
+
+ /* The three operational portals share the same rail dimensions and overlay behavior. */
+ body.f4-direct-bank #v11Public #v18PublicSide,
+ body.f4-direct-bank #dashboardView #sideNav.side,
+ body.f4-direct-book > #side-drawer,
+ body.f4-direct-superadmin #f4-account-page > aside{
+  --f4-side-width:var(--f4-rail-width);
+  overflow-x:hidden;transition:width .18s ease,box-shadow .18s ease
+ }
+ body.f4-direct-bank #v11Public #v18PublicSide,
+ body.f4-direct-book > #side-drawer,
+ body.f4-direct-superadmin #f4-account-page > aside{z-index:210}
+ body.f4-direct-bank #v11Public #v18PublicSide:is(:hover,:has(:focus-visible)),
+ body.f4-direct-bank #dashboardView #sideNav.side:is(:hover,:has(:focus-visible)),
+ body.f4-direct-book > #side-drawer:is(:hover,:has(:focus-visible)),
+ body.f4-direct-superadmin #f4-account-page > aside:is(:hover,:has(:focus-visible)){
+  --f4-side-width:226px;box-shadow:8px 0 20px rgba(30,35,50,.08)
+ }
+ body.f4-direct-bank #v11Public #v18PublicSide button,
+ body.f4-direct-bank #dashboardView #sideNav #v16NavList>.v16-item,
+ body.f4-direct-book > #side-drawer .drawer-item,
+ body.f4-direct-superadmin #f4-account-page > aside :is(button,.sa-donor-link){
+  white-space:nowrap;overflow:hidden
+ }
+ body.f4-direct-bank #v11Public #v18PublicSide:not(:hover):not(:has(:focus-visible)) button{font-size:0;gap:0;justify-content:center;padding-inline:0}
+ body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) #v16NavList>.v16-item,
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item,
+ body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link){
+  justify-content:center;gap:0;padding-inline:0
+ }
+ body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) #v16NavList>.v16-item>span,
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item>span,
+ body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link)>span{
+  width:0;min-width:0;overflow:hidden;opacity:0
+ }
+ body.f4-direct-bank #v11Public #v18PublicSide .v17-public-logo,
+ body.f4-direct-bank #dashboardView #sideNav .v16-brand,
+ body.f4-direct-book > #side-drawer .f4-book-brand,
+ body.f4-direct-superadmin #f4-account-page > aside .f4-sa-brand{white-space:nowrap;overflow:hidden}
+ body.f4-direct-bank #v11Public #v18PublicSide:not(:hover):not(:has(:focus-visible)) :is(.v17-public-logo>span,#v19PublicAccountText),
+ body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) .v16-brand :is(strong,small),
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .f4-book-brand-copy,
+ body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-brand>span{opacity:0;pointer-events:none}
+ body.f4-direct-bank #v11Public #v18PublicSide:not(:hover):not(:has(:focus-visible)) .f4-bank-public-nav-caption,
+ body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) :is(.v16-nav-caption,.f4-bank-nav-divider),
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) :is(.f4-book-menu-label,.f4-book-menu-other),
+ body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-label{color:transparent;white-space:nowrap;overflow:hidden}
+ body.f4-direct-superadmin #f4-account-page > aside{position:fixed;top:0;left:0;bottom:0;width:var(--f4-side-width)}
+ body.f4-direct-superadmin #f4-account-page > main{grid-column:2}
 }
 @media (prefers-reduced-motion:reduce){
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{transition-duration:0s}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar,body.f4-direct-bank :is(#v18PublicSide,#sideNav),body.f4-direct-book #side-drawer,body.f4-direct-superadmin #f4-account-page>aside{transition-duration:0s}
 }
 
 /* 2026-11-17: ONE shared touch-interaction owner for native Flamboyan portals.
