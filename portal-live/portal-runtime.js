@@ -70,6 +70,7 @@ function scopeFor(key){
   ResizeObserver:makeObserver(window.ResizeObserver),IntersectionObserver:makeObserver(window.IntersectionObserver)
  };
  builtins.matchMedia=query=>{assert();const m=window.matchMedia(query);return new Proxy(m,{get(t,p){if(p==='addEventListener')return(...a)=>track(t,...a);if(p==='removeEventListener')return(...a)=>untrack(t,...a);if(p==='addListener')return fn=>track(t,'change',fn);if(p==='removeListener')return fn=>untrack(t,'change',fn);const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v}})};
+ if(window.visualViewport)builtins.visualViewport=new Proxy(window.visualViewport,{get(t,p){if(p==='addEventListener')return(...a)=>track(t,...a);if(p==='removeEventListener')return(...a)=>untrack(t,...a);const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v}});
  const nativeBound=new Set(['alert','confirm','prompt','scrollTo','scrollBy','getComputedStyle','matchMedia','getSelection','open','postMessage','dispatchEvent','print','focus','blur','atob','btoa']);
  const reserved=new Set(['F4PortalRuntime','F4PortalNavigation','F4MobileDock','F4MobileSheets','F4Loading','f4ShowLogin','f4RefreshDirectAvatar','f4OpenUnifiedAccount','f4CloseUnifiedAccount']);
  function installGlobal(name){
@@ -122,7 +123,7 @@ function scopeFor(key){
  };
  return api;
 }
-function scriptSpecs(doc){return [...doc.querySelectorAll('script[type="application/f4-source"]')].map(n=>({id:n.dataset.f4Id,src:n.dataset.f4Src,defer:n.hasAttribute('data-f4-defer'),external:n.hasAttribute('data-f4-external')}))}
+function scriptSpecs(doc){return [...doc.querySelectorAll('script[type="application/f4-source"]')].filter(n=>!n.closest('noscript')).map(n=>({id:n.dataset.f4Id,src:n.dataset.f4Src,defer:n.hasAttribute('data-f4-defer'),external:n.hasAttribute('data-f4-external')}))}
 function ordered(specs){return [...specs.filter(x=>!x.defer),...specs.filter(x=>x.defer)]}
 function loadScript(url){
  const u=new URL(url,location.origin);if(!['https:','http:'].includes(u.protocol))return Promise.reject(Error('URL script ditolak.'));
@@ -165,19 +166,19 @@ async function prepare(key,target){
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
  await prepareScripts(specs);
  const preparedStyles=[];
- try{await Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})))}catch(e){for(const {link} of preparedStyles)link.remove();throw e}
+ try{await Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript')&&!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})))}catch(e){for(const {link} of preparedStyles)link.remove();throw e}
  let scope=null,mounted=null;
  return {async mount(){
   markPermanent();
   copyAttributes(parsed.documentElement,document.documentElement,['data-f4-release','data-f4-spa']);
   copyAttributes(parsed.body,document.body);
   document.title=parsed.title;
-  for(const n of parsed.head.querySelectorAll('base'))if(!permanentStyle(n))document.head.append(document.importNode(n,true));
+  for(const n of parsed.head.querySelectorAll('base'))if(!n.closest('noscript')&&!permanentStyle(n))document.head.append(document.importNode(n,true));
   for(const {link,media} of preparedStyles){delete link.dataset.f4Persistent;link.media=media;}
   // Shared styles retain their original cascade position after the page-specific styles.
   for(const link of [...document.head.querySelectorAll('link[rel="stylesheet"]')].filter(permanentStyle))document.head.append(link);
   const fragment=document.createDocumentFragment();
-  for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script'))&&!permanentBody(n))fragment.append(document.importNode(n,true));
+  for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script,noscript'))&&!permanentBody(n))fragment.append(document.importNode(n,true));
   document.body.append(fragment);
   window.F4PortalNavigation.activate(key);
   scope=scopeFor(key);active=scope;mounted=makeMounted(key,scope);
