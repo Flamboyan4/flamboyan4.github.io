@@ -12,15 +12,15 @@ window.F4PortalRuntime.define("/index.html#inline-2",function(__f4){
 
 __f4.globals.document.addEventListener('DOMContentLoaded',()=>{
  const footer=__f4.globals.document.getElementById('pembayaran');
- const floating=__f4.globals.document.querySelector('body>div.fixed.bottom-6.right-6');
+ const floating=__f4.globals.document.getElementById('f4-portal-float-actions');
  if(!footer||!floating)return;
- // Stop both existing floating actions immediately above the white Payment footer.
- // Unlike the previous observer, this never hides them.
+ // Desktop retains the footer lift; mobile uses a fixed dock-safe offset.
  let queued=false;
  const update=()=>{
   queued=false;
+  if(__f4.window.matchMedia('(max-width:767px)').matches){floating.style.removeProperty('--f4-footer-lift');return;}
   const top=footer.getBoundingClientRect().top;
-  const baseBottom=__f4.window.matchMedia('(min-width:768px)').matches?18:18;
+  const baseBottom=18;
   const lift=__f4.globals.Math.max(0,__f4.globals.Math.ceil(__f4.window.innerHeight-baseBottom-top+12));
   floating.style.setProperty('--f4-footer-lift',lift+'px');
  };

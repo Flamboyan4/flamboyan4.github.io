@@ -58,7 +58,7 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
   
   <!-- Tailwind CSS CDN -->
   <script type="application/f4-source" data-f4-id="https://cdn.tailwindcss.com" data-f4-src="https://cdn.tailwindcss.com" data-f4-external></script>
-  <script type="application/f4-source" data-f4-id="/index.html#inline-1" data-f4-src="/portal-live/portal-inline.js?v=20261127-first-paint-v5"></script>
+  <script type="application/f4-source" data-f4-id="/index.html#inline-1" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script>
   <!-- Lucide Icons CDN -->
   <script type="application/f4-source" data-f4-id="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js" data-f4-src="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js" data-f4-external></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
@@ -66,7 +66,7 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
 <script type="application/f4-source" data-f4-id="/portal-live/portal-d1-bridge.js" data-f4-src="/portal-live/portal-d1-bridge.js?v=20261127-first-paint-v5"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-history-spacing-v39"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-history-spacing-v39"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-mobile-pay-v44"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-history-spacing-v39"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261127-history-spacing-v39">
 <link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-calendar-dots-v42">
 
@@ -955,7 +955,7 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
   </div>
 
   <!-- FLOATING ACTION BUTTON CONTAINER -->
-  <div id="f4-portal-float-actions" class="fixed bottom-6 right-6 flex flex-col items-center space-y-2 pointer-events-none" aria-label="Akses cepat">
+  <div id="f4-portal-float-actions" class="pointer-events-none" aria-label="Akses cepat">
     <button id="btn-scroll-top" onclick="scrollToTop()" class="bg-slate-800/95 hover:bg-indigo-600 text-white rounded-full transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 group flex items-center justify-center" title="Kembali Ke Atas">
       <i data-lucide="arrow-up" class="w-5 h-5 md:w-6 md:h-6"></i>
       <span class="absolute right-full mr-3 bg-slate-800 text-white text-xs font-semibold px-2.5 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
@@ -969,9 +969,19 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
         Kirim Saran
       </span>
     </button>
+    <div id="f4-mobile-payment">
+      <button type="button" id="f4-mobile-payment-toggle" aria-expanded="false" aria-controls="f4-mobile-payment-menu" aria-label="Metode pembayaran">
+        <i data-lucide="wallet" aria-hidden="true"></i><span>Bayar</span>
+      </button>
+      <div id="f4-mobile-payment-menu" hidden role="region" aria-label="Metode pembayaran">
+        <strong class="f4-mobile-pay-title">Pembayaran</strong>
+        <div id="f4-mobile-payment-options"></div>
+        <p id="f4-mobile-payment-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
   </div>
 
-  <!-- FOOTER: two simple actions, account details in a mobile sheet. -->
+  <!-- FOOTER: payment actions for desktop. -->
   <footer id="pembayaran" class="f4-payment-footer">
     <div class="f4-payment-inner">
       <nav class="f4-payment-actions" aria-label="Metode pembayaran">
@@ -1053,8 +1063,8 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-calendar-dots-v42"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-first-paint-v5" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-first-paint-v5"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-history-spacing-v39"></script><script type="application/f4-source" data-f4-id="/portal-live/resident-finance-ui.js" data-f4-src="/portal-live/resident-finance-ui.js?v=20261127-resident-pages-v18"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-history-spacing-v39"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-first-paint-v5"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-mobile-pay-v44" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-mobile-pay-v44"></script><script type="application/f4-source" data-f4-id="/portal-live/resident-finance-ui.js" data-f4-src="/portal-live/resident-finance-ui.js?v=20261127-resident-pages-v18"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-history-spacing-v39"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/community-home.js" data-f4-src="/portal-live/community-home.js?v=20261127-seamless-gallery-v33" data-f4-defer></script>
 

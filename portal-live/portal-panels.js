@@ -49,10 +49,10 @@ function visiblePanel(){
   ];
   let active='beranda';
   for(const [name,node] of landmarks){
-   if(node&&node.getBoundingClientRect().top<=150)active=name;
+   if(node&&node.getClientRects().length&&node.getBoundingClientRect().top<=150)active=name;
   }
   const atBottom=__f4.window.innerHeight+__f4.window.scrollY>=__f4.globals.document.documentElement.scrollHeight-12;
-  if(atBottom&&footer)active='pembayaran';
+  if(atBottom&&footer?.getClientRects().length)active='pembayaran';
   current.panel=active;
   reportVisible(active);
  });
@@ -61,6 +61,7 @@ function showPanel(panel,recordHistory=true){
  // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
  if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(['keuangan','kas-warga'].includes(panel)&&current.role==='public'))panel='beranda';
+ if(panel==='pembayaran'&&__f4.window.matchMedia('(max-width:767px)').matches){if(__f4.window.f4OpenMobilePayment)__f4.window.f4OpenMobilePayment();else __f4.globals.document.getElementById('f4-mobile-payment-toggle')?.click();return;}
  current.panel=panel;
  if(isMember(current.role)&&['keuangan','kas-warga'].includes(panel)){createFinanceTabs();setFinanceMode(false);}
  const element=sectionTargets[panel]||sectionTargets.beranda;
