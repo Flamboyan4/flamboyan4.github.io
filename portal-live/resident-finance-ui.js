@@ -35,47 +35,6 @@ function enhance(personal){
  if(!finBlock||!intro||!tabs||!data)return;
  personal.dataset.f4DuesEnhanced='1';
  const layout=mk('div','f4-resident-layout');
- const summary=mk('section','f4-personal-overview');
- summary.innerHTML='<div class="f4-personal-bank"><div class="f4-personal-bank-top"><h3>Tabungan Bank Sampah</h3><button type="button" class="f4-personal-eye" aria-label="Tampilkan saldo" aria-pressed="false"></button></div><p>Total saldo belum dicairkan</p><strong data-savings-total>Rp ••••••</strong><div class="f4-personal-bank-split"><div><span>Bisa dicairkan</span><b data-savings-available>Rp ••••</b></div><div><span>Menunggu penjualan</span><b data-savings-pending>Rp ••••</b></div></div><a href="/bank-sampah/">Lihat tabungan <span aria-hidden="true">›</span></a></div><div class="f4-personal-reminders" hidden></div>';
- const eye=summary.querySelector('.f4-personal-eye');
- const eyePaths={show:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',hide:'<path d="M3 3l18 18M10.5 10.5a2.1 2.1 0 0 0 3 3M9.8 5.3A11 11 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-2.4 3.3M6.2 6.2C3.5 8.2 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.3-.9"/>'};
- let savings=null,revealed=false,overviewSerial=0;
- function paintSavings(){
-  eye.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+eyePaths[revealed?'show':'hide']+'</svg>';
-  eye.setAttribute('aria-pressed',String(revealed));eye.setAttribute('aria-label',revealed?'Sembunyikan saldo':'Tampilkan saldo');
-  for(const [key,value] of [['total',savings?savings.saldoTersediaRp+savings.estimasiMenungguRp:null],['available',savings?.saldoTersediaRp],['pending',savings?.estimasiMenungguRp]]){
-   summary.querySelector('[data-savings-'+key+']').textContent=!revealed?'Rp ••••':value==null?'Belum tersedia':money(value);
-  }
- }
- eye.onclick=()=>{revealed=!revealed;paintSavings()};paintSavings();
- async function refreshOverview(){
-  const serial=++overviewSerial;savings=null;revealed=false;paintSavings();
-  const reminders=summary.querySelector('.f4-personal-reminders');reminders.hidden=true;reminders.replaceChildren();
-  const read=async path=>{const res=await (0,__f4.globals.fetch)(API+'/api/member/'+path,{credentials:'include',cache:'no-store'});const body=await res.json();if(!res.ok||body.ok===false||body.linked===false)throw Error('Data belum tersedia');return body;};
-  const results=await Promise.allSettled(['savings','fines','loans'].map(read));
-  if(serial!==overviewSerial||personal.hidden)return;
-  if(results[0].status==='fulfilled'){
-   const b=results[0].value;
-   if(Number.isFinite(b.saldoTersediaRp)&&Number.isFinite(b.estimasiMenungguRp))savings=b;
-  }
-  paintSavings();
-  const heading=mk('h3','','Perlu perhatian');
-  reminders.append(heading);
-  let count=0;
-  for(const [index,kind,title] of [[1,'fines','Denda'],[2,'loans','Pinjaman']]){
-   const result=results[index];
-   if(result.status!=='fulfilled'||!Array.isArray(result.value.rows)){
-    reminders.append(mk('p','f4-personal-reminder-note','Status '+title.toLowerCase()+' belum dapat diperiksa.'));count++;continue;
-   }
-   const total=result.value.rows.filter(r=>!['dibatalkan','batal','lunas'].includes(String(r.status||'').toLowerCase())).reduce((n,r)=>n+Math.max(0,(Number(r.nominalRp)||0)-(Number(r.dibayarRp)||0)),0);
-   if(total<=0)continue;
-   const row=mk('button','f4-personal-reminder');row.type='button';
-   row.append(mk('span','',title+' belum lunas'),mk('strong','',money(total)));
-   row.onclick=()=>{tabs.querySelector('[data-kind="'+kind+'"]')?.click();if(media.matches&&!finBlock.dataset.f4Dedicated)openSheet(finBlock,'history',row);else pane.scrollIntoView({block:'nearest',behavior:'instant'});};
-   reminders.append(row);count++;
-  }
-  reminders.hidden=!count;
- }
  const dues=mk('section','f4-resident-dues');
  dues.setAttribute('aria-label','Rincian kewajiban bulanan');
  dues.innerHTML='<div class="f4-resident-card-heading"><span class="f4-resident-card-icon">'+svg('dues')+'</span><div><h3>Rincian Kewajiban</h3><p>Sesuai kewajiban akun Anda</p></div></div>';
@@ -105,7 +64,7 @@ function enhance(personal){
  statusBand.innerHTML='<span>Status</span><strong id="f4-resident-badge" class="f4-resident-badge" role="status">Memuat</strong>';
  right.append(statusContent,statusBand,actions);
  layout.append(dues,right,pane);
- personal.replaceChildren(summary,layout);
+ personal.replaceChildren(layout);
  const overlay=mk('div','f4-resident-sheet-overlay');
  overlay.id='f4-resident-sheet';
  overlay.hidden=true;
@@ -115,11 +74,11 @@ function enhance(personal){
  overlay.querySelector('.f4-resident-sheet-close').onclick=closeSheet;
  finBlock.append(overlay);
  const watch=new __f4.globals.MutationObserver(()=>{
-  if(personal.hidden){overviewSerial++;revealed=false;savings=null;paintSavings();if(activeSheet)closeSheet();return}
-  loadDues(personal);refreshOverview();
+  if(personal.hidden){if(activeSheet)closeSheet();return}
+  loadDues(personal);
  });
  watch.observe(personal,{attributes:true,attributeFilter:['hidden']});
- if(!personal.hidden){loadDues(personal);refreshOverview();}
+ if(!personal.hidden)loadDues(personal);
 }
 function currentPeriod(){
  // Date in WIB (UTC+7), matching the backend due-month convention.
@@ -149,22 +108,18 @@ function writeDues(personal,data){
   if(item.jenis==='IURAN_BULANAN'){
    if(due%25000===0){
     const count=due/25000;
-    const paid=Number(item.terbayarRp)||0;
-    // Allocations are stored as a single IURAN_BULANAN category. Do not infer individual payment allocations when partially paid.
-    const state=paid>=due?'Lunas':paid===0?'Belum bayar':'Pembayaran gabungan sebagian';
-    breakdown.push(['Kas RT',10000*count,state],['Kas RW',5000*count,state],['Keamanan',10000*count,state]);
-   }else breakdown.push(['Iuran RT, RW & Keamanan',due,item.sisaRp===0?'Lunas':item.terbayarRp>0?'Kurang bayar':'Belum bayar']);
+    breakdown.push(['Kas RT',10000*count],['Kas RW',5000*count],['Keamanan',10000*count]);
+   }else breakdown.push(['Iuran RT, RW & Keamanan',due]);
   }else{
    const titles={KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'};
-   breakdown.push([titles[item.jenis]||item.jenis,due,item.sisaRp===0?'Lunas':item.terbayarRp>0?'Kurang bayar':'Belum bayar']);
+   breakdown.push([titles[item.jenis]||item.jenis,due]);
   }
  }
  const rows=mk('div','f4-resident-dues-rows');
  if(!breakdown.length)rows.append(mk('p','f4-resident-placeholder','Tidak ada iuran rutin untuk periode ini.'));
- for(const [label,amount,state] of breakdown){
+ for(const [label,amount] of breakdown){
   const row=mk('div','f4-resident-dues-row');
-  const info=mk('span','f4-personal-due-label');info.append(mk('span','',label),mk('small',state==='Lunas'?'is-paid':'',state));
-  row.append(info,mk('strong','',money(amount)));
+  row.append(mk('span','',label),mk('strong','',money(amount)));
   rows.append(row);
  }
  const total=mk('div','f4-resident-dues-total');

@@ -5,7 +5,7 @@
 'use strict';
 if(window.F4PortalRuntime)return;
 const factories=new Map(),loads=new Map();
-const routes={'/':'portal','/bank-sampah/':'bank','/pembukuan/':'book','/superadmin/':'superadmin','/rapat/':'rapat','/dokumentasi/':'dokumentasi'};
+const routes={'/':'portal','/bank-sampah/':'bank','/pembukuan/':'book','/superadmin/':'superadmin','/rapat/':'rapat','/dokumentasi/':'dokumentasi','/keuangan/':'finance','/agenda/':'agenda','/profil/':'profile'};
 const canonical=p=>p.replace(/index\.html$/i,'').replace(/\/?$/,'/');
 const keyOf=p=>routes[canonical(p)]||'';
 const release=document.documentElement.dataset.f4Release;

@@ -951,75 +951,7 @@ __f4.globals.document.addEventListener('f4:gallery:photo',e=>{
  f4TagButton(viewer.querySelector('.f4p-photo-stage')||actions,target);
 });
 __f4.globals.document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
-/* Personal profile: same gallery, same social IDs, verified account only. */
-let profileTab='uploads',profileSerial=0,profileData=null,profileLoading=false;
-const isProfileRoute=()=>new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')==='profil';
-function profileRoot(){
- const main=__f4.globals.document.getElementById('page-start');if(!main)return null;
- let root=main.querySelector('#f4-resident-profile');
- if(!root){root=elem('section','f4-resident-profile');root.id='f4-resident-profile';root.hidden=true;main.append(root)}
- return root;
-}
-function renderResidentProfile(){
- const root=profileRoot();if(!root||!isProfileRoute())return;
- root.hidden=false;root.replaceChildren();
- if(!profileData)return;
- const data=profileData;
- const head=elem('div','f4-profile-head'),picture=elem('img','f4-profile-avatar');picture.alt='Foto profil';picture.width=76;picture.height=76;picture.src='https://api.flamboyan4.web.id/api/member/avatar?v='+__f4.globals.Date.now();
- picture.onerror=()=>{const mark=elem('span','f4-profile-avatar f4-profile-avatar-fallback');mark.innerHTML=svg('user');picture.replaceWith(mark)};
- const identity=elem('div','f4-profile-identity');
- identity.append(elem('h2','',data.name),elem('p','',data.house?'Rumah '+data.house+' · Flamboyan 4':'Flamboyan 4'));
- const counts=elem('div','f4-profile-counts');
- for(const [value,label] of [[data.uploads.length,'Unggahan'],[data.tagged.length,'Ditandai']]){
-  const c=elem('span');c.append(elem('strong','',value),elem('small','',label));counts.append(c)
- }
- identity.append(counts);head.append(picture,identity);root.append(head);
- const actions=elem('div','f4-profile-actions');
- actions.append(button('Edit Profil','edit',()=>__f4.window.f4OpenUnifiedAccount?.()),button('Unggah Foto','upload',async()=>{await __f4.window.f4EnsureGalleryArchive?.();uploadDialog()},'primary'));root.append(actions);
- const tabs=elem('div','f4g-view-tabs f4-profile-tabs');tabs.setAttribute('role','tablist');
- for(const [key,label,icon] of [['uploads','Unggahan Saya','grid'],['tagged','Ditandai','user']]){
-  const b=button(label,icon,()=>{profileTab=key;renderResidentProfile()},'f4g-view-button');b.setAttribute('role','tab');b.setAttribute('aria-selected',String(profileTab===key));b.classList.toggle('selected',profileTab===key);tabs.append(b)
- }
- root.append(tabs);
- const grid=elem('div','f4-profile-grid'),rows=data[profileTab];
- if(!rows.length){const empty=elem('div','f4-profile-empty');empty.append(elem('strong','',profileTab==='uploads'?'Belum ada unggahan':'Belum ada foto yang menandai Anda'),elem('p','',profileTab==='uploads'?'Unggah foto kegiatan untuk memulai.':'Foto akan muncul di sini ketika warga menandai Anda.'));grid.append(empty)}
- for(const item of rows){
-  const tile=elem('button','f4-profile-tile');tile.type='button';tile.setAttribute('aria-label','Buka foto '+(item.caption||item.title||'warga'));
-  const img=elem('img');img.src=item.url;img.alt=item.caption||item.title||'Foto warga';img.loading='lazy';img.onerror=()=>{img.replaceWith(elem('span','f4-profile-photo-unavailable','Foto tidak tersedia'))};tile.append(img);
-  tile.onclick=()=>{const viewer=__f4.window.f4MediaGallery;if(!viewer)return;viewer.openMediaGallery(item.title||'Dokumentasi',[{...item,type:'foto'}],{albumId:item.albumId||''});viewer.openPhotoById(item.id)};
-  grid.append(tile)
- }
- root.append(grid);
-}
-async function loadResidentProfile(){
- const root=profileRoot();if(!root||!isProfileRoute())return;
- if(profileLoading)return;profileLoading=true;
- const serial=++profileSerial;profileData=null;root.hidden=false;root.replaceChildren(elem('p','f4-profile-empty','Memuat profil…'));
- try{
-  const r=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/auth/session',{credentials:'include',cache:'no-store'}),session=await r.json();
-  if(serial!==profileSerial||!isProfileRoute())return;
-  if(!r.ok||!['warga','anggota','member'].includes(session.account?.role)){root.replaceChildren(elem('p','f4-profile-empty','Silakan login sebagai warga untuk membuka profil.'),button('Masuk','user',()=>__f4.window.f4ShowLogin?.()));return}
-  const data=await get('/my-profile');if(serial!==profileSerial||!isProfileRoute())return;
-  profileData={name:session.account.displayName||session.member?.nama||session.account.username||'Warga',house:session.member?.rumah||'',uploads:data.uploads||[],tagged:data.tagged||[]};
-  renderResidentProfile();
- }catch(e){if(serial!==profileSerial||!isProfileRoute())return;root.replaceChildren(elem('p','f4-profile-empty','Profil belum dapat dimuat.'),button('Coba lagi','arrow',loadResidentProfile));}finally{profileLoading=false;}
-}
-function syncResidentProfile(){
- const root=profileRoot();if(!root)return;
- const on=isProfileRoute();__f4.globals.document.body.classList.toggle('f4-resident-profile-view',on);
- root.hidden=!on;
- if(on){if(profileData)renderResidentProfile();else void loadResidentProfile()}else{profileSerial++;profileLoading=false;profileData=null;root.replaceChildren()}
- __f4.window.F4MobileDock?.refresh?.();
-}
-__f4.window.f4ShowResidentProfile=record=>{
- if(record&&!isProfileRoute()){const u=new __f4.globals.URL(__f4.globals.location.href);u.search='?halaman=profil';u.hash='';__f4.globals.history.pushState({...__f4.globals.history.state},'',u.pathname+u.search)}
- syncResidentProfile();const main=__f4.globals.document.getElementById('page-start');if(main)main.scrollTop=0;
-};
-__f4.window.addEventListener('popstate',syncResidentProfile);
-__f4.window.addEventListener('message',e=>{if(e.origin!==__f4.globals.location.origin||e.source!==window||e.data?.type!=='f4:demo-role'||!isProfileRoute())return;if(e.data.role!=='warga'){profileSerial++;profileData=null;const root=profileRoot();root?.replaceChildren(elem('p','f4-profile-empty','Silakan login sebagai warga.'))}else void loadResidentProfile()});
-__f4.window.addEventListener('f4-account-profile-updated',()=>{if(isProfileRoute())void loadResidentProfile()});
-syncResidentProfile();
-
-if(!isProfileRoute()){mount();activeSession().then(mount);}
+mount();
+activeSession().then(mount);
 })();
 });

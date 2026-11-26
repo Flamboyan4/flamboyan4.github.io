@@ -6,7 +6,8 @@
 if(window.F4MobileDock)return;
 const el=(tag,cl)=>{const n=document.createElement(tag);if(cl)n.className=cl;return n};
 const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></span>';
-let portal=document.documentElement.dataset.f4Shell||'portal';
+const residentPath={'/keuangan/':'finance','/agenda/':'agenda','/profil/':'profile'};
+let portal=residentPath[location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')]||document.documentElement.dataset.f4Shell||'portal';
 const sharedDock=el('nav');sharedDock.id='f4-direct-dock';sharedDock.dataset.f4Persistent='shell';sharedDock.hidden=true;
 sharedDock.setAttribute('aria-label','Navigasi utama');document.body.append(sharedDock);
 const dockPaths={
@@ -59,8 +60,8 @@ function markSharedDock(){
   if(shownRole==='warga')active='bank';
  }
  if(shownRole==='warga'){
-  if(portal==='portal')active=({keuangan:'finance',arisan:'agenda',kalender:'agenda'})[new URLSearchParams(location.search).get('halaman')]||'home';
-  else if(portal==='simple'&&location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')==='/dokumentasi/')active=new URLSearchParams(location.search).get('halaman')==='profil'?'profile':'home';
+  if(['finance','agenda','profile'].includes(portal))active=portal;
+  else if(portal==='portal'||portal==='simple')active='home';
  }
  for(const b of sharedDock.querySelectorAll('[data-dock-key]')){
   if(b.dataset.dockKey===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
@@ -108,7 +109,7 @@ window.F4MobileDock={
  getRole:()=>dockRole,validRole:validDockRole,allowed,remember:rememberDockHint,update:updateSharedDock,
  closeMenu:closeDockMenu,toggleMenu,refresh:markSharedDock,
  bind(fn){handler=fn;const p=pending;pending=null;if(p&&p.role===dockRole)fn(p.key)},
- setPortal(next){if(!['portal','bank','book','superadmin','simple'].includes(next))return;portal=next;bankRoute='';bookRoute='';closeDockMenu();markSharedDock()}
+ setPortal(next){if(!['portal','bank','book','superadmin','simple','finance','agenda','profile'].includes(next))return;portal=next;bankRoute='';bookRoute='';closeDockMenu();markSharedDock()}
 };
 const hint=readDockHint();if(hint)updateSharedDock(hint);
 })();

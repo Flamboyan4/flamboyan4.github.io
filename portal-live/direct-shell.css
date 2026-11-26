@@ -564,25 +564,14 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 }
 @media print{#f4-direct-dock{display:none}}
 
-/* Resident routes: one viewport, one shared chrome, only the active content scrolls.
-   Beranda, Bank Sampah and other roles keep their original scrolling layouts. */
-body[data-f4-resident-view]>section,body[data-f4-resident-view]>#pembayaran{display:none}
-body[data-f4-resident-view="keuangan"] #f4-portal-home-main>section:not(#keuangan),
-body[data-f4-resident-view="kalender"] #f4-portal-home-main>section:not(#rencana){display:none}
-body[data-f4-resident-view="kalender"] #rencana #calendar-wrapper{display:block}
-body[data-f4-resident-view="kalender"] #rencana #container-rencana{display:block;max-height:none;overflow:visible}
-body[data-f4-resident-view="kalender"] #rencana #f4-upcoming-agenda,
-body[data-f4-resident-view="kalender"] #rencana #f4-agenda-pagination{display:none}
+
+/* The three standalone resident screens have a single dedicated scroll surface.
+   The existing home and bank layouts are untouched. */
+body.f4-resident-page{margin:0;background:#fff;color:#26344f;font:14px/1.5 system-ui,-apple-system,sans-serif}
+body.f4-resident-page>#f4-resident-main{box-sizing:border-box;max-width:1080px;width:100%;margin:0 auto;padding:24px;min-width:0}
 @media(max-width:1023px){
- html:has(body[data-f4-resident-view]),html:has(body.f4-resident-profile-view){overflow:hidden;overscroll-behavior:none}
- body[data-f4-resident-view],body.f4-resident-profile-view{overflow:hidden;height:100dvh;min-height:0}
- body[data-f4-resident-view]>#f4-portal-home-main,
- body.f4-resident-profile-view>#page-start{
-  box-sizing:border-box;position:fixed;inset:56px 0 calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px));
-  width:100%;max-width:none;min-width:0;height:auto;min-height:0;margin:0;padding:14px 14px 20px;
-  overflow-x:clip;overflow-y:auto;overscroll-behavior-y:contain;scroll-behavior:auto;
-  background:#fff;
- }
- body[data-f4-resident-view]>#f4-portal-home-main>section{margin:0}
- body.f4-resident-profile-view>#page-start>#f4-resident-profile{padding:0;max-width:100%}
+ html:has(body.f4-resident-page){overflow:hidden;overscroll-behavior:none}
+ body.f4-resident-page{height:100dvh;min-height:0;overflow:hidden}
+ body.f4-resident-page>#f4-resident-main{position:fixed;inset:56px 0 0;width:100%;max-width:none;height:auto;margin:0;padding:16px 14px 22px;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;scroll-behavior:auto}
+ body.f4-resident-page:has(>#f4-direct-dock:not([hidden]))>#f4-resident-main{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
 }
