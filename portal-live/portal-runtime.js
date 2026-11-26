@@ -106,6 +106,18 @@ function scopeFor(key){
  };
  api.cleanup=fn=>{assert();if(typeof fn==='function')cleanups.add(fn)};
  api.ready=()=>ready&&alive;
+ // Wait for scoped reads and a quiet interval, bounded by existing error/loading states.
+ api.waitForView=()=>new Promise(resolve=>{
+  const started=performance.now();let quietSince=started;
+  const check=()=>{
+   const now=performance.now();
+   if(!alive||now-started>=4500){resolve();return}
+   if([...controllers].some(entry=>!entry.write))quietSince=now;
+   else if(now-quietSince>=180){resolve();return}
+   window.setTimeout(check,40);
+  };
+  check();
+ });
  api.canLeave=()=>ready&&!writes;
  api.pause=()=>{if(!ready||writes)return false;leaving=true;return true};
  api.resume=()=>{leaving=false};
@@ -196,6 +208,6 @@ async function boot(){
  for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);
  try{await prepareScripts(specs);await runScripts(specs,scope);nav.contentReady();contentError.remove()}catch(e){contentError.hidden=false;contentError.textContent='Konten portal tidak dapat dimuat. Muat ulang halaman. '+e.message;throw e}
 }
-window.F4PortalRuntime={ready:()=>!!active?.ready(),define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
+window.F4PortalRuntime={ready:()=>!!active?.ready(),waitForView:()=>active?.waitForView()||Promise.resolve(),define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>console.error('Portal:',e)),{once:true});else boot().catch(e=>console.error('Portal:',e));
 })();

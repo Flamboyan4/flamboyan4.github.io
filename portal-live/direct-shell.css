@@ -59,13 +59,10 @@
 #f4-direct-bar button:hover,#f4-direct-bar a:hover,#f4-direct-bar .f4-selected{background:var(--f4-nav-tint)}
 #f4-direct-bar svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #f4-direct-bar .f4-nav-links{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
-#f4-direct-bar .f4-direct-identity{display:grid;grid-template-rows:auto auto;align-content:center;gap:3px;flex:1 1 auto;min-width:0;margin:0;font-family:system-ui,-apple-system,sans-serif}
+#f4-direct-bar .f4-direct-identity{display:flex;align-items:center;flex:1 1 auto;min-width:0;margin:0;font-family:system-ui,-apple-system,sans-serif}
 #f4-direct-bar .f4-direct-identity[hidden]{display:none}
-#f4-direct-bar .f4-direct-identity strong,#f4-direct-bar .f4-direct-identity small{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#f4-direct-bar .f4-direct-identity strong{color:#20232d;font-size:16px;line-height:1.2;font-weight:800}
-#f4-direct-bar .f4-direct-identity small{color:#666975;font-size:11px;line-height:1.2;font-weight:550}
+#f4-direct-bar .f4-direct-identity strong{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#20232d;font-size:16px;line-height:1.2;font-weight:800}
 body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
-body.f4-direct-bank #f4-direct-bar .f4-direct-identity small{color:#547465}
 #f4-direct-bar #f4-direct-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;border:1px solid var(--f4-nav-line);background:var(--f4-nav-tint)}
 #f4-direct-avatar img{height:100%;width:100%;object-fit:cover}
 #f4-direct-bar .f4-direct-login{width:auto;min-width:64px;padding:0 11px;background:var(--f4-nav-tint)}
@@ -223,6 +220,23 @@ body.f4-account-open #f4-direct-bar{z-index:500}
 isolation:isolate;
 background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s ease}
 #f4-direct-bar.f4-scrolled{background:#fff}
+/* Loading covers only content, leaving the shared navigation available. */
+#f4-route-loading{position:fixed;inset:56px 0 0;z-index:50;display:grid;place-items:center;background:#fff;color:var(--f4-nav);font:600 13px/1.4 system-ui,-apple-system,sans-serif}
+#f4-route-loading[hidden]{display:none}
+.f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .16s .12s both}
+.f4-route-spinner{width:30px;height:30px;border:3px solid var(--f4-nav-tint);border-top-color:var(--f4-nav);border-radius:50%;animation:f4-route-spin .7s linear infinite}
+@keyframes f4-route-spin{to{transform:rotate(360deg)}}
+@keyframes f4-route-reveal{from{opacity:0}to{opacity:1}}
+@media(max-width:1023px){
+ body.f4-shared-dock:has(#f4-direct-dock:not([hidden])) #f4-route-loading{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
+ body.f4-bank-app-member #f4-route-loading{top:68px}
+}
+@media(min-width:1024px){
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-route-loading{left:var(--f4-portal-rail,226px)}
+ body:is(.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin) #f4-route-loading{left:var(--f4-rail-width,226px)}
+}
+@media(prefers-reduced-motion:reduce){.f4-route-loading-indicator,.f4-route-spinner{animation:none}}
+@media print{#f4-route-loading{display:none}}
 #f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;}
 #f4-direct-sidebar .f4-direct-brand img{width:42px;height:43px;object-fit:contain;flex:none}
 #f4-direct-sidebar .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800}

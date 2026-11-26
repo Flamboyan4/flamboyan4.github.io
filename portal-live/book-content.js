@@ -1853,6 +1853,8 @@ function bukaMenu(){__f4.globals.document.querySelectorAll('.custom-select-wrap.
 function tutupMenu(){const d=__f4.globals.document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');__f4.globals.document.body.style.overflow=''}
 
 function pilihMenu(n){
+  const viewToken=__f4.globals.F4PortalNavigation?.beginView();
+  try{
   // Keterangan pemeriksaan periode tidak boleh tersimpan lintas menu.
   if(n!=='input')f4IuranPeriodNotice('');
   __f4.globals.document.querySelectorAll('.custom-select-wrap.open').forEach(x=>x.classList.remove('open'));
@@ -1911,7 +1913,8 @@ function pilihMenu(n){
   if(n==='importbulk'){(0,__f4.globals.bulkRefreshControls)();__f4.globals.lucide.createIcons()}
   tutupMenu();
   __f4.window.dispatchEvent(new __f4.globals.CustomEvent('f4-shared-book-route',{detail:n}));
-  __f4.window.scrollTo({top:0,behavior:'smooth'});
+  __f4.window.scrollTo({top:0,behavior:'auto'});
+  }finally{__f4.globals.F4PortalNavigation?.endView(viewToken??null)}
 }
 
 function pilihRiwayat(type){

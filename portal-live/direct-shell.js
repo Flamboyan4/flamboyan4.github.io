@@ -25,7 +25,7 @@ const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/sup
 const pathname=location.pathname;
 const portalKey=path=>Object.keys(paths).find(key=>paths[key]===path.replace(/index\.html$/i,'').replace(/\/?$/,'/'))||null;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease=document.documentElement.dataset.f4Release||'20261127-persistent-source-v1';
+const shellRelease=document.documentElement.dataset.f4Release||'20261127-smooth-navigation-v2';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
 // Version ordinary cross-portal links too, including legacy links not built by navButton.
 document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
@@ -62,11 +62,18 @@ const settings=el('button');settings.type='button';settings.textContent='Pengatu
 const logout=el('button');logout.type='button';logout.textContent='Keluar';logout.dataset.accountAction='logout';
 menu.append(menuName,settings,logout);
 const identity=el('div','f4-direct-identity');identity.id='f4-direct-identity';identity.hidden=true;
-const identityName=el('strong'),identityDetail=el('small');identity.append(identityName,identityDetail);
-bar.append(hamburger,identity,links,login,avatar,menu);document.body.prepend(bar);
+const identityName=el('strong');identity.append(identityName);
+bar.append(identity,links,login,avatar,hamburger,menu);document.body.prepend(bar);
+function positionPageMenu(){bar.insertBefore(hamburger,portal==='bank'?identity:menu);}
+positionPageMenu();
+// Persistent loading surface; navbar and dock are never replaced.
+const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
+routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
+routeLoading.innerHTML='<span class="f4-route-loading-indicator"><span class="f4-route-spinner" aria-hidden="true"></span><span>Memuat halaman…</span></span>';
+document.body.append(routeLoading);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
-const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-persistent-source-v1';document.head.append(notificationScript);
+const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-smooth-navigation-v2';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
 dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
@@ -110,7 +117,16 @@ let activePortalKey=initialKey,lastActiveUrl=location.pathname+location.search+l
 function rememberActiveUrl(){if(portalKey(location.pathname)===activePortalKey)lastActiveUrl=location.pathname+location.search+location.hash;}
 function restoreActiveUrl(){if(portalKey(location.pathname)!==activePortalKey)history.replaceState({f4PortalKey:activePortalKey},'',lastActiveUrl);}
 const contentAdapters=new Map();
-let mountedContent=null,navigationPending=false;
+let mountedContent=null,navigationPending=false,viewSequence=0;
+function beginView(){
+ if(navigationPending)return null;
+ const token=++viewSequence;routeLoading.hidden=false;return token;
+}
+function endView(token){
+ if(token===null||token!==viewSequence)return;
+ const ready=window.F4PortalRuntime?.waitForView?.()||Promise.resolve();
+ Promise.resolve(ready).catch(()=>{}).finally(()=>{if(token===viewSequence)routeLoading.hidden=true});
+}
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
  if(key==='donor')return sessionCheckCompleted&&!!session?.account&&role==='donatur';
@@ -120,7 +136,7 @@ function updatePortalChrome(key){
  activePortalKey=key;
  portal=key==='rapat'||key==='dokumentasi'?'simple':key;
  document.documentElement.dataset.f4Shell=portal;
- applyPortalTheme(portal);dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
+ applyPortalTheme(portal);positionPageMenu();dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
  settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
@@ -153,7 +169,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   const url=shellUrl(target.href);
   if(replace||pop)location.replace(url);else location.assign(url);return true;
  }
- navigationPending=true;
+ const viewToken=beginView();navigationPending=true;
  const accountId=session?.account?.id||null,requestedRole=role;
  const stillAllowed=()=>accountId===(session?.account?.id||null)&&requestedRole===role&&canAccessPortal(key);
  let prepared=null,detached=false;
@@ -174,10 +190,10 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(!detached){if(pop)restoreActiveUrl();showSessionNotice('Portal belum dapat dimuat.','Coba Lagi',()=>{void navigatePortal(target.href,{replace})});return false;}
   // A hard reload is only an error recovery after the old content has been disposed.
   location.replace(shellUrl(canAccessPortal(key)?target.href:'/'));return false;
- }finally{navigationPending=false}
+ }finally{navigationPending=false;endView(viewToken)}
 }
 window.F4PortalNavigation={
- go:navigatePortal,current:()=>activePortalKey,recordUrl:rememberActiveUrl,
+ go:navigatePortal,current:()=>activePortalKey,recordUrl:rememberActiveUrl,beginView,endView,
  activate:updatePortalChrome,
  contentReady(){
   if(portal==='portal'){window.f4GoBank=()=>navigatePortal(paths.bank);if(typeof window.openModalDokumentasi==='function')window.openModalDokumentasi=()=>navigatePortal(paths.dokumentasi)}
@@ -317,10 +333,7 @@ function updateAccountIdentity(){
  const show=Boolean(session?.account)&&['warga','admin','superadmin'].includes(role);
  identity.hidden=!show;
  const greeting=show?'Halo, '+(role==='warga'?residentGreetingName(name):name):'';
- const house=String(session?.member?.rumah||'').trim();
- const detail=show?(role==='warga'?(house&&house!=='—'?'Rumah '+house:'Anggota'):role==='superadmin'?'Superadmin':'Pengelola'):'';
  identityName.textContent=greeting;identityName.title=greeting;
- identityDetail.textContent=detail;identityDetail.title=detail;
  menuName.textContent=name+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':role==='donatur'?'Donatur':'Publik');
  avatar.title=name;avatar.setAttribute('aria-label','Buka menu akun: '+name);
 }

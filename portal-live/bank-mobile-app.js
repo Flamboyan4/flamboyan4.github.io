@@ -3175,11 +3175,13 @@ function init(){
  (0,__f4.globals.setInterval)(()=>{if(!__f4.globals.document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
  const original=__f4.window.goPage;
  if(typeof original==="function")__f4.window.goPage=function(route,...args){
-   __f4.window.f4BankPageHistory?.begin?.();
+    const viewToken=route!==screen?__f4.globals.F4PortalNavigation?.beginView():null;
+    __f4.window.f4BankPageHistory?.begin?.();
    try{return handleRoute(route,original,args)}
    finally{
     __f4.window.f4BankPageHistory?.end?.(screen);
-    // The previous operational form can leave the document horizontally
+     __f4.globals.F4PortalNavigation?.endView(viewToken??null);
+     // The previous operational form can leave the document horizontally
     // panned on narrow phones. Navigation must always restore left origin,
     // never retain the previous tab's offset.
     if(__f4.window.scrollX>0||__f4.globals.document.documentElement.scrollLeft>0){

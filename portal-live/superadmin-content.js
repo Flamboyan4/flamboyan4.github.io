@@ -209,6 +209,8 @@ __f4.window.addEventListener('popstate',()=>{
 });
 function open(name,push=true){
  if(role!=='superadmin'||!groups.some(([key])=>key===name))return;
+ const viewToken=__f4.globals.F4PortalNavigation?.beginView();
+ try{
  saCloseDrawer(true);
  if(__f4.globals.history.state?.f4SaDrawer)__f4.globals.history.replaceState({...__f4.globals.history.state,f4SaDrawer:false},'',__f4.globals.location.href);
  __f4.window.f4CancelSuperadminEditor?.();
@@ -224,6 +226,7 @@ function open(name,push=true){
  }
  if(name==='audit')auditPage();
  if(!submenu[name])f4SaRememberRoute();
+ }finally{__f4.globals.F4PortalNavigation?.endView(viewToken??null)}
 }
 function bankWeighingPage(){
  title('Jadwal Penimbangan','Atur frekuensi dan tanggal penimbangan Bank Sampah.');
@@ -337,6 +340,8 @@ function openEditor(kind){
  if(role!=='superadmin')return;
  const target=__f4.globals.Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
  if(!target)return;
+ const viewToken=__f4.globals.F4PortalNavigation?.beginView();
+ try{
  const switched=active!==kind,priorGroup=group;
  active=kind;group=target[0];
  if(priorGroup!==group||!side.querySelector('button.active'))sidebar(group);
@@ -351,6 +356,7 @@ function openEditor(kind){
   main.scrollTo?.({top:0,behavior:smooth});
  }
  f4SaRememberRoute();
+ }finally{__f4.globals.F4PortalNavigation?.endView(viewToken??null)}
 }
 __f4.window.f4SuperadminSwitchModule=openEditor;
 function overview(){
