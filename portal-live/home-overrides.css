@@ -28,7 +28,7 @@
 #modal-jersey .f4-jersey-stat{min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border:1px solid #e6eaf2;border-radius:10px;background:#fff}
 #modal-jersey .f4-jersey-stat p{color:#66758d;font-size:11px;font-weight:650;line-height:1.25;margin:0}
 #modal-jersey .f4-jersey-stat strong{font-size:13px;line-height:1.25;white-space:nowrap;font-weight:800;font-variant-numeric:tabular-nums}
-#modal-jersey .f4-jersey-stat-bill strong{color:#4f46e5}
+#modal-jersey .f4-jersey-stat-bill strong{color:var(--f4-portal-primary)}
 #modal-jersey .f4-jersey-stat-paid strong{color:#079669}
 #modal-jersey .f4-jersey-stat-due strong{color:#dc2450}
 #modal-jersey .f4-jersey-filterbar{display:flex;align-items:center;gap:9px;padding:9px 16px;background:#fff;border-bottom:1px solid #e8edf4;flex-shrink:0}
@@ -91,7 +91,7 @@
 .f4-agenda-row-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .f4-agenda-date{font-size:11px;font-weight:750;color:var(--f4-portal-primary,#4f46e5)}
 .f4-agenda-title{font-size:13px;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
-.f4-agenda-status{font-size:10px;font-weight:650;padding:3px 7px;border-radius:20px;color:#3730a3;background:#e0e7ff;white-space:nowrap}
+.f4-agenda-status{font-size:10px;font-weight:650;padding:3px 7px;border-radius:20px;color:var(--f4-portal-primary-ink);background:var(--f4-portal-soft);white-space:nowrap}
 .f4-agenda-status.is-progress{color:#92400e;background:#fef3c7}
 .f4-agenda-status.is-done,.f4-agenda-status.is-bank{color:#065f46;background:#d1fae5}
 #calendar-days-grid .f4-calendar-bank-day{border-color:#86d9b0;background:#ecfdf5}

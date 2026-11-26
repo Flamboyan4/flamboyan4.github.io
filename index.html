@@ -17,7 +17,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Flamboyan 4, portal warga: informasi lingkungan, pembukuan, dan Bank Sampah">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#4f46e5">
+  <meta name="theme-color" content="#5145CD">
   <title>Flamboyan 4 | Portal Warga</title>
 <script id="f4-native-legacy-links">(()=>{
  const hash=decodeURIComponent(location.hash.slice(1)).toLowerCase();
@@ -37,6 +37,7 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { indigo: {50:"#F7F6FC",100:"#EDEBFA",200:"#DCD8F5",300:"#C3BDF0",400:"#8E82DF",500:"#6558D6",600:"#5145CD",700:"#4539B8",800:"#393099",900:"#302873",950:"#211B50"} } } } };</script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
@@ -44,9 +45,9 @@
 <script src="/portal-live/portal-d1-bridge.js?v=20261124-arisan-saturday-rule-v2"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261124-flush-banner-v5"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261123-unified-indigo-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261126-option2-v1"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-option2-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261112-finance-clean-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261124-arisan-slides-v6">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261126-option2-v1">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261123-portal-lightbox-grip-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261123-portal-lightbox-grip-v1"></script>
@@ -56,7 +57,7 @@
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
 </head>
 
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen w-full">
+<body class="bg-white text-[#20232D] flex flex-col min-h-screen w-full">
 
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full transition-all shadow-md">
@@ -160,8 +161,7 @@
       <div class="f4-cash-overview">
         <div id="f4-cash-summary-slides" class="f4-cash-summary" role="group" aria-label="Ringkasan saldo, pemasukan dan pengeluaran">
           <!-- Sisa Saldo Kas Utama -->
-        <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-5 rounded-2xl shadow-lg border-2 border-indigo-500/40 text-white relative overflow-hidden transform md:-translate-y-1">
-          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="bg-indigo-600 p-5 rounded-xl border border-indigo-600 text-white relative overflow-hidden">
           <div class="f4-cash-card-heading flex items-center justify-between mb-1">
             <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
             <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
@@ -310,30 +310,29 @@
       </div>
 
       <div id="f4-arisan-slides" class="grid f4-grid w-full" data-cols="2" role="group" aria-label="Arisan bulan ini dan berikutnya">
-        <div onclick="openModalArisan('current')" class="bg-gradient-to-r from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white p-5 rounded-xl shadow-md flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
+        <div onclick="openModalArisan('current')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-lg flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
               <span>Arisan Bulan Ini</span>
-              <i data-lucide="external-link" class="w-3 h-3 text-indigo-300 opacity-70 group-hover:opacity-100"></i>
             </span>
             <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
             <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
           </div>
-          <div id="arisan-bulan-ini-icon-bg" class="p-3 rounded-full bg-white/20 backdrop-blur-sm group-hover:scale-110 transition">
+          <div id="arisan-bulan-ini-icon-bg" class="shrink-0 text-white">
             <i id="arisan-bulan-ini-icon" data-lucide="home" class="w-6 h-6 text-white"></i>
           </div>
         </div>
 
-        <div onclick="openModalArisan('next')" class="bg-white hover:bg-slate-50 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-indigo-300 flex items-center justify-between cursor-pointer transition transform hover:-translate-y-0.5 active:scale-98 group">
+        <div onclick="openModalArisan('next')" class="bg-white hover:bg-indigo-50 p-5 rounded-lg border border-slate-200 hover:border-indigo-300 flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
+              <span class="w-2 h-2 rounded-full bg-[#FFBA26] shrink-0" aria-hidden="true"></span>
               <span>Tuan Rumah Berikutnya</span>
-              <i data-lucide="external-link" class="w-3 h-3 text-indigo-400 opacity-70 group-hover:opacity-100"></i>
             </span>
             <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
             <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
           </div>
-          <div class="bg-indigo-50 text-indigo-600 p-3 rounded-full border border-indigo-100 group-hover:scale-110 transition">
+          <div class="shrink-0 text-indigo-600">
             <i data-lucide="calendar" class="w-6 h-6"></i>
           </div>
         </div>
@@ -362,7 +361,7 @@
       <div id="slider-projek" class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-1 w-full">
         
         <!-- CARD 1: JERSEY -->
-        <div id="jersey" class="order-3 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="jersey" class="order-3 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-lg border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -407,7 +406,7 @@
         </div>
 
         <!-- CARD 2: GAPURA -->
-        <div id="gapura" class="order-2 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="gapura" class="order-2 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-lg border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -450,7 +449,7 @@
         </div>
 
         <!-- CARD 3: BANK SAMPAH (TERHUBUNG KE BANKSAMPAH.HTML) -->
-        <div id="bank-sampah" onclick="window.f4GoBank?.()" class="order-1 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-xl shadow-sm border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
+        <div id="bank-sampah" onclick="window.f4GoBank?.()" class="order-1 snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white hover:bg-emerald-50/30 rounded-lg border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -1030,7 +1029,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261124-paired-cash-v8"></script>
+  <script src="/portal-live/home-legacy.js?v=20261126-option2-v1"></script>
 <script defer src="/portal-live/payment-footer.js?v=20261117-desktop-inline-v2"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{

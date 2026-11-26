@@ -1,5 +1,5 @@
 /* Portal Utama: satu palet warna aksi, tanpa mengubah warna status. */
-:root{--f4-portal-primary:#4f46e5;--f4-portal-primary-hover:#4338ca;--f4-portal-primary-ink:#3730a3;--f4-portal-soft:#eef2ff;--f4-portal-soft-hover:#e0e7ff;--f4-portal-line:#c7d2fe;--f4-portal-line-hover:#a5b4fc;--f4-portal-text:#1e293b;--f4-portal-muted:#64748b}
+:root{--f4-portal-primary:#5145CD;--f4-portal-primary-hover:#4539B8;--f4-portal-primary-ink:#393099;--f4-portal-accent:#FFBA26;--f4-portal-soft:#EDEBFA;--f4-portal-soft-hover:#DCD8F5;--f4-portal-line:#DCD8F5;--f4-portal-line-hover:#C3BDF0;--f4-portal-text:#20232D;--f4-portal-muted:#666975}
 
 /* Former <style anonymous>; order preserved. */
 
@@ -43,7 +43,7 @@
 /* Frontend sumber dipertahankan; hanya header & HERO lama dihilangkan karena
  * sekarang sidebar/menu + utility bar berasal dari shell terpadu. */
 body>header, body>section:first-of-type { display:none; }
-body {background:#f8f9fc}
+body {background:#fff;color:var(--f4-portal-text)}
 #f4-portal-home-main {padding:24px 16px;max-width:1250px}
 #banner-slider-container {border-radius:16px}
 

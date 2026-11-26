@@ -1693,13 +1693,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         f4ArisanMonthNames[now.month-1]+' '+now.year;
       get('arisan-selanjutnya-nama').textContent=following?String(values(following)[1]||'-'):'Belum dijadwalkan';
       get('arisan-selanjutnya-tgl').textContent=following?
-        'Pelaksanaan: '+String(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
+        String(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
       const icon=get('arisan-bulan-ini-icon-bg');
       if(icon){
         const status=String(values(current)[2]||'').toLowerCase();
         const done=/sudah|selesai|lunas/.test(status);
-        icon.className=done?'p-3 rounded-full bg-emerald-500/30 text-emerald-300':
-          'p-3 rounded-full bg-white/20 backdrop-blur-sm text-white';
+        icon.className=done?'shrink-0 text-emerald-100':
+          'shrink-0 text-white';
         icon.innerHTML=done?
           '<i data-lucide="check-circle-2" class="w-6 h-6"></i>':
           '<i data-lucide="home" class="w-6 h-6"></i>';
@@ -2839,7 +2839,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
     function f4ProjectGeneric(row){
       const container=f4ProjectCardEl('article',
-        'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col');
+        'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-lg border border-slate-200 p-4 flex flex-col');
       container.dataset.dynamicProject='true';
       container.dataset.projectId=String(row.id||'');
       container.style.order=String(Number(row.sort_order)||0);
