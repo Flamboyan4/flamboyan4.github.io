@@ -25,7 +25,7 @@ const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/sup
 const pathname=location.pathname;
 const portalKey=path=>Object.keys(paths).find(key=>paths[key]===path.replace(/index\.html$/i,'').replace(/\/?$/,'/'))||null;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease=document.documentElement.dataset.f4Release||'20261127-content-boundary-v1';
+const shellRelease=document.documentElement.dataset.f4Release||'20261127-persistent-source-v1';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
 // Version ordinary cross-portal links too, including legacy links not built by navButton.
 document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
@@ -39,7 +39,7 @@ applyPortalTheme(portal);
 // All navigation pictograms are locally hosted SVG files, never Unicode symbols.
 const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></span>';
 const el=(tag,cl)=>{const n=document.createElement(tag);if(cl)n.className=cl;return n};
-const bar=el('div');bar.id='f4-direct-bar';
+const bar=el('div');bar.id='f4-direct-bar';bar.dataset.f4Persistent='shell';
 const hamburger=el('button');hamburger.id='f4-mobile-menu';hamburger.type='button';hamburger.innerHTML=svg('menu');hamburger.setAttribute('aria-label','Buka menu halaman');
 const links=el('nav','f4-nav-links');links.setAttribute('aria-label','Pindah portal');
 function navButton(key,url,label){
@@ -65,8 +65,8 @@ const identity=el('div','f4-direct-identity');identity.id='f4-direct-identity';i
 const identityName=el('strong'),identityDetail=el('small');identity.append(identityName,identityDetail);
 bar.append(hamburger,identity,links,login,avatar,menu);document.body.prepend(bar);
 // Shared resident notification component for all native portals.
-const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
-const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261126-single-notification-v1';document.head.append(notificationScript);
+const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
+const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-persistent-source-v1';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
 dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
@@ -118,11 +118,11 @@ function updatePortalChrome(key){
  activePortalKey=key;
  portal=key==='rapat'||key==='dokumentasi'?'simple':key;
  document.documentElement.dataset.f4Shell=portal;
- applyPortalTheme(portal);dock?.setPortal(portal);
+ applyPortalTheme(portal);dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
  settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
- document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));notifyRole();
+ document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));
 }
 async function navigatePortal(path,{replace=false,pop=false}={}){
  const target=new URL(path,location.origin);
@@ -153,7 +153,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  const accountId=session?.account?.id||null;
  let prepared=null;
  try{
-  if(current.canLeave&&!(await current.canLeave()))return false;
+  if(current.canLeave&&!(await current.canLeave())){showSessionNotice('Konten atau transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   prepared=await next.prepare(target);
   if(!prepared||typeof prepared.mount!=='function'||typeof prepared.dispose!=='function')throw Error('Lifecycle konten tidak lengkap.');
   if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();return false}
@@ -161,7 +161,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   await current.dispose();mountedContent=null;
   if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
-  await prepared.mount();mountedContent=prepared;updatePortalChrome(key);window.scrollTo(0,0);return true;
+  await prepared.mount();mountedContent=prepared;window.scrollTo(0,0);return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);
@@ -171,6 +171,14 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
 }
 window.F4PortalNavigation={
  go:navigatePortal,current:()=>activePortalKey,
+ activate:updatePortalChrome,
+ contentReady(){
+  if(portal==='portal'){window.f4GoBank=()=>navigatePortal(paths.bank);if(typeof window.openModalDokumentasi==='function')window.openModalDokumentasi=()=>navigatePortal(paths.dokumentasi)}
+  if(portal==='bank')window.v11ShowLogin=()=>openLogin();
+  if(sessionCheckCompleted)notifyRole();
+  const calendar=document.getElementById('rencana'),inventory=document.getElementById('kegiatan');if(portal==='portal'&&calendar&&inventory&&calendar.parentElement===inventory.parentElement)inventory.before(calendar);
+  window.F4MobileSheets?.refresh?.();
+ },
  register(key,factory,{mounted}={}){
   if(!['portal','bank','book','superadmin','rapat','dokumentasi'].includes(key)||typeof factory?.prepare!=='function')throw Error('Factory konten harus memiliki prepare.');
   if(mounted&&(key!==activePortalKey||typeof mounted.dispose!=='function'||mountedContent))throw Error('Lifecycle konten aktif tidak valid.');
@@ -182,9 +190,10 @@ window.addEventListener('popstate',()=>{
  if(key&&key!==activePortalKey)void navigatePortal(location.href,{pop:true});
 });
 document.addEventListener('click',event=>{
- const a=event.target?.closest?.('a[data-f4-portal-target]');
+ const a=event.target?.closest?.('a[href]');
  if(!a||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||a.target==='_blank'||a.hasAttribute('download'))return;
- event.preventDefault();void navigatePortal(a.href);
+ const u=new URL(a.href,location.href);const key=portalKey(u.pathname);if(u.origin!==location.origin||!key||key==='donor'||(key===activePortalKey&&!a.hasAttribute('data-f4-portal-target')))return;
+ event.preventDefault();void navigatePortal(u.href);
 });
 function openBankRoute(route){
  if(!session?.account)return;
@@ -250,7 +259,7 @@ sessionNoticeClose.type='button';sessionNoticeClose.innerHTML='<svg xmlns="http:
 sessionNoticeClose.onclick=()=>{sessionNotice.hidden=true};
 sessionNotice.append(sessionNoticeText,sessionNoticeAction,sessionNoticeClose);
 document.body.append(sessionNotice);
-const sessionNoticeStyle=document.createElement('style');
+const sessionNoticeStyle=document.createElement('style');sessionNoticeStyle.dataset.f4Persistent='shell';
 sessionNoticeStyle.textContent='#f4-session-notice:not([hidden]){position:fixed;right:14px;bottom:18px;z-index:10010;display:flex;align-items:center;gap:12px;max-width:min(460px,calc(100vw - 28px));padding:12px 14px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:#22344b;box-shadow:0 8px 30px #0f172a26;font:13px/1.4 system-ui,sans-serif}#f4-session-notice span{flex:1;min-width:0}#f4-session-notice button{font:inherit;cursor:pointer;border:1px solid #cbd5e1;border-radius:8px;background:#eef2ff;color:#312e81;padding:6px 8px;white-space:nowrap}#f4-session-notice button:last-child{border:0;background:transparent;color:#475569;font-size:20px;padding:2px 4px}';
 document.head.append(sessionNoticeStyle);
 function showSessionNotice(message,actionLabel,action){

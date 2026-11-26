@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-content-boundary-v1">
+<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-persistent-source-v1" data-f4-spa="1">
 <head>
   <meta charset="utf-8">
   <base target="_top">
@@ -1251,7 +1251,7 @@ z-index:240;pointer-events:auto
 }
 }
 html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
-</style><script src="/portal-live/ui-dialog.js?v=20261109-all-portals-v4"></script>
+</style><script type="application/f4-source" data-f4-id="/portal-live/ui-dialog.js" data-f4-src="/portal-live/ui-dialog.js?v=20261127-persistent-source-v1"></script>
 <script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><style id="f4-bank-private-navigation-fix">
 /* A member dashboard is informational{display:none}
 /* The private navigation stays in place while the iframe document scrolls. */
@@ -1261,7 +1261,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-content-boundary-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-persistent-source-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261126-borderless-shell-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -2272,10 +2272,10 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261114-bank-mobile-audit-v13">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261115-bank-dropdown-v14"></script>
-<script src="/portal-live/bank-modal-history.js?v=20261115-picker-back-layer-v7"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-modal-history.js" data-f4-src="/portal-live/bank-modal-history.js?v=20261127-persistent-source-v1"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
 </head>
-<body class="f4-direct-bank"><script src="/portal-live/shared-mobile-dock.js?v=20261127-content-boundary-v1"></script>
+<body class="f4-direct-bank"><script src="/portal-live/shared-mobile-dock.js?v=20261127-persistent-source-v1"></script>
 <div id="f4-bank-startup" role="status" aria-live="polite">Memuat Bank Sampah…</div>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo"><img src="/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo resmi Flamboyan 4" width="35" height="35" style="object-fit:contain"></div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div></header>
@@ -2338,318 +2338,14 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 </div>
 <!-- The active Cloudflare read bridge is maintained once in live-bank-readonly.js. -->
 
-<script src="/portal-live/live-bank-readonly.js?v=20261126-card-standard-admin-cash-v1"></script>
-<script src="/portal-live/bank-progress-app.js?v=20261121-belum-terjual-v1"></script>
-<script src="/portal-live/f4-bank-write-bridge.js?v=20261115-deposit-edit-v1"></script>
-<script id="f4-bank-split-readonly">
-(()=>{
-'use strict';
-// Nama/rasio pada panduan selalu berasal dari aturan yang sama dengan pengesahan D1.
-const api='https://api.flamboyan4.web.id/api/public/bank-split';
-let inFlight=null;
-async function refresh(){
- const member=document.getElementById('f4BankSplitMember');
- const env=document.getElementById('f4BankSplitEnvironment');
- if(!member||!env||inFlight)return inFlight;
- inFlight=(async()=>{
-  try{
-   const response=await fetch(api,{credentials:'omit',cache:'no-store'});
-   const result=await response.json();
-   if(!response.ok||result.ok===false||
-      !Number.isSafeInteger(result.wargaPercent)||result.wargaPercent<1||result.wargaPercent>99||
-      result.lingkunganPercent!==100-result.wargaPercent)throw Error('Aturan belum tersedia.');
-   member.textContent=result.wargaPercent+'%';
-   env.textContent=result.lingkunganPercent+'%';
-   document.getElementById('f4MemberFlow')?.setAttribute('data-warga-percent',String(result.wargaPercent));
-  }catch(error){
-   member.textContent='—';env.textContent='—';
-   member.title='Persentase belum dapat dimuat';env.title='Persentase belum dapat dimuat';
-  }
- })();
- try{await inFlight}finally{inFlight=null}
-}
-document.addEventListener('toggle',event=>{if(event.target?.id==='f4MemberFlow'&&event.target.open)refresh()},true);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
-window.addEventListener('pageshow',refresh);
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh);else refresh();
-})();
-</script>
+<script type="application/f4-source" data-f4-id="/portal-live/live-bank-readonly.js" data-f4-src="/portal-live/live-bank-readonly.js?v=20261127-persistent-source-v1"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-progress-app.js" data-f4-src="/portal-live/bank-progress-app.js?v=20261127-persistent-source-v1"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/f4-bank-write-bridge.js" data-f4-src="/portal-live/f4-bank-write-bridge.js?v=20261127-persistent-source-v1"></script>
+<script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-1" data-f4-src="/portal-live/bank-inline.js?v=20261127-persistent-source-v1"></script>
 
-<script src="/portal-live/bank-content.js?v=20261127-content-boundary-v1"></script>
-<script id="f4-original-bank-host">
-/* Only portal integration: no replacement UI, fields, CSS, or Bank Sampah original functions. */
-(()=>{
-  'use strict';
-  const inPortal=true; // Native shared shell is the host
-  if(inPortal)document.documentElement.classList.add('f4-bank-embedded');
-  let currentRole='public',identity={},pendingSection='',lastAdminSection='',pendingProfile=false;
-  const accountGroup=v16Groups.find(group=>group.id==='settings');
-  const originalAccountTabs=accountGroup?accountGroup.tabs.slice():[];
-  function syncAccountTabs(){
-    // Original account management stays visible for Superadmin when opening
-    // "Pengaturan Akun Warga"; Dashboard is a separate root destination.
-    if(accountGroup)accountGroup.tabs=originalAccountTabs.slice();
-  }
-  function openOriginalProfile(){
-    if(currentRole==='public'||!profile){pendingProfile=true;return;}
-    pendingProfile=false;
-    // The authenticated visitor may currently be on the public page.
-    // goPage() alone changes a HIDDEN dashboard; reveal it first.
-    if(document.getElementById('dashboardView')?.classList.contains('hidden'))
-      showDashboard(profile);
-    goPage('profile');
-    if(inPortal)window.parent.postMessage({type:'f4:bank-profile-opened'},location.origin);
-  }
-  window.f4OpenBankProfile=openOriginalProfile;
-  // Back from a public page may restore a private view only if the same session is active.
-  window.f4BankRevealPrivateForHistory=()=>{
-    if(currentRole==='public'||!profile)return false;
-    const dashboard=document.getElementById('dashboardView');
-    if(dashboard?.classList.contains('hidden'))showDashboard(profile);
-    return !dashboard?.classList.contains('hidden');
-  };
-  function openMemberSavings(){
-    if(currentRole!=='warga'||!profile||profile.peran!=='Warga')return;
-    if(document.getElementById('dashboardView')?.classList.contains('hidden'))showDashboard(profile);
-    goPage('pribadi');
-  }
-  function syncPublicSavingsButton(){
-    const banner=document.querySelector('#v11Public .v17-public-banner');
-    if(!banner)return;
-    const left=banner.firstElementChild||banner;
-    const isMember=currentRole==='warga'&&profile?.peran==='Warga';
-    const isManager=['admin','superadmin'].includes(currentRole)&&profile?.peran==='Admin';
-    let saving=document.getElementById('f4-public-my-savings');
-    let manage=document.getElementById('f4-public-manage-bank');
-    if(isMember){
-      if(!saving){saving=document.createElement('button');saving.id='f4-public-my-savings';saving.type='button';saving.className='f4-public-my-savings';saving.textContent='Lihat Tabungan Saya';saving.onclick=openMemberSavings;left.append(saving);}
-    }else saving?.remove();
-    if(isManager){
-      if(!manage){manage=document.createElement('button');manage.id='f4-public-manage-bank';manage.type='button';manage.className='f4-public-my-savings';manage.textContent='Kelola Bank Sampah';manage.onclick=()=>{
-        if(document.getElementById('dashboardView')?.classList.contains('hidden'))showDashboard(profile);
-        goPage('dashboard');
-      };left.append(manage);}
-    }else manage?.remove();
-  }
-  // Reuse the original Bank Sampah page for savings, profile and every
-  // admin tab. Only a contextual shortcut is added to the public banner.
-  const originalPublic=v11ShowPublic;
-  v11ShowPublic=function(...args){
-    const value=originalPublic(...args);
-    syncPublicSavingsButton();
-    return value;
-  };
-  function syncReturnButton(){
-    const list=document.getElementById('v16NavList');
-    if(!list||currentRole==='public')return;
-    let back=list.querySelector('.f4-back-management,.f4-back-account');
-    if(!back){
-      back=document.createElement('button');back.type='button';
-      list.appendChild(back);
-    }
-    back.className='v16-item '+(currentRole==='superadmin'?'f4-back-management':'f4-back-account');
-    const label=currentRole==='superadmin'?'Menu Pengelolaan':currentRole==='warga'?'Kartu & Profil':'Profil pengurus';
-    const labelNode=document.createElement('span');labelNode.className='f4-bank-nav-label';labelNode.textContent=label;
-    back.setAttribute('aria-label',label);back.replaceChildren(v16Icon(currentRole==='superadmin'?'back':'user'),labelNode);
-    back.onclick=()=>currentRole==='superadmin'
-      ?window.parent.postMessage({type:'f4:manage-home'},location.origin)
-      :openOriginalProfile();
-  }
-  const originalNavBuilder=v16BuildNav;
-  v16BuildNav=function(...args){
-    const result=originalNavBuilder(...args);
-    syncReturnButton();
-    return result;
-  };
-  const invokeLogin=()=>{
-    if(inPortal)window.parent.postMessage({type:'f4:show-login'},location.origin);
-    else document.getElementById('authView')?.classList.remove('hidden');
-  };
-  if(inPortal){
-    document.body.classList.add('f4-embedded-bank');
-    // Tag <base target="_top"> dapat membuka tautan keluar dari
-    // iframe. Biarkan tautan #v17... tetap membuka bagian dalam halaman.
-    const base=document.querySelector('base[target="_top"]');
-    if(base)base.target='_self';
-    v11ShowLogin=invokeLogin;
-    doLogout=()=>{
-      const button=window.parent.document?.querySelector('[data-account-action="logout"]');
-      if(button)button.click();
-      else window.parent.postMessage({type:'f4:logout-request'},location.origin);
-    };
-  }
-  let activeAccountKey='public';
-  function activate(role,account){
-    try{
-    const nextRole=role||'public';
-    const nextIdentity=account||{};
-    const nextAccountKey=nextRole==='public'?'public':
-      String(nextIdentity.accountId||'').trim()
-      ?'account:'+String(nextIdentity.accountId).trim()
-      :nextRole+':'+String(nextIdentity.wargaId||nextIdentity.nama||'').trim();
-    const matching=!!profile&&currentRole===nextRole&&activeAccountKey===nextAccountKey;
-    if(!matching){
-      // Reset before the next role is applied. No prior account's private
-      // cards, media, observers, or pending navigation can bleed across logins.
-      window.f4BankResetForAccountSwitch?.();
-      lastAdminSection='';pendingSection='';pendingProfile=false;
-    }
-    activeAccountKey=nextAccountKey;
-    currentRole=nextRole;identity=nextIdentity;
-    document.body.dataset.f4BankRole=currentRole;
-    syncAccountTabs();
-    if(matching&&currentRole!=='public'){
-      // Satu akun, satu nama tampilan. Sinkronkan header/kartu saat nama diedit,
-      // tanpa memuat ulang data transaksi atau mengganti identitas pembukuan.
-      if(profile&&identity.nama&&identity.nama!==profile.nama){
-        profile.nama=identity.nama;
-        $('pName').textContent=profile.nama;
-        $('greeting').textContent='Halo, '+(profile.peran==='Admin'?profile.nama:f4BankDisplayWargaName(profile.nama));
-        $('welcomeName').textContent=f4BankDisplayWargaName(profile.nama);
-        if($('v15AccountName'))$('v15AccountName').textContent=profile.peran==='Admin'?profile.nama:f4BankDisplayWargaName(profile.nama);
-        window.dispatchEvent(new CustomEvent('f4-bank-display-name-synced',{detail:{nama:profile.nama}}));
-      }
-      syncReturnButton();
-      if(pendingProfile)openOriginalProfile();
-      else if(pendingSection){const page=pendingSection;pendingSection='';openAdmin(page);}
-      else syncPublicSavingsButton();
-      return;
-    }
-    if(currentRole==='public'){
-      token='';profile=null;lastAdminSection='';pendingSection='';pendingProfile=false;
-      v11ShowPublic();window.f4BankReconcileAccount?.();
-      return;
-    }
-    token='cloudflare-session-readonly';
-    const p={
-      nama:identity.nama||'Akun aktif',
-      peran:currentRole==='warga'||currentRole==='anggota'?'Warga':'Admin',
-      rumah:identity.rumah||'',wargaId:identity.wargaId||''
-    };
-    showDashboard(p);
-    window.f4BankReconcileAccount?.();
-    syncReturnButton();
-    const requested=pendingSection||lastAdminSection;
-    pendingSection='';
-    if(pendingProfile){openOriginalProfile();return;}
-    if(requested&&['admin','superadmin'].includes(currentRole))openAdmin(requested);
-    }finally{
-      // Release initial screen only after the selected public/private view is ready.
-      document.documentElement.classList.remove('f4-bank-auth-pending');
-    }
-  }
-  function openAdmin(section){
-    const allowed=['dashboard','setoran','riwayat','penjualan','riwayatJual','rekonsiliasi','pengesahan','tabungan','biaya','laporan','kegiatan','dokumentasi','inventaris','master','admin','progress'];
-    const target=currentRole==='superadmin'&&section==='kegiatan'?'dokumentasi':
-      allowed.includes(section)?section:'dashboard';
-    // Pesan bisa tiba sebelum pesan login/role; jangan hilangkan pilihan menu.
-    if(currentRole==='public'){pendingSection=target;return;}
-    if(!['admin','superadmin'].includes(currentRole))return;
-    lastAdminSection=target;
-    if(!profile){pendingSection=target;return;}
-    // Do not switch a hidden admin tab while public content stays visible.
-    if(document.getElementById('dashboardView')?.classList.contains('hidden'))
-      showDashboard(profile);
-    goPage(target);
-    if(inPortal)window.parent.postMessage({type:'f4:bank-admin-opened',section:target},location.origin);
-  }
-  window.addEventListener('message',event=>{
-    if(!inPortal||event.origin!==location.origin||event.source!==window.parent)return;
-    if(event.data?.type==='f4:demo-role')activate(event.data.role,event.data.identity);
-    if(event.data?.type==='f4:open-bank-admin')openAdmin(String(event.data.section||'dashboard'));
-    if(event.data?.type==='f4:open-bank-profile')openOriginalProfile();
-  });
-  const bankMenuIsPublic=()=>document.getElementById('dashboardView')?.classList.contains('hidden');
-  const bankMenuOpen=()=>bankMenuIsPublic()
-    ?!!document.getElementById('v18PublicSide')?.classList.contains('open')
-    :!!document.getElementById('sideNav')?.classList.contains('open');
-  function bankMenuClose(){
-    document.getElementById('v18PublicSide')?.classList.remove('open');
-    document.getElementById('v18PublicBackdrop')?.classList.remove('open');
-    document.getElementById('sideNav')?.classList.remove('open');
-    document.getElementById('v16Backdrop')?.classList.remove('open');
-    if(inPortal)window.parent.postMessage({type:'f4:sidebar-state',portal:'bank-sampah',open:false},location.origin);
-  }
-  window.f4ToggleBankMenu=()=>{
-    if(bankMenuOpen()){
-      if(history.state?.f4BankSidebarOverlay)history.back();
-      else bankMenuClose();
-      return;
-    }
-    if(inPortal)history.pushState({...history.state,f4BankSidebarOverlay:true},'',location.href);
-    if(bankMenuIsPublic()){
-      document.getElementById('v18PublicSide')?.classList.add('open');
-      document.getElementById('v18PublicBackdrop')?.classList.add('open');
-    }else{
-      document.getElementById('sideNav')?.classList.add('open');
-      document.getElementById('v16Backdrop')?.classList.add('open');
-    }
-    if(inPortal)window.parent.postMessage({type:'f4:sidebar-state',portal:'bank-sampah',open:true},location.origin);
-  };
-  if(inPortal){
-    window.addEventListener('popstate',()=>{
-      if(!history.state?.f4BankSidebarOverlay)bankMenuClose();
-    });
-    document.addEventListener('click',e=>{
-      if(!bankMenuOpen())return;
-      if(['v18PublicBackdrop','v16Backdrop'].includes(e.target?.id)){
-        e.preventDefault();e.stopImmediatePropagation();
-        window.f4ToggleBankMenu();
-      }else if(e.target.closest('#v18PublicSide button,#sideNav button')){
-        // Biarkan onclick navigasi berjalan dahulu. history.back() secara sinkron
-        // di capture phase pernah memulihkan halaman sebelum menu dapat dibuka di HP.
-        // Timer menunggu event click selesai di semua fase, termasuk onclick tombol.
-        setTimeout(()=>{
-          if(history.state?.f4BankSidebarOverlay)
-            history.replaceState({...history.state,f4BankSidebarOverlay:false},'',location.href);
-          bankMenuClose();
-        },0);
-      }
-    },true);
-    document.addEventListener('keydown',e=>{
-      if(e.key==='Escape'&&bankMenuOpen()){e.preventDefault();e.stopImmediatePropagation();window.f4ToggleBankMenu();}
-    },true);
-  }
-  if(inPortal){
-    const photoStatus=document.getElementById('v15PhotoStatus');
-    if(photoStatus)new MutationObserver(()=>{
-      if(/berhasil disimpan/i.test(photoStatus.textContent||''))
-        window.parent.postMessage({type:'f4:bank-avatar-updated'},location.origin);
-    }).observe(photoStatus,{childList:true,subtree:true,characterData:true});
-    window.parent.postMessage({type:'f4:ready',portal:'bank-sampah'},location.origin);
-  }
-})();
-</script>
-<script id="f4-bank-explicit-save-clicks">
-/* Keep original Bank Sampah UI, call its existing D1-connected form handlers
-   from real button clicks. Browsers did not dispatch native submit in
-   the integrated portal. This does not bypass any server authorisation. */
-(function(){
- 'use strict';
- const allowed=new Set([
-  'submitSetoran','submitSale','doChangePassword',
-  'v8Confirm','v9Cairkan','v10SaveExpense',
-  'v11SaveProgress','v11SaveAlbum','v11SaveMedia','v11SaveInventory',
-  'v24SaveProgress','v27CancelBatch'
- ]);
- document.addEventListener('click',function(event){
-  const button=event.target?.closest?.('button[type="submit"]');
-  const form=button?.form;if(!form||button.disabled)return;
-  let name=String(form.getAttribute('onsubmit')||'').match(/^([A-Za-z][A-Za-z0-9]*)\(event\)$/)?.[1]||'';
-  if(form.id==='v24EditForm')name='v24SaveProgress';
-  if(form.id==='v27CancelForm')name='v27CancelBatch';
-  if(!allowed.has(name))return;
-  event.preventDefault();
-  if(!form.reportValidity())return;
-  const fn=window[name];
-  if(typeof fn!=='function'){console.error('Bank form handler unavailable:',name);return;}
-  event.stopPropagation();
-  // Legacy handlers use e.target/e.currentTarget as the FORM, not the button.
-  const submitEvent={preventDefault:()=>event.preventDefault(),target:form,currentTarget:form};
-  Promise.resolve(fn(submitEvent)).catch(err=>console.error('Bank save handler error:',name,err));
- },true);
-})();
-</script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-content.js" data-f4-src="/portal-live/bank-content.js?v=20261127-persistent-source-v1"></script>
+<script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-2" data-f4-src="/portal-live/bank-inline.js?v=20261127-persistent-source-v1"></script>
+<script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-3" data-f4-src="/portal-live/bank-inline.js?v=20261127-persistent-source-v1"></script>
 <style id="f4-bank-member-search-style">
 .f4-warga-picker{position:relative;width:100%;min-width:0}
 .f4-warga-picker>select{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:4px;bottom:0}
@@ -2720,92 +2416,7 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 }
 .f4-compact-remove svg{display:block;width:18px;height:18px;pointer-events:none}
 </style>
-<script id="f4-bank-member-search">
-(()=>{
- 'use strict';
- const watched=['setWarga','v9Member'];
- let active=null;
- const parsed=label=>{
-  const t=String(label||'').replace(/\s*\(member:[^)]+\)/ig,'').trim();
-  const m=t.match(/(?:[—•-]\s*|\s+)([A-Z]\d{1,2}\s*\/\s*\d{1,3})\b/i);
-  return {nama:m?t.slice(0,m.index).trim():t,rumah:m?m[1].replace(/\s/g,'').toUpperCase():'—'};
- };
- // The member ID/full registered name stays intact in the original select.
- // Only the visible picker row and chosen label use 'Pak + first name'.
- const shortName=full=>window.f4BankDisplayWargaName(full);
- function enhance(select){
-  if(!select||select.dataset.f4Picker)return;
-  select.dataset.f4Picker='1';
-  const wrap=document.createElement('div');wrap.className='f4-warga-picker';
-  select.parentNode.insertBefore(wrap,select);wrap.append(select);
-  const trigger=document.createElement('button');trigger.type='button';trigger.className='f4-warga-picker-open';trigger.setAttribute('aria-haspopup','listbox');
-  const label=document.createElement('span');trigger.append(label);
-  const panel=document.createElement('div');panel.className='f4-warga-picker-pop';panel.hidden=true;
-  const search=document.createElement('input');search.type='search';search.placeholder='Cari nama atau nomor rumah...';search.setAttribute('aria-label','Cari warga');
-  const head=document.createElement('div');head.className='f4-warga-picker-head';head.innerHTML='<span>Nama warga</span><span>Rumah</span>';
-  const list=document.createElement('div');list.className='f4-warga-picker-table';list.setAttribute('role','listbox');
-  panel.append(search,head,list);wrap.append(trigger);document.body.append(panel);
-  const sync=()=>{
-   const opt=select.selectedOptions[0];
-   label.textContent=select.value&&opt?shortName(parsed(opt.textContent).nama):'Pilih warga';
-  };
-  function close(){panel.hidden=true;trigger.setAttribute('aria-expanded','false');if(active===panel)active=null}
-  panel.f4Close=close;
-  function render(){
-   list.replaceChildren();
-   const q=search.value.trim().toLocaleLowerCase('id-ID');
-   const opts=[...select.options].filter(x=>x.value&&x.textContent.trim()!=='');
-   for(const opt of opts){
-    const info=parsed(opt.textContent);if(q&&!String((opt.dataset.fullName||info.nama)+' '+info.nama+' '+info.rumah).toLocaleLowerCase('id-ID').includes(q))continue;
-    const row=document.createElement('button');row.type='button';row.className='f4-warga-picker-row';row.setAttribute('role','option');row.setAttribute('aria-selected',String(select.value===opt.value));
-    const name=document.createElement('span');name.textContent=shortName(info.nama);
-    const home=document.createElement('span');home.textContent=info.rumah;home.className='f4-warga-home';
-    row.append(name,home);row.onclick=()=>{select.value=opt.value;select.dispatchEvent(new Event('change',{bubbles:true}));sync();close();trigger.focus()};
-    list.append(row);
-   }
-   if(!list.childElementCount){const empty=document.createElement('p');empty.textContent='Warga tidak ditemukan';empty.style.padding='10px';list.append(empty)}
-  }
-  function place(){
-   if(panel.hidden)return;
-   const r=trigger.getBoundingClientRect(),vv=window.visualViewport;
-   const vtop=vv?.offsetTop||0,vbottom=vtop+(vv?.height||window.innerHeight);
-   const below=vbottom-r.bottom-8,above=r.top-vtop-8;
-   const down=below>=200||below>=above;
-   const height=Math.min(390,Math.max(110,down?below:above));
-   const vleft=vv?.offsetLeft||0,vwidth=vv?.width||window.innerWidth;
-   const width=Math.min(Math.max(r.width,310),vwidth-20);
-   panel.style.width=width+'px';panel.style.maxHeight=height+'px';
-   panel.style.left=Math.max(vleft+10,Math.min(vleft+vwidth-width-10,r.left))+'px';
-   panel.style.top=(down?r.bottom+5:Math.max(vtop+4,r.top-height-5))+'px';
-   panel.style.bottom='auto';
-  }
-  trigger.onclick=()=>{
-   if(!panel.hidden){close();return}
-   if(active)active.f4Close?.();
-   active=panel;panel.hidden=false;
-   trigger.setAttribute('aria-expanded','true');search.value='';render();place();
-  };
-  window.addEventListener('resize',place,{passive:true});
-  // Focusing the search box or collapsing browser chrome can scroll the
-  // document. Keep the anchored picker positioned; do not close it.
-  window.addEventListener('scroll',()=>{if(!panel.hidden)place()},{passive:true});
-  window.visualViewport?.addEventListener('resize',place,{passive:true});
-  window.visualViewport?.addEventListener('scroll',place,{passive:true});
-  
-  search.oninput=render;
-  search.onkeydown=e=>{if(e.key==='Escape'){close();trigger.focus()}if(e.key==='Enter'){e.preventDefault();list.querySelector('button')?.click()}};
-  select.addEventListener('change',sync);
-  new MutationObserver(sync).observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
-  sync();
-  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target)&&!panel.contains(e.target))close()});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
- }
- function scan(){watched.forEach(id=>enhance(document.getElementById(id)))}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
- const observer=new MutationObserver(mutations=>{if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select')||n.querySelector?.('select')))))scan()});
- observer.observe(document.body,{childList:true,subtree:true});
-})();
-</script>
+<script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-4" data-f4-src="/portal-live/bank-inline.js?v=20261127-persistent-source-v1"></script>
 <style id="f4-bank-sale-proof-20261028">
 @media(min-width:1021px){
  body.f4-direct-bank #dashboardView #riwayatJualList .f4-bs-history-row>.toolbar:nth-child(3){
@@ -2829,43 +2440,16 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261126-mobile-shortcuts-after-actions-v2">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261126-card-standard-admin-cash-v1">
 <link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261126-shared-account-greeting-v1">
-  <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261127-content-boundary-v1">
-<script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
-<script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261123-prices-no-search-v3"></script>
+  <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261127-persistent-source-v1">
+<script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-persistent-source-v1" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-sale-sheet.js" data-f4-src="/portal-live/bank-sale-sheet.js?v=20261127-persistent-source-v1"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-sale-report.js" data-f4-src="/portal-live/bank-sale-report.js?v=20261127-persistent-source-v1"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-member-prices.js" data-f4-src="/portal-live/bank-member-prices.js?v=20261127-persistent-source-v1"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261127-content-boundary-v1"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261126-shared-mobile-dock-v1"></script>
+<script src="/portal-live/direct-shell.js?v=20261127-persistent-source-v1"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-persistent-source-v1" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-setoran-date.js" data-f4-src="/portal-live/bank-setoran-date.js?v=20261127-persistent-source-v1" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-persistent-source-v1" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-page-history.js" data-f4-src="/portal-live/bank-page-history.js?v=20261127-persistent-source-v1" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-policy-admin.js" data-f4-src="/portal-live/bank-policy-admin.js?v=20261127-persistent-source-v1" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-mobile-app.js" data-f4-src="/portal-live/bank-mobile-app.js?v=20261127-persistent-source-v1" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261126-card-standard-admin-cash-v1">
-<script defer src="/portal-live/bank-impact-summary.js?v=20261124-finance-first-v5"></script>
-<script defer src="/portal-live/bank-admin-analytics.js?v=20261122-podium-colors-v12"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-impact-summary.js" data-f4-src="/portal-live/bank-impact-summary.js?v=20261127-persistent-source-v1" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bank-admin-analytics.js" data-f4-src="/portal-live/bank-admin-analytics.js?v=20261127-persistent-source-v1" data-f4-defer></script>
 
-<script id="f4-bank-public-clean-anchors">
-(()=>{
- const sections={setoran:'v17Transparansi',kegiatan:'v17Kegiatan',informasi:'v17Informasi'};
- document.addEventListener('click',event=>{
-  const link=event.target.closest?.('a[data-bank-section]');
-  if(!link)return;
-  const target=document.getElementById(link.dataset.bankSection);
-  if(!target)return;
-  event.preventDefault();
-  if(target.id==='v17Informasi')document.getElementById('f4PublicMoreInfo')?.setAttribute('open','');
-  const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(x=>sections[x]===target.id));url.hash='';
-  history.pushState({...history.state,f4BankPublicSection:target.id},'',url.pathname+url.search);
-  target.scrollIntoView({behavior:'smooth',block:'start'});
- });
- const previous=location.hash.slice(1);
- if(sections[new URLSearchParams(location.search).get('bagian')]){
-  window.addEventListener('load',()=>{
-    const section=sections[new URLSearchParams(location.search).get('bagian')];
-    if(section==='v17Informasi')document.getElementById('f4PublicMoreInfo')?.setAttribute('open','');
-    document.getElementById(section)?.scrollIntoView({block:'start'});
-  },{once:true});
- }else if(Object.values(sections).includes(previous)){
-  const url=new URL(location.href);url.searchParams.set('bagian',Object.keys(sections).find(k=>sections[k]===previous));url.hash='';
-  history.replaceState(history.state,'',url.pathname+url.search);
-  window.addEventListener('load',()=>document.getElementById(previous)?.scrollIntoView({block:'start'}),{once:true});
- }
-})();
-</script>
-</body>
+<script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-5" data-f4-src="/portal-live/bank-inline.js?v=20261127-persistent-source-v1"></script>
+<script src="/portal-live/portal-runtime.js?v=20261127-persistent-source-v1"></script></body>
 </html>

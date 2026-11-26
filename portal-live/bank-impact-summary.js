@@ -1,8 +1,12 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-impact-summary.js",function(__f4){
+
+
 /* Ringkasan uang hanya untuk sesi anggota; endpoint Cloudflare memverifikasi role. */
 (()=>{
 'use strict';
 const API='https://api.flamboyan4.web.id/api/v2/bank/finance-summary';
-const nf=new Intl.NumberFormat('id-ID',{maximumFractionDigits:0});
+const nf=new __f4.globals.Intl.NumberFormat('id-ID',{maximumFractionDigits:0});
 const rupiah=value=>'Rp '+nf.format(value);
 const fields=[
   ['Total penjualan sah','totalPenjualanRp'],
@@ -10,8 +14,8 @@ const fields=[
   ['Kas Bank Sampah','kasBankSampahRp']
 ];
 let panel=null,busy=false,loaded=false,serial=0;
-const isMember=()=>document.body.classList.contains('f4-bank-app-member');
-const target=()=>document.querySelector('#bank-member-info > .f4-member-feature-content:has(> #v17Transparansi)');
+const isMember=()=>__f4.globals.document.body.classList.contains('f4-bank-app-member');
+const target=()=>__f4.globals.document.querySelector('#bank-member-info > .f4-member-feature-content:has(> #v17Transparansi)');
 function reset(){
   if(panel){panel.remove();panel=null;}
   busy=false;loaded=false;serial++;
@@ -21,12 +25,12 @@ function render(){
   if(loaded||busy)return;
   busy=true;
   const marker=++serial;
-  fetch(API,{credentials:'include',mode:'cors',cache:'no-store'})
+  (0,__f4.globals.fetch)(API,{credentials:'include',mode:'cors',cache:'no-store'})
     .then(async response=>{
       const data=await response.json();
-      if(!response.ok||data?.ok===false)throw Error(data?.error||'Ringkasan belum dapat dimuat');
+      if(!response.ok||data?.ok===false)throw (0,__f4.globals.Error)(data?.error||'Ringkasan belum dapat dimuat');
       const values=fields.map(([,key])=>data[key]);
-      if(!values.every(x=>Number.isSafeInteger(x)))throw Error('Nominal perlu diperiksa');
+      if(!values.every(x=>__f4.globals.Number.isSafeInteger(x)))throw (0,__f4.globals.Error)('Nominal perlu diperiksa');
       return data;
     })
     .then(data=>{
@@ -49,26 +53,26 @@ function mount(){
   if(!isMember()||!host) {if(panel)reset();return;}
   if(panel && panel.parentNode!==host)reset();
   if(!panel) {
-    panel=document.createElement('section');
+    panel=__f4.globals.document.createElement('section');
     panel.id='f4BankPrivateFinancialSummary';
     panel.setAttribute('aria-label','Ringkasan keuangan Bank Sampah');
-    const title=document.createElement('h3');
+    const title=__f4.globals.document.createElement('h3');
     title.className='f4-bank-private-finance-title';
     title.textContent='BANK SAMPAH FLAMBOYAN 4';
-    const grid=document.createElement('div');
+    const grid=__f4.globals.document.createElement('div');
     grid.className='f4-bank-private-finance-grid';
     fields.forEach(([label])=>{
-      const card=document.createElement('div');card.className='f4-bank-private-finance-card';
-      const small=document.createElement('small');small.textContent=label;
-      const amount=document.createElement('strong');amount.textContent='—';
+      const card=__f4.globals.document.createElement('div');card.className='f4-bank-private-finance-card';
+      const small=__f4.globals.document.createElement('small');small.textContent=label;
+      const amount=__f4.globals.document.createElement('strong');amount.textContent='—';
       card.append(small,amount);grid.append(card);
     });
-    const note=document.createElement('p');
+    const note=__f4.globals.document.createElement('p');
     note.className='f4-bank-private-finance-note';
     note.hidden=true;
     note.setAttribute('role','status');
     note.textContent='';
-    const hero=document.createElement('div');
+    const hero=__f4.globals.document.createElement('div');
     hero.className='f4-bank-private-finance-hero';
     hero.append(title,grid);
     panel.append(hero,note);
@@ -76,12 +80,14 @@ function mount(){
   }
   render();
 }
-const observer=new MutationObserver(()=>mount());
+const observer=new __f4.globals.MutationObserver(()=>mount());
 function init(){
-  observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+  observer.observe(__f4.globals.document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   mount();
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
-window.addEventListener('pageshow',mount);
+__f4.window.addEventListener('pageshow',mount);
 })();
+
+});

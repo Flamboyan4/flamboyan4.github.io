@@ -1,9 +1,13 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/ui-dialog.js",function(__f4){
+
+
 /* Flamboyan 4 — website-owned asynchronous dialogs, mobile and desktop.
    Never intercept native window.confirm/alert/prompt globally. */
 (()=>{
 'use strict';
-if(window.f4UiDialog)return;
-const style=document.createElement('style');
+if(__f4.window.f4UiDialog)return;
+const style=__f4.globals.document.createElement('style');
 style.textContent=`
 .f4-ui-dialog{position:fixed;inset:0;z-index:2147483000;
  background:rgba(18,32,44,.54);display:flex;align-items:center;
@@ -45,38 +49,38 @@ style.textContent=`
 @keyframes f4-dialog-rise{from{transform:translateY(30px);opacity:.82}to{transform:translateY(0);opacity:1}}
 @media(prefers-reduced-motion:reduce){.f4-ui-dialog-panel{animation:none}}
 `;
-document.head.append(style);
-let queue=Promise.resolve();
+__f4.globals.document.head.append(style);
+let queue=__f4.globals.Promise.resolve();
 function openDialog({kind,message,title,danger=false,initial='',okText}){
- return new Promise(resolve=>{
-  const portal=location.pathname.startsWith('/superadmin')?'superadmin':'bank';
-  const overlay=document.createElement('div');
+ return new __f4.globals.Promise(resolve=>{
+  const portal=__f4.globals.location.pathname.startsWith('/superadmin')?'superadmin':'bank';
+  const overlay=__f4.globals.document.createElement('div');
   overlay.className='f4-ui-dialog';overlay.dataset.portal=portal;
-  overlay.dataset.danger=String(!!danger);
-  const panel=document.createElement('section');panel.className='f4-ui-dialog-panel';
+  overlay.dataset.danger=(0,__f4.globals.String)(!!danger);
+  const panel=__f4.globals.document.createElement('section');panel.className='f4-ui-dialog-panel';
   panel.setAttribute('role',kind==='alert'?'alertdialog':'dialog');
   panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','f4-ui-dialog-h');
   panel.setAttribute('aria-describedby','f4-ui-dialog-p');
-  const head=document.createElement('div');head.className='f4-ui-dialog-header';
-  const pict=document.createElement('div');pict.className='f4-ui-dialog-icon';
+  const head=__f4.globals.document.createElement('div');head.className='f4-ui-dialog-header';
+  const pict=__f4.globals.document.createElement('div');pict.className='f4-ui-dialog-icon';
   pict.innerHTML=danger?'<svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 9v5m0 3v.1"/></svg>'
    :'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></svg>';
-  const h=document.createElement('h2');h.id='f4-ui-dialog-h';
+  const h=__f4.globals.document.createElement('h2');h.id='f4-ui-dialog-h';
   h.textContent=title||(kind==='prompt'?'Isi keterangan':kind==='alert'?'Pemberitahuan':danger?'Konfirmasi tindakan':'Konfirmasi');
   head.append(pict,h);
-  const p=document.createElement('p');p.id='f4-ui-dialog-p';p.textContent=String(message||'');
+  const p=__f4.globals.document.createElement('p');p.id='f4-ui-dialog-p';p.textContent=(0,__f4.globals.String)(message||'');
   panel.append(head,p);
   let field=null;
   if(kind==='prompt'){
-   field=document.createElement('input');field.type='text';field.value=String(initial??'');
+   field=__f4.globals.document.createElement('input');field.type='text';field.value=(0,__f4.globals.String)(initial??'');
    field.setAttribute('aria-label','Jawaban');field.autocomplete='off';
    panel.append(field);
   }
-  const footer=document.createElement('div');footer.className='f4-ui-dialog-footer';
-  let done=false;const last=document.activeElement;
+  const footer=__f4.globals.document.createElement('div');footer.className='f4-ui-dialog-footer';
+  let done=false;const last=__f4.globals.document.activeElement;
   const close=value=>{
    if(done)return;done=true;
-   document.removeEventListener('keydown',onKey,true);
+   __f4.globals.document.removeEventListener('keydown',onKey,true);
    overlay.remove();if(last?.isConnected)last.focus({preventScroll:true});
    resolve(value);
   };
@@ -87,16 +91,16 @@ function openDialog({kind,message,title,danger=false,initial='',okText}){
    }
   };
   if(kind!=='alert'){
-   const cancel=document.createElement('button');cancel.type='button';cancel.className='f4-ui-dialog-cancel';cancel.textContent='Batal';
+   const cancel=__f4.globals.document.createElement('button');cancel.type='button';cancel.className='f4-ui-dialog-cancel';cancel.textContent='Batal';
    cancel.onclick=()=>close(kind==='confirm'?false:null);footer.append(cancel);
   }
-  const accept=document.createElement('button');accept.type='button';accept.className='f4-ui-dialog-accept';
+  const accept=__f4.globals.document.createElement('button');accept.type='button';accept.className='f4-ui-dialog-accept';
   accept.textContent=okText||(kind==='alert'?'Tutup':danger?'Ya, lanjutkan':'Oke');
-  accept.onclick=()=>close(kind==='confirm'?true:kind==='prompt'?field.value:undefined);
+  accept.onclick=()=>close(kind==='confirm'?true:kind==='prompt'?field.value:__f4.globals.undefined);
   footer.append(accept);panel.append(footer);overlay.append(panel);
   overlay.onclick=e=>{if(e.target===overlay)close(kind==='confirm'?false:null)};
-  document.body.append(overlay);
-  document.addEventListener('keydown',onKey,true);
+  __f4.globals.document.body.append(overlay);
+  __f4.globals.document.addEventListener('keydown',onKey,true);
   (field||accept).focus({preventScroll:true});
  });
 }
@@ -104,9 +108,11 @@ function enqueue(options){
  const p=queue.then(()=>openDialog(options));queue=p.then(()=>{},()=>{});
  return p;
 }
-window.f4UiDialog={
+__f4.window.f4UiDialog={
  confirm:(message,options={})=>enqueue({kind:'confirm',message,...options}),
  prompt:(message,initial='',options={})=>enqueue({kind:'prompt',message,initial,...options}),
  alert:(message,options={})=>enqueue({kind:'alert',message,...options})
 };
 })();
+
+});

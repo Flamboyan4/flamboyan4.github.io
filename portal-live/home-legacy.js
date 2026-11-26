@@ -1,16 +1,219 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/home-legacy.js",function(__f4){
+
+__f4.expose("scrollToTop",()=>scrollToTop,value=>scrollToTop=value);
+__f4.expose("activeModalsStack",()=>activeModalsStack,value=>activeModalsStack=value);
+__f4.expose("f4ModalPreviousFocus",()=>f4ModalPreviousFocus,null);
+__f4.expose("f4ModalTabbables",()=>f4ModalTabbables,null);
+__f4.expose("suppressNextModalPopstate",()=>suppressNextModalPopstate,value=>suppressNextModalPopstate=value);
+__f4.expose("openModal",()=>openModal,value=>openModal=value);
+__f4.expose("closeModalDirect",()=>closeModalDirect,value=>closeModalDirect=value);
+__f4.expose("closeLightboxModal",()=>closeLightboxModal,value=>closeLightboxModal=value);
+__f4.expose("disableInspect",()=>disableInspect,value=>disableInspect=value);
+__f4.expose("salinNorekEx",()=>salinNorekEx,value=>salinNorekEx=value);
+__f4.expose("CSV_DOKUMENTASI_URL",()=>CSV_DOKUMENTASI_URL,null);
+__f4.expose("CSV_INVENTARIS_WARGA_URL",()=>CSV_INVENTARIS_WARGA_URL,null);
+__f4.expose("CSV_ARISAN_URL",()=>CSV_ARISAN_URL,null);
+__f4.expose("CSV_RENCANA_URL",()=>CSV_RENCANA_URL,null);
+__f4.expose("CSV_JERSEY_BAPAK_URL",()=>CSV_JERSEY_BAPAK_URL,null);
+__f4.expose("CSV_JERSEY_IBU_URL",()=>CSV_JERSEY_IBU_URL,null);
+__f4.expose("FOLDER_JERSEY_URL",()=>FOLDER_JERSEY_URL,null);
+__f4.expose("FOLDER_GAPURA_URL",()=>FOLDER_GAPURA_URL,null);
+__f4.expose("firebaseConfig",()=>firebaseConfig,null);
+__f4.expose("dbRef",()=>dbRef,null);
+__f4.expose("TARGET_DANA_GAPURA",()=>TARGET_DANA_GAPURA,null);
+__f4.expose("PLACEHOLDER_IMG",()=>PLACEHOLDER_IMG,null);
+__f4.expose("currentMediaList",()=>currentMediaList,value=>currentMediaList=value);
+__f4.expose("globalDokumentasiPreview",()=>globalDokumentasiPreview,value=>globalDokumentasiPreview=value);
+__f4.expose("dokumentasiPreviewIndex",()=>dokumentasiPreviewIndex,value=>dokumentasiPreviewIndex=value);
+__f4.expose("dokumentasiPreviewTimer",()=>dokumentasiPreviewTimer,value=>dokumentasiPreviewTimer=value);
+__f4.expose("currentPhotoIndex",()=>currentPhotoIndex,value=>currentPhotoIndex=value);
+__f4.expose("currentPhotoCaption",()=>currentPhotoCaption,value=>currentPhotoCaption=value);
+__f4.expose("globalKeuanganData",()=>globalKeuanganData,value=>globalKeuanganData=value);
+__f4.expose("globalArisanData",()=>globalArisanData,value=>globalArisanData=value);
+__f4.expose("globalJerseyBapakData",()=>globalJerseyBapakData,value=>globalJerseyBapakData=value);
+__f4.expose("globalJerseyIbuData",()=>globalJerseyIbuData,value=>globalJerseyIbuData=value);
+__f4.expose("globalJerseyAnakData",()=>globalJerseyAnakData,value=>globalJerseyAnakData=value);
+__f4.expose("currentJerseyTab",()=>currentJerseyTab,value=>currentJerseyTab=value);
+__f4.expose("globalRencanaData",()=>globalRencanaData,value=>globalRencanaData=value);
+__f4.expose("currentArisanIdxGlobal",()=>currentArisanIdxGlobal,value=>currentArisanIdxGlobal=value);
+__f4.expose("nextArisanIdxGlobal",()=>nextArisanIdxGlobal,value=>nextArisanIdxGlobal=value);
+__f4.expose("arisanLastMonthKey",()=>arisanLastMonthKey,value=>arisanLastMonthKey=value);
+__f4.expose("monthlyKeuanganList",()=>monthlyKeuanganList,value=>monthlyKeuanganList=value);
+__f4.expose("currentPemasukanMonthIndex",()=>currentPemasukanMonthIndex,value=>currentPemasukanMonthIndex=value);
+__f4.expose("currentPengeluaranMonthIndex",()=>currentPengeluaranMonthIndex,value=>currentPengeluaranMonthIndex=value);
+__f4.expose("calendarDate",()=>calendarDate,value=>calendarDate=value);
+__f4.expose("formatRupiah",()=>formatRupiah,value=>formatRupiah=value);
+__f4.expose("extractFolderId",()=>extractFolderId,value=>extractFolderId=value);
+__f4.expose("extractDriveFileId",()=>extractDriveFileId,value=>extractDriveFileId=value);
+__f4.expose("fixDriveUrl",()=>fixDriveUrl,value=>fixDriveUrl=value);
+__f4.expose("globalKomentarList",()=>globalKomentarList,value=>globalKomentarList=value);
+__f4.expose("F4_FEEDBACK_API",()=>F4_FEEDBACK_API,null);
+__f4.expose("insertEmoticon",()=>insertEmoticon,value=>insertEmoticon=value);
+__f4.expose("renderKomentarWarga",()=>renderKomentarWarga,value=>renderKomentarWarga=value);
+__f4.expose("listenKomentarFirebase",()=>listenKomentarFirebase,value=>listenKomentarFirebase=value);
+__f4.expose("f4SetChatCompose",()=>f4SetChatCompose,value=>f4SetChatCompose=value);
+__f4.expose("f4LastChatAt",()=>f4LastChatAt,value=>f4LastChatAt=value);
+__f4.expose("tambahKomentarWarga",()=>tambahKomentarWarga,value=>tambahKomentarWarga=value);
+__f4.expose("currentKeuanganFilterType",()=>currentKeuanganFilterType,value=>currentKeuanganFilterType=value);
+__f4.expose("f4CanReadKas",()=>f4CanReadKas,value=>f4CanReadKas=value);
+__f4.expose("openModalKeuangan",()=>openModalKeuangan,value=>openModalKeuangan=value);
+__f4.expose("openModalKeuanganFiltered",()=>openModalKeuanganFiltered,value=>openModalKeuanganFiltered=value);
+__f4.expose("openModalArisan",()=>openModalArisan,value=>openModalArisan=value);
+__f4.expose("openModalJersey",()=>openModalJersey,value=>openModalJersey=value);
+__f4.expose("openModalDokumentasi",()=>openModalDokumentasi,value=>openModalDokumentasi=value);
+__f4.expose("openModalSaran",()=>openModalSaran,value=>openModalSaran=value);
+__f4.expose("openModalEventDetail",()=>openModalEventDetail,value=>openModalEventDetail=value);
+__f4.expose("salinLinkAgenda",()=>salinLinkAgenda,value=>salinLinkAgenda=value);
+__f4.expose("f4PortalPhotoIndexPromise",()=>f4PortalPhotoIndexPromise,value=>f4PortalPhotoIndexPromise=value);
+__f4.expose("f4ReadPortalPhotoIndex",()=>f4ReadPortalPhotoIndex,value=>f4ReadPortalPhotoIndex=value);
+__f4.expose("f4ProjectFolderItems",()=>f4ProjectFolderItems,value=>f4ProjectFolderItems=value);
+__f4.expose("f4LoadProjectFolderItems",()=>f4LoadProjectFolderItems,value=>f4LoadProjectFolderItems=value);
+__f4.expose("f4ProjectGalleryRequest",()=>f4ProjectGalleryRequest,value=>f4ProjectGalleryRequest=value);
+__f4.expose("openGalleryGridModal",()=>openGalleryGridModal,value=>openGalleryGridModal=value);
+__f4.expose("openLightboxFromIndex",()=>openLightboxFromIndex,value=>openLightboxFromIndex=value);
+__f4.expose("nextLightboxMedia",()=>nextLightboxMedia,value=>nextLightboxMedia=value);
+__f4.expose("prevLightboxMedia",()=>prevLightboxMedia,value=>prevLightboxMedia=value);
+__f4.expose("zoomScale",()=>zoomScale,value=>zoomScale=value);
+__f4.expose("translateX",()=>translateX,value=>translateX=value);
+__f4.expose("translateY",()=>translateY,value=>translateY=value);
+__f4.expose("startDist",()=>startDist,value=>startDist=value);
+__f4.expose("startScale",()=>startScale,value=>startScale=value);
+__f4.expose("isDragging",()=>isDragging,value=>isDragging=value);
+__f4.expose("startX",()=>startX,value=>startX=value);
+__f4.expose("startY",()=>startY,value=>startY=value);
+__f4.expose("lastTapTime",()=>lastTapTime,value=>lastTapTime=value);
+__f4.expose("lightboxTouchStartX",()=>lightboxTouchStartX,value=>lightboxTouchStartX=value);
+__f4.expose("lightboxTouchStartY",()=>lightboxTouchStartY,value=>lightboxTouchStartY=value);
+__f4.expose("lightboxTouchEndX",()=>lightboxTouchEndX,value=>lightboxTouchEndX=value);
+__f4.expose("lightboxTouchEndY",()=>lightboxTouchEndY,value=>lightboxTouchEndY=value);
+__f4.expose("initLightboxSwipe",()=>initLightboxSwipe,value=>initLightboxSwipe=value);
+__f4.expose("handleLightboxSwipe",()=>handleLightboxSwipe,value=>handleLightboxSwipe=value);
+__f4.expose("applyTransform",()=>applyTransform,value=>applyTransform=value);
+__f4.expose("resetLightboxZoom",()=>resetLightboxZoom,value=>resetLightboxZoom=value);
+__f4.expose("initImageZoomEvents",()=>initImageZoomEvents,value=>initImageZoomEvents=value);
+__f4.expose("updateLightboxView",()=>updateLightboxView,value=>updateLightboxView=value);
+__f4.expose("initCardGesturesAndKeyboard",()=>initCardGesturesAndKeyboard,value=>initCardGesturesAndKeyboard=value);
+__f4.expose("setupCardInteractions",()=>setupCardInteractions,value=>setupCardInteractions=value);
+__f4.expose("initHomeSummarySlides",()=>initHomeSummarySlides,value=>initHomeSummarySlides=value);
+__f4.expose("f4ProjectSnapPositions",()=>f4ProjectSnapPositions,value=>f4ProjectSnapPositions=value);
+__f4.expose("scrollProjek",()=>scrollProjek,value=>scrollProjek=value);
+__f4.expose("initProjectCarousel",()=>initProjectCarousel,value=>initProjectCarousel=value);
+__f4.expose("formSaran",()=>formSaran,null);
+__f4.expose("f4LastSuggestionAt",()=>f4LastSuggestionAt,value=>f4LastSuggestionAt=value);
+__f4.expose("formatTanggalKeuanganDisplay",()=>formatTanggalKeuanganDisplay,value=>formatTanggalKeuanganDisplay=value);
+__f4.expose("renderTableRow",()=>renderTableRow,value=>renderTableRow=value);
+__f4.expose("f4CashDesktopMedia",()=>f4CashDesktopMedia,null);
+__f4.expose("renderKasWargaTransactions",()=>renderKasWargaTransactions,value=>renderKasWargaTransactions=value);
+__f4.expose("filterKasWargaByDate",()=>filterKasWargaByDate,value=>filterKasWargaByDate=value);
+__f4.expose("clearKasWargaDate",()=>clearKasWargaDate,value=>clearKasWargaDate=value);
+__f4.expose("renderArisanRow",()=>renderArisanRow,value=>renderArisanRow=value);
+__f4.expose("filterArisanModal",()=>filterArisanModal,value=>filterArisanModal=value);
+__f4.expose("filterKeuanganModal",()=>filterKeuanganModal,value=>filterKeuanganModal=value);
+__f4.expose("parseRowDate",()=>parseRowDate,value=>parseRowDate=value);
+__f4.expose("currentSaldoMonthIndex",()=>currentSaldoMonthIndex,value=>currentSaldoMonthIndex=value);
+__f4.expose("updateSaldoCardView",()=>updateSaldoCardView,value=>updateSaldoCardView=value);
+__f4.expose("changeMonthSaldo",()=>changeMonthSaldo,value=>changeMonthSaldo=value);
+__f4.expose("updatePemasukanCardView",()=>updatePemasukanCardView,value=>updatePemasukanCardView=value);
+__f4.expose("updatePengeluaranCardView",()=>updatePengeluaranCardView,value=>updatePengeluaranCardView=value);
+__f4.expose("changeMonthPemasukan",()=>changeMonthPemasukan,value=>changeMonthPemasukan=value);
+__f4.expose("changeMonthPengeluaran",()=>changeMonthPengeluaran,value=>changeMonthPengeluaran=value);
+__f4.expose("bulanNamaCetakKas",()=>bulanNamaCetakKas,null);
+__f4.expose("isiSelectBulanCetakKas",()=>isiSelectBulanCetakKas,value=>isiSelectBulanCetakKas=value);
+__f4.expose("openModalCetakKas",()=>openModalCetakKas,value=>openModalCetakKas=value);
+__f4.expose("closeModalCetakKas",()=>closeModalCetakKas,value=>closeModalCetakKas=value);
+__f4.expose("updateCetakKasFields",()=>updateCetakKasFields,value=>updateCetakKasFields=value);
+__f4.expose("escapeCetakKas",()=>escapeCetakKas,value=>escapeCetakKas=value);
+__f4.expose("nominalCetakKas",()=>nominalCetakKas,value=>nominalCetakKas=value);
+__f4.expose("cetakLaporanKas",()=>cetakLaporanKas,value=>cetakLaporanKas=value);
+__f4.expose("f4PublicCashReadableNote",()=>f4PublicCashReadableNote,value=>f4PublicCashReadableNote=value);
+__f4.expose("f4CashLoadGeneration",()=>f4CashLoadGeneration,value=>f4CashLoadGeneration=value);
+__f4.expose("loadKeuanganDariPembukuan",()=>loadKeuanganDariPembukuan,value=>loadKeuanganDariPembukuan=value);
+__f4.expose("f4ArisanMonthNames",()=>f4ArisanMonthNames,null);
+__f4.expose("f4ArisanCurrentPeriod",()=>f4ArisanCurrentPeriod,value=>f4ArisanCurrentPeriod=value);
+__f4.expose("f4ArisanRowPeriod",()=>f4ArisanRowPeriod,value=>f4ArisanRowPeriod=value);
+__f4.expose("refreshArisanCards",()=>refreshArisanCards,value=>refreshArisanCards=value);
+__f4.expose("checkArisanMonthChange",()=>checkArisanMonthChange,value=>checkArisanMonthChange=value);
+__f4.expose("getNominalHargaJerseyRow",()=>getNominalHargaJerseyRow,value=>getNominalHargaJerseyRow=value);
+__f4.expose("getStatusJerseyRow",()=>getStatusJerseyRow,value=>getStatusJerseyRow=value);
+__f4.expose("getJerseyTerimaEksplisit",()=>getJerseyTerimaEksplisit,value=>getJerseyTerimaEksplisit=value);
+__f4.expose("getNominalJerseyMasuk",()=>getNominalJerseyMasuk,value=>getNominalJerseyMasuk=value);
+__f4.expose("switchJerseyTab",()=>switchJerseyTab,value=>switchJerseyTab=value);
+__f4.expose("escapeJerseyText",()=>escapeJerseyText,value=>escapeJerseyText=value);
+__f4.expose("jerseyPublicBackParts",()=>jerseyPublicBackParts,value=>jerseyPublicBackParts=value);
+__f4.expose("renderJerseyRow",()=>renderJerseyRow,value=>renderJerseyRow=value);
+__f4.expose("filterJerseyModal",()=>filterJerseyModal,value=>filterJerseyModal=value);
+__f4.expose("calculateTotalJerseyRekap",()=>calculateTotalJerseyRekap,value=>calculateTotalJerseyRekap=value);
+__f4.expose("scrollDokumentasi",()=>scrollDokumentasi,value=>scrollDokumentasi=value);
+__f4.expose("updateDokumentasiPreview",()=>updateDokumentasiPreview,value=>updateDokumentasiPreview=value);
+__f4.expose("mulaiRotasiDokumentasiPreview",()=>mulaiRotasiDokumentasiPreview,value=>mulaiRotasiDokumentasiPreview=value);
+__f4.expose("openDokumentasiPreviewAktif",()=>openDokumentasiPreviewAktif,value=>openDokumentasiPreviewAktif=value);
+__f4.expose("openInventarisWargaFoto",()=>openInventarisWargaFoto,value=>openInventarisWargaFoto=value);
+__f4.expose("loadInventarisWarga",()=>loadInventarisWarga,value=>loadInventarisWarga=value);
+__f4.expose("f4AgendaPreview",()=>f4AgendaPreview,null);
+__f4.expose("f4AgendaPagination",()=>f4AgendaPagination,null);
+__f4.expose("f4OpenAgendaKey",()=>f4OpenAgendaKey,value=>f4OpenAgendaKey=value);
+__f4.expose("f4AgendaSignature",()=>f4AgendaSignature,value=>f4AgendaSignature=value);
+__f4.expose("f4AgendaKey",()=>f4AgendaKey,value=>f4AgendaKey=value);
+__f4.expose("f4SyncAgendaCards",()=>f4SyncAgendaCards,value=>f4SyncAgendaCards=value);
+__f4.expose("f4ToggleAgendaCalendar",()=>f4ToggleAgendaCalendar,value=>f4ToggleAgendaCalendar=value);
+__f4.expose("f4AgendaCurrentIndex",()=>f4AgendaCurrentIndex,value=>f4AgendaCurrentIndex=value);
+__f4.expose("f4UpdateAgendaPagination",()=>f4UpdateAgendaPagination,value=>f4UpdateAgendaPagination=value);
+__f4.expose("f4AgendaPreviewCard",()=>f4AgendaPreviewCard,value=>f4AgendaPreviewCard=value);
+__f4.expose("f4AgendaRow",()=>f4AgendaRow,value=>f4AgendaRow=value);
+__f4.expose("f4BaseAgenda",()=>f4BaseAgenda,value=>f4BaseAgenda=value);
+__f4.expose("f4BankAgenda",()=>f4BankAgenda,value=>f4BankAgenda=value);
+__f4.expose("f4AgendaReady",()=>f4AgendaReady,value=>f4AgendaReady=value);
+__f4.expose("f4BankAgendaBusy",()=>f4BankAgendaBusy,value=>f4BankAgendaBusy=value);
+__f4.expose("f4BankAgendaCheckedAt",()=>f4BankAgendaCheckedAt,value=>f4BankAgendaCheckedAt=value);
+__f4.expose("f4AgendaToday",()=>f4AgendaToday,null);
+__f4.expose("f4AgendaTodayKey",()=>f4AgendaTodayKey,value=>f4AgendaTodayKey=value);
+__f4.expose("f4ScheduleDate",()=>f4ScheduleDate,value=>f4ScheduleDate=value);
+__f4.expose("f4BankScheduleRows",()=>f4BankScheduleRows,value=>f4BankScheduleRows=value);
+__f4.expose("f4UpdateUnifiedAgenda",()=>f4UpdateUnifiedAgenda,value=>f4UpdateUnifiedAgenda=value);
+__f4.expose("f4RefreshBankAgenda",()=>f4RefreshBankAgenda,value=>f4RefreshBankAgenda=value);
+__f4.expose("f4InitialBankAgenda",()=>f4InitialBankAgenda,null);
+__f4.expose("f4RenderAgenda",()=>f4RenderAgenda,value=>f4RenderAgenda=value);
+__f4.expose("renderCalendar",()=>renderCalendar,value=>renderCalendar=value);
+__f4.expose("changeMonth",()=>changeMonth,value=>changeMonth=value);
+__f4.expose("resetToCurrentMonth",()=>resetToCurrentMonth,value=>resetToCurrentMonth=value);
+__f4.expose("touchStartX",()=>touchStartX,value=>touchStartX=value);
+__f4.expose("touchStartY",()=>touchStartY,value=>touchStartY=value);
+__f4.expose("touchEndX",()=>touchEndX,value=>touchEndX=value);
+__f4.expose("touchEndY",()=>touchEndY,value=>touchEndY=value);
+__f4.expose("calWrapper",()=>calWrapper,null);
+__f4.expose("handleCalendarSwipe",()=>handleCalendarSwipe,value=>handleCalendarSwipe=value);
+__f4.expose("PROJECT_API",()=>PROJECT_API,null);
+__f4.expose("f4ProjectNumber",()=>f4ProjectNumber,null);
+__f4.expose("f4ProjectRp",()=>f4ProjectRp,null);
+__f4.expose("f4ProjectType",()=>f4ProjectType,null);
+__f4.expose("f4ProjectBadge",()=>f4ProjectBadge,null);
+__f4.expose("f4ProjectCardEl",()=>f4ProjectCardEl,value=>f4ProjectCardEl=value);
+__f4.expose("f4ProjectImage",()=>f4ProjectImage,value=>f4ProjectImage=value);
+__f4.expose("f4ProjectLink",()=>f4ProjectLink,value=>f4ProjectLink=value);
+__f4.expose("f4ProjectStatus",()=>f4ProjectStatus,value=>f4ProjectStatus=value);
+__f4.expose("f4ProjectGeneric",()=>f4ProjectGeneric,value=>f4ProjectGeneric=value);
+__f4.expose("f4ProjectCashMessage",()=>f4ProjectCashMessage,value=>f4ProjectCashMessage=value);
+__f4.expose("f4ProjectFullCashBalance",()=>f4ProjectFullCashBalance,value=>f4ProjectFullCashBalance=value);
+__f4.expose("f4ProjectLoadGeneration",()=>f4ProjectLoadGeneration,value=>f4ProjectLoadGeneration=value);
+__f4.expose("loadProjectCards",()=>loadProjectCards,value=>loadProjectCards=value);
+__f4.expose("f4BankProjectFallback",()=>f4BankProjectFallback,null);
+__f4.expose("f4BankProjectPhotoCandidates",()=>f4BankProjectPhotoCandidates,value=>f4BankProjectPhotoCandidates=value);
+__f4.expose("f4SetBankProjectPhoto",()=>f4SetBankProjectPhoto,value=>f4SetBankProjectPhoto=value);
+__f4.expose("loadProgresBankSampahIndex",()=>loadProgresBankSampahIndex,value=>loadProgresBankSampahIndex=value);
 /* Extracted verbatim from inline home script, 20261028-maintenance. Keep classic synchronous loading and global handlers intact. */
 
     // BERSIHKAN BUNTUT #index.html DAN HASHTAG MODAL DARI SEARCH BAR BROWSER
-    if (window.location.hash || window.location.pathname.endsWith('index.html')) {
-      history.replaceState(null, document.title, window.location.pathname.replace(/index\.html$/, '') + window.location.search);
+    if (__f4.window.location.hash || __f4.window.location.pathname.endsWith('index.html')) {
+      __f4.globals.history.replaceState(null, __f4.globals.document.title, __f4.window.location.pathname.replace(/index\.html$/, '') + __f4.window.location.search);
     }
 
-    lucide.createIcons();
+    __f4.globals.lucide.createIcons();
 
-    window.addEventListener('scroll', function() {
-      const btnScroll = document.getElementById('btn-scroll-top');
+    __f4.window.addEventListener('scroll', function() {
+      const btnScroll = __f4.globals.document.getElementById('btn-scroll-top');
       if (!btnScroll) return;
-      if (window.scrollY > 250) {
+      if (__f4.window.scrollY > 250) {
         btnScroll.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
         btnScroll.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
       } else {
@@ -20,23 +223,23 @@
     });
 
     function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      __f4.window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // SYSTEM CONTROL MODAL & HANDLER TOMBOL BACK HP (HISTORY API)
     let activeModalsStack = [];
-    const f4ModalPreviousFocus = new Map();
+    const f4ModalPreviousFocus = new __f4.globals.Map();
     const f4ModalTabbables = root => [...root.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
-      .filter(el => el.getClientRects().length && getComputedStyle(el).visibility!=='hidden');
+      .filter(el => el.getClientRects().length && (0,__f4.globals.getComputedStyle)(el).visibility!=='hidden');
     let suppressNextModalPopstate = false; // cegah history.back() menutup modal induk juga
 
     function openModal(id) {
-      const el = document.getElementById(id);
+      const el = __f4.globals.document.getElementById(id);
       if (!el) return;
 
-      if (!activeModalsStack.includes(id)) f4ModalPreviousFocus.set(id,document.activeElement);
+      if (!activeModalsStack.includes(id)) f4ModalPreviousFocus.set(id,__f4.globals.document.activeElement);
       el.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      __f4.globals.document.body.style.overflow = 'hidden';
       const dialog=el.querySelector('[role="dialog"]')||el.querySelector(':scope > div')||el;
       dialog.setAttribute('role','dialog');
       dialog.setAttribute('aria-modal','true');
@@ -45,18 +248,18 @@
         dialog.setAttribute('aria-label',heading?.textContent?.trim()||'Jendela dialog Flamboyan 4');
       }
       if(!dialog.hasAttribute('tabindex'))dialog.setAttribute('tabindex','-1');
-      setTimeout(()=>{
+      (0,__f4.globals.setTimeout)(()=>{
         if(el.classList.contains('hidden')||activeModalsStack[activeModalsStack.length-1]!==id)return;
         (f4ModalTabbables(el)[0]||dialog).focus({preventScroll:true});
       },0);
 
       if (!activeModalsStack.includes(id)) {
         activeModalsStack.push(id);
-        history.pushState({ modalId: id }, '', window.location.pathname + window.location.search);
+        __f4.globals.history.pushState({ modalId: id }, '', __f4.window.location.pathname + __f4.window.location.search);
       }
 
       if (id === 'modal-saran') {
-        setTimeout(() => {
+        (0,__f4.globals.setTimeout)(() => {
           el.classList.remove('opacity-0');
           el.children[0].classList.remove('scale-95');
         }, 10);
@@ -64,17 +267,17 @@
     }
 
     function closeModalDirect(id, isPopState = false) {
-      const el = document.getElementById(id);
+      const el = __f4.globals.document.getElementById(id);
       if (!el || el.classList.contains('hidden')) return;
 
       if (id === 'modal-saran') {
         el.classList.add('opacity-0');
         el.children[0].classList.add('scale-95');
-        setTimeout(() => {
+        (0,__f4.globals.setTimeout)(() => {
           el.classList.add('hidden');
-          const statusEl = document.getElementById('saran-status');
+          const statusEl = __f4.globals.document.getElementById('saran-status');
           if (statusEl) statusEl.classList.add('hidden');
-          const formEl = document.getElementById('form-saran');
+          const formEl = __f4.globals.document.getElementById('form-saran');
           if (formEl) formEl.reset();
         }, 300);
       } else {
@@ -82,7 +285,7 @@
       }
 
       if (id === 'lightbox-modal') {
-        const container = document.getElementById('lightbox-media-container');
+        const container = __f4.globals.document.getElementById('lightbox-media-container');
         if (container) container.innerHTML = '';
         resetLightboxZoom();
       }
@@ -96,22 +299,22 @@
         // Saat tombol X / backdrop menutup modal, sinkronkan history tanpa
         // memicu popstate untuk menutup modal induk (mis. daftar album).
         suppressNextModalPopstate = true;
-        history.back();
+        __f4.globals.history.back();
       }
 
       if (activeModalsStack.length === 0) {
-        document.body.style.overflow = 'auto';
+        __f4.globals.document.body.style.overflow = 'auto';
       }
       const previous=f4ModalPreviousFocus.get(id);
       f4ModalPreviousFocus.delete(id);
-      if(previous?.isConnected) setTimeout(()=>previous.focus({preventScroll:true}),0);
+      if(previous?.isConnected) (0,__f4.globals.setTimeout)(()=>previous.focus({preventScroll:true}),0);
     }
 
     function closeLightboxModal() {
       closeModalDirect('lightbox-modal');
     }
 
-    window.addEventListener('popstate', function (e) {
+    __f4.window.addEventListener('popstate', function (e) {
       if (suppressNextModalPopstate) {
         suppressNextModalPopstate = false;
         return;
@@ -122,7 +325,7 @@
       }
     });
 
-    document.addEventListener('keydown', function(e) {
+    __f4.globals.document.addEventListener('keydown', function(e) {
       if (e.keyCode === 123) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 73) return false;
       if (e.ctrlKey && e.shiftKey && e.keyCode === 74) return false;
@@ -131,13 +334,13 @@
       if (activeModalsStack.length > 0) {
         const topModalId = activeModalsStack[activeModalsStack.length - 1];
         if(e.key==='Tab'){
-          const root=document.getElementById(topModalId);
+          const root=__f4.globals.document.getElementById(topModalId);
           const tabbables=root?f4ModalTabbables(root):[];
           if(tabbables.length){
             const first=tabbables[0],last=tabbables[tabbables.length-1];
-            if(e.shiftKey && (document.activeElement===first||!root.contains(document.activeElement))){
+            if(e.shiftKey && (__f4.globals.document.activeElement===first||!root.contains(__f4.globals.document.activeElement))){
               e.preventDefault();last.focus();
-            }else if(!e.shiftKey && (document.activeElement===last||!root.contains(document.activeElement))){
+            }else if(!e.shiftKey && (__f4.globals.document.activeElement===last||!root.contains(__f4.globals.document.activeElement))){
               e.preventDefault();first.focus();
             }
           }else{e.preventDefault();(root?.querySelector('[role="dialog"]')||root)?.focus();}
@@ -166,21 +369,21 @@
     }
 
     function salinNorekEx(norek, btnId, textId) {
-      navigator.clipboard.writeText(norek).then(() => {
-        const textSpan = document.getElementById(textId);
-        const btn = document.getElementById(btnId);
+      __f4.globals.navigator.clipboard.writeText(norek).then(() => {
+        const textSpan = __f4.globals.document.getElementById(textId);
+        const btn = __f4.globals.document.getElementById(btnId);
         
         textSpan.innerText = "Tersalin!";
         btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
         btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
         
-        setTimeout(() => {
+        (0,__f4.globals.setTimeout)(() => {
           textSpan.innerText = "Salin Norek";
           btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
           btn.classList.add('bg-indigo-600', 'hover:bg-indigo-500');
         }, 2000);
       }).catch(err => {
-        alert("Gagal menyalin nomor rekening.");
+        (0,__f4.globals.alert)("Gagal menyalin nomor rekening.");
       });
     }
 
@@ -215,10 +418,10 @@
       measurementId: "G-DB8E547HKY"
     };
 
-    if (window.firebase?.database && !firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
+    if (__f4.window.firebase?.database && !__f4.globals.firebase.apps.length) {
+      __f4.globals.firebase.initializeApp(firebaseConfig);
     }
-    const dbRef = window.firebase?.database ? firebase.database().ref('komentar_warga') : null;
+    const dbRef = __f4.window.firebase?.database ? __f4.globals.firebase.database().ref('komentar_warga') : null;
 
     // Kotak Saran tetap menggunakan Cloudflare D1. Obrolan Warga tetap Firebase.
 
@@ -249,10 +452,10 @@
     let currentPemasukanMonthIndex = 0;
     let currentPengeluaranMonthIndex = 0;
 
-    let calendarDate = new Date();
+    let calendarDate = new __f4.globals.Date();
 
     function formatRupiah(angka) {
-      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+      return new __f4.globals.Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
     }
 
     function extractFolderId(url) {
@@ -286,105 +489,107 @@
     let globalKomentarList = [];
     const F4_FEEDBACK_API='https://api.flamboyan4.web.id/api/v2/public/portal';
     function insertEmoticon(emot) {
-      const txt=document.getElementById('komentar-pesan');
+      const txt=__f4.globals.document.getElementById('komentar-pesan');
       if(!txt)return;
       txt.value+=emot;txt.focus();
     }
     function renderKomentarWarga(){
-      const container=document.getElementById('container-komentar-list');
-      const badge=document.getElementById('total-komentar-badge');
+      const container=__f4.globals.document.getElementById('container-komentar-list');
+      const badge=__f4.globals.document.getElementById('total-komentar-badge');
       if(!container)return;
       if(badge)badge.textContent=globalKomentarList.length+' Pesan';
       container.replaceChildren();
       if(!globalKomentarList.length){
-        const p=document.createElement('p');
+        const p=__f4.globals.document.createElement('p');
         p.className='text-slate-400 text-xs italic text-center py-8';
         p.textContent='Belum ada pesan. Ayo menyapa!';
         container.append(p);return;
       }
       for(const item of globalKomentarList){
-        const card=document.createElement('div');card.className='bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition';
-        const body=document.createElement('div');body.className='space-y-1 w-full';
-        const head=document.createElement('div');head.className='flex items-center justify-between';
-        const name=document.createElement('span');name.className='font-bold text-xs md:text-sm text-indigo-950';name.textContent=item.nama||'Warga';
-        const time=document.createElement('span');time.className='text-[10px] text-slate-400 font-mono';time.textContent=item.waktu||'';
-        const text=document.createElement('p');text.className='text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line';text.textContent=item.pesan||'';
+        const card=__f4.globals.document.createElement('div');card.className='bg-slate-50 p-3 rounded-xl border border-slate-200/80 flex items-start justify-between gap-2 hover:bg-slate-100/50 transition';
+        const body=__f4.globals.document.createElement('div');body.className='space-y-1 w-full';
+        const head=__f4.globals.document.createElement('div');head.className='flex items-center justify-between';
+        const name=__f4.globals.document.createElement('span');name.className='font-bold text-xs md:text-sm text-indigo-950';name.textContent=item.nama||'Warga';
+        const time=__f4.globals.document.createElement('span');time.className='text-[10px] text-slate-400 font-mono';time.textContent=item.waktu||'';
+        const text=__f4.globals.document.createElement('p');text.className='text-xs md:text-sm text-slate-700 leading-relaxed break-words whitespace-pre-line';text.textContent=item.pesan||'';
         head.append(name,time);body.append(head,text);card.append(body);container.append(card);
       }
     }
     function listenKomentarFirebase(){
-      const container=document.getElementById('container-komentar-list');
+      const container=__f4.globals.document.getElementById('container-komentar-list');
       if(!dbRef){
         if(container)container.textContent='Firebase tidak termuat. Periksa koneksi jaringan.';
         return;
       }
       if(container)container.textContent='Menghubungkan riwayat Firebase…';
-      dbRef.limitToLast(50).on('value',snapshot=>{
+      const query=dbRef.limitToLast(50);
+      query.on('value',snapshot=>{
         const raw=snapshot.val()||{};
-        globalKomentarList=Object.keys(raw).map(key=>({id:key,...raw[key]}))
-          .sort((a,b)=>(Number(b.timestamp)||0)-(Number(a.timestamp)||0));
+        globalKomentarList=__f4.globals.Object.keys(raw).map(key=>({id:key,...raw[key]}))
+          .sort((a,b)=>((0,__f4.globals.Number)(b.timestamp)||0)-((0,__f4.globals.Number)(a.timestamp)||0));
         renderKomentarWarga();
       },error=>{
-        console.error('Gagal membaca riwayat Firebase:',error);
+        __f4.globals.console.error('Gagal membaca riwayat Firebase:',error);
         if(container)container.textContent='Riwayat Firebase tidak dapat dibaca: '+(error?.message||'Periksa izin baca Firebase dan jaringan');
       });
+      __f4.cleanup(()=>query.off('value'));
     }
     function f4SetChatCompose(open,focus=false){
-      const section=document.getElementById('komentar-warga'),button=document.getElementById('f4-chat-toggle');
+      const section=__f4.globals.document.getElementById('komentar-warga'),button=__f4.globals.document.getElementById('f4-chat-toggle');
       if(!section||!button)return;
-      section.dataset.composeOpen=String(open);
-      button.setAttribute('aria-expanded',String(open));
+      section.dataset.composeOpen=(0,__f4.globals.String)(open);
+      button.setAttribute('aria-expanded',(0,__f4.globals.String)(open));
       button.querySelector('span').textContent=open?'Tutup':'Tulis pesan';
       if(focus&&open){
-        const name=document.getElementById('komentar-nama');
-        (name?.value.trim()?document.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
+        const name=__f4.globals.document.getElementById('komentar-nama');
+        (name?.value.trim()?__f4.globals.document.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
       }
     }
-    document.getElementById('f4-chat-toggle')?.addEventListener('click',()=>{
-      const open=document.getElementById('komentar-warga').dataset.composeOpen!=='true';
+    __f4.globals.document.getElementById('f4-chat-toggle')?.addEventListener('click',()=>{
+      const open=__f4.globals.document.getElementById('komentar-warga').dataset.composeOpen!=='true';
       f4SetChatCompose(open,true);
     });
     let f4LastChatAt=0;
     async function tambahKomentarWarga(e){
       e.preventDefault();
-      const nama=document.getElementById('komentar-nama')?.value.trim()||'';
-      const pesan=document.getElementById('komentar-pesan')?.value.trim()||'';
-      const btn=document.getElementById('btn-submit-chat');
+      const nama=__f4.globals.document.getElementById('komentar-nama')?.value.trim()||'';
+      const pesan=__f4.globals.document.getElementById('komentar-pesan')?.value.trim()||'';
+      const btn=__f4.globals.document.getElementById('btn-submit-chat');
       if(!nama||!pesan)return;
       if(nama.length<2||nama.length>60||pesan.length<2||pesan.length>1000){
-        alert('Nama maksimal 60 karakter, pesan maksimal 1000 karakter.');
+        (0,__f4.globals.alert)('Nama maksimal 60 karakter, pesan maksimal 1000 karakter.');
         return;
       }
-      if(Date.now()-f4LastChatAt<30000){
-        alert('Mohon beri jeda 30 detik sebelum mengirim komentar berikutnya.');
+      if(__f4.globals.Date.now()-f4LastChatAt<30000){
+        (0,__f4.globals.alert)('Mohon beri jeda 30 detik sebelum mengirim komentar berikutnya.');
         return;
       }
-      if(!dbRef){alert('Firebase belum tersambung. Periksa jaringan, kemudian coba lagi.');return}
+      if(!dbRef){(0,__f4.globals.alert)('Firebase belum tersambung. Periksa jaringan, kemudian coba lagi.');return}
       const oldHtml=btn?.innerHTML;
       if(btn){btn.disabled=true;btn.textContent='Mengirim…'}
       try{
-        const now=new Date();
+        const now=new __f4.globals.Date();
         const waktu=now.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})
           +', '+now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-        await dbRef.push({nama,pesan,waktu,timestamp:firebase.database.ServerValue.TIMESTAMP});
-        f4LastChatAt=Date.now();
-        document.getElementById('komentar-pesan').value='';
+        await dbRef.push({nama,pesan,waktu,timestamp:__f4.globals.firebase.database.ServerValue.TIMESTAMP});
+        f4LastChatAt=__f4.globals.Date.now();
+        __f4.globals.document.getElementById('komentar-pesan').value='';
         f4SetChatCompose(false);
         // Realtime listener updates the visible chat; no D1 write or page reset.
-      }catch(error){alert('Gagal mengirim pesan ke Firebase: '+error.message)}
+      }catch(error){(0,__f4.globals.alert)('Gagal mengirim pesan ke Firebase: '+error.message)}
       finally{
-        if(btn){btn.disabled=false;btn.innerHTML=oldHtml;window.lucide?.createIcons?.()}
+        if(btn){btn.disabled=false;btn.innerHTML=oldHtml;__f4.window.lucide?.createIcons?.()}
       }
     }
 let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
 
-    function f4CanReadKas(){return document.body.dataset.previewRole && document.body.dataset.previewRole!=='public'}
+    function f4CanReadKas(){return __f4.globals.document.body.dataset.previewRole && __f4.globals.document.body.dataset.previewRole!=='public'}
     function openModalKeuangan() {
       if (!f4CanReadKas()) return;
       currentKeuanganFilterType = 'all';
-      document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
-      document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
-      document.getElementById('search-keuangan').value = '';
+      __f4.globals.document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
+      __f4.globals.document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
+      __f4.globals.document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
       openModal('modal-keuangan');
     }
@@ -405,27 +610,27 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
       if (targetMonthObj) {
         const titleText = filterType === 'pemasukan' ? 'Rincian Pemasukan' : 'Rincian Pengeluaran';
         const monthLabel = `${monthNames[targetMonthObj.month]} ${targetMonthObj.year}`;
-        document.getElementById('modal-keuangan-title').innerText = `${titleText} (${monthLabel})`;
-        document.getElementById('search-keuangan').placeholder = `Cari transaksi ${filterType} ${monthLabel}...`;
+        __f4.globals.document.getElementById('modal-keuangan-title').innerText = `${titleText} (${monthLabel})`;
+        __f4.globals.document.getElementById('search-keuangan').placeholder = `Cari transaksi ${filterType} ${monthLabel}...`;
       } else {
-        document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
-        document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
+        __f4.globals.document.getElementById('modal-keuangan-title').innerText = 'Arsip Seluruh Transaksi Kas';
+        __f4.globals.document.getElementById('search-keuangan').placeholder = 'Cari transaksi...';
       }
 
-      document.getElementById('search-keuangan').value = '';
+      __f4.globals.document.getElementById('search-keuangan').value = '';
       filterKeuanganModal();
       openModal('modal-keuangan');
     }
 
     function openModalArisan(which = 'current') {
       refreshArisanCards();
-      document.getElementById('search-arisan').value = '';
+      __f4.globals.document.getElementById('search-arisan').value = '';
       filterArisanModal();
       openModal('modal-arisan');
       // After modal layout, show the selected month in the scrollable schedule.
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+      (0,__f4.globals.requestAnimationFrame)(() => (0,__f4.globals.requestAnimationFrame)(() => {
         const index = which === 'next' ? nextArisanIdxGlobal : currentArisanIdxGlobal;
-        const table = document.getElementById('tabel-arisan-all');
+        const table = __f4.globals.document.getElementById('tabel-arisan-all');
         const row = index >= 0 ? table?.rows[index] : null;
         if (!row) return;
         row.scrollIntoView({behavior:'instant',block:'center',inline:'nearest'});
@@ -435,7 +640,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     }
     
     function openModalJersey() {
-      document.getElementById('search-jersey').value = '';
+      __f4.globals.document.getElementById('search-jersey').value = '';
       switchJerseyTab('bapak');
       openModal('modal-jersey'); 
     }
@@ -443,17 +648,17 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     function openModalDokumentasi() {
   // Gallery preview in the landing page is only a shortcut to the complete
   // Dokumentasi page; don't show a second album popup.
-  if(window.parent!==window)window.parent.postMessage({type:'f4:navigate',target:'dokumentasi'},location.origin);
-  else window.location.href='/dokumentasi/';
+  if(__f4.window.parent!==window)__f4.window.parent.postMessage({type:'f4:navigate',target:'dokumentasi'},__f4.globals.location.origin);
+  else __f4.window.location.href='/dokumentasi/';
 }
     function openModalSaran() { openModal('modal-saran'); }
 
    function openModalEventDetail(dateStr, eventItems, dateIso) {
-  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
+  const escape=value=>(0,__f4.globals.String)(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  __f4.globals.document.getElementById('modal-event-date').innerText = `Kegiatan: ${dateStr}`;
   
   // Gunakan Query Parameter ?event= agar aman dibuka dari WhatsApp/Browser
-  const baseUrl = window.location.origin + window.location.pathname;
+  const baseUrl = __f4.window.location.origin + __f4.window.location.pathname;
   const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `${baseUrl}?event=${dateIso}` : baseUrl;
 
   let html = `
@@ -494,20 +699,20 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
     `;
   });
 
-  document.getElementById('modal-event-body').innerHTML = html;
+  __f4.globals.document.getElementById('modal-event-body').innerHTML = html;
   openModal('modal-event-detail');
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof __f4.globals.lucide !== 'undefined') __f4.globals.lucide.createIcons();
 }
 
 function salinLinkAgenda(url) {
-  navigator.clipboard.writeText(url).then(() => {
-    const txt = document.getElementById('text-copy-agenda');
+  __f4.globals.navigator.clipboard.writeText(url).then(() => {
+    const txt = __f4.globals.document.getElementById('text-copy-agenda');
     if (txt) {
       txt.innerText = 'Link Tersalin!';
-      setTimeout(() => { txt.innerText = 'Salin Link Agenda'; }, 2000);
+      (0,__f4.globals.setTimeout)(() => { txt.innerText = 'Salin Link Agenda'; }, 2000);
     }
   }).catch(() => {
-    alert("Link agenda: " + url);
+    (0,__f4.globals.alert)("Link agenda: " + url);
   });
 }
 
@@ -516,28 +721,28 @@ function salinLinkAgenda(url) {
     let f4PortalPhotoIndexPromise=null;
     function f4ReadPortalPhotoIndex(){
       if(!f4PortalPhotoIndexPromise){
-        f4PortalPhotoIndexPromise=fetch('/assets/data/portal-photo-index.json?v=20261123-project-media-v1',{cache:'no-store'})
-          .then(response=>{if(!response.ok)throw Error('Indeks foto tidak tersedia');return response.json();})
+        f4PortalPhotoIndexPromise=(0,__f4.globals.fetch)('/assets/data/portal-photo-index.json?v=20261123-project-media-v1',{cache:'no-store'})
+          .then(response=>{if(!response.ok)throw (0,__f4.globals.Error)('Indeks foto tidak tersedia');return response.json();})
           .catch(error=>{f4PortalPhotoIndexPromise=null;throw error;});
       }
       return f4PortalPhotoIndexPromise;
     }
     function f4ProjectFolderItems(rows){
-      return (Array.isArray(rows)?rows:[]).map(record=>{
-        const raw=String(record?.id||'').replace(/^gdrive:/,'');
+      return (__f4.globals.Array.isArray(rows)?rows:[]).map(record=>{
+        const raw=(0,__f4.globals.String)(record?.id||'').replace(/^gdrive:/,'');
         const id=/^[A-Za-z0-9_-]{12,110}$/.test(raw)?raw:
-          String(record?.url||'').match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/)?.[1];
+          (0,__f4.globals.String)(record?.url||'').match(/(?:\/d\/|[?&]id=)([A-Za-z0-9_-]{12,110})/)?.[1];
         if(!id)return null;
-        const video=String(record?.type||'').toLowerCase()==='video';
+        const video=(0,__f4.globals.String)(record?.type||'').toLowerCase()==='video';
         return {
           type:video?'video':'image',driveId:id,
           url:video
-            ?'https://api.flamboyan4.web.id/api/v2/gallery/public-video/'+encodeURIComponent(id)
-            :'https://lh3.googleusercontent.com/d/'+encodeURIComponent(id),
-          rawUrl:'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view',
-          thumb:'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w1000'
+            ?'https://api.flamboyan4.web.id/api/v2/gallery/public-video/'+(0,__f4.globals.encodeURIComponent)(id)
+            :'https://lh3.googleusercontent.com/d/'+(0,__f4.globals.encodeURIComponent)(id),
+          rawUrl:'https://drive.google.com/file/d/'+(0,__f4.globals.encodeURIComponent)(id)+'/view',
+          thumb:'https://drive.google.com/thumbnail?id='+(0,__f4.globals.encodeURIComponent)(id)+'&sz=w1000'
         };
-      }).filter(Boolean);
+      }).filter(__f4.globals.Boolean);
     }
     async function f4LoadProjectFolderItems(folderId){
       const index=await f4ReadPortalPhotoIndex();
@@ -545,22 +750,22 @@ function salinLinkAgenda(url) {
       if(stored.length)return stored;
       // Untuk album lain yang belum diindeks, gunakan endpoint galeri publik
       // tanpa menampilkan tombol Drive kepada warga.
-      const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),5000);
+      const ctrl=new __f4.globals.AbortController(),timer=(0,__f4.globals.setTimeout)(()=>ctrl.abort(),5000);
       try{
-        const response=await fetch(
+        const response=await (0,__f4.globals.fetch)(
           'https://api.flamboyan4.web.id/api/v2/gallery/folder?album='+
-          encodeURIComponent('gfolder:'+folderId),{cache:'no-store',signal:ctrl.signal});
-        if(!response.ok)throw Error('Album belum dapat dimuat');
+          (0,__f4.globals.encodeURIComponent)('gfolder:'+folderId),{cache:'no-store',signal:ctrl.signal});
+        if(!response.ok)throw (0,__f4.globals.Error)('Album belum dapat dimuat');
         const data=await response.json();
         return f4ProjectFolderItems(data.media);
-      }finally{clearTimeout(timer);}
+      }finally{(0,__f4.globals.clearTimeout)(timer);}
     }
     let f4ProjectGalleryRequest=0;
     async function openGalleryGridModal(rawString, title) {
       const id=++f4ProjectGalleryRequest;
-      const grid=document.getElementById('gallery-grid-container');
-      const caption=document.getElementById('gallery-grid-subtitle');
-      document.getElementById('gallery-grid-title').textContent=title||'Galeri Album';
+      const grid=__f4.globals.document.getElementById('gallery-grid-container');
+      const caption=__f4.globals.document.getElementById('gallery-grid-subtitle');
+      __f4.globals.document.getElementById('gallery-grid-title').textContent=title||'Galeri Album';
       grid.innerHTML='<p class="text-slate-400 text-xs col-span-full text-center py-8">Memuat foto album...</p>';
       caption.textContent='Foto dan video kegiatan';
       currentMediaList=[];
@@ -570,18 +775,18 @@ function salinLinkAgenda(url) {
       const folderId=extractFolderId(rawString);
       try{
         if(folderId)mediaItems=await f4LoadProjectFolderItems(folderId);
-        else mediaItems=String(rawString||'').split(',').map(x=>x.trim()).filter(Boolean).map(url=>{
+        else mediaItems=(0,__f4.globals.String)(rawString||'').split(',').map(x=>x.trim()).filter(__f4.globals.Boolean).map(url=>{
           const video=/\.(mp4|mkv|mov|webm|avi)(?:[?#]|$)/i.test(url);
           return {type:video?'video':'image',url:video?url:fixDriveUrl(url),rawUrl:url};
         });
       }catch(error){
         if(id!==f4ProjectGalleryRequest)return;
-        console.warn('Galeri Projek:',error.message||error);
+        __f4.globals.console.warn('Galeri Projek:',error.message||error);
       }
       if(id!==f4ProjectGalleryRequest)return;
       if(!mediaItems.length){
         grid.replaceChildren();
-        const note=document.createElement('p');
+        const note=__f4.globals.document.createElement('p');
         note.className='text-slate-500 text-sm col-span-full text-center py-8';
         note.textContent='Foto album ini belum dapat ditampilkan. Silakan coba lagi nanti.';
         grid.append(note);
@@ -592,25 +797,25 @@ function salinLinkAgenda(url) {
       currentPhotoCaption=title;
       grid.replaceChildren();
       for(const [index,item] of mediaItems.entries()){
-        const tile=document.createElement('button');
+        const tile=__f4.globals.document.createElement('button');
         tile.type='button';
         tile.className='h-40 md:h-48 relative group cursor-pointer bg-slate-100 rounded-xl overflow-hidden shadow-sm border border-slate-200';
         tile.setAttribute('aria-label',(item.type==='video'?'Putar video ':'Lihat foto ')+(index+1));
         tile.onclick=()=>openLightboxFromIndex(index);
         if(item.type==='video'){
           tile.classList.add('bg-slate-900');
-          const thumb=document.createElement('img');
+          const thumb=__f4.globals.document.createElement('img');
           thumb.src=item.thumb||'';
           thumb.alt='Cuplikan video '+(index+1);
           thumb.loading='lazy';thumb.className='w-full h-full object-cover';
           thumb.onerror=()=>thumb.remove();
           if(item.thumb)tile.append(thumb);
-          const play=document.createElement('span');
+          const play=__f4.globals.document.createElement('span');
           play.className='absolute inset-0 flex items-center justify-center text-white';
           play.innerHTML='<svg viewBox="0 0 24 24" width="42" height="42" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
           tile.append(play);
         }else{
-          const image=document.createElement('img');
+          const image=__f4.globals.document.createElement('img');
           image.src=item.url;image.alt='Foto '+(index+1);
           image.loading='lazy';image.className='w-full h-full object-cover group-hover:scale-105 transition duration-300';
           if(item.driveId){
@@ -663,7 +868,7 @@ function salinLinkAgenda(url) {
     let lightboxTouchEndY = 0;
 
     function initLightboxSwipe() {
-      const modal = document.getElementById('lightbox-modal');
+      const modal = __f4.globals.document.getElementById('lightbox-modal');
       if (!modal) return;
 
       modal.addEventListener('touchstart', function(e) {
@@ -683,7 +888,7 @@ function salinLinkAgenda(url) {
       const diffX = lightboxTouchEndX - lightboxTouchStartX;
       const diffY = lightboxTouchEndY - lightboxTouchStartY;
 
-      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+      if (__f4.globals.Math.abs(diffX) > __f4.globals.Math.abs(diffY) && __f4.globals.Math.abs(diffX) > 50) {
         if (diffX < 0) {
           nextLightboxMedia();
         } else {
@@ -695,7 +900,7 @@ function salinLinkAgenda(url) {
     function applyTransform(img) {
       if (!img) return;
       img.style.transform = `translate3d(${translateX}px, ${translateY}px, 0px) scale(${zoomScale})`;
-      const resetBtn = document.getElementById('btn-reset-zoom');
+      const resetBtn = __f4.globals.document.getElementById('btn-reset-zoom');
       if (resetBtn) {
         if (zoomScale > 1.05) resetBtn.classList.remove('hidden');
         else resetBtn.classList.add('hidden');
@@ -707,11 +912,11 @@ function salinLinkAgenda(url) {
       zoomScale = 1;
       translateX = 0;
       translateY = 0;
-      const img = document.getElementById('lightbox-active-img');
+      const img = __f4.globals.document.getElementById('lightbox-active-img');
       if (img) {
         img.style.transition = 'transform 0.2s ease-out';
         applyTransform(img);
-        setTimeout(() => { img.style.transition = 'none'; }, 200);
+        (0,__f4.globals.setTimeout)(() => { img.style.transition = 'none'; }, 200);
       }
     }
 
@@ -724,7 +929,7 @@ function salinLinkAgenda(url) {
       img.parentElement.addEventListener('wheel', (e) => {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -0.3 : 0.3;
-        zoomScale = Math.min(Math.max(zoomScale + delta, 1), 5);
+        zoomScale = __f4.globals.Math.min(__f4.globals.Math.max(zoomScale + delta, 1), 5);
         if (zoomScale === 1) { translateX = 0; translateY = 0; }
         img.style.cursor = zoomScale > 1 ? 'grab' : 'default';
         applyTransform(img);
@@ -745,7 +950,7 @@ function salinLinkAgenda(url) {
           e.preventDefault();
           translateX = e.clientX - startX;
           translateY = e.clientY - startY;
-          requestAnimationFrame(() => applyTransform(img));
+          (0,__f4.globals.requestAnimationFrame)(() => applyTransform(img));
         }
       };
 
@@ -756,14 +961,14 @@ function salinLinkAgenda(url) {
         }
       };
 
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-      window.addEventListener('mousemove', handleGlobalMouseMove);
-      window.addEventListener('mouseup', handleGlobalMouseUp);
+      __f4.window.removeEventListener('mousemove', handleGlobalMouseMove);
+      __f4.window.removeEventListener('mouseup', handleGlobalMouseUp);
+      __f4.window.addEventListener('mousemove', handleGlobalMouseMove);
+      __f4.window.addEventListener('mouseup', handleGlobalMouseUp);
 
       img.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
-          startDist = Math.hypot(
+          startDist = __f4.globals.Math.hypot(
             e.touches[0].pageX - e.touches[1].pageX,
             e.touches[0].pageY - e.touches[1].pageY
           );
@@ -773,7 +978,7 @@ function salinLinkAgenda(url) {
           startX = e.touches[0].pageX - translateX;
           startY = e.touches[0].pageY - translateY;
 
-          const currentTime = new Date().getTime();
+          const currentTime = new __f4.globals.Date().getTime();
           const tapLength = currentTime - lastTapTime;
           if (tapLength < 300 && tapLength > 0) {
             e.preventDefault();
@@ -785,7 +990,7 @@ function salinLinkAgenda(url) {
               translateY = 0;
               img.style.transition = 'transform 0.2s ease-out';
               applyTransform(img);
-              setTimeout(() => { img.style.transition = 'none'; }, 200);
+              (0,__f4.globals.setTimeout)(() => { img.style.transition = 'none'; }, 200);
             }
           }
           lastTapTime = currentTime;
@@ -795,18 +1000,18 @@ function salinLinkAgenda(url) {
       img.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2) {
           e.preventDefault();
-          const currentDist = Math.hypot(
+          const currentDist = __f4.globals.Math.hypot(
             e.touches[0].pageX - e.touches[1].pageX,
             e.touches[0].pageY - e.touches[1].pageY
           );
-          zoomScale = Math.min(Math.max(startScale * (currentDist / startDist), 1), 5);
+          zoomScale = __f4.globals.Math.min(__f4.globals.Math.max(startScale * (currentDist / startDist), 1), 5);
           if (zoomScale === 1) { translateX = 0; translateY = 0; }
           applyTransform(img);
         } else if (e.touches.length === 1 && isDragging && zoomScale > 1) {
           e.preventDefault();
           translateX = e.touches[0].pageX - startX;
           translateY = e.touches[0].pageY - startY;
-          requestAnimationFrame(() => applyTransform(img));
+          (0,__f4.globals.requestAnimationFrame)(() => applyTransform(img));
         }
       }, { passive: false });
 
@@ -815,9 +1020,9 @@ function salinLinkAgenda(url) {
 
     function updateLightboxView() {
       const item = currentMediaList[currentPhotoIndex];
-      const container = document.getElementById('lightbox-media-container');
+      const container = __f4.globals.document.getElementById('lightbox-media-container');
 
-      const resetBtn = document.getElementById('btn-reset-zoom');
+      const resetBtn = __f4.globals.document.getElementById('btn-reset-zoom');
       if (resetBtn) resetBtn.classList.add('hidden');
 
       if (item.type === 'video') {
@@ -843,15 +1048,15 @@ function salinLinkAgenda(url) {
         container.innerHTML = `
           <img id="lightbox-active-img" src="${item.url}" alt="Foto Full" class="max-w-full max-h-[75vh] rounded-lg shadow-2xl object-contain select-none transition-transform duration-75" onclick="event.stopPropagation()">
         `;
-        const img = document.getElementById('lightbox-active-img');
+        const img = __f4.globals.document.getElementById('lightbox-active-img');
         if (img) initImageZoomEvents(img);
       }
 
-      document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
+      __f4.globals.document.getElementById('lightbox-caption').innerText = currentPhotoCaption;
 
-      const counter = document.getElementById('lightbox-counter');
-      const btnPrev = document.getElementById('lightbox-prev');
-      const btnNext = document.getElementById('lightbox-next');
+      const counter = __f4.globals.document.getElementById('lightbox-counter');
+      const btnPrev = __f4.globals.document.getElementById('lightbox-prev');
+      const btnNext = __f4.globals.document.getElementById('lightbox-next');
 
       if (currentMediaList.length > 1) {
         counter.classList.remove('hidden');
@@ -863,7 +1068,7 @@ function salinLinkAgenda(url) {
         btnPrev.classList.add('hidden');
         btnNext.classList.add('hidden');
       }
-      lucide.createIcons();
+      __f4.globals.lucide.createIcons();
     }
 
     function initCardGesturesAndKeyboard() {
@@ -872,7 +1077,7 @@ function salinLinkAgenda(url) {
     }
 
     function setupCardInteractions(cardId, changeMonthFn) {
-      const card = document.getElementById(cardId);
+      const card = __f4.globals.document.getElementById(cardId);
       if (!card) return;
 
       let touchStartX = 0;
@@ -888,13 +1093,13 @@ function salinLinkAgenda(url) {
       card.addEventListener('touchend', function(e) {
         // On mobile, native horizontal swipe switches the overview card.
         // Month navigation remains available through its own arrow buttons.
-        if(window.matchMedia('(max-width:767px)').matches)return;
+        if(__f4.window.matchMedia('(max-width:767px)').matches)return;
         touchEndX = e.changedTouches[0].screenX;
         touchEndY = e.changedTouches[0].screenY;
         const diffX = touchEndX - touchStartX;
         const diffY = touchEndY - touchStartY;
 
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+        if (__f4.globals.Math.abs(diffX) > __f4.globals.Math.abs(diffY) && __f4.globals.Math.abs(diffX) > 35) {
           if (diffX < 0) {
             changeMonthFn(1);
           } else {
@@ -907,9 +1112,9 @@ function salinLinkAgenda(url) {
       card.addEventListener('mouseenter', () => { isHovered = true; });
       card.addEventListener('mouseleave', () => { isHovered = false; });
 
-      document.addEventListener('keydown', function(e) {
+      __f4.globals.document.addEventListener('keydown', function(e) {
         if (activeModalsStack.length > 0) return;
-        if (isHovered || document.activeElement === card) {
+        if (isHovered || __f4.globals.document.activeElement === card) {
           if (e.key === 'ArrowLeft') {
             e.preventDefault();
             changeMonthFn(-1);
@@ -922,13 +1127,13 @@ function salinLinkAgenda(url) {
     }
 
     function initHomeSummarySlides(){
-      const mobile=window.matchMedia('(max-width:767px)');
+      const mobile=__f4.window.matchMedia('(max-width:767px)');
       for(const [id,labels] of [['f4-cash-summary-slides',['Saldo kas','Kas masuk dan kas keluar']],['f4-arisan-slides',['Arisan bulan ini','Tuan rumah berikutnya']]]){
-        const track=document.getElementById(id),nav=document.querySelector('[data-slide-nav="'+id+'"]');
+        const track=__f4.globals.document.getElementById(id),nav=__f4.globals.document.querySelector('[data-slide-nav="'+id+'"]');
         if(!track||!nav)continue;
         const cards=[...track.children];
         const dots=cards.map((card,index)=>{
-          const b=document.createElement('button');b.type='button';b.setAttribute('aria-label',labels[index]||('Kartu '+(index+1)));
+          const b=__f4.globals.document.createElement('button');b.type='button';b.setAttribute('aria-label',labels[index]||('Kartu '+(index+1)));
           b.addEventListener('click',()=>{track.scrollTo({left:card.getBoundingClientRect().left-track.getBoundingClientRect().left+track.scrollLeft,behavior:'smooth'});});
           return b;
         });
@@ -937,16 +1142,16 @@ function salinLinkAgenda(url) {
           if(!mobile.matches||!track.clientWidth)return;
           const left=track.getBoundingClientRect().left;
           let index=0;
-          for(let i=1;i<cards.length;i++)if(Math.abs(cards[i].getBoundingClientRect().left-left)<Math.abs(cards[index].getBoundingClientRect().left-left))index=i;
-          dots.forEach((dot,i)=>dot.setAttribute('aria-current',String(i===index)));
+          for(let i=1;i<cards.length;i++)if(__f4.globals.Math.abs(cards[i].getBoundingClientRect().left-left)<__f4.globals.Math.abs(cards[index].getBoundingClientRect().left-left))index=i;
+          dots.forEach((dot,i)=>dot.setAttribute('aria-current',(0,__f4.globals.String)(i===index)));
         };
         track.addEventListener('scroll',update,{passive:true});
-        window.addEventListener('resize',update,{passive:true});
-        if(typeof ResizeObserver==='function')new ResizeObserver(update).observe(track);
+        __f4.window.addEventListener('resize',update,{passive:true});
+        if(typeof __f4.globals.ResizeObserver==='function')new __f4.globals.ResizeObserver(update).observe(track);
         dots[0]?.setAttribute('aria-current','true');update();
       }
     }
-    document.addEventListener('DOMContentLoaded', () => {
+    __f4.globals.document.addEventListener('DOMContentLoaded', () => {
       initHomeSummarySlides();
       initLightboxSwipe();
       initCardGesturesAndKeyboard();
@@ -955,65 +1160,65 @@ function salinLinkAgenda(url) {
 
     function f4ProjectSnapPositions(slider) {
       const origin=slider.getBoundingClientRect().left+slider.clientLeft;
-      const max=Math.max(0,slider.scrollWidth-slider.clientWidth);
-      const positions=[0,max,...Array.from(slider.querySelectorAll(':scope > .f4-project-card'))
+      const max=__f4.globals.Math.max(0,slider.scrollWidth-slider.clientWidth);
+      const positions=[0,max,...__f4.globals.Array.from(slider.querySelectorAll(':scope > .f4-project-card'))
         .filter(card=>card.getClientRects().length)
-        .map(card=>Math.max(0,Math.min(max,slider.scrollLeft+card.getBoundingClientRect().left-origin)))];
+        .map(card=>__f4.globals.Math.max(0,__f4.globals.Math.min(max,slider.scrollLeft+card.getBoundingClientRect().left-origin)))];
       return positions.sort((a,b)=>a-b).filter((x,i,a)=>i===0||x-a[i-1]>1);
     }
     function scrollProjek(direction) {
-      const slider=document.getElementById('slider-projek');
+      const slider=__f4.globals.document.getElementById('slider-projek');
       if(!slider||!direction)return;
       const stops=f4ProjectSnapPositions(slider),left=slider.scrollLeft;
       const target=direction>0?stops.find(x=>x>left+2):[...stops].reverse().find(x=>x<left-2);
-      if(target!==undefined)slider.scrollTo({left:target,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      if(target!==__f4.globals.undefined)slider.scrollTo({left:target,behavior:__f4.window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
     }
     function initProjectCarousel(){
-      const slider=document.getElementById('slider-projek'),nav=document.getElementById('f4-project-nav');
+      const slider=__f4.globals.document.getElementById('slider-projek'),nav=__f4.globals.document.getElementById('f4-project-nav');
       if(!slider||!nav)return;
       const [prev,next]=nav.querySelectorAll('button');
       const update=()=>{
-        const max=Math.max(0,slider.scrollWidth-slider.clientWidth);
+        const max=__f4.globals.Math.max(0,slider.scrollWidth-slider.clientWidth);
         nav.hidden=max<=2;
         prev.disabled=slider.scrollLeft<=2;
         next.disabled=slider.scrollLeft>=max-2;
       };
       slider.addEventListener('scroll',update,{passive:true});
-      window.addEventListener('resize',update,{passive:true});
-      if(typeof ResizeObserver==='function')new ResizeObserver(update).observe(slider);
-      new MutationObserver(update).observe(slider,{childList:true,subtree:true,attributes:true,attributeFilter:['data-f4-project-inactive','hidden']});
+      __f4.window.addEventListener('resize',update,{passive:true});
+      if(typeof __f4.globals.ResizeObserver==='function')new __f4.globals.ResizeObserver(update).observe(slider);
+      new __f4.globals.MutationObserver(update).observe(slider,{childList:true,subtree:true,attributes:true,attributeFilter:['data-f4-project-inactive','hidden']});
       update();
     }
-    document.addEventListener('DOMContentLoaded',initProjectCarousel);
+    __f4.globals.document.addEventListener('DOMContentLoaded',initProjectCarousel);
 
-    const formSaran=document.getElementById('form-saran');
+    const formSaran=__f4.globals.document.getElementById('form-saran');
     let f4LastSuggestionAt=0;
     formSaran.addEventListener('submit',async function(event){
       event.preventDefault();
       if(formSaran.elements.website?.value)return;
-      if(Date.now()-f4LastSuggestionAt<60000){
-        alert('Saran baru dapat dikirim lagi setelah satu menit.');
+      if(__f4.globals.Date.now()-f4LastSuggestionAt<60000){
+        (0,__f4.globals.alert)('Saran baru dapat dikirim lagi setelah satu menit.');
         return;
       }
       const button=formSaran.querySelector('button[type="submit"]');
       if(button)button.disabled=true;
       try{
-        const pesan=String(new FormData(formSaran).get('pesan')||'').trim();
-        if(pesan.length<5||pesan.length>2000)throw Error('Saran harus berisi 5–2000 karakter.');
-        const response=await fetch(F4_FEEDBACK_API+'/suggestions',{method:'POST',
-          headers:{'Content-Type':'application/json'},body:JSON.stringify({pesan})});
+        const pesan=(0,__f4.globals.String)(new __f4.globals.FormData(formSaran).get('pesan')||'').trim();
+        if(pesan.length<5||pesan.length>2000)throw (0,__f4.globals.Error)('Saran harus berisi 5–2000 karakter.');
+        const response=await (0,__f4.globals.fetch)(F4_FEEDBACK_API+'/suggestions',{method:'POST',
+          headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify({pesan})});
         const result=await response.json();
-        if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
-        f4LastSuggestionAt=Date.now();
-        document.getElementById('saran-status').classList.remove('hidden');
+        if(!response.ok||result.ok===false)throw (0,__f4.globals.Error)(result.error||'HTTP '+response.status);
+        f4LastSuggestionAt=__f4.globals.Date.now();
+        __f4.globals.document.getElementById('saran-status').classList.remove('hidden');
         formSaran.reset();
-        setTimeout(()=>closeModalDirect('modal-saran'),2500);
-      }catch(error){alert('Saran belum berhasil disimpan: '+error.message)}
+        (0,__f4.globals.setTimeout)(()=>closeModalDirect('modal-saran'),2500);
+      }catch(error){(0,__f4.globals.alert)('Saran belum berhasil disimpan: '+error.message)}
       finally{if(button)button.disabled=false}
     });
 
     function formatTanggalKeuanganDisplay(value) {
-      const raw = String(value || '').trim();
+      const raw = (0,__f4.globals.String)(value || '').trim();
       if (!raw) return '-';
       // Backend dapat mengirim tanggal sebagai "dd/mm/yyyy HH:mm:ss".
       // Web utama hanya menampilkan tanggal karena jam tidak pernah diinput warga.
@@ -1026,7 +1231,7 @@ function salinLinkAgenda(url) {
     }
 
     function renderTableRow(row, rowNumber = null) {
-      const keys = Object.keys(row);
+      const keys = __f4.globals.Object.keys(row);
       const tanggal = formatTanggalKeuanganDisplay(row[keys[0]]);
       const keterangan = row[keys[1]] || '-';
       const kategori = (row[keys[2]] || '').trim();
@@ -1035,7 +1240,7 @@ function salinLinkAgenda(url) {
       if (!rawJumlah) return '';
 
       let cleanedJumlah = rawJumlah.toString().replace(/\./g, '').replace(/,/g, '');
-      const jumlah = parseFloat(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
+      const jumlah = (0,__f4.globals.parseFloat)(cleanedJumlah.replace(/[^0-9-]/g, '')) || 0;
 
       let badgeKategori = '';
       let textJumlah = '';
@@ -1050,7 +1255,7 @@ function salinLinkAgenda(url) {
 
       return `
         <tr>
-          ${Number.isInteger(rowNumber) ? `<td class="f4-cash-number-cell">${rowNumber}</td>` : ''}
+          ${__f4.globals.Number.isInteger(rowNumber) ? `<td class="f4-cash-number-cell">${rowNumber}</td>` : ''}
           <td class="px-3 py-2 text-slate-600 whitespace-nowrap">${escapeJerseyText(tanggal)}</td>
           <td class="px-3 py-2 font-medium break-words text-slate-800">${escapeJerseyText(keterangan)}</td>
           <td class="px-3 py-2">${badgeKategori}</td>
@@ -1061,37 +1266,37 @@ function salinLinkAgenda(url) {
 
     // Kas Warga: full scrollable PC journal, compact HP preview.
     // The same authenticated D1 rows feed the cards, archive and printed report.
-    const f4CashDesktopMedia=window.matchMedia('(min-width:768px)');
+    const f4CashDesktopMedia=__f4.window.matchMedia('(min-width:768px)');
     function renderKasWargaTransactions() {
-      const body=document.getElementById('tabel-transaksi');
+      const body=__f4.globals.document.getElementById('tabel-transaksi');
       if(!body)return;
-      const calendar=document.getElementById('f4-cash-date-filter');
-      const selectedDate=String(calendar?.value||'');
-      const clear=document.getElementById('f4-cash-date-clear');
+      const calendar=__f4.globals.document.getElementById('f4-cash-date-filter');
+      const selectedDate=(0,__f4.globals.String)(calendar?.value||'');
+      const clear=__f4.globals.document.getElementById('f4-cash-date-clear');
       if(clear)clear.hidden=!selectedDate;
       const matching=globalKeuanganData.filter(row=>{
         if(!selectedDate)return true;
         const parsed=parseRowDate(row.Tanggal);
-        return !!parsed&&[parsed.year,String(parsed.month+1).padStart(2,'0'),String(parsed.day).padStart(2,'0')].join('-')===selectedDate;
+        return !!parsed&&[parsed.year,(0,__f4.globals.String)(parsed.month+1).padStart(2,'0'),(0,__f4.globals.String)(parsed.day).padStart(2,'0')].join('-')===selectedDate;
       });
       const isDesktop=f4CashDesktopMedia.matches;
       const visible=isDesktop||selectedDate?matching:matching.slice(0,6);
       body.innerHTML=visible.map((row,index)=>renderTableRow(row,index+1)).join('')||
         '<tr><td colspan="5" class="f4-cash-no-results">'+
         (selectedDate?'Tidak ada transaksi pada tanggal tersebut.':'Belum ada transaksi.')+'</td></tr>';
-      const more=document.getElementById('btn-container-keuangan-all');
+      const more=__f4.globals.document.getElementById('btn-container-keuangan-all');
       if(more)more.classList.toggle('hidden',isDesktop||!!selectedDate||matching.length<=6);
     }
     function filterKasWargaByDate(){renderKasWargaTransactions()}
     function clearKasWargaDate(){
-      const input=document.getElementById('f4-cash-date-filter');
+      const input=__f4.globals.document.getElementById('f4-cash-date-filter');
       if(input)input.value='';
       renderKasWargaTransactions();
     }
     f4CashDesktopMedia.addEventListener?.('change',renderKasWargaTransactions);
 
     function renderArisanRow(row, isCurrent = false, isNext = false) {
-      const keys = Object.keys(row);
+      const keys = __f4.globals.Object.keys(row);
       const bulan = row[keys[0]] || '-';
       const namaBlok = row[keys[1]] || '-';
       const statusRaw = (row[keys[2]] || '').toString().trim();
@@ -1125,21 +1330,21 @@ function salinLinkAgenda(url) {
     }
 
     function filterArisanModal() {
-      const keyword = document.getElementById('search-arisan').value.toLowerCase();
+      const keyword = __f4.globals.document.getElementById('search-arisan').value.toLowerCase();
       let html = '';
       globalArisanData.forEach((row, idx) => {
-        const text = Object.values(row).join(' ').toLowerCase();
+        const text = __f4.globals.Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
           const isCurrent = (idx === currentArisanIdxGlobal);
           const isNext = (idx === nextArisanIdxGlobal);
           html += renderArisanRow(row, isCurrent, isNext);
         }
       });
-      document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Jadwal tidak ditemukan</td></tr>';
+      __f4.globals.document.getElementById('tabel-arisan-all').innerHTML = html || '<tr><td colspan="3" class="p-4 text-center text-slate-400">Jadwal tidak ditemukan</td></tr>';
     }
 
     function filterKeuanganModal() {
-      const keyword = document.getElementById('search-keuangan').value.toLowerCase();
+      const keyword = __f4.globals.document.getElementById('search-keuangan').value.toLowerCase();
       
       let targetMonthObj = null;
       if (currentKeuanganFilterType === 'pemasukan' && monthlyKeuanganList.length > 0) {
@@ -1152,12 +1357,12 @@ function salinLinkAgenda(url) {
       let filteredCount = 0;
 
       globalKeuanganData.forEach(row => {
-        const keys = Object.keys(row);
+        const keys = __f4.globals.Object.keys(row);
         if (keys.length < 4) return;
 
         const tglStr = row[keys[0]];
         const kategori = (row[keys[2]] || '').trim().toLowerCase();
-        const textFull = Object.values(row).join(' ').toLowerCase();
+        const textFull = __f4.globals.Object.values(row).join(' ').toLowerCase();
 
         // 1. Filter Jenis Transaksi (Pemasukan / Pengeluaran)
         if (currentKeuanganFilterType !== 'all' && kategori !== currentKeuanganFilterType) {
@@ -1181,7 +1386,7 @@ function salinLinkAgenda(url) {
         filteredCount++;
       });
 
-      document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Belum ada transaksi untuk periode ini.</td></tr>`;
+      __f4.globals.document.getElementById('tabel-transaksi-all').innerHTML = html || `<tr><td colspan="4" class="p-6 text-center text-slate-400 text-xs">Belum ada transaksi untuk periode ini.</td></tr>`;
     }
 
     function parseRowDate(dateStr) {
@@ -1208,17 +1413,17 @@ function salinLinkAgenda(url) {
         let day, month, year;
 
         if (parts[0].length === 4) {
-          year = parseInt(parts[0]);
-          month = parseInt(parts[1]) - 1;
-          day = parseInt(parts[2]);
+          year = (0,__f4.globals.parseInt)(parts[0]);
+          month = (0,__f4.globals.parseInt)(parts[1]) - 1;
+          day = (0,__f4.globals.parseInt)(parts[2]);
         } else {
-          day = parseInt(parts[0]);
-          if (isNaN(parts[1])) {
-            month = monthMap[parts[1]] !== undefined ? monthMap[parts[1]] : -1;
+          day = (0,__f4.globals.parseInt)(parts[0]);
+          if ((0,__f4.globals.isNaN)(parts[1])) {
+            month = monthMap[parts[1]] !== __f4.globals.undefined ? monthMap[parts[1]] : -1;
           } else {
-            month = parseInt(parts[1]) - 1;
+            month = (0,__f4.globals.parseInt)(parts[1]) - 1;
           }
-          year = parseInt(parts[2]);
+          year = (0,__f4.globals.parseInt)(parts[2]);
           if (year < 100) year += 2000;
         }
 
@@ -1236,8 +1441,8 @@ function salinLinkAgenda(url) {
       const m = monthlyKeuanganList[currentSaldoMonthIndex];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
       const saldoBulan = (m.pemasukan || 0) - (m.pengeluaran || 0);
-      const label = document.getElementById('label-saldo-bulan');
-      const value = document.getElementById('saldo-bulan');
+      const label = __f4.globals.document.getElementById('label-saldo-bulan');
+      const value = __f4.globals.document.getElementById('saldo-bulan');
       if (label) label.innerText = `Saldo ${monthNames[m.month]} ${m.year}`;
       if (value) {
         value.innerText = formatRupiah(saldoBulan);
@@ -1258,24 +1463,24 @@ function salinLinkAgenda(url) {
       if (monthlyKeuanganList.length === 0) return;
       const m = monthlyKeuanganList[currentPemasukanMonthIndex];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      const labelPemasukan = document.getElementById('label-pemasukan-bulan');
-      const periodePemasukan = document.createElement('span');
+      const labelPemasukan = __f4.globals.document.getElementById('label-pemasukan-bulan');
+      const periodePemasukan = __f4.globals.document.createElement('span');
       periodePemasukan.className = 'f4-period-nowrap';
       periodePemasukan.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
-      labelPemasukan.replaceChildren(document.createTextNode('Masuk '), periodePemasukan);
-      document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(m.pemasukan);
+      labelPemasukan.replaceChildren(__f4.globals.document.createTextNode('Masuk '), periodePemasukan);
+      __f4.globals.document.getElementById('pemasukan-bulan-ini').innerText = formatRupiah(m.pemasukan);
     }
 
     function updatePengeluaranCardView() {
       if (monthlyKeuanganList.length === 0) return;
       const m = monthlyKeuanganList[currentPengeluaranMonthIndex];
       const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      const labelPengeluaran = document.getElementById('label-pengeluaran-bulan');
-      const periodePengeluaran = document.createElement('span');
+      const labelPengeluaran = __f4.globals.document.getElementById('label-pengeluaran-bulan');
+      const periodePengeluaran = __f4.globals.document.createElement('span');
       periodePengeluaran.className = 'f4-period-nowrap';
       periodePengeluaran.textContent = `(${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][m.month]} ${m.year})`;
-      labelPengeluaran.replaceChildren(document.createTextNode('Keluar '), periodePengeluaran);
-      document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(m.pengeluaran);
+      labelPengeluaran.replaceChildren(__f4.globals.document.createTextNode('Keluar '), periodePengeluaran);
+      __f4.globals.document.getElementById('pengeluaran-bulan-ini').innerText = formatRupiah(m.pengeluaran);
     }
 
     function changeMonthPemasukan(direction) {
@@ -1300,10 +1505,10 @@ function salinLinkAgenda(url) {
     function isiSelectBulanCetakKas() {
       const ids = ['cetak-kas-bulan', 'cetak-kas-bulan-awal', 'cetak-kas-bulan-akhir'];
       ids.forEach(id => {
-        const el = document.getElementById(id);
+        const el = __f4.globals.document.getElementById(id);
         if (!el || el.options.length) return;
         bulanNamaCetakKas.forEach((nama, i) => {
-          const opt = document.createElement('option');
+          const opt = __f4.globals.document.createElement('option');
           opt.value = i;
           opt.textContent = nama;
           el.appendChild(opt);
@@ -1314,52 +1519,52 @@ function salinLinkAgenda(url) {
     function openModalCetakKas() {
       if (!f4CanReadKas()) return;
       isiSelectBulanCetakKas();
-      const now = new Date();
+      const now = new __f4.globals.Date();
       let month = now.getMonth(), year = now.getFullYear();
       if (monthlyKeuanganList.length) {
         const last = monthlyKeuanganList[monthlyKeuanganList.length - 1];
         month = last.month; year = last.year;
       }
-      document.getElementById('cetak-kas-bulan').value = month;
-      document.getElementById('cetak-kas-bulan-awal').value = month;
-      document.getElementById('cetak-kas-bulan-akhir').value = month;
-      document.getElementById('cetak-kas-tahun').value = year;
-      document.getElementById('cetak-kas-tahun-rentang').value = year;
-      document.getElementById('cetak-kas-tahun-full').value = year;
-      document.getElementById('cetak-kas-tipe').value = 'bulanan';
+      __f4.globals.document.getElementById('cetak-kas-bulan').value = month;
+      __f4.globals.document.getElementById('cetak-kas-bulan-awal').value = month;
+      __f4.globals.document.getElementById('cetak-kas-bulan-akhir').value = month;
+      __f4.globals.document.getElementById('cetak-kas-tahun').value = year;
+      __f4.globals.document.getElementById('cetak-kas-tahun-rentang').value = year;
+      __f4.globals.document.getElementById('cetak-kas-tahun-full').value = year;
+      __f4.globals.document.getElementById('cetak-kas-tipe').value = 'bulanan';
       updateCetakKasFields();
-      document.getElementById('modal-cetak-kas').classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      __f4.globals.document.getElementById('modal-cetak-kas').classList.remove('hidden');
+      if (__f4.window.lucide) __f4.globals.lucide.createIcons();
     }
 
     function closeModalCetakKas() {
-      document.getElementById('modal-cetak-kas')?.classList.add('hidden');
+      __f4.globals.document.getElementById('modal-cetak-kas')?.classList.add('hidden');
     }
 
     function updateCetakKasFields() {
-      const tipe = document.getElementById('cetak-kas-tipe')?.value || 'bulanan';
-      document.getElementById('cetak-kas-bulanan')?.classList.toggle('hidden', tipe !== 'bulanan');
-      document.getElementById('cetak-kas-rentang')?.classList.toggle('hidden', tipe !== 'rentang');
-      document.getElementById('cetak-kas-tahunan')?.classList.toggle('hidden', tipe !== 'tahunan');
+      const tipe = __f4.globals.document.getElementById('cetak-kas-tipe')?.value || 'bulanan';
+      __f4.globals.document.getElementById('cetak-kas-bulanan')?.classList.toggle('hidden', tipe !== 'bulanan');
+      __f4.globals.document.getElementById('cetak-kas-rentang')?.classList.toggle('hidden', tipe !== 'rentang');
+      __f4.globals.document.getElementById('cetak-kas-tahunan')?.classList.toggle('hidden', tipe !== 'tahunan');
     }
 
     function escapeCetakKas(v) {
-      return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      return (0,__f4.globals.String)(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
 
     function nominalCetakKas(raw) {
       if (typeof raw === 'number') return raw;
-      const s = String(raw ?? '').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9-]/g,'');
-      return parseFloat(s) || 0;
+      const s = (0,__f4.globals.String)(raw ?? '').replace(/\./g,'').replace(/,/g,'').replace(/[^0-9-]/g,'');
+      return (0,__f4.globals.parseFloat)(s) || 0;
     }
 
     function cetakLaporanKas() {
-      if (!Array.isArray(globalKeuanganData) || globalKeuanganData.length === 0) {
-        alert('Data keuangan belum tersedia. Tunggu data selesai dimuat lalu coba kembali.');
+      if (!__f4.globals.Array.isArray(globalKeuanganData) || globalKeuanganData.length === 0) {
+        (0,__f4.globals.alert)('Data keuangan belum tersedia. Tunggu data selesai dimuat lalu coba kembali.');
         return;
       }
 
-      const tipe = document.getElementById('cetak-kas-tipe').value;
+      const tipe = __f4.globals.document.getElementById('cetak-kas-tipe').value;
       let periode = 'Semua Transaksi';
       let labelSaldoAkhir = 'Saldo Akhir';
       let labelSaldoKasPeriode = 'Saldo Kas Periode';
@@ -1367,57 +1572,57 @@ function salinLinkAgenda(url) {
       let batasAwalSaldo = null;
 
       if (tipe === 'bulanan') {
-        const month = Number(document.getElementById('cetak-kas-bulan').value);
-        const year = Number(document.getElementById('cetak-kas-tahun').value);
+        const month = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-bulan').value);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun').value);
         periode = `Periode ${bulanNamaCetakKas[month]} ${year}`;
         labelSaldoAkhir = `Saldo Akhir ${bulanNamaCetakKas[month]} ${year}`;
         labelSaldoKasPeriode = `Saldo Kas ${bulanNamaCetakKas[month]} ${year}`;
-        batasAwalSaldo = new Date(year, month, 1, 0, 0, 0, 0);
+        batasAwalSaldo = new __f4.globals.Date(year, month, 1, 0, 0, 0, 0);
         filterFn = row => {
-          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          const keys = __f4.globals.Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.month === month && d.year === year;
         };
       } else if (tipe === 'rentang') {
-        const awal = Number(document.getElementById('cetak-kas-bulan-awal').value);
-        const akhir = Number(document.getElementById('cetak-kas-bulan-akhir').value);
-        const year = Number(document.getElementById('cetak-kas-tahun-rentang').value);
-        if (awal > akhir) return alert('Bulan awal tidak boleh lebih besar dari bulan akhir.');
+        const awal = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-bulan-awal').value);
+        const akhir = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-bulan-akhir').value);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun-rentang').value);
+        if (awal > akhir) return (0,__f4.globals.alert)('Bulan awal tidak boleh lebih besar dari bulan akhir.');
         periode = `Periode ${bulanNamaCetakKas[awal]} s.d. ${bulanNamaCetakKas[akhir]} ${year}`;
         labelSaldoAkhir = `Saldo Akhir ${bulanNamaCetakKas[awal]}–${bulanNamaCetakKas[akhir]} ${year}`;
         labelSaldoKasPeriode = `Saldo Kas ${bulanNamaCetakKas[awal]}–${bulanNamaCetakKas[akhir]} ${year}`;
-        batasAwalSaldo = new Date(year, awal, 1, 0, 0, 0, 0);
+        batasAwalSaldo = new __f4.globals.Date(year, awal, 1, 0, 0, 0, 0);
         filterFn = row => {
-          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          const keys = __f4.globals.Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.year === year && d.month >= awal && d.month <= akhir;
         };
       } else if (tipe === 'tahunan') {
-        const year = Number(document.getElementById('cetak-kas-tahun-full').value);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun-full').value);
         periode = `Laporan Tahunan ${year}`;
         labelSaldoAkhir = `Saldo Akhir Tahun ${year}`;
         labelSaldoKasPeriode = `Saldo Kas Tahun ${year}`;
-        batasAwalSaldo = new Date(year, 0, 1, 0, 0, 0, 0);
+        batasAwalSaldo = new __f4.globals.Date(year, 0, 1, 0, 0, 0, 0);
         filterFn = row => {
-          const keys = Object.keys(row), d = parseRowDate(row[keys[0]]);
+          const keys = __f4.globals.Object.keys(row), d = parseRowDate(row[keys[0]]);
           return d && d.year === year;
         };
       }
 
       let data = globalKeuanganData.filter(filterFn).slice();
       data.sort((a,b) => {
-        const ka=Object.keys(a), kb=Object.keys(b);
+        const ka=__f4.globals.Object.keys(a), kb=__f4.globals.Object.keys(b);
         const da=parseRowDate(a[ka[0]]), db=parseRowDate(b[kb[0]]);
         if (!da || !db) return 0;
-        return new Date(da.year,da.month,da.day||1) - new Date(db.year,db.month,db.day||1);
+        return new __f4.globals.Date(da.year,da.month,da.day||1) - new __f4.globals.Date(db.year,db.month,db.day||1);
       });
 
       let totalMasuk=0, totalKeluar=0;
       let rows='';
       data.forEach((row,idx) => {
-        const keys=Object.keys(row);
+        const keys=__f4.globals.Object.keys(row);
         if (keys.length < 4) return;
         const tanggal=row[keys[0]] || '-';
         const keterangan=row[keys[1]] || '-';
-        const kategori=String(row[keys[2]] || '').trim();
+        const kategori=(0,__f4.globals.String)(row[keys[2]] || '').trim();
         const jumlah=nominalCetakKas(row[keys[3]]);
         if (kategori.toLowerCase()==='pemasukan') totalMasuk += jumlah;
         if (kategori.toLowerCase()==='pengeluaran') totalKeluar += jumlah;
@@ -1439,27 +1644,27 @@ function salinLinkAgenda(url) {
       // sekaligus saldo kas nyata yang tersedia setelah memperhitungkan bulan-bulan sebelumnya.
       let batasSaldo = null;
       if (tipe === 'bulanan') {
-        const month = Number(document.getElementById('cetak-kas-bulan').value);
-        const year = Number(document.getElementById('cetak-kas-tahun').value);
-        batasSaldo = new Date(year, month + 1, 0, 23, 59, 59, 999);
+        const month = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-bulan').value);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun').value);
+        batasSaldo = new __f4.globals.Date(year, month + 1, 0, 23, 59, 59, 999);
       } else if (tipe === 'rentang') {
-        const akhir = Number(document.getElementById('cetak-kas-bulan-akhir').value);
-        const year = Number(document.getElementById('cetak-kas-tahun-rentang').value);
-        batasSaldo = new Date(year, akhir + 1, 0, 23, 59, 59, 999);
+        const akhir = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-bulan-akhir').value);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun-rentang').value);
+        batasSaldo = new __f4.globals.Date(year, akhir + 1, 0, 23, 59, 59, 999);
       } else if (tipe === 'tahunan') {
-        const year = Number(document.getElementById('cetak-kas-tahun-full').value);
-        batasSaldo = new Date(year, 11, 31, 23, 59, 59, 999);
+        const year = (0,__f4.globals.Number)(__f4.globals.document.getElementById('cetak-kas-tahun-full').value);
+        batasSaldo = new __f4.globals.Date(year, 11, 31, 23, 59, 59, 999);
       }
 
       let totalMasukKumulatif = 0, totalKeluarKumulatif = 0;
       let masukSebelumnya = 0, keluarSebelumnya = 0;
       globalKeuanganData.forEach(row => {
-        const keys = Object.keys(row);
+        const keys = __f4.globals.Object.keys(row);
         if (keys.length < 4) return;
         const d = parseRowDate(row[keys[0]]);
         if (!d) return;
-        const dt = new Date(d.year, d.month, d.day || 1);
-        const kategori = String(row[keys[2]] || '').trim().toLowerCase();
+        const dt = new __f4.globals.Date(d.year, d.month, d.day || 1);
+        const kategori = (0,__f4.globals.String)(row[keys[2]] || '').trim().toLowerCase();
         const jumlah = nominalCetakKas(row[keys[3]]);
 
         if (!batasSaldo || dt <= batasSaldo) {
@@ -1474,10 +1679,10 @@ function salinLinkAgenda(url) {
       const saldoSebelumnya = batasAwalSaldo ? (masukSebelumnya - keluarSebelumnya) : 0;
       const saldoTersedia = totalMasukKumulatif - totalKeluarKumulatif;
 
-      const tanggalCetak = new Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
+      const tanggalCetak = new __f4.globals.Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
 
-      const w=window.open('', '_blank');
-      if (!w) return alert('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
+      const w=__f4.window.open('', '_blank');
+      if (!w) return (0,__f4.globals.alert)('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
       w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Keuangan Kas - ${escapeCetakKas(periode)}</title>
 <style>
 @page{size:A4 portrait;margin:11mm 12mm 12mm}
@@ -1503,13 +1708,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     // Konsisten dengan judul transaksi di Pembukuan; hanya mengubah teks tampilan.
     // Jurnal D1, kategori, nominal dan tanggal sama sekali tidak dimodifikasi.
     function f4PublicCashReadableNote(item) {
-      const note=String(item?.keterangan||item?.kategori||'-').trim();
+      const note=(0,__f4.globals.String)(item?.keterangan||item?.kategori||'-').trim();
       const isFine=/^Denda Gorol\b/i.test(note);
       if(isFine){
         const parts=note.match(/^Denda Gorol\s+([A-Za-z]+)(?:\s+(20\d{2}))?/i);
         const countMatches=[...note.matchAll(/\b(\d+)\s*(?:pembayaran|warga|orang)\b/gi)];
-        const count=Number(countMatches.at(-1)?.[1]||0);
-        const year=parts?.[2]||String(item?.tanggal||'').slice(0,4);
+        const count=(0,__f4.globals.Number)(countMatches.at(-1)?.[1]||0);
+        const year=parts?.[2]||(0,__f4.globals.String)(item?.tanggal||'').slice(0,4);
         if(parts?.[1]&&count>0)
           return 'Denda Gorol '+parts[1]+( /^20\d{2}$/.test(year)?' '+year:'' )+' • '+count+' warga';
       }
@@ -1522,25 +1727,25 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if(!f4CanReadKas())return;
       const generation=++f4CashLoadGeneration;
       try {
-        const statusEl = document.getElementById('loading-status');
-        const kasToken=F4Loading.begin(statusEl,'Memuat laporan keuangan warga…');
+        const statusEl = __f4.globals.document.getElementById('loading-status');
+        const kasToken=__f4.globals.F4Loading.begin(statusEl,'Memuat laporan keuangan warga…');
 
         // Laporan publik wajib memakai D1 dan tidak memakai data uji.
-        const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
+        const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal/cash',{
           mode:'cors',credentials:'include',cache:'no-store',headers:{'Accept':'application/json'}
         });
-        const result=await response.json().catch(()=>{throw Error('Respons laporan kas tidak dapat dibaca.');});
+        const result=await response.json().catch(()=>{throw (0,__f4.globals.Error)('Respons laporan kas tidak dapat dibaca.');});
         if(generation!==f4CashLoadGeneration||!f4CanReadKas())return;
-        if(!response.ok||result?.ok!==true||!Array.isArray(result?.data?.rows))
-          throw Error(result?.error||'Laporan kas belum dapat dibaca.');
-        const sourceRows = Array.isArray(result.data.rows) ? result.data.rows : [];
+        if(!response.ok||result?.ok!==true||!__f4.globals.Array.isArray(result?.data?.rows))
+          throw (0,__f4.globals.Error)(result?.error||'Laporan kas belum dapat dibaca.');
+        const sourceRows = __f4.globals.Array.isArray(result.data.rows) ? result.data.rows : [];
 
         // Bentuk data disamakan dengan struktur lama supaya tampilan, modal,
         // pencarian dan cetak laporan yang sudah stabil tidak perlu dirombak.
         const rawData = sourceRows.map(item => {
           const jenisBackend = (item.jenis || '').toString().trim().toLowerCase();
-          const debit = Number(item.debit || 0);
-          const kredit = Number(item.kredit || 0);
+          const debit = (0,__f4.globals.Number)(item.debit || 0);
+          const kredit = (0,__f4.globals.Number)(item.kredit || 0);
 
           // Backend Pembukuan memakai istilah Debit/Kredit, sedangkan laman utama
           // sejak awal memakai Pemasukan/Pengeluaran. Normalisasi di sini agar
@@ -1574,14 +1779,14 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         rawData.forEach(row => {
           const kategori = (row.Jenis || '').trim().toLowerCase();
-          const jumlah = Number(row.Nominal || 0);
+          const jumlah = (0,__f4.globals.Number)(row.Nominal || 0);
 
           if (kategori === 'pemasukan') totalPemasukanAll += jumlah;
           else if (kategori === 'pengeluaran') totalPengeluaranAll += jumlah;
 
           const parsed = parseRowDate(row.Tanggal);
           if (parsed) {
-            const key = `${parsed.year}-${String(parsed.month + 1).padStart(2, '0')}`;
+            const key = `${parsed.year}-${(0,__f4.globals.String)(parsed.month + 1).padStart(2, '0')}`;
             if (!monthlyMap[key]) {
               monthlyMap[key] = { year: parsed.year, month: parsed.month, pemasukan: 0, pengeluaran: 0 };
             }
@@ -1590,7 +1795,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           }
         });
 
-        monthlyKeuanganList = Object.values(monthlyMap).sort((a, b) => {
+        monthlyKeuanganList = __f4.globals.Object.values(monthlyMap).sort((a, b) => {
           if (a.year !== b.year) return a.year - b.year;
           return a.month - b.month;
         });
@@ -1607,7 +1812,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         const sisaSaldo = totalPemasukanAll - totalPengeluaranAll;
         if (!monthlyKeuanganList.length) {
           for (const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan']) {
-            const el=document.getElementById(id);
+            const el=__f4.globals.document.getElementById(id);
             if(el)el.textContent='Rp 0';
           }
         }
@@ -1622,24 +1827,24 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           .sort((a, b) => {
             const da = parseRowDate(a.row.Tanggal);
             const db = parseRowDate(b.row.Tanggal);
-            const ta = da ? new Date(da.year, da.month, da.day || 1).getTime() : 0;
-            const tb = db ? new Date(db.year, db.month, db.day || 1).getTime() : 0;
+            const ta = da ? new __f4.globals.Date(da.year, da.month, da.day || 1).getTime() : 0;
+            const tb = db ? new __f4.globals.Date(db.year, db.month, db.day || 1).getTime() : 0;
             return tb - ta || a.originalIndex - b.originalIndex;
           }).map(item => item.row);
         renderKasWargaTransactions();
         const tbodyAllHTML=globalKeuanganData.map(row=>renderTableRow(row)).join('');
-        document.getElementById('tabel-transaksi-all').innerHTML=tbodyAllHTML||
+        __f4.globals.document.getElementById('tabel-transaksi-all').innerHTML=tbodyAllHTML||
           '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada transaksi</td></tr>';
 
-        document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
-        document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
-        document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
+        __f4.globals.document.getElementById('total-pemasukan-all').innerText = formatRupiah(totalPemasukanAll);
+        __f4.globals.document.getElementById('total-pengeluaran-all').innerText = formatRupiah(totalPengeluaranAll);
+        __f4.globals.document.getElementById('sisa-saldo').innerText = formatRupiah(sisaSaldo);
 
-        F4Loading.success(statusEl,kasToken);
+        __f4.globals.F4Loading.success(statusEl,kasToken);
 
         // Update mengikuti transaksi paling baru dari Buku Kas.
         if (globalKeuanganData.length > 0 && globalKeuanganData[0].Tanggal) {
-          const updateEl = document.getElementById('label-update-kas');
+          const updateEl = __f4.globals.document.getElementById('label-update-kas');
           if (updateEl) updateEl.innerText = 'Update: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
         }
 
@@ -1648,32 +1853,32 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
       } catch (err) {
         if(generation!==f4CashLoadGeneration||!f4CanReadKas())return;
-        console.error('Gagal memuat keuangan dari Pembukuan:', err);
-        const statusEl = document.getElementById('loading-status');
-        F4Loading.error(statusEl,'Gagal menghubungkan keuangan: '+(err.message||err));
+        __f4.globals.console.error('Gagal memuat keuangan dari Pembukuan:', err);
+        const statusEl = __f4.globals.document.getElementById('loading-status');
+        __f4.globals.F4Loading.error(statusEl,'Gagal menghubungkan keuangan: '+(err.message||err));
         for (const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan','total-pemasukan-all','total-pengeluaran-all','sisa-saldo']) {
-          const el=document.getElementById(id);
+          const el=__f4.globals.document.getElementById(id);
           if(el)el.textContent='—';
         }
       }
     }
 
-    document.addEventListener('f4:cash-access-change',()=>{
+    __f4.globals.document.addEventListener('f4:cash-access-change',()=>{
       ++f4CashLoadGeneration;
       if(f4CanReadKas()){void loadKeuanganDariPembukuan();return;}
       globalKeuanganData=[];monthlyKeuanganList=[];
-      for(const id of ['modal-keuangan','modal-cetak-kas'])document.getElementById(id)?.classList.add('hidden');
-      for(const id of ['tabel-transaksi','tabel-transaksi-all'])document.getElementById(id)?.replaceChildren();
+      for(const id of ['modal-keuangan','modal-cetak-kas'])__f4.globals.document.getElementById(id)?.classList.add('hidden');
+      for(const id of ['tabel-transaksi','tabel-transaksi-all'])__f4.globals.document.getElementById(id)?.replaceChildren();
       for(const id of ['pemasukan-bulan-ini','pengeluaran-bulan-ini','saldo-bulan','total-pemasukan-all','total-pengeluaran-all','sisa-saldo']){
-        const node=document.getElementById(id);if(node)node.textContent='—';
+        const node=__f4.globals.document.getElementById(id);if(node)node.textContent='—';
       }
-      document.getElementById('btn-container-keuangan-all')?.classList.add('hidden');
-      const label=document.getElementById('label-update-kas');if(label)label.textContent='Data Kas';
+      __f4.globals.document.getElementById('btn-container-keuangan-all')?.classList.add('hidden');
+      const label=__f4.globals.document.getElementById('label-update-kas');if(label)label.textContent='Data Kas';
     });
-    if (document.readyState === 'complete') {
-      setTimeout(loadKeuanganDariPembukuan, 0);
+    if (__f4.globals.document.readyState === 'complete') {
+      (0,__f4.globals.setTimeout)(loadKeuanganDariPembukuan, 0);
     } else {
-      window.addEventListener('load', loadKeuanganDariPembukuan, { once: true });
+      __f4.window.addEventListener('load', loadKeuanganDariPembukuan, { once: true });
     }
 
     // Calendar-aware Arisan cards. The source schedule is read as-is; only
@@ -1681,26 +1886,26 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     const f4ArisanMonthNames=['januari','februari','maret','april','mei','juni',
       'juli','agustus','september','oktober','november','desember'];
     function f4ArisanCurrentPeriod(){
-      const parts=new Intl.DateTimeFormat('en-GB',{
+      const parts=new __f4.globals.Intl.DateTimeFormat('en-GB',{
         timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit'
-      }).formatToParts(new Date());
-      const year=Number(parts.find(x=>x.type==='year')?.value);
-      const month=Number(parts.find(x=>x.type==='month')?.value);
+      }).formatToParts(new __f4.globals.Date());
+      const year=(0,__f4.globals.Number)(parts.find(x=>x.type==='year')?.value);
+      const month=(0,__f4.globals.Number)(parts.find(x=>x.type==='month')?.value);
       return {year,month,key:year*12+month};
     }
     function f4ArisanRowPeriod(row){
-      const raw=String(Object.values(row||{})[0]||'').toLowerCase().trim();
+      const raw=(0,__f4.globals.String)(__f4.globals.Object.values(row||{})[0]||'').toLowerCase().trim();
       const numeric=raw.match(/(?:^|\D)(20\d{2})[-/](0?[1-9]|1[012])(?:\D|$)/);
-      if(numeric)return Number(numeric[1])*12+Number(numeric[2]);
+      if(numeric)return (0,__f4.globals.Number)(numeric[1])*12+(0,__f4.globals.Number)(numeric[2]);
       const year=(raw.match(/\b20\d{2}\b/)||[])[0];
       const month=f4ArisanMonthNames.findIndex(name=>
-        new RegExp('(?:^|[^a-z])'+name+'(?:[^a-z]|$)').test(raw));
-      return year&&month>=0?Number(year)*12+month+1:null;
+        new __f4.globals.RegExp('(?:^|[^a-z])'+name+'(?:[^a-z]|$)').test(raw));
+      return year&&month>=0?(0,__f4.globals.Number)(year)*12+month+1:null;
     }
     function refreshArisanCards(){
       if(!globalArisanData.length)return;
       const now=f4ArisanCurrentPeriod();
-      arisanLastMonthKey=String(now.key);
+      arisanLastMonthKey=(0,__f4.globals.String)(now.key);
       currentArisanIdxGlobal=globalArisanData.findIndex(row=>f4ArisanRowPeriod(row)===now.key);
       nextArisanIdxGlobal=globalArisanData.findIndex(row=>f4ArisanRowPeriod(row)===now.key+1);
       // A missing month should never silently display the first historical row.
@@ -1712,61 +1917,61 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
       const current=currentArisanIdxGlobal>=0?globalArisanData[currentArisanIdxGlobal]:null;
       const following=nextArisanIdxGlobal>=0?globalArisanData[nextArisanIdxGlobal]:null;
-      const get=(id)=>document.getElementById(id);
-      const values=row=>Object.values(row||{});
-      get('arisan-bulan-ini-nama').textContent=current?String(values(current)[1]||'-'):'Belum dijadwalkan';
-      get('arisan-bulan-ini-tgl').textContent=current?String(values(current)[0]||'-'):
+      const get=(id)=>__f4.globals.document.getElementById(id);
+      const values=row=>__f4.globals.Object.values(row||{});
+      get('arisan-bulan-ini-nama').textContent=current?(0,__f4.globals.String)(values(current)[1]||'-'):'Belum dijadwalkan';
+      get('arisan-bulan-ini-tgl').textContent=current?(0,__f4.globals.String)(values(current)[0]||'-'):
         f4ArisanMonthNames[now.month-1]+' '+now.year;
-      get('arisan-selanjutnya-nama').textContent=following?String(values(following)[1]||'-'):'Belum dijadwalkan';
+      get('arisan-selanjutnya-nama').textContent=following?(0,__f4.globals.String)(values(following)[1]||'-'):'Belum dijadwalkan';
       get('arisan-selanjutnya-tgl').textContent=following?
-        String(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
+        (0,__f4.globals.String)(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
       const icon=get('arisan-bulan-ini-icon-bg');
       if(icon){
-        const status=String(values(current)[2]||'').toLowerCase();
+        const status=(0,__f4.globals.String)(values(current)[2]||'').toLowerCase();
         const done=/sudah|selesai|lunas/.test(status);
         icon.className=done?'shrink-0 text-emerald-100':
           'shrink-0 text-white';
         icon.innerHTML=done?
           '<i data-lucide="check-circle-2" class="w-6 h-6"></i>':
           '<i data-lucide="home" class="w-6 h-6"></i>';
-        window.lucide?.createIcons();
+        __f4.window.lucide?.createIcons();
       }
       filterArisanModal();
     }
     function checkArisanMonthChange(){
       if(!globalArisanData.length)return;
-      if(String(f4ArisanCurrentPeriod().key)!==arisanLastMonthKey)refreshArisanCards();
+      if((0,__f4.globals.String)(f4ArisanCurrentPeriod().key)!==arisanLastMonthKey)refreshArisanCards();
     }
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkArisanMonthChange()});
-    window.addEventListener('pageshow',checkArisanMonthChange);
+    __f4.globals.document.addEventListener('visibilitychange',()=>{if(!__f4.globals.document.hidden)checkArisanMonthChange()});
+    __f4.window.addEventListener('pageshow',checkArisanMonthChange);
     // Also rolls the card forward while the page stays open across midnight.
-    window.setInterval(()=>{if(!document.hidden)checkArisanMonthChange()},60000);
+    __f4.window.setInterval(()=>{if(!__f4.globals.document.hidden)checkArisanMonthChange()},60000);
 
     if (CSV_ARISAN_URL && CSV_ARISAN_URL.startsWith('http')) {
-      Papa.parse(CSV_ARISAN_URL, {
+      __f4.globals.Papa.parse(CSV_ARISAN_URL, {
         download: true,
         header: true,
         complete: function(results) {
           const rawData = results.data.filter(row => {
-            const values = Object.values(row);
+            const values = __f4.globals.Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
           globalArisanData = rawData;
 
           refreshArisanCards();
-          F4Loading.success('loading-status-arisan');
-          lucide.createIcons();
+          __f4.globals.F4Loading.success('loading-status-arisan');
+          __f4.globals.lucide.createIcons();
         },
-        error:function(err){F4Loading.error('loading-status-arisan','Gagal memuat jadwal arisan: '+(err.message||err));}
+        error:function(err){__f4.globals.F4Loading.error('loading-status-arisan','Gagal memuat jadwal arisan: '+(err.message||err));}
       });
     } else {
-      F4Loading.empty('loading-status-arisan','Sumber jadwal arisan belum terhubung.');
+      __f4.globals.F4Loading.empty('loading-status-arisan','Sumber jadwal arisan belum terhubung.');
     }
 
     function getNominalHargaJerseyRow(row) {
       if (!row) return 0;
-      const keys = Object.keys(row);
+      const keys = __f4.globals.Object.keys(row);
       if (keys.length === 0) return 0;
 
       let targetKey = keys.find(k => {
@@ -1794,13 +1999,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       strVal = strVal.replace(/\./g, '');
       strVal = strVal.replace(/,/g, '.');
 
-      const num = parseFloat(strVal) || 0;
+      const num = (0,__f4.globals.parseFloat)(strVal) || 0;
       return num;
     }
 
     function getStatusJerseyRow(row) {
       if (!row) return '';
-      const keys = Object.keys(row);
+      const keys = __f4.globals.Object.keys(row);
       
       let targetKey = keys.find(k => k.toLowerCase().trim().includes('status'));
 
@@ -1813,10 +2018,10 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function getJerseyTerimaEksplisit(row){
-      const methodKey=Object.keys(row||{}).find(k=>/keterangan|metode|method/i.test(k));
-      const method=String(row?.[methodKey]||'');
+      const methodKey=__f4.globals.Object.keys(row||{}).find(k=>/keterangan|metode|method/i.test(k));
+      const method=(0,__f4.globals.String)(row?.[methodKey]||'');
       const tags=[...method.matchAll(/\[F4BAYAR:(\d{1,12})\]/g)];
-      return tags.length?Number(tags[tags.length-1][1]):null;
+      return tags.length?(0,__f4.globals.Number)(tags[tags.length-1][1]):null;
     }
     function getNominalJerseyMasuk(row) {
       if(!row)return 0;
@@ -1828,33 +2033,33 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if(!/dp|cicil/.test(statusRaw))return 0;
       const matches=statusRaw.match(/(?:rp\s*)?(\d[\d.,]*)/i);
       if(!matches)return 0; // DP tanpa nominal tidak ditebak 50%.
-      let amount=Number(matches[1].replace(/[.,]/g,''));
+      let amount=(0,__f4.globals.Number)(matches[1].replace(/[.,]/g,''));
       if(amount>0&&amount<1000)amount*=1000;
-      return Number.isFinite(amount)?amount:0;
+      return __f4.globals.Number.isFinite(amount)?amount:0;
     }
     function switchJerseyTab(tab) {
       const labels={bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'};
-      currentJerseyTab=Object.hasOwn(labels,tab)?tab:'bapak';
+      currentJerseyTab=__f4.globals.Object.hasOwn(labels,tab)?tab:'bapak';
       const activeClass="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-indigo-600 text-white border-indigo-600 shadow-sm";
       const idleClass="flex-1 py-2 px-3 rounded-xl font-bold text-xs md:text-sm border transition flex items-center justify-center space-x-2 bg-white text-slate-600 border-slate-200 hover:bg-slate-100";
-      for(const key of Object.keys(labels)){
-        const button=document.getElementById('tab-jersey-'+key);
+      for(const key of __f4.globals.Object.keys(labels)){
+        const button=__f4.globals.document.getElementById('tab-jersey-'+key);
         if(!button)continue;
         button.className=key===currentJerseyTab?activeClass:idleClass;
-        button.setAttribute('aria-pressed',String(key===currentJerseyTab));
+        button.setAttribute('aria-pressed',(0,__f4.globals.String)(key===currentJerseyTab));
       }
-      const labelTab=document.getElementById('label-tab-kategori');
+      const labelTab=__f4.globals.document.getElementById('label-tab-kategori');
       if(labelTab)labelTab.innerText='('+labels[currentJerseyTab]+')';
       filterJerseyModal();
     }
 
     function escapeJerseyText(value) {
-      return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return (0,__f4.globals.String)(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
     function jerseyPublicBackParts(x){
-      const ownName=String(x?.back_name??'').trim(),ownNumber=String(x?.back_number??'').trim();
+      const ownName=(0,__f4.globals.String)(x?.back_name??'').trim(),ownNumber=(0,__f4.globals.String)(x?.back_number??'').trim();
       if(x?.back_name!=null||x?.back_number!=null)return {name:ownName,number:ownNumber};
-      const old=String(x?.printed_name||'').trim();
+      const old=(0,__f4.globals.String)(x?.printed_name||'').trim();
       if(!old||/^\(?tanpa\s+nama\s*(?:\/\s*(?:no|nomor))?\)?$/i.test(old))return {name:'',number:''};
       const numberOnly=old.match(/^(\d{1,3})\s*\(\s*tanpa\s+nama\s*\)$/i);
       if(numberOnly)return {name:'',number:numberOnly[1]};
@@ -1862,7 +2067,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       return trailing?{name:trailing[1].trim(),number:trailing[2]}:{name:old,number:''};
     }
     function renderJerseyRow(row) {
-      const keys = Object.keys(row);
+      const keys = __f4.globals.Object.keys(row);
       
       const no = escapeJerseyText(row[keys[0]] || '-');
       // A guest only sees a pseudonymous row. The API must separately enforce its own privacy policy.
@@ -1882,7 +2087,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if (totalHarga > 0 && nominalMasuk >= totalHarga) {
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-emerald-100 text-emerald-800 font-semibold rounded">Lunas</span>`;
       } else if (nominalMasuk > 0 && totalHarga > 0) {
-        const persen = Math.min(99, Math.round((nominalMasuk / totalHarga) * 100));
+        const persen = __f4.globals.Math.min(99, __f4.globals.Math.round((nominalMasuk / totalHarga) * 100));
         statusBadge = `<span class="px-2 py-0.5 text-xs bg-amber-100 text-amber-800 font-semibold rounded">DP ${persen}%</span>`;
       }
 
@@ -1903,7 +2108,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function filterJerseyModal() {
-      const keyword = (document.getElementById('search-jersey').value || '').toLowerCase();
+      const keyword = (__f4.globals.document.getElementById('search-jersey').value || '').toLowerCase();
       const activeData = currentJerseyTab==='bapak'?globalJerseyBapakData:
         currentJerseyTab==='ibu'?globalJerseyIbuData:globalJerseyAnakData;
 
@@ -1914,7 +2119,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       let activeTitipan=0;
 
       activeData.forEach(row => {
-        const text = Object.values(row).join(' ').toLowerCase();
+        const text = __f4.globals.Object.values(row).join(' ').toLowerCase();
         if (text.includes(keyword)) {
           html += renderJerseyRow(row);
         }
@@ -1924,22 +2129,22 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
         activeTotalTagihan += totalHarga;
         activeTerkumpul += nominalMasuk;
-        activeSisa+=Math.max(0,totalHarga-nominalMasuk);
-        activeTitipan+=Math.max(0,nominalMasuk-totalHarga);
+        activeSisa+=__f4.globals.Math.max(0,totalHarga-nominalMasuk);
+        activeTitipan+=__f4.globals.Math.max(0,nominalMasuk-totalHarga);
       });
 
       // Jangan gunakan titipan kelebihan satu warga untuk melunasi warga lain.
 
-      document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(activeTotalTagihan);
-      document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(activeTerkumpul);
-      document.getElementById('modal-jersey-sisa').innerText = formatRupiah(activeSisa);
-      const labelTitipan=document.getElementById('modal-jersey-titipan');
+      __f4.globals.document.getElementById('modal-jersey-total-tagihan').innerText = formatRupiah(activeTotalTagihan);
+      __f4.globals.document.getElementById('modal-jersey-terkumpul').innerText = formatRupiah(activeTerkumpul);
+      __f4.globals.document.getElementById('modal-jersey-sisa').innerText = formatRupiah(activeSisa);
+      const labelTitipan=__f4.globals.document.getElementById('modal-jersey-titipan');
       if(labelTitipan){
         labelTitipan.hidden=activeTitipan<=0;
         labelTitipan.textContent=activeTitipan>0?'Titipan: '+formatRupiah(activeTitipan):'';
       }
 
-      document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="9" class="p-4 text-center text-slate-400">Tidak ada pemesan ${{bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'}[currentJerseyTab]} yang cocok</td></tr>`;
+      __f4.globals.document.getElementById('tabel-jersey-all').innerHTML = html || `<tr><td colspan="9" class="p-4 text-center text-slate-400">Tidak ada pemesan ${{bapak:'Bapak-bapak',ibu:'Ibu-ibu',anak:'Anak-anak'}[currentJerseyTab]} yang cocok</td></tr>`;
     }
 
     function calculateTotalJerseyRekap() {
@@ -1961,24 +2166,24 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         }
       });
 
-      document.getElementById('total-pemesan-jersey').innerText = `${allCombined.length} Orang`;
-      document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
-      document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
+      __f4.globals.document.getElementById('total-pemesan-jersey').innerText = `${allCombined.length} Orang`;
+      __f4.globals.document.getElementById('total-lunas-jersey').innerText = `${countLunas} Orang`;
+      __f4.globals.document.getElementById('total-dp-jersey').innerText = `${countDP} Orang`;
 
-      document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(grandTotalTerkumpul);
+      __f4.globals.document.getElementById('card-jersey-terkumpul').innerText = formatRupiah(grandTotalTerkumpul);
 
-      document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
-      document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
-      document.getElementById('badge-count-anak').innerText = globalJerseyAnakData.length;
+      __f4.globals.document.getElementById('badge-count-bapak').innerText = globalJerseyBapakData.length;
+      __f4.globals.document.getElementById('badge-count-ibu').innerText = globalJerseyIbuData.length;
+      __f4.globals.document.getElementById('badge-count-anak').innerText = globalJerseyAnakData.length;
     }
 
     // One D1 read for all three Jersey groups; no legacy CSV sheets.
     (async function loadJerseyOrders(){
       try{
-        const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
-        if(!response.ok)throw Error('HTTP '+response.status);
+        const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
+        if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
         const data=await response.json();
-        if(data.ok===false)throw Error(data.error||'Data tidak tersedia');
+        if(data.ok===false)throw (0,__f4.globals.Error)(data.error||'Data tidak tersedia');
         const makeRow=x=>{
           const back=jerseyPublicBackParts(x);
           return {
@@ -1995,15 +2200,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         calculateTotalJerseyRekap();
         filterJerseyModal();
       }catch(error){
-        console.error('Daftar Jersey D1 gagal dimuat:',error);
+        __f4.globals.console.error('Daftar Jersey D1 gagal dimuat:',error);
       }
     })();
 
-    if(window.lucide?.createIcons)window.lucide.createIcons();
+    if(__f4.window.lucide?.createIcons)__f4.window.lucide.createIcons();
 
     function scrollDokumentasi(direction) {
       // Dipertahankan untuk kompatibilitas tombol/skrip lama jika masih terpanggil.
-      const slider = document.getElementById('slider-dokumentasi');
+      const slider = __f4.globals.document.getElementById('slider-dokumentasi');
       if (!slider) return;
       const cardWidth = slider.querySelector('div')?.offsetWidth || 320;
       slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
@@ -2013,15 +2218,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       if (!globalDokumentasiPreview.length) return;
       if (dokumentasiPreviewIndex >= globalDokumentasiPreview.length) dokumentasiPreviewIndex = 0;
       const item = globalDokumentasiPreview[dokumentasiPreviewIndex];
-      const img = document.getElementById('dokumentasi-preview-img');
-      const tanggal = document.getElementById('dokumentasi-preview-tanggal');
-      const judul = document.getElementById('dokumentasi-preview-judul');
-      const desc = document.getElementById('dokumentasi-preview-desc');
-      const counter = document.getElementById('dokumentasi-preview-counter');
+      const img = __f4.globals.document.getElementById('dokumentasi-preview-img');
+      const tanggal = __f4.globals.document.getElementById('dokumentasi-preview-tanggal');
+      const judul = __f4.globals.document.getElementById('dokumentasi-preview-judul');
+      const desc = __f4.globals.document.getElementById('dokumentasi-preview-desc');
+      const counter = __f4.globals.document.getElementById('dokumentasi-preview-counter');
       if (!img) return;
 
       img.style.opacity = '0.25';
-      setTimeout(() => {
+      (0,__f4.globals.setTimeout)(() => {
         img.src = item.preview || PLACEHOLDER_IMG;
         img.onload = () => { img.style.opacity = '0.85'; };
         img.onerror = () => { img.src = PLACEHOLDER_IMG; img.style.opacity = '0.85'; };
@@ -2033,9 +2238,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function mulaiRotasiDokumentasiPreview() {
-      if (dokumentasiPreviewTimer) clearInterval(dokumentasiPreviewTimer);
+      if (dokumentasiPreviewTimer) (0,__f4.globals.clearInterval)(dokumentasiPreviewTimer);
       if (globalDokumentasiPreview.length <= 1) return;
-      dokumentasiPreviewTimer = setInterval(() => {
+      dokumentasiPreviewTimer = (0,__f4.globals.setInterval)(() => {
         dokumentasiPreviewIndex = (dokumentasiPreviewIndex + 1) % globalDokumentasiPreview.length;
         updateDokumentasiPreview();
       }, 5000);
@@ -2058,8 +2263,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function loadInventarisWarga() {
-      const container = document.getElementById('container-inventaris-warga');
-      const badge = document.getElementById('inventaris-warga-count');
+      const container = __f4.globals.document.getElementById('container-inventaris-warga');
+      const badge = __f4.globals.document.getElementById('inventaris-warga-count');
       if (!container) return;
 
       if (!CSV_INVENTARIS_WARGA_URL || !CSV_INVENTARIS_WARGA_URL.startsWith('http')) {
@@ -2069,23 +2274,23 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           <p class="text-[10px] text-slate-400 mt-1">Inventaris belum tersedia.</p>
         </div>`;
         if (badge) badge.innerText = 'Belum Terhubung';
-        if (window.lucide) lucide.createIcons();
+        if (__f4.window.lucide) __f4.globals.lucide.createIcons();
         return;
       }
 
-      Papa.parse(CSV_INVENTARIS_WARGA_URL, {
+      __f4.globals.Papa.parse(CSV_INVENTARIS_WARGA_URL, {
         download: true,
         header: true,
         complete: function(results) {
-          const rows = results.data.filter(row => Object.values(row).some(v => String(v || '').trim() !== ''));
+          const rows = results.data.filter(row => __f4.globals.Object.values(row).some(v => (0,__f4.globals.String)(v || '').trim() !== ''));
           let items = [];
           rows.forEach(row => {
-            const vals = Object.values(row);
-            const nama = String(vals[0] || '').trim();
+            const vals = __f4.globals.Object.values(row);
+            const nama = (0,__f4.globals.String)(vals[0] || '').trim();
             if (!nama || nama.toLowerCase().includes('nama barang')) return;
-            const qty = String(vals[1] || '0').trim();
-            const kondisi = String(vals[2] || '').trim();
-            const rawFoto = String(vals[3] || '').trim();
+            const qty = (0,__f4.globals.String)(vals[1] || '0').trim();
+            const kondisi = (0,__f4.globals.String)(vals[2] || '').trim();
+            const rawFoto = (0,__f4.globals.String)(vals[3] || '').trim();
             items.push({ nama, qty, kondisi, foto: rawFoto ? fixDriveUrl(rawFoto) : '' });
           });
 
@@ -2109,7 +2314,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
               <span class="bg-indigo-100 text-indigo-800 font-bold px-2.5 py-0.5 rounded-full text-xs shrink-0 ml-2">${item.qty} Unit</span>
             </div>`;
           }).join('');
-          if (window.lucide) lucide.createIcons();
+          if (__f4.window.lucide) __f4.globals.lucide.createIcons();
         },
         error: function() {
           container.innerHTML = '<p class="text-xs text-rose-500">Gagal memuat inventaris warga.</p>';
@@ -2118,12 +2323,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     if (CSV_DOKUMENTASI_URL && CSV_DOKUMENTASI_URL.startsWith('http')) {
-      Papa.parse(CSV_DOKUMENTASI_URL, {
+      __f4.globals.Papa.parse(CSV_DOKUMENTASI_URL, {
         download: true,
         header: true,
         complete: async function(results) {
           const rawData = results.data.filter(row => {
-            const values = Object.values(row);
+            const values = __f4.globals.Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
@@ -2134,7 +2339,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
           for (let index = 0; index < displayData.length; index++) {
             const row = displayData[index];
-            const keys = Object.keys(row);
+            const keys = __f4.globals.Object.keys(row);
             const tanggal = row[keys[0]];
             const judul = row[keys[1]];
             const deskripsi = row[keys[2]] || '';
@@ -2180,30 +2385,30 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             </div>`;
           }
 
-          const previewImg = document.getElementById('dokumentasi-preview-img');
+          const previewImg = __f4.globals.document.getElementById('dokumentasi-preview-img');
           if (!globalDokumentasiPreview.length && previewImg) {
             previewImg.src = PLACEHOLDER_IMG;
-            document.getElementById('dokumentasi-preview-judul').innerText = 'Belum ada dokumentasi';
-            document.getElementById('dokumentasi-preview-desc').innerText = 'Dokumentasi kegiatan akan tampil di sini';
-            document.getElementById('dokumentasi-preview-tanggal').innerText = 'Dokumentasi';
+            __f4.globals.document.getElementById('dokumentasi-preview-judul').innerText = 'Belum ada dokumentasi';
+            __f4.globals.document.getElementById('dokumentasi-preview-desc').innerText = 'Dokumentasi kegiatan akan tampil di sini';
+            __f4.globals.document.getElementById('dokumentasi-preview-tanggal').innerText = 'Dokumentasi';
           } else {
             dokumentasiPreviewIndex = 0;
             updateDokumentasiPreview();
             mulaiRotasiDokumentasiPreview();
           }
 
-          document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada album.</p>';
-          if (window.lucide) lucide.createIcons();
+          __f4.globals.document.getElementById('container-dokumentasi-all').innerHTML = allHTML || '<p class="text-slate-400 text-sm col-span-1 md:col-span-3">Belum ada album.</p>';
+          if (__f4.window.lucide) __f4.globals.lucide.createIcons();
         },
         error:function(err){
-          const holder=document.getElementById('container-dokumentasi-all');
+          const holder=__f4.globals.document.getElementById('container-dokumentasi-all');
           if(holder&&!globalDokumentasiPreview.length){
             holder.replaceChildren();
-            const message=document.createElement('p');
+            const message=__f4.globals.document.createElement('p');
             message.className='text-xs text-rose-700';message.textContent='Dokumentasi belum dapat diperbarui: '+(err.message||err);
-            const retry=document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=()=>location.reload();
+            const retry=__f4.globals.document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=()=>__f4.globals.location.reload();
             holder.append(message,retry);
-            document.getElementById('dokumentasi-preview-judul').textContent='Galeri gagal dimuat';
+            __f4.globals.document.getElementById('dokumentasi-preview-judul').textContent='Galeri gagal dimuat';
           }
         }
       });
@@ -2212,27 +2417,27 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     loadInventarisWarga();
 
     // Mobile calendar and upcoming preview use the same official agenda records.
-    const f4AgendaPreview=document.getElementById('f4-upcoming-agenda');
-    const f4AgendaPagination=document.getElementById('f4-agenda-pagination');
+    const f4AgendaPreview=__f4.globals.document.getElementById('f4-upcoming-agenda');
+    const f4AgendaPagination=__f4.globals.document.getElementById('f4-agenda-pagination');
     let f4OpenAgendaKey='',f4AgendaSignature=null;
     function f4AgendaKey(item){return (item.parsedDate||'')+'|'+(item.judul||'');}
     function f4SyncAgendaCards(){
-      const open=document.getElementById('rencana').dataset.calendarOpen==='true';
+      const open=__f4.globals.document.getElementById('rencana').dataset.calendarOpen==='true';
       for(const card of f4AgendaPreview.querySelectorAll('button')){
         const expanded=open&&card.dataset.agendaKey===f4OpenAgendaKey;
-        card.setAttribute('aria-expanded',String(expanded));
+        card.setAttribute('aria-expanded',(0,__f4.globals.String)(expanded));
         const arrow=card.querySelector('.f4-agenda-chevron');
-        if(arrow)arrow.setAttribute('data-expanded',String(expanded));
+        if(arrow)arrow.setAttribute('data-expanded',(0,__f4.globals.String)(expanded));
       }
     }
     function f4ToggleAgendaCalendar(item){
-      const section=document.getElementById('rencana'),key=item?f4AgendaKey(item):'';
+      const section=__f4.globals.document.getElementById('rencana'),key=item?f4AgendaKey(item):'';
       const open=section.dataset.calendarOpen!=='true'||f4OpenAgendaKey!==key;
       f4OpenAgendaKey=open?key:'';
-      section.dataset.calendarOpen=String(open);
+      section.dataset.calendarOpen=(0,__f4.globals.String)(open);
       if(open&&item){
         const date=f4ScheduleDate(item.parsedDate);
-        if(date)calendarDate=new Date(date.getUTCFullYear(),date.getUTCMonth(),1);
+        if(date)calendarDate=new __f4.globals.Date(date.getUTCFullYear(),date.getUTCMonth(),1);
         renderCalendar();
       }
       f4SyncAgendaCards();
@@ -2241,35 +2446,35 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const cards=[...f4AgendaPreview.children].filter(x=>x.matches('button'));
       if(!cards.length)return 0;
       let index=0;
-      cards.forEach((card,i)=>{if(Math.abs(card.offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft)<Math.abs(cards[index].offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft))index=i;});
+      cards.forEach((card,i)=>{if(__f4.globals.Math.abs(card.offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft)<__f4.globals.Math.abs(cards[index].offsetLeft-cards[0].offsetLeft-f4AgendaPreview.scrollLeft))index=i;});
       return index;
     }
     function f4UpdateAgendaPagination(){
       const count=f4AgendaPreview.querySelectorAll('button').length;
       if(count<=1){f4AgendaPagination.replaceChildren();return;}
-      const index=f4AgendaCurrentIndex(),progress=document.createElement('span');
+      const index=f4AgendaCurrentIndex(),progress=__f4.globals.document.createElement('span');
       progress.className='f4-agenda-page-track';progress.setAttribute('aria-hidden','true');
-      const thumb=document.createElement('span');thumb.className='f4-agenda-page-thumb';
-      const width=Math.max(15,100/count);
+      const thumb=__f4.globals.document.createElement('span');thumb.className='f4-agenda-page-thumb';
+      const width=__f4.globals.Math.max(15,100/count);
       thumb.style.width=width+'%';
       thumb.style.left=((100-width)*index/(count-1))+'%';
       progress.append(thumb);
-      const label=document.createElement('span');label.className='f4-agenda-page-count';label.textContent=(index+1)+' / '+count;
+      const label=__f4.globals.document.createElement('span');label.className='f4-agenda-page-count';label.textContent=(index+1)+' / '+count;
       f4AgendaPagination.replaceChildren(progress,label);
     }
     f4AgendaPreview.addEventListener('scroll',f4UpdateAgendaPagination,{passive:true});
-    window.addEventListener('resize',f4UpdateAgendaPagination,{passive:true});
+    __f4.window.addEventListener('resize',f4UpdateAgendaPagination,{passive:true});
     function f4AgendaPreviewCard(item){
-      const card=document.createElement('button');card.type='button';card.className='f4-agenda-preview-card';
+      const card=__f4.globals.document.createElement('button');card.type='button';card.className='f4-agenda-preview-card';
       card.dataset.agendaKey=f4AgendaKey(item);
       card.dataset.kind=item.isBank?'bank':item.isGorol?'gorol':'community';
       card.setAttribute('aria-controls','calendar-wrapper');
       card.setAttribute('aria-expanded','false');
-      const make=(className,value)=>{const node=document.createElement('span');node.className=className;if(value!==undefined)node.textContent=value;return node;};
+      const make=(className,value)=>{const node=__f4.globals.document.createElement('span');node.className=className;if(value!==__f4.globals.undefined)node.textContent=value;return node;};
       const date=f4ScheduleDate(item.parsedDate);
-      const format=options=>date?new Intl.DateTimeFormat('id-ID',{...options,timeZone:'UTC'}).format(date):'';
+      const format=options=>date?new __f4.globals.Intl.DateTimeFormat('id-ID',{...options,timeZone:'UTC'}).format(date):'';
       const tile=make('f4-agenda-date-tile');
-      tile.append(make('f4-agenda-tile-month',format({month:'short'})),make('f4-agenda-tile-day',date?String(date.getUTCDate()).padStart(2,'0'):'—'),make('f4-agenda-tile-year',format({year:'numeric'})));
+      tile.append(make('f4-agenda-tile-month',format({month:'short'})),make('f4-agenda-tile-day',date?(0,__f4.globals.String)(date.getUTCDate()).padStart(2,'0'):'—'),make('f4-agenda-tile-year',format({year:'numeric'})));
       const copy=make('f4-agenda-preview-copy');
       const category=item.isBank?'Bank Sampah':item.isGorol?'Kerja Bakti':/arisan/i.test(item.judul||'')?'Arisan':'Kegiatan warga';
       copy.append(make('f4-agenda-preview-category',category),make('f4-agenda-preview-title',item.judul),make('f4-agenda-preview-weekday',format({weekday:'long',day:'numeric',month:'long'})));
@@ -2280,50 +2485,50 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       return card;
     }
     function f4AgendaRow(item){
-      const button=document.createElement('button');button.type='button';button.className='f4-agenda-row';
-      const header=document.createElement('span');header.className='f4-agenda-row-top';
-      const date=document.createElement('span');date.className='f4-agenda-date';date.textContent=item.tanggalStr;
-      const badge=document.createElement('span');badge.className='f4-agenda-status';
-      const status=String(item.status||'').toLowerCase();
+      const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-agenda-row';
+      const header=__f4.globals.document.createElement('span');header.className='f4-agenda-row-top';
+      const date=__f4.globals.document.createElement('span');date.className='f4-agenda-date';date.textContent=item.tanggalStr;
+      const badge=__f4.globals.document.createElement('span');badge.className='f4-agenda-status';
+      const status=(0,__f4.globals.String)(item.status||'').toLowerCase();
       if(/progress|rancang|jalan/.test(status)){badge.classList.add('is-progress');badge.textContent='On Progress'}
       else if(/selesai/.test(status)){badge.classList.add('is-done');badge.textContent='Selesai'}
       else{badge.textContent='Direncanakan'}
       if(item.isBank){badge.classList.add('is-bank');badge.textContent='Bank Sampah';}
       header.append(date,badge);
-      const title=document.createElement('span');title.className='f4-agenda-title';title.textContent=item.judul;
+      const title=__f4.globals.document.createElement('span');title.className='f4-agenda-title';title.textContent=item.judul;
       button.append(header,title);
       button.addEventListener('click',()=>openModalEventDetail(item.tanggalStr,[item],item.parsedDate));
       return button;
     }
     // Bank Sampah uses the exact same published D1 schedule as its own portal.
     let f4BaseAgenda=[],f4BankAgenda=[],f4AgendaReady=false,f4BankAgendaBusy=false,f4BankAgendaCheckedAt=0;
-    const f4AgendaToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).reduce((parts,p)=>{parts[p.type]=p.value;return parts;},{}); 
+    const f4AgendaToday=()=>new __f4.globals.Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new __f4.globals.Date()).reduce((parts,p)=>{parts[p.type]=p.value;return parts;},{}); 
     function f4AgendaTodayKey(){const p=f4AgendaToday();return p.year+'-'+p.month+'-'+p.day;}
     function f4ScheduleDate(value){
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return null;
-      const date=new Date(value+'T00:00:00Z');
-      return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test((0,__f4.globals.String)(value||'')))return null;
+      const date=new __f4.globals.Date(value+'T00:00:00Z');
+      return __f4.globals.Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
     }
     function f4BankScheduleRows(rule){
       const first=f4ScheduleDate(rule?.nextOccurrence);
       if(!rule?.ok||!first)return [];
-      const rows=[],limit=new Date(first);
+      const rows=[],limit=new __f4.globals.Date(first);
       limit.setUTCMonth(limit.getUTCMonth()+6);
-      const frequency=rule.frequency,day=Number(rule.dayOfMonth);
-      const format=new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'});
+      const frequency=rule.frequency,day=(0,__f4.globals.Number)(rule.dayOfMonth);
+      const format=new __f4.globals.Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'});
       for(let i=0;i<28;i++){
-        let date=new Date(first);
+        let date=new __f4.globals.Date(first);
         if(i){
           if(frequency==='weekly'||frequency==='biweekly')date.setUTCDate(date.getUTCDate()+i*(frequency==='weekly'?7:14));
-          else if(frequency==='monthly'&&Number.isInteger(day)&&day>=1&&day<=31){
-            const month=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+i,1));
-            const last=new Date(Date.UTC(month.getUTCFullYear(),month.getUTCMonth()+1,0)).getUTCDate();
-            date=new Date(Date.UTC(month.getUTCFullYear(),month.getUTCMonth(),Math.min(day,last)));
+          else if(frequency==='monthly'&&__f4.globals.Number.isInteger(day)&&day>=1&&day<=31){
+            const month=new __f4.globals.Date(__f4.globals.Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+i,1));
+            const last=new __f4.globals.Date(__f4.globals.Date.UTC(month.getUTCFullYear(),month.getUTCMonth()+1,0)).getUTCDate();
+            date=new __f4.globals.Date(__f4.globals.Date.UTC(month.getUTCFullYear(),month.getUTCMonth(),__f4.globals.Math.min(day,last)));
           }else break;
         }
         if(date>=limit)break;
         const iso=date.toISOString().slice(0,10);
-        const place=String(rule.lokasi||rule.location||'').trim();
+        const place=(0,__f4.globals.String)(rule.lokasi||rule.location||'').trim();
         rows.push({tanggalStr:format.format(date),parsedDate:iso,judul:'Penimbangan Bank Sampah',deskripsi:'Jadwal penimbangan rutin dari Portal Bank Sampah.'+(place?' Lokasi: '+place:''),status:'Direncanakan',isBank:true,isGorol:false,source:'bank-weighing'});
       }
       return rows;
@@ -2332,7 +2537,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const today=f4AgendaTodayKey();
       const isBank=item=>item.isBank||/penimbangan.*(?:bank\s*sampah|sampah)|bank\s*sampah.*penimbangan/i.test(item.judul||'');
       const base=f4BaseAgenda.map(item=>isBank(item)?{...item,isBank:true}:item);
-      const manualDates=new Set(base.filter(isBank).map(item=>item.parsedDate));
+      const manualDates=new __f4.globals.Set(base.filter(isBank).map(item=>item.parsedDate));
       globalRencanaData=[...base,...f4BankAgenda.filter(item=>!manualDates.has(item.parsedDate))];
       // Show the next scheduled bank event once in the overview; all recurring
       // dates are visible on the calendar and can be opened individually.
@@ -2345,39 +2550,39 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       renderCalendar();
     }
     async function f4RefreshBankAgenda(force=false){
-      if(f4BankAgendaBusy||(!force&&Date.now()-f4BankAgendaCheckedAt<60000))return;
+      if(f4BankAgendaBusy||(!force&&__f4.globals.Date.now()-f4BankAgendaCheckedAt<60000))return;
       f4BankAgendaBusy=true;
-      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+      const controller=new __f4.globals.AbortController(),timer=(0,__f4.globals.setTimeout)(()=>controller.abort(),5000);
       try{
-        const response=await fetch('https://api.flamboyan4.web.id/api/public/bank/weighing-schedule',{cache:'no-store',signal:controller.signal});
-        if(!response.ok)throw Error('HTTP '+response.status);
+        const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/public/bank/weighing-schedule',{cache:'no-store',signal:controller.signal});
+        if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
         const rule=await response.json();
         const rows=f4BankScheduleRows(rule);
-        if(!rows.length)throw Error('Jadwal penimbangan tidak valid');
-        f4BankAgenda=rows;f4BankAgendaCheckedAt=Date.now();
+        if(!rows.length)throw (0,__f4.globals.Error)('Jadwal penimbangan tidak valid');
+        f4BankAgenda=rows;f4BankAgendaCheckedAt=__f4.globals.Date.now();
         if(f4AgendaReady)f4UpdateUnifiedAgenda();
-      }catch(error){console.warn('Jadwal Bank Sampah belum tersedia:',error.message);}
-      finally{clearTimeout(timer);f4BankAgendaBusy=false;}
+      }catch(error){__f4.globals.console.warn('Jadwal Bank Sampah belum tersedia:',error.message);}
+      finally{(0,__f4.globals.clearTimeout)(timer);f4BankAgendaBusy=false;}
     }
     const f4InitialBankAgenda=f4RefreshBankAgenda(true);
-    window.addEventListener('focus',()=>{if(f4AgendaReady)f4RefreshBankAgenda();});
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&f4AgendaReady)f4RefreshBankAgenda();});
+    __f4.window.addEventListener('focus',()=>{if(f4AgendaReady)f4RefreshBankAgenda();});
+    __f4.globals.document.addEventListener('visibilitychange',()=>{if(!__f4.globals.document.hidden&&f4AgendaReady)f4RefreshBankAgenda();});
     function f4RenderAgenda(displayData,todayKey){
-      const list=document.getElementById('container-rencana'),preview=document.getElementById('f4-upcoming-agenda');
-      const empty=text=>{const p=document.createElement('p');p.className='text-slate-500 text-xs';p.textContent=text;return p};
+      const list=__f4.globals.document.getElementById('container-rencana'),preview=__f4.globals.document.getElementById('f4-upcoming-agenda');
+      const empty=text=>{const p=__f4.globals.document.createElement('p');p.className='text-slate-500 text-xs';p.textContent=text;return p};
       list.replaceChildren(...(displayData.length?displayData.map(item=>f4AgendaRow(item)):[empty('Belum ada agenda.')]));
       const next=globalRencanaData.filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.parsedDate)&&item.parsedDate>=todayKey&&!/selesai/i.test(item.status))
        .sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate));
-      const signature=JSON.stringify(next.map(x=>[f4AgendaKey(x),x.tanggalStr,x.status,x.isBank]));
+      const signature=__f4.globals.JSON.stringify(next.map(x=>[f4AgendaKey(x),x.tanggalStr,x.status,x.isBank]));
       if(signature===f4AgendaSignature)return;
       const previous=preview.children[f4AgendaCurrentIndex()]?.dataset.agendaKey;
       f4AgendaSignature=signature;
       const cards=next.map(f4AgendaPreviewCard);
       if(!cards.length){
-        const button=document.createElement('button');button.type='button';button.className='f4-agenda-preview-card is-empty';
+        const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-agenda-preview-card is-empty';
         button.dataset.agendaKey='';button.setAttribute('aria-controls','calendar-wrapper');
-        const title=document.createElement('span');title.className='f4-agenda-preview-title';title.textContent='Belum ada agenda mendatang';
-        const arrow=document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
+        const title=__f4.globals.document.createElement('span');title.className='f4-agenda-preview-title';title.textContent='Belum ada agenda mendatang';
+        const arrow=__f4.globals.document.createElement('span');arrow.className='f4-agenda-chevron';arrow.setAttribute('aria-hidden','true');
         arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
         button.append(title,arrow);button.addEventListener('click',()=>f4ToggleAgendaCalendar(null));cards.push(button);
       }
@@ -2392,14 +2597,14 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const year = calendarDate.getFullYear();
       const month = calendarDate.getMonth();
 
-      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+      __f4.globals.document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
 
-      const firstDayObj = new Date(year, month, 1);
+      const firstDayObj = new __f4.globals.Date(year, month, 1);
       const firstDay = firstDayObj.getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const prevMonthDays = new Date(year, month, 0).getDate();
+      const daysInMonth = new __f4.globals.Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new __f4.globals.Date(year, month, 0).getDate();
       
-      const today = new Date();
+      const today = new __f4.globals.Date();
       const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
       // Agenda bridge resolves monthly arisan placeholders to the agreed Saturday
@@ -2417,7 +2622,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dateKey = `${year}-${(0,__f4.globals.String)(month + 1).padStart(2, '0')}-${(0,__f4.globals.String)(day).padStart(2, '0')}`;
         
         let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
 
@@ -2489,12 +2694,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         `;
       }
 
-      const grid=document.getElementById('calendar-days-grid');grid.innerHTML=gridHTML;
+      const grid=__f4.globals.document.getElementById('calendar-days-grid');grid.innerHTML=gridHTML;
       for(const cell of grid.querySelectorAll('[data-agenda-date]')){
-        const activate=()=>{const iso=cell.dataset.agendaDate;openModalEventDetail(new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(iso+'T00:00:00Z')),globalRencanaData.filter(x=>x.parsedDate===iso),iso);};
+        const activate=()=>{const iso=cell.dataset.agendaDate;openModalEventDetail(new __f4.globals.Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new __f4.globals.Date(iso+'T00:00:00Z')),globalRencanaData.filter(x=>x.parsedDate===iso),iso);};
         cell.addEventListener('click',activate);cell.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}});
       }
-      window.lucide?.createIcons?.();
+      __f4.window.lucide?.createIcons?.();
     }
 
     function changeMonth(direction) {
@@ -2503,7 +2708,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     function resetToCurrentMonth() {
-      calendarDate = new Date();
+      calendarDate = new __f4.globals.Date();
       renderCalendar();
     }
 
@@ -2512,7 +2717,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     let touchEndX = 0;
     let touchEndY = 0;
 
-    const calWrapper = document.getElementById('calendar-wrapper');
+    const calWrapper = __f4.globals.document.getElementById('calendar-wrapper');
     if (calWrapper) {
       calWrapper.addEventListener('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
@@ -2530,7 +2735,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const swipeDistanceX = touchEndX - touchStartX;
       const swipeDistanceY = touchEndY - touchStartY;
       
-      if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) && Math.abs(swipeDistanceX) > 40) {
+      if (__f4.globals.Math.abs(swipeDistanceX) > __f4.globals.Math.abs(swipeDistanceY) && __f4.globals.Math.abs(swipeDistanceX) > 40) {
         if (swipeDistanceX < 0) {
           changeMonth(1);
         } else {
@@ -2540,17 +2745,17 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
 
     if (CSV_RENCANA_URL && CSV_RENCANA_URL.startsWith('http')) {
-      Papa.parse(CSV_RENCANA_URL, {
+      __f4.globals.Papa.parse(CSV_RENCANA_URL, {
         download: true,
         header: true,
         complete: async function(results) {
           const rawData = results.data.filter(row => {
-            const values = Object.values(row);
+            const values = __f4.globals.Object.values(row);
             return values.length >= 2 && values[0] && values[0].toString().trim() !== '';
           });
 
           f4BaseAgenda = rawData.map(row => {
-            const keys = Object.keys(row);
+            const keys = __f4.globals.Object.keys(row);
             const tanggalStr = row[keys[0]] || '';
             const judul = row[keys[1]] || '';
             const deskripsi = row[keys[2]] || '';
@@ -2594,7 +2799,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           await f4InitialBankAgenda;
           f4UpdateUnifiedAgenda();
           // Deteksi Otomatis parameter ?event=YYYY-MM-DD saat link dibuka dari WhatsApp
-          const urlParams = new URLSearchParams(window.location.search);
+          const urlParams = new __f4.globals.URLSearchParams(__f4.window.location.search);
           const targetDateIso = urlParams.get('event');
 
           if (targetDateIso) {
@@ -2603,13 +2808,13 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             if (matchingEvents.length > 0) {
               const dateParts = targetDateIso.split('-');
               const year = dateParts[0];
-              const month = parseInt(dateParts[1]);
-              const day = parseInt(dateParts[2]);
+              const month = (0,__f4.globals.parseInt)(dateParts[1]);
+              const day = (0,__f4.globals.parseInt)(dateParts[2]);
               const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
               const safeDateStr = `${day} ${monthNames[month - 1]} ${year}`;
               
-              setTimeout(() => {
-                const elRencana = document.getElementById('rencana');
+              (0,__f4.globals.setTimeout)(() => {
+                const elRencana = __f4.globals.document.getElementById('rencana');
                 if (elRencana) elRencana.scrollIntoView({ behavior: 'smooth' });
                 openModalEventDetail(safeDateStr, matchingEvents, targetDateIso);
               }, 700);
@@ -2620,15 +2825,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           f4AgendaReady=true;
           await f4InitialBankAgenda;
           if(f4BankAgenda.length){f4UpdateUnifiedAgenda();return;}
-          const area=document.getElementById('container-rencana');
+          const area=__f4.globals.document.getElementById('container-rencana');
           if(area){
             area.replaceChildren();
-            const msg=document.createElement('p');msg.className='text-xs text-rose-700';
+            const msg=__f4.globals.document.createElement('p');msg.className='text-xs text-rose-700';
             msg.textContent='Agenda gagal dimuat: '+(err.message||err);
-            const retry=document.createElement('button');retry.textContent='Coba Lagi';retry.type='button';retry.onclick=()=>location.reload();
+            const retry=__f4.globals.document.createElement('button');retry.textContent='Coba Lagi';retry.type='button';retry.onclick=()=>__f4.globals.location.reload();
             area.append(msg,retry);
           }
-          const preview=document.getElementById('f4-upcoming-agenda');
+          const preview=__f4.globals.document.getElementById('f4-upcoming-agenda');
           if(preview)preview.textContent='Agenda gagal dimuat. Muat ulang halaman.';
           renderCalendar();
         }
@@ -2636,9 +2841,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     } else {
       f4AgendaReady=true;
       f4InitialBankAgenda.then(()=>{if(f4BankAgenda.length)f4UpdateUnifiedAgenda();});
-      const preview=document.getElementById('f4-upcoming-agenda');
+      const preview=__f4.globals.document.getElementById('f4-upcoming-agenda');
       if(preview)preview.textContent='Agenda belum tersedia.';
-      const area=document.getElementById('container-rencana');
+      const area=__f4.globals.document.getElementById('container-rencana');
       if(area)area.textContent='Agenda belum tersedia.';
       renderCalendar();
     }
@@ -2681,15 +2886,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   }
 
   function initBanner() {
-    if (typeof Papa === 'undefined' || !CSV_BANNER_URL) return;
+    if (typeof __f4.globals.Papa === 'undefined' || !CSV_BANNER_URL) return;
 
-    Papa.parse(CSV_BANNER_URL, {
+    __f4.globals.Papa.parse(CSV_BANNER_URL, {
       download: true,
       header: true,
       complete: function(results) {
         if (results && results.data) {
           bannerData = results.data.filter(row => {
-            const values = Object.values(row);
+            const values = __f4.globals.Object.values(row);
             const photoUrl = values[1] || values[0];
             return photoUrl && photoUrl.toString().trim() !== '';
           });
@@ -2699,16 +2904,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
             startAutoSlide();
             setupBannerGestures();
           }else{
-            const track=document.getElementById('banner-track');
+            const track=__f4.globals.document.getElementById('banner-track');
             if(track)track.textContent='Belum ada banner.';
           }
         }
       },
       error:function(err){
-        const track=document.getElementById('banner-track');
+        const track=__f4.globals.document.getElementById('banner-track');
         if(track){track.replaceChildren();
-          const msg=document.createElement('p');msg.textContent='Banner belum dapat dimuat: '+(err.message||err);
-          const retry=document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=initBanner;
+          const msg=__f4.globals.document.createElement('p');msg.textContent='Banner belum dapat dimuat: '+(err.message||err);
+          const retry=__f4.globals.document.createElement('button');retry.type='button';retry.textContent='Coba Lagi';retry.onclick=initBanner;
           track.append(msg,retry);
         }
       }
@@ -2716,15 +2921,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   }
 
   function renderBannerSlider() {
-    const track = document.getElementById('banner-track');
-    const dotsContainer = document.getElementById('banner-dots');
+    const track = __f4.globals.document.getElementById('banner-track');
+    const dotsContainer = __f4.globals.document.getElementById('banner-dots');
     if (!track) return;
 
     let trackHTML = '';
     let dotsHTML = '';
 
     bannerData.forEach((item, index) => {
-      const values = Object.values(item);
+      const values = __f4.globals.Object.values(item);
       const rawImgUrl = values[1] || ''; // Kolom B: Link Foto
       const linkTarget = values[2] || '#'; // Kolom C: Link Tujuan
 
@@ -2745,12 +2950,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     // Banner Bank Sampah lama diarahkan lewat shell agar tidak memuat portal bersarang di iframe.
     track.querySelectorAll('a[href]').forEach(anchor => {
       let destination;
-      try { destination = new URL(anchor.getAttribute('href'), location.href); } catch { return; }
-      if (destination.origin === location.origin && /(?:^|\/)banksampah(?:\.html|\/)?$/i.test(destination.pathname)) {
+      try { destination = new __f4.globals.URL(anchor.getAttribute('href'), __f4.globals.location.href); } catch { return; }
+      if (destination.origin === __f4.globals.location.origin && /(?:^|\/)banksampah(?:\.html|\/)?$/i.test(destination.pathname)) {
         anchor.addEventListener('click', event => {
           event.preventDefault();
-          if (typeof window.f4GoBank === 'function') window.f4GoBank();
-          else window.location.href = '/bank-sampah/';
+          if (typeof __f4.window.f4GoBank === 'function') __f4.window.f4GoBank();
+          else __f4.window.location.href = '/bank-sampah/';
         });
       }
     });
@@ -2759,12 +2964,12 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   }
 
   function updateBannerPosition() {
-    const track = document.getElementById('banner-track');
+    const track = __f4.globals.document.getElementById('banner-track');
     if (!track) return;
 
     track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
 
-    const dots = document.querySelectorAll('.banner-dot');
+    const dots = __f4.globals.document.querySelectorAll('.banner-dot');
     dots.forEach((dot, idx) => {
       if (idx === currentBannerIndex) {
         dot.className = 'banner-dot h-2 sm:h-2.5 rounded-full bg-white w-5 sm:w-6 transition-all';
@@ -2774,22 +2979,22 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     });
   }
 
-  window.moveBanner = function(direction) {
+  __f4.window.moveBanner = function(direction) {
     if (bannerData.length === 0) return;
     currentBannerIndex = (currentBannerIndex + direction + bannerData.length) % bannerData.length;
     updateBannerPosition();
     resetAutoSlide();
   };
 
-  window.goToBanner = function(index) {
+  __f4.window.goToBanner = function(index) {
     currentBannerIndex = index;
     updateBannerPosition();
     resetAutoSlide();
   };
 
   function startAutoSlide() {
-    if (bannerInterval) clearInterval(bannerInterval);
-    bannerInterval = setInterval(() => { window.moveBanner(1); }, 4500);
+    if (bannerInterval) (0,__f4.globals.clearInterval)(bannerInterval);
+    bannerInterval = (0,__f4.globals.setInterval)(() => { __f4.window.moveBanner(1); }, 4500);
   }
 
   function resetAutoSlide() {
@@ -2797,7 +3002,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
   }
 
   function setupBannerGestures() {
-    const container = document.getElementById('banner-slider-container');
+    const container = __f4.globals.document.getElementById('banner-slider-container');
     if (!container) return;
 
     container.addEventListener('touchstart', (e) => {
@@ -2807,21 +3012,21 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     container.addEventListener('touchend', (e) => {
       touchEndX = e.changedTouches[0].screenX;
       const swipeThreshold = 40;
-      if (touchEndX < touchStartX - swipeThreshold) window.moveBanner(1);
-      else if (touchEndX > touchStartX + swipeThreshold) window.moveBanner(-1);
+      if (touchEndX < touchStartX - swipeThreshold) __f4.window.moveBanner(1);
+      else if (touchEndX > touchStartX + swipeThreshold) __f4.window.moveBanner(-1);
     }, { passive: true });
 
-    document.addEventListener('keydown', (e) => {
+    __f4.globals.document.addEventListener('keydown', (e) => {
       const rect = container.getBoundingClientRect();
-      if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
-        if (e.key === 'ArrowLeft') window.moveBanner(-1);
-        if (e.key === 'ArrowRight') window.moveBanner(1);
+      if (rect.top >= 0 && rect.bottom <= __f4.window.innerHeight) {
+        if (e.key === 'ArrowLeft') __f4.window.moveBanner(-1);
+        if (e.key === 'ArrowRight') __f4.window.moveBanner(1);
       }
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBanner);
+  if (__f4.globals.document.readyState === 'loading') {
+    __f4.globals.document.addEventListener('DOMContentLoaded', initBanner);
   } else {
     initBanner();
   }
@@ -2829,37 +3034,37 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
     // Projek Portal Utama langsung dari D1. Tidak ada sumber CSV atau fallback kartu statis.
     const PROJECT_API='https://api.flamboyan4.web.id/api/v2/public/portal';
-    const f4ProjectNumber=value=>Number.isFinite(Number(value))?Number(value):0;
+    const f4ProjectNumber=value=>__f4.globals.Number.isFinite((0,__f4.globals.Number)(value))?(0,__f4.globals.Number)(value):0;
     const f4ProjectRp=value=>'Rp '+f4ProjectNumber(value).toLocaleString('id-ID');
-    const f4ProjectType=(value)=>String(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
+    const f4ProjectType=(value)=>(0,__f4.globals.String)(value||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
     const f4ProjectBadge=(value)=>{
-      const st=String(value||'').toLowerCase();
+      const st=(0,__f4.globals.String)(value||'').toLowerCase();
       if(st.includes('selesai'))return 'bg-emerald-100 text-emerald-800';
       if(st.includes('dana')||st.includes('dp')||st.includes('cicil'))return 'bg-amber-100 text-amber-800';
       return 'bg-indigo-100 text-indigo-800';
     };
     function f4ProjectCardEl(tag,cls,text){
-      const element=document.createElement(tag);
+      const element=__f4.globals.document.createElement(tag);
       if(cls)element.className=cls;
-      if(text!==undefined)element.textContent=String(text);
+      if(text!==__f4.globals.undefined)element.textContent=(0,__f4.globals.String)(text);
       return element;
     }
     function f4ProjectImage(source){
-      const raw=String(source||'').trim();
+      const raw=(0,__f4.globals.String)(source||'').trim();
       const file=raw.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/)||
         raw.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if(file)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(file[1])+'&sz=w640';
+      if(file)return 'https://drive.google.com/thumbnail?id='+(0,__f4.globals.encodeURIComponent)(file[1])+'&sz=w640';
       return /^https:\/\//i.test(raw)&&!/drive\.google\.com\/drive\/folders\//i.test(raw)?raw:'';
     }
     function f4ProjectLink(raw){
-      const t=String(raw||'').trim();
+      const t=(0,__f4.globals.String)(raw||'').trim();
       // Samakan tautan lama dengan path asli Portal Bank Sampah.
       if(/^\/banksampah\/?$/i.test(t))return '/bank-sampah/';
       if(/^\/(?!\/)[a-zA-Z0-9_/#?=&%.-]*$/.test(t)||/^#[a-zA-Z0-9_-]+$/.test(t))return t;
-      try{const u=new URL(t);return u.protocol==='https:'?u.href:'';}catch{return ''}
+      try{const u=new __f4.globals.URL(t);return u.protocol==='https:'?u.href:'';}catch{return ''}
     }
     function f4ProjectStatus(row){
-      const description=String(row.description||'').trim();
+      const description=(0,__f4.globals.String)(row.description||'').trim();
       if(description.length&&description.length<=34)return description;
       const names={informasi:'Kegiatan',kas:'Dana Kas',penggalangan:'Penggalangan Dana',pesanan:'Pemesanan Barang',portal:'Portal Terhubung'};
       return names[row.project_kind]||'Aktif';
@@ -2868,8 +3073,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const container=f4ProjectCardEl('article',
         'f4-project-card bg-white rounded-card border border-slate-200 p-4 flex flex-col');
       container.dataset.dynamicProject='true';
-      container.dataset.projectId=String(row.id||'');
-      container.style.order=String(Number(row.sort_order)||0);
+      container.dataset.projectId=(0,__f4.globals.String)(row.id||'');
+      container.style.order=(0,__f4.globals.String)((0,__f4.globals.Number)(row.sort_order)||0);
       const header=f4ProjectCardEl('div','flex items-center justify-between gap-2 mb-3');
       header.append(
         f4ProjectCardEl('h4','font-bold text-slate-900 text-base min-w-0',row.title||'Proyek warga'),
@@ -2879,11 +3084,11 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const photo=f4ProjectImage(row.image_ref);
       if(photo){
         const img=f4ProjectCardEl('img','w-full h-28 object-contain rounded-lg bg-slate-50 mb-3');
-        img.src=photo;img.loading='lazy';img.alt='Foto proyek '+String(row.title||'');container.append(img);
+        img.src=photo;img.loading='lazy';img.alt='Foto proyek '+(0,__f4.globals.String)(row.title||'');container.append(img);
       }
-      const desc=String(row.description||'').trim();
+      const desc=(0,__f4.globals.String)(row.description||'').trim();
       if(desc&&desc!==f4ProjectStatus(row))container.append(f4ProjectCardEl('p','text-xs text-slate-600 leading-relaxed mb-3',desc));
-      const kind=String(row.project_kind||'informasi');
+      const kind=(0,__f4.globals.String)(row.project_kind||'informasi');
       const stat=row.ringkasan||{},goal=f4ProjectNumber(row.fund_target_rp);
       const money=kind==='kas'?f4ProjectNumber(stat.danaMasukRp)-f4ProjectNumber(stat.danaKeluarRp):
         f4ProjectNumber(stat.danaMasukRp);
@@ -2894,15 +3099,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         add('Pesanan',f4ProjectNumber(stat.jumlahPesanan)+' orang');
         add('Lunas',f4ProjectNumber(stat.lunas)+' pesanan');
         add('Dana diterima',f4ProjectRp(money));
-        add('Sisa tagihan',f4ProjectRp(Math.max(0,f4ProjectNumber(stat.totalTagihanRp)-money)));
+        add('Sisa tagihan',f4ProjectRp(__f4.globals.Math.max(0,f4ProjectNumber(stat.totalTagihanRp)-money)));
       }else if(kind==='kas'||kind==='penggalangan'){
-        if(kind==='kas'&&!String(row.fund_source||'').trim())add('Sumber kas','Belum diatur');
+        if(kind==='kas'&&!(0,__f4.globals.String)(row.fund_source||'').trim())add('Sumber kas','Belum diatur');
         else add(kind==='kas'?'Saldo dana terkait':'Dana terkumpul',f4ProjectRp(money));
         if(goal>0){
-          add('Target',f4ProjectRp(goal));add('Kekurangan',f4ProjectRp(Math.max(0,goal-money)));
+          add('Target',f4ProjectRp(goal));add('Kekurangan',f4ProjectRp(__f4.globals.Math.max(0,goal-money)));
           const line=f4ProjectCardEl('div','w-full h-2 rounded-full bg-emerald-100 mt-2 overflow-hidden');
           const fill=f4ProjectCardEl('div','h-full rounded-full bg-emerald-600');
-          fill.style.width=Math.max(0,Math.min(100,money/goal*100))+'%';line.append(fill);panel.append(line);
+          fill.style.width=__f4.globals.Math.max(0,__f4.globals.Math.min(100,money/goal*100))+'%';line.append(fill);panel.append(line);
         }
         if(kind==='penggalangan')add('Kontributor',f4ProjectNumber(stat.jumlahKontributor)+' orang');
       }else if(kind==='portal'){
@@ -2912,7 +3117,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       }
       container.append(panel);
       const link=f4ProjectLink(row.target_url)||
-        (String(row.linked_key||'')==='bank-sampah'?'/bank-sampah/':'');
+        ((0,__f4.globals.String)(row.linked_key||'')==='bank-sampah'?'/bank-sampah/':'');
       if(link){
         const action=f4ProjectCardEl('a','mt-3 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg border border-indigo-100 text-xs text-center','Buka Projek');
         action.href=link;container.append(action);
@@ -2927,72 +3132,72 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         ['gapura-kurang','—'],
         ['gapura-percent','—']
       ]){
-        const field=document.getElementById(id);
+        const field=__f4.globals.document.getElementById(id);
         if(field)field.textContent=value;
       }
-      const progress=document.getElementById('gapura-progress-bar');
+      const progress=__f4.globals.document.getElementById('gapura-progress-bar');
       if(progress)progress.style.width='0%';
     }
     async function f4ProjectFullCashBalance(){
       const base='https://api.flamboyan4.web.id';
       const options={mode:'cors',credentials:'include',cache:'no-store',headers:{Accept:'application/json'}};
-      let response=await fetch(base+'/api/v2/portal/cash-balance',options);
+      let response=await (0,__f4.globals.fetch)(base+'/api/v2/portal/cash-balance',options);
       if(response.status===404){
         // Transisi saat Worker baru belum diterbitkan: endpoint laporan yang
         // sudah ada tetap aman karena memerlukan cookie sesi yang sama.
-        response=await fetch(base+'/api/v2/public/portal/cash',options);
+        response=await (0,__f4.globals.fetch)(base+'/api/v2/public/portal/cash',options);
         const old=await response.json().catch(()=>null);
-        if(!response.ok||old?.ok!==true||!Array.isArray(old?.data?.rows)){
-          const error=new Error(old?.error||'Saldo kas belum tersedia.');
+        if(!response.ok||old?.ok!==true||!__f4.globals.Array.isArray(old?.data?.rows)){
+          const error=new __f4.globals.Error(old?.error||'Saldo kas belum tersedia.');
           error.status=response.status;
           throw error;
         }
         const balance=old.data.rows.reduce((total,row)=>{
-          const debit=Number(row.debit),kredit=Number(row.kredit);
-          if(!Number.isSafeInteger(debit)||!Number.isSafeInteger(kredit)||
+          const debit=(0,__f4.globals.Number)(row.debit),kredit=(0,__f4.globals.Number)(row.kredit);
+          if(!__f4.globals.Number.isSafeInteger(debit)||!__f4.globals.Number.isSafeInteger(kredit)||
              debit<0||kredit<0||(debit>0&&kredit>0)||(debit===0&&kredit===0))
-            throw Error('Jurnal kas perlu diperiksa.');
+            throw (0,__f4.globals.Error)('Jurnal kas perlu diperiksa.');
           return total+debit-kredit;
         },0);
-        if(!Number.isSafeInteger(balance))throw Error('Saldo Kas tidak valid.');
+        if(!__f4.globals.Number.isSafeInteger(balance))throw (0,__f4.globals.Error)('Saldo Kas tidak valid.');
         return balance;
       }
       const data=await response.json().catch(()=>null);
       if(!response.ok||data?.ok!==true){
-        const error=new Error(data?.error||'Saldo Kas belum tersedia.');
+        const error=new __f4.globals.Error(data?.error||'Saldo Kas belum tersedia.');
         error.status=response.status;
         throw error;
       }
       const balance=data?.data?.saldoRp;
-      if(!Number.isSafeInteger(balance))throw Error('Saldo Kas tidak valid.');
+      if(!__f4.globals.Number.isSafeInteger(balance))throw (0,__f4.globals.Error)('Saldo Kas tidak valid.');
       return balance;
     }
     let f4ProjectLoadGeneration=0;
     async function loadProjectCards(){
       const generation=++f4ProjectLoadGeneration;
       let fullCashPromise;
-      const slider=document.getElementById('slider-projek');
+      const slider=__f4.globals.document.getElementById('slider-projek');
       if(!slider)return;
       const known={
-        'bank-sampah':document.getElementById('bank-sampah'),
-        gapura:document.getElementById('gapura'),
-        jersey:document.getElementById('jersey')
+        'bank-sampah':__f4.globals.document.getElementById('bank-sampah'),
+        gapura:__f4.globals.document.getElementById('gapura'),
+        jersey:__f4.globals.document.getElementById('jersey')
       };
-      Object.values(known).forEach(card=>{if(card)card.dataset.f4ProjectInactive='true'});
+      __f4.globals.Object.values(known).forEach(card=>{if(card)card.dataset.f4ProjectInactive='true'});
       slider.querySelectorAll('[data-dynamic-project="true"]').forEach(card=>card.remove());
-      let empty=document.getElementById('f4-project-empty');
+      let empty=__f4.globals.document.getElementById('f4-project-empty');
       if(!empty){empty=f4ProjectCardEl('p','text-xs text-slate-500 w-full py-4','Memuat proyek…');empty.id='f4-project-empty';slider.append(empty);}
       try{
-        const response=await fetch(PROJECT_API,{cache:'no-store',headers:{Accept:'application/json'}});
+        const response=await (0,__f4.globals.fetch)(PROJECT_API,{cache:'no-store',headers:{Accept:'application/json'}});
         if(generation!==f4ProjectLoadGeneration)return;
-        if(!response.ok)throw Error('HTTP '+response.status);
+        if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
         const data=await response.json();
-        if(data.ok===false||!Array.isArray(data.projects))throw Error(data.error||'Data proyek tidak tersedia');
-        const used=new Set();
-        const rows=data.projects.filter(row=>row&&row.active!==false&&String(row.active??1)!=='0')
+        if(data.ok===false||!__f4.globals.Array.isArray(data.projects))throw (0,__f4.globals.Error)(data.error||'Data proyek tidak tersedia');
+        const used=new __f4.globals.Set();
+        const rows=data.projects.filter(row=>row&&row.active!==false&&(0,__f4.globals.String)(row.active??1)!=='0')
           .sort((a,b)=>f4ProjectNumber(a.sort_order)-f4ProjectNumber(b.sort_order));
         for(const row of rows){
-          const key=String(row.linked_key||'').trim();
+          const key=(0,__f4.globals.String)(row.linked_key||'').trim();
           const title=f4ProjectType(row.title);
           let special=key==='bank-sampah'?'bank-sampah':key==='jersey'?'jersey':
             title==='banksampahlorong'?'bank-sampah':title==='gapura'?'gapura':
@@ -3002,19 +3207,19 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
           let card=known[special];
           if(card&&!used.has(special)){
             used.add(special);card.dataset.f4ProjectInactive='false';
-            card.style.order=String(f4ProjectNumber(row.sort_order));
+            card.style.order=(0,__f4.globals.String)(f4ProjectNumber(row.sort_order));
             const titles={'bank-sampah':'project-title-banksampah',gapura:'project-title-gapura',jersey:'project-title-jersey'};
-            const t=document.getElementById(titles[special]);if(t)t.textContent=String(row.title||t.textContent);
+            const t=__f4.globals.document.getElementById(titles[special]);if(t)t.textContent=(0,__f4.globals.String)(row.title||t.textContent);
             const status=special==='bank-sampah'?'bs-status-badge':special==='gapura'?'project-status-gapura':'project-status-jersey';
-            const badge=document.getElementById(status);
+            const badge=__f4.globals.document.getElementById(status);
             if(badge){badge.textContent=f4ProjectStatus(row);badge.className='text-[10px] font-semibold rounded-full px-2 py-0.5 '+f4ProjectBadge(f4ProjectStatus(row));}
             if(special==='gapura'){
-              const target=document.getElementById('gapura-target');
-              if(target)target.textContent=Number(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
+              const target=__f4.globals.document.getElementById('gapura-target');
+              if(target)target.textContent=(0,__f4.globals.Number)(row.fund_target_rp)>0?f4ProjectRp(row.fund_target_rp):'Belum diatur';
               const fromKas=row.project_kind==='kas';
-              const progressLabel=document.getElementById('gapura-percent')?.previousElementSibling;
+              const progressLabel=__f4.globals.document.getElementById('gapura-percent')?.previousElementSibling;
               if(progressLabel)progressLabel.textContent=fromKas?'Kas / Target':'Progres Dana';
-              const availableLabel=document.getElementById('gapura-terkumpul')?.previousElementSibling;
+              const availableLabel=__f4.globals.document.getElementById('gapura-terkumpul')?.previousElementSibling;
               if(availableLabel){
                 availableLabel.textContent=fromKas?'Saldo Kas':'Terkumpul';
                 availableLabel.title=fromKas?'Saldo seluruh kas Pembukuan, bukan dana khusus Gapura.':'';
@@ -3033,18 +3238,18 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
                   f4ProjectNumber(row.ringkasan?.danaMasukRp);
                 // Jangan menampilkan saldo milik akun lama ketika sesi berubah.
                 if(generation!==f4ProjectLoadGeneration||fromKas&&!f4CanReadKas())return;
-                const percent=goal>0?Math.max(0,Math.min(100,money/goal*100)):0;
+                const percent=goal>0?__f4.globals.Math.max(0,__f4.globals.Math.min(100,money/goal*100)):0;
                 const labels=[
                   ['gapura-terkumpul',f4ProjectRp(money)],
-                  ['gapura-kurang',goal?f4ProjectRp(Math.max(0,goal-money)):'—'],
-                  ['gapura-percent',goal?Math.round(percent)+'%':'—']
+                  ['gapura-kurang',goal?f4ProjectRp(__f4.globals.Math.max(0,goal-money)):'—'],
+                  ['gapura-percent',goal?__f4.globals.Math.round(percent)+'%':'—']
                 ];
-                labels.forEach(([id,value])=>{const node=document.getElementById(id);if(node)node.textContent=value});
-                const bar=document.getElementById('gapura-progress-bar');
+                labels.forEach(([id,value])=>{const node=__f4.globals.document.getElementById(id);if(node)node.textContent=value});
+                const bar=__f4.globals.document.getElementById('gapura-progress-bar');
                 if(bar)bar.style.width=percent+'%';
               }catch(error){
                 if(generation!==f4ProjectLoadGeneration)return;
-                console.warn('Saldo kas Gapura belum tersedia:',error);
+                __f4.globals.console.warn('Saldo kas Gapura belum tersedia:',error);
                 f4ProjectCashMessage(error.status===401?'Login untuk lihat':'Saldo belum terbaca');
               }
             }
@@ -3054,16 +3259,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         }
         empty.textContent=rows.length?'':'Belum ada projek.';
         empty.hidden=rows.length>0;
-        if(window.lucide)window.lucide.createIcons();
+        if(__f4.window.lucide)__f4.window.lucide.createIcons();
       }catch(error){
         if(generation!==f4ProjectLoadGeneration)return;
         // No stale project and no ghost card after a failed public D1 request.
         empty.hidden=false;empty.textContent='Projek gagal dimuat. Coba muat ulang.';
-        console.warn('Project Card D1:',error);
+        __f4.globals.console.warn('Project Card D1:',error);
       }
     }
-    document.addEventListener('DOMContentLoaded',loadProjectCards);
-    document.addEventListener('f4:cash-access-change',()=>{
+    __f4.globals.document.addEventListener('DOMContentLoaded',loadProjectCards);
+    __f4.globals.document.addEventListener('f4:cash-access-change',()=>{
       // Segera sembunyikan saldo saat logout/pergantian akun.
       ++f4ProjectLoadGeneration;
       f4ProjectCashMessage(f4CanReadKas()?'Memuat saldo…':'Login untuk lihat');
@@ -3074,9 +3279,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 // Bank progress preview uses public D1 data; a banner is only a visual fallback.
 const f4BankProjectFallback='/assets/banner-bank-sampah.jpg';
 function f4BankProjectPhotoCandidates(value){
- const raw=String(value||'').trim();if(!raw)return [];
+ const raw=(0,__f4.globals.String)(value||'').trim();if(!raw)return [];
  try{
-  const url=new URL(raw,'https://api.flamboyan4.web.id');
+  const url=new __f4.globals.URL(raw,'https://api.flamboyan4.web.id');
   if(url.protocol!=='https:')return [];
   if(/(^|\.)drive\.google\.com$/.test(url.hostname)){
    const id=url.pathname.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1]||url.searchParams.get('id');
@@ -3090,7 +3295,7 @@ function f4BankProjectPhotoCandidates(value){
  }catch{return []}
 }
 function f4SetBankProjectPhoto(item){
- const photo=document.getElementById('bs-step-img');if(!photo)return;
+ const photo=__f4.globals.document.getElementById('bs-step-img');if(!photo)return;
  const candidates=f4BankProjectPhotoCandidates(item?.photo);let i=0;
  const next=()=>{
   if(i<candidates.length){photo.alt='Dokumentasi '+item.title;photo.src=candidates[i++];}
@@ -3099,23 +3304,23 @@ function f4SetBankProjectPhoto(item){
  photo.onerror=next;next();
 }
 async function loadProgresBankSampahIndex(){
- const target=document.getElementById('bs-step-title');if(!target)return;
- const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
+ const target=__f4.globals.document.getElementById('bs-step-title');if(!target)return;
+ const set=(id,value)=>{const el=__f4.globals.document.getElementById(id);if(el)el.textContent=(0,__f4.globals.String)(value||'—')};
  const fallback=message=>{set('bs-step-tag','Bank Sampah');set('bs-step-title',message);set('bs-info-1','—');set('bs-info-2','—');f4SetBankProjectPhoto(null);};
  try{
-  const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
-  if(!response.ok)throw Error('HTTP '+response.status);
+  const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
+  if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
   const payload=await response.json();
-  if(payload.ok===false||!Array.isArray(payload.progress))throw Error(payload.error||'Data perkembangan tidak tersedia');
+  if(payload.ok===false||!__f4.globals.Array.isArray(payload.progress))throw (0,__f4.globals.Error)(payload.error||'Data perkembangan tidak tersedia');
   const items=payload.progress.map(row=>({
-   title:String(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
-   stage:String(row.stage||row.langkah||''),
-   status:String(row.status||''),
-   date:String(row.happened_on||row.tanggal||row.date||''),
-   next:String(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
-   photo:String(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
+   title:(0,__f4.globals.String)(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
+   stage:(0,__f4.globals.String)(row.stage||row.langkah||''),
+   status:(0,__f4.globals.String)(row.status||''),
+   date:(0,__f4.globals.String)(row.happened_on||row.tanggal||row.date||''),
+   next:(0,__f4.globals.String)(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
+   photo:(0,__f4.globals.String)(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
   })).sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('bs-project-timeline')?.remove();
+  __f4.globals.document.getElementById('bs-project-timeline')?.remove();
   if(!items.length){fallback('Belum ada perkembangan');return;}
   const active=items[0];
   set('bs-step-tag','Terbaru');
@@ -3125,10 +3330,12 @@ async function loadProgresBankSampahIndex(){
   f4SetBankProjectPhoto(active);
   if(active.status)set('bs-status-badge',active.status);
  }catch(error){
-  console.error('Progres Bank Sampah tidak dapat dimuat:',error);
+  __f4.globals.console.error('Progres Bank Sampah tidak dapat dimuat:',error);
   fallback('Perkembangan belum tersedia');
  }
 }
-document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
+__f4.globals.document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
     
   
+
+});

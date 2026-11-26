@@ -1,15 +1,19 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bookkeeping-kas-mobile.js",function(__f4){
+
+
 /* Riwayat Transaksi Kas: tampilan HP khusus.
    Tabel desktop tetap menjadi sumber data dan sumber aksi, tanpa menggandakan logika transaksi. */
 (function () {
   'use strict';
-  const tbody=document.getElementById('tbody-riwayat-kas');
-  const panel=document.getElementById('history-kasumum-panel');
+  const tbody=__f4.globals.document.getElementById('tbody-riwayat-kas');
+  const panel=__f4.globals.document.getElementById('history-kasumum-panel');
   if(!tbody||!panel)return;
   const table=tbody.closest('table');
   const wrapper=table&&table.parentElement;
   if(!wrapper)return;
 
-  const escapeText=value=>String(value==null?'':value).replace(/[&<>"']/g,ch=>({
+  const escapeText=value=>(0,__f4.globals.String)(value==null?'':value).replace(/[&<>"']/g,ch=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   })[ch]);
   const plain=node=>(node&&node.textContent||'').replace(/\s+/g,' ').trim();
@@ -21,13 +25,13 @@
     edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m16 4 4 4M4 20l4.5-1 11-11a2.8 2.8 0 0 0-4-4l-11 11z"/></svg>',
     cancel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>'
   };
-  const list=document.createElement('div');
+  const list=__f4.globals.document.createElement('div');
   list.id='f4-kas-mobile-list';
   list.className='f4-kas-mobile-list';
   list.setAttribute('aria-label','Daftar transaksi kas');
   wrapper.insertAdjacentElement('afterend',list);
 
-  const sheet=document.createElement('div');
+  const sheet=__f4.globals.document.createElement('div');
   sheet.className='f4-kas-action-sheet';
   sheet.id='f4-kas-action-sheet';
   sheet.setAttribute('role','dialog');
@@ -42,7 +46,7 @@
     '<button type="button" class="f4-kas-sheet-close" aria-label="Tutup">'+icons.close+'</button></div>'+
     '<div class="f4-kas-sheet-options"></div>'+
     '</section>';
-  document.body.appendChild(sheet);
+  __f4.globals.document.body.appendChild(sheet);
 
   let savedScroll='',returnFocus=null,activeButtons=[],sheetOpen=false,pushed=false,frame=0;
   const getRows=()=>[...tbody.querySelectorAll(':scope > tr')].filter(tr=>tr.cells&&tr.cells.length===8);
@@ -57,7 +61,7 @@
     const nominal=(income?'+ ':expense?'− ':'')+(income?debit:expense?credit:'Rp 0');
     const status=plain(c[6]);
     const meta=[date,category,method].filter(v=>v&&v!=='-').join(' • ');
-    const rawRefs=[...c[2].querySelectorAll('.f4-trans-ref div')].map(plain).filter(Boolean);
+    const rawRefs=[...c[2].querySelectorAll('.f4-trans-ref div')].map(plain).filter(__f4.globals.Boolean);
     const fields=[['Tanggal',date],['Kategori',category],['Metode',method]];
     rawRefs.forEach(value=>fields.push(['Pencatatan',value]));
     const more=c[7].querySelectorAll('button').length>0;
@@ -80,7 +84,7 @@
     frame=0;
     if(sheetOpen)closeSheet();
     const rows=getRows();
-    const openRows=new Set([...list.querySelectorAll('.f4-kas-entry-title')].filter(t=>t.closest('.f4-kas-mobile-entry').querySelector('.f4-kas-extra:not([hidden])')).map(t=>plain(t)));
+    const openRows=new __f4.globals.Set([...list.querySelectorAll('.f4-kas-entry-title')].filter(t=>t.closest('.f4-kas-mobile-entry').querySelector('.f4-kas-extra:not([hidden])')).map(t=>plain(t)));
     list.innerHTML=rows.length?rows.map(itemMarkup).join(''):'<p class="f4-kas-mobile-empty">'+escapeText(plain(tbody)||'Belum ada transaksi kas.')+'</p>';
     if(openRows.size){
       list.querySelectorAll('.f4-kas-mobile-entry').forEach(entry=>{
@@ -91,18 +95,18 @@
     }
     panel.classList.add('f4-kas-mobile-ready');
   }
-  function schedule(){if(frame)return;frame=requestAnimationFrame(render);}
+  function schedule(){if(frame)return;frame=(0,__f4.globals.requestAnimationFrame)(render);}
   function closeSheet(fromBack){
     if(!sheetOpen)return;
     sheetOpen=false;
     sheet.hidden=true;
-    document.body.style.overflow=savedScroll;
+    __f4.globals.document.body.style.overflow=savedScroll;
     const returnTo=returnFocus;
     returnFocus=null;activeButtons=[];
     if(returnTo&&returnTo.isConnected) returnTo.focus({preventScroll:true});
     if(pushed){
       pushed=false;
-      if(!fromBack&&history.state&&history.state.f4KasActions)history.back();
+      if(!fromBack&&__f4.globals.history.state&&__f4.globals.history.state.f4KasActions)__f4.globals.history.back();
     }
   }
   function openSheet(index,button){
@@ -119,10 +123,10 @@
       return '<button type="button" class="f4-kas-sheet-option '+(type==='cancel'?'is-danger':'')+'" data-kas-run="'+i+'">'+icons[type]+'<span>'+escapeText(label)+'</span></button>';
     }).join('');
     returnFocus=button;
-    savedScroll=document.body.style.overflow;
+    savedScroll=__f4.globals.document.body.style.overflow;
     sheet.hidden=false;sheetOpen=true;
-    document.body.style.overflow='hidden';
-    try{history.pushState(Object.assign({},history.state||{},{f4KasActions:true}),'');pushed=true;}catch(e){pushed=false;}
+    __f4.globals.document.body.style.overflow='hidden';
+    try{__f4.globals.history.pushState(__f4.globals.Object.assign({},__f4.globals.history.state||{},{f4KasActions:true}),'');pushed=true;}catch(e){pushed=false;}
     sheet.querySelector('.f4-kas-sheet-close').focus({preventScroll:true});
   }
   list.addEventListener('click',event=>{
@@ -131,27 +135,28 @@
       const extra=list.querySelector('#f4-kas-extra-'+detail.dataset.kasDetail);
       if(!extra)return;
       extra.hidden=!extra.hidden;
-      detail.setAttribute('aria-expanded',String(!extra.hidden));
+      detail.setAttribute('aria-expanded',(0,__f4.globals.String)(!extra.hidden));
       return;
     }
     const action=event.target.closest('[data-kas-actions]');
-    if(action)openSheet(Number(action.dataset.kasActions),action);
+    if(action)openSheet((0,__f4.globals.Number)(action.dataset.kasActions),action);
   });
   sheet.addEventListener('click',event=>{
     if(event.target.closest('.f4-kas-sheet-close,.f4-kas-sheet-backdrop')){closeSheet();return;}
     const action=event.target.closest('[data-kas-run]');
     if(!action)return;
-    const src=activeButtons[Number(action.dataset.kasRun)];
+    const src=activeButtons[(0,__f4.globals.Number)(action.dataset.kasRun)];
     closeSheet();
     if(src&&src.isConnected)src.click();
   });
-  document.addEventListener('keydown',event=>{
+  __f4.globals.document.addEventListener('keydown',event=>{
     if(!sheetOpen)return;
     if(event.key==='Escape'||event.key==='Backspace'){
       event.preventDefault();closeSheet();
     }
   });
-  window.addEventListener('popstate',()=>{if(sheetOpen)closeSheet(true)});
-  new MutationObserver(schedule).observe(tbody,{childList:true,subtree:true,characterData:true});
+  __f4.window.addEventListener('popstate',()=>{if(sheetOpen)closeSheet(true)});
+  new __f4.globals.MutationObserver(schedule).observe(tbody,{childList:true,subtree:true,characterData:true});
   render();
 })();
+});

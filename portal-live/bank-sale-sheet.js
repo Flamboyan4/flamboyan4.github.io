@@ -1,101 +1,105 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-sale-sheet.js",function(__f4){
+
+
 /* Penjualan kolektif Bank Sampah: rekap otomatis dari D1, tanpa input ulang per warga. */
 (()=>{
 "use strict";
 const API="https://api.flamboyan4.web.id/api/admin/bank/sale-sheet";
-const $=id=>document.getElementById(id);
+const $=id=>__f4.globals.document.getElementById(id);
 let current=null,seq=0,installed=false;
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const kg=g=>(Number(g||0)/1000).toLocaleString("id-ID",{maximumFractionDigits:3});
-const now=()=>new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"});
+const esc=v=>(0,__f4.globals.String)(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const kg=g=>((0,__f4.globals.Number)(g||0)/1000).toLocaleString("id-ID",{maximumFractionDigits:3});
+const now=()=>new __f4.globals.Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"});
 function status(message,error=false){
  const node=$("f4SaleSheetStatus");if(node){node.textContent=message||"";node.dataset.error=error?"1":"0";}
 }
 async function fetchSheet(batchId,body){
- const response=await fetch(API+(body?"":"?batchId="+encodeURIComponent(batchId)),{
+ const response=await (0,__f4.globals.fetch)(API+(body?"":"?batchId="+(0,__f4.globals.encodeURIComponent)(batchId)),{
   method:body?"POST":"GET",credentials:"include",cache:"no-store",
-  ...(body?{headers:{"Content-Type":"application/json"},body:JSON.stringify({batchId,...body})}:{})
+  ...(body?{headers:{"Content-Type":"application/json"},body:__f4.globals.JSON.stringify({batchId,...body})}:{})
  });
  const result=await response.json().catch(()=>({}));
- if(!response.ok||result.ok===false)throw Error(result.error||"Layanan penjualan belum tersedia.");
+ if(!response.ok||result.ok===false)throw (0,__f4.globals.Error)(result.error||"Layanan penjualan belum tersedia.");
  return result;
 }
 function fill(data){
  const host=$("saleItems")?.querySelector(".f4-compact-sale-rows");
- if(!host||typeof window.addSaleItemRow!=="function")return;
+ if(!host||typeof __f4.window.addSaleItemRow!=="function")return;
  host.replaceChildren();
  for(const line of data.lines||[]){
-  window.addSaleItemRow();
+  __f4.window.addSaleItemRow();
   const row=host.lastElementChild;
   const choice=row?.querySelector("select");
   const inputs=row?.querySelectorAll("input");
   if(!row||!choice||!inputs?.length)continue;
-  const code=String(line.itemId||"").replace(/^waste:/,"");
+  const code=(0,__f4.globals.String)(line.itemId||"").replace(/^waste:/,"");
   choice.value=[...choice.options].some(o=>o.value===code)?code:line.itemId;
   if(!choice.value){
    row.remove();continue;
   }
-  const original=Number(line.grams)/1000;
+  const original=(0,__f4.globals.Number)(line.grams)/1000;
   // Beri referensi, tetapi JANGAN prefill hasil lapak: berat nyata wajib diinput dari lembar bertanda tangan.
   inputs[0].value="";
   inputs[0].placeholder=kg(line.grams)+" kg awal";
   inputs[0].required=true;
   inputs[1].value="";
-  if(Number(line.lastPrice)>0)inputs[1].placeholder="Acuan "+Number(line.lastPrice).toLocaleString("id-ID");
+  if((0,__f4.globals.Number)(line.lastPrice)>0)inputs[1].placeholder="Acuan "+(0,__f4.globals.Number)(line.lastPrice).toLocaleString("id-ID");
   inputs[1].required=true;
   // Harga historis hanya petunjuk, bukan nilai transaksi yang dianggap benar otomatis.
-  inputs[1].setAttribute("aria-label","Harga jual lapak aktual untuk "+String(line.name||"barang")+" per kg");
-  inputs[0].setAttribute("aria-label","Hasil timbang lapak aktual "+String(line.name||"barang")+" dalam kilogram");
-  row.dataset.initialGrams=String(Number(line.grams));
-  const diff=document.createElement("small");diff.className="f4-bank-sale-diff";
+  inputs[1].setAttribute("aria-label","Harga jual lapak aktual untuk "+(0,__f4.globals.String)(line.name||"barang")+" per kg");
+  inputs[0].setAttribute("aria-label","Hasil timbang lapak aktual "+(0,__f4.globals.String)(line.name||"barang")+" dalam kilogram");
+  row.dataset.initialGrams=(0,__f4.globals.String)((0,__f4.globals.Number)(line.grams));
+  const diff=__f4.globals.document.createElement("small");diff.className="f4-bank-sale-diff";
   // Sisa stok adalah pengecualian, bukan isian wajib pada setiap jenis.
   // Tetap berada di baris yang sama untuk menjaga alur penjualan 3 tahap.
-  const unsoldWrap=document.createElement("details");unsoldWrap.className="f4-bank-unsold-wrap";
-  const unsoldSummary=document.createElement("summary");unsoldSummary.textContent="Ada sisa belum dijual?";
-  const unsoldLabel=document.createElement("label");unsoldLabel.textContent="Sisa (kg)";
-  const unsoldInput=document.createElement("input");unsoldInput.type="number";
-  unsoldInput.min="0";unsoldInput.step="0.001";unsoldInput.max=String(original);
+  const unsoldWrap=__f4.globals.document.createElement("details");unsoldWrap.className="f4-bank-unsold-wrap";
+  const unsoldSummary=__f4.globals.document.createElement("summary");unsoldSummary.textContent="Ada sisa belum dijual?";
+  const unsoldLabel=__f4.globals.document.createElement("label");unsoldLabel.textContent="Sisa (kg)";
+  const unsoldInput=__f4.globals.document.createElement("input");unsoldInput.type="number";
+  unsoldInput.min="0";unsoldInput.step="0.001";unsoldInput.max=(0,__f4.globals.String)(original);
   unsoldInput.placeholder="0";unsoldInput.value="0";unsoldInput.dataset.bankUnsold="1";
-  unsoldInput.setAttribute("aria-label","Berat barang yang sengaja tidak dijual "+String(line.name||""));
+  unsoldInput.setAttribute("aria-label","Berat barang yang sengaja tidak dijual "+(0,__f4.globals.String)(line.name||""));
   unsoldLabel.append(unsoldInput);
   unsoldWrap.append(unsoldSummary,unsoldLabel);
   row.append(diff,unsoldWrap);
   const check=()=>{
-   const raw=String(inputs[0].value).trim();
+   const raw=(0,__f4.globals.String)(inputs[0].value).trim();
    if(!raw){
     diff.textContent="Awal "+kg(line.grams)+" kg · isi hasil lapak";
     diff.dataset.state="unentered";
    }else{
-    const grams=Math.round(Number(raw)*1000),remaining=Math.round(Number(unsoldInput.value||0)*1000);
-    const delta=Number(line.grams)-grams-remaining;
+    const grams=__f4.globals.Math.round((0,__f4.globals.Number)(raw)*1000),remaining=__f4.globals.Math.round((0,__f4.globals.Number)(unsoldInput.value||0)*1000);
+    const delta=(0,__f4.globals.Number)(line.grams)-grams-remaining;
     unsoldSummary.textContent=remaining>0?"Sisa tersimpan "+kg(remaining)+" kg":"Ada sisa belum dijual?";
     diff.textContent="Awal "+kg(line.grams)+" kg · "+
       (delta===0?"Sesuai":delta>0?"Selisih timbang "+kg(delta)+" kg":"Melebihi stok "+kg(-delta)+" kg");
     diff.dataset.state=delta<0?"excess":delta>0?"difference":"equal";
    }
-   window.updateSaleTotals?.();
+   __f4.window.updateSaleTotals?.();
   };
   inputs[0].addEventListener("input",check);
   unsoldInput.addEventListener("input",check);
   check();
  }
- if(!host.children.length)window.addSaleItemRow();
- window.updateSaleTotals?.();
+ if(!host.children.length)__f4.window.addSaleItemRow();
+ __f4.window.updateSaleTotals?.();
 }
 function install(){
  if(installed||!$("saleBatch"))return;
  const picker=$("saleBatch"),topFields=picker.closest(".f4-sale-top-fields");
  if(!topFields)return;
  installed=true;
- const tools=document.createElement("div");tools.className="f4-bank-sheet-tools";
- const label=document.createElement("div");label.className="f4-bank-sheet-summary";
- const number=document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Nota timbang";
- const statusNode=document.createElement("small");statusNode.id="f4SaleSheetStatus";statusNode.setAttribute("role","status");
+ const tools=__f4.globals.document.createElement("div");tools.className="f4-bank-sheet-tools";
+ const label=__f4.globals.document.createElement("div");label.className="f4-bank-sheet-summary";
+ const number=__f4.globals.document.createElement("strong");number.id="f4SaleSheetNumber";number.textContent="Nota timbang";
+ const statusNode=__f4.globals.document.createElement("small");statusNode.id="f4SaleSheetStatus";statusNode.setAttribute("role","status");
  label.append(number,statusNode);
- const actions=document.createElement("div");actions.className="f4-bank-sheet-actions";
- const print=document.createElement("button");print.type="button";print.className="f4-bank-gold-action";print.id="f4SaleSheetPrint";print.textContent="Cetak nota";
+ const actions=__f4.globals.document.createElement("div");actions.className="f4-bank-sheet-actions";
+ const print=__f4.globals.document.createElement("button");print.type="button";print.className="f4-bank-gold-action";print.id="f4SaleSheetPrint";print.textContent="Cetak nota";
  print.setAttribute("aria-describedby","f4SaleSheetStatus");
  print.onclick=prepareAndPrint;
- const reopen=document.createElement("button");reopen.type="button";reopen.className="secondary";reopen.id="f4SaleSheetReopen";reopen.textContent="Buka kembali setoran";reopen.hidden=true;reopen.onclick=reopenBatch;
+ const reopen=__f4.globals.document.createElement("button");reopen.type="button";reopen.className="secondary";reopen.id="f4SaleSheetReopen";reopen.textContent="Buka kembali setoran";reopen.hidden=true;reopen.onclick=reopenBatch;
  actions.append(print,reopen);tools.append(label,actions);
  // Letakkan tepat setelah pemilihan kelompok: tahap cetak selalu terlihat,
  // termasuk saat belum ada kelompok atau data masih dimuat.
@@ -134,12 +138,12 @@ async function refresh(){
   }
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
   if(print){
-   print.disabled=!(Array.isArray(data.lines)&&data.lines.length>0);
+   print.disabled=!(__f4.globals.Array.isArray(data.lines)&&data.lines.length>0);
    print.textContent=data.status==="siap"?"Cetak ulang nota":"Cetak nota";
   }
   if(reopen)reopen.hidden=data.status!=="siap";
   fill(data);
- }catch(e){if(version===seq){$("f4SaleSheetNumber").textContent="Rekap belum tersedia";status(e.message||String(e),true)}}
+ }catch(e){if(version===seq){$("f4SaleSheetNumber").textContent="Rekap belum tersedia";status(e.message||(0,__f4.globals.String)(e),true)}}
 }
 function sheetHtml(data){
  const rows=data.lines.map((x,i)=>"<tr><td>"+(i+1)+"</td><td>"+esc(x.name)+"</td><td class='num'>"+kg(x.grams)+"</td><td></td><td></td><td></td></tr>").join("");
@@ -163,14 +167,14 @@ async function prepareAndPrint(){
   picker.focus();return;
  }
  // Jendela dibuka dalam klik pengguna supaya browser tidak memblokirnya.
- const popup=window.open("","_blank");
+ const popup=__f4.window.open("","_blank");
  if(!popup){status("Izinkan popup untuk mencetak lembar timbang.",true);return}
  const print=$("f4SaleSheetPrint");print.disabled=true;
  popup.document.write("<title>Menyiapkan lembar penjualan</title><p>Memeriksa rekap setoran...</p>");
  try{
   // Cetak ulang kelompok yang sudah dikunci cukup membaca data, tanpa
   // mempersiapkan stok atau menggandakan transaksi lagi.
-  const data=await fetchSheet(current.batchId,current.status==="siap"?undefined:{action:"prepare"});
+  const data=await fetchSheet(current.batchId,current.status==="siap"?__f4.globals.undefined:{action:"prepare"});
   current=data;
   $("f4SaleSheetNumber").textContent=data.saleNumber;
   $("f4SaleSheetReopen").hidden=false;
@@ -182,7 +186,7 @@ async function prepareAndPrint(){
   const printOnce=()=>{if(printed||popup.closed)return;printed=true;popup.print();};
   popup.addEventListener("load",printOnce,{once:true});
   if(popup.document.readyState==="complete")printOnce();
- }catch(e){popup.close();status(e.message||String(e),true)}
+ }catch(e){popup.close();status(e.message||(0,__f4.globals.String)(e),true)}
  finally{
   print.disabled=false;
   print.textContent=current?.status==="siap"?"Cetak ulang nota":"Cetak nota";
@@ -190,10 +194,11 @@ async function prepareAndPrint(){
 }
 async function reopenBatch(){
  if(!current||current.status!=="siap")return;
- if(!await window.f4UiDialog.confirm("Buka kembali kelompok setoran? Lembar timbang yang sudah dicetak harus diganti."))return;
+ if(!await __f4.window.f4UiDialog.confirm("Buka kembali kelompok setoran? Lembar timbang yang sudah dicetak harus diganti."))return;
  try{await fetchSheet(current.batchId,{action:"reopen"});await refresh();status("Setoran dibuka kembali. Cetak ulang lembar setelah selesai mengubah data.")}
- catch(e){status(e.message||String(e),true)}
+ catch(e){status(e.message||(0,__f4.globals.String)(e),true)}
 }
-window.F4SaleSheet={refresh,number:()=>current?.saleNumber||'',ready:()=>current?.status==="siap"};
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+__f4.window.F4SaleSheet={refresh,number:()=>current?.saleNumber||'',ready:()=>current?.status==="siap"};
+if(__f4.globals.document.readyState==="loading")__f4.globals.document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
+});

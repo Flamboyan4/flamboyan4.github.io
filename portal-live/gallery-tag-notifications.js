@@ -14,7 +14,8 @@ const dialog=el('dialog','f4-tag-inbox');dialog.setAttribute('aria-label','Notif
 const head=el('header','f4-tag-inbox-head'),title=el('h2','','Notifikasi'),close=el('button','f4-tag-inbox-close');close.type='button';close.setAttribute('aria-label','Kembali');close.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg>';head.append(close,title);
 const list=el('div','f4-tag-inbox-list');dialog.append(head,list);document.body.append(dialog);
 let items=[],busy=false,generation=0,archiveIndex=null,failed=false,lastCheck=0,accountKey='';
-const portal=location.pathname.startsWith('/bank-sampah')?'bank':location.pathname.startsWith('/superadmin')?'superadmin':null;
+const currentPortal=()=>location.pathname.startsWith('/bank-sampah')?'bank':location.pathname.startsWith('/superadmin')?'superadmin':null;
+let portal=currentPortal();
 const workEligible=()=>eligible()&&(portal==='bank'?['admin','superadmin'].includes(avatar.dataset.f4TagRole)&&document.body.classList.contains('f4-bank-app-admin')&&!document.getElementById('dashboardView')?.classList.contains('hidden'):portal==='superadmin'&&avatar.dataset.f4TagRole==='superadmin'&&!document.getElementById('f4-account-page')?.hidden&&!document.body.classList.contains('f4-denied'));
 let workItems=[],workBusy=false,workFailed=false,workChecked=0,workGeneration=0,workAccount='',workAgain=false;
 const workCount=value=>Number.isSafeInteger(Number(value))&&Number(value)>0?Number(value):0;
@@ -111,7 +112,7 @@ function paint(){
     await request('/tag-notifications/read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:item.id})});
     if(stamp!==generation||!eligible())return;
     item.read=true;const url=new URL('/dokumentasi/',location.origin);url.searchParams.set('album',album);url.searchParams.set('foto',item.id);
-    if(history.state?.f4TagInbox===true){hideInbox(true);location.replace(url.href);}else{hideInbox(true);location.assign(url.href);}
+    if(history.state?.f4TagInbox===true){hideInbox(true);if(window.F4PortalNavigation)void window.F4PortalNavigation.go(url.href,{replace:true});else location.replace(url.href);}else{hideInbox(true);if(window.F4PortalNavigation)void window.F4PortalNavigation.go(url.href);else location.assign(url.href);}
    }catch(e){if(stamp!==generation)return;button.disabled=false;copy.append(el('small','f4-tag-inbox-error',e.message||'Foto belum dapat dibuka.'));}
   };list.append(button);
   }
@@ -174,15 +175,15 @@ window.addEventListener('pagehide',()=>hideInbox(true));
 // Do not resurrect an inbox after reloading the underlying page.
 if(history.state?.f4TagInbox===true){const state={...history.state};delete state.f4TagInbox;history.replaceState(state,'',location.href);}
 new MutationObserver(()=>{if(!eligible()){if(accountKey||!bell.hidden)reset();}else refresh(true);}).observe(avatar,{attributes:true,attributeFilter:['hidden','data-f4-tag-account','data-f4-tag-role']});
-if(portal){
- const syncWork=()=>{if(!workEligible()){if(workAccount)clearWork();paint();}else if(workAccount!==avatar.dataset.f4TagAccount)refreshWork(true);};
- new MutationObserver(syncWork).observe(document.body,{attributes:true,attributeFilter:['class']});
- const surface=document.getElementById(portal==='bank'?'dashboardView':'f4-account-page');
- if(surface)new MutationObserver(syncWork).observe(surface,{attributes:true,attributeFilter:['class','hidden']});
- const changed=()=>{if(workEligible())refreshWork(true);};
- window.addEventListener('f4-bank-data-changed',changed);document.addEventListener('f4-bank-data-changed',changed);
- window.addEventListener('f4-treasury-updated',changed);
-}
+const syncWork=()=>{if(!workEligible()){if(workAccount)clearWork();paint();}else if(workAccount!==avatar.dataset.f4TagAccount)refreshWork(true);};
+new MutationObserver(syncWork).observe(document.body,{attributes:true,attributeFilter:['class']});
+let surfaceObserver=null;
+function bindWorkSurface(){surfaceObserver?.disconnect();surfaceObserver=null;const surface=portal?document.getElementById(portal==='bank'?'dashboardView':'f4-account-page'):null;if(surface){surfaceObserver=new MutationObserver(syncWork);surfaceObserver.observe(surface,{attributes:true,attributeFilter:['class','hidden']})}}
+bindWorkSurface();
+document.addEventListener('f4:portal-changed',()=>{portal=currentPortal();pendingWorkRoute=null;clearWork();bindWorkSurface();paint();syncWork()});
+const changed=()=>{if(workEligible())refreshWork(true);};
+window.addEventListener('f4-bank-data-changed',changed);document.addEventListener('f4-bank-data-changed',changed);
+window.addEventListener('f4-treasury-updated',changed);
 window.addEventListener('focus',()=>refresh());document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 window.addEventListener('pageshow',()=>refresh(true));
 setInterval(()=>{if(!document.hidden&&eligible())refresh();},60000);

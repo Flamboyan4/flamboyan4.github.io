@@ -1,34 +1,38 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/payment-monitor.js",function(__f4){
+
+
 (() => {
   'use strict';
-  const el = id => document.getElementById('pm-' + id);
+  const el = id => __f4.globals.document.getElementById('pm-' + id);
   const node = (tag, text, cls) => {
-    const item = document.createElement(tag);
+    const item = __f4.globals.document.createElement(tag);
     if (text != null) item.textContent = text;
     if (cls) item.className = cls;
     return item;
   };
-  const rupiah = new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0});
-  const monthName = (month, style) => new Date(month + '-01T12:00:00Z').toLocaleDateString('id-ID', {month:style,year:'numeric',timeZone:'UTC'});
+  const rupiah = new __f4.globals.Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0});
+  const monthName = (month, style) => new __f4.globals.Date(month + '-01T12:00:00Z').toLocaleDateString('id-ID', {month:style,year:'numeric',timeZone:'UTC'});
   const names = {IURAN_BULANAN:'Iuran bulanan', KEBERSIHAN:'Kebersihan', KAS_LORONG:'Kas Lorong', ARISAN:'Arisan'};
   const states = {settled:'Lunas', partial:'Sebagian', unpaid:'Belum bayar', future:'Belum jatuh tempo', recorded:'Pembayaran tercatat', review:'Periksa ID warga', exempt:'Tanpa kewajiban', archive:'Arsip belum diimpor'};
-  const total = amounts => Object.values(amounts).reduce((sum, value) => sum + value, 0);
+  const total = amounts => __f4.globals.Object.values(amounts).reduce((sum, value) => sum + value, 0);
   let model, request, yearRequest, yearModel, exportInProgress = false;
 
   async function read(path, params, signal) {
-    const response = await fetch('https://api.flamboyan4.web.id/api/bookkeeping/reports/' + path + '?' + new URLSearchParams(params), {
+    const response = await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/bookkeeping/reports/' + path + '?' + new __f4.globals.URLSearchParams(params), {
       credentials:'include', cache:'no-store', signal
     });
-    if (response.status === 401 || response.status === 403) throw Error('Silakan masuk dengan akun Superadmin.');
-    if (!response.ok) throw Error('Layanan Pembukuan belum dapat diakses.');
+    if (response.status === 401 || response.status === 403) throw (0,__f4.globals.Error)('Silakan masuk dengan akun Superadmin.');
+    if (!response.ok) throw (0,__f4.globals.Error)('Layanan Pembukuan belum dapat diakses.');
     const data = await response.json();
-    if (!data.ok) throw Error(data.error || 'Data belum dapat dimuat.');
+    if (!data.ok) throw (0,__f4.globals.Error)(data.error || 'Data belum dapat dimuat.');
     return data;
   }
 
   function amounts(member) {
     const paid = total(member.paid), due = total(member.due);
-    const balance = Object.entries(member.due).reduce((sum,[type,amount]) =>
-      sum + Math.max(0, amount - (member.paid[type] || 0)), 0);
+    const balance = __f4.globals.Object.entries(member.due).reduce((sum,[type,amount]) =>
+      sum + __f4.globals.Math.max(0, amount - (member.paid[type] || 0)), 0);
     let state;
     if (!due) state = paid ? 'recorded' : 'exempt';
     else if (member.review) state = 'review';
@@ -49,7 +53,7 @@
     const periodLabel = monthName(model.period,'long');
     el('trend-caption').textContent = 'Alokasi iuran per bulan · ' + (residents.length === 1 ? residents[0].nama : 'Semua warga');
     const trend = model.months.map((_,index) => residents.reduce((sum,r) => sum+r.trend[index],0));
-    const max = Math.max(...trend, 1);
+    const max = __f4.globals.Math.max(...trend, 1);
     el('trend').replaceChildren(...trend.map((value,index) => {
       const li = node('li'), track = node('span',null,'pm-track'), bar = node('span');
       const available = model.months[index] >= model.firstMonth;
@@ -60,7 +64,7 @@
       return li;
     }));
     el('components-caption').textContent = periodLabel;
-    el('components').replaceChildren(...Object.entries(names)
+    el('components').replaceChildren(...__f4.globals.Object.entries(names)
       .filter(([type]) => type !== 'KEBERSIHAN' || model.period < '2026-12' ||
         residents.some(r => (r.paid[type] || 0) > 0))
       .map(([type,name]) => {
@@ -74,10 +78,10 @@
   }
 
   let activeDetail = null;
-  const statementCache = new Map();
+  const statementCache = new __f4.globals.Map();
   const formatDate = value => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return String(value || '—');
-    return new Date(value + 'T12:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+    if (!/^\d{4}-\d{2}-\d{2}$/.test((0,__f4.globals.String)(value || ''))) return (0,__f4.globals.String)(value || '—');
+    return new __f4.globals.Date(value + 'T12:00:00Z').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
   };
   function closeDetail() {
     if (!activeDetail) return;
@@ -89,13 +93,13 @@
     if (!activeDetail) return;
     const {anchor,popup} = activeDetail, rect = anchor.getBoundingClientRect();
     const width = popup.offsetWidth, height = popup.offsetHeight;
-    const left = Math.max(8,Math.min(rect.left+rect.width/2-width/2,window.innerWidth-width-8));
-    const below = rect.bottom+12+height <= window.innerHeight-8 || rect.top < height+20;
-    const top = below ? Math.max(8,Math.min(rect.bottom+12,window.innerHeight-height-8))
-      : Math.max(8,rect.top-height-12);
-    popup.style.left = Math.round(left) + 'px';
-    popup.style.top = Math.round(top) + 'px';
-    popup.style.setProperty('--pm-pointer-x',Math.max(15,Math.min(width-15,rect.left+rect.width/2-left))+'px');
+    const left = __f4.globals.Math.max(8,__f4.globals.Math.min(rect.left+rect.width/2-width/2,__f4.window.innerWidth-width-8));
+    const below = rect.bottom+12+height <= __f4.window.innerHeight-8 || rect.top < height+20;
+    const top = below ? __f4.globals.Math.max(8,__f4.globals.Math.min(rect.bottom+12,__f4.window.innerHeight-height-8))
+      : __f4.globals.Math.max(8,rect.top-height-12);
+    popup.style.left = __f4.globals.Math.round(left) + 'px';
+    popup.style.top = __f4.globals.Math.round(top) + 'px';
+    popup.style.setProperty('--pm-pointer-x',__f4.globals.Math.max(15,__f4.globals.Math.min(width-15,rect.left+rect.width/2-left))+'px');
     popup.dataset.placement = below ? 'bottom' : 'top';
   }
   function getStatement(id) {
@@ -112,14 +116,14 @@
     if (activeDetail?.anchor === anchor) {closeDetail();return;}
     closeDetail();
     const paid = total(entry.paid), due = total(entry.due);
-    const balance = Object.entries(entry.due).reduce((sum,[type,amount]) =>
-      sum + Math.max(0,amount-(entry.paid[type]||0)),0);
+    const balance = __f4.globals.Object.entries(entry.due).reduce((sum,[type,amount]) =>
+      sum + __f4.globals.Math.max(0,amount-(entry.paid[type]||0)),0);
     const popup = node('section',null,'pm-detail-popover');
     popup.setAttribute('role','dialog');
     popup.setAttribute('aria-label','Rincian pembayaran '+member.nama+' '+monthName(entry.period,'long'));
     const heading = node('div',null,'pm-detail-heading');
     const title = node('div');
-    title.append(node('strong',member.nama),node('small',[member.rumah,monthName(entry.period,'long')].filter(Boolean).join(' · ')));
+    title.append(node('strong',member.nama),node('small',[member.rumah,monthName(entry.period,'long')].filter(__f4.globals.Boolean).join(' · ')));
     const close = node('button','×','pm-detail-close');
     close.type='button';close.setAttribute('aria-label','Tutup rincian');close.addEventListener('click',closeDetail);
     heading.append(title,close);
@@ -130,7 +134,7 @@
     }
     const breakdown = node('div',null,'pm-detail-breakdown');
     breakdown.append(node('strong','Rincian pos'));
-    const items = Object.entries(names).filter(([type]) => (entry.due[type]||0)>0 || (entry.paid[type]||0)>0);
+    const items = __f4.globals.Object.entries(names).filter(([type]) => (entry.due[type]||0)>0 || (entry.paid[type]||0)>0);
     if (!items.length) breakdown.append(node('p','Tidak ada kewajiban tercatat untuk periode ini.'));
     else for (const [type,label] of items) {
       const item=node('div');
@@ -146,18 +150,18 @@
       'Belum ada pembayaran yang dialokasikan.'));
     dates.append(dateContents);
     popup.append(heading,badge,metrics,breakdown,dates);
-    document.body.append(popup);
+    __f4.globals.document.body.append(popup);
     activeDetail={anchor,popup};
     anchor.setAttribute('aria-expanded','true');
     positionDetail();
     if (paid <= 0) return;
     getStatement(member.id).then(statement => {
       if (activeDetail?.popup !== popup) return;
-      const perDate=new Map();
+      const perDate=new __f4.globals.Map();
       for (const a of statement.allocations || []) {
-        if (a.period_year+'-'+String(a.period_month).padStart(2,'0') !== entry.period ||
-            a.payment_status !== 'aktif' || a.allocation_status !== 'aktif' || Number(a.amount_rp)<=0) continue;
-        perDate.set(a.paid_on,(perDate.get(a.paid_on)||0)+Number(a.amount_rp));
+        if (a.period_year+'-'+(0,__f4.globals.String)(a.period_month).padStart(2,'0') !== entry.period ||
+            a.payment_status !== 'aktif' || a.allocation_status !== 'aktif' || (0,__f4.globals.Number)(a.amount_rp)<=0) continue;
+        perDate.set(a.paid_on,(perDate.get(a.paid_on)||0)+(0,__f4.globals.Number)(a.amount_rp));
       }
       dateContents.replaceChildren();
       if (!perDate.size) dateContents.append(node('p','Tanggal transaksi belum tersedia di riwayat aktif.'));
@@ -173,13 +177,13 @@
       positionDetail();
     });
   }
-  document.addEventListener('pointerdown',event => {
+  __f4.globals.document.addEventListener('pointerdown',event => {
     if (activeDetail && !activeDetail.popup.contains(event.target) &&
         !activeDetail.anchor.contains(event.target)) closeDetail();
   });
-  document.addEventListener('keydown',event => {if (event.key==='Escape') closeDetail();});
-  window.addEventListener('scroll',closeDetail,true);
-  window.addEventListener('resize',closeDetail);
+  __f4.globals.document.addEventListener('keydown',event => {if (event.key==='Escape') closeDetail();});
+  __f4.window.addEventListener('scroll',closeDetail,true);
+  __f4.window.addEventListener('resize',closeDetail);
 
   function renderYear() {
     closeDetail();
@@ -198,8 +202,8 @@
       const name = node('strong',member.nama); name.append(node('small',member.rumah));row.append(name);
       for (const entry of member.years) {
         const paid = total(entry.paid), due = total(entry.due);
-        const balance = Object.entries(entry.due).reduce((sum,[type,amount]) =>
-          sum+Math.max(0,amount-(entry.paid[type]||0)),0);
+        const balance = __f4.globals.Object.entries(entry.due).reduce((sum,[type,amount]) =>
+          sum+__f4.globals.Math.max(0,amount-(entry.paid[type]||0)),0);
         const state = entry.period < yearModel.firstMonth && !paid ? 'archive' :
           !due ? (paid ? 'recorded' : 'exempt') : balance === 0 ? 'settled' : paid ? 'partial' :
           entry.period > yearModel.today ? 'future' : 'unpaid';
@@ -219,7 +223,7 @@
   }
 
   async function loadYear() {
-    yearRequest?.abort();const controller = new AbortController();yearRequest = controller;
+    yearRequest?.abort();const controller = new __f4.globals.AbortController();yearRequest = controller;
     yearModel = null;el('year-grid').replaceChildren();el('year-state').textContent = 'Memuat pembayaran setahun…';
     try {
       const year = el('year').value;
@@ -233,7 +237,7 @@
 
   async function load() {
     request?.abort();
-    const controller = new AbortController(); request = controller;
+    const controller = new __f4.globals.AbortController(); request = controller;
     const period = el('month').value, previousId = el('payer').value;
     model = null;
     el('content').hidden = true; el('retry').hidden = true; el('export').disabled = true;
@@ -245,15 +249,15 @@
       if (request !== controller) return;
       model = data;
       const payerOptions = data.records.map(r => {
-        const opt = new Option([r.nama,r.rumah,r.active?'':'Nonaktif'].filter(Boolean).join(' · '),r.id);
+        const opt = new __f4.globals.Option([r.nama,r.rumah,r.active?'':'Nonaktif'].filter(__f4.globals.Boolean).join(' · '),r.id);
         opt.dataset.residentName = r.nama || '';
         opt.dataset.residentHouse = r.rumah || '';
         return opt;
       });
-      el('payer').replaceChildren(new Option('Semua warga',''),...payerOptions);
+      el('payer').replaceChildren(new __f4.globals.Option('Semua warga',''),...payerOptions);
       el('payer').value = data.records.some(r => r.id === previousId) ? previousId : '';
       el('payer').disabled = false;
-      window.refreshAllCustomSelects?.();
+      __f4.window.refreshAllCustomSelects?.();
       el('state').textContent = period < data.firstMonth ? 'Periode ini mendahului riwayat iuran pertama.' : '';
       el('content').hidden = false; render();
     } catch(error) {
@@ -268,15 +272,15 @@
     exportInProgress = true; el('export').disabled = true; el('export-info').textContent = 'Menyiapkan Excel…';
     let note = '';
     try {
-      const [statement,writer] = await Promise.all([read('resident-statement',{payerId}),import('./resident-workbook.js?v=1')]);
-      if (statement.profile.id !== payerId) throw Error('Identitas warga pada unduhan tidak sesuai.');
+      const [statement,writer] = await __f4.globals.Promise.all([read('resident-statement',{payerId}),import('./resident-workbook.js?v=1')]);
+      if (statement.profile.id !== payerId) throw (0,__f4.globals.Error)('Identitas warga pada unduhan tidak sesuai.');
       if (periodAtClick !== request || el('payer').value !== payerId) return;
       const file = await writer.workbook(statement,names);
       if (periodAtClick !== request || el('payer').value !== payerId) return;
-      const url = URL.createObjectURL(file), link = document.createElement('a');
-      link.href = url; link.download = ('Iuran-' + [statement.profile.nama,statement.profile.rumah].filter(Boolean).join('-')).replace(/[^\p{L}\p{N}._-]+/gu,'-') + '.xlsx';
-      document.body.append(link); link.click(); link.remove();
-      setTimeout(() => URL.revokeObjectURL(url),60000);
+      const url = __f4.globals.URL.createObjectURL(file), link = __f4.globals.document.createElement('a');
+      link.href = url; link.download = ('Iuran-' + [statement.profile.nama,statement.profile.rumah].filter(__f4.globals.Boolean).join('-')).replace(/[^\p{L}\p{N}._-]+/gu,'-') + '.xlsx';
+      __f4.globals.document.body.append(link); link.click(); link.remove();
+      (0,__f4.globals.setTimeout)(() => __f4.globals.URL.revokeObjectURL(url),60000);
       note = 'File Excel untuk ' + statement.profile.nama + ' sudah disiapkan.';
     } catch(error) { note = 'Unduhan gagal. ' + error.message; }
     finally {
@@ -286,13 +290,15 @@
     }
   }
 
-  el('month').value = new Date(Date.now()+7*3600000).toISOString().slice(0,7);
-  const currentYear = Number(el('month').value.slice(0,4));
-  for (let year = currentYear; year >= 2026; year--) el('year').add(new Option(String(year),String(year)));
+  el('month').value = new __f4.globals.Date(__f4.globals.Date.now()+7*3600000).toISOString().slice(0,7);
+  const currentYear = (0,__f4.globals.Number)(el('month').value.slice(0,4));
+  for (let year = currentYear; year >= 2026; year--) el('year').add(new __f4.globals.Option((0,__f4.globals.String)(year),(0,__f4.globals.String)(year)));
   el('year').addEventListener('change',loadYear);
   el('month').addEventListener('change',load);
   el('retry').addEventListener('click',load);
   el('payer').addEventListener('change',render);
   el('export').addEventListener('click',download);
-  window.F4PaymentMonitor = {open:() => {load();loadYear();}};
+  __f4.window.F4PaymentMonitor = {open:() => {load();loadYear();}};
 })();
+
+});

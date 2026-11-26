@@ -520,7 +520,6 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   width:100%;max-width:100%;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
   border-top:1px solid #e8eceb;box-shadow:none;transform:none;visibility:visible;
-  view-transition-name:f4-mobile-dock;
  }
  #f4-direct-dock .f4-direct-dock-item{
   box-sizing:border-box;display:grid;grid-template-rows:32px 13px;align-content:center;justify-items:center;gap:2px;
@@ -548,13 +547,5 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  #f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}
  body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
  html.f4-bank-auth-pending body.f4-shared-dock #f4-bank-startup{bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
- body.f4-shared-dock #f4-direct-bar{view-transition-name:f4-mobile-header}
-}
-@media(max-width:1023px) and (prefers-reduced-motion:no-preference){
- @view-transition{navigation:auto}
- ::view-transition-group(root){animation-duration:140ms}
- ::view-transition-group(f4-mobile-dock),::view-transition-group(f4-mobile-header){animation:none}
- ::view-transition-old(f4-mobile-dock),::view-transition-old(f4-mobile-header){animation:none;opacity:0}
- ::view-transition-new(f4-mobile-dock),::view-transition-new(f4-mobile-header){animation:none;opacity:1}
 }
 @media print{#f4-direct-dock{display:none}}

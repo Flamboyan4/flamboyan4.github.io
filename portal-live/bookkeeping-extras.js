@@ -1,87 +1,91 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bookkeeping-extras.js",function(__f4){
+
+
 /* Flamboyan 4 Pembukuan — compact unpaid view and personal JPG receipts.
    Read only. Uses the existing D1 suggested-period API; never alters accounting.
    No total is inferred from the number of transactions. */
 (()=>{
  'use strict';
- if(window.F4BookExtras)return;
+ if(__f4.window.F4BookExtras)return;
  const api='https://api.flamboyan4.web.id/api/bookkeeping/iuran/suggested-period';
  const outstandingApi='https://api.flamboyan4.web.id/api/bookkeeping/iuran/outstanding';
- const p2=n=>String(n).padStart(2,'0');
- const money=v=>'Rp '+Math.round(Number(v)||0).toLocaleString('id-ID');
+ const p2=n=>(0,__f4.globals.String)(n).padStart(2,'0');
+ const money=v=>'Rp '+__f4.globals.Math.round((0,__f4.globals.Number)(v)||0).toLocaleString('id-ID');
  const months=['','Januari','Februari','Maret','April','Mei','Juni',
   'Juli','Agustus','September','Oktober','November','Desember'];
  const formatMonth=value=>{
-  const m=/^(20\d{2})-(0[1-9]|1[0-2])/.exec(String(value||''));
-  return m?months[Number(m[2])]+' '+m[1]:String(value||'-');
+  const m=/^(20\d{2})-(0[1-9]|1[0-2])/.exec((0,__f4.globals.String)(value||''));
+  return m?months[(0,__f4.globals.Number)(m[2])]+' '+m[1]:(0,__f4.globals.String)(value||'-');
  };
- const shortName=str=>String(str||'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,42)||'Warga';
- const printName=x=>typeof window.F4NamaCetak==='function'?window.F4NamaCetak(x):String(x?.nama||x?.namaWarga||'-');
- const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
- const residents=()=>typeof DATA==='undefined'?[]:(DATA.warga||[]).filter(w=>
-  ['ya','aktif'].includes(String(w.statusAktif||'').toLowerCase())&&
-  ['qtyIuranBulanan','qtyKebersihan','qtyKasLorong','qtyArisan'].some(k=>Number(w[k]||0)>0));
- const payments=()=>typeof DATA==='undefined'?[]:(DATA.riwayat||[]).filter(r=>String(r.status||'').toUpperCase()==='AKTIF');
- const resident=id=>residents().find(w=>String(w.idWarga)===String(id));
- const feedback=msg=>{if(typeof riwayatMsg==='function')riwayatMsg(msg,'error');else alert(msg);};
+ const shortName=str=>(0,__f4.globals.String)(str||'').replace(/[^a-z0-9]+/gi,'-').replace(/^-|-$/g,'').slice(0,42)||'Warga';
+ const printName=x=>typeof __f4.window.F4NamaCetak==='function'?__f4.window.F4NamaCetak(x):(0,__f4.globals.String)(x?.nama||x?.namaWarga||'-');
+ const escapeHtml=value=>(0,__f4.globals.String)(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const residents=()=>typeof __f4.globals.DATA==='undefined'?[]:(__f4.globals.DATA.warga||[]).filter(w=>
+  ['ya','aktif'].includes((0,__f4.globals.String)(w.statusAktif||'').toLowerCase())&&
+  ['qtyIuranBulanan','qtyKebersihan','qtyKasLorong','qtyArisan'].some(k=>(0,__f4.globals.Number)(w[k]||0)>0));
+ const payments=()=>typeof __f4.globals.DATA==='undefined'?[]:(__f4.globals.DATA.riwayat||[]).filter(r=>(0,__f4.globals.String)(r.status||'').toUpperCase()==='AKTIF');
+ const resident=id=>residents().find(w=>(0,__f4.globals.String)(w.idWarga)===(0,__f4.globals.String)(id));
+ const feedback=msg=>{if(typeof __f4.globals.riwayatMsg==='function')(0,__f4.globals.riwayatMsg)(msg,'error');else (0,__f4.globals.alert)(msg);};
  let requestId=0,controller=null,receiptBlob=null,receiptUrl='',receiptName='',openList=false;
  let unpaidPreviousOverflow='';
- const list=()=>document.getElementById('f4-book-unpaid-list');
- const toggleButton=()=>document.getElementById('f4-book-unpaid-toggle');
- function setList(html){const e=document.getElementById('f4-book-unpaid-content');if(e)e.innerHTML=html;}
+ const list=()=>__f4.globals.document.getElementById('f4-book-unpaid-list');
+ const toggleButton=()=>__f4.globals.document.getElementById('f4-book-unpaid-toggle');
+ function setList(html){const e=__f4.globals.document.getElementById('f4-book-unpaid-content');if(e)e.innerHTML=html;}
  function reset(){
   requestId++;
   if(controller){controller.abort();controller=null;}
-  if(openList)document.body.style.overflow=unpaidPreviousOverflow;
+  if(openList)__f4.globals.document.body.style.overflow=unpaidPreviousOverflow;
   openList=false;
   const e=list();if(e)e.hidden=true;
   const b=toggleButton();if(b)b.setAttribute('aria-expanded','false');
  }
  function closeUnpaid(){reset();}
  async function suggested(payerId,signal){
-  const url=api+'?'+new URLSearchParams({payerId:String(payerId)});
-  const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
+  const url=api+'?'+new __f4.globals.URLSearchParams({payerId:(0,__f4.globals.String)(payerId)});
+  const res=await (0,__f4.globals.fetch)(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
   const data=await res.json().catch(()=>null);
-  if(!res.ok||data?.ok!==true)throw new Error(data?.error||'Gagal memeriksa kewajiban (HTTP '+res.status+')');
-  const m=/^(20\d{2})-(0[1-9]|1[0-2])(?:-01)?$/.exec(String(data.period||''));
-  return {period:m?m[1]+'-'+m[2]:'',remaining:Number(data.remainingRp),lastLunas:String(data.lastLunas||'')};
+  if(!res.ok||data?.ok!==true)throw new __f4.globals.Error(data?.error||'Gagal memeriksa kewajiban (HTTP '+res.status+')');
+  const m=/^(20\d{2})-(0[1-9]|1[0-2])(?:-01)?$/.exec((0,__f4.globals.String)(data.period||''));
+  return {period:m?m[1]+'-'+m[2]:'',remaining:(0,__f4.globals.Number)(data.remainingRp),lastLunas:(0,__f4.globals.String)(data.lastLunas||'')};
  }
  async function outstanding(payerId,period,signal){
-  const m=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec(String(period||''));
-  if(!m)throw Error('Bulan pemeriksaan tidak valid');
-  const url=outstandingApi+'?'+new URLSearchParams({
-   payerId:String(payerId),year:m[1],month:String(Number(m[2]))
+  const m=/^(20\d{2})-(0[1-9]|1[0-2])$/.exec((0,__f4.globals.String)(period||''));
+  if(!m)throw (0,__f4.globals.Error)('Bulan pemeriksaan tidak valid');
+  const url=outstandingApi+'?'+new __f4.globals.URLSearchParams({
+   payerId:(0,__f4.globals.String)(payerId),year:m[1],month:(0,__f4.globals.String)((0,__f4.globals.Number)(m[2]))
   });
-  const res=await fetch(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
+  const res=await (0,__f4.globals.fetch)(url,{credentials:'include',mode:'cors',cache:'no-store',signal});
   const data=await res.json().catch(()=>null);
-  if(!res.ok||!data||data.ok===false||!Array.isArray(data.komponen))
-   throw Error(data?.error||'Gagal memeriksa kewajiban bulan (HTTP '+res.status+')');
+  if(!res.ok||!data||data.ok===false||!__f4.globals.Array.isArray(data.komponen))
+   throw (0,__f4.globals.Error)(data?.error||'Gagal memeriksa kewajiban bulan (HTTP '+res.status+')');
   let total=0;
   for(const item of data.komponen){
-   const value=Number(item.sisaRp);
-   if(!Number.isFinite(value)||value<0)throw Error('Nominal kewajiban tidak valid');
+   const value=(0,__f4.globals.Number)(item.sisaRp);
+   if(!__f4.globals.Number.isFinite(value)||value<0)throw (0,__f4.globals.Error)('Nominal kewajiban tidak valid');
    total+=value;
   }
   return total;
  }
  function receivedAt(id,period){
-  return payments().filter(r=>String(r.idWarga)===String(id)).some(r=>{
-   const allocated=(Array.isArray(r.alokasi)?r.alokasi:[]).some(a=>
-    String(a.status||'aktif').toLowerCase()==='aktif' &&
-    String(a.tahun)+'-'+p2(a.bulan)===period&&Number(a.nominal??a.jumlahRp??0)>0);
+  return payments().filter(r=>(0,__f4.globals.String)(r.idWarga)===(0,__f4.globals.String)(id)).some(r=>{
+   const allocated=(__f4.globals.Array.isArray(r.alokasi)?r.alokasi:[]).some(a=>
+    (0,__f4.globals.String)(a.status||'aktif').toLowerCase()==='aktif' &&
+    (0,__f4.globals.String)(a.tahun)+'-'+p2(a.bulan)===period&&(0,__f4.globals.Number)(a.nominal??a.jumlahRp??0)>0);
    if(allocated)return true;
-   if(Array.isArray(r.alokasi)&&r.alokasi.length)return false;
-   return (typeof paymentMonthKeys==='function'?paymentMonthKeys(r):[]).includes(period)
-    &&Number(r.totalDiterima||0)>0;
+   if(__f4.globals.Array.isArray(r.alokasi)&&r.alokasi.length)return false;
+   return (typeof __f4.globals.paymentMonthKeys==='function'?(0,__f4.globals.paymentMonthKeys)(r):[]).includes(period)
+    &&(0,__f4.globals.Number)(r.totalDiterima||0)>0;
   });
  }
  function currentPeriod(){
-  const s=window.UPR?.state?.('history-iuran');
+  const s=__f4.window.UPR?.state?.('history-iuran');
   if(s){
    if(s.level!=='month'||s.from!==s.to)return null;
-   return /^\d{4}-(0[1-9]|1[0-2])$/.test(String(s.from))?s.from:null;
+   return /^\d{4}-(0[1-9]|1[0-2])$/.test((0,__f4.globals.String)(s.from))?s.from:null;
   }
-  const v=document.getElementById('riwayat-period-month')?.value;
-  return /^\d{4}-(0[1-9]|1[0-2])$/.test(String(v||''))?v:null;
+  const v=__f4.globals.document.getElementById('riwayat-period-month')?.value;
+  return /^\d{4}-(0[1-9]|1[0-2])$/.test((0,__f4.globals.String)(v||''))?v:null;
  }
  async function toggleUnpaid(){
   const box=list(),btn=toggleButton();
@@ -89,8 +93,8 @@
   if(openList){reset();return;}
   const target=currentPeriod();
   box.hidden=false;openList=true;btn.setAttribute('aria-expanded','true');
-  unpaidPreviousOverflow=document.body.style.overflow;
-  document.body.style.overflow='hidden';
+  unpaidPreviousOverflow=__f4.globals.document.body.style.overflow;
+  __f4.globals.document.body.style.overflow='hidden';
   if(!target){
    setList('<div class="f4-unpaid-feedback">Pilih satu bulan pada filter Riwayat Iuran untuk melihat warga yang belum lunas sampai bulan tersebut.</div>');
    return;
@@ -100,8 +104,8 @@
    setList('<div class="f4-unpaid-feedback">Tidak ada warga wajib bayar yang aktif pada data acuan.</div>');
    return;
   }
-  const ticket=++requestId,abort=new AbortController();controller=abort;
-  const header=document.getElementById('f4-book-unpaid-label');
+  const ticket=++requestId,abort=new __f4.globals.AbortController();controller=abort;
+  const header=__f4.globals.document.getElementById('f4-book-unpaid-label');
   if(header)header.textContent='Kewajiban '+formatMonth(target);
   setList('<div class="f4-unpaid-feedback">Memeriksa kewajiban warga… 0/'+eligible.length+'</div>');
   const pending=[],errors=[];
@@ -115,18 +119,18 @@
        partial:receivedAt(w.idWarga,target)});
     }catch(e){
      if(e.name==='AbortError')return;
-     errors.push(String(w.nama||w.idWarga));
+     errors.push((0,__f4.globals.String)(w.nama||w.idWarga));
     }
     done++;
     if(ticket===requestId&&done<eligible.length)
      setList('<div class="f4-unpaid-feedback">Memeriksa kewajiban warga… '+done+'/'+eligible.length+'</div>');
    }
   };
-  await Promise.all(Array.from({length:Math.min(4,eligible.length)},work));
+  await __f4.globals.Promise.all(__f4.globals.Array.from({length:__f4.globals.Math.min(4,eligible.length)},work));
   if(ticket!==requestId)return;
   controller=null;
   pending.sort((a,b)=>{
-   const k=x=>String(x.w.blok||'')+'/'+String(x.w.noRumah||'');
+   const k=x=>(0,__f4.globals.String)(x.w.blok||'')+'/'+(0,__f4.globals.String)(x.w.noRumah||'');
    return k(a).localeCompare(k(b),'id',{numeric:true});
   });
   if(!pending.length&&!errors.length){
@@ -135,7 +139,7 @@
   }
   const note='<div class="f4-unpaid-feedback">Nominal sisa berasal dari kewajiban '+escapeHtml(formatMonth(target))+', sesuai perhitungan Input Iuran.</div>';
   const rows=pending.map(item=>{
-   const w=item.w,home=[w.blok,w.noRumah].filter(Boolean).join('/');
+   const w=item.w,home=[w.blok,w.noRumah].filter(__f4.globals.Boolean).join('/');
    return '<div class="f4-unpaid-row"><div><div class="f4-unpaid-name">'+escapeHtml(w.nama||'-')+
     '<span class="f4-unpaid-home">'+escapeHtml(home)+'</span></div><small>Periode '+escapeHtml(formatMonth(item.period))+
     '</small></div><div class="f4-unpaid-due"><strong>'+money(item.amount)+'</strong><span>'+
@@ -148,8 +152,8 @@
    (errors.length?' (daftar belum lengkap)':'')+'.</div>'+rows+note+failed);
  }
  function prepareModal(){
-  if(document.getElementById('f4-book-receipt-modal'))return;
-  const root=document.createElement('div');
+  if(__f4.globals.document.getElementById('f4-book-receipt-modal'))return;
+  const root=__f4.globals.document.createElement('div');
   root.id='f4-book-receipt-modal';
   root.className='f4-ui-dialog f4-book-receipt-overlay';
   root.hidden=true;
@@ -166,36 +170,36 @@
   root.querySelector('.f4-book-receipt-close').addEventListener('click',closeReceipt);
   root.querySelector('#f4-book-receipt-download').addEventListener('click',download);
   root.querySelector('#f4-book-receipt-share').addEventListener('click',share);
-  document.body.appendChild(root);
+  __f4.globals.document.body.appendChild(root);
  }
  function closeReceipt(){
-  const modal=document.getElementById('f4-book-receipt-modal');
+  const modal=__f4.globals.document.getElementById('f4-book-receipt-modal');
   if(modal)modal.hidden=true;
-  document.body.style.overflow=modal?.dataset.previousOverflow||'';
-  if(receiptUrl){URL.revokeObjectURL(receiptUrl);receiptUrl='';}
+  __f4.globals.document.body.style.overflow=modal?.dataset.previousOverflow||'';
+  if(receiptUrl){__f4.globals.URL.revokeObjectURL(receiptUrl);receiptUrl='';}
   receiptBlob=null;
  }
  function download(){
   if(!receiptBlob||!receiptUrl)return;
-  const a=document.createElement('a');
+  const a=__f4.globals.document.createElement('a');
   a.href=receiptUrl;a.download=receiptName;
-  document.body.appendChild(a);a.click();a.remove();
+  __f4.globals.document.body.appendChild(a);a.click();a.remove();
  }
  async function share(){
   if(!receiptBlob)return;
-  const file=new File([receiptBlob],receiptName,{type:'image/jpeg'});
-  if(navigator.share&&navigator.canShare?.({files:[file]})){
-   try{await navigator.share({files:[file],title:'Bukti Pembayaran Flamboyan 4'});return;}
+  const file=new __f4.globals.File([receiptBlob],receiptName,{type:'image/jpeg'});
+  if(__f4.globals.navigator.share&&__f4.globals.navigator.canShare?.({files:[file]})){
+   try{await __f4.globals.navigator.share({files:[file],title:'Bukti Pembayaran Flamboyan 4'});return;}
    catch(e){if(e.name==='AbortError')return;}
   }
   download();
-  alert('Resi JPG sudah disimpan. Lampirkan file tersebut pada chat WhatsApp warga.');
+  (0,__f4.globals.alert)('Resi JPG sudah disimpan. Lampirkan file tersebut pada chat WhatsApp warga.');
  }
  function line(ctx,x1,y1,x2,y2,color='#e8e1f4'){
   ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
  }
  function block(ctx,x,y,w,h,r,fill){
-  const radius=Math.min(r,w/2,h/2);
+  const radius=__f4.globals.Math.min(r,w/2,h/2);
   ctx.fillStyle=fill;ctx.beginPath();
   ctx.moveTo(x+radius,y);ctx.lineTo(x+w-radius,y);ctx.quadraticCurveTo(x+w,y,x+w,y+radius);
   ctx.lineTo(x+w,y+h-radius);ctx.quadraticCurveTo(x+w,y+h,x+w-radius,y+h);
@@ -208,12 +212,12 @@
    KAS_LORONG:'Kas Lorong',ARISAN:'Arisan',DENDA:'Denda',
    DENDA_GOROL:'Denda Gorol'
   };
-  const sums=new Map();
-  for(const a of Array.isArray(x.alokasi)?x.alokasi:[]){
-   if(String(a.status||'aktif').toLowerCase()!=='aktif')continue;
-   const key=String(a.jenis||'').toUpperCase();
-   const amount=Number(a.nominal??a.jumlahRp??0);
-   if(!labels[key]||!Number.isFinite(amount)||amount<=0)continue;
+  const sums=new __f4.globals.Map();
+  for(const a of __f4.globals.Array.isArray(x.alokasi)?x.alokasi:[]){
+   if((0,__f4.globals.String)(a.status||'aktif').toLowerCase()!=='aktif')continue;
+   const key=(0,__f4.globals.String)(a.jenis||'').toUpperCase();
+   const amount=(0,__f4.globals.Number)(a.nominal??a.jumlahRp??0);
+   if(!labels[key]||!__f4.globals.Number.isFinite(amount)||amount<=0)continue;
    sums.set(key,(sums.get(key)||0)+amount);
   }
   return [...sums].map(([key,v])=>({label:labels[key],amount:v}));
@@ -221,14 +225,14 @@
  function buildReceipt(x,info,check){
   // Flamboyan 4 original purple mobile-banking-style paper receipt (JPG).
   // Canvas is measured first so long names, periods and transaction IDs are never cut off.
-  const canvas=document.createElement('canvas');
+  const canvas=__f4.globals.document.createElement('canvas');
   const ctx=canvas.getContext('2d');
-  if(!ctx)throw Error('Canvas untuk resi tidak tersedia pada browser.');
+  if(!ctx)throw (0,__f4.globals.Error)('Canvas untuk resi tidak tersedia pada browser.');
   const W=900,X=86,R=814,contentWidth=R-X;
   const ink='#201735',secondary='#605a71',purple='#5b21b6',muted='#6d28d9';
-  function font(size,weight=500){return String(weight)+' '+size+'px system-ui,Arial,sans-serif';}
+  function font(size,weight=500){return (0,__f4.globals.String)(weight)+' '+size+'px system-ui,Arial,sans-serif';}
   function wrap(value,width,size,weight=500){
-   const str=String(value==null||value===''?'-':value).replace(/\s+/g,' ').trim();
+   const str=(0,__f4.globals.String)(value==null||value===''?'-':value).replace(/\s+/g,' ').trim();
    ctx.font=font(size,weight);
    const words=str.split(' '),out=[];let current='';
    for(let word of words){
@@ -245,36 +249,36 @@
    if(current)out.push(current);
    return out.length?out:['-'];
   }
-  const monthKeys=typeof paymentMonthKeys==='function'?paymentMonthKeys(x):[];
+  const monthKeys=typeof __f4.globals.paymentMonthKeys==='function'?(0,__f4.globals.paymentMonthKeys)(x):[];
   const periodLabel=monthKeys.length
    ?monthKeys.map(formatMonth).join(', ')
-   :(Array.isArray(x.periode)?x.periode.join(', '):String(x.periode||'-'));
+   :(__f4.globals.Array.isArray(x.periode)?x.periode.join(', '):(0,__f4.globals.String)(x.periode||'-'));
   const rows=[
    ['Nama warga',printName({...x,nama:info.warga?.nama||x.nama})],
    ['Nomor rumah',info.rumah||'-'],
-   ['Tanggal bayar',typeof histDate==='function'?histDate(x.tanggal):String(x.tanggal||'-')],
+   ['Tanggal bayar',typeof __f4.globals.histDate==='function'?(0,__f4.globals.histDate)(x.tanggal):(0,__f4.globals.String)(x.tanggal||'-')],
    ['Metode bayar',x.metode||'-'],
    ['Periode',periodLabel]
   ].map(([label,value])=>({label,lines:wrap(value,438,29,700)}));
   const items=itemized(x).map(item=>({amount:item.amount,lines:wrap(item.label,460,29,550)}));
-  const status=String(check.status||'PERLU CEK').toUpperCase();
-  const shortage=status==='KURANG BAYAR'&&Number.isFinite(check.remaining)&&check.remaining>0;
+  const status=(0,__f4.globals.String)(check.status||'PERLU CEK').toUpperCase();
+  const shortage=status==='KURANG BAYAR'&&__f4.globals.Number.isFinite(check.remaining)&&check.remaining>0;
   const statusLabel=status==='LUNAS'?'LUNAS':status==='KURANG BAYAR'?'KURANG BAYAR':'PERLU CEK';
-  const identifier=String(x.idPembayaran||'-');
+  const identifier=(0,__f4.globals.String)(x.idPembayaran||'-');
   const idLines=wrap(identifier,contentWidth-40,24,650);
-  const made=new Intl.DateTimeFormat('id-ID',{
+  const made=new __f4.globals.Intl.DateTimeFormat('id-ID',{
    day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',
    timeZone:'Asia/Jakarta'
-  }).format(new Date())+' WIB';
+  }).format(new __f4.globals.Date())+' WIB';
   const moneyValue=money(x.totalDiterima);
   // Compute all heights before painting, avoiding a fixed bottom gap.
   const top=28,headerY=53,headerH=278,amountY=365,detailsHeaderY=545;
   let y=584;
-  for(const row of rows){row.y=y;y+=Math.max(62,26+row.lines.length*38);}
+  for(const row of rows){row.y=y;y+=__f4.globals.Math.max(62,26+row.lines.length*38);}
   const detailsEnd=y+10,itemsHeaderY=detailsEnd+36;
   y=itemsHeaderY+39;
   if(items.length){
-   for(const item of items){item.y=y;y+=Math.max(57,25+item.lines.length*36);}
+   for(const item of items){item.y=y;y+=__f4.globals.Math.max(57,25+item.lines.length*36);}
   }else{
    y+=63;
   }
@@ -283,10 +287,10 @@
   const metaHeight=70+idLines.length*34+55;
   const footerY=metaY+metaHeight+16;
   const paperBottom=footerY+140;
-  const H=Math.ceil(paperBottom+28);
+  const H=__f4.globals.Math.ceil(paperBottom+28);
   canvas.width=W;canvas.height=H;
   const c=canvas.getContext('2d');
-  if(!c)throw Error('Gagal menggambar resi JPG.');
+  if(!c)throw (0,__f4.globals.Error)('Gagal menggambar resi JPG.');
   c.fillStyle='#f2ecff';c.fillRect(0,0,W,H);
   // Tiket: semicircular punch-outs along the top/bottom, one notch at
   // the middle of each straight side. All cutouts belong to one path;
@@ -294,9 +298,9 @@
   {
    const left=34,right=866,upper=top+3,lower=paperBottom-6;
    const corner=11,topRadius=10,notchRadius=22;
-   const notchY=Math.max(upper+60,Math.min(lower-60,detailsEnd+2));
+   const notchY=__f4.globals.Math.max(upper+60,__f4.globals.Math.min(lower-60,detailsEnd+2));
    const width=right-left-corner*2;
-   const count=Math.max(12,Math.round(width/31));
+   const count=__f4.globals.Math.max(12,__f4.globals.Math.round(width/31));
    const step=width/count;
    c.save();
    c.fillStyle='#ffffff';
@@ -309,26 +313,26 @@
     const x0=left+corner+i*step;
     const cx=x0+step/2;
     c.lineTo(cx-topRadius,upper);
-    c.arc(cx,upper,topRadius,Math.PI,0,true);
+    c.arc(cx,upper,topRadius,__f4.globals.Math.PI,0,true);
    }
    c.lineTo(right-corner,upper);
    c.quadraticCurveTo(right,upper,right,upper+corner);
    // Right side stays straight except the single round ticket notch.
    c.lineTo(right,notchY-notchRadius);
-   c.arc(right,notchY,notchRadius,-Math.PI/2,Math.PI/2,true);
+   c.arc(right,notchY,notchRadius,-__f4.globals.Math.PI/2,__f4.globals.Math.PI/2,true);
    c.lineTo(right,lower-corner);
    c.quadraticCurveTo(right,lower,right-corner,lower);
    for(let i=count-1;i>=0;i--){
     const x0=left+corner+i*step;
     const cx=x0+step/2;
     c.lineTo(cx+topRadius,lower);
-    c.arc(cx,lower,topRadius,0,Math.PI,true);
+    c.arc(cx,lower,topRadius,0,__f4.globals.Math.PI,true);
    }
    c.lineTo(left+corner,lower);
    c.quadraticCurveTo(left,lower,left,lower-corner);
    // Left counterpart is aligned with the separator in the receipt.
    c.lineTo(left,notchY+notchRadius);
-   c.arc(left,notchY,notchRadius,Math.PI/2,-Math.PI/2,true);
+   c.arc(left,notchY,notchRadius,__f4.globals.Math.PI/2,-__f4.globals.Math.PI/2,true);
    c.lineTo(left,upper+corner);
    c.quadraticCurveTo(left,upper,left+corner,upper);
    c.closePath();
@@ -338,12 +342,12 @@
   // Branded purple header, independently designed for Flamboyan 4.
   block(c,51,headerY,798,headerH,17,purple);
   c.fillStyle='rgba(255,255,255,.07)';
-  c.beginPath();c.arc(805,85,115,0,Math.PI*2);c.fill();
-  c.beginPath();c.arc(84,330,110,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(805,85,115,0,__f4.globals.Math.PI*2);c.fill();
+  c.beginPath();c.arc(84,330,110,0,__f4.globals.Math.PI*2);c.fill();
   c.textAlign='center';
   c.fillStyle='#f4ecff';c.font=font(29,800);c.fillText('FLAMBOYAN 4',W/2,106);
   // Confirmation mark in a circle: a distinct non-bank mark.
-  c.fillStyle='#ffffff';c.beginPath();c.arc(W/2,178,42,0,Math.PI*2);c.fill();
+  c.fillStyle='#ffffff';c.beginPath();c.arc(W/2,178,42,0,__f4.globals.Math.PI*2);c.fill();
   c.strokeStyle=purple;c.lineWidth=8;c.lineCap='round';c.lineJoin='round';
   c.beginPath();c.moveTo(W/2-18,178);c.lineTo(W/2-3,192);c.lineTo(W/2+22,164);c.stroke();
   c.fillStyle='#ffffff';c.font=font(44,800);c.fillText('Pembayaran Berhasil',W/2,266,710);
@@ -403,42 +407,42 @@
   return canvas;
  }
  async function receipt(id){
-  const x=payments().find(r=>String(r.idPembayaran)===String(id));
+  const x=payments().find(r=>(0,__f4.globals.String)(r.idPembayaran)===(0,__f4.globals.String)(id));
   if(!x){feedback('Resi hanya dapat dibuat untuk transaksi aktif yang masih tercatat.');return;}
-  const payer=String(x.idWarga||'');
+  const payer=(0,__f4.globals.String)(x.idWarga||'');
   if(!payer){feedback('ID warga transaksi tidak tersedia untuk memeriksa status.');return;}
   try{
    const data=await suggested(payer);
-   const keys=typeof paymentMonthKeys==='function'?paymentMonthKeys(x):[];
+   const keys=typeof __f4.globals.paymentMonthKeys==='function'?(0,__f4.globals.paymentMonthKeys)(x):[];
    const latest=keys.sort().at(-1)||'';
    let status='PERLU CEK';
    if(data.period&&latest)status=data.period<=latest?'KURANG BAYAR':'LUNAS';
    // A partial Kas Lorong allocation remains a shortage in its original payment,
    // even if another transaction was made later.
-   if(Number(x.kekuranganKasLorong||0)>0&&status==='LUNAS'){
+   if((0,__f4.globals.Number)(x.kekuranganKasLorong||0)>0&&status==='LUNAS'){
     // Current obligation is paid; the receipt uses current status, not historical status.
    }
-   const info=typeof riwayatResidentInfo==='function'?riwayatResidentInfo(x):{warga:resident(payer),rumah:''};
+   const info=typeof __f4.globals.riwayatResidentInfo==='function'?(0,__f4.globals.riwayatResidentInfo)(x):{warga:resident(payer),rumah:''};
    const canvas=buildReceipt(x,info,{status,period:data.period,remaining:data.remaining});
-   const blob=await new Promise((resolve,reject)=>canvas.toBlob(
-    b=>b?resolve(b):reject(Error('Gagal mengubah resi menjadi JPG.')),'image/jpeg',.94));
+   const blob=await new __f4.globals.Promise((resolve,reject)=>canvas.toBlob(
+    b=>b?resolve(b):reject((0,__f4.globals.Error)('Gagal mengubah resi menjadi JPG.')),'image/jpeg',.94));
    prepareModal();
    closeReceipt();
    receiptBlob=blob;
    receiptName='Resi-Flamboyan4-'+shortName(printName({...x,nama:info.warga?.nama||x.nama}))+'-'+shortName(x.idPembayaran)+'.jpg';
-   receiptUrl=URL.createObjectURL(blob);
-   const modal=document.getElementById('f4-book-receipt-modal');
-   modal.dataset.previousOverflow=document.body.style.overflow||'';
+   receiptUrl=__f4.globals.URL.createObjectURL(blob);
+   const modal=__f4.globals.document.getElementById('f4-book-receipt-modal');
+   modal.dataset.previousOverflow=__f4.globals.document.body.style.overflow||'';
    modal.querySelector('#f4-book-receipt-image').src=receiptUrl;
    modal.hidden=false;
-   document.body.style.overflow='hidden';
-  }catch(e){feedback('Resi belum dapat dibuat: '+(e.message||String(e)));}
+   __f4.globals.document.body.style.overflow='hidden';
+  }catch(e){feedback('Resi belum dapat dibuat: '+(e.message||(0,__f4.globals.String)(e)));}
  }
  function mount(){
   prepareModal();
-  const host=document.querySelector('#history-iuran-panel .iuran-quick-head');
-  if(!host||document.getElementById('f4-book-unpaid-toggle'))return;
-  const btn=document.createElement('button');
+  const host=__f4.globals.document.querySelector('#history-iuran-panel .iuran-quick-head');
+  if(!host||__f4.globals.document.getElementById('f4-book-unpaid-toggle'))return;
+  const btn=__f4.globals.document.createElement('button');
   btn.id='f4-book-unpaid-toggle';btn.type='button';
   btn.className='f4-unpaid-trigger';
   btn.setAttribute('aria-expanded','false');
@@ -446,7 +450,7 @@
   btn.innerHTML='<i data-lucide="users-round"></i><span>Belum lunas</span>';
   btn.addEventListener('click',toggleUnpaid);
   host.querySelector('.iuran-quick-note')?.replaceWith(btn);
-  const box=document.createElement('div');
+  const box=__f4.globals.document.createElement('div');
   box.id='f4-book-unpaid-list';box.className='f4-ui-dialog f4-unpaid-overlay';box.hidden=true;
   box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
   box.setAttribute('aria-labelledby','f4-book-unpaid-heading');
@@ -458,16 +462,17 @@
    '</div><div id="f4-book-unpaid-content" class="f4-unpaid-list-content"></div></section>';
   box.addEventListener('click',event=>{if(event.target===box)closeUnpaid()});
   box.querySelector('.f4-unpaid-close').addEventListener('click',closeUnpaid);
-  document.body.appendChild(box);
-  try{window.lucide?.createIcons?.()}catch(e){}
-  document.addEventListener('keydown',e=>{
+  __f4.globals.document.body.appendChild(box);
+  try{__f4.window.lucide?.createIcons?.()}catch(e){}
+  __f4.globals.document.addEventListener('keydown',e=>{
    if(e.key==='Escape'){
-    if(!document.getElementById('f4-book-receipt-modal')?.hidden)closeReceipt();
+    if(!__f4.globals.document.getElementById('f4-book-receipt-modal')?.hidden)closeReceipt();
     else if(openList)closeUnpaid();
    }
   });
  }
- window.F4BookExtras={toggleUnpaid,receipt,reset,closeUnpaid,closeReceipt};
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
+ __f4.window.F4BookExtras={toggleUnpaid,receipt,reset,closeUnpaid,closeReceipt};
+ if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',mount,{once:true});
  else mount();
 })();
+});

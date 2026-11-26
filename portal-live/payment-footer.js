@@ -1,27 +1,31 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
+
+
 /* Portal Utama: copy bank account numbers from inline desktop footer or mobile sheet.
    Opening/closing uses the existing global modal stack for Back and Escape. */
 (()=>{
  'use strict';
- const root=document.getElementById('modal-rekening');
+ const root=__f4.globals.document.getElementById('modal-rekening');
  if(!root)return;
  const status=root.querySelector('#f4-account-copy-status');
- const timers=new WeakMap();
+ const timers=new __f4.globals.WeakMap();
  async function copyNumber(value){
-   if(navigator.clipboard?.writeText){
-     try{await navigator.clipboard.writeText(value);return true;}catch{}
+   if(__f4.globals.navigator.clipboard?.writeText){
+     try{await __f4.globals.navigator.clipboard.writeText(value);return true;}catch{}
    }
-   const el=document.createElement('textarea');
+   const el=__f4.globals.document.createElement('textarea');
    el.value=value;
    el.setAttribute('readonly','');
    el.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';
-   document.body.appendChild(el);
+   __f4.globals.document.body.appendChild(el);
    el.select();
    let ok=false;
-   try{ok=document.execCommand('copy');}catch{}
+   try{ok=__f4.globals.document.execCommand('copy');}catch{}
    el.remove();
    return ok;
  }
- document.addEventListener('click',async event=>{
+ __f4.globals.document.addEventListener('click',async event=>{
    const button=event.target.closest?.('[data-account-copy]');
    if(!button||!button.closest('#modal-rekening,footer#pembayaran'))return;
    const inSheet=root.contains(button);
@@ -33,11 +37,11 @@
    try{ok=await copyNumber(number)}finally{button.disabled=false;}
    if(inSheet&&(!root.isConnected||root.classList.contains('hidden')))return;
    const oldTimer=timers.get(button);
-   if(oldTimer)clearTimeout(oldTimer);
+   if(oldTimer)(0,__f4.globals.clearTimeout)(oldTimer);
    if(label)label.textContent=ok?'Tersalin':'Salin';
-   button.dataset.copied=String(ok);
+   button.dataset.copied=(0,__f4.globals.String)(ok);
    if(status&&inSheet)status.textContent=ok?'Nomor rekening berhasil disalin.':'Gagal menyalin. Tekan lama nomor rekening untuk menyalin.';
-   const timer=setTimeout(()=>{
+   const timer=(0,__f4.globals.setTimeout)(()=>{
      if(label)label.textContent='Salin';
      delete button.dataset.copied;
      if(status&&inSheet)status.textContent='';
@@ -46,3 +50,5 @@
    timers.set(button,timer);
  });
 })();
+
+});

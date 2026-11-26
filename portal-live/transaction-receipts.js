@@ -1,13 +1,17 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__f4){
+
+
 /* Flamboyan 4 — reusable JPG receipt preview, download and share.
  * Presentation only: never changes ledgers or marks an unfinished transaction paid.
  * Call only with a validated, active record from an authenticated D1 history view. */
 (()=>{
  'use strict';
- if(window.F4TransactionReceipt)return;
+ if(__f4.window.F4TransactionReceipt)return;
  let blob=null,url='',filename='',priorOverflow='';
- const p=n=>String(n||'').padStart(2,'0');
- const money=n=>'Rp '+Math.round(Number(n)||0).toLocaleString('id-ID');
- const text=v=>String(v==null||v===''?'-':v).replace(/\s+/g,' ').trim();
+ const p=n=>(0,__f4.globals.String)(n||'').padStart(2,'0');
+ const money=n=>'Rp '+__f4.globals.Math.round((0,__f4.globals.Number)(n)||0).toLocaleString('id-ID');
+ const text=v=>(0,__f4.globals.String)(v==null||v===''?'-':v).replace(/\s+/g,' ').trim();
  const safePart=s=>text(s).replace(/[^a-z0-9-]+/gi,'-').replace(/^-|-$/g,'').slice(0,44)||'Transaksi';
  const svgIcon=name=>{
   const paths={
@@ -18,8 +22,8 @@
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[name]||'')+'</svg>';
  };
  function mount(){
-  if(document.getElementById('f4-tx-receipt-dialog'))return;
-  const style=document.createElement('style');
+  if(__f4.globals.document.getElementById('f4-tx-receipt-dialog'))return;
+  const style=__f4.globals.document.createElement('style');
   style.id='f4-tx-receipt-style';
   style.textContent=
    '#f4-tx-receipt-dialog[hidden]{display:none}' +
@@ -42,8 +46,8 @@
    '#f4-tx-receipt-dialog .f4-tx-image-wrap{padding:8px;background:#fafafa}' +
    '#f4-tx-receipt-dialog .f4-tx-top{padding-top:18px}' +
    '#f4-tx-receipt-dialog .f4-tx-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}}';
-  document.head.appendChild(style);
-  const dialog=document.createElement('div');
+  __f4.globals.document.head.appendChild(style);
+  const dialog=__f4.globals.document.createElement('div');
   dialog.id='f4-tx-receipt-dialog';dialog.hidden=true;dialog.setAttribute('role','dialog');
   dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','f4-tx-receipt-heading');
   dialog.innerHTML='<section class="f4-tx-card"><div class="f4-tx-top"><strong id="f4-tx-receipt-heading">Bukti transaksi</strong>'+
@@ -55,28 +59,28 @@
   dialog.querySelector('.f4-tx-close').onclick=close;
   dialog.querySelector('.f4-tx-download').onclick=download;
   dialog.querySelector('.f4-tx-share').onclick=share;
-  document.body.appendChild(dialog);
+  __f4.globals.document.body.appendChild(dialog);
  }
  function close(){
-  const d=document.getElementById('f4-tx-receipt-dialog');
+  const d=__f4.globals.document.getElementById('f4-tx-receipt-dialog');
   if(d){
    d.hidden=true;
    d.querySelector('.f4-tx-admin-actions')?.remove?.();
   }
-  document.body.style.overflow=priorOverflow;
-  if(url){URL.revokeObjectURL(url);url='';}
+  __f4.globals.document.body.style.overflow=priorOverflow;
+  if(url){__f4.globals.URL.revokeObjectURL(url);url='';}
   blob=null;
  }
  function download(){
   if(!blob||!url)return;
-  const a=document.createElement('a');a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();a.remove();
+  const a=__f4.globals.document.createElement('a');a.href=url;a.download=filename;
+  __f4.globals.document.body.appendChild(a);a.click();a.remove();
  }
  async function share(){
   if(!blob)return;
-  const file=new File([blob],filename,{type:'image/jpeg'});
-  if(navigator.share && navigator.canShare?.({files:[file]})){
-   try{await navigator.share({files:[file],title:'Bukti Transaksi Flamboyan 4'});return;}
+  const file=new __f4.globals.File([blob],filename,{type:'image/jpeg'});
+  if(__f4.globals.navigator.share && __f4.globals.navigator.canShare?.({files:[file]})){
+   try{await __f4.globals.navigator.share({files:[file],title:'Bukti Transaksi Flamboyan 4'});return;}
    catch(e){if(e.name==='AbortError')return;}
   }
   download();
@@ -96,11 +100,11 @@
    paper:'#f2ecff',pale:'#f4e9ff',headText:'#efe7ff',line:'#d9cdec',
    decoration:'rgba(255,255,255,.07)'
   };
-  const canvas=document.createElement('canvas');
+  const canvas=__f4.globals.document.createElement('canvas');
   const ctx=canvas.getContext('2d');
-  if(!ctx)throw Error('Browser tidak mendukung pembuatan JPG.');
+  if(!ctx)throw (0,__f4.globals.Error)('Browser tidak mendukung pembuatan JPG.');
   const W=900,X=86,R=814,CW=R-X;
-  const font=(size,weight=500)=>String(weight)+' '+size+'px system-ui,Arial,sans-serif';
+  const font=(size,weight=500)=>(0,__f4.globals.String)(weight)+' '+size+'px system-ui,Arial,sans-serif';
   const wrap=(value,maxWidth,size=29,weight=700)=>{
    const source=text(value);
    ctx.font=font(size,weight);
@@ -121,7 +125,7 @@
    return out.length?out:['-'];
   };
   function rect(c,x,y,w,h,r,fill){
-   const rad=Math.min(r,w/2,h/2);
+   const rad=__f4.globals.Math.min(r,w/2,h/2);
    c.fillStyle=fill;c.beginPath();
    c.moveTo(x+rad,y);c.lineTo(x+w-rad,y);
    c.quadraticCurveTo(x+w,y,x+w,y+rad);
@@ -136,40 +140,40 @@
   const green=complete;
   const indicator=green?'#d5f7e9':pending?'#fff0ce':'#e7f2ed';
   const indicatorInk=green?'#087554':pending?'#9b5506':theme.accent;
-  const bannerTitle=String(record.heading||
+  const bannerTitle=(0,__f4.globals.String)(record.heading||
    (status==='LUNAS'||status==='TERBAYAR'||status==='SUDAH DIBAYAR'||status==='DIBAYARKAN'
     ?'Pembayaran Berhasil'
     :status==='TERKONFIRMASI'?'Setoran Terkonfirmasi'
     :status==='DITERIMA'?'Penjualan Diterima'
     :bank?'Transaksi Tercatat':'Transaksi Tercatat'));
-  const subtitle=String(record.title||'Bukti Transaksi');
+  const subtitle=(0,__f4.globals.String)(record.title||'Bukti Transaksi');
   const details=[
    [bank?'Nama':'Nama warga',record.party||'-'],
    ['Nomor rumah',record.house||'-'],
    ['Tanggal '+(complete?'bayar':'transaksi'),record.date||'-'],
    ['Metode'+(complete?' bayar':''),record.method||'-']
   ];
-  for(const field of Array.isArray(record.details)?record.details:[]){
-   if(Array.isArray(field)&&field[0]&&field[1]!=null&&field[1]!=='')
+  for(const field of __f4.globals.Array.isArray(record.details)?record.details:[]){
+   if(__f4.globals.Array.isArray(field)&&field[0]&&field[1]!=null&&field[1]!=='')
     details.push([text(field[0]),text(field[1])]);
   }
   const rows=details.map(([label,value])=>({label,lines:wrap(value,438,29,700)}));
-  const explicit=Array.isArray(record.items)?record.items.filter(x=>x&&x.label):[];
+  const explicit=__f4.globals.Array.isArray(record.items)?record.items.filter(x=>x&&x.label):[];
   // An item line is used for non-itemized records, just as iuran has
   // its per-component rows. No extra money is implied or created.
   const items=(explicit.length?explicit:[{
-   label:record.amountLabel||'Nominal transaksi',amount:Number(record.amount)
+   label:record.amountLabel||'Nominal transaksi',amount:(0,__f4.globals.Number)(record.amount)
   }]).map(x=>({
    lines:wrap(x.label,460,29,550),
-   amount:Number.isSafeInteger(Number(x.amount))?Number(x.amount):null
+   amount:__f4.globals.Number.isSafeInteger((0,__f4.globals.Number)(x.amount))?(0,__f4.globals.Number)(x.amount):null
   }));
   const identifier=text(record.id);
   const idLines=wrap(identifier,CW-40,24,650);
   const noteLines=wrap(record.note||'Bukti transaksi dari Flamboyan 4.',CW,22,500);
-  const made=new Intl.DateTimeFormat('id-ID',{
+  const made=new __f4.globals.Intl.DateTimeFormat('id-ID',{
    day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',
    timeZone:'Asia/Jakarta'
-  }).format(new Date())+' WIB';
+  }).format(new __f4.globals.Date())+' WIB';
   const headerLines=wrap(bannerTitle,708,42,800);
   const subtitleLines=wrap(subtitle,710,25,500);
   const amountText=money(record.amount);
@@ -177,27 +181,27 @@
   // Calculate size before drawing to keep receipt tight on tall phone screens.
   const top=28,headerY=53,headerH=278,amountY=365,detailsHeaderY=545;
   let y=584;
-  for(const row of rows){row.y=y;y+=Math.max(62,26+row.lines.length*38);}
+  for(const row of rows){row.y=y;y+=__f4.globals.Math.max(62,26+row.lines.length*38);}
   const detailsEnd=y+10,itemsHeaderY=detailsEnd+36;
   y=itemsHeaderY+39;
-  for(const item of items){item.y=y;y+=Math.max(57,25+item.lines.length*36);}
+  for(const item of items){item.y=y;y+=__f4.globals.Math.max(57,25+item.lines.length*36);}
   const statusY=y+39,statusH=144;
   const metaY=statusY+statusH+39;
   const noteTop=metaY+70+idLines.length*34+48;
   const footerY=noteTop+noteLines.length*32+40;
   const paperBottom=footerY+140;
-  const H=Math.ceil(paperBottom+28);
+  const H=__f4.globals.Math.ceil(paperBottom+28);
   canvas.width=W;canvas.height=H;
   const c=canvas.getContext('2d');
-  if(!c)throw Error('Tidak bisa menggambar resi.');
+  if(!c)throw (0,__f4.globals.Error)('Tidak bisa menggambar resi.');
   c.fillStyle=theme.paper;c.fillRect(0,0,W,H);
   // Same ticket-cut geometry as the original Iuran Warga receipt.
   {
    const left=34,right=866,upper=top+3,lower=paperBottom-6;
    const corner=11,topRadius=10,notchRadius=22;
-   const notchY=Math.max(upper+60,Math.min(lower-60,detailsEnd+2));
+   const notchY=__f4.globals.Math.max(upper+60,__f4.globals.Math.min(lower-60,detailsEnd+2));
    const width=right-left-corner*2;
-   const count=Math.max(12,Math.round(width/31));
+   const count=__f4.globals.Math.max(12,__f4.globals.Math.round(width/31));
    const step=width/count;
    c.save();
    c.fillStyle='#fff';
@@ -207,40 +211,40 @@
    for(let i=0;i<count;i++){
     const x0=left+corner+i*step,cx=x0+step/2;
     c.lineTo(cx-topRadius,upper);
-    c.arc(cx,upper,topRadius,Math.PI,0,true);
+    c.arc(cx,upper,topRadius,__f4.globals.Math.PI,0,true);
    }
    c.lineTo(right-corner,upper);
    c.quadraticCurveTo(right,upper,right,upper+corner);
    c.lineTo(right,notchY-notchRadius);
-   c.arc(right,notchY,notchRadius,-Math.PI/2,Math.PI/2,true);
+   c.arc(right,notchY,notchRadius,-__f4.globals.Math.PI/2,__f4.globals.Math.PI/2,true);
    c.lineTo(right,lower-corner);
    c.quadraticCurveTo(right,lower,right-corner,lower);
    for(let i=count-1;i>=0;i--){
     const x0=left+corner+i*step,cx=x0+step/2;
     c.lineTo(cx+topRadius,lower);
-    c.arc(cx,lower,topRadius,0,Math.PI,true);
+    c.arc(cx,lower,topRadius,0,__f4.globals.Math.PI,true);
    }
    c.lineTo(left+corner,lower);
    c.quadraticCurveTo(left,lower,left,lower-corner);
    c.lineTo(left,notchY+notchRadius);
-   c.arc(left,notchY,notchRadius,Math.PI/2,-Math.PI/2,true);
+   c.arc(left,notchY,notchRadius,__f4.globals.Math.PI/2,-__f4.globals.Math.PI/2,true);
    c.lineTo(left,upper+corner);
    c.quadraticCurveTo(left,upper,left+corner,upper);
    c.closePath();c.fill();c.restore();
   }
   rect(c,51,headerY,798,headerH,17,theme.primary);
   c.fillStyle=theme.decoration;c.beginPath();
-  c.arc(805,85,115,0,Math.PI*2);c.fill();
-  c.beginPath();c.arc(84,330,110,0,Math.PI*2);c.fill();
+  c.arc(805,85,115,0,__f4.globals.Math.PI*2);c.fill();
+  c.beginPath();c.arc(84,330,110,0,__f4.globals.Math.PI*2);c.fill();
   c.textAlign='center';
   c.fillStyle=theme.headText;c.font=font(bank?27:29,800);
   c.fillText(bank?'BANK SAMPAH FLAMBOYAN 4':'FLAMBOYAN 4',W/2,106,740);
   // White circular emblem, as in Iuran Warga. Use a clock mark when pending
   // so an estimate or unpaid sale never looks like payment confirmation.
-  c.fillStyle='#fff';c.beginPath();c.arc(W/2,178,42,0,Math.PI*2);c.fill();
+  c.fillStyle='#fff';c.beginPath();c.arc(W/2,178,42,0,__f4.globals.Math.PI*2);c.fill();
   c.strokeStyle=theme.primary;c.lineWidth=8;c.lineCap='round';c.lineJoin='round';
   if(pending){
-   c.beginPath();c.arc(W/2,178,23,0,Math.PI*2);c.stroke();
+   c.beginPath();c.arc(W/2,178,23,0,__f4.globals.Math.PI*2);c.stroke();
    c.beginPath();c.moveTo(W/2,164);c.lineTo(W/2,179);c.lineTo(W/2+12,187);c.stroke();
   }else{
    c.beginPath();c.moveTo(W/2-18,178);c.lineTo(W/2-3,192);
@@ -307,35 +311,35 @@
   return canvas;
  }
  async function open(record){
-  if(!record||typeof record!=='object')throw Error('Data resi tidak valid');
-  if(!text(record.id)||text(record.id)==='-'||!Number.isSafeInteger(Number(record.amount))||Number(record.amount)<0)
-   throw Error('Nomor atau nominal transaksi tidak valid; resi ditolak');
+  if(!record||typeof record!=='object')throw (0,__f4.globals.Error)('Data resi tidak valid');
+  if(!text(record.id)||text(record.id)==='-'||!__f4.globals.Number.isSafeInteger((0,__f4.globals.Number)(record.amount))||(0,__f4.globals.Number)(record.amount)<0)
+   throw (0,__f4.globals.Error)('Nomor atau nominal transaksi tidak valid; resi ditolak');
   mount();
   const canvas=draw(record);
-  const data=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error('Gagal membuat JPG')),'image/jpeg',.94));
+  const data=await new __f4.globals.Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject((0,__f4.globals.Error)('Gagal membuat JPG')),'image/jpeg',.94));
   close();blob=data;
   filename='Resi-'+(record.scope==='bank'?'BankSampah':'Pembukuan')+'-'+safePart(record.id)+'.jpg';
-  url=URL.createObjectURL(blob);
-  const dialog=document.getElementById('f4-tx-receipt-dialog');
-  priorOverflow=document.body.style.overflow||'';
+  url=__f4.globals.URL.createObjectURL(blob);
+  const dialog=__f4.globals.document.getElementById('f4-tx-receipt-dialog');
+  priorOverflow=__f4.globals.document.body.style.overflow||'';
   dialog.dataset.scope=record.scope==='bank'?'bank':'book';
   dialog.querySelector('#f4-tx-receipt-heading').textContent=record.title||'Bukti Transaksi';
   dialog.querySelector('#f4-tx-receipt-preview').src=url;
   // Optional operator actions are controls alongside the preview, NEVER
   // printed into the JPG and NEVER persisted in the transaction itself.
-  if(record.scope==='bank'&&Array.isArray(record.adminActions)&&record.adminActions.length){
-   const footer=document.createElement('div');
+  if(record.scope==='bank'&&__f4.globals.Array.isArray(record.adminActions)&&record.adminActions.length){
+   const footer=__f4.globals.document.createElement('div');
    footer.className='f4-tx-admin-actions';
    footer.setAttribute('aria-label','Tindakan administrasi penjualan');
    for(const item of record.adminActions){
-    if(!item||typeof item.onClick!=='function'||!String(item.label||'').trim())continue;
-    const button=document.createElement('button');button.type='button';
-    button.textContent=String(item.label);
+    if(!item||typeof item.onClick!=='function'||!(0,__f4.globals.String)(item.label||'').trim())continue;
+    const button=__f4.globals.document.createElement('button');button.type='button';
+    button.textContent=(0,__f4.globals.String)(item.label);
     button.onclick=()=>{
      close();
-     Promise.resolve().then(()=>item.onClick()).catch(e=>{
-      console.error('Gagal memproses tindakan resi',e);
-      window.f4UiDialog?.alert?.('Tindakan gagal: '+(e.message||e));
+     __f4.globals.Promise.resolve().then(()=>item.onClick()).catch(e=>{
+      __f4.globals.console.error('Gagal memproses tindakan resi',e);
+      __f4.window.f4UiDialog?.alert?.('Tindakan gagal: '+(e.message||e));
      });
     };
     footer.appendChild(button);
@@ -343,10 +347,12 @@
    if(footer.childElementCount)dialog.querySelector('.f4-tx-actions').before(footer);
   }
   dialog.hidden=false;
-  document.body.style.overflow='hidden';
+  __f4.globals.document.body.style.overflow='hidden';
   dialog.querySelector('.f4-tx-close').focus();
  }
- document.addEventListener('keydown',e=>{const modal=document.getElementById('f4-tx-receipt-dialog');if(e.key==='Escape'&&modal&&!modal.hidden)close()});
- window.addEventListener('pagehide',close);
- window.F4TransactionReceipt={open,close};
+ __f4.globals.document.addEventListener('keydown',e=>{const modal=__f4.globals.document.getElementById('f4-tx-receipt-dialog');if(e.key==='Escape'&&modal&&!modal.hidden)close()});
+ __f4.window.addEventListener('pagehide',close);
+ __f4.window.F4TransactionReceipt={open,close};
 })();
+
+});

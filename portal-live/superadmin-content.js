@@ -1,39 +1,43 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/superadmin-content.js",function(__f4){
+
+
 
 (()=>{
 'use strict';
-const API='https://api.flamboyan4.web.id',root=document.getElementById('f4-account-page'),side=root.querySelector('aside'),main=root.querySelector('main'),guard=document.getElementById('guard');
-const saBackdrop=document.createElement('div');
+const API='https://api.flamboyan4.web.id',root=__f4.globals.document.getElementById('f4-account-page'),side=root.querySelector('aside'),main=root.querySelector('main'),guard=__f4.globals.document.getElementById('guard');
+const saBackdrop=__f4.globals.document.createElement('div');
 saBackdrop.className='f4-sa-mobile-backdrop';saBackdrop.setAttribute('aria-hidden','true');root.append(saBackdrop);
-const saEmbedded=window.parent!==window;
-const standaloneButton=document.createElement('button');
+const saEmbedded=__f4.window.parent!==window;
+const standaloneButton=__f4.globals.document.createElement('button');
 standaloneButton.type='button';standaloneButton.className='f4-sa-standalone-menu';
 standaloneButton.setAttribute('aria-label','Buka menu Superadmin');
 standaloneButton.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-if(!saEmbedded){document.body.append(standaloneButton);standaloneButton.onclick=()=>window.f4ToggleSuperadminMenu();}
+if(!saEmbedded){__f4.globals.document.body.append(standaloneButton);standaloneButton.onclick=()=>__f4.window.f4ToggleSuperadminMenu();}
 function saMenuOpened(){return root.classList.contains('f4-sa-drawer-open')}
 function saNotifyMenu(open){
- if(saEmbedded)window.parent.postMessage({type:'f4:sidebar-state',portal:'superadmin',open},location.origin);
- standaloneButton.setAttribute('aria-expanded',String(open));
+ if(saEmbedded)__f4.window.parent.postMessage({type:'f4:sidebar-state',portal:'superadmin',open},__f4.globals.location.origin);
+ standaloneButton.setAttribute('aria-expanded',(0,__f4.globals.String)(open));
 }
 function saCloseDrawer(fromHistory=false){
  if(!saMenuOpened())return;
- if(!fromHistory&&history.state?.f4SaDrawer){history.back();return}
+ if(!fromHistory&&__f4.globals.history.state?.f4SaDrawer){__f4.globals.history.back();return}
  root.classList.remove('f4-sa-drawer-open');
- document.documentElement.classList.remove('f4-sa-drawer-lock');
+ __f4.globals.document.documentElement.classList.remove('f4-sa-drawer-lock');
  saNotifyMenu(false);
 }
-window.f4ToggleSuperadminMenu=()=>{
+__f4.window.f4ToggleSuperadminMenu=()=>{
  if(saMenuOpened()){saCloseDrawer();return}
- if(matchMedia('(min-width:1024px)').matches)return;
- history.pushState({...history.state,f4SaDrawer:true},'',location.href);
+ if((0,__f4.globals.matchMedia)('(min-width:1024px)').matches)return;
+ __f4.globals.history.pushState({...__f4.globals.history.state,f4SaDrawer:true},'',__f4.globals.location.href);
  root.classList.add('f4-sa-drawer-open');
- document.documentElement.classList.add('f4-sa-drawer-lock');
+ __f4.globals.document.documentElement.classList.add('f4-sa-drawer-lock');
  saNotifyMenu(true);
 };
 saBackdrop.addEventListener('click',()=>saCloseDrawer());
-window.addEventListener('popstate',()=>{if(!history.state?.f4SaDrawer)saCloseDrawer(true)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
-window.addEventListener('resize',()=>{if(innerWidth>=1024)saCloseDrawer(true)});
+__f4.window.addEventListener('popstate',()=>{if(!__f4.globals.history.state?.f4SaDrawer)saCloseDrawer(true)});
+__f4.globals.document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
+__f4.window.addEventListener('resize',()=>{if(__f4.globals.innerWidth>=1024)saCloseDrawer(true)});
 const groups=[['overview','Ringkasan Sistem'],['treasury','Pusat Keuangan'],['accounts','Akun & Hak Akses'],['content','Portal Utama'],['bank','Bank Sampah'],['masters','Data & Aturan'],['audit','Pengaturan & Audit']];
 const submenu={
  content:[['projects','Project Card'],['agenda','Rencana Kegiatan'],['documentation','Dokumentasi'],['inventory','Inventaris'],['banners','Banner Slider'],['meetings','Hasil Rapat'],['arisan','Jadwal Arisan'],['jersey','Pesanan Jersey']],
@@ -53,26 +57,26 @@ const moduleGroups={
  ]
 };
 let role='public',group='overview',active='',accounts=[],accountSearch='',residentRows=[];
-const el=(tag,text,cls)=>{const v=document.createElement(tag);if(text!==undefined)v.textContent=String(text);if(cls)v.className=cls;return v};
+const el=(tag,text,cls)=>{const v=__f4.globals.document.createElement(tag);if(text!==__f4.globals.undefined)v.textContent=(0,__f4.globals.String)(text);if(cls)v.className=cls;return v};
 const button=(label,on,cls)=>{const b=el('button',label,cls);b.type='button';b.onclick=on;return b};
 const title=(name,desc)=>{
  rememberTabScroll();
  main.replaceChildren();
  const category=group==='content'?'Portal Utama':group==='bank'?'Bank Sampah':group==='masters'?'Data & Aturan':'';
  const moduleName=submenu[group]?.find(([key])=>key===active)?.[1];
- const h=el('header',undefined,'f4-work-heading');
+ const h=el('header',__f4.globals.undefined,'f4-work-heading');
  h.append(el('h2',moduleName||name),el('p',moduleName?category+' · Superadmin':desc));
  main.append(h);
  renderTabs();
  // The active submenu tab already names the module. Do not repeat
  // its title/description beneath the tab navigation.
 };
-const section=(label)=>{const s=el('section',undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
-const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==undefined&&o[k]!==null)return String(o[k]);return ''};
-const rows=(o)=>Array.isArray(o)?o:Array.isArray(o?.rows)?o.rows:Array.isArray(o?.data)?o.data:Array.isArray(o?.accounts)?o.accounts:Array.isArray(o?.akun)?o.akun:[];
+const section=(label)=>{const s=el('section',__f4.globals.undefined,'sa-section');s.append(el('h3',label));main.append(s);return s};
+const value=(o,keys)=>{for(const k of keys)if(o&&o[k]!==__f4.globals.undefined&&o[k]!==null)return (0,__f4.globals.String)(o[k]);return ''};
+const rows=(o)=>__f4.globals.Array.isArray(o)?o:__f4.globals.Array.isArray(o?.rows)?o.rows:__f4.globals.Array.isArray(o?.data)?o.data:__f4.globals.Array.isArray(o?.accounts)?o.accounts:__f4.globals.Array.isArray(o?.akun)?o.akun:[];
 const notice=(text)=>{const n=el('p',text,'f4-admin-note');main.append(n);return n};
-const safe=(error)=>String(error&&error.message||error);
-async function get(path){const res=await fetch(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw Error(d.error||('HTTP '+res.status));return d}
+const safe=(error)=>(0,__f4.globals.String)(error&&error.message||error);
+async function get(path){const res=await (0,__f4.globals.fetch)(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw (0,__f4.globals.Error)(d.error||('HTTP '+res.status));return d}
 function sidebar(g=group){
  group=g;
  // Keep the same sidebar nodes across route changes. Rebuilding them makes
@@ -84,39 +88,39 @@ function sidebar(g=group){
    b.classList.toggle('active',selected);
    b.setAttribute('aria-current',selected?'page':'false');
   }
-  document.body.dataset.saArea=g;
-  window.f4SuperadminArea=g;
+  __f4.globals.document.body.dataset.saArea=g;
+  __f4.window.f4SuperadminArea=g;
   return;
  }
  side.replaceChildren();
- const brand=el('div',undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const brand=el('div',__f4.globals.undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
  const text=el('span');text.append(el('strong','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
  side.append(el('strong','MENU','f4-sa-label'));
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   b.dataset.saGroup=key;
-  const icon=el('img',undefined,'sa-nav-icon');
+  const icon=el('img',__f4.globals.undefined,'sa-nav-icon');
   icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'portal-superadmin',bank:'bank-superadmin',masters:'inventory',audit:'book'}[key])+'.svg';
   icon.alt='';icon.setAttribute('aria-hidden','true');
   b.append(icon,el('span',label));
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
  side.append(el('strong','LAINNYA','f4-sa-label f4-sa-other-pages'));
- const donorLink=el('a',undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
- const donorIcon=el('img',undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
+ const donorLink=el('a',__f4.globals.undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
+ const donorIcon=el('img',__f4.globals.undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
  donorLink.append(donorIcon,el('span','Donatur & Pendanaan'));side.append(donorLink);
- document.body.dataset.saArea=g;
- window.f4SuperadminArea=g;
+ __f4.globals.document.body.dataset.saArea=g;
+ __f4.window.f4SuperadminArea=g;
 
 }
 const tabScrollPositions={content:0,bank:0,masters:0};
 function rememberTabScroll(){
  const existing=main.querySelector('.sa-tabbar');
  const previousGroup=existing?.dataset.group;
- if(previousGroup&&Object.hasOwn(tabScrollPositions,previousGroup))
+ if(previousGroup&&__f4.globals.Object.hasOwn(tabScrollPositions,previousGroup))
   tabScrollPositions[previousGroup]=existing.scrollLeft;
 }
-window.f4SuperadminRememberTabScroll=rememberTabScroll;
+__f4.window.f4SuperadminRememberTabScroll=rememberTabScroll;
 function renderTabs(){
  const current=submenu[group];
  if(!current||!active||!current.some(([key])=>key===active))return;
@@ -127,7 +131,7 @@ function renderTabs(){
  const options=grouped
   ?grouped.map(item=>[item.id,item.label,item.items[0]])
   :current.map(([key,label])=>[key,label,key]);
- const tabs=el('nav',undefined,'sa-tabbar');
+ const tabs=el('nav',__f4.globals.undefined,'sa-tabbar');
  tabs.dataset.group=group;
  tabs.setAttribute('role','tablist');
  tabs.setAttribute('aria-label',group==='content'?'Kelompok Portal Utama':group==='bank'?'Kelompok Bank Sampah':'Menu Data & Aturan');
@@ -135,7 +139,7 @@ function renderTabs(){
   const selected=grouped?activeGroup?.id===key:active===key;
   const tab=button(label,()=>openEditor(first));
   tab.setAttribute('role','tab');
-  tab.setAttribute('aria-selected',String(selected));
+  tab.setAttribute('aria-selected',(0,__f4.globals.String)(selected));
   tab.tabIndex=selected?0:-1;
   tab.addEventListener('keydown',event=>{
    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
@@ -158,7 +162,7 @@ function renderTabs(){
  }
  tabScrollPositions[group]=tabs.scrollLeft;
  if(activeGroup){
-  const moduleNav=el('nav',undefined,'sa-module-nav');
+  const moduleNav=el('nav',__f4.globals.undefined,'sa-module-nav');
   moduleNav.setAttribute('aria-label','Pilih fitur '+activeGroup.label);
   for(const key of activeGroup.items){
    const entry=current.find(([id])=>id===key);
@@ -169,15 +173,15 @@ function renderTabs(){
    moduleNav.append(item);
   }
   if(group==='content'&&activeGroup.id==='publikasi'){
-   const galleryButton=button('Unggahan Warga',()=>location.assign('/dokumentasi/?kelola=1&f4ui=20261126-borderless-shell-v2'));
+   const galleryButton=button('Unggahan Warga',()=>__f4.globals.location.assign('/dokumentasi/?kelola=1&f4ui=20261126-borderless-shell-v2'));
    galleryButton.title='Tinjau, pindahkan dan hapus foto warga';
    moduleNav.append(galleryButton);
   }
   tabs.after(moduleNav);
  }
 }
-window.f4SuperadminRenderTabs=renderTabs;
-window.f4RenderManagementSidebar=(origin)=>{
+__f4.window.f4SuperadminRenderTabs=renderTabs;
+__f4.window.f4RenderManagementSidebar=(origin)=>{
  const g=origin==='portal'?'content':origin==='bank'?'bank':origin==='book'?'masters':group;
  sidebar(g);
 };
@@ -185,14 +189,14 @@ const f4SaNav={ready:false,restoring:false};
 function f4SaRememberRoute(replace=false){
  if(!f4SaNav.ready||f4SaNav.restoring)return;
  const route={group,kind:active};
- const previous=history.state?.f4SaRoute;
+ const previous=__f4.globals.history.state?.f4SaRoute;
  if(previous?.group===route.group&&previous?.kind===route.kind)return;
- const state={...history.state,f4SaDrawer:false,f4SaRoute:route};
- const url=new URL(location.href);url.searchParams.set('halaman',group+(active?'/'+active:''));url.hash='';
- history[replace?'replaceState':'pushState'](state,'',url.pathname+url.search);
+ const state={...__f4.globals.history.state,f4SaDrawer:false,f4SaRoute:route};
+ const url=new __f4.globals.URL(__f4.globals.location.href);url.searchParams.set('halaman',group+(active?'/'+active:''));url.hash='';
+ __f4.globals.history[replace?'replaceState':'pushState'](state,'',url.pathname+url.search);
 }
-window.addEventListener('popstate',()=>{
- const route=history.state?.f4SaRoute;
+__f4.window.addEventListener('popstate',()=>{
+ const route=__f4.globals.history.state?.f4SaRoute;
  if(!f4SaNav.ready||!route||!groups.some(([id])=>id===route.group))return;
  if(group===route.group&&(!route.kind||active===route.kind))return;
  f4SaNav.restoring=true;
@@ -206,13 +210,13 @@ window.addEventListener('popstate',()=>{
 function open(name,push=true){
  if(role!=='superadmin'||!groups.some(([key])=>key===name))return;
  saCloseDrawer(true);
- if(history.state?.f4SaDrawer)history.replaceState({...history.state,f4SaDrawer:false},'',location.href);
- window.f4CancelSuperadminEditor?.();
+ if(__f4.globals.history.state?.f4SaDrawer)__f4.globals.history.replaceState({...__f4.globals.history.state,f4SaDrawer:false},'',__f4.globals.location.href);
+ __f4.window.f4CancelSuperadminEditor?.();
  active='';sidebar(name);
- if(push&&window.parent!==window)
-  window.parent.postMessage({type:'f4:superadmin-section',section:name},location.origin);
+ if(push&&__f4.window.parent!==window)
+  __f4.window.parent.postMessage({type:'f4:superadmin-section',section:name},__f4.globals.location.origin);
  if(name==='overview')overview();
- if(name==='treasury')window.f4OpenTreasuryCenter?.();
+ if(name==='treasury')__f4.window.f4OpenTreasuryCenter?.();
  if(name==='accounts')accountsPage();
  if(name==='content'||name==='bank'||name==='masters'){
    openEditor(submenu[name][0][0]);
@@ -224,20 +228,20 @@ function open(name,push=true){
 function bankWeighingPage(){
  title('Jadwal Penimbangan','Atur frekuensi dan tanggal penimbangan Bank Sampah.');
  const panel=section('Jadwal Rutin');
- const form=el('form',undefined,'sa-weighing-form');
+ const form=el('form',__f4.globals.undefined,'sa-weighing-form');
  const weekdays=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
  const row=(name,id,control)=>{
   const label=el('label',name,'sa-weighing-label');label.htmlFor=id;
   control.id=id;
-  const field=el('div',undefined,'sa-weighing-field');field.append(label,control);
+  const field=el('div',__f4.globals.undefined,'sa-weighing-field');field.append(label,control);
   return field;
  };
  const frequency=el('select');frequency.required=true;
- [['weekly','Setiap minggu'],['biweekly','Setiap 2 minggu'],['monthly','Setiap bulan']].forEach(([value,name])=>frequency.add(new Option(name,value)));
+ [['weekly','Setiap minggu'],['biweekly','Setiap 2 minggu'],['monthly','Setiap bulan']].forEach(([value,name])=>frequency.add(new __f4.globals.Option(name,value)));
  const weekday=el('select');weekday.required=true;
- weekdays.forEach((name,i)=>weekday.add(new Option(name,String(i))));
+ weekdays.forEach((name,i)=>weekday.add(new __f4.globals.Option(name,(0,__f4.globals.String)(i))));
  const anchor=el('input');anchor.type='date';
- const monthly=el('select');for(let i=1;i<=31;i++)monthly.add(new Option('Tanggal '+i,String(i)));
+ const monthly=el('select');for(let i=1;i<=31;i++)monthly.add(new __f4.globals.Option('Tanggal '+i,(0,__f4.globals.String)(i)));
  const frequencyField=row('Frekuensi','saBankWeighingFrequency',frequency);
  const weekdayField=row('Hari penimbangan','saBankWeighingDay',weekday);
  const anchorField=row('Tanggal penimbangan pertama','saBankWeighingAnchor',anchor);
@@ -245,32 +249,32 @@ function bankWeighingPage(){
  const preview=el('p','', 'sa-weighing-preview');
  const status=el('p','Memuat jadwal…','sa-weighing-status');
  status.setAttribute('role','status');status.setAttribute('aria-live','polite');
- const actions=el('div',undefined,'sa-weighing-actions');
+ const actions=el('div',__f4.globals.undefined,'sa-weighing-actions');
  const save=el('button','Simpan Jadwal','sa-action sa-action-primary');save.type='submit';save.disabled=true;
  actions.append(save);
  form.append(frequencyField,weekdayField,anchorField,monthField,preview,actions,status);
  panel.append(form);
  let loaded=false,waiting=false,serverVersion=0;
- const today=()=>new Date(Date.now()+7*3600000).toISOString().slice(0,10);
+ const today=()=>new __f4.globals.Date(__f4.globals.Date.now()+7*3600000).toISOString().slice(0,10);
  const dateAt=value=>{
   if(!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value||''))return null;
-  const date=new Date(value+'T00:00:00Z');
-  return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
+  const date=new __f4.globals.Date(value+'T00:00:00Z');
+  return __f4.globals.Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?date:null;
  };
- const format=date=>new Intl.DateTimeFormat('id-ID',{
+ const format=date=>new __f4.globals.Intl.DateTimeFormat('id-ID',{
   weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:'UTC'
  }).format(date);
  function nextOccurrence(){
-  const now=dateAt(today());let date=new Date(now);
+  const now=dateAt(today());let date=new __f4.globals.Date(now);
   if(frequency.value==='weekly'){
-   date.setUTCDate(date.getUTCDate()+(Number(weekday.value)-date.getUTCDay()+7)%7);
+   date.setUTCDate(date.getUTCDate()+((0,__f4.globals.Number)(weekday.value)-date.getUTCDay()+7)%7);
   }else if(frequency.value==='biweekly'){
    const base=dateAt(anchor.value);if(!base)return null;
-   const cycles=Math.max(0,Math.ceil((now-base)/86400000/14));
-   date=new Date(base.getTime()+cycles*14*86400000);
+   const cycles=__f4.globals.Math.max(0,__f4.globals.Math.ceil((now-base)/86400000/14));
+   date=new __f4.globals.Date(base.getTime()+cycles*14*86400000);
   }else{
-   const n=Number(monthly.value),year=date.getUTCFullYear(),month=date.getUTCMonth();
-   const occurrence=(y,m)=>new Date(Date.UTC(y,m,Math.min(n,new Date(Date.UTC(y,m+1,0)).getUTCDate())));
+   const n=(0,__f4.globals.Number)(monthly.value),year=date.getUTCFullYear(),month=date.getUTCMonth();
+   const occurrence=(y,m)=>new __f4.globals.Date(__f4.globals.Date.UTC(y,m,__f4.globals.Math.min(n,new __f4.globals.Date(__f4.globals.Date.UTC(y,m+1,0)).getUTCDate())));
    date=occurrence(year,month);
    if(date<now)date=occurrence(year,month+1);
   }
@@ -281,7 +285,7 @@ function bankWeighingPage(){
   anchorField.hidden=frequency.value!=='biweekly';
   monthField.hidden=frequency.value!=='monthly';
   if(frequency.value==='biweekly'&&dateAt(anchor.value))
-   weekday.value=String(dateAt(anchor.value).getUTCDay());
+   weekday.value=(0,__f4.globals.String)(dateAt(anchor.value).getUTCDay());
   const next=nextOccurrence();
   preview.textContent=next?'Penimbangan berikutnya: '+format(next):'Pilih tanggal penimbangan pertama.';
   const valid=!!next&&(frequency.value!=='biweekly'||!!dateAt(anchor.value));
@@ -292,13 +296,13 @@ function bankWeighingPage(){
   waiting=true;update();
   try{
    const data=await get('/api/public/bank/weighing-schedule');
-   if(!Number.isInteger(data.weekday)||data.weekday<0||data.weekday>6)
-    throw Error('Jadwal dari server tidak valid.');
-   serverVersion=Number(data.schemaVersion)||1;
+   if(!__f4.globals.Number.isInteger(data.weekday)||data.weekday<0||data.weekday>6)
+    throw (0,__f4.globals.Error)('Jadwal dari server tidak valid.');
+   serverVersion=(0,__f4.globals.Number)(data.schemaVersion)||1;
    frequency.value=['weekly','biweekly','monthly'].includes(data.frequency)?data.frequency:'weekly';
-   weekday.value=String(data.weekday);
+   weekday.value=(0,__f4.globals.String)(data.weekday);
    anchor.value=dateAt(data.anchorDate)?data.anchorDate:today();
-   monthly.value=String(data.dayOfMonth>=1&&data.dayOfMonth<=31?data.dayOfMonth:1);
+   monthly.value=(0,__f4.globals.String)(data.dayOfMonth>=1&&data.dayOfMonth<=31?data.dayOfMonth:1);
    loaded=true;
    status.textContent=serverVersion>=2?'Jadwal aktif telah dimuat.':'Layanan jadwal sedang diperbarui.';
   }catch(error){loaded=false;status.textContent='Gagal memuat jadwal: '+safe(error);}
@@ -306,23 +310,23 @@ function bankWeighingPage(){
  }
  form.onsubmit=async event=>{
   event.preventDefault();if(save.disabled||waiting)return;
-  const rule={frequency:frequency.value,weekday:Number(weekday.value)};
+  const rule={frequency:frequency.value,weekday:(0,__f4.globals.Number)(weekday.value)};
   if(rule.frequency==='biweekly')rule.anchorDate=anchor.value;
-  if(rule.frequency==='monthly')rule.dayOfMonth=Number(monthly.value);
+  if(rule.frequency==='monthly')rule.dayOfMonth=(0,__f4.globals.Number)(monthly.value);
   waiting=true;update();status.textContent='Menyimpan jadwal…';
   try{
-   const res=await fetch(API+'/api/superadmin/bank/weighing-schedule',{
+   const res=await (0,__f4.globals.fetch)(API+'/api/superadmin/bank/weighing-schedule',{
     method:'POST',credentials:'include',cache:'no-store',
-    headers:{'Content-Type':'application/json'},body:JSON.stringify(rule)
+    headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(rule)
    });
    const data=await res.json().catch(()=>({}));
-   if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
+   if(!res.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+res.status);
    if(data.frequency!==rule.frequency||
       (rule.frequency==='biweekly'&&data.anchorDate!==rule.anchorDate)||
-      (rule.frequency==='monthly'&&Number(data.dayOfMonth)!==rule.dayOfMonth))
-    throw Error('Server belum mengonfirmasi pola jadwal yang dipilih.');
+      (rule.frequency==='monthly'&&(0,__f4.globals.Number)(data.dayOfMonth)!==rule.dayOfMonth))
+    throw (0,__f4.globals.Error)('Server belum mengonfirmasi pola jadwal yang dipilih.');
    status.textContent='Jadwal tersimpan. '+preview.textContent;
-   loaded=true;serverVersion=Number(data.schemaVersion)||serverVersion;
+   loaded=true;serverVersion=(0,__f4.globals.Number)(data.schemaVersion)||serverVersion;
   }catch(error){status.textContent='Gagal menyimpan: '+safe(error);}
   finally{waiting=false;update();}
  };
@@ -331,27 +335,27 @@ function bankWeighingPage(){
 
 function openEditor(kind){
  if(role!=='superadmin')return;
- const target=Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
+ const target=__f4.globals.Object.entries(submenu).find(([,items])=>items.some(([key])=>key===kind));
  if(!target)return;
  const switched=active!==kind,priorGroup=group;
  active=kind;group=target[0];
  if(priorGroup!==group||!side.querySelector('button.active'))sidebar(group);
- if(kind==='residents'||kind==='bankcatalog')window.f4CancelSuperadminEditor?.();
- if(kind==='residents')window.openWarga();
+ if(kind==='residents'||kind==='bankcatalog')__f4.window.f4CancelSuperadminEditor?.();
+ if(kind==='residents')__f4.window.openWarga();
  else if(kind==='bankcatalog')catalogPage();
  else if(kind==='bank_weighing')bankWeighingPage();
- else if(typeof window.openSuperadminEditor==='function')window.openSuperadminEditor(kind);
+ else if(typeof __f4.window.openSuperadminEditor==='function')__f4.window.openSuperadminEditor(kind);
  else title('Memuat Modul','Editor sedang disiapkan…');
  if(switched){
-  const smooth=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+  const smooth=(0,__f4.globals.matchMedia)('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
   main.scrollTo?.({top:0,behavior:smooth});
  }
  f4SaRememberRoute();
 }
-window.f4SuperadminSwitchModule=openEditor;
+__f4.window.f4SuperadminSwitchModule=openEditor;
 function overview(){
  title('Pusat pengelolaan','Administrasi warga Flamboyan 4');
- const cards=el('div',undefined,'sa-grid sa-overview-grid');main.append(cards);
+ const cards=el('div',__f4.globals.undefined,'sa-grid sa-overview-grid');main.append(cards);
  for(const [key,label,icon,go] of [
   ['accounts','Akun terdaftar','user',()=>open('accounts')],
   ['houses','Unit rumah','home',()=>openEditor('residents')],
@@ -363,14 +367,14 @@ function overview(){
   item.append(el('small',label),el('strong','—'),el('span','Memeriksa data'));
   item.dataset.card=key;cards.append(item);
  }
- const status=el('div',undefined,'sa-overview-status');
+ const status=el('div',__f4.globals.undefined,'sa-overview-status');
  const state=el('span','Memeriksa koneksi…','sa-overview-state');
  status.append(state);main.querySelector('.f4-work-heading').append(status);
- const workspace=el('section',undefined,'sa-work-menu');
+ const workspace=el('section',__f4.globals.undefined,'sa-work-menu');
  const head=el('header');head.append(el('h3','Ruang kerja'));
  const search=el('input');search.type='search';search.placeholder='Cari menu, misalnya jadwal timbang';search.setAttribute('aria-label','Cari menu pengelolaan');
  head.append(search);workspace.append(head);main.append(workspace);
- const list=el('div',undefined,'sa-work-groups');
+ const list=el('div',__f4.globals.undefined,'sa-work-groups');
  const empty=el('p','Menu tidak ditemukan. Coba nama kegiatan atau jenis data.');empty.hidden=true;
  workspace.append(list,empty);
  const workflows=[
@@ -381,7 +385,7 @@ function overview(){
  ];
  for(const [label,icon,destinations] of workflows){
   const area=el('section'),heading=el('h4'),glyph=el('img');
-  glyph.src='/assets/icons/'+icon+'.svg';glyph.alt='';heading.append(glyph,document.createTextNode(label));area.append(heading);
+  glyph.src='/assets/icons/'+icon+'.svg';glyph.alt='';heading.append(glyph,__f4.globals.document.createTextNode(label));area.append(heading);
   for(const [name,id] of destinations){
    const action=button(name,()=>groups.some(([key])=>key===id)?open(id):openEditor(id),'sa-work-link');
    action.dataset.search=(label+' '+name).toLocaleLowerCase('id');area.append(action);
@@ -397,13 +401,13 @@ function overview(){
   empty.hidden=!!list.querySelector('section:not([hidden])');
  };
  const pulls=[['accounts','/api/superadmin/accounts/preview'],['houses','/api/v2/admin/residents'],['projects','/api/v2/admin/content/projects']];
- Promise.allSettled(pulls.map(async ([id,path])=>{
+ __f4.globals.Promise.allSettled(pulls.map(async ([id,path])=>{
   const card=cards.querySelector('[data-card="'+id+'"]');
   try{
    const result=rows(await get(path));
    if(!card?.isConnected)return;
-   const count=id==='houses'?new Set(result.map(r=>r.household_id).filter(Boolean)).size:result.length;
-   card.querySelector('strong').textContent=String(count);
+   const count=id==='houses'?new __f4.globals.Set(result.map(r=>r.household_id).filter(__f4.globals.Boolean)).size:result.length;
+   card.querySelector('strong').textContent=(0,__f4.globals.String)(count);
    card.querySelector('span').textContent={accounts:'Kelola akses',houses:'Lihat data warga',projects:'Kelola projek'}[id];
   }catch(error){
    if(card?.isConnected){
@@ -427,7 +431,7 @@ function overview(){
 // Match original Bank Sampah account-management table, add centralized role.
 let accountRoleFilter='',accountStatusFilter='',accountRequestSerial=0;
 const normalizedRole=(value)=>{
- const role=String(value||'').trim().toLowerCase();
+ const role=(0,__f4.globals.String)(value||'').trim().toLowerCase();
  if(['warga','anggota','member','resident'].includes(role))return 'anggota';
  if(['superadmin','super_admin','super-admin'].includes(role))return 'superadmin';
  if(['admin','administrator'].includes(role))return 'admin';
@@ -440,7 +444,7 @@ function accountId(a){return value(a,['wargaId','warga_id','member_id','payer_id
 function accountStatus(a){
  const enabled=a.aktif??a.active??a.is_active;
  if(enabled===false||enabled===0||enabled==='0')return 'Nonaktif';
- const state=String(a.status||a.account_status||'').trim();
+ const state=(0,__f4.globals.String)(a.status||a.account_status||'').trim();
  if(/nonaktif|inactive|disabled|suspend/i.test(state))return 'Nonaktif';
  if(a.perluAktivasi||/pending|belum/i.test(state))return 'Belum aktif';
  if(enabled===true||enabled===1||enabled==='1'||/aktif|active/i.test(state))return 'Aktif';
@@ -450,7 +454,7 @@ function accountStatus(a){
 
 async function manageAccount(a,action){
  const old=accountName(a),house=accountHouse(a),username=accountUser(a);
- const shade=el('div',undefined,'sa-account-shade'),panel=el('section',undefined,'sa-account-modal');
+ const shade=el('div',__f4.globals.undefined,'sa-account-shade'),panel=el('section',__f4.globals.undefined,'sa-account-modal');
  panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
  const heading=el('h3',action==='edit'?'Edit nama warga':action==='deactivate'?'Nonaktifkan akun':'Pergantian penghuni');
  const subtitle=el('p',old+' · '+house+' · '+username,'sa-account-subtitle');
@@ -467,10 +471,10 @@ async function manageAccount(a,action){
   label.append(user);form.append(label);
  }
  const feedback=el('p','','sa-account-feedback');feedback.setAttribute('role','status');
- const buttons=el('div',undefined,'sa-account-modal-actions');
+ const buttons=el('div',__f4.globals.undefined,'sa-account-modal-actions');
  const cancel=button('Batal',()=>shade.remove(),'sa-account-reset');
  const save=button(action==='handover'?'Ganti penghuni':action==='deactivate'?'Ya, Nonaktifkan':'Simpan',()=>{},'sa-action sa-action-primary');
- save.type='submit';buttons.append(cancel,save);form.append(feedback,buttons);panel.append(heading,subtitle,msg,form);shade.append(panel);document.body.append(shade);
+ save.type='submit';buttons.append(cancel,save);form.append(feedback,buttons);panel.append(heading,subtitle,msg,form);shade.append(panel);__f4.globals.document.body.append(shade);
  shade.onclick=e=>{if(e.target===shade)shade.remove()};
  form.onsubmit=async e=>{
   e.preventDefault();save.disabled=true;feedback.textContent='Memproses perubahan…';
@@ -479,8 +483,8 @@ async function manageAccount(a,action){
   if(user){payload.username=user.value.trim().toLowerCase();payload.confirmation='GANTI PENGHUNI'}
   if(action==='deactivate')payload.confirmation='NONAKTIFKAN AKUN';
   try{
-   const r=await fetch(API+'/api/superadmin/accounts/manage-member',{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-   const data=await r.json().catch(()=>({}));if(!r.ok||data.ok===false)throw Error(data.error||'HTTP '+r.status);
+   const r=await (0,__f4.globals.fetch)(API+'/api/superadmin/accounts/manage-member',{method:'POST',credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(payload)});
+   const data=await r.json().catch(()=>({}));if(!r.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+r.status);
    feedback.textContent=action==='handover'?'Selesai. Username baru: '+data.username+' · Password awal: '+data.passwordAwal+'. Berikan secara pribadi.':
     action==='deactivate'?'Akun lama nonaktif; riwayatnya tetap disimpan.':'Nama berhasil diperbarui.';
    save.disabled=false;save.textContent='Tutup';
@@ -490,44 +494,44 @@ async function manageAccount(a,action){
  if(name)name.focus();else save.focus();
 }
 async function accountRequest(a,operation){
- const id=String(a?.id||'');
- if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)||String(a?.role)!=='anggota')
-   throw Error('Akun anggota tidak valid.');
+ const id=(0,__f4.globals.String)(a?.id||'');
+ if(!/^account:[A-Za-z0-9_-]{1,100}$/.test(id)||(0,__f4.globals.String)(a?.role)!=='anggota')
+   throw (0,__f4.globals.Error)('Akun anggota tidak valid.');
  const activation=operation==='activate';
  const path=activation?'/api/superadmin/accounts/activate-member':'/api/superadmin/accounts/reset-member';
  const payload={accountId:id,confirmation:activation?'AKTIFKAN AKUN WARGA':'RESET PASSWORD WARGA'};
- const res=await fetch(API+path,{method:'POST',credentials:'include',cache:'no-store',
-  headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+ const res=await (0,__f4.globals.fetch)(API+path,{method:'POST',credentials:'include',cache:'no-store',
+  headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(payload)});
  const result=await res.json().catch(()=>({}));
- if(!res.ok||result.ok===false)throw Error(result.error||'HTTP '+res.status);
+ if(!res.ok||result.ok===false)throw (0,__f4.globals.Error)(result.error||'HTTP '+res.status);
  return result;
 }
 async function accountSingleAction(a,operation,control){
  const activation=operation==='activate',username=accountUser(a);
- if(!await window.f4UiDialog.confirm((activation?'Aktifkan akun ':'Reset password akun ')+username+'? Password awal akan menjadi 1234'+(activation?'.':', dan semua sesi lama akan dikeluarkan.') ))return;
+ if(!await __f4.window.f4UiDialog.confirm((activation?'Aktifkan akun ':'Reset password akun ')+username+'? Password awal akan menjadi 1234'+(activation?'.':', dan semua sesi lama akan dikeluarkan.') ))return;
  control.disabled=true;
  try{
   const result=await accountRequest(a,operation);
-  await window.f4UiDialog.alert((activation?'Akun aktif.':'Password direset.')+'\nUsername: '+(result.username||username)+'\nPassword awal: '+(result.passwordAwal||'1234')+'\nSampaikan secara pribadi kepada warga.');
+  await __f4.window.f4UiDialog.alert((activation?'Akun aktif.':'Password direset.')+'\nUsername: '+(result.username||username)+'\nPassword awal: '+(result.passwordAwal||'1234')+'\nSampaikan secara pribadi kepada warga.');
   accountsPage();
- }catch(e){await window.f4UiDialog.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
+ }catch(e){await __f4.window.f4UiDialog.alert('Perubahan akun gagal: '+safe(e));control.disabled=false}
 }
 function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
- const panel=el('section',undefined,'sa-accounts-shell');
- const heading=el('div',undefined,'sa-account-head'),head=el('div');
+ const panel=el('section',__f4.globals.undefined,'sa-accounts-shell');
+ const heading=el('div',__f4.globals.undefined,'sa-account-head'),head=el('div');
  head.append(el('h3','Daftar Akun'));
- const actions=el('div',undefined,'sa-account-actions');
+ const actions=el('div',__f4.globals.undefined,'sa-account-actions');
  const prepare=button('Siapkan semua akun',async()=>{
   const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
   if(!pending.length)return;
-  if(!await window.f4UiDialog.confirm('Aktifkan '+pending.length+' akun anggota yang belum aktif? Password awal setiap akun: 1234. Akun yang sudah aktif tidak berubah.'))return;
+  if(!await __f4.window.f4UiDialog.confirm('Aktifkan '+pending.length+' akun anggota yang belum aktif? Password awal setiap akun: 1234. Akun yang sudah aktif tidak berubah.'))return;
   prepare.disabled=true;
   let made=0;
   try{
    for(const a of pending){await accountRequest(a,'activate');made++}
-   await window.f4UiDialog.alert(made+' akun berhasil diaktifkan. Berikan username dan password awal 1234 langsung kepada warga.');
-  }catch(error){await window.f4UiDialog.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
+   await __f4.window.f4UiDialog.alert(made+' akun berhasil diaktifkan. Berikan username dan password awal 1234 langsung kepada warga.');
+  }catch(error){await __f4.window.f4UiDialog.alert(made+' akun berhasil diaktifkan sebelum proses berhenti: '+safe(error))}
   accountsPage();
  },'sa-action sa-action-primary');
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
@@ -535,14 +539,14 @@ function accountsPage(){
  heading.append(head,actions);panel.append(heading);
  const noticeBox=el('p','Aktivasi dan reset password akun anggota tersedia di sini. Hak akses Admin/Superadmin dikelola secara terpisah.','sa-account-note');
  panel.append(noticeBox);
- const listWrap=el('div',undefined,'sa-account-table');
- const filters=el('div',undefined,'sa-account-filters f4-controls');
+ const listWrap=el('div',__f4.globals.undefined,'sa-account-table');
+ const filters=el('div',__f4.globals.undefined,'sa-account-filters f4-controls');
  const input=el('input');input.placeholder='Cari nama, rumah atau username (contoh: A5/41)';
  input.setAttribute('aria-label','Cari akun warga');input.value=accountSearch;
  input.oninput=()=>{accountSearch=input.value;paintAccounts()};
  const filter=el('select');filter.id='sa-role-filter';filter.setAttribute('aria-label','Filter peran akun');
  for(const [v,label] of [['','Semua peran'],['anggota','Anggota'],['admin','Admin'],['superadmin','Superadmin']])
-   filter.add(new Option(label,v));
+   filter.add(new __f4.globals.Option(label,v));
  filter.value=accountRoleFilter;
  filter.onchange=()=>{accountRoleFilter=filter.value;paintAccounts()};
  const accountReload=button('Muat ulang',()=>accountsPage(),'sa-action');accountReload.title='Muat ulang daftar akun';accountReload.setAttribute('aria-label','Muat ulang');
@@ -550,16 +554,16 @@ function accountsPage(){
  const stats=el('p','', 'sa-account-count');stats.id='sa-account-count';stats.dataset.f4Count='accounts';filters.append(stats);
  const statusFilter=el('select');statusFilter.id='sa-status-filter';statusFilter.setAttribute('aria-label','Filter status akun');
  for(const [key,label] of [['','Semua status'],['Aktif','Aktif'],['Belum aktif','Belum aktif'],['Nonaktif','Nonaktif'],['—','Status belum tercatat']]){
-  statusFilter.add(new Option(label,key));
+  statusFilter.add(new __f4.globals.Option(label,key));
  }
  statusFilter.value=accountStatusFilter;
  statusFilter.onchange=()=>{accountStatusFilter=statusFilter.value;paintAccounts()};
  filters.insertBefore(statusFilter,stats);
- const loadState=el('p',undefined,'f4-admin-note');panel.append(loadState);
- const loadToken=F4Loading.begin(loadState,'Memuat daftar akun…');
+ const loadState=el('p',__f4.globals.undefined,'f4-admin-note');panel.append(loadState);
+ const loadToken=__f4.globals.F4Loading.begin(loadState,'Memuat daftar akun…');
  listWrap.append(filters);
- const scroll=el('div',undefined,'sa-account-scroll');
- const table=el('table',undefined,'sa-account-grid');
+ const scroll=el('div',__f4.globals.undefined,'sa-account-scroll');
+ const table=el('table',__f4.globals.undefined,'sa-account-grid');
  const thead=el('thead'),tr=el('tr');
  for(const name of ['Nama warga','Rumah','Username','Role','Status','Aksi'])tr.append(el('th',name));
  thead.append(tr);table.append(thead);
@@ -569,7 +573,7 @@ function accountsPage(){
  get('/api/superadmin/accounts/preview').then(data=>{
   if(serial!==accountRequestSerial||!main.contains(panel))return;
   accounts=rows(data);
-  const counts=new Map();
+  const counts=new __f4.globals.Map();
   for(const account of accounts){
    const state=accountStatus(account);
    counts.set(state,(counts.get(state)||0)+1);
@@ -580,19 +584,19 @@ function accountsPage(){
   const pending=accounts.filter(a=>a.role==='anggota'&&a.perluAktivasi===true);
   prepare.disabled=!pending.length;
   prepare.title=pending.length?'Aktifkan '+pending.length+' akun anggota yang belum aktif':'Tidak ada akun anggota yang perlu diaktifkan';
-  F4Loading.success(loadState,loadToken);
+  __f4.globals.F4Loading.success(loadState,loadToken);
   paintAccounts();
  }).catch(error=>{
   if(serial!==accountRequestSerial||!main.contains(panel))return;
-  F4Loading.error(loadState,'Daftar akun belum dapat dibaca: '+safe(error),loadToken);
+  __f4.globals.F4Loading.error(loadState,'Daftar akun belum dapat dibaca: '+safe(error),loadToken);
   stats.textContent='';
-  tbody.replaceChildren(el('tr',undefined,'sa-account-error'));
+  tbody.replaceChildren(el('tr',__f4.globals.undefined,'sa-account-error'));
   const cell=el('td','Sambungan akun perlu diperiksa.');cell.colSpan=6;tbody.lastChild.append(cell);
  });
 }
 function paintAccounts(){
- const tbody=document.getElementById('sa-accounts');
- const count=document.getElementById('sa-account-count');
+ const tbody=__f4.globals.document.getElementById('sa-accounts');
+ const count=__f4.globals.document.getElementById('sa-account-count');
  if(!tbody||!count)return;
  const term=accountSearch.trim().toLowerCase(),roleFilter=accountRoleFilter;
  const filtered=accounts.filter(a=>{
@@ -613,7 +617,7 @@ function paintAccounts(){
   const user=el('td',accountUser(a)||'—');
   const role=el('td'),tag=el('span',({anggota:'Anggota',admin:'Admin',superadmin:'Superadmin'})[normalizedRole(a.role||a.peran||a.account_role)]||'Publik','sa-account-role');
   tag.dataset.role=normalizedRole(a.role||a.peran||a.account_role);role.append(tag);
-  const status=el('td',undefined,'sa-account-status'),statusLabel=el('span',accountStatus(a));
+  const status=el('td',__f4.globals.undefined,'sa-account-status'),statusLabel=el('span',accountStatus(a));
   statusLabel.dataset.status=accountStatus(a);status.append(statusLabel);
   const action=el('td');
   const member=normalizedRole(a.role||a.peran||a.account_role)==='anggota';
@@ -640,9 +644,9 @@ function paintAccounts(){
 }
 async function catalogPage(){
  title('Harga Sampah');
- const info=notice('');const loadingToken=F4Loading.begin(info,'Memuat daftar jenis dan harga…');
- const wrap=el('div',undefined,'f4-obligation-scroll');
- const table=el('table',undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
+ const info=notice('');const loadingToken=__f4.globals.F4Loading.begin(info,'Memuat daftar jenis dan harga…');
+ const wrap=el('div',__f4.globals.undefined,'f4-obligation-scroll');
+ const table=el('table',__f4.globals.undefined,'f4-obligation-grid');table.dataset.module='bankcatalog';
  const head=el('thead'),tr=el('tr');
  for(const label of ['Jenis barang','Harga/kg','Sumber data','Status'])tr.append(el('th',label));
  head.append(tr);table.append(head);
@@ -651,26 +655,26 @@ async function catalogPage(){
  const reference=[['Besi',5000],['Baja Ringan',4000],['Kardus',2000],['Duplex',700],['Gabruk','1500–1700'],
   ['Aluminium Kaleng',25000],['Kaleng',2500],['Gelas Plastik Bersih',4000],
   ['Botol/Gelas Plastik Kotor',2000],['Botol Aqua Bodong',4500],['Galon',3000]];
- const norm=x=>String(x||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'');
+ const norm=x=>(0,__f4.globals.String)(x||'').toLocaleLowerCase('id-ID').replace(/[^a-z0-9]/g,'');
  const money=n=>typeof n==='number'?'Rp '+n.toLocaleString('id-ID'):'Rp '+n+' (kisaran)';
  const priceOf=x=>{for(const key of ['harga_lapak','harga','harga_per_kg','harga_lapak_rp','price_per_kg_rp','price_rp','price_per_kg','price','unit_price_rp','buy_price_rp'])if(x[key]!=null&&x[key]!=='')return x[key];return null;};
  const draw=(saved,problem='')=>{
   body.replaceChildren();
-  const actual=new Map(saved.map(x=>[norm(value(x,['nama','nama_barang','jenis','name','item_name'])),x]));
+  const actual=new __f4.globals.Map(saved.map(x=>[norm(value(x,['nama','nama_barang','jenis','name','item_name'])),x]));
   const all=reference.map(([name,price])=>({name,price,item:actual.get(norm(name))}));
   for(const x of saved)if(!reference.some(([name])=>norm(name)===norm(value(x,['nama','nama_barang','jenis','name','item_name']))))
     all.push({name:value(x,['nama','nama_barang','jenis','name','item_name'])||'Jenis tanpa nama',price:null,item:x});
   for(const x of all){
    const row=el('tr');
    const current=x.item&&priceOf(x.item);
-   row.append(el('td',x.name),el('td',current==null?(x.price==null?'—':money(x.price)):money(Number(current)||current)),
+   row.append(el('td',x.name),el('td',current==null?(x.price==null?'—':money(x.price)):money((0,__f4.globals.Number)(current)||current)),
     el('td',x.item?'Data aktif':'Harga lama'),el('td',x.item?'Tercatat':'Belum tercatat'));
    body.append(row);
   }
   const missing=all.filter(x=>!x.item).length;
-  if(problem)F4Loading.error(info,'Daftar harga belum dapat dibaca: '+problem,loadingToken);
-  else if(missing)F4Loading.empty(info,missing+' jenis acuan belum tersedia.',loadingToken);
-  else F4Loading.success(info,loadingToken);
+  if(problem)__f4.globals.F4Loading.error(info,'Daftar harga belum dapat dibaca: '+problem,loadingToken);
+  else if(missing)__f4.globals.F4Loading.empty(info,missing+' jenis acuan belum tersedia.',loadingToken);
+  else __f4.globals.F4Loading.success(info,loadingToken);
  };
  try{
   const d=await get('/api/v2/admin/bank/catalog');
@@ -683,34 +687,34 @@ function wargaForm(mode,row={}){
  if(role!=='superadmin')return;
  const isHouse=mode.endsWith('house'),isNew=mode.startsWith('add_');
  title((isNew?'Tambah ':'Edit ')+(isHouse?'Rumah':'Warga'),'Kelola data warga dan rumah.');
- const card=section('Informasi '+(isHouse?'rumah':'warga')),form=el('form',undefined,'f4-admin-editor'),grid=el('div',undefined,'f4-admin-fields');
+ const card=section('Informasi '+(isHouse?'rumah':'warga')),form=el('form',__f4.globals.undefined,'f4-admin-editor'),grid=el('div',__f4.globals.undefined,'f4-admin-fields');
  const houseFields=[['rumah','Nomor rumah','text',true],['nama_pemilik','Nama pemilik','text'],['kontak_pemilik','Nomor HP pemilik','tel'],['status_rumah','Status rumah','text'],['tipe_unit','Tipe unit','text'],['keterangan_rumah','Keterangan','textarea']];
  const residentFields=[['nama','Nama warga','text',true],['status_tinggal','Status tinggal','text'],['status_aktif','Status aktif','text'],['nomor_hp','Nomor HP','tel'],['keterangan_warga','Keterangan','textarea']];
  const fields=isHouse?houseFields:residentFields;
  if(!isHouse&&isNew){
   const outer=el('label');outer.append(el('span','Pilih rumah'));
-  const select=el('select');select.name='household_id';select.required=true;select.append(new Option('Pilih rumah',''));
-  for(const [id,code] of new Map(residentRows.map(x=>[x.household_id,x.rumah]))){if(id&&code)select.append(new Option(code,id))}
+  const select=el('select');select.name='household_id';select.required=true;select.append(new __f4.globals.Option('Pilih rumah',''));
+  for(const [id,code] of new __f4.globals.Map(residentRows.map(x=>[x.household_id,x.rumah]))){if(id&&code)select.append(new __f4.globals.Option(code,id))}
   outer.append(select);grid.append(outer);
  }
  for(const [key,label,type,required] of fields){
   const outer=el('label');outer.append(el('span',label));
   const control=el(type==='textarea'?'textarea':'input');
   if(type!=='textarea')control.type=type;
-  control.name=key;control.required=!!required;control.value=String(row[key]??'');
+  control.name=key;control.required=!!required;control.value=(0,__f4.globals.String)(row[key]??'');
   const examples={rumah:'Contoh: A5/41',nama_pemilik:'Contoh: Pak Heri',kontak_pemilik:'Contoh: 081234567890',status_rumah:'Contoh: Dihuni / Kosong / Disewakan',tipe_unit:'Contoh: Rumah tinggal',keterangan_rumah:'Contoh: Rumah kosong, pemilik tinggal di luar kota',nama:'Contoh: Pak Heri (Ali)',status_tinggal:'Contoh: Pemilik / Penyewa / Penghuni',status_aktif:'Contoh: Aktif',nomor_hp:'Contoh: 081234567890',keterangan_warga:'Contoh: Humas / Ketua RT / Kebersihan 2x'};
   control.placeholder=examples[key]||'Isi '+label.toLowerCase();
   if(type==='textarea')control.rows=3;
   outer.append(control);grid.append(outer);
  }
- form.append(grid);const note=el('p','','f4-admin-note'),actions=el('div',undefined,'f4-warga-form-actions');
- const save=button(isNew?'Tambah':'Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary');
+ form.append(grid);const note=el('p','','f4-admin-note'),actions=el('div',__f4.globals.undefined,'f4-warga-form-actions');
+ const save=button(isNew?'Tambah':'Simpan Perubahan',()=>{if(form.reportValidity())form.dispatchEvent(new __f4.globals.Event('submit',{bubbles:true,cancelable:true}))},'f4-admin-primary');
  actions.append(button('Batal',openWarga,'sa-action'),save);form.append(note,actions);card.append(form);
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   const data={action:mode};
   for(const control of form.querySelectorAll('[name]')){
-   const val=String(control.value||'').trim();
+   const val=(0,__f4.globals.String)(control.value||'').trim();
    if(control.required&&!val){note.textContent=control.name+' wajib diisi.';control.focus();return}
    data[control.name]=val;
   }
@@ -718,9 +722,9 @@ function wargaForm(mode,row={}){
   if(mode==='edit_resident'){data.payer_id=row.payer_id;data.active=row.active!==0}
   save.disabled=true;note.textContent='Menyimpan perubahan…';
   try{
-   const response=await fetch(API+'/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+   const response=await (0,__f4.globals.fetch)(API+'/api/v2/admin/residents',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(data)});
    const result=await response.json().catch(()=>({}));
-   if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+   if(!response.ok||result.ok===false)throw (0,__f4.globals.Error)(result.error||'HTTP '+response.status);
    await openWarga();
    const message=el('p','Data berhasil disimpan.','sa-chip');main.insertBefore(message,main.children[1]||null);
   }catch(e){note.textContent='Gagal menyimpan: '+safe(e)}
@@ -731,7 +735,7 @@ async function openWarga(){
  active='residents';group='masters';
  if(!side.querySelector('button.active'))sidebar('masters');
  title('Data Warga & Rumah','Master lintas portal — identitas dan nomor rumah dikelola satu kali');
- const bar=el('div',undefined,'sa-controls sa-resident-controls f4-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
+ const bar=el('div',__f4.globals.undefined,'sa-controls sa-resident-controls f4-controls'),search=el('input');search.placeholder='Cari warga atau rumah';
  const houseButton=button('Tambah Rumah',()=>wargaForm('add_house'),'sa-action sa-resident-icon-action');
  houseButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3z"/><path d="M9 20v-7h6"/><path d="M18 12v7m-3-3h6"/></svg>';
  houseButton.title='Tambah Rumah';houseButton.setAttribute('aria-label','Tambah Rumah');
@@ -742,19 +746,19 @@ async function openWarga(){
  reloadButton.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.1 5.4M20 4v7h-7"/></svg>';
  reloadButton.title='Muat ulang';reloadButton.setAttribute('aria-label','Muat ulang');
  // Pencarian dan tiga aksi berada pada SATU baris di HP.
- const searchAndReload=el('div',undefined,'f4-inline-search-refresh');
+ const searchAndReload=el('div',__f4.globals.undefined,'f4-inline-search-refresh');
  reloadButton.classList.add('f4-search-refresh-button');
  searchAndReload.append(search,reloadButton);
  bar.append(searchAndReload,houseButton,residentButton);
- main.append(bar);const info=notice(''),list=el('div',undefined,'sa-list');main.append(list);
- const loadToken=F4Loading.begin(info,'Memuat data warga…');
+ main.append(bar);const info=notice(''),list=el('div',__f4.globals.undefined,'sa-list');main.append(list);
+ const loadToken=__f4.globals.F4Loading.begin(info,'Memuat data warga…');
  const render=()=>{list.replaceChildren();const q=search.value.toLowerCase();
-  const wrap=el('div',undefined,'sa-resident-scroll'),table=el('table',undefined,'sa-resident-grid');
+  const wrap=el('div',__f4.globals.undefined,'sa-resident-scroll'),table=el('table',__f4.globals.undefined,'sa-resident-grid');
   const head=el('thead'),headrow=el('tr');
   for(const name of ['Nama warga','Nomor rumah','Status tinggal / rumah','Keterangan rumah','Kontak pemilik','Aksi'])headrow.append(el('th',name));
   head.append(headrow);table.append(head);
   const body=el('tbody');let count=0;
-  for(const o of residentRows.filter(x=>JSON.stringify(x).toLowerCase().includes(q))){
+  for(const o of residentRows.filter(x=>__f4.globals.JSON.stringify(x).toLowerCase().includes(q))){
    count++;
    const tr=el('tr');
    const values=[value(o,['nama','nama_warga','nama_pemilik'])||('Rumah '+(value(o,['rumah'])||'belum bernomor')+' • Kosong'),
@@ -769,54 +773,56 @@ async function openWarga(){
   if(!count){const tr=el('tr'),td=el('td','Belum ada data yang cocok.');td.colSpan=6;tr.append(td);body.append(tr)}
   table.append(body);wrap.append(table);list.append(wrap);
  };search.oninput=render;
- try{residentRows=rows(await get('/api/v2/admin/residents'));render();if(residentRows.length)F4Loading.success(info,loadToken);else F4Loading.empty(info,'Belum ada data warga/rumah.',loadToken);}
- catch(e){F4Loading.error(info,'Tidak dapat memuat data acuan: '+safe(e),loadToken)}
+ try{residentRows=rows(await get('/api/v2/admin/residents'));render();if(residentRows.length)__f4.globals.F4Loading.success(info,loadToken);else __f4.globals.F4Loading.empty(info,'Belum ada data warga/rumah.',loadToken);}
+ catch(e){__f4.globals.F4Loading.error(info,'Tidak dapat memuat data acuan: '+safe(e),loadToken)}
 }
 function auditPage(){
  title('Pengaturan & Audit','Pemeriksaan layanan, kontrol dan jejak perubahan');
- const status=section('Koneksi layanan');const list=el('div',undefined,'sa-list');status.append(list);
+ const status=section('Koneksi layanan');const list=el('div',__f4.globals.undefined,'sa-list');status.append(list);
  for(const [name,url] of [['Sesi autentikasi','/api/v2/auth/session'],['Master warga','/api/v2/admin/residents'],['Konten projek','/api/v2/admin/content/projects']]){
- const item=el('div',undefined,'sa-item'),label=el('strong',name),state=el('span','Memeriksa…','sa-chip');item.append(label,state);list.append(item);
+ const item=el('div',__f4.globals.undefined,'sa-item'),label=el('strong',name),state=el('span','Memeriksa…','sa-chip');item.append(label,state);list.append(item);
  get(url).then(()=>state.textContent='Terhubung').catch(e=>state.textContent='Perlu diperiksa');
  }
  const log=section('Audit & Cadangan');
  log.append(el('p','Riwayat perubahan dan cadangan belum tersedia untuk ditampilkan. Status ini tidak berarti data sudah dicadangkan.'));
  const btn=button('Periksa ulang koneksi',auditPage,'sa-action');status.append(btn);
 }
-window.openWarga=openWarga;
-window.f4SuperadminNavigate=open;
+__f4.window.openWarga=openWarga;
+__f4.window.f4SuperadminNavigate=open;
 async function boot(){
  try{
   const s=await get('/api/v2/auth/session');
-  role=String(s?.account?.role||s?.role||'').toLowerCase();
-  if(role!=='superadmin')throw Error('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
-  document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
-  const own=new URLSearchParams(location.search).get('halaman')||location.hash.replace(/^#sa-/,'');
+  role=(0,__f4.globals.String)(s?.account?.role||s?.role||'').toLowerCase();
+  if(role!=='superadmin')throw (0,__f4.globals.Error)('Hanya role Superadmin yang memiliki izin masuk. Silakan login dengan akun berwenang.');
+  __f4.globals.document.body.classList.add('role-superadmin');guard.hidden=true;root.hidden=false;
+  const own=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||__f4.globals.location.hash.replace(/^#sa-/,'');
   let requested=own.split('/')[0],initialModule=own.split('/')[1]||'';
   // Existing bookmarks to the removed duplicate Bagi Hasil open the restored schedule.
   if(requested==='bank'&&initialModule==='bank_split')initialModule='bank_weighing';
   // Match the parent URL before first paint; do not paint Overview and then
   // immediately replace it with Content/Data Acuan (visible as a flash).
-  if(window.parent!==window){
+  if(__f4.window.parent!==window){
    try{
-    const parentFragment=new URLSearchParams(window.parent.location.search).get('halaman')||window.parent.location.hash.match(/^#superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/)?.[1];
+    const parentFragment=new __f4.globals.URLSearchParams(__f4.window.parent.location.search).get('halaman')||__f4.window.parent.location.hash.match(/^#superadmin\/(overview|treasury|accounts|content|bank|masters|audit)$/)?.[1];
     if(parentFragment)requested=parentFragment;
    }catch{}
   }
   open(groups.some(x=>x[0]===requested)?requested:'overview',false);
   if(initialModule&&submenu[group]?.some(([key])=>key===initialModule))openEditor(initialModule);
   f4SaNav.ready=true;
-  const canonical=new URL(location.href);canonical.searchParams.set('halaman',group+(active?'/'+active:''));canonical.hash='';
-   history.replaceState({...history.state,f4SaDrawer:false,f4SaRoute:{group,kind:active}},'',canonical.pathname+canonical.search);
-  if(window.parent!==window)window.parent.postMessage({type:'f4:ready',portal:'superadmin'},location.origin);
+  const canonical=new __f4.globals.URL(__f4.globals.location.href);canonical.searchParams.set('halaman',group+(active?'/'+active:''));canonical.hash='';
+   __f4.globals.history.replaceState({...__f4.globals.history.state,f4SaDrawer:false,f4SaRoute:{group,kind:active}},'',canonical.pathname+canonical.search);
+  if(__f4.window.parent!==window)__f4.window.parent.postMessage({type:'f4:ready',portal:'superadmin'},__f4.globals.location.origin);
  }catch(e){guard.replaceChildren(el('h2','Akses Portal Superadmin ditolak'),el('p',safe(e)));guard.append(button('Kembali ke Portal Utama',()=>{
-   if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'portal'},location.origin);
-   else location.href='/?f4ui=20261126-borderless-shell-v2';
+   if(__f4.window.parent!==window)__f4.window.parent.postMessage({type:'f4:go-portal',portal:'portal'},__f4.globals.location.origin);
+   else __f4.globals.location.href='/?f4ui=20261126-borderless-shell-v2';
  },'sa-action'));}
 }
-window.addEventListener('message',e=>{
- if(e.origin!==location.origin||e.source!==window.parent)return;
+__f4.window.addEventListener('message',e=>{
+ if(e.origin!==__f4.globals.location.origin||e.source!==__f4.window.parent)return;
  if(e.data?.type==='f4:superadmin-open-section'&&e.data.section!==group)open(e.data.section);
 });
 boot();
 })();
+
+});

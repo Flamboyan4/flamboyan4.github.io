@@ -1,44 +1,48 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/portal-panels.js",function(__f4){
+
+
 /* Four-portal staging adapter: show one Portal Utama content panel at a time.
    It reuses ALL existing DOM/forms/click handlers without rebuilding the old portal. */
 (()=>{
 'use strict';
-const main=document.querySelector('body>main');if(!main)return;
-const footer=document.getElementById('pembayaran');
+const main=__f4.globals.document.querySelector('body>main');if(!main)return;
+const footer=__f4.globals.document.getElementById('pembayaran');
 const current={panel:'beranda',role:'public',privateKind:'iuran_rt'};
-const finance=document.getElementById('keuangan');
-const isMember=role=>['anggota','warga','member'].includes(String(role||'').toLowerCase());
+const finance=__f4.globals.document.getElementById('keuangan');
+const isMember=role=>['anggota','warga','member'].includes((0,__f4.globals.String)(role||'').toLowerCase());
 let finBlock=null,scrollScheduled=false,lastVisible='';
-const financeDisplayCache=new WeakMap();
+const financeDisplayCache=new __f4.globals.WeakMap();
 const sectionTargets={
- beranda:document.querySelector('body>main>section:first-of-type'),
- keuangan:document.getElementById('keuangan'),
- projek:document.getElementById('projek'),
- inventaris:document.getElementById('container-inventaris-warga')||document.getElementById('kegiatan'),
- kalender:document.getElementById('rencana'),
-  arisan:document.getElementById('arisan'),
- komentar:document.getElementById('komentar-warga'),
+ beranda:__f4.globals.document.querySelector('body>main>section:first-of-type'),
+ keuangan:__f4.globals.document.getElementById('keuangan'),
+ projek:__f4.globals.document.getElementById('projek'),
+ inventaris:__f4.globals.document.getElementById('container-inventaris-warga')||__f4.globals.document.getElementById('kegiatan'),
+ kalender:__f4.globals.document.getElementById('rencana'),
+  arisan:__f4.globals.document.getElementById('arisan'),
+ komentar:__f4.globals.document.getElementById('komentar-warga'),
  pembayaran:footer
 };
-const el=(tag,text,cls)=>{const a=document.createElement(tag);if(text!==undefined)a.textContent=String(text);if(cls)a.className=cls;return a};
-const prefersReduced=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el=(tag,text,cls)=>{const a=__f4.globals.document.createElement(tag);if(text!==__f4.globals.undefined)a.textContent=(0,__f4.globals.String)(text);if(cls)a.className=cls;return a};
+const prefersReduced=()=>__f4.window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function reportVisible(panel){
  if(panel===lastVisible)return;
  lastVisible=panel;
- (window.parent!==window?window.parent:window).postMessage({type:'f4:portal-visible-panel',panel},location.origin);
+ (__f4.window.parent!==window?__f4.window.parent:window).postMessage({type:'f4:portal-visible-panel',panel},__f4.globals.location.origin);
 }
 function visiblePanel(){
  if(scrollScheduled)return;
  scrollScheduled=true;
- requestAnimationFrame(()=>{
+ (0,__f4.globals.requestAnimationFrame)(()=>{
   scrollScheduled=false;
   // Scrollspy: the last section reaching the reading line is the active menu.
   const landmarks=[
    ['beranda',sectionTargets.beranda],
    ['keuangan',current.role==='public'?null:sectionTargets.keuangan],
-   ['keuangan',current.role==='public'?null:document.getElementById('arisan')],
+   ['keuangan',current.role==='public'?null:__f4.globals.document.getElementById('arisan')],
    ['projek',sectionTargets.projek],
    ['kalender',sectionTargets.kalender],
-   ['inventaris',document.getElementById('kegiatan')],
+   ['inventaris',__f4.globals.document.getElementById('kegiatan')],
    ['komentar',sectionTargets.komentar],
    ['pembayaran',footer]
   ];
@@ -46,7 +50,7 @@ function visiblePanel(){
   for(const [name,node] of landmarks){
    if(node&&node.getBoundingClientRect().top<=150)active=name;
   }
-  const atBottom=window.innerHeight+window.scrollY>=document.documentElement.scrollHeight-12;
+  const atBottom=__f4.window.innerHeight+__f4.window.scrollY>=__f4.globals.document.documentElement.scrollHeight-12;
   if(atBottom&&footer)active='pembayaran';
   current.panel=active;
   reportVisible(active);
@@ -54,33 +58,33 @@ function visiblePanel(){
 }
 function showPanel(panel,recordHistory=true){
  // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
- if(panel==='inventaris'){location.assign('/dokumentasi/?halaman=inventaris');return;}
- if(!Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
+ if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
+ if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
  if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
- const top=Math.max(0,window.scrollY+element.getBoundingClientRect().top-73);
- window.scrollTo({top,behavior:prefersReduced()?'auto':'smooth'});
+ const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
+ __f4.window.scrollTo({top,behavior:prefersReduced()?'auto':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel);
  if(recordHistory){
-  const dest=new URL(location.href);dest.hash='';
+  const dest=new __f4.globals.URL(__f4.globals.location.href);dest.hash='';
   if(panel==='beranda')dest.searchParams.delete('halaman');else dest.searchParams.set('halaman',panel);
-  const currentPage=new URLSearchParams(location.search).get('halaman')||'beranda';
-  if(currentPage!==panel)history.pushState({...history.state,f4PortalPanel:panel},'',dest.pathname+dest.search);
+  const currentPage=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'beranda';
+  if(currentPage!==panel)__f4.globals.history.pushState({...__f4.globals.history.state,f4PortalPanel:panel},'',dest.pathname+dest.search);
  }
 }
-window.addEventListener('popstate',event=>{
- const page=event.state?.f4PortalPanel||new URLSearchParams(location.search).get('halaman')||'beranda';
- if(Object.hasOwn(sectionTargets,page))showPanel(page,false);
+__f4.window.addEventListener('popstate',event=>{
+ const page=event.state?.f4PortalPanel||new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'beranda';
+ if(__f4.globals.Object.hasOwn(sectionTargets,page))showPanel(page,false);
 });
-window.addEventListener('scroll',visiblePanel,{passive:true});
-window.addEventListener('resize',visiblePanel,{passive:true});
+__f4.window.addEventListener('scroll',visiblePanel,{passive:true});
+__f4.window.addEventListener('resize',visiblePanel,{passive:true});
 function createFinanceTabs(){
  if(!finance)return;
  if(!finBlock){
-  finBlock=el('div',undefined,'f4-user-finance');
+  finBlock=el('div',__f4.globals.undefined,'f4-user-finance');
   finBlock.innerHTML='<div class="f4-user-finance-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2"/></svg><h3>Keuangan</h3></div>'+
    '<div class="f4-user-finance-controls" role="group" aria-label="Pilihan laporan">'+
     '<button type="button" data-finance-mode="lingkungan" class="active">Kas Warga</button>'+
@@ -129,7 +133,7 @@ function setFinanceMode(own){
  finBlock.querySelectorAll('[data-finance-mode]').forEach(b=>{
   const active=(b.dataset.financeMode==='saya')===allowed;
   b.classList.toggle('active',active);
-  b.setAttribute('aria-pressed',String(active));
+  b.setAttribute('aria-pressed',(0,__f4.globals.String)(active));
  });
  if(allowed)loadPersonal(current.privateKind);
 }
@@ -139,75 +143,75 @@ async function loadPersonal(kind){
  const requestId=++personalRequestSerial;
  if(!isMember(current.role))return;
  current.privateKind=kind;
- const area=document.getElementById('f4-personal-data');if(!area)return;
+ const area=__f4.globals.document.getElementById('f4-personal-data');if(!area)return;
  const loading=el('p','','f4-user-status');area.replaceChildren(loading);
- const loadToken=window.F4Loading?.begin(loading,'Memuat riwayat…');
+ const loadToken=__f4.window.F4Loading?.begin(loading,'Memuat riwayat…');
  finBlock.querySelectorAll('[data-kind]').forEach(button=>{
   const selected=button.dataset.kind===kind;
   button.classList.toggle('active',selected);
-  button.setAttribute('aria-pressed',String(selected));
+  button.setAttribute('aria-pressed',(0,__f4.globals.String)(selected));
  });
  // Rekening/penghuni ditentukan oleh sesi Worker, bukan parameter dari browser.
  const paths={iuran_rt:'/api/member/payments',kebersihan:'/api/member/payments',
   kas_lorong:'/api/member/payments',arisan:'/api/member/arisan',fines:'/api/member/fines',loans:'/api/member/loans'};
  const labels={iuran_rt:'Iuran RT',kebersihan:'Kebersihan',kas_lorong:'Kas Lorong',
   arisan:'Arisan',fines:'Denda',loans:'Pinjaman'};
- const money=value=>'Rp '+Number(value).toLocaleString('id-ID',{maximumFractionDigits:0});
+ const money=value=>'Rp '+(0,__f4.globals.Number)(value).toLocaleString('id-ID',{maximumFractionDigits:0});
  const amountOf=row=>{
   const raw=row.nominalRp??row.nominal??row.amount_rp??row.nilai_rp??row.jumlah_rp;
-  if(raw===undefined||raw===null||raw==='')return null;
-  const numeric=Number(raw);return Number.isFinite(numeric)?numeric:null;
+  if(raw===__f4.globals.undefined||raw===null||raw==='')return null;
+  const numeric=(0,__f4.globals.Number)(raw);return __f4.globals.Number.isFinite(numeric)?numeric:null;
  };
- const dateOf=row=>String(row.tanggal||row.paid_on||row.tanggal_bayar||row.created_at||'');
+ const dateOf=row=>(0,__f4.globals.String)(row.tanggal||row.paid_on||row.tanggal_bayar||row.created_at||'');
  const yearOf=row=>{
   const date=dateOf(row).match(/^(\d{4})/);
   // Bila tanggal transaksi kosong, tahun dari periode adalah fallback.
-  return date?date[1]:(String(row.periode||'').match(/^(\d{4})/)||[])[1]||'unknown';
+  return date?date[1]:((0,__f4.globals.String)(row.periode||'').match(/^(\d{4})/)||[])[1]||'unknown';
  };
  const niceDate=value=>{
-  const match=String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if(!match)return String(value||'—');
-  return new Date(+match[1],+match[2]-1,+match[3]).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  const match=(0,__f4.globals.String)(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!match)return (0,__f4.globals.String)(value||'—');
+  return new __f4.globals.Date(+match[1],+match[2]-1,+match[3]).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
  };
  try{
-  const res=await fetch('https://api.flamboyan4.web.id'+paths[kind],{credentials:'include',cache:'no-store'});
+  const res=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id'+paths[kind],{credentials:'include',cache:'no-store'});
   const data=await res.json().catch(()=>({}));
-  if(!res.ok||data.ok===false)throw Error(data.error||'HTTP '+res.status);
+  if(!res.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+res.status);
   if(requestId!==personalRequestSerial)return;
-  const received=Array.isArray(data.rows)?data.rows:Array.isArray(data.data)?data.data:Array.isArray(data.transaksi)?data.transaksi:[];
+  const received=__f4.globals.Array.isArray(data.rows)?data.rows:__f4.globals.Array.isArray(data.data)?data.data:__f4.globals.Array.isArray(data.transaksi)?data.transaksi:[];
   const types={iuran_rt:'IURAN_BULANAN',kebersihan:'KEBERSIHAN',kas_lorong:'KAS_LORONG'};
   const all=(types[kind]?received.filter(row=>row.jenis===types[kind]):received)
    .slice().sort((x,y)=>dateOf(y).localeCompare(dateOf(x)));
-  window.F4Loading?.success(loading,loadToken);
+  __f4.window.F4Loading?.success(loading,loadToken);
   area.replaceChildren();
-  const heading=el('div',undefined,'f4-user-category-heading');
+  const heading=el('div',__f4.globals.undefined,'f4-user-category-heading');
   const head=el('h4',labels[kind]||'Riwayat');
-  const filter=el('div',undefined,'f4-user-year-filter');
+  const filter=el('div',__f4.globals.undefined,'f4-user-year-filter');
   filter.append(el('span','Tahun transaksi'));
-  const currentYear=String(new Date().getFullYear());
-  const years=[...new Set(all.map(yearOf).filter(y=>/^\d{4}$/.test(y)))].sort((a,b)=>b.localeCompare(a));
+  const currentYear=(0,__f4.globals.String)(new __f4.globals.Date().getFullYear());
+  const years=[...new __f4.globals.Set(all.map(yearOf).filter(y=>/^\d{4}$/.test(y)))].sort((a,b)=>b.localeCompare(a));
   const chosen=personalYearByKind[kind]??(years.includes(currentYear)?currentYear:(years[0]||currentYear));
   const options=[{value:'all',label:'Semua Tahun'},
-   ...[...new Set([currentYear,...years])].sort((a,b)=>b.localeCompare(a)).map(year=>({value:year,label:year}))];
+   ...[...new __f4.globals.Set([currentYear,...years])].sort((a,b)=>b.localeCompare(a)).map(year=>({value:year,label:year}))];
   if(all.some(row=>yearOf(row)==='unknown'))options.push({value:'unknown',label:'Tanpa tahun'});
   let selectedYear=options.some(option=>option.value===chosen)?chosen:currentYear;
-  const picker=el('details',undefined,'f4-user-year-picker');
-  const trigger=el('summary',undefined,'f4-user-year-trigger');
+  const picker=el('details',__f4.globals.undefined,'f4-user-year-picker');
+  const trigger=el('summary',__f4.globals.undefined,'f4-user-year-trigger');
   trigger.setAttribute('aria-label','Pilih tahun transaksi');
   trigger.append(el('span',options.find(option=>option.value===selectedYear)?.label||selectedYear));
-  const popup=el('div',undefined,'f4-user-year-popover');
+  const popup=el('div',__f4.globals.undefined,'f4-user-year-popover');
   popup.setAttribute('aria-label','Daftar tahun transaksi');
   for(const option of options){
-   const control=el('button',undefined,'f4-user-year-option');
+   const control=el('button',__f4.globals.undefined,'f4-user-year-option');
    control.type='button';
    control.append(el('span',option.label));
    control.dataset.year=option.value;
-   control.setAttribute('aria-pressed',String(option.value===selectedYear));
+   control.setAttribute('aria-pressed',(0,__f4.globals.String)(option.value===selectedYear));
    control.onclick=()=>{
     selectedYear=option.value;
     trigger.firstElementChild.textContent=option.label;
     popup.querySelectorAll('[data-year]').forEach(button=>
-     button.setAttribute('aria-pressed',String(button.dataset.year===selectedYear)));
+     button.setAttribute('aria-pressed',(0,__f4.globals.String)(button.dataset.year===selectedYear)));
     picker.open=false;
     renderYear();
     trigger.focus({preventScroll:true});
@@ -217,7 +221,7 @@ async function loadPersonal(kind){
   picker.append(trigger,popup);
   filter.append(picker);
   heading.append(head,filter);area.append(heading);
-  const content=el('div',undefined,'f4-user-year-content');area.append(content);
+  const content=el('div',__f4.globals.undefined,'f4-user-year-content');area.append(content);
   function renderYear(){
    if(requestId!==personalRequestSerial)return;
    const selected=selectedYear;
@@ -229,35 +233,35 @@ async function loadPersonal(kind){
    content.append(counter);
    head.textContent=(labels[kind]||'Riwayat')+' · '+list.length+' catatan';
    if(!list.length){
-    const empty=el('div',undefined,'f4-user-empty');
+    const empty=el('div',__f4.globals.undefined,'f4-user-empty');
     empty.append(el('strong','Belum ada catatan '+(labels[kind]||'keuangan').toLowerCase()),
      el('p','Tidak ada transaksi yang tercatat untuk '+period+'. Silakan pilih tahun lain atau Semua Tahun.'));
     content.append(empty);return;
    }
    // Total nominal tahunan tidak ditampilkan ulang di Kas Saya.
-   const listHeading=el('div',undefined,'f4-user-list-heading');
+   const listHeading=el('div',__f4.globals.undefined,'f4-user-list-heading');
    listHeading.append(el('strong','Rincian catatan'),el('span','Terbaru dahulu'));
    content.append(listHeading);
-   const entries=el('div',undefined,'f4-user-entries');
+   const entries=el('div',__f4.globals.undefined,'f4-user-entries');
    content.append(entries);
-   const controls=el('div',undefined,'f4-user-more-controls');
+   const controls=el('div',__f4.globals.undefined,'f4-user-more-controls');
    content.append(controls);
    let visible=5;
    function paintEntries(){
     entries.replaceChildren();
     for(const row of list.slice(0,visible)){
-     const item=el('article',undefined,'f4-user-row'),left=el('div',undefined,'f4-user-row-content');
+     const item=el('article',__f4.globals.undefined,'f4-user-row'),left=el('div',__f4.globals.undefined,'f4-user-row-content');
      // Untuk Iuran/Kebersihan/Kas Lorong/Arisan, keterangan pada
      // tabel master Pembukuan adalah keterangan warga, BUKAN catatan pembayaran.
      const isIuran=['iuran_rt','kebersihan','kas_lorong','arisan'].includes(kind);
-     const description=String(isIuran?row.keteranganWarga||'':row.keterangan||row.catatan||'').trim();
-     const period=String(row.periode||'').trim();
+     const description=(0,__f4.globals.String)(isIuran?row.keteranganWarga||'':row.keterangan||row.catatan||'').trim();
+     const period=(0,__f4.globals.String)(row.periode||'').trim();
      const category={IURAN_BULANAN:'Iuran RT',KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'}[row.jenis]||labels[kind]||row.namaKegiatan||row.nama_kegiatan||'Riwayat pembayaran';
-     const headline=period?[period,description].filter(Boolean).join(' • '):description||category;
+     const headline=period?[period,description].filter(__f4.globals.Boolean).join(' • '):description||category;
      left.append(el('strong',headline));
-     const details=el('div',undefined,'f4-user-row-details');
+     const details=el('div',__f4.globals.undefined,'f4-user-row-details');
      if(dateOf(row))details.append(el('time',niceDate(dateOf(row))));
-     if(row.status)details.append(el('span',String(row.status),'f4-user-status-pill'));
+     if(row.status)details.append(el('span',(0,__f4.globals.String)(row.status),'f4-user-status-pill'));
      left.append(details);
      const amount=amountOf(row);
      item.append(left,el('strong',amount===null?'—':money(amount),'f4-user-amount'));
@@ -265,13 +269,13 @@ async function loadPersonal(kind){
     }
     controls.replaceChildren();
     if(list.length<=5)return;
-    const shown=Math.min(visible,list.length);
+    const shown=__f4.globals.Math.min(visible,list.length);
     const count=el('span','Menampilkan '+shown+' dari '+list.length+' catatan');
-    const button=el('button',shown<list.length?'Tampilkan '+Math.min(10,list.length-shown)+' berikutnya':'Tampilkan lebih sedikit','f4-user-more-button');
+    const button=el('button',shown<list.length?'Tampilkan '+__f4.globals.Math.min(10,list.length-shown)+' berikutnya':'Tampilkan lebih sedikit','f4-user-more-button');
     button.type='button';
-    button.setAttribute('aria-expanded',String(shown>5));
+    button.setAttribute('aria-expanded',(0,__f4.globals.String)(shown>5));
     button.onclick=()=>{
-     visible=shown<list.length?Math.min(list.length,shown+10):5;
+     visible=shown<list.length?__f4.globals.Math.min(list.length,shown+10):5;
      paintEntries();
      if(visible===5)listHeading.scrollIntoView({block:'nearest',behavior:'auto'});
     };
@@ -282,10 +286,10 @@ async function loadPersonal(kind){
   renderYear();
  }catch(error){
   if(requestId!==personalRequestSerial)return;
-  window.F4Loading?.error(loading,'Data belum tersedia: '+error.message+'. Akses tetap dibatasi pada akun yang login.',loadToken);
+  __f4.window.F4Loading?.error(loading,'Data belum tersedia: '+error.message+'. Akses tetap dibatasi pada akun yang login.',loadToken);
  }
 }
-const css=document.createElement('style');css.id='f4-portal-panels-style';
+const css=__f4.globals.document.createElement('style');css.id='f4-portal-panels-style';
 css.textContent='.f4-user-finance-sub{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.f4-user-status{font-size:12px;color:#68718a}.f4-user-row{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #e4e9f2;padding:10px 0}.f4-user-row strong{font-size:12px}.f4-user-row small{font-size:10px;color:#718096;display:block}';
 
 css.textContent+="\nfooter#pembayaran{background:#fff;color:#53607a;border-top:1px solid #e1e6f0;padding:30px 0 18px;margin-top:18px;scroll-margin-top:72px}\nfooter#pembayaran>div>div:first-child{background:#f8f9fc;border:1px solid #dce3ee;box-shadow:0 3px 15px #1b34550a}\nfooter#pembayaran>div>div:first-child>div:first-child{border-color:#e0e5ef}\nfooter#pembayaran>div>div:first-child>div:first-child h4{color:#2b3155}\nfooter#pembayaran>div>div:first-child>div:first-child>span{color:#728096}\nfooter#pembayaran .grid>div{background:white;border:1px solid #dde5ef}\nfooter#pembayaran .grid>div p.font-bold{color:#273655}\nfooter#pembayaran .grid>div p.text-slate-400{color:#68778d}\nfooter#pembayaran .grid button,footer#pembayaran .grid a{border-radius:9px}\nfooter#pembayaran>div>div:last-child{color:#738095}\nhtml{scroll-behavior:smooth}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}\n";
@@ -349,43 +353,43 @@ css.textContent+=[
  '#keuangan .f4-user-more-controls button.f4-user-more-button{background:var(--f4-portal-soft,#eef2ff);border:1px solid var(--f4-portal-line,#c7d2fe);color:var(--f4-portal-primary-ink,#3730a3);border-radius:10px;padding:9px 13px;min-height:39px;font-size:12px;font-weight:800}',
  '@media(max-width:760px){#keuangan .f4-user-category-heading{align-items:center}#keuangan .f4-user-category-heading h4{font-size:15px}#keuangan .f4-user-year-filter span{font-size:11px}#keuangan .f4-user-more-controls button{margin-left:auto}}'
 ].join('\n');
-document.addEventListener('pointerdown',event=>{
- const open=document.querySelector('#keuangan .f4-user-year-picker[open]');
+__f4.globals.document.addEventListener('pointerdown',event=>{
+ const open=__f4.globals.document.querySelector('#keuangan .f4-user-year-picker[open]');
  if(open&&!open.contains(event.target))open.open=false;
 },true);
-document.addEventListener('keydown',event=>{
+__f4.globals.document.addEventListener('keydown',event=>{
  if(event.key!=='Escape')return;
- const open=document.querySelector('#keuangan .f4-user-year-picker[open]');
+ const open=__f4.globals.document.querySelector('#keuangan .f4-user-year-picker[open]');
  if(open){open.open=false;open.querySelector('summary')?.focus({preventScroll:true});}
 },true);
-document.head.append(css);
-window.f4GoBank=()=>{
-  if(window.parent!==window)window.parent.postMessage({type:'f4:go-portal',portal:'bank-sampah'},location.origin);
-  else window.location.href='/bank-sampah/';
+__f4.globals.document.head.append(css);
+__f4.window.f4GoBank=()=>{
+  if(__f4.window.parent!==window)__f4.window.parent.postMessage({type:'f4:go-portal',portal:'bank-sampah'},__f4.globals.location.origin);
+  else __f4.window.location.href='/bank-sampah/';
 };
-window.f4PortalSelectPanel=showPanel;
-document.querySelectorAll('a[href^="/?halaman="]').forEach(link=>{
+__f4.window.f4PortalSelectPanel=showPanel;
+__f4.globals.document.querySelectorAll('a[href^="/?halaman="]').forEach(link=>{
  link.addEventListener('click',event=>{
-  const panel=new URL(link.href).searchParams.get('halaman');
-  if(!Object.hasOwn(sectionTargets,panel))return;
+  const panel=new __f4.globals.URL(link.href).searchParams.get('halaman');
+  if(!__f4.globals.Object.hasOwn(sectionTargets,panel))return;
   event.preventDefault();showPanel(panel,true);
  });
 });
-window.addEventListener('message',event=>{
- if(event.origin!==location.origin||event.source!==window.parent)return;
- if(event.data?.type==='f4:portal-panel')showPanel(String(event.data.panel||'beranda'));
+__f4.window.addEventListener('message',event=>{
+ if(event.origin!==__f4.globals.location.origin||event.source!==__f4.window.parent)return;
+ if(event.data?.type==='f4:portal-panel')showPanel((0,__f4.globals.String)(event.data.panel||'beranda'));
  if(event.data?.type==='f4:demo-role'){
-  current.role=String(event.data.role||'public').toLowerCase();
+  current.role=(0,__f4.globals.String)(event.data.role||'public').toLowerCase();
   // This attribute is the UI's existing signed-in visibility guard for cash
   // print buttons and the recent ledger, not an authorization token.
-  document.body.dataset.previewRole=current.role;
+  __f4.globals.document.body.dataset.previewRole=current.role;
   const authenticated=current.role!=='public';
   if(finance){finance.hidden=!authenticated;finance.classList.toggle('hidden',!authenticated);}
-  document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
+  __f4.globals.document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
    node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
   });
   if(!authenticated&&current.panel==='keuangan')showPanel('beranda');
-  document.dispatchEvent(new CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
+  __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.
   personalRequestSerial++;
@@ -403,6 +407,7 @@ window.addEventListener('message',event=>{
   visiblePanel();
  }
 });
-window.addEventListener('DOMContentLoaded',visiblePanel,{once:true});
+__f4.window.addEventListener('DOMContentLoaded',visiblePanel,{once:true});
 visiblePanel();
 })();
+});

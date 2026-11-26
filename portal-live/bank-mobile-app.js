@@ -1,41 +1,45 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-mobile-app.js",function(__f4){
+
+
 /* Bank Sampah Flamboyan 4 — canonical mobile banking UI.
    Real sources: existing D1-backed dashboard, member statement, print and manager APIs.
    One member page per purpose. No duplicate balance cards or pretend transactions. */
 (()=>{
 "use strict";
-const $=id=>document.getElementById(id);
+const $=id=>__f4.globals.document.getElementById(id);
 // One bright waste-type palette shared with the manager's chart.
-const F4_BANK_WASTE_PALETTE=Object.freeze(["#009788","#43A047","#FDC010","#09BCD3","#5969DA","#EB6A48","#8BC24A","#277FC6","#B452BA","#CA8B22","#22A97F","#D94880","#426CB8","#CE6B43","#799126","#368EAA","#C44256","#7B62B8"]);
+const F4_BANK_WASTE_PALETTE=__f4.globals.Object.freeze(["#009788","#43A047","#FDC010","#09BCD3","#5969DA","#EB6A48","#8BC24A","#277FC6","#B452BA","#CA8B22","#22A97F","#D94880","#426CB8","#CE6B43","#799126","#368EAA","#C44256","#7B62B8"]);
 const el=(tag,cls,text)=>{
-  const node=document.createElement(tag);if(cls)node.className=cls;
-  if(text!==undefined)node.textContent=text;return node;
+  const node=__f4.globals.document.createElement(tag);if(cls)node.className=cls;
+  if(text!==__f4.globals.undefined)node.textContent=text;return node;
 };
 function bankUiSvg(name){
  const paths={'chevron-right':'m9 18 6-6-6-6','check':'m20 6-11 11-5-5','x':'M18 6 6 18M6 6l12 12','plus':'M12 5v14M5 12h14'};
- if(!paths[name])throw Error('Unknown Bank SVG icon');
- const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ if(!paths[name])throw (0,__f4.globals.Error)('Unknown Bank SVG icon');
+ const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');
  svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
  svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
  svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
- const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[name]);svg.append(path);
+ const path=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[name]);svg.append(path);
  return svg;
 }
 function bankIconSpan(cls,name){const span=el('span',cls);span.append(bankUiSvg(name));span.setAttribute('aria-hidden','true');return span;}
-const rupiah=n=>"Rp "+Number(n||0).toLocaleString("id-ID");
-const displayWargaName=value=>window.f4BankDisplayWargaName?.(value)||String(value||"Anggota");
-const money=s=>Number(String(s||"").replace(/[^\d-]/g,""))||0;
+const rupiah=n=>"Rp "+(0,__f4.globals.Number)(n||0).toLocaleString("id-ID");
+const displayWargaName=value=>__f4.window.f4BankDisplayWargaName?.(value)||(0,__f4.globals.String)(value||"Anggota");
+const money=s=>(0,__f4.globals.Number)((0,__f4.globals.String)(s||"").replace(/[^\d-]/g,""))||0;
 const today=()=>{
-  const pieces=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
-  const obj=Object.fromEntries(pieces.filter(p=>["year","month","day"].includes(p.type)).map(x=>[x.type,x.value]));
+  const pieces=new __f4.globals.Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new __f4.globals.Date());
+  const obj=__f4.globals.Object.fromEntries(pieces.filter(p=>["year","month","day"].includes(p.type)).map(x=>[x.type,x.value]));
   return obj.year+"-"+obj.month+"-"+obj.day;
 };
 const apiRoot="https://api.flamboyan4.web.id";
 async function api(path,payload){
-  const response=await fetch(apiRoot+path,{method:payload?"POST":"GET",credentials:"include",mode:"cors",cache:"no-store",
-    ...(payload?{headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}:{})});
+  const response=await (0,__f4.globals.fetch)(apiRoot+path,{method:payload?"POST":"GET",credentials:"include",mode:"cors",cache:"no-store",
+    ...(payload?{headers:{"Content-Type":"application/json"},body:__f4.globals.JSON.stringify(payload)}:{})});
   const body=await response.json().catch(()=>({ok:false,error:"Respons layanan tidak terbaca."}));
-  if(!response.ok||body.ok===false)throw Error(body.error||"Layanan belum tersedia ("+response.status+").");
+  if(!response.ok||body.ok===false)throw (0,__f4.globals.Error)(body.error||"Layanan belum tersedia ("+response.status+").");
   return body;
 }
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
@@ -53,15 +57,15 @@ let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
 const featureRoutes=["bank-member-info","bank-member-docs"];
 let moved=[],memberSnapshotsLoaded=false,snapshotBusy=false;
-const text=(id,val)=>{if($(id)&&$(id).textContent!==String(val))$(id).textContent=String(val)};
+const text=(id,val)=>{if($(id)&&$(id).textContent!==(0,__f4.globals.String)(val))$(id).textContent=(0,__f4.globals.String)(val)};
 const image=file=>{const img=el("img");img.src="/assets/icons/"+file;img.alt="";img.setAttribute("aria-hidden","true");return img;};
 function roleType(){
- const r=String(document.body.dataset.f4BankRole||"").toLowerCase();
+ const r=(0,__f4.globals.String)(__f4.globals.document.body.dataset.f4BankRole||"").toLowerCase();
  return ["admin","superadmin"].includes(r)?"admin":["warga","anggota"].includes(r)?"member":null;
 }
 // Reuse the exact SVG component in the manager dock and PC action card.
 function bankSaleCartIcon(){
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
  svg.classList.add("f4-bank-cart-icon");
  svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
@@ -69,8 +73,8 @@ function bankSaleCartIcon(){
 }
 // One native fixed dock; no JS writes to its position during browser scroll.
 function markDock(){
- window.dispatchEvent(new CustomEvent("f4-shared-bank-route",{detail:screen}));
- for(const b of document.querySelectorAll("#v16NavList .f4-bank-desktop-nav-link")){
+ __f4.window.dispatchEvent(new __f4.globals.CustomEvent("f4-shared-bank-route",{detail:screen}));
+ for(const b of __f4.globals.document.querySelectorAll("#v16NavList .f4-bank-desktop-nav-link")){
   const selected=b.dataset.bankAppRoute===screen;
   b.classList.toggle("active",selected);
   if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
@@ -94,7 +98,7 @@ function syncAdminBack(){
   back=el("button","f4-bank-admin-back");
   back.id="f4BankAdminBack";back.type="button";
   back.setAttribute("aria-label","Kembali ke halaman sebelumnya");
-  const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  const arrow=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
   back.append(arrow);
@@ -130,11 +134,11 @@ function syncAdminBack(){
 }
 function syncMemberBack(){
  const button=$("f4-mobile-menu"),secondary=screen!=="dashboard";
- document.body.classList.toggle("f4-bank-member-secondary",secondary);
+ __f4.globals.document.body.classList.toggle("f4-bank-member-secondary",secondary);
  if(!button)return;
  if(secondary){
   // Consistent accessible back icon, not a text glyph that varies by device/font.
-  const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  const arrow=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
   arrow.setAttribute("viewBox","0 0 24 24");
   arrow.setAttribute("aria-hidden","true");
   arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
@@ -167,13 +171,13 @@ function bankAwardNode(rank,active){
  const badge=el("span","f4-bank-activity-crown is-rank-"+rank);
  badge.setAttribute("aria-label","Peringkat "+rank+" warga teraktif");
  badge.title="Peringkat "+rank+" warga teraktif · "+active+" periode penimbangan";
- const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const icon=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");
  icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
  icon.setAttribute("stroke-width","1.9");icon.setAttribute("stroke-linecap","round");
  icon.setAttribute("stroke-linejoin","round");
  icon.innerHTML='<path d="M2.5 7.5 6.5 11l5.5-7 5.5 7 4-3.5-2.4 11h-14z"/><path d="M6 21h12"/>';
- badge.append(icon,el("strong","",String(rank)));return badge;
+ badge.append(icon,el("strong","",(0,__f4.globals.String)(rank)));return badge;
 }
 function renderMemberAward(){
  for(const host of [$("f4BankMemberCard"),$("pageProfile")?.querySelector(".f4-bank-profile-card")]){
@@ -199,27 +203,27 @@ async function loadMemberAward(force=false){
   memberAward.loadedAt=0;memberAward.pending=null;renderMemberAward();
  }
  if(memberAward.pending)return memberAward.pending;
- if(!force&&Date.now()-memberAward.loadedAt<60000){renderMemberAward();return;}
+ if(!force&&__f4.globals.Date.now()-memberAward.loadedAt<60000){renderMemberAward();return;}
  const generation=memberAward.generation;
  const task=api("/api/v2/bank/activity-ranking").then(result=>{
   if(generation!==memberAward.generation||roleType()!=="member"||memberID()!==id)return;
   const found=result.badge;
-  memberAward.badge=found&&String(found.memberId||"")===id&&
-   Number.isInteger(found.rank)&&found.rank>=1&&found.rank<=3?found:null;
+  memberAward.badge=found&&(0,__f4.globals.String)(found.memberId||"")===id&&
+   __f4.globals.Number.isInteger(found.rank)&&found.rank>=1&&found.rank<=3?found:null;
   renderMemberAward();
  }).catch(error=>{
   if(generation!==memberAward.generation)return;
   memberAward.badge=null;renderMemberAward();
-  console.warn("Peringkat anggota belum tersedia:",error.message);
+  __f4.globals.console.warn("Peringkat anggota belum tersedia:",error.message);
  }).finally(()=>{
-  if(generation===memberAward.generation){memberAward.pending=null;memberAward.loadedAt=Date.now();}
+  if(generation===memberAward.generation){memberAward.pending=null;memberAward.loadedAt=__f4.globals.Date.now();}
  });
  memberAward.pending=task;return task;
 }
 function resetMemberAward(){
  memberAward.generation++;memberAward.badge=null;memberAward.memberId="";
  memberAward.loadedAt=0;memberAward.pending=null;
- document.querySelectorAll(".f4-bank-activity-crown").forEach(node=>node.remove());
+ __f4.globals.document.querySelectorAll(".f4-bank-activity-crown").forEach(node=>node.remove());
 }
 function ensureHome(){
  const page=$("pageDashboard");
@@ -228,7 +232,7 @@ function ensureHome(){
  // Recover the original data anchors before composing a single modern screen.
  const anchors=["v14Primary","v14Extra","v14Recent","v14Activities"];
  if(!page.classList.contains("v14-home")||!anchors.every(id=>page.querySelector("#"+id)))
-  window.f4BankEnsureLegacyDashboard?.();
+  __f4.window.f4BankEnsureLegacyDashboard?.();
  if(!page.classList.contains("v14-home")||!anchors.every(id=>page.querySelector("#"+id)))return;
  let hub=$("f4BankAppHome");
  if(hub&&(!page.contains(hub)||!hub.querySelector("#f4BankAppAdminHero"))){
@@ -265,7 +269,7 @@ function ensureHome(){
   balanceEye.setAttribute("aria-label","Tampilkan saldo");
   balanceEye.setAttribute("aria-pressed","true");
   balanceEye.title="Tampilkan saldo";
-  const balanceEyeSvg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  const balanceEyeSvg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
   balanceEyeSvg.setAttribute("viewBox","0 0 24 24");
   balanceEyeSvg.setAttribute("aria-hidden","true");
   balanceEyeSvg.setAttribute("fill","none");
@@ -291,7 +295,7 @@ function ensureHome(){
   const breakdown=el("div","f4-bank-admin-hero-breakdown");breakdown.id="f4BankAdminHeroBreakdown";
   for(const [id,caption] of [["f4BankAdminHeroWarga","Hak warga"],["f4BankAdminHeroLingkungan","Kas lingkungan"]]){
    const item=el("span","f4-bank-admin-hero-item");
-   item.append(el("small","",caption),Object.assign(el("strong","", "—"),{id}));
+   item.append(el("small","",caption),__f4.globals.Object.assign(el("strong","", "—"),{id}));
    breakdown.append(item);
   }
   hero.append(heading,label,amount,secondary,breakdown);
@@ -338,7 +342,7 @@ function ensureHome(){
   if(recent&&!hub.contains(recent))hub.append(recent);
   const remaining=panels?.querySelector(".v14-panel");
   if(remaining&&remaining.parentElement!==reservoir)reservoir.append(remaining);
-  ensureWeighingSchedule(hub);window.F4MemberPrices?.shortcut(hub);
+  ensureWeighingSchedule(hub);__f4.window.F4MemberPrices?.shortcut(hub);
   arrangeMemberHomeLayout(hub);
  }else{
   const recent=$("v14Recent")?.closest(".v14-panel");
@@ -420,7 +424,7 @@ function arrangeMemberHomeLayout(hub){
  }
  // Keep the real schedule and price nodes, not duplicate demo cards.
  const weighing=$("f4BankWeighingSchedule"),price=$("f4MemberPriceShortcut");
- quick.replaceChildren(...[weighing,price].filter(Boolean));
+ quick.replaceChildren(...[weighing,price].filter(__f4.globals.Boolean));
  let content=$("f4MemberContent");
  if(!content){content=el("div","f4-member-content");content.id="f4MemberContent";hub.append(content);}
  let aside=$("f4MemberAside");
@@ -433,7 +437,7 @@ function arrangeMemberHomeLayout(hub){
 }
 
 function dashboardMetrics(){
- const map=new Map();
+ const map=new __f4.globals.Map();
  for(const node of $("v14Primary")?.querySelectorAll(".v14-kpi")||[]){
   const label=node.querySelector(".v14-kpi-label")?.textContent?.trim();
   const value=node.querySelector("strong")?.dataset.f4FullValue||node.querySelector("strong")?.textContent?.trim();
@@ -444,12 +448,12 @@ function dashboardMetrics(){
 /* Visual estimate is never included in withdrawable savings; cancelled deposits excluded. */
 function memberBalancePreview(){
  if(!memberStatement)return null;
- const confirmed=Math.max(0,Number(memberStatement.saldo)||0);
- const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran:[];
+ const confirmed=__f4.globals.Math.max(0,(0,__f4.globals.Number)(memberStatement.saldo)||0);
+ const deposits=__f4.globals.Array.isArray(memberStatement.setoran)?memberStatement.setoran:[];
  const pending=deposits.filter(row=>{
-  const status=String(row.status||"").trim().toLowerCase();
+  const status=(0,__f4.globals.String)(row.status||"").trim().toLowerCase();
   return !/batal/.test(status)&&!/^(terkonfirmasi|confirmed|sah|sudah sah|disahkan)$/.test(status);
- }).reduce((sum,row)=>sum+Math.max(0,Number(row.estimasiRp)||0),0);
+ }).reduce((sum,row)=>sum+__f4.globals.Math.max(0,(0,__f4.globals.Number)(row.estimasiRp)||0),0);
  return {confirmed,pending,total:confirmed+pending};
 }
 function updateDashboard(){
@@ -477,7 +481,7 @@ function updateDashboard(){
   if(eye){
    const label=memberBalancePrivacy.hidden?"Tampilkan saldo":"Sembunyikan saldo";
    eye.setAttribute("aria-label",label);
-   eye.setAttribute("aria-pressed",String(memberBalancePrivacy.hidden));
+   eye.setAttribute("aria-pressed",(0,__f4.globals.String)(memberBalancePrivacy.hidden));
    eye.title=label;
    const glyph=eye.querySelector("svg");
    if(glyph)glyph.innerHTML=memberBalancePrivacy.hidden
@@ -489,7 +493,7 @@ function updateDashboard(){
   const current=adminOverview;
   const owned=current?.kasMilikBankRp;
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
-  text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
+  text("f4BankAppBalance",__f4.globals.Number.isFinite(owned)?rupiah(owned):"—");
   text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):adminOverviewError?"Posisi kas belum dapat dimuat.":"Memuat posisi kas...");
   text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—");
   text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—");
@@ -502,14 +506,14 @@ function updateDashboard(){
     node.type="button";node.dataset.bankAppRoute="tabungan";
     node.setAttribute("aria-label","Lihat saldo dan daftar warga");
     const icon=el("span","f4-bank-admin-members-icon");
-    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
     svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
     svg.innerHTML='<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2"/><path d="M17 5a3 3 0 0 1 0 6m1 5c2 0 3 2 3 4"/>';
     icon.append(svg);node.append(icon);
     node.onclick=()=>navigate("tabungan");
    }
    const copy=el("span","f4-bank-admin-mini-copy");
-   copy.append(el("small","",label),el("strong","",String(value??"—")));node.append(copy);
+   copy.append(el("small","",label),el("strong","",(0,__f4.globals.String)(value??"—")));node.append(copy);
    if(members)node.append(f4BankChevronIcon());
    return node;
   }));
@@ -546,7 +550,7 @@ function ensureScreen(id,title){
  return node;
 }
 function savingsStatIcon(kind){
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");
  svg.setAttribute("width","19");svg.setAttribute("height","19");
  svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");
@@ -558,7 +562,7 @@ function savingsStatIcon(kind){
   deposit:'M3 7h18l-2 13H5L3 7Zm3 0 2-4h8l2 4M9 12h6m-3-3v6',
   pending:'M12 7v5l3 2M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Z'
  };
- const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+ const path=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","path");
  path.setAttribute("d",paths[kind]||paths.deposit);svg.append(path);
  const wrap=el("span","f4-bank-savings-stat-icon is-"+kind);wrap.setAttribute("aria-hidden","true");
  wrap.append(svg);return wrap;
@@ -594,7 +598,7 @@ function mountSavings(){
   priv.insertBefore(hero,priv.firstChild);hero.querySelector("strong").id="f4BankSavingsBalance";
   const pending=el("div","f4-bank-savings-pending");
   pending.append(el("small","","Estimasi menunggu penjualan"),
-   Object.assign(el("b","","—"),{id:"f4BankSavingsPending"}));
+   __f4.globals.Object.assign(el("b","","—"),{id:"f4BankSavingsPending"}));
   hero.append(pending);
   const payout=el("button","f4-bank-gold-action f4-bank-savings-payout");
   payout.type="button";payout.setAttribute("aria-label","Ajukan Pencairan");
@@ -646,35 +650,35 @@ function mountSavings(){
  syncSavings();
 }
 function dateMonth(raw){
- const match=String(raw||"").match(/(\d{1,2})\s+([A-Za-z.]+)\s+(\d{4})/);
+ const match=(0,__f4.globals.String)(raw||"").match(/(\d{1,2})\s+([A-Za-z.]+)\s+(\d{4})/);
  if(!match)return "";
  const names=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
  const m=names.indexOf(match[2].replace(".",""));
- return m<0?"":match[3]+"-"+String(m+1).padStart(2,"0");
+ return m<0?"":match[3]+"-"+(0,__f4.globals.String)(m+1).padStart(2,"0");
 }
 function isBankCorrection(row){
- return /(?:koreksi|pembatalan|dibatalkan|reversal|pembalik)/i.test(String(row?.jenis||row?.type||""));
+ return /(?:koreksi|pembatalan|dibatalkan|reversal|pembalik)/i.test((0,__f4.globals.String)(row?.jenis||row?.type||""));
 }
 function ledger(){
- if(!memberStatement||!Array.isArray(memberStatement.mutasi))return [];
+ if(!memberStatement||!__f4.globals.Array.isArray(memberStatement.mutasi))return [];
  return memberStatement.mutasi.map(x=>{
-  const iso=String(x.tanggal||""),credit=Number(x.kredit)||0,debit=Number(x.debit)||0;
+  const iso=(0,__f4.globals.String)(x.tanggal||""),credit=(0,__f4.globals.Number)(x.kredit)||0,debit=(0,__f4.globals.Number)(x.debit)||0;
   const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
-   new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
-  return {date,iso,type:String(x.jenis||"Transaksi"),correction:isBankCorrection(x),credit,debit,
-   balance:rupiah(Number(x.saldo)||0),month:iso.slice(0,7)};
+   new __f4.globals.Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
+  return {date,iso,type:(0,__f4.globals.String)(x.jenis||"Transaksi"),correction:isBankCorrection(x),credit,debit,
+   balance:rupiah((0,__f4.globals.Number)(x.saldo)||0),month:iso.slice(0,7)};
  }).sort((a,b)=>b.iso.localeCompare(a.iso));
 }
 function historyLines(){
  const sales=ledger().map(item=>({...item,kind:item.correction?"correction":item.debit>0?"out":"in",sortId:"m"}));
- const deposits=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
- const weights=deposits.filter(x=>!/batal/i.test(String(x.status||""))).map(x=>{
-  const iso=String(x.tanggal||"");const isFinal=/terkonfirmasi/i.test(String(x.status||""));
-  const kg=x.beratKg==null?"—":Number(x.beratKg).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+ const deposits=__f4.globals.Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ const weights=deposits.filter(x=>!/batal/i.test((0,__f4.globals.String)(x.status||""))).map(x=>{
+  const iso=(0,__f4.globals.String)(x.tanggal||"");const isFinal=/terkonfirmasi/i.test((0,__f4.globals.String)(x.status||""));
+  const kg=x.beratKg==null?"—":(0,__f4.globals.Number)(x.beratKg).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
   const moneyNote=isFinal?(x.nilaiSahRp==null?"Nilai belum tersedia":"Hasil jual "+rupiah(x.nilaiSahRp)):
     "Perkiraan "+rupiah(x.estimasiRp);
   const date=/^\d{4}-\d{2}-\d{2}$/.test(iso)?
-   new Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
+   new __f4.globals.Date(iso+"T12:00:00Z").toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}):iso;
   return {iso,date,month:iso.slice(0,7),type:"Setoran Sampah",kind:"deposit",amountText:kg,
    note:moneyNote+" • "+(isFinal?"Sudah sah":"Belum terjual"),sortId:"d"};
  });
@@ -682,19 +686,19 @@ function historyLines(){
 }
 
 function months(items){
- return [...new Set(items.map(x=>x.month).filter(Boolean))].sort().reverse();
+ return [...new __f4.globals.Set(items.map(x=>x.month).filter(__f4.globals.Boolean))].sort().reverse();
 }
 function monthName(id){
- const [year,m]=String(id).split("-").map(Number);
- return new Intl.DateTimeFormat("id-ID",{month:"short",year:"numeric"}).format(new Date(year,m-1,1));
+ const [year,m]=(0,__f4.globals.String)(id).split("-").map(__f4.globals.Number);
+ return new __f4.globals.Intl.DateTimeFormat("id-ID",{month:"short",year:"numeric"}).format(new __f4.globals.Date(year,m-1,1));
 }
 function populateMonths(host,values,current,onChange){
  if(!host)return;
  host.replaceChildren();
  for(const [key,label] of [["all","Semua"],...values.map(x=>[x,monthName(x)])]){
-  if(host.tagName==="SELECT"){const opt=new Option(label,key);opt.selected=key===current;host.append(opt);}
+  if(host.tagName==="SELECT"){const opt=new __f4.globals.Option(label,key);opt.selected=key===current;host.append(opt);}
   else {const b=el("button","f4-bank-month-chip"+(current===key?" is-active":""),label);
-   b.type="button";b.setAttribute("aria-pressed",String(current===key));b.onclick=()=>onChange(key);host.append(b);}
+   b.type="button";b.setAttribute("aria-pressed",(0,__f4.globals.String)(current===key));b.onclick=()=>onChange(key);host.append(b);}
  }
  if(host.tagName==="SELECT")host.onchange=()=>onChange(host.value);
 }
@@ -762,11 +766,11 @@ function showReport(){
   const pdf=el("button","f4-bank-gold-action","Cetak PDF");pdf.type="button";
   pdf.id="f4BankMemberPrintAction";
   pdf.onclick=()=>{
-   if(typeof window.f4BankMemberPrintReady==="function"&&!window.f4BankMemberPrintReady())return;
-   if(typeof window.v12Print==="function")window.v12Print();
+   if(typeof __f4.window.f4BankMemberPrintReady==="function"&&!__f4.window.f4BankMemberPrintReady())return;
+   if(typeof __f4.window.v12Print==="function")__f4.window.v12Print();
   };
   const csv=el("button","f4-bank-secondary-action","Unduh CSV");csv.type="button";
-  csv.onclick=()=>typeof window.v12CSV==="function"&&window.v12CSV();
+  csv.onclick=()=>typeof __f4.window.v12CSV==="function"&&__f4.window.v12CSV();
   actions.append(pdf,csv);
   const title=el("h3","f4-bank-screen-subhead","Transaksi Periode");
   const transactions=el("div","f4-bank-report-list");transactions.id="f4BankReportList";
@@ -776,40 +780,40 @@ function showReport(){
   page.append(el("p","f4-bank-screen-status","Memuat laporan..."),controls,log);
  }
  const all=historyLines();
- const periods=[...new Set(all.map(x=>x.month).filter(x=>/^\d{4}-\d{2}$/.test(x)))].sort().reverse();
+ const periods=[...new __f4.globals.Set(all.map(x=>x.month).filter(x=>/^\d{4}-\d{2}$/.test(x)))].sort().reverse();
  if(!reportMonth||reportMonth==="all")reportMonth=periods[0]||today().slice(0,7);
- const [yearValue,monthValue]=reportMonth.split("-").map(Number);
+ const [yearValue,monthValue]=reportMonth.split("-").map(__f4.globals.Number);
  const year=$("f4BankReportYear"),month=$("f4BankReportMonth");
- const years=[...new Set([yearValue,...periods.map(x=>Number(x.slice(0,4))),...Array.from({length:21},(_,i)=>2026+i)])]
-  .filter(Number.isFinite).sort((a,b)=>b-a);
- year.replaceChildren(...years.map(y=>{const op=new Option(String(y),String(y));op.selected=y===yearValue;return op;}));
+ const years=[...new __f4.globals.Set([yearValue,...periods.map(x=>(0,__f4.globals.Number)(x.slice(0,4))),...__f4.globals.Array.from({length:21},(_,i)=>2026+i)])]
+  .filter(__f4.globals.Number.isFinite).sort((a,b)=>b-a);
+ year.replaceChildren(...years.map(y=>{const op=new __f4.globals.Option((0,__f4.globals.String)(y),(0,__f4.globals.String)(y));op.selected=y===yearValue;return op;}));
  const names=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
- month.replaceChildren(...names.map((name,i)=>{const op=new Option(name,String(i+1).padStart(2,"0"));op.selected=i+1===monthValue;return op;}));
+ month.replaceChildren(...names.map((name,i)=>{const op=new __f4.globals.Option(name,(0,__f4.globals.String)(i+1).padStart(2,"0"));op.selected=i+1===monthValue;return op;}));
  year.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
  month.onchange=()=>{reportMonth=year.value+"-"+month.value;showReport();};
- window.f4BankReportPeriod=()=>reportRange?"":reportMonth;
- window.f4BankReportRange=()=>reportRange;
+ __f4.window.f4BankReportPeriod=()=>reportRange?"":reportMonth;
+ __f4.window.f4BankReportRange=()=>reportRange;
  const rangeInputs=$("f4BankReportRangeFields");
  rangeInputs.hidden=!reportRange;
  const periodToggle=$("f4BankReportRangeToggle");
  periodToggle.setAttribute("aria-label",reportRange?"Kembali ke periode bulanan":"Atur periode tanggal");
  periodToggle.title=reportRange?"Kembali ke periode bulanan":"Atur periode tanggal";
- periodToggle.setAttribute("aria-pressed",String(!!reportRange));
+ periodToggle.setAttribute("aria-pressed",(0,__f4.globals.String)(!!reportRange));
  periodToggle.classList.toggle("is-range-active",!!reportRange);
  $("f4BankReportMonth").closest("label").hidden=!!reportRange;
  $("f4BankReportYear").closest("label").hidden=!!reportRange;
  if(reportRange){$("f4BankReportFrom").value=reportRange.from;$("f4BankReportTo").value=reportRange.to;}
- const inPeriod=date=>reportRange?date>=reportRange.from&&date<=reportRange.to:String(date||"").startsWith(reportMonth);
+ const inPeriod=date=>reportRange?date>=reportRange.from&&date<=reportRange.to:(0,__f4.globals.String)(date||"").startsWith(reportMonth);
 
  const selected=ledger().filter(x=>inPeriod(x.iso));
  const transactions=all.filter(x=>inPeriod(x.iso));
- const deposits=(memberStatement?.setoran||[]).filter(x=>inPeriod(String(x.tanggal||""))&&!/batal/i.test(String(x.status)));
+ const deposits=(memberStatement?.setoran||[]).filter(x=>inPeriod((0,__f4.globals.String)(x.tanggal||""))&&!/batal/i.test((0,__f4.globals.String)(x.status)));
  const missingWeight=deposits.some(x=>x.beratKg==null);
- const weight=deposits.reduce((n,x)=>n+Number(x.beratKg||0),0);
+ const weight=deposits.reduce((n,x)=>n+(0,__f4.globals.Number)(x.beratKg||0),0);
  const active=selected.filter(x=>!x.correction);
  const credit=active.reduce((n,x)=>n+x.credit,0),debit=active.reduce((n,x)=>n+x.debit,0);
  const tiles=[["Setoran",missingWeight?"—":weight.toLocaleString("id-ID",{maximumFractionDigits:3})+" kg"],
-  ["Hasil jual sah",rupiah(credit)],["Pencairan / keluar",rupiah(debit)],["Transaksi",String(transactions.filter(x=>x.kind!=="correction").length)]];
+  ["Hasil jual sah",rupiah(credit)],["Pencairan / keluar",rupiah(debit)],["Transaksi",(0,__f4.globals.String)(transactions.filter(x=>x.kind!=="correction").length)]];
  const summary=$("f4BankReportSummary");summary.replaceChildren();
  for(const [label,value] of tiles){const box=el("div","f4-bank-report-tile");
   box.append(el("small","",label),el("strong","",value));summary.append(box);}
@@ -817,30 +821,30 @@ function showReport(){
  for(const entry of transactions){
   const node=el("article","f4-bank-report-transaction"),deposit=entry.kind==="deposit",out=entry.debit>0;
   const left=el("span");left.append(el("strong","",entry.type),el("small","",entry.date));
-  const right=el("span","",deposit?entry.amountText:entry.kind==="correction"?"Koreksi "+rupiah(Math.abs(entry.debit||entry.credit)):(out?"− ":"+ ")+rupiah(out?entry.debit:entry.credit));
+  const right=el("span","",deposit?entry.amountText:entry.kind==="correction"?"Koreksi "+rupiah(__f4.globals.Math.abs(entry.debit||entry.credit)):(out?"− ":"+ ")+rupiah(out?entry.debit:entry.credit));
   if(deposit)right.title=entry.note;
   right.className=entry.kind==="correction"?"is-correction":out?"is-out":"is-in";
   node.append(left,right);list.append(node);
  }
  if(!transactions.length)list.append(el("p","f4-bank-empty","Belum ada transaksi di periode ini."));
  const printAction=$("f4BankMemberPrintAction");
- if(printAction)printAction.disabled=typeof window.f4BankMemberPrintReady==="function"&&!window.f4BankMemberPrintReady();
+ if(printAction)printAction.disabled=typeof __f4.window.f4BankMemberPrintReady==="function"&&!__f4.window.f4BankMemberPrintReady();
  statusFor(page);
 }
 function memberBuckets(){
  // Each point is ONE genuine deposit. Never combine transactions in a bar.
- const deposits=Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
- return deposits.filter(row=>!/batal/i.test(String(row.status||""))).map((row,index)=>{
-  const final=/terkonfirmasi|confirmed/i.test(String(row.status||""));
-  const period=String(row.tanggal||"").slice(0,7);
-  const date=String(row.tanggal||"").slice(0,10);
-  const confirmedAt=String(row.tanggalPengesahan||row.tanggalJual||"").slice(0,10);
+ const deposits=__f4.globals.Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[];
+ return deposits.filter(row=>!/batal/i.test((0,__f4.globals.String)(row.status||""))).map((row,index)=>{
+  const final=/terkonfirmasi|confirmed/i.test((0,__f4.globals.String)(row.status||""));
+  const period=(0,__f4.globals.String)(row.tanggal||"").slice(0,7);
+  const date=(0,__f4.globals.String)(row.tanggal||"").slice(0,10);
+  const confirmedAt=(0,__f4.globals.String)(row.tanggalPengesahan||row.tanggalJual||"").slice(0,10);
   return {
-   id:String(row.id||"tx-"+index),date,month:period,
-   batch:String(row.batchId||""),confirmedAt,final,
-   weight:row.beratKg==null?0:Number(row.beratKg)||0,
-   confirmed:final?(row.nilaiSahRp==null?0:Number(row.nilaiSahRp)||0):0,
-   estimated:final?0:Number(row.estimasiRp)||0,
+   id:(0,__f4.globals.String)(row.id||"tx-"+index),date,month:period,
+   batch:(0,__f4.globals.String)(row.batchId||""),confirmedAt,final,
+   weight:row.beratKg==null?0:(0,__f4.globals.Number)(row.beratKg)||0,
+   confirmed:final?(row.nilaiSahRp==null?0:(0,__f4.globals.Number)(row.nilaiSahRp)||0):0,
+   estimated:final?0:(0,__f4.globals.Number)(row.estimasiRp)||0,
    missingWeight:row.beratKg==null,
    missingValue:final&&row.nilaiSahRp==null
   };
@@ -851,22 +855,22 @@ let weighingWeekday=0,weighingLastFetched=0,weighingRequest=null,weighingRequest
 let weighingRule={frequency:"weekly",nextOccurrence:"",anchorDate:"",dayOfMonth:null};
 function weighingNextDate(){
  if(!weighingReady)return {days:null,label:"Jadwal belum tersedia"};
- const now=new Date(today()+"T00:00:00Z");
- const current=new Date(now);
- const day=Number(weighingWeekday);
+ const now=new __f4.globals.Date(today()+"T00:00:00Z");
+ const current=new __f4.globals.Date(now);
+ const day=(0,__f4.globals.Number)(weighingWeekday);
  const frequency=weighingRule.frequency||"weekly";
  if(frequency!=="weekly"){
   const supplied=weighingRule.nextOccurrence;
   if(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(supplied||"")){
-   const date=new Date(supplied+"T00:00:00Z");
-   if(Number.isFinite(date.getTime())&&date>=now)
-    return {days:Math.round((date-now)/86400000),label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(date)};
+   const date=new __f4.globals.Date(supplied+"T00:00:00Z");
+   if(__f4.globals.Number.isFinite(date.getTime())&&date>=now)
+    return {days:__f4.globals.Math.round((date-now)/86400000),label:new __f4.globals.Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(date)};
   }
   return {days:null,label:"Jadwal berikutnya belum tersedia"};
  }
  const days=(day-current.getUTCDay()+7)%7;
  current.setUTCDate(current.getUTCDate()+days);
- return {days,label:new Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(current)};
+ return {days,label:new __f4.globals.Intl.DateTimeFormat("id-ID",{weekday:"long",day:"numeric",month:"short",year:"numeric",timeZone:"UTC"}).format(current)};
 }
 function weighingCountdown(days){
  return days==null?"—":days===0?"Hari ini":days===1?"Besok":days+" hari lagi";
@@ -876,7 +880,7 @@ function updateWeighingCard(){
  const next=weighingNextDate(),name=weighingDayNames[weighingWeekday];
  const title=card.querySelector(".f4-bank-weigh-copy > strong");
  if(title){
-  const label=String(next.label||"—");
+  const label=(0,__f4.globals.String)(next.label||"—");
   title.replaceChildren(
    el("span","f4-bank-weigh-desktop-date",label),
    el("span","f4-bank-weigh-countdown",next.days==null?"Belum tersedia":weighingCountdown(next.days))
@@ -893,19 +897,19 @@ function updateWeighingCard(){
 function loadWeighingDay(){
  if(role!=="member")return;
  if(weighingRequest)return;
- if(weighingLastFetched&&Date.now()-weighingLastFetched<90000)return;
+ if(weighingLastFetched&&__f4.globals.Date.now()-weighingLastFetched<90000)return;
  const seq=++weighingRequestId;
- weighingLastFetched=Date.now(); // Throttle errors as well as successful reads.
- weighingRequest=fetch(apiRoot+"/api/public/bank/weighing-schedule",{
+ weighingLastFetched=__f4.globals.Date.now(); // Throttle errors as well as successful reads.
+ weighingRequest=(0,__f4.globals.fetch)(apiRoot+"/api/public/bank/weighing-schedule",{
   method:"GET",credentials:"include",cache:"no-store"
  }).then(async response=>{
   const result=await response.json().catch(()=>({}));
-  if(!response.ok||result.ok===false||!Number.isInteger(result.weekday)||result.weekday<0||result.weekday>6)
-   throw Error("Jadwal belum tersedia");
+  if(!response.ok||result.ok===false||!__f4.globals.Number.isInteger(result.weekday)||result.weekday<0||result.weekday>6)
+   throw (0,__f4.globals.Error)("Jadwal belum tersedia");
   if(seq!==weighingRequestId||role!=="member")return;
   weighingWeekday=result.weekday;weighingReady=true;
   weighingRule={frequency:result.frequency||"weekly",nextOccurrence:result.nextOccurrence||result.next_occurrence||"",anchorDate:result.anchorDate||"",dayOfMonth:result.dayOfMonth||null};
-  weighingLastFetched=Date.now();updateWeighingCard();
+  weighingLastFetched=__f4.globals.Date.now();updateWeighingCard();
  }).catch(()=>{}).finally(()=>{if(seq===weighingRequestId)weighingRequest=null;});
 }
 function openWeighingSchedule(){
@@ -927,7 +931,7 @@ function openWeighingSchedule(){
   const note=el("p","f4-bank-schedule-note","Bawa plastik, logam, atau kertas yang sudah dipilah.");
   dialog.append(head,visual,note);
   dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
-  document.body.append(dialog);
+  __f4.globals.document.body.append(dialog);
  }
  const next=weighingNextDate();
  dialog.querySelector(".f4-bank-schedule-date").textContent=next.days===0?"Hari ini • "+weighingDayNames[weighingWeekday]:next.label;
@@ -950,7 +954,7 @@ function ensureWeighingSchedule(home){
  updateWeighingCard();loadWeighingDay();
 }
 function f4PrivateShort(n,mode){
- const value=Math.max(0,Number(n)||0);
+ const value=__f4.globals.Math.max(0,(0,__f4.globals.Number)(n)||0);
  const fmt=x=>x.toLocaleString("id-ID",{maximumFractionDigits:1});
  if(mode==="rp"){
   if(value>=1000000)return fmt(value/1000000)+" jt";
@@ -960,12 +964,12 @@ function f4PrivateShort(n,mode){
  return fmt(value);
 }
 function f4PrivateKg(n){
- return (Number(n)||0).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+ return ((0,__f4.globals.Number)(n)||0).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
 }
 function f4PrivateChartEntries(points){
  // Existing default stays "Periode": one real deposit per group, not one month.
  const origin=memberChartGroup;
- const utc=date=>Date.parse(date+"T00:00:00Z");
+ const utc=date=>__f4.globals.Date.parse(date+"T00:00:00Z");
  const now=utc(today());
  let list=points;
  if(origin==="30"){
@@ -973,7 +977,7 @@ function f4PrivateChartEntries(points){
   const earliest=now-(days-1)*86400000;
   list=points.filter(p=>utc(p.date)>=earliest&&utc(p.date)<=now);
  }
- const groups=new Map();
+ const groups=new __f4.globals.Map();
  const add=(key,label,full,point)=>{
   let entry=groups.get(key);
   if(!entry){
@@ -1000,17 +1004,17 @@ function f4PrivateChartEntries(points){
  }else{
   const days=30,bin=5;
   for(let index=0;index<days;index+=bin){
-   const start=new Date(now-(days-1-index)*86400000).toISOString().slice(0,10);
-   const finish=new Date(now-(days-1-Math.min(index+bin-1,days-1))*86400000).toISOString().slice(0,10);
-   const key=String(index);
+   const start=new __f4.globals.Date(now-(days-1-index)*86400000).toISOString().slice(0,10);
+   const finish=new __f4.globals.Date(now-(days-1-__f4.globals.Math.min(index+bin-1,days-1))*86400000).toISOString().slice(0,10);
+   const key=(0,__f4.globals.String)(index);
    groups.set(key,{key,label:labelDate(start),
     full:start===finish?start:start+" – "+finish,count:0,finalCount:0,
     confirmedWeight:0,pendingWeight:0,confirmedRp:0,estimatedRp:0,
     missingWeight:false,missingValue:false});
   }
   for(const point of list){
-   const offset=Math.floor((utc(point.date)-(now-(days-1)*86400000))/86400000);
-   const groupKey=String(Math.floor(offset/bin)*bin);
+   const offset=__f4.globals.Math.floor((utc(point.date)-(now-(days-1)*86400000))/86400000);
+   const groupKey=(0,__f4.globals.String)(__f4.globals.Math.floor(offset/bin)*bin);
    if(groups.has(groupKey)){
     const entry=groups.get(groupKey);entry.count++;if(point.final)entry.finalCount++;
     if(point.missingWeight)entry.missingWeight=true;
@@ -1049,7 +1053,7 @@ function f4PrivateChartSummary(host,entries,mode){
  for(const [name,kind] of [[mode==="kg"?"Berat sah":"Hasil jual sah","confirmed"],
    [mode==="kg"?"Belum terjual":"Perkiraan belum terjual","estimate"]]){
   const item=el("span",""),dot=el("i","is-"+kind);
-  dot.setAttribute("aria-hidden","true");item.append(dot,document.createTextNode(name));legend.append(item);
+  dot.setAttribute("aria-hidden","true");item.append(dot,__f4.globals.document.createTextNode(name));legend.append(item);
  }
  let foot=$("f4BankSavingsChartNote");
  if(!foot){
@@ -1064,10 +1068,10 @@ function f4PrivateChartSummary(host,entries,mode){
 function renderLatestComposition(){
  const host=$("f4BankLatestComposition");if(!host)return;
  host.replaceChildren();
- const all=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
-  .filter(row=>!/batal/i.test(String(row?.status||"")))
-  .slice().sort((a,b)=>String(b.tanggal||"").localeCompare(String(a.tanggal||""))||
-   String(b.id||"").localeCompare(String(a.id||"")));
+ const all=(__f4.globals.Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
+  .filter(row=>!/batal/i.test((0,__f4.globals.String)(row?.status||"")))
+  .slice().sort((a,b)=>(0,__f4.globals.String)(b.tanggal||"").localeCompare((0,__f4.globals.String)(a.tanggal||""))||
+   (0,__f4.globals.String)(b.id||"").localeCompare((0,__f4.globals.String)(a.id||"")));
  const latest=all[0];
  const heading=el("div","f4-bank-latest-heading");
  heading.append(el("h3","","Setoran Terakhir"));
@@ -1078,29 +1082,29 @@ function renderLatestComposition(){
  if(!latest){
   host.append(el("p","f4-bank-latest-empty","Belum ada setoran tercatat."));return;
  }
- const isFinal=/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test(String(latest.status||"").trim());
+ const isFinal=/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test((0,__f4.globals.String)(latest.status||"").trim());
  heading.append(el("span","f4-bank-latest-status"+(isFinal?" is-final":""),isFinal?"Sudah sah":"Belum terjual"));
- const iso=String(latest.tanggal||"").slice(0,10);
+ const iso=(0,__f4.globals.String)(latest.tanggal||"").slice(0,10);
  if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){
-  const date=new Date(iso+"T12:00:00Z");
+  const date=new __f4.globals.Date(iso+"T12:00:00Z");
   host.append(el("small","f4-bank-latest-date",
-   new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(date)));
+   new __f4.globals.Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(date)));
  }
- const itemWeights=new Map();
- for(const part of Array.isArray(latest.rincian)?latest.rincian:[]){
-  const name=String(part?.barang||part?.namaBarang||part?.jenis||"").trim();
-  const weight=part?.beratKg==null?NaN:Number(part.beratKg);
-  if(!name||!Number.isFinite(weight)||weight<=0)continue;
+ const itemWeights=new __f4.globals.Map();
+ for(const part of __f4.globals.Array.isArray(latest.rincian)?latest.rincian:[]){
+  const name=(0,__f4.globals.String)(part?.barang||part?.namaBarang||part?.jenis||"").trim();
+  const weight=part?.beratKg==null?__f4.globals.NaN:(0,__f4.globals.Number)(part.beratKg);
+  if(!name||!__f4.globals.Number.isFinite(weight)||weight<=0)continue;
   itemWeights.set(name,(itemWeights.get(name)||0)+weight);
  }
  const items=[...itemWeights].sort((a,b)=>b[1]-a[1]);
  const knownTotal=items.reduce((sum,entry)=>sum+entry[1],0);
- const total=latest.beratKg==null?NaN:Number(latest.beratKg);
- const validBreakdown=items.length>0&&Number.isFinite(total)&&total>0&&Math.abs(knownTotal-total)<.011;
+ const total=latest.beratKg==null?__f4.globals.NaN:(0,__f4.globals.Number)(latest.beratKg);
+ const validBreakdown=items.length>0&&__f4.globals.Number.isFinite(total)&&total>0&&__f4.globals.Math.abs(knownTotal-total)<.011;
  const main=el("div","f4-bank-latest-main");
  const donut=el("div","f4-bank-latest-donut"+(validBreakdown?"":" is-unavailable"));
  const center=el("div","f4-bank-latest-donut-center");
- center.append(el("strong","",Number.isFinite(total)?f4PrivateKg(total):"—"),
+ center.append(el("strong","",__f4.globals.Number.isFinite(total)?f4PrivateKg(total):"—"),
   el("small","","Total timbang"));
  donut.append(center);
  const detail=el("div","f4-bank-latest-categories");
@@ -1116,7 +1120,7 @@ function renderLatestComposition(){
    const row=el("div","f4-bank-latest-category");
    const label=el("span","f4-bank-latest-category-label");
    const swatch=el("i");swatch.style.backgroundColor=color;swatch.setAttribute("aria-hidden","true");
-   label.append(swatch,document.createTextNode(name));
+   label.append(swatch,__f4.globals.document.createTextNode(name));
    row.append(label,el("strong","",f4PrivateKg(weight)));detail.append(row);
   }
   donut.style.background="conic-gradient("+stops.join(",")+")";
@@ -1130,7 +1134,7 @@ function renderLatestComposition(){
  const footer=el("div","f4-bank-latest-footer");
  const money=isFinal?latest.nilaiSahRp:latest.estimasiRp;
  footer.append(el("span","",isFinal?"Hasil penjualan sah":"Perkiraan nilai"),
-  el("strong","",money==null?"—":rupiah(Number(money)||0)));
+  el("strong","",money==null?"—":rupiah((0,__f4.globals.Number)(money)||0)));
  host.append(footer);
 }
 /* Aggregate the member's recorded, non-cancelled deposits by exact waste type.
@@ -1148,19 +1152,19 @@ function renderCategoryTotals(){
  if(!memberStatement){
   host.append(el("p","f4-bank-category-empty","Memuat rekap jenis sampah..."));return;
  }
- const deposits=Array.isArray(memberStatement.setoran)?memberStatement.setoran.filter(row=>
-  !/batal/i.test(String(row?.status||""))):[];
- const totals=new Map();
+ const deposits=__f4.globals.Array.isArray(memberStatement.setoran)?memberStatement.setoran.filter(row=>
+  !/batal/i.test((0,__f4.globals.String)(row?.status||""))):[];
+ const totals=new __f4.globals.Map();
  let declaredWeight=0,missingWeights=0,usedCount=0;
  for(const deposit of deposits){
-  const declared=deposit?.beratKg==null?NaN:Number(deposit.beratKg);
-  if(Number.isFinite(declared)&&declared>=0)declaredWeight+=declared;
+  const declared=deposit?.beratKg==null?__f4.globals.NaN:(0,__f4.globals.Number)(deposit.beratKg);
+  if(__f4.globals.Number.isFinite(declared)&&declared>=0)declaredWeight+=declared;
   else missingWeights++;
   let itemWeight=0;
-  for(const part of Array.isArray(deposit?.rincian)?deposit.rincian:[]){
-   const label=String(part?.barang||part?.namaBarang||part?.jenis||"").trim().replace(/\s+/g," ");
-   const weight=part?.beratKg==null?NaN:Number(part.beratKg);
-   if(!label||!Number.isFinite(weight)||weight<=0)continue;
+  for(const part of __f4.globals.Array.isArray(deposit?.rincian)?deposit.rincian:[]){
+   const label=(0,__f4.globals.String)(part?.barang||part?.namaBarang||part?.jenis||"").trim().replace(/\s+/g," ");
+   const weight=part?.beratKg==null?__f4.globals.NaN:(0,__f4.globals.Number)(part.beratKg);
+   if(!label||!__f4.globals.Number.isFinite(weight)||weight<=0)continue;
    const key=label.toLocaleLowerCase("id-ID");
    const entry=totals.get(key)||{name:label,weight:0};
    entry.weight+=weight;itemWeight+=weight;totals.set(key,entry);
@@ -1169,7 +1173,7 @@ function renderCategoryTotals(){
  }
  const categories=[...totals.values()].sort((a,b)=>b.weight-a.weight||a.name.localeCompare(b.name,"id"));
  const totalWeight=categories.reduce((sum,row)=>sum+row.weight,0);
- const verified=deposits.length>0&&!missingWeights&&Math.abs(totalWeight-declaredWeight)<.011;
+ const verified=deposits.length>0&&!missingWeights&&__f4.globals.Math.abs(totalWeight-declaredWeight)<.011;
  const total=el("strong","f4-bank-category-total",categories.length?f4PrivateKg(totalWeight):"—");
  head.append(total);
  if(!categories.length){
@@ -1186,12 +1190,12 @@ function renderCategoryTotals(){
   const top=el("div","f4-bank-category-row-top");
   const label=el("span","f4-bank-category-label");
   const swatch=el("i");swatch.style.backgroundColor=color;swatch.setAttribute("aria-hidden","true");
-  label.append(swatch,document.createTextNode(item.name));
+  label.append(swatch,__f4.globals.document.createTextNode(item.name));
   const amount=el("strong","",f4PrivateKg(item.weight));
   top.append(label,amount);
   const track=el("div","f4-bank-category-track");
   const fill=el("span","f4-bank-category-fill");
-  fill.style.width=Math.max(1,item.weight/max*100).toFixed(2)+"%";
+  fill.style.width=__f4.globals.Math.max(1,item.weight/max*100).toFixed(2)+"%";
   fill.style.backgroundColor=color;
   track.append(fill);track.setAttribute("aria-hidden","true");
   row.append(top,track);panel.append(row);
@@ -1200,13 +1204,13 @@ function renderCategoryTotals(){
  if(categories.length>4){
   const button=el("button","f4-bank-category-expand",expanded?
    "Tampilkan lebih sedikit":"Lihat semua "+categories.length+" jenis");
-  button.type="button";button.setAttribute("aria-expanded",String(expanded));
+  button.type="button";button.setAttribute("aria-expanded",(0,__f4.globals.String)(expanded));
   button.onclick=()=>{host.dataset.expanded=expanded?"false":"true";renderCategoryTotals();};
   host.append(button);
  }
  const caption=el("p","f4-bank-category-note",
   deposits.length+" setoran · "+categories.length+" jenis sampah");
- if(!verified)caption.append(document.createTextNode(
+ if(!verified)caption.append(__f4.globals.document.createTextNode(
   " · Hanya berat dengan rincian jenis yang tersedia"+(missingWeights?" (sebagian berat setoran belum tercatat)":"")));
  host.append(caption);
 }
@@ -1247,14 +1251,14 @@ function chartSavings(){
    menu.append(option);
   }
   trigger.onclick=()=>{
-   menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",String(!menu.hidden));
+   menu.hidden=!menu.hidden;trigger.setAttribute("aria-expanded",(0,__f4.globals.String)(!menu.hidden));
   };
   picker.addEventListener("keydown",event=>{
    if(event.key==="Escape"&&!menu.hidden){
     event.preventDefault();menu.hidden=true;trigger.setAttribute("aria-expanded","false");trigger.focus();
    }
   });
-  document.addEventListener("pointerdown",event=>{
+  __f4.globals.document.addEventListener("pointerdown",event=>{
    if(!picker.contains(event.target)&&!menu.hidden){
     menu.hidden=true;trigger.setAttribute("aria-expanded","false");
    }
@@ -1269,22 +1273,22 @@ function chartSavings(){
  if(pickerLabel)pickerLabel.textContent=periodLabels[memberChartGroup]||"Periode";
  filters.querySelectorAll("[data-chart-period]").forEach(button=>{
   const active=button.dataset.chartPeriod===memberChartGroup;
-  button.classList.toggle("is-active",active);button.setAttribute("aria-checked",String(active));
+  button.classList.toggle("is-active",active);button.setAttribute("aria-checked",(0,__f4.globals.String)(active));
  });
  filters.querySelectorAll("[data-group]").forEach(button=>{
   const active=button.dataset.group===memberChartGroup;
-  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  filters.querySelectorAll("[data-mode]").forEach(button=>{
   const active=button.dataset.mode===memberChartMode;
-  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  const points=memberBuckets().filter(p=>/^\d{4}-\d{2}-\d{2}$/.test(p.date));
  const entries=f4PrivateChartEntries(points);
  const useKg=memberChartMode==="kg";
  const fields=useKg?["confirmedWeight","pendingWeight"]:["confirmedRp","estimatedRp"];
  f4PrivateChartSummary(host,entries,memberChartMode);
- const max=Math.max(.001,...entries.flatMap(row=>fields.map(key=>row[key])));
+ const max=__f4.globals.Math.max(.001,...entries.flatMap(row=>fields.map(key=>row[key])));
  const previousView=host.dataset.bankChartView||"";
  const currentView=memberChartGroup+":"+memberChartMode;
  const oldScroll=host.scrollLeft;
@@ -1302,14 +1306,14 @@ function chartSavings(){
    const column=el("div","f4-bank-savings-bar");
    const amounts=fields.map(key=>item[key]);
    // Tampilkan total satu periode/bulan; warna batang tetap memisahkan sah dan estimasi.
-   const val=amounts.reduce((sum,value)=>sum+(Number(value)||0),0);
+   const val=amounts.reduce((sum,value)=>sum+((0,__f4.globals.Number)(value)||0),0);
    const amountLabel=useKg?f4PrivateShort(val,"kg")+" kg":f4PrivateShort(val,"rp");
    const noFinal=useKg?item.missingWeight:item.missingValue;
    column.append(el("strong","",noFinal?"—":amountLabel));
    const rail=el("span","f4-bank-savings-bar-rail");
    for(const [index,key] of fields.entries()){
     const bar=el("i",index?"is-estimate":"is-confirmed");
-    bar.style.height=item[key]>0?Math.max(4,item[key]/max*100)+"%":"0%";
+    bar.style.height=item[key]>0?__f4.globals.Math.max(4,item[key]/max*100)+"%":"0%";
     bar.title=(index?"Belum terjual / perkiraan":"Sudah sah")+": "+(useKg?f4PrivateKg(item[key]):rupiah(item[key]));
     rail.append(bar);
    }
@@ -1334,11 +1338,11 @@ function syncSavings(){
  if(description)description.textContent="Saldo yang sudah masuk tabungan bisa dicairkan. Setoran yang belum terjual masih berupa perkiraan."
  text("f4BankSavingsCredit",memberStatement?rupiah(memberStatement.totalMasuk):"—");
  text("f4BankSavingsDebit",memberStatement?rupiah(memberStatement.totalCair):"—");
- const activeDeposits=(Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
-  .filter(row=>!/batal/i.test(String(row?.status||"")));
- const pendingWeight=activeDeposits.filter(row=>!/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test(String(row.status||"").trim()))
-  .reduce((sum,row)=>sum+Math.max(0,Number(row.beratKg)||0),0);
- text("f4BankSavingsDepositCount",memberStatement?String(activeDeposits.length):"—");
+ const activeDeposits=(__f4.globals.Array.isArray(memberStatement?.setoran)?memberStatement.setoran:[])
+  .filter(row=>!/batal/i.test((0,__f4.globals.String)(row?.status||"")));
+ const pendingWeight=activeDeposits.filter(row=>!/terkonfirmasi|confirmed|^sah$|^sudah sah$/i.test((0,__f4.globals.String)(row.status||"").trim()))
+  .reduce((sum,row)=>sum+__f4.globals.Math.max(0,(0,__f4.globals.Number)(row.beratKg)||0),0);
+ text("f4BankSavingsDepositCount",memberStatement?(0,__f4.globals.String)(activeDeposits.length):"—");
  text("f4BankSavingsPendingWeight",memberStatement?f4PrivateKg(pendingWeight):"—");
  renderLatestComposition();
  renderCategoryTotals();
@@ -1375,7 +1379,7 @@ function buildRequestPage(){
  page.append(el("p","f4-bank-screen-status","Memuat saldo..."),balance,formPanel,historyPanel);
  for(const [label,value] of [["25% ",.25],["50% ",.5],["100% ",1]]){
   const b=el("button","f4-bank-quick-amount",label.trim());b.type="button";
-  b.onclick=()=>{const n=Number(memberStatement?.saldo||0);$("f4BankPayoutAmount").value=String(Math.floor(n*value));};
+  b.onclick=()=>{const n=(0,__f4.globals.Number)(memberStatement?.saldo||0);$("f4BankPayoutAmount").value=(0,__f4.globals.String)(__f4.globals.Math.floor(n*value));};
   $("f4BankQuickAmounts").append(b);
  }
 }
@@ -1390,7 +1394,7 @@ async function requestsMember(){
   status.textContent="Pengajuan diperiksa pengelola. Saldo berkurang setelah uang dibayar.";
   list.replaceChildren(...response.items.map(item=>{
    const row=el("div","f4-bank-request-entry");
-   const left=el("span");left.append(el("strong","",rupiah(item.amount_rp)),el("small","",String(item.requested_at||"").slice(0,10)));
+   const left=el("span");left.append(el("strong","",rupiah(item.amount_rp)),el("small","",(0,__f4.globals.String)(item.requested_at||"").slice(0,10)));
    const state=el("span","f4-bank-request-state is-"+item.status,item.status==="dibayar"?"Dibayar":item.status==="disetujui"?"Disetujui":item.status==="ditolak"?"Ditolak":item.status==="diajukan"?"Diajukan":item.status);
    row.append(left,state);return row;
   }));
@@ -1399,10 +1403,10 @@ async function requestsMember(){
 }
 async function submitRequest(event){
  event.preventDefault();if(!requestEnabled)return;
- const button=$("f4BankRequestSubmit"),amount=Number($("f4BankPayoutAmount").value);
- const balance=Number(memberStatement?.saldo||0);
- if(!Number.isSafeInteger(amount)||amount<=0||amount>balance){$("f4BankRequestStatus").textContent="Nominal harus sesuai saldo terkonfirmasi.";return;}
- if(!requestNonce)requestNonce="PR"+crypto.randomUUID().replace(/-/g,"");
+ const button=$("f4BankRequestSubmit"),amount=(0,__f4.globals.Number)($("f4BankPayoutAmount").value);
+ const balance=(0,__f4.globals.Number)(memberStatement?.saldo||0);
+ if(!__f4.globals.Number.isSafeInteger(amount)||amount<=0||amount>balance){$("f4BankRequestStatus").textContent="Nominal harus sesuai saldo terkonfirmasi.";return;}
+ if(!requestNonce)requestNonce="PR"+__f4.globals.crypto.randomUUID().replace(/-/g,"");
  const original=button.textContent;button.disabled=true;button.textContent="Mengirim...";
  try{
   const result=await api("/api/member/bank/payout-requests",{requestKey:requestNonce,amountRp:amount,method:"tunai",note:$("f4BankPayoutNote").value.trim()});
@@ -1468,7 +1472,7 @@ async function loadManagerRequests(){
  try{
   const response=await api("/api/admin/bank/payout-requests");host.replaceChildren();
   const items=alertRows(response);
-  window.dispatchEvent(new Event("f4-bank-data-changed"));
+  __f4.window.dispatchEvent(new __f4.globals.Event("f4-bank-data-changed"));
   for(const item of items){
    const card=el("article","f4-bank-manager-request");
    const top=el("div","f4-bank-manager-request-head");
@@ -1496,19 +1500,19 @@ async function loadManagerRequests(){
 async function reviewRequest(item,action){
  let note="";
  if(action==="tolak"){
-  note=window.prompt("Alasan penolakan (minimal 5 karakter):","")||"";
+  note=__f4.window.prompt("Alasan penolakan (minimal 5 karakter):","")||"";
   if(note.length<5)return;
- }else if(!window.confirm("Setujui pengajuan "+item.nama+" sebesar "+rupiah(item.amount_rp)+"? Belum mengurangi saldo."))return;
+ }else if(!__f4.window.confirm("Setujui pengajuan "+item.nama+" sebesar "+rupiah(item.amount_rp)+"? Belum mengurangi saldo."))return;
  try{await api("/api/admin/bank/payout-requests/review",{id:item.id,action,note});await loadManagerRequests();}
- catch(error){window.alert(error.message);}
+ catch(error){__f4.window.alert(error.message);}
 }
 async function paidRequest(item){
- if(!window.confirm("Pastikan uang "+rupiah(item.amount_rp)+" sudah diserahkan ke "+item.nama+". Catat sebagai SUDAH DIBAYAR?"))return;
+ if(!__f4.window.confirm("Pastikan uang "+rupiah(item.amount_rp)+" sudah diserahkan ke "+item.nama+". Catat sebagai SUDAH DIBAYAR?"))return;
  try{
   await api("/api/admin/bank/payout-requests/paid",{id:item.id,paidOn:today()});
   await loadManagerRequests();
-  if(typeof window.v9Load==="function")window.v9Load();
- }catch(error){window.alert("Belum berhasil mencatat pembayaran: "+error.message);}
+  if(typeof __f4.window.v9Load==="function")__f4.window.v9Load();
+ }catch(error){__f4.window.alert("Belum berhasil mencatat pembayaran: "+error.message);}
 }
 
 /* Reuse existing public graph/report nodes, never duplicate their data or listeners. */
@@ -1519,8 +1523,8 @@ function restoreFeature(){
  }
  moved=[];
  // The public homepage must not retain the album-only mode after member navigation.
- document.querySelector("#v11Public .v17-public-main")?.classList.remove("v22-show-docs");
- document.body.classList.remove("f4-member-feature");
+ __f4.globals.document.querySelector("#v11Public .v17-public-main")?.classList.remove("v22-show-docs");
+ __f4.globals.document.body.classList.remove("f4-member-feature");
  const back=$("f4-mobile-menu");
  if(back){back.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));back.title="Buka menu halaman";back.setAttribute("aria-label","Buka menu halaman");}
 }
@@ -1528,11 +1532,11 @@ function moveFeature(ids,target){
  restoreFeature();
  for(const id of ids){
   const node=$(id);if(!node?.parentNode)continue;
-  const anchor=document.createComment("Restore "+id);node.before(anchor);
+  const anchor=__f4.globals.document.createComment("Restore "+id);node.before(anchor);
   moved.push({node,anchor});target.append(node);
  }
 }
-const alertRows=result=>Array.isArray(result?.data)?result.data:Array.isArray(result?.items)?result.items:[];
+const alertRows=result=>__f4.globals.Array.isArray(result?.data)?result.data:__f4.globals.Array.isArray(result?.items)?result.items:[];
 /* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
 const adminShortcuts=[
  ["Cek & Sahkan","rekonsiliasi","shield-check"],
@@ -1561,7 +1565,7 @@ function adminShortcut([name,route,iconName]){
  const button=el("button","f4-bank-admin-shortcut");
  button.type="button";button.dataset.bankAppRoute=route;button.setAttribute("aria-label",name);
  const circle=el("span","f4-bank-admin-shortcut-icon");
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
  svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
  circle.append(svg);button.append(circle,el("span","",name));
@@ -1591,17 +1595,17 @@ function ensureAdminMenuSheet(){
  dialog.append(grip,head,grid);
  dialog.addEventListener("click",event=>{if(event.target===dialog)closeAdminMenuSheet();});
  dialog.addEventListener("cancel",event=>{event.preventDefault();closeAdminMenuSheet();});
- document.body.append(dialog);
+ __f4.globals.document.body.append(dialog);
  
  return dialog;
 }
 function openAdminMenuSheet(){
- if(role!=="admin"||roleType()!=="admin"||window.matchMedia("(min-width:1024px)").matches)return;
+ if(role!=="admin"||roleType()!=="admin"||__f4.window.matchMedia("(min-width:1024px)").matches)return;
  const dialog=ensureAdminMenuSheet();
  if(!dialog||dialog.open)return;
- adminSheetFocus=document.activeElement;
+ adminSheetFocus=__f4.globals.document.activeElement;
  dialog.showModal();
- window.F4BankModalHistory?.registerOpen?.(dialog);
+ __f4.window.F4BankModalHistory?.registerOpen?.(dialog);
 }
 function closeAdminMenuSheet(destination=null){
  const dialog=$("f4BankAdminMenuSheet"),focus=adminSheetFocus;
@@ -1611,8 +1615,8 @@ function closeAdminMenuSheet(destination=null){
   else if(focus?.isConnected)focus.focus({preventScroll:true});
  };
  if(!dialog?.open){after();return;}
- if(window.F4BankModalHistory?.closeAndThen)
-  window.F4BankModalHistory.closeAndThen(dialog,after);
+ if(__f4.window.F4BankModalHistory?.closeAndThen)
+  __f4.window.F4BankModalHistory.closeAndThen(dialog,after);
  else{dialog.close();after();}
 }
 function adminMoreShortcut(){
@@ -1620,7 +1624,7 @@ function adminMoreShortcut(){
  button.id="f4BankAdminMore";button.type="button";
  button.setAttribute("aria-label","Buka semua menu pengelolaan");
  const circle=el("span","f4-bank-admin-shortcut-icon");
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
  svg.innerHTML='<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>';
  circle.append(svg);button.append(circle,el("span","", "Lainnya"));
@@ -1635,7 +1639,7 @@ function ensureDesktopAdminSidebar(){
  if(adminNavList!==list){
   adminNavObserver?.disconnect();
   adminNavList=list;
-  adminNavObserver=new MutationObserver(()=>{
+  adminNavObserver=new __f4.globals.MutationObserver(()=>{
    if(role==="admin")ensureDesktopAdminSidebar();
   });
   adminNavObserver.observe(list,{childList:true});
@@ -1647,7 +1651,7 @@ function ensureDesktopAdminSidebar(){
  if(oldLinks.length===adminShortcuts.length&&dividers.length===1)return;
  oldLinks.forEach(link=>link.remove());
  dividers.forEach(divider=>divider.remove());
- const items=document.createDocumentFragment();
+ const items=__f4.globals.document.createDocumentFragment();
  for(const [name,route,iconName] of adminShortcuts){
   if(route==="master"){
    const divider=el("div","f4-bank-nav-divider","LAINNYA");
@@ -1656,7 +1660,7 @@ function ensureDesktopAdminSidebar(){
   const button=el("button","v16-item f4-bank-desktop-nav-link");
   button.type="button";button.dataset.bankAppRoute=route;
   button.setAttribute("aria-label",name);
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
   svg.setAttribute("viewBox","0 0 24 24");
   svg.setAttribute("aria-hidden","true");
   svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
@@ -1671,7 +1675,7 @@ function ensureDesktopAdminSidebar(){
 }
 let adminProgressAnchor=null,adminProgressNode=null;
 function f4BankChevronIcon(){
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");
  svg.setAttribute("aria-hidden","true");
  svg.innerHTML='<path d="m9 18 6-6-6-6"/>';
@@ -1705,7 +1709,7 @@ function adminNextAction(label,detail,route){
 let adminInsightVersion=0,adminInsightLoadedAt=0,adminInsightPending=null;
 let adminInsightReport=null,adminInsightPublic=null,adminInsightSchedule=null;
 let adminInsightUnit="kg",adminInsightRange="month";
-const f4AdminNumeric=value=>Math.max(0,Number.isFinite(Number(value))?Number(value):0);
+const f4AdminNumeric=value=>__f4.globals.Math.max(0,__f4.globals.Number.isFinite((0,__f4.globals.Number)(value))?(0,__f4.globals.Number)(value):0);
 function adminInsightMount(home){
  if(roleType()!=="admin"||!home)return;
  let wrap=$("f4BankAdminInsights");
@@ -1770,7 +1774,7 @@ function adminInsightMount(home){
   right.append(stages);row.append(chart,right);
   wrap.append(row);home.append(wrap);
  }
- if(adminInsightLoadedAt&&Date.now()-adminInsightLoadedAt<90000)return;
+ if(adminInsightLoadedAt&&__f4.globals.Date.now()-adminInsightLoadedAt<90000)return;
  adminInsightFetch();
 }
 function adminInsightDraw(){
@@ -1778,28 +1782,28 @@ function adminInsightDraw(){
  const group=$("f4BankAdminDepositChart");
  group?.querySelectorAll("[data-unit]").forEach(b=>{
   const active=b.dataset.unit===adminInsightUnit;
-  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  if(!adminInsightReport){
   host.replaceChildren(el("p","f4-bank-admin-insight-empty","Belum ada data grafik yang dapat ditampilkan."));
   return;
  }
  const keys=adminInsightUnit==="kg"?["beratKg","pendingWeightKg"]:["hasilPenjualan","pendingEstimateRp"];
- const map=new Map((Array.isArray(adminInsightReport.bulanan)?adminInsightReport.bulanan:[])
-  .filter(r=>/^\d{4}-\d{2}$/.test(String(r.periode||"")))
+ const map=new __f4.globals.Map((__f4.globals.Array.isArray(adminInsightReport.bulanan)?adminInsightReport.bulanan:[])
+  .filter(r=>/^\d{4}-\d{2}$/.test((0,__f4.globals.String)(r.periode||"")))
   .map(r=>[r.periode,r]));
  const current=today().slice(0,7),year=+current.slice(0,4),month=+current.slice(5,7);
  const months=[];
  for(let index=5;index>=0;index--){
-  const d=new Date(Date.UTC(year,month-index-1,15));
+  const d=new __f4.globals.Date(__f4.globals.Date.UTC(year,month-index-1,15));
   months.push(d.toISOString().slice(0,7));
  }
  const rows=months.map(key=>({
-  key,label:new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"})
-   .format(new Date(key+"-15T12:00:00Z")),
+  key,label:new __f4.globals.Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"})
+   .format(new __f4.globals.Date(key+"-15T12:00:00Z")),
   vals:keys.map(k=>f4AdminNumeric(map.get(key)?.[k]))
  }));
- const max=Math.max(.001,...rows.map(x=>x.vals[0]+x.vals[1]));
+ const max=__f4.globals.Math.max(.001,...rows.map(x=>x.vals[0]+x.vals[1]));
  host.replaceChildren();let total=0;
  for(const item of rows){
   const n=item.vals[0]+item.vals[1];total+=n;
@@ -1809,7 +1813,7 @@ function adminInsightDraw(){
   const rail=el("span","f4-bank-admin-insight-rail");
   for(const [i,val] of item.vals.entries()){
    const piece=el("i",i?"is-estimate":"is-confirmed");
-   piece.style.height=n&&val?Math.max(3,val/max*100)+"%":"0%";rail.append(piece);
+   piece.style.height=n&&val?__f4.globals.Math.max(3,val/max*100)+"%":"0%";rail.append(piece);
   }
   column.append(rail,el("small","",item.label));
   column.title=item.key+" • Sah "+item.vals[0]+", estimasi "+item.vals[1];
@@ -1828,36 +1832,36 @@ function adminInsightScheduleDraw(){
  const countdown=$("f4BankAdminScheduleCountdown");
  if(!day||!cycle||!dateNum||!monthNum||!countdown)return;
  const setDate=(date)=>{
-  if(!date||!Number.isFinite(date.getTime())){
+  if(!date||!__f4.globals.Number.isFinite(date.getTime())){
    dateNum.textContent="–";monthNum.textContent="";
    countdown.hidden=true;countdown.textContent="";return;
   }
-  dateNum.textContent=String(date.getUTCDate());
-  monthNum.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"}).format(date);
-  const present=new Date(today()+"T12:00:00Z");
-  const diff=Math.round((date.getTime()-present.getTime())/86400000);
-  if(!Number.isFinite(diff)){countdown.hidden=true;countdown.textContent="";return;}
+  dateNum.textContent=(0,__f4.globals.String)(date.getUTCDate());
+  monthNum.textContent=new __f4.globals.Intl.DateTimeFormat("id-ID",{timeZone:"UTC",month:"short"}).format(date);
+  const present=new __f4.globals.Date(today()+"T12:00:00Z");
+  const diff=__f4.globals.Math.round((date.getTime()-present.getTime())/86400000);
+  if(!__f4.globals.Number.isFinite(diff)){countdown.hidden=true;countdown.textContent="";return;}
   countdown.hidden=false;
   countdown.textContent=diff===0?"Hari ini":diff===1?"Besok":diff>1?diff+" hari lagi":"Jadwal terlewat";
  };
- if(!d||!Number.isInteger(Number(d.weekday))||Number(d.weekday)<0||Number(d.weekday)>6){
+ if(!d||!__f4.globals.Number.isInteger((0,__f4.globals.Number)(d.weekday))||(0,__f4.globals.Number)(d.weekday)<0||(0,__f4.globals.Number)(d.weekday)>6){
   day.textContent="Jadwal belum tersedia";cycle.textContent="Periksa pengaturan jadwal";
   setDate(null);return;
  }
  const days=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
- const freq=String(d.frequency||"weekly");
- const next=String(d.nextOccurrence||d.next_occurrence||"");
- const label=days[Number(d.weekday)];
+ const freq=(0,__f4.globals.String)(d.frequency||"weekly");
+ const next=(0,__f4.globals.String)(d.nextOccurrence||d.next_occurrence||"");
+ const label=days[(0,__f4.globals.Number)(d.weekday)];
  const valid=/^\d{4}-\d{2}-\d{2}$/.test(next);
- const observed=valid?new Date(next+"T12:00:00Z"):null;
- let target=observed&&Number.isFinite(observed.getTime())?observed:null;
+ const observed=valid?new __f4.globals.Date(next+"T12:00:00Z"):null;
+ let target=observed&&__f4.globals.Number.isFinite(observed.getTime())?observed:null;
  if(!target&&freq==="weekly"){
-  const t=new Date(today()+"T12:00:00Z");
-  t.setUTCDate(t.getUTCDate()+(Number(d.weekday)-t.getUTCDay()+7)%7);
+  const t=new __f4.globals.Date(today()+"T12:00:00Z");
+  t.setUTCDate(t.getUTCDate()+((0,__f4.globals.Number)(d.weekday)-t.getUTCDay()+7)%7);
   target=t;
  }
  if(target){
-  day.textContent=new Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
+  day.textContent=new __f4.globals.Intl.DateTimeFormat("id-ID",{timeZone:"UTC",weekday:"long",
    day:"numeric",month:"short",year:"numeric"}).format(target);
  }else day.textContent="Tanggal berikutnya belum tersedia";
  setDate(target);
@@ -1866,14 +1870,14 @@ function adminInsightScheduleDraw(){
 }
 function adminInsightStagesDraw(){
  const host=$("f4BankAdminStageOverview");if(!host)return;
- const rows=Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
- const finished=entry=>/selesai|tuntas|rampung/i.test(String(entry.status||""));
- const ongoing=entry=>!finished(entry)&&/berjalan|proses|aktif|dikerjakan/i.test(String(entry.status||""));
+ const rows=__f4.globals.Array.isArray(adminInsightPublic?.progress)?adminInsightPublic.progress:[];
+ const finished=entry=>/selesai|tuntas|rampung/i.test((0,__f4.globals.String)(entry.status||""));
+ const ongoing=entry=>!finished(entry)&&/berjalan|proses|aktif|dikerjakan/i.test((0,__f4.globals.String)(entry.status||""));
  const done=rows.filter(finished).length;
  const active=rows.filter(ongoing).length;
  // Labels stay concise on the home screen; full titles remain accessible by hover and on Lihat semua.
  const shortTitle=(raw)=>{
-  const title=String(raw||"").trim();
+  const title=(0,__f4.globals.String)(raw||"").trim();
   if(/sosialisasi/i.test(title))return "Sosialisasi";
   if(/perancangan|alur kerja|administrasi/i.test(title))return "Alur kerja";
   if(/wadah|pembuatan/i.test(title))return "Wadah";
@@ -1890,23 +1894,23 @@ function adminInsightStagesDraw(){
  const steps=el("ol","f4-bank-admin-stage-flow");
  steps.setAttribute("aria-label","Urutan tahapan Bank Sampah");
  for(const [index,item] of rows.slice(0,4).entries()){
-  const status=String(item.status||"Tercatat");
+  const status=(0,__f4.globals.String)(item.status||"Tercatat");
   const isDone=finished(item),isActive=ongoing(item);
-  const full=String(item.title||item.stage||"Tahap "+(index+1));
+  const full=(0,__f4.globals.String)(item.title||item.stage||"Tahap "+(index+1));
   const step=el("li","f4-bank-admin-stage-flow-item "+(isDone?"is-done":isActive?"is-active":"is-waiting"));
   step.title=full+" — "+status;
   step.setAttribute("aria-label","Tahap "+(index+1)+": "+full+" — "+status);
   const dot=el("span","f4-bank-admin-stage-flow-dot");
   dot.setAttribute("aria-hidden","true");
   if(isDone){
-   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   const icon=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
    icon.setAttribute("viewBox","0 0 24 24");
-   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+   const path=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","path");
    path.setAttribute("d","m5 12 4 4L19 6");
    path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","2.7");
    path.setAttribute("fill","none");path.setAttribute("stroke-linecap","round");
    path.setAttribute("stroke-linejoin","round");icon.append(path);dot.append(icon);
-  }else dot.textContent=String(index+1);
+  }else dot.textContent=(0,__f4.globals.String)(index+1);
   const name=el("span","f4-bank-admin-stage-flow-label",shortTitle(full));
   step.append(dot,name);steps.append(step);
  }
@@ -1921,7 +1925,7 @@ function adminInsightFetch(force=false){
  if(roleType()!=="admin")return;
  if(adminInsightPending&&!force)return;
  const version=++adminInsightVersion;
- const tasks=Promise.allSettled([
+ const tasks=__f4.globals.Promise.allSettled([
   api("/api/v2/public/bank/report"),
   api("/api/v2/public/bank"),
   api("/api/public/bank/weighing-schedule")
@@ -1930,7 +1934,7 @@ function adminInsightFetch(force=false){
   adminInsightReport=results[0].status==="fulfilled"?results[0].value:null;
   adminInsightPublic=results[1].status==="fulfilled"?results[1].value:null;
   adminInsightSchedule=results[2].status==="fulfilled"?results[2].value:null;
-  adminInsightLoadedAt=Date.now();
+  adminInsightLoadedAt=__f4.globals.Date.now();
   adminInsightDraw();adminInsightScheduleDraw();adminInsightStagesDraw();
  }).finally(()=>{if(version===adminInsightVersion)adminInsightPending=null;});
  adminInsightPending=tasks;
@@ -1971,13 +1975,13 @@ function showAdminProgress(){
  const progress=$("v17Perkembangan");
  if(progress&&progress.parentElement!==page){
   if(!adminProgressAnchor||!adminProgressAnchor.isConnected){
-   adminProgressAnchor=document.createComment("Restore public Bank Sampah progress");
+   adminProgressAnchor=__f4.globals.document.createComment("Restore public Bank Sampah progress");
    progress.before(adminProgressAnchor);
   }
   adminProgressNode=progress;page.append(progress);
  }
  page.classList.remove("hidden");
- if(typeof window.v17LoadPublic==="function")window.v17LoadPublic();
+ if(typeof __f4.window.v17LoadPublic==="function")__f4.window.v17LoadPublic();
 }
 function restoreAdminProgress(){
  if(adminProgressNode&&adminProgressAnchor?.parentNode)
@@ -1994,7 +1998,7 @@ function chooseOwnMode(value){
  if(own)own.hidden=ownFormMode!=="bank";
  tabs?.querySelectorAll("button").forEach(b=>{
   const active=b.dataset.mode===ownFormMode;
-  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));
+  b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  if(ownFormMode==="bank")loadOwnCatalog();
 }
@@ -2010,7 +2014,7 @@ function ensureOwnDepositForm(){
   normal.before(tabs);
   const form=el("form","f4-bank-own-deposit-form");form.id="f4BankOwnDepositForm";form.hidden=true;
   const dateField=el("label","f4-bank-own-field");
-  dateField.append(el("span","","Tanggal"),Object.assign(el("input"),{type:"date",required:true,value:today()}));
+  dateField.append(el("span","","Tanggal"),__f4.globals.Object.assign(el("input"),{type:"date",required:true,value:today()}));
   dateField.querySelector("input").id="f4BankOwnDate";
   const fields=el("div","f4-bank-own-fields");fields.append(dateField);
   const detail=el("div","f4-bank-own-detail");
@@ -2040,17 +2044,17 @@ function refreshOwnWeightTotal(){
  const host=$("f4BankOwnLines"),value=$("f4BankOwnWeightTotal");
  if(!host||!value)return;
  const sum=[...host.querySelectorAll('input[data-own-weight="1"]')]
-  .reduce((total,input)=>total+Math.max(0,Number(input.value)||0),0);
+  .reduce((total,input)=>total+__f4.globals.Math.max(0,(0,__f4.globals.Number)(input.value)||0),0);
  // Keep decimal precision stable without changing the stored gram calculation.
- value.textContent=Number(sum.toFixed(3)).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
+ value.textContent=(0,__f4.globals.Number)(sum.toFixed(3)).toLocaleString("id-ID",{maximumFractionDigits:3})+" kg";
 }
 function addOwnItemRow(){
  const lines=$("f4BankOwnLines");if(!lines)return;
  if(lines.childElementCount>=30)return;
  const row=el("div","f4-bank-own-line f4-compact-row");
  const select=el("select");select.required=true;select.setAttribute("aria-label","Jenis sampah");
- select.add(new Option("Pilih jenis",""));
- for(const item of ownCatalog||[])select.add(new Option(item.name,item.id));
+ select.add(new __f4.globals.Option("Pilih jenis",""));
+ for(const item of ownCatalog||[])select.add(new __f4.globals.Option(item.name,item.id));
   const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
  weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
  weight.setAttribute("aria-label","Berat sampah kilogram");
@@ -2068,8 +2072,8 @@ async function loadOwnCatalog(){
   const status=$("f4BankOwnStatus");if(status)status.textContent="Memuat jenis barang...";
   try{
    const result=await api("/api/v2/admin/bank/catalog");
-   ownCatalog=(result.data||[]).filter(x=>Number(x.active)===1)
-    .map(x=>({id:String(x.id),name:x.name,priceRpPerKg:Number(x.priceRpPerKg)||0}));if(status)status.textContent="";
+   ownCatalog=(result.data||[]).filter(x=>(0,__f4.globals.Number)(x.active)===1)
+    .map(x=>({id:(0,__f4.globals.String)(x.id),name:x.name,priceRpPerKg:(0,__f4.globals.Number)(x.priceRpPerKg)||0}));if(status)status.textContent="";
   }catch(error){if(status)status.textContent="Jenis barang belum tersedia: "+error.message;return;}
  }
  const rows=$("f4BankOwnLines");
@@ -2080,16 +2084,16 @@ async function submitOwnDeposit(event){
  const form=event.currentTarget,button=form.querySelector('[type="submit"]');
  const date=$("f4BankOwnDate")?.value;
  const items=[...form.querySelectorAll(".f4-bank-own-line")].map(row=>{
-  const kg=Number(row.querySelector("input")?.value);
-  return {itemId:row.querySelector("select")?.value,grams:Math.round(kg*1000),kg};
+  const kg=(0,__f4.globals.Number)(row.querySelector("input")?.value);
+  return {itemId:row.querySelector("select")?.value,grams:__f4.globals.Math.round(kg*1000),kg};
  });
  const status=$("f4BankOwnStatus");
- if(!items.length||items.some(x=>!x.itemId||!Number.isFinite(x.kg)||x.kg<=0||!Number.isSafeInteger(x.grams)||x.grams<1)){
+ if(!items.length||items.some(x=>!x.itemId||!__f4.globals.Number.isFinite(x.kg)||x.kg<=0||!__f4.globals.Number.isSafeInteger(x.grams)||x.grams<1)){
   status.textContent="Lengkapi jenis dan berat barang.";return;
  }
- if(new Set(items.map(x=>x.itemId)).size!==items.length){status.textContent="Jenis sampah yang sama cukup satu baris.";return;}
- if(!window.confirm("Catat setoran milik Bank sebagai stok? Belum menambah kas sebelum penjualan sah."))return;
- if(!ownRequestKey)ownRequestKey="own"+crypto.randomUUID().replace(/-/g,"");
+ if(new __f4.globals.Set(items.map(x=>x.itemId)).size!==items.length){status.textContent="Jenis sampah yang sama cukup satu baris.";return;}
+ if(!__f4.window.confirm("Catat setoran milik Bank sebagai stok? Belum menambah kas sebelum penjualan sah."))return;
+ if(!ownRequestKey)ownRequestKey="own"+__f4.globals.crypto.randomUUID().replace(/-/g,"");
  button.disabled=true;status.textContent="Menyimpan stok...";
  try{
   const res=await api("/api/v2/admin/bank/own-deposits",{
@@ -2156,7 +2160,7 @@ function openCashExpenseDialog(){
  if(!dialog)return;
  ensureCashExpenseForm();
  if(!dialog.open)dialog.showModal();
- window.v10LoadBiaya?.();
+ __f4.window.v10LoadBiaya?.();
  $("v10Type")?.focus({preventScroll:true});
 }
 function showAdminCash(){
@@ -2183,7 +2187,7 @@ function showAdminCash(){
     const trigger=el("button","f4-bank-cash-add-button");
     trigger.id="f4BankCashExpenseOpen";
     trigger.type="button";
-    trigger.append(bankUiSvg("plus"),document.createTextNode("Catat"));
+    trigger.append(bankUiSvg("plus"),__f4.globals.document.createTextNode("Catat"));
     trigger.setAttribute("aria-label","Catat pengeluaran");
     trigger.title="Catat pengeluaran";
     trigger.onclick=openCashExpenseDialog;
@@ -2226,7 +2230,7 @@ async function loadAdminCash(){
  targets.forEach(target=>{target.textContent="Memuat mutasi kas...";});
  page.querySelectorAll("[data-cash-tab]").forEach(button=>{
   const active=button.dataset.cashTab===adminCashTab;
-  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active));
+  button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  page.querySelectorAll("[data-cash-panel]").forEach(panel=>{
   panel.classList.toggle("is-active",panel.dataset.cashPanel===adminCashTab);
@@ -2234,9 +2238,9 @@ async function loadAdminCash(){
  try{
   const res=await api("/api/v2/admin/bank/cash?limit=300");
   const all=(res.data||[]).filter(x=>x.status==="aktif").sort((a,b)=>
-   String(b.occurred_on||"").localeCompare(String(a.occurred_on||"")));
-  const incoming=all.reduce((n,x)=>n+Number(x.cash_in_rp||0),0);
-  const outgoing=all.reduce((n,x)=>n+Number(x.cash_out_rp||0),0);
+   (0,__f4.globals.String)(b.occurred_on||"").localeCompare((0,__f4.globals.String)(a.occurred_on||"")));
+  const incoming=all.reduce((n,x)=>n+(0,__f4.globals.Number)(x.cash_in_rp||0),0);
+  const outgoing=all.reduce((n,x)=>n+(0,__f4.globals.Number)(x.cash_out_rp||0),0);
   page.querySelector(".f4-bank-admin-cash-stats").replaceChildren(...[
    ["Pemasukan",incoming],["Pengeluaran",outgoing],["Selisih mutasi",incoming-outgoing]
   ].map(([name,value])=>{
@@ -2246,7 +2250,7 @@ async function loadAdminCash(){
   for(const key of ["in","out"]){
    const target=page.querySelector('[data-cash-list="'+key+'"]');
    if(!target)continue;
-   const rows=all.filter(x=>Number(key==="in"?x.cash_in_rp:x.cash_out_rp)>0);
+   const rows=all.filter(x=>(0,__f4.globals.Number)(key==="in"?x.cash_in_rp:x.cash_out_rp)>0);
    if(!rows.length){
     target.textContent=key==="in"?"Belum ada pemasukan.":"Belum ada pengeluaran.";
     continue;
@@ -2270,7 +2274,7 @@ async function loadAdminCash(){
   targets.forEach(target=>{target.textContent="Mutasi kas belum dapat dibuka: "+error.message;});
  }
 }
-window.addEventListener("f4-bank-expense-saved",()=>{
+__f4.window.addEventListener("f4-bank-expense-saved",()=>{
  closeCashExpenseDialog();
  if(roleType()==="admin"&&$("f4BankAdminCashBody"))loadAdminCash();
 });
@@ -2285,7 +2289,7 @@ function restoreAdminMedia(){
 function adminMediaMove(id,container){
  const node=$(id);if(!node?.parentNode)return;
  if(!adminMediaRestore.some(item=>item.node===node)){
-  const anchor=document.createComment("Kembalikan "+id);
+  const anchor=__f4.globals.document.createComment("Kembalikan "+id);
   node.before(anchor);adminMediaRestore.push({node,anchor});
  }
  container.append(node);node.classList.remove("hidden");
@@ -2309,13 +2313,13 @@ function showAdminDocumentation(which="albums"){
  }
  let content=$("f4BankAdminDocsContent");
  if(!content){content=el("div","f4-bank-admin-doc-content");content.id="f4BankAdminDocsContent";page.append(content);}
- window.f4BankRenderDocumentation?.();
+ __f4.window.f4BankRenderDocumentation?.();
  adminMediaMove("v22DocsPage",content);
  adminMediaMove("v17Inventaris",content);
  const album=$("v22DocsPage"),inventory=$("v17Inventaris");
  tabs.replaceChildren(...[["albums","Album"],["inventory","Inventaris"]].map(([key,label])=>{
   const button=el("button","f4-bank-admin-history-tab"+(which===key?" is-active":""),label);
-  button.type="button";button.setAttribute("aria-pressed",String(which===key));
+  button.type="button";button.setAttribute("aria-pressed",(0,__f4.globals.String)(which===key));
   button.onclick=()=>showAdminDocumentation(key);return button;
  }));
  tabs.hidden=false;
@@ -2325,16 +2329,16 @@ function showAdminDocumentation(which="albums"){
  // This screen reuses the public album/inventory nodes. Refresh their D1-backed
  // source when entering the manager screen; otherwise a fresh login can show
  // empty albums or an indefinitely pending inventory until the public page opens.
- if(!bankAdminDocsRefreshPromise&&Date.now()-bankAdminDocsLastRefresh>10000){
-  const refresh=window.v17LoadPublic;
+ if(!bankAdminDocsRefreshPromise&&__f4.globals.Date.now()-bankAdminDocsLastRefresh>10000){
+  const refresh=__f4.window.v17LoadPublic;
   if(typeof refresh==="function"){
-   bankAdminDocsRefreshPromise=Promise.resolve().then(()=>refresh()).then(()=>{
-    bankAdminDocsLastRefresh=Date.now();
-    window.f4BankRenderDocumentation?.();
+   bankAdminDocsRefreshPromise=__f4.globals.Promise.resolve().then(()=>refresh()).then(()=>{
+    bankAdminDocsLastRefresh=__f4.globals.Date.now();
+    __f4.window.f4BankRenderDocumentation?.();
    }).catch(error=>{
     const target=which==="inventory"?$("v17Inventory"):$("v22DocList");
     if(target&&!target.children.length)target.textContent="Gagal memuat data. Coba buka kembali halaman ini.";
-    console.error("Gagal memperbarui dokumentasi Bank Sampah",error);
+    __f4.globals.console.error("Gagal memperbarui dokumentasi Bank Sampah",error);
    }).finally(()=>{bankAdminDocsRefreshPromise=null;});
   }
  }
@@ -2373,7 +2377,7 @@ function showAdminHistory(selected="setoran"){
  tabs.querySelectorAll("[data-history-tab]").forEach(button=>{
   const active=button.dataset.historyTab===selected;
   button.classList.toggle("is-active",active);
-  button.setAttribute("aria-selected",String(active));
+  button.setAttribute("aria-selected",(0,__f4.globals.String)(active));
   button.tabIndex=active?0:-1;
  });
  let refresh=$("f4BankAdminHistoryRefresh");
@@ -2384,8 +2388,8 @@ function showAdminHistory(selected="setoran"){
   refresh.title="Muat ulang kedua riwayat";
   refresh.innerHTML='<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.35 5.65"/><path d="M20 4v7h-7"/></svg>';
   refresh.onclick=()=>{
-   window.loadRiwayatV7?.();
-   window.loadRiwayatJual?.();
+   __f4.window.loadRiwayatV7?.();
+   __f4.window.loadRiwayatJual?.();
   };
  }
  if(refresh.parentElement!==controls)controls.append(refresh);
@@ -2417,8 +2421,8 @@ function showAdminHistory(selected="setoran"){
  syncAdminPageFrames();
  page.classList.remove("hidden");
  // The legacy route already loaded the selected list. Load the other one.
- if(selected==="penjualan")window.loadRiwayatV7?.();
- else window.loadRiwayatJual?.();
+ if(selected==="penjualan")__f4.window.loadRiwayatV7?.();
+ else __f4.window.loadRiwayatJual?.();
 }
 function ensureAdminReportLink(){
  if(role!=="admin")return;
@@ -2444,10 +2448,10 @@ function combineAdminApproval(){
  // confirmation flow or exposing the result before a batch is selected.
  let reconDetails=$("f4BankReconDetails");
  if(!reconDetails){
-  reconDetails=document.createElement("details");
+  reconDetails=__f4.globals.document.createElement("details");
   reconDetails.id="f4BankReconDetails";
   reconDetails.className="f4-bank-recon-details";
-  const summary=document.createElement("summary");
+  const summary=__f4.globals.document.createElement("summary");
   summary.innerHTML='<span>Cek selisih penimbangan</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   reconDetails.append(summary);
   const note=root.querySelector(":scope > .pill-note");
@@ -2457,7 +2461,7 @@ function combineAdminApproval(){
   if(reconPicker){reconPicker.hidden=true;reconDetails.append(reconPicker);}
   if(preview)reconDetails.append(preview);
   // Pada PC panel cek selisih langsung terbuka; pada HP tetap opsional.
-  if(window.matchMedia("(min-width:1180px)").matches)reconDetails.open=true;
+  if(__f4.window.matchMedia("(min-width:1180px)").matches)reconDetails.open=true;
   root.append(reconDetails);
  }
  const selection=$("v8Batch");
@@ -2467,12 +2471,12 @@ function combineAdminApproval(){
    const other=$("reconBatch");
    if(!other)return;
    if(selection.value&&![...other.options].some(o=>o.value===selection.value))
-    other.add(new Option(selection.options[selection.selectedIndex]?.text||selection.value,selection.value));
+    other.add(new __f4.globals.Option(selection.options[selection.selectedIndex]?.text||selection.value,selection.value));
    other.value=selection.value;
-   window.loadRekonsiliasi?.();
+   __f4.window.loadRekonsiliasi?.();
   });
  }
- if(typeof window.v8LoadBatches==="function")window.v8LoadBatches();
+ if(typeof __f4.window.v8LoadBatches==="function")__f4.window.v8LoadBatches();
 }
 function ensureAdminProfile(){
  if(role!=="admin")return;
@@ -2512,11 +2516,11 @@ function ensureAdminProfile(){
    save.disabled=true;status.textContent="Menyimpan...";
    try{
     const result=await api("/api/member/profile",{nama:value});
-    const saved=String(result.profile?.nama||value);
+    const saved=(0,__f4.globals.String)(result.profile?.nama||value);
     name.textContent=saved;
     const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+saved;
     const welcome=$("f4BankAppWelcome")?.querySelector("strong");if(welcome)welcome.textContent=saved;
-    window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:saved}}));
+    __f4.window.dispatchEvent(new __f4.globals.CustomEvent("f4-account-profile-updated",{detail:{nama:saved}}));
     editing(false);
    }catch(error){status.textContent=error.message||"Nama gagal disimpan.";}
    finally{save.disabled=false;}
@@ -2537,15 +2541,15 @@ function ensureAdminProfile(){
 function memberSide(enabled){
  // Mobile: bottom dock only. Desktop: full left sidebar, same route handlers.
  const side=$("sideNav");if(!side)return;
- const desktop=window.matchMedia("(min-width:1024px)").matches;
+ const desktop=__f4.window.matchMedia("(min-width:1024px)").matches;
  const visible=enabled&&desktop;
  side.classList.toggle("hidden",enabled&&!desktop);
  side.classList.remove("open");
  if(enabled&&!desktop){side.setAttribute("aria-hidden","true");side.inert=true;}
  else{side.removeAttribute("aria-hidden");side.inert=false;}
  $("v16Backdrop")?.classList.remove("open");
- document.body.classList.remove("f4-bank-drawer-open");
- document.body.classList.toggle("f4-bank-member-desktop",visible);
+ __f4.globals.document.body.classList.remove("f4-bank-drawer-open");
+ __f4.globals.document.body.classList.toggle("f4-bank-member-desktop",visible);
 }
 function memberMetricIcon(type){
  const paths={
@@ -2554,7 +2558,7 @@ function memberMetricIcon(type){
   stage:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 5 3 3 5-5"/>',
   report:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>'
  };
- const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");
  svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.9");
  svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
@@ -2594,7 +2598,7 @@ function drawMemberHomeChart(){
  periods.querySelectorAll("[data-period]").forEach(button=>{
   const active=button.dataset.period===memberHomeChartGroup;
   button.classList.toggle("is-active",active);
-  button.setAttribute("aria-pressed",String(active));
+  button.setAttribute("aria-pressed",(0,__f4.globals.String)(active));
  });
  chart.replaceChildren();
  if(!memberStatement){
@@ -2603,19 +2607,19 @@ function drawMemberHomeChart(){
   chart.append(el("p","f4-member-progress-empty","Memuat setoran pribadi…"));
   return;
  }
- const now=new Date(today()+"T00:00:00Z");
+ const now=new __f4.globals.Date(today()+"T00:00:00Z");
  const monthly=memberHomeChartGroup==="month";
- const entries=Array.from({length:monthly?6:5},(_,index)=>{
+ const entries=__f4.globals.Array.from({length:monthly?6:5},(_,index)=>{
   if(monthly){
-   const date=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-5+index,1));
+   const date=new __f4.globals.Date(__f4.globals.Date.UTC(now.getUTCFullYear(),now.getUTCMonth()-5+index,1));
    return {key:date.toISOString().slice(0,7),
-    label:new Intl.DateTimeFormat("id-ID",{month:"short",timeZone:"UTC"}).format(date),
+    label:new __f4.globals.Intl.DateTimeFormat("id-ID",{month:"short",timeZone:"UTC"}).format(date),
     weight:0,count:0};
   }
-  const year=String(now.getUTCFullYear()-4+index);
+  const year=(0,__f4.globals.String)(now.getUTCFullYear()-4+index);
   return {key:year,label:year,weight:0,count:0};
  });
- const groups=new Map(entries.map(item=>[item.key,item]));
+ const groups=new __f4.globals.Map(entries.map(item=>[item.key,item]));
  const deposits=memberBuckets().filter(item=>/^\d{4}-\d{2}-\d{2}$/.test(item.date));
  let unmeasured=0;
  for(const item of deposits){
@@ -2623,7 +2627,7 @@ function drawMemberHomeChart(){
   const entry=groups.get(key);
   if(!entry)continue;
   if(item.missingWeight){unmeasured++;continue;}
-  entry.weight+=Math.max(0,Number(item.weight)||0);
+  entry.weight+=__f4.globals.Math.max(0,(0,__f4.globals.Number)(item.weight)||0);
   entry.count++;
  }
  const valid=entries.some(item=>item.count>0);
@@ -2635,7 +2639,7 @@ function drawMemberHomeChart(){
    "Belum ada setoran pribadi pada periode ini."));
   return;
  }
- const max=Math.max(0,...entries.map(item=>item.weight));
+ const max=__f4.globals.Math.max(0,...entries.map(item=>item.weight));
  const bars=el("div","f4-member-progress-bars");
  bars.style.gridTemplateColumns="repeat("+entries.length+",minmax(0,1fr))";
  for(const item of entries){
@@ -2643,7 +2647,7 @@ function drawMemberHomeChart(){
   const amount=el("strong","",item.count?f4PrivateShort(item.weight,"kg")+" kg":"—");
   const rail=el("span","f4-member-progress-rail");
   const fill=el("i","f4-member-progress-fill");
-  fill.style.height=max>0&&item.weight>0?Math.max(4,item.weight/max*100)+"%":"0%";
+  fill.style.height=max>0&&item.weight>0?__f4.globals.Math.max(4,item.weight/max*100)+"%":"0%";
   rail.append(fill);
   column.append(amount,rail,el("small","",item.label));
   column.title=item.key+" • "+f4PrivateKg(item.weight)+" • "+item.count+" setoran";
@@ -2659,9 +2663,9 @@ function renderMemberPublicMini(){
  const host=$("f4MemberPublicMini");if(!host)return;
  const summary=memberPublicMini.data;
  for(const key of ["setoran","anggota","jenis"]){
-  const n=summary?.[key],valid=n!==null&&n!==undefined&&n!==""&&
-   Number.isFinite(Number(n))&&Number(n)>=0;
-  const display=valid?Number(n).toLocaleString("id-ID"):"—";
+  const n=summary?.[key],valid=n!==null&&n!==__f4.globals.undefined&&n!==""&&
+   __f4.globals.Number.isFinite((0,__f4.globals.Number)(n))&&(0,__f4.globals.Number)(n)>=0;
+  const display=valid?(0,__f4.globals.Number)(n).toLocaleString("id-ID"):"—";
   const field=host.querySelector('[data-public-field="'+key+'"] strong');
   if(field){field.textContent=display;field.title=valid?display:"Data belum tersedia";}
  }
@@ -2676,24 +2680,24 @@ function loadMemberPublicMini(force=false){
  if(roleType()!=="member")return;
  const s=memberPublicMini;
  renderMemberPublicMini();
- if(s.pending||(!force&&s.loadedAt&&Date.now()-s.loadedAt<90000))return;
+ if(s.pending||(!force&&s.loadedAt&&__f4.globals.Date.now()-s.loadedAt<90000))return;
  const version=++s.version;
- s.loadedAt=Date.now();
+ s.loadedAt=__f4.globals.Date.now();
  s.pending=api("/api/v2/public/bank").then(response=>{
   if(version!==s.version||roleType()!=="member")return;
   const overview=response?.overview;
   if(!overview||typeof overview!=="object"||
    !["confirmedDeposits","activeMembers","activeItems"].every(key=>
-    overview[key]!=null&&Number.isFinite(Number(overview[key]))))
-    throw Error("Ringkasan publik Bank Sampah belum lengkap.");
-  const recorded=overview.recordedDeposits!=null&&Number.isFinite(Number(overview.recordedDeposits));
-  s.data={setoran:Number(recorded?overview.recordedDeposits:overview.confirmedDeposits),
-   anggota:Number(overview.activeMembers),jenis:Number(overview.activeItems),recorded};
+    overview[key]!=null&&__f4.globals.Number.isFinite((0,__f4.globals.Number)(overview[key]))))
+    throw (0,__f4.globals.Error)("Ringkasan publik Bank Sampah belum lengkap.");
+  const recorded=overview.recordedDeposits!=null&&__f4.globals.Number.isFinite((0,__f4.globals.Number)(overview.recordedDeposits));
+  s.data={setoran:(0,__f4.globals.Number)(recorded?overview.recordedDeposits:overview.confirmedDeposits),
+   anggota:(0,__f4.globals.Number)(overview.activeMembers),jenis:(0,__f4.globals.Number)(overview.activeItems),recorded};
   renderMemberPublicMini();
  }).catch(error=>{
   if(version!==s.version)return;
   s.data=null;renderMemberPublicMini();
-  console.warn("Bank Sampah: ringkasan publik belum tersedia.",error);
+  __f4.globals.console.warn("Bank Sampah: ringkasan publik belum tersedia.",error);
  }).finally(()=>{if(version===s.version)s.pending=null;});
 }
 function infoShortcut(){
@@ -2715,9 +2719,9 @@ function infoShortcut(){
  home.append(link);loadMemberPublicMini();
 }
 function publicSnapshot(){
- if(roleType()!=="member"||memberSnapshotsLoaded||snapshotBusy||typeof window.v17LoadPublic!=="function")return;
+ if(roleType()!=="member"||memberSnapshotsLoaded||snapshotBusy||typeof __f4.window.v17LoadPublic!=="function")return;
  snapshotBusy=true;
- Promise.resolve().then(()=>window.v17LoadPublic()).then(()=>{
+ __f4.globals.Promise.resolve().then(()=>__f4.window.v17LoadPublic()).then(()=>{
   memberSnapshotsLoaded=true;
  }).catch(()=>{}).finally(()=>{snapshotBusy=false});
 }
@@ -2740,17 +2744,17 @@ function memberFeature(route){
   moveFeature(["v22DocsPage"],content);
   const albumPage=$("v22DocsPage");
   albumPage?.classList.remove("hidden");
-  window.f4BankRenderDocumentation?.();
+  __f4.window.f4BankRenderDocumentation?.();
   // Original public-page back action remains untouched. Member uses its top navigation.
  }else{
   moveFeature(["v17PublicMetrics","v17Transparansi","v17Dokumentasi","v17Perkembangan","v17Inventaris"],content);
   const finance=content.querySelector("#v17Transparansi");
   if(finance){finance.hidden=false;finance.classList.remove("hidden");}
-  if(typeof window.v25LoadReport==="function")window.v25LoadReport();
+  if(typeof __f4.window.v25LoadReport==="function")__f4.window.v25LoadReport();
  }
- document.body.classList.add("f4-member-feature");
+ __f4.globals.document.body.classList.add("f4-member-feature");
  if(!memberSnapshotsLoaded)publicSnapshot();
- window.scrollTo(0,0);
+ __f4.window.scrollTo(0,0);
 }
 function visibleMemberRoute(){
  for(const id of [...featureRoutes,...custom,"pagePribadi","pageProfile","pageDashboard"]){
@@ -2763,26 +2767,26 @@ function visibleMemberRoute(){
 function hideCustom(){
  const schedule=$("f4BankWeighingDialog");
  if(schedule?.open)schedule.close();
- window.F4MemberPrices?.close?.();
+ __f4.window.F4MemberPrices?.close?.();
  for(const id of [...custom,...featureRoutes])$(id)?.classList.add("hidden");
 }
 function navigate(route){
  if(route==="menu"){if(roleType()==="admin")openAdminMenuSheet();return;}
  if(route==="bank-deposit"){
-  window.goPage("dashboard");
+  __f4.window.goPage("dashboard");
   const flow=$("f4MemberFlow");if(flow){flow.open=true;flow.scrollIntoView({behavior:"smooth",block:"start"});}
   return;
  }
  if(route==="bank-history"||route==="bank-report"||route==="bank-payout"){
-  window.goPage(route);return;
+  __f4.window.goPage(route);return;
  }
- if(typeof window.goPage==="function")window.goPage(route);
+ if(typeof __f4.window.goPage==="function")__f4.window.goPage(route);
 }
 function handleRoute(route,old,args){
  // Legacy bookmarks resolve to the consolidated member information page.
  if(roleType()==="member"&&route==="bank-member-progress")route="bank-member-info";
  if(roleType()==="member"&&route==="bank-prices"){
-  window.F4MemberPrices?.show();return;
+  __f4.window.F4MemberPrices?.show();return;
  }
  if(roleType()&&route!==screen&&!returningFromBack){
   routeHistory.push(screen);
@@ -2800,41 +2804,41 @@ function handleRoute(route,old,args){
    hideCustom();old.call(window,"dashboard",...args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminCash();screen=route;
-   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+   __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="bank-admin-docs"){
    hideCustom();old.call(window,"dashboard",...args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminDocumentation();screen=route;
-   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+   __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="bank-admin-history"||route==="bank-admin-sale-history"){
    const saleHistory=route==="bank-admin-sale-history";
    hideCustom();old.call(window,saleHistory?"riwayatJual":"riwayat",...args);
    showAdminHistory(saleHistory?"penjualan":"setoran");screen=route;
-   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+   __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="bank-admin-progress"){
    hideCustom();old.call(window,"dashboard",...args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminProgress();screen=route;
-   window.v16Sync?.(route);markDock();window.scrollTo(0,0);return;
+   __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="rekonsiliasi"){
    hideCustom();old.call(window,route,...args);
-   combineAdminApproval();screen=route;markDock();window.scrollTo(0,0);return;
+   combineAdminApproval();screen=route;markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="profile"){
    hideCustom();old.call(window,route,...args);
-   ensureAdminProfile();screen=route;markDock();window.scrollTo(0,0);return;
+   ensureAdminProfile();screen=route;markDock();__f4.window.scrollTo(0,0);return;
   }
  }
  // Navigating between member pages always starts with a visible header and sidebar brand.
  if(roleType()==="member"){
-  if(window.matchMedia("(min-width:1024px)").matches){
+  if(__f4.window.matchMedia("(min-width:1024px)").matches){
    const side=$("sideNav");if(side)side.scrollTop=0;
   }
-  window.scrollTo(0,0);
+  __f4.window.scrollTo(0,0);
  }
  if(roleType()==="member"&&featureRoutes.includes(route)){
   restoreFeature();hideCustom();
@@ -2842,10 +2846,10 @@ function handleRoute(route,old,args){
   $("pageDashboard")?.classList.add("hidden");
   memberFeature(route);
   $(route)?.classList.remove("hidden");
-  if(typeof window.v16Sync==="function")window.v16Sync(route);
+  if(typeof __f4.window.v16Sync==="function")__f4.window.v16Sync(route);
   screen=route;markDock();return;
  }
- if(document.body.classList.contains("f4-member-feature")){restoreFeature();hideCustom();}
+ if(__f4.globals.document.body.classList.contains("f4-member-feature")){restoreFeature();hideCustom();}
 
  if(route==="bank-payout-admin"&&roleType()==="admin"){
   hideCustom();
@@ -2853,7 +2857,7 @@ function handleRoute(route,old,args){
   managerRequestsPanel();
   $("pageTabungan")?.classList.add("hidden");
   $("bank-payout-admin")?.classList.remove("hidden");
-  if(typeof window.v16Sync==="function")window.v16Sync("bank-payout-admin");
+  if(typeof __f4.window.v16Sync==="function")__f4.window.v16Sync("bank-payout-admin");
   screen="bank-payout-admin";markDock();
   loadManagerRequests();
   return;
@@ -2864,7 +2868,7 @@ function handleRoute(route,old,args){
   hideCustom();
   $("pagePribadi")?.classList.add("hidden");
   $(route)?.classList.remove("hidden");screen=route;
-  if(typeof window.v16Sync==="function")window.v16Sync(route);
+  if(typeof __f4.window.v16Sync==="function")__f4.window.v16Sync(route);
   markDock();
   if(route==="bank-history")showHistory();
   if(route==="bank-report")showReport();
@@ -2911,8 +2915,8 @@ function resetRoleSurface(){
  }
  homeSource?.disconnect();summaryExtra?.disconnect();memberSource?.disconnect();
  homeSource=null;summaryExtra=null;memberSource=null;primaryNode=null;extraNode=null;
- for(const node of document.querySelectorAll("[data-f4-bank-observed]"))delete node.dataset.f4BankObserved;
- if(document.body.classList.contains("f4-member-feature"))restoreFeature();
+ for(const node of __f4.globals.document.querySelectorAll("[data-f4-bank-observed]"))delete node.dataset.f4BankObserved;
+ if(__f4.globals.document.body.classList.contains("f4-member-feature"))restoreFeature();
  hideCustom();restoreAdminProgress();restoreAdminMedia();
  const form=$("v10ExpenseForm"),notice=$("v10ExpenseNotice"),home=$("pageBiaya");
  if(form&&home&&form.parentElement!==home)home.append(form);
@@ -2927,30 +2931,30 @@ function resetRoleSurface(){
  }
  $("f4BankProfileDetail")?.remove();
  if($("f4BankWeighingDialog")?.open)$("f4BankWeighingDialog").close();
- window.F4MemberPrices?.close?.();
+ __f4.window.F4MemberPrices?.close?.();
  const history=$("bank-admin-history"),section=$("dashboardView")?.querySelector(".grid > .section");
  for(const id of ["pageRiwayat","pageRiwayatJual"]){
   const page=$(id);if(page&&history?.contains(page)&&section)section.append(page);
  }
- document.body.classList.remove("f4-bank-member-secondary");
+ __f4.globals.document.body.classList.remove("f4-bank-member-secondary");
  memberStatement=null;adminOverview=null;adminOverviewError='';memberSnapshotsLoaded=false;
  weighingRequestId++;weighingRequest=null;weighingWeekday=0;weighingLastFetched=0;weighingReady=false;
  requestNonce="";requestEnabled=false;memberSnapshotsLoaded=false;
 }
-window.f4BankResetForAccountSwitch=()=>{
+__f4.window.f4BankResetForAccountSwitch=()=>{
  resetRoleSurface();
  role=null;memberStatement=null;adminOverview=null;adminOverviewError='';
- window.dispatchEvent(new CustomEvent('f4-shared-bank-route',{detail:'dashboard'}));
- document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
+ __f4.window.dispatchEvent(new __f4.globals.CustomEvent('f4-shared-bank-route',{detail:'dashboard'}));
+ __f4.globals.document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
 
  memberSide(false);syncAdminPageFrames();
 };
-window.f4BankReconcileAccount=()=>sync();
+__f4.window.f4BankReconcileAccount=()=>sync();
 function sync(){
  const next=roleType(),isPrivate=!!next&&!$("dashboardView")?.classList.contains("hidden");
- document.body.classList.toggle("f4-bank-app-private",isPrivate);
- document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
- document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
+ __f4.globals.document.body.classList.toggle("f4-bank-app-private",isPrivate);
+ __f4.globals.document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
+ __f4.globals.document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
  
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
@@ -2975,7 +2979,7 @@ function sync(){
  // Do not interfere with any currently open operational screen.
  const dashboard=$("pageDashboard");
  if(role==="admin"&&screen==="dashboard"&&dashboard?.classList.contains("hidden")&&
-    new URLSearchParams(location.search).get("halaman")==="dashboard"){
+    new __f4.globals.URLSearchParams(__f4.globals.location.search).get("halaman")==="dashboard"){
   const section=dashboard.parentElement;
   const otherVisible=[...(section?.children||[])].some(node=>node!==dashboard&&
     (node.id.startsWith("page")||node.id.startsWith("bank-"))&&!node.classList.contains("hidden"));
@@ -2992,22 +2996,22 @@ function sync(){
  }
  markDock();refreshSources();
  // Reset stale horizontal pan only when entering an authenticated surface.
- if(window.scrollX>0)window.scrollTo(0,window.scrollY);
+ if(__f4.window.scrollX>0)__f4.window.scrollTo(0,__f4.window.scrollY);
 }
 function refreshSources(){
  const p=$("v14Primary"),q=$("v14Extra");
  if(p&&p!==primaryNode){
   homeSource?.disconnect();
-  homeSource=new MutationObserver(updateDashboard);
+  homeSource=new __f4.globals.MutationObserver(updateDashboard);
   homeSource.observe(p,{childList:true,characterData:true,subtree:true});primaryNode=p;
  }
  if(q&&q!==extraNode){
   summaryExtra?.disconnect();
-  summaryExtra=new MutationObserver(updateDashboard);
+  summaryExtra=new __f4.globals.MutationObserver(updateDashboard);
   summaryExtra.observe(q,{childList:true,characterData:true,subtree:true});extraNode=q;
  }
  const targets=["v12Balance","v12Credit","v12Debit","v12History","v12Deposits","v12Gate","v12Private"];
- const observer=memberSource||new MutationObserver(syncSavings);
+ const observer=memberSource||new __f4.globals.MutationObserver(syncSavings);
  if(!memberSource)memberSource=observer;
  for(const id of targets){
   const target=$(id);
@@ -3018,7 +3022,7 @@ function refreshSources(){
 }
 
 function memberID(){
- return String(memberStatement?.wargaId||$("pId")?.textContent||"").trim().replace(/^member:/i,"");
+ return (0,__f4.globals.String)(memberStatement?.wargaId||$("pId")?.textContent||"").trim().replace(/^member:/i,"");
 }
 function updateCardNumber(){
  const id=memberID();
@@ -3070,7 +3074,7 @@ function inlineMemberDisplayName(){
   try{
     const result=await api("/api/member/profile",{nama:value});
     if(roleType()!=="member"||!$("dashboardView")||$("dashboardView").classList.contains("hidden"))return;
-    const persisted=String(result.profile?.nama||value).trim();
+    const persisted=(0,__f4.globals.String)(result.profile?.nama||value).trim();
     name.textContent=persisted;
     const sidebar=$("v15AccountName");if(sidebar)sidebar.textContent=displayWargaName(persisted);
     const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+displayWargaName(persisted);
@@ -3078,7 +3082,7 @@ function inlineMemberDisplayName(){
 
     updateCardNumber();
     mode(false);
-    window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
+    __f4.window.dispatchEvent(new __f4.globals.CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
   }catch(error){
     status.textContent=error.message||"Nama belum tersimpan.";status.hidden=false;input.focus();
   }finally{
@@ -3107,8 +3111,8 @@ function updateProfileCard(){
   const button=el("button","f4-bank-profile-copy","Salin nomor anggota");button.type="button";
   button.onclick=async()=>{
    const id=memberID();if(!id||id==="—")return;
-   try{await navigator.clipboard.writeText(id);button.textContent="Nomor tersalin";}
-   catch{window.prompt("Nomor anggota:",id);}
+   try{await __f4.globals.navigator.clipboard.writeText(id);button.textContent="Nomor tersalin";}
+   catch{__f4.window.prompt("Nomor anggota:",id);}
   };
   wrapper.append(copy,button);
   target.prepend(wrapper);
@@ -3121,9 +3125,9 @@ function updateProfileCard(){
 function acceptMemberStatement(event){
  if(roleType()!=="member"||$("dashboardView")?.classList.contains("hidden"))return;
  const data=event?.detail;
- if(!data||!Array.isArray(data.mutasi)||!Array.isArray(data.setoran))return;
+ if(!data||!__f4.globals.Array.isArray(data.mutasi)||!__f4.globals.Array.isArray(data.setoran))return;
  // Reject a delayed response from a different member after logout/login.
- const normalize=id=>String(id||"").trim().replace(/^member:/i,"");
+ const normalize=id=>(0,__f4.globals.String)(id||"").trim().replace(/^member:/i,"");
  const expected=normalize($("pId")?.textContent);
  const received=normalize(data.wargaId||data.memberId||data.member_id);
  if(!received||!expected||expected==="Administrator"||received!==expected)return;
@@ -3138,9 +3142,9 @@ function init(){
  // Resizing between phone and PC must restore/hide the real sidebar immediately.
  // Chrome Android mengirim resize saat address bar berubah tinggi pada scroll.
  // Jangan render ulang beranda/badge hanya karena tinggi viewport berubah.
- let desktopLayout=window.matchMedia("(min-width:1024px)").matches;
- window.addEventListener("resize",()=>{
-  const nextDesktop=window.matchMedia("(min-width:1024px)").matches;
+ let desktopLayout=__f4.window.matchMedia("(min-width:1024px)").matches;
+ __f4.window.addEventListener("resize",()=>{
+  const nextDesktop=__f4.window.matchMedia("(min-width:1024px)").matches;
   if(nextDesktop===desktopLayout)return;
   desktopLayout=nextDesktop;
   if(nextDesktop&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
@@ -3154,39 +3158,39 @@ function init(){
   if(screen!=="dashboard")previousBankPage();
  },true);
 
- const openPublic=window.v11ShowPublic;
- if(typeof openPublic==="function")window.v11ShowPublic=function(...args){
+ const openPublic=__f4.window.v11ShowPublic;
+ if(typeof openPublic==="function")__f4.window.v11ShowPublic=function(...args){
   restoreFeature();hideCustom();restoreAdminProgress();return openPublic.apply(this,args);
  };
- window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
- window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
- window.addEventListener("f4-bank-admin-overview-error",event=>{if(roleType()!=="admin")return;adminOverview=null;adminOverviewError=String(event.detail||"Data tidak tersedia");updateDashboard();});
- window.addEventListener("f4-bank-data-changed",()=>{
+ __f4.window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
+ __f4.window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
+ __f4.window.addEventListener("f4-bank-admin-overview-error",event=>{if(roleType()!=="admin")return;adminOverview=null;adminOverviewError=(0,__f4.globals.String)(event.detail||"Data tidak tersedia");updateDashboard();});
+ __f4.window.addEventListener("f4-bank-data-changed",()=>{
   
   if(roleType()==="admin"&&$("f4BankAdminInsights"))adminInsightFetch(true);
   if(roleType()==="member"){loadMemberPublicMini(true);loadMemberAward(true);}
  });
- window.addEventListener("focus",()=>{if(roleType()==="member"){loadMemberPublicMini();loadMemberAward();updateWeighingCard();loadWeighingDay();}});
- document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}});
- setInterval(()=>{if(!document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
- const original=window.goPage;
- if(typeof original==="function")window.goPage=function(route,...args){
-   window.f4BankPageHistory?.begin?.();
+ __f4.window.addEventListener("focus",()=>{if(roleType()==="member"){loadMemberPublicMini();loadMemberAward();updateWeighingCard();loadWeighingDay();}});
+ __f4.globals.document.addEventListener("visibilitychange",()=>{if(!__f4.globals.document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}});
+ (0,__f4.globals.setInterval)(()=>{if(!__f4.globals.document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
+ const original=__f4.window.goPage;
+ if(typeof original==="function")__f4.window.goPage=function(route,...args){
+   __f4.window.f4BankPageHistory?.begin?.();
    try{return handleRoute(route,original,args)}
    finally{
-    window.f4BankPageHistory?.end?.(screen);
+    __f4.window.f4BankPageHistory?.end?.(screen);
     // The previous operational form can leave the document horizontally
     // panned on narrow phones. Navigation must always restore left origin,
     // never retain the previous tab's offset.
-    if(window.scrollX>0||document.documentElement.scrollLeft>0){
-     window.scrollTo(0,window.scrollY);
+    if(__f4.window.scrollX>0||__f4.globals.document.documentElement.scrollLeft>0){
+     __f4.window.scrollTo(0,__f4.window.scrollY);
     }
    }
   };
-  window.f4BankAppCurrentRoute=()=>screen;
+  __f4.window.f4BankAppCurrentRoute=()=>screen;
  const view=$("dashboardView");
- if(view)new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:["class"]});
- new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:["data-f4-bank-role"]});
+ if(view)new __f4.globals.MutationObserver(sync).observe(view,{attributes:true,attributeFilter:["class"]});
+ new __f4.globals.MutationObserver(sync).observe(__f4.globals.document.body,{attributes:true,attributeFilter:["data-f4-bank-role"]});
  const page=$("pageDashboard");
  // Reconcile after *actual* missing nodes, including a late class change.
  // Normal API updates must not recreate the dashboard or interrupt scrolling.
@@ -3196,23 +3200,23 @@ function init(){
   const home=page.querySelector("#f4BankAppHome");
   const incomplete=!home||!home.querySelector("#f4BankAppAdminHero")||
    (roleType()==="admin"&&!page.querySelector("#f4BankAdminOperations"));
-  if(!incomplete||homeRepairQueued||Date.now()-homeRepairTime<1000)return;
+  if(!incomplete||homeRepairQueued||__f4.globals.Date.now()-homeRepairTime<1000)return;
   homeRepairQueued=true;
-  queueMicrotask(()=>{
+  (0,__f4.globals.queueMicrotask)(()=>{
    homeRepairQueued=false;
    if(!roleType()||$("dashboardView")?.classList.contains("hidden"))return;
    if(page.querySelector("#f4BankAppHome")?.querySelector("#f4BankAppAdminHero")&&
       (roleType()!=="admin"||page.querySelector("#f4BankAdminOperations")))return;
-   homeRepairTime=Date.now();
+   homeRepairTime=__f4.globals.Date.now();
    sync();
   });
  }
- if(page)new MutationObserver(()=>{
+ if(page)new __f4.globals.MutationObserver(()=>{
    repairMissingHome();
    const source=$("f4BankDashboardSource"),chart=$("f4-member-weight-chart");
    if(role==="member"&&source&&chart&&chart.parentElement!==source)source.append(chart);
   }).observe(page,{attributes:true,attributeFilter:["class"],childList:true,subtree:true});
- window.addEventListener("pageshow",()=>{
+ __f4.window.addEventListener("pageshow",()=>{
   if(roleType()&&!$("dashboardView")?.classList.contains("hidden")){
    ensureHome();
    if(roleType()==="admin")ensureAdminHome();
@@ -3222,5 +3226,7 @@ function init(){
  });
  sync();
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+if(__f4.globals.document.readyState==="loading")__f4.globals.document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
+
+});

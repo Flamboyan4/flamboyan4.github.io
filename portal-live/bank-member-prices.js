@@ -1,14 +1,18 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-member-prices.js",function(__f4){
+
+
 /* Harga Sampah untuk warga — hanya tarif warga, bukan nilai jual lapak. */
 (()=>{
 "use strict";
-const $=id=>document.getElementById(id);
+const $=id=>__f4.globals.document.getElementById(id);
 const el=(tag,cls,text)=>{
- const node=document.createElement(tag);
+ const node=__f4.globals.document.createElement(tag);
  if(cls)node.className=cls;
- if(text!==undefined)node.textContent=text;
+ if(text!==__f4.globals.undefined)node.textContent=text;
  return node;
 };
-const rp=v=>"Rp "+Number(v||0).toLocaleString("id-ID");
+const rp=v=>"Rp "+(0,__f4.globals.Number)(v||0).toLocaleString("id-ID");
 let requestId=0;
 function shortcut(home){
  if($("f4MemberPriceShortcut"))return;
@@ -18,13 +22,13 @@ function shortcut(home){
  copy.append(el("strong","f4-bank-price-shortcut-label","Daftar Harga"),
   el("small","","Tarif warga per kg"));
  const icon=el("span","f4-bank-price-shortcut-icon");
- const priceTag=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const priceTag=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  priceTag.setAttribute("viewBox","0 0 24 24");priceTag.setAttribute("aria-hidden","true");
  priceTag.innerHTML='<path d="m3 12 9-9h8v8l-9 9-8-8Z"/><circle cx="16" cy="8" r="1.2"/>';
  priceTag.setAttribute("fill","none");priceTag.setAttribute("stroke","currentColor");priceTag.setAttribute("stroke-width","1.9");priceTag.setAttribute("stroke-linecap","round");priceTag.setAttribute("stroke-linejoin","round");
  icon.append(priceTag);
  const arrow=el("span","f4-bank-price-shortcut-arrow");
- const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
+ const chevron=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
  chevron.setAttribute("viewBox","0 0 24 24");chevron.setAttribute("aria-hidden","true");
  chevron.innerHTML='<path d="m9 18 6-6-6-6"/>';
  arrow.append(chevron);
@@ -36,9 +40,9 @@ function shortcut(home){
 const categories=["Kertas","Plastik","Logam","Campuran","Lainnya"];
 let activeCategory=null;
 function normalizedCategory(item){
- const value=window.f4BankItemCategory?.(item.name,item.category)||item.category||"Lainnya";
- const key=String(value).trim().toLocaleLowerCase("id-ID");
- if(/duplex|dupleks?/i.test(String(item.name||"")))return "Kertas";
+ const value=__f4.window.f4BankItemCategory?.(item.name,item.category)||item.category||"Lainnya";
+ const key=(0,__f4.globals.String)(value).trim().toLocaleLowerCase("id-ID");
+ if(/duplex|dupleks?/i.test((0,__f4.globals.String)(item.name||"")))return "Kertas";
  if(key==="umum")return "Campuran";
  return categories.find(cat=>cat.toLocaleLowerCase("id-ID")===key)||"Lainnya";
 }
@@ -59,16 +63,16 @@ function positionCategory(){
  if(!page||!bubble||bubble.hidden||!trigger)return;
  const frame=page.getBoundingClientRect(),anchor=trigger.getBoundingClientRect();
  if(!frame.width||!frame.height)return;
- const width=Math.max(180,Math.min(350,frame.width-26));
+ const width=__f4.globals.Math.max(180,__f4.globals.Math.min(350,frame.width-26));
  bubble.style.width=width+"px";
- bubble.style.maxHeight=Math.max(150,frame.height-26)+"px";
+ bubble.style.maxHeight=__f4.globals.Math.max(150,frame.height-26)+"px";
  const height=bubble.getBoundingClientRect().height;
- const left=Math.max(frame.left+12,Math.min(anchor.left,frame.right-width-12));
+ const left=__f4.globals.Math.max(frame.left+12,__f4.globals.Math.min(anchor.left,frame.right-width-12));
  const below=anchor.bottom+8,above=anchor.top-height-8;
  const top=below+height<=frame.bottom-12?below:
-  above>=frame.top+12?above:Math.max(frame.top+12,Math.min(below,frame.bottom-height-12));
- bubble.style.left=Math.round(left)+"px";
- bubble.style.top=Math.round(top)+"px";
+  above>=frame.top+12?above:__f4.globals.Math.max(frame.top+12,__f4.globals.Math.min(below,frame.bottom-height-12));
+ bubble.style.left=__f4.globals.Math.round(left)+"px";
+ bubble.style.top=__f4.globals.Math.round(top)+"px";
 }
 function openCategory(button,category,goods,method){
  const bubble=$("f4BankPriceBubble");
@@ -92,10 +96,10 @@ function openCategory(button,category,goods,method){
  const list=el("div","f4-bank-price-bubble-list");
  for(const item of goods){
   const row=el("div","f4-bank-price-row");
-  const amount=Number(item.priceRpPerKg);
+  const amount=(0,__f4.globals.Number)(item.priceRpPerKg);
   row.append(
    el("span","",item.name||"Barang"),
-   el("strong","",Number.isSafeInteger(amount)&&amount>0?rp(amount)+"/kg":"Belum ditetapkan")
+   el("strong","",__f4.globals.Number.isSafeInteger(amount)&&amount>0?rp(amount)+"/kg":"Belum ditetapkan")
   );
   list.append(row);
  }
@@ -116,7 +120,7 @@ function show(){
   heading.append(el("h2","","Daftar Harga"));
   const close=el("button","f4-bank-modal-close");close.type="button";
   close.setAttribute("aria-label","Tutup daftar harga");
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
   svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");
   svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","2");
   svg.setAttribute("stroke-linecap","round");svg.setAttribute("aria-hidden","true");
@@ -141,9 +145,9 @@ function show(){
   },true);
   page.addEventListener("scroll",()=>{if(!bubble.hidden)closeCategory();},{passive:true});
   page.addEventListener("close",()=>{closeCategory();requestId++;});
-  window.addEventListener("resize",positionCategory,{passive:true});
-  window.visualViewport?.addEventListener("resize",positionCategory,{passive:true});
-  document.body.append(page);
+  __f4.window.addEventListener("resize",positionCategory,{passive:true});
+  __f4.window.visualViewport?.addEventListener("resize",positionCategory,{passive:true});
+  __f4.globals.document.body.append(page);
  }
  closeCategory();
  page.classList.remove("hidden");
@@ -151,12 +155,12 @@ function show(){
  const req=++requestId,status=$("f4BankPriceStatus"),host=$("f4BankPriceList");
  host.replaceChildren();
  status.textContent="Memuat daftar harga terbaru...";
- fetch("https://api.flamboyan4.web.id/api/member/bank/prices",{
+ (0,__f4.globals.fetch)("https://api.flamboyan4.web.id/api/member/bank/prices",{
   credentials:"include",mode:"cors",cache:"no-store",headers:{Accept:"application/json"}
  }).then(async response=>{
   const data=await response.json().catch(()=>({}));
-  if(!response.ok||data.ok===false)throw Error(data.error||"Layanan harga belum tersedia");
-  return {rows:Array.isArray(data.items)?data.items:[],method:data.method||"percentage"};
+  if(!response.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||"Layanan harga belum tersedia");
+  return {rows:__f4.globals.Array.isArray(data.items)?data.items:[],method:data.method||"percentage"};
  }).then(result=>{
   if(requestId!==req)return;
   const rows=result.rows,method=result.method;
@@ -167,7 +171,7 @@ function show(){
   const render=()=>{
    closeCategory();
    const selected=rows;
-   const groups=new Map();
+   const groups=new __f4.globals.Map();
    for(const item of selected){
     const category=normalizedCategory(item);
     if(!groups.has(category))groups.set(category,[]);
@@ -177,18 +181,18 @@ function show(){
    for(const category of categories){
     const items=groups.get(category);
     if(!items?.length)continue;
-    items.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"id"));
+    items.sort((a,b)=>(0,__f4.globals.String)(a.name||"").localeCompare((0,__f4.globals.String)(b.name||""),"id"));
     const tile=el("div","f4-bank-prices-group");
     const button=el("button","f4-bank-price-category-btn");
     button.type="button";button.setAttribute("aria-label","Lihat harga "+category);
     button.setAttribute("aria-controls","f4BankPriceBubble");
     button.setAttribute("aria-haspopup","true");button.setAttribute("aria-expanded","false");
     const picture=el("span","f4-bank-price-category-illustration");
-    const icon=window.f4BankWasteCategoryIcon?.(category);
+    const icon=__f4.window.f4BankWasteCategoryIcon?.(category);
     if(icon)picture.append(icon);
     const title=el("strong","f4-bank-price-category-title",category);
     const meta=el("span","f4-bank-price-category-meta");
-    const arrow=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    const arrow=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
     arrow.setAttribute("viewBox","0 0 24 24");arrow.setAttribute("fill","none");
     arrow.setAttribute("stroke","currentColor");arrow.setAttribute("stroke-width","2");
     arrow.setAttribute("stroke-linecap","round");arrow.setAttribute("stroke-linejoin","round");
@@ -208,5 +212,6 @@ function show(){
   host.replaceChildren();
  });
 }
-window.F4MemberPrices={shortcut,show,close:()=>{const dialog=$("bank-prices");if(dialog?.open)dialog.close();}};
+__f4.window.F4MemberPrices={shortcut,show,close:()=>{const dialog=$("bank-prices");if(dialog?.open)dialog.close();}};
 })();
+});

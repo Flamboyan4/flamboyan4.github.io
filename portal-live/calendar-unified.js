@@ -1,12 +1,16 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/calendar-unified.js",function(__f4){
+
+
 /* Uniform Indonesian custom date/month picker for OFFLINE preview. No backend access. */
 (()=>{'use strict';
   const months=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
   const days=['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
   let input=null,viewYear=0,viewMonth=0,pop=null;
-  const two=n=>String(n).padStart(2,'0');
-  const localToday=()=>{const d=new Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
-  const mk=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
-  const style=document.createElement('style');
+  const two=n=>(0,__f4.globals.String)(n).padStart(2,'0');
+  const localToday=()=>{const d=new __f4.globals.Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())};
+  const mk=(tag,cls,txt)=>{const e=__f4.globals.document.createElement(tag);if(cls)e.className=cls;if(txt!==__f4.globals.undefined)e.textContent=txt;return e};
+  const style=__f4.globals.document.createElement('style');
   style.textContent=[
    'input.f4-date-target{cursor:pointer;caret-color:transparent}',
    'input.f4-date-target::-webkit-calendar-picker-indicator{pointer-events:none;opacity:.65}',
@@ -27,7 +31,7 @@
    '.f4-cal-foot button{padding:7px 11px;border-radius:9px;background:#f2edff;color:#5329a6;border:0;font:650 12px system-ui;cursor:pointer}',
    '@media screen and (max-width:767px){.f4-calendar{width:min(340px,calc(100vw - 20px));min-width:0;max-height:calc(100dvh - 20px);overflow-y:auto}.f4-cal-head strong{font-size:19px}.f4-cal-dayhead{font-size:14px;font-weight:800}.f4-cal-cell{font:650 18px system-ui;min-height:40px}.f4-cal-month{font:700 17px system-ui;min-height:48px}.f4-cal-foot button{font:700 14px system-ui;min-height:40px}}'
   ].join('');
-  document.head.append(style);
+  __f4.globals.document.head.append(style);
   const inRange=value=>{
     if(!input)return false;
     const min=input.getAttribute('min'),max=input.getAttribute('max');
@@ -37,23 +41,23 @@
     if(!input||!inRange(value))return;
     const target=input;
     target.value=value;
-    target.dispatchEvent(new Event('input',{bubbles:true}));
-    target.dispatchEvent(new Event('change',{bubbles:true}));
+    target.dispatchEvent(new __f4.globals.Event('input',{bubbles:true}));
+    target.dispatchEvent(new __f4.globals.Event('change',{bubbles:true}));
     hide();target.focus({preventScroll:true});
   }
   function hide(){pop?.remove();pop=null;input=null}
   function position(){
-    if(!input||!pop)return;const rect=input.getBoundingClientRect(),w=Math.min(304,innerWidth-20);
-    const bottom=Math.max(0,innerHeight-rect.bottom),top=Math.max(0,rect.top);
+    if(!input||!pop)return;const rect=input.getBoundingClientRect(),w=__f4.globals.Math.min(304,__f4.globals.innerWidth-20);
+    const bottom=__f4.globals.Math.max(0,__f4.globals.innerHeight-rect.bottom),top=__f4.globals.Math.max(0,rect.top);
     const expected=input.type==='month'?260:347;
-    pop.style.width=w+'px';pop.style.left=Math.max(10,Math.min(rect.left,innerWidth-w-10))+'px';
-    pop.style.top=bottom>=expected||bottom>=top?Math.min(innerHeight-10,rect.bottom+7)+'px':Math.max(10,rect.top-expected-7)+'px';
+    pop.style.width=w+'px';pop.style.left=__f4.globals.Math.max(10,__f4.globals.Math.min(rect.left,__f4.globals.innerWidth-w-10))+'px';
+    pop.style.top=bottom>=expected||bottom>=top?__f4.globals.Math.min(__f4.globals.innerHeight-10,rect.bottom+7)+'px':__f4.globals.Math.max(10,rect.top-expected-7)+'px';
   }
   function draw(){
     if(!pop||!input)return;pop.replaceChildren();
     const head=mk('div','f4-cal-head'),prev=mk('button','f4-cal-btn','‹'),next=mk('button','f4-cal-btn','›');
     prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
-    const monthMode=input.type==='month',title=mk('strong','',monthMode?String(viewYear):months[viewMonth]+' '+viewYear);
+    const monthMode=input.type==='month',title=mk('strong','',monthMode?(0,__f4.globals.String)(viewYear):months[viewMonth]+' '+viewYear);
     prev.onclick=()=>{if(monthMode)viewYear--;else {viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}}draw()};
     next.onclick=()=>{if(monthMode)viewYear++;else {viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}}draw()};
     head.append(prev,title,next);pop.append(head);
@@ -65,11 +69,11 @@
     }else{
       const grid=mk('div','f4-cal-grid');
       for(const day of days)grid.append(mk('span','f4-cal-dayhead',day));
-      const first=new Date(viewYear,viewMonth,1),shift=first.getDay();
+      const first=new __f4.globals.Date(viewYear,viewMonth,1),shift=first.getDay();
       for(let i=0;i<42;i++){
-        const date=new Date(viewYear,viewMonth,1-shift+i),iso=date.getFullYear()+'-'+two(date.getMonth()+1)+'-'+two(date.getDate());
+        const date=new __f4.globals.Date(viewYear,viewMonth,1-shift+i),iso=date.getFullYear()+'-'+two(date.getMonth()+1)+'-'+two(date.getDate());
         const out=date.getMonth()!==viewMonth;
-        const btn=mk('button','f4-cal-cell'+(out?' f4-out':'')+(input.value===iso?' f4-selected':'')+(localToday()===iso?' f4-today':''),String(date.getDate()));
+        const btn=mk('button','f4-cal-cell'+(out?' f4-out':'')+(input.value===iso?' f4-selected':'')+(localToday()===iso?' f4-today':''),(0,__f4.globals.String)(date.getDate()));
         btn.type='button';btn.disabled=!inRange(iso);btn.setAttribute('aria-label',iso);btn.onclick=()=>choose(iso);grid.append(btn);
       }pop.append(grid);
     }
@@ -81,22 +85,23 @@
     if(input===target&&pop)return;
     hide();input=target;input.readOnly=true;input.classList.add('f4-date-target');
     const value=input.value||localToday(),parts=value.split('-');
-    viewYear=Number(parts[0])||new Date().getFullYear();viewMonth=Math.max(0,Math.min(11,Number(parts[1]||1)-1));
+    viewYear=(0,__f4.globals.Number)(parts[0])||new __f4.globals.Date().getFullYear();viewMonth=__f4.globals.Math.max(0,__f4.globals.Math.min(11,(0,__f4.globals.Number)(parts[1]||1)-1));
     pop=mk('section','f4-calendar');pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Kalender pilihan tanggal');
-    document.body.append(pop);draw();
+    __f4.globals.document.body.append(pop);draw();
   }
-  document.addEventListener('pointerdown',e=>{
+  __f4.globals.document.addEventListener('pointerdown',e=>{
     const target=e.target.closest?.('input[type="date"],input[type="month"]');
     if(target){e.preventDefault();open(target);return}
     if(pop&&!pop.contains(e.target))hide();
   },true);
-  document.addEventListener('focusin',e=>{
+  __f4.globals.document.addEventListener('focusin',e=>{
     const target=e.target.closest?.('input[type="date"],input[type="month"]');
     if(target){target.readOnly=true;target.classList.add('f4-date-target')}
   },true);
-  document.addEventListener('keydown',e=>{
+  __f4.globals.document.addEventListener('keydown',e=>{
     if(e.key==='Escape'&&pop){hide();return}
     if(e.target.matches?.('input[type="date"],input[type="month"]')&&['Enter',' ','ArrowDown'].includes(e.key)){e.preventDefault();open(e.target)}
   },true);
-  addEventListener('resize',position);addEventListener('scroll',position,true);
+  (0,__f4.globals.addEventListener)('resize',position);(0,__f4.globals.addEventListener)('scroll',position,true);
 })();
+});

@@ -1,9 +1,13 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-modal-history.js",function(__f4){
+
+
 /* Bank Sampah modal history: Back closes one visible popup, never its page.
    Scoped to this portal; no patches to pushState, native Back, or app routing.
    Gallery lightboxes retain their full-screen presentation. */
 (()=>{
  'use strict';
- if(window.F4BankModalHistory)return;
+ if(__f4.window.F4BankModalHistory)return;
  const rootSelectors=[
   '#f4-tx-receipt-dialog','#bank-prices','#f4BankWeighingDialog',
   '#f4BankAdminMenuSheet','.f4-warga-picker-pop',
@@ -13,26 +17,26 @@
  ];
  const selector=rootSelectors.join(',');
  const frames=[];
- const afterClose=new WeakMap();
+ const afterClose=new __f4.globals.WeakMap();
  let serial=0,pending=false,scheduled=false;
- const watched=new WeakSet();
- const byId=id=>document.getElementById(id);
+ const watched=new __f4.globals.WeakSet();
+ const byId=id=>__f4.globals.document.getElementById(id);
  function isVisible(node){
   if(!node||!node.isConnected||node.hidden||node.classList.contains('hidden'))return false;
   if(node.matches('dialog')&&!node.open)return false;
   if(node.closest('[inert]'))return false;
-  const style=getComputedStyle(node);
+  const style=(0,__f4.globals.getComputedStyle)(node);
   return style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0;
  }
  function ordered(){
   // A lightbox is above an album; the receipt and confirmation dialogs
   // have their own overlay layers, not separate page routes.
-  const roots=[...document.querySelectorAll(selector)].filter(isVisible);
+  const roots=[...__f4.globals.document.querySelectorAll(selector)].filter(isVisible);
   roots.sort((a,b)=>{
    // An open HTML dialog is in the browser top layer regardless of z-index.
    if(a.matches('dialog')!==b.matches('dialog'))return a.matches('dialog')?1:-1;
-   const az=Number.parseInt(getComputedStyle(a).zIndex,10)||0;
-   const bz=Number.parseInt(getComputedStyle(b).zIndex,10)||0;
+   const az=__f4.globals.Number.parseInt((0,__f4.globals.getComputedStyle)(a).zIndex,10)||0;
+   const bz=__f4.globals.Number.parseInt((0,__f4.globals.getComputedStyle)(b).zIndex,10)||0;
    return az-bz;
   });
   return roots;
@@ -42,7 +46,7 @@
   if(root.matches('.f4-warga-picker-pop')){root.f4Close?.();return;}
   if(root.matches('dialog')){root.close();return;}
   if(root.id==='f4-tx-receipt-dialog'){
-   window.F4TransactionReceipt?.close?.();return;
+   __f4.window.F4TransactionReceipt?.close?.();return;
   }
   const selectors={
    v21Lightbox:'.v21-close',v21GalleryModal:'.v21-close',
@@ -67,9 +71,9 @@
   // Only one outstanding frame is consumed per Back operation.
   const top=frames[frames.length-1];
   if(top&&!isVisible(top.root)){
-   if(history.state?.f4BankModalGuard===top.id){
+   if(__f4.globals.history.state?.f4BankModalGuard===top.id){
     pending=true;
-    history.back(); // Consumes the temporary guard on X, Escape or backdrop.
+    __f4.globals.history.back(); // Consumes the temporary guard on X, Escape or backdrop.
     return;
    }
    frames.pop();
@@ -83,17 +87,17 @@
   watch(root);
   const id=++serial;
   frames.push({id,root});
-  history.pushState({...history.state,f4BankModalGuard:id},'',location.href);
+  __f4.globals.history.pushState({...__f4.globals.history.state,f4BankModalGuard:id},'',__f4.globals.location.href);
  }
  function queue(){
   if(scheduled)return;
-  scheduled=true;queueMicrotask(refresh);
+  scheduled=true;(0,__f4.globals.queueMicrotask)(refresh);
  }
  function runAfter(root){
   if(!root)return;
   const callback=afterClose.get(root);
   afterClose.delete(root);
-  if(callback)queueMicrotask(callback);
+  if(callback)(0,__f4.globals.queueMicrotask)(callback);
  }
  function closeAndThen(root,callback){
   if(typeof callback==='function')afterClose.set(root,callback);
@@ -103,7 +107,7 @@
  function watch(root){
   if(watched.has(root))return;
   watched.add(root);
-  const observer=new MutationObserver(queue);
+  const observer=new __f4.globals.MutationObserver(queue);
   observer.observe(root,{attributes:true,attributeFilter:['class','open','hidden','style']});
  }
  function inspect(node){
@@ -112,10 +116,10 @@
   node.querySelectorAll?.(selector).forEach(watch);
  }
  // Capture-phase handler executes before the old gallery/sidebar routing.
- window.addEventListener('popstate',event=>{
+ __f4.window.addEventListener('popstate',event=>{
   // Native date/month and select pickers own their temporary Back entry.
   // Do not close the receipt/dialog underneath a visible picker.
-  if(document.querySelector('.f4-control-overlay'))return;
+  if(__f4.globals.document.querySelector('.f4-control-overlay'))return;
   // A route push may carry a copied modal guard. Back must still close
   // the top visible sheet on its FIRST popstate, even if that id was copied.
   if(pending){
@@ -135,21 +139,23 @@
   queue();
  },true);
  function start(){
-  if(!document.body)return;
-  inspect(document.body);
-  new MutationObserver(records=>{
+  if(!__f4.globals.document.body)return;
+  inspect(__f4.globals.document.body);
+  new __f4.globals.MutationObserver(records=>{
    for(const record of records){
     for(const child of record.addedNodes)inspect(child);
    }
    queue();
-  }).observe(document.body,{subtree:true,childList:true});
+  }).observe(__f4.globals.document.body,{subtree:true,childList:true});
   queue();
-  window.F4BankModalHistory={
+  __f4.window.F4BankModalHistory={
    version:'20261114-bank-modal-back-v5',
    refresh:queue,registerOpen,closeAndThen,
    getOpenCount:()=>frames.filter(frame=>isVisible(frame.root)).length
   };
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+ if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
 })();
+
+});

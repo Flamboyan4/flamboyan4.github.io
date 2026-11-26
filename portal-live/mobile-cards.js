@@ -1,3 +1,7 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/mobile-cards.js",function(__f4){
+
+
 /* Flamboyan 4: compact mobile records, no changes to API or callbacks. */
 (()=>{
 'use strict';
@@ -24,14 +28,14 @@ const ico={
  close:'<path d="M6 6l12 12M18 6 6 18"/>'
 };
 function svg(name){
- const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ const s=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
  s.setAttribute('viewBox','0 0 24 24');s.setAttribute('width','19');s.setAttribute('height','19');
  s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');s.setAttribute('stroke-width','1.9');
  s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');
  s.setAttribute('aria-hidden','true');s.innerHTML=ico[name]||ico.view;return s;
 }
 function nameFor(label){
- const l=String(label||'').toLowerCase();
+ const l=(0,__f4.globals.String)(label||'').toLowerCase();
  if(/reset|password/.test(l))return'reset';
  if(/penghuni/.test(l))return'handover';
  if(/nonaktif|blokir/.test(l))return'deactivate';
@@ -65,18 +69,18 @@ function iconify(button){
  const type=nameFor(label);
  if(!type)return;
  button.dataset.f4ActionOriginal=label;
- let wrap=document.createElement('span');wrap.className='f4-action-symbol';wrap.append(svg(type));
- const text=document.createElement('span');text.className='f4-action-label';text.textContent=label;
+ let wrap=__f4.globals.document.createElement('span');wrap.className='f4-action-symbol';wrap.append(svg(type));
+ const text=__f4.globals.document.createElement('span');text.className='f4-action-label';text.textContent=label;
  button.replaceChildren(wrap,text);
  button.classList.add('f4-icon-action');
  button.setAttribute('aria-label',label);button.title=label;
 }
 function toggle(container,after){
- const button=document.createElement('button');button.type='button';
+ const button=__f4.globals.document.createElement('button');button.type='button';
  button.className='f4-card-detail-toggle';button.append(svg('detail'));
  const update=()=>{
   const isOpen=container.classList.contains('f4-card-expanded');
-  button.setAttribute('aria-expanded',String(isOpen));
+  button.setAttribute('aria-expanded',(0,__f4.globals.String)(isOpen));
   button.setAttribute('aria-label',isOpen?'Tutup rincian':'Lihat rincian');
   button.title=isOpen?'Tutup rincian':'Lihat rincian';
  };
@@ -119,7 +123,7 @@ function enrichTable(table){
   });
   row.dataset.f4CardEnhanced='1';row.classList.add('f4-compact-record');
   const details=cells.some((cell,i)=>i!==first&&i!==actionIndex&&
-   (String(cell.textContent||'').trim().replace(/[—\s-]/g,'').length>0||
+   ((0,__f4.globals.String)(cell.textContent||'').trim().replace(/[—\s-]/g,'').length>0||
     cell.querySelector('a,button,img')));
   if(!details){
    row.classList.add('f4-card-no-detail');
@@ -141,12 +145,12 @@ function enrichBankCard(card){
  if(!header){
   title=card.querySelector(':scope > strong');
   if(!title)return;
-  header=document.createElement('div');header.className='toolbar f4-bank-activity-head';
+  header=__f4.globals.document.createElement('div');header.className='toolbar f4-bank-activity-head';
   card.insertBefore(header,title);header.append(title);
-  const parts=String(title.textContent||'').split(' • ');
+  const parts=(0,__f4.globals.String)(title.textContent||'').split(' • ');
   if(parts.length>1){
    title.textContent=parts[0];
-   const other=document.createElement('small');other.className='f4-bank-expanded-summary';
+   const other=__f4.globals.document.createElement('small');other.className='f4-bank-expanded-summary';
    other.textContent=parts.slice(1).join(' • ');
    header.after(other);
   }
@@ -158,7 +162,7 @@ function enrichBankCard(card){
  // The existing detailed API record is opened with the same tap when available.
  const detailed=btns.find(b=>/lihat rincian|tutup rincian/i.test(b.dataset.f4ActionOriginal||b.textContent));
  const hasMore=!!detailed||[...card.children].some(el=>el!==header&&
-  String(el.textContent||'').trim().length>0);
+  (0,__f4.globals.String)(el.textContent||'').trim().length>0);
  if(!hasMore){
   card.classList.add('f4-card-no-detail');return;
  }
@@ -185,8 +189,8 @@ function enrichSuperItem(item){
  const link=item.querySelector('a.f4-admin-source-link');
  if(link&&!link.querySelector('.f4-action-symbol')){
   const label=link.textContent.trim()||'Buka folder foto/video';
-  const symbol=document.createElement('span');symbol.className='f4-action-symbol';symbol.append(svg('external'));
-  const caption=document.createElement('span');caption.className='f4-action-label';caption.textContent=label;
+  const symbol=__f4.globals.document.createElement('span');symbol.className='f4-action-symbol';symbol.append(svg('external'));
+  const caption=__f4.globals.document.createElement('span');caption.className='f4-action-label';caption.textContent=label;
   link.replaceChildren(symbol,caption);
   link.classList.add('f4-icon-action');link.title=label;link.setAttribute('aria-label',label);
  }
@@ -198,18 +202,20 @@ function enrichSuperItem(item){
  text.onclick=e=>{if(e.target.closest('button,a,input'))return;btn.click()};
 }
 function run(){
- document.querySelectorAll('#f4-account-page table,#dashboardView table,#v11Public table').forEach(enrichTable);
- document.querySelectorAll('#dashboardView #riwayatList .stat,#dashboardView #riwayatJualList .stat,#dashboardView #v9History .stat,#dashboardView #v10History .stat').forEach(enrichBankCard);
- document.querySelectorAll('#f4-account-page .f4-admin-item').forEach(enrichSuperItem);
+ __f4.globals.document.querySelectorAll('#f4-account-page table,#dashboardView table,#v11Public table').forEach(enrichTable);
+ __f4.globals.document.querySelectorAll('#dashboardView #riwayatList .stat,#dashboardView #riwayatJualList .stat,#dashboardView #v9History .stat,#dashboardView #v10History .stat').forEach(enrichBankCard);
+ __f4.globals.document.querySelectorAll('#f4-account-page .f4-admin-item').forEach(enrichSuperItem);
  // Action buttons generated by other Bank Sampah screens need the same 19px pictograms.
- document.querySelectorAll('#dashboardView .f4-compact-bank-card button,#dashboardView table.f4-mobile-card-table .f4-card-action button,#f4-account-page .f4-admin-action-set button,#f4-account-page .sa-resident-controls button,#f4-account-page .sa-account-actions button,#f4-account-page .f4-admin-controls button,#f4-account-page .f4-jersey-group .f4-admin-action-set button').forEach(iconify);
+ __f4.globals.document.querySelectorAll('#dashboardView .f4-compact-bank-card button,#dashboardView table.f4-mobile-card-table .f4-card-action button,#f4-account-page .f4-admin-action-set button,#f4-account-page .sa-resident-controls button,#f4-account-page .sa-account-actions button,#f4-account-page .f4-admin-controls button,#f4-account-page .f4-jersey-group .f4-admin-action-set button').forEach(iconify);
 }
 let scheduled=false;
-function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;run()})}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
-new MutationObserver(mutations=>{
+function schedule(){if(scheduled)return;scheduled=true;(0,__f4.globals.requestAnimationFrame)(()=>{scheduled=false;run()})}
+if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+new __f4.globals.MutationObserver(mutations=>{
  if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(
   n.matches?.('table,tr,td,button,.stat,.f4-admin-item,.f4-jersey-person,.f4-jersey-group,.f4-admin-list,#dashboardView,#f4-account-page')
    ||n.querySelector?.('table,.stat,.f4-admin-item,.f4-jersey-group,.f4-admin-action-set')))))schedule();
-}).observe(document.documentElement,{childList:true,subtree:true});
+}).observe(__f4.globals.document.documentElement,{childList:true,subtree:true});
 })();
+
+});

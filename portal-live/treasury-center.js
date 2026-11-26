@@ -1,30 +1,34 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/treasury-center.js",function(__f4){
+
+
 // Pusat Keuangan Flamboyan 4 — hanya Superadmin, tidak memodifikasi modul sumber.
 (()=>{
 "use strict";
 const API="https://api.flamboyan4.web.id/api/v2/admin/treasury";
-const askConfirm=message=>window.f4UiDialog.confirm(message);
-const askPrompt=(message,initial)=>window.f4UiDialog.prompt(message,initial);
-const showMessage=message=>{void window.f4UiDialog.alert(message)};
-const root=document.getElementById("f4-account-page");
+const askConfirm=message=>__f4.window.f4UiDialog.confirm(message);
+const askPrompt=(message,initial)=>__f4.window.f4UiDialog.prompt(message,initial);
+const showMessage=message=>{void __f4.window.f4UiDialog.alert(message)};
+const root=__f4.globals.document.getElementById("f4-account-page");
 if(!root)return;
 const main=root.querySelector("main");
-const rp=n=>"Rp"+Math.round(Number(n)||0).toLocaleString("id-ID");
-const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
-const el=(tag,content,cls)=>{const node=document.createElement(tag);if(content!==undefined)node.textContent=String(content);if(cls)node.className=cls;return node};
+const rp=n=>"Rp"+__f4.globals.Math.round((0,__f4.globals.Number)(n)||0).toLocaleString("id-ID");
+const today=()=>{const d=new __f4.globals.Date();return new __f4.globals.Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const el=(tag,content,cls)=>{const node=__f4.globals.document.createElement(tag);if(content!==__f4.globals.undefined)node.textContent=(0,__f4.globals.String)(content);if(cls)node.className=cls;return node};
 /* Real, accessible SVG icons for treasury controls (not font characters). */
 function tcSvgIcon(name){
  const paths={'chevron-left':'m15 18-6-6 6-6','chevron-right':'m9 18 6-6-6-6'};
- const d=paths[name];if(!d)throw Error('Unknown treasury SVG icon');
- const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ const d=paths[name];if(!d)throw (0,__f4.globals.Error)('Unknown treasury SVG icon');
+ const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','18');svg.setAttribute('height','18');
  svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
  svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
  svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
- const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+ const path=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','path');
  path.setAttribute('d',d);svg.append(path);return svg;
 }
 const append=(parent,...items)=>{parent.append(...items);return parent};
-const amount=(balances,fund,location)=>Number(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
+const amount=(balances,fund,location)=>(0,__f4.globals.Number)(balances.find(x=>x.fund_id===fund&&x.location_id===location)?.amount_rp||0);
 const kindLabels={opening:"Saldo awal",incoming:"Dana masuk",outgoing:"Dana keluar",move:"Pindah tempat",allocation:"Pindah pos"};
 let current=null;
 let activeView="saldo";
@@ -33,43 +37,43 @@ let manageOpen=null;
 let entryOpen=null;
 function showTreasuryNotice(message){
  // Notifikasi hanya pada tindakan pengesahan, tidak tersimpan dan tidak ditampilkan ulang.
- document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
+ __f4.globals.document.querySelectorAll(".tc-flash").forEach(node=>node.remove());
  const notice=el("div",message,"tc-flash");
  notice.setAttribute("role","status");
  main.append(notice);
- setTimeout(()=>notice.remove(),3500);
+ (0,__f4.globals.setTimeout)(()=>notice.remove(),3500);
 }
 function heading(title,sub){
- const head=el("header",undefined,"f4-work-heading");
+ const head=el("header",__f4.globals.undefined,"f4-work-heading");
  head.append(el("h2",title),el("p",sub));return head;
 }
 async function fetchData(){
- const r=await fetch(API,{credentials:"include",cache:"no-store"});
+ const r=await (0,__f4.globals.fetch)(API,{credentials:"include",cache:"no-store"});
  const v=await r.json().catch(()=>({}));
- if(!r.ok||v.ok===false)throw Error(v.error||"Gagal mengambil data.");
+ if(!r.ok||v.ok===false)throw (0,__f4.globals.Error)(v.error||"Gagal mengambil data.");
  return v;
 }
 async function post(payload){
- const r=await fetch(API,{method:"POST",credentials:"include",
- headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+ const r=await (0,__f4.globals.fetch)(API,{method:"POST",credentials:"include",
+ headers:{"Content-Type":"application/json"},body:__f4.globals.JSON.stringify(payload)});
  const v=await r.json().catch(()=>({}));
- if(!r.ok||v.ok===false)throw Error(v.error||"Penyimpanan ditolak.");
- window.dispatchEvent(new Event("f4-treasury-updated"));
+ if(!r.ok||v.ok===false)throw (0,__f4.globals.Error)(v.error||"Penyimpanan ditolak.");
+ __f4.window.dispatchEvent(new __f4.globals.Event("f4-treasury-updated"));
  return v;
 }
 function simpleTable(parent,head,rows,cls=""){
- const wrap=el("div",undefined,"tc-table-wrap "+cls);
- const table=el("table",undefined,"tc-table");
+ const wrap=el("div",__f4.globals.undefined,"tc-table-wrap "+cls);
+ const table=el("table",__f4.globals.undefined,"tc-table");
  const thead=el("thead"),tr=el("tr");
  head.forEach(t=>tr.append(el("th",t)));thead.append(tr);table.append(thead);
  const body=el("tbody");
  rows.forEach(cells=>{const row=el("tr");cells.forEach((cell,i)=>{
-  const td=el("td",cell);if(i>0&&/^([+-]?Rp|—)/.test(String(cell)))td.classList.add("tc-num");row.append(td);
+  const td=el("td",cell);if(i>0&&/^([+-]?Rp|—)/.test((0,__f4.globals.String)(cell)))td.classList.add("tc-num");row.append(td);
  });body.append(row)});
  table.append(body);wrap.append(table);parent.append(wrap);return table;
 }
 function card(name,value,caption){
- const d=el("div",undefined,"tc-stat");
+ const d=el("div",__f4.globals.undefined,"tc-stat");
  d.append(el("small",name),el("strong",value),el("span",caption));return d;
 }
 function fields(catalog,fundId){
@@ -77,50 +81,50 @@ function fields(catalog,fundId){
  return catalog.locations.filter(l=>l.id==="qris"||l.id==="mandiri"||l.id===fund?.cash);
 }
 function select(options,cls=""){
- const s=el("select",undefined,cls);
+ const s=el("select",__f4.globals.undefined,cls);
  options.forEach(o=>{const opt=el("option",o.name);opt.value=o.id;s.append(opt)});
  return s;
 }
 function field(label,node,cls=""){
- const w=el("label",undefined,"tc-field "+cls);w.append(el("span",label),node);return w;
+ const w=el("label",__f4.globals.undefined,"tc-field "+cls);w.append(el("span",label),node);return w;
 }
 // Standalone themed calendar for Treasury forms (desktop and phone).
 // The submitted value stays ISO YYYY-MM-DD; no native date dialog is shown.
 function treasuryDateControl(compact=false){
  const input=el("input");input.type="hidden";input.value=today();
- const wrap=el("div",undefined,"tc-date-control");
- const trigger=el("button",undefined,"tc-date-trigger");trigger.type="button";
+ const wrap=el("div",__f4.globals.undefined,"tc-date-control");
+ const trigger=el("button",__f4.globals.undefined,"tc-date-trigger");trigger.type="button";
  trigger.setAttribute("aria-label","Pilih tanggal");
- const text=el("span"),icon=el("img",undefined,"tc-date-icon");icon.src="/assets/icons/calendar.svg";icon.alt="";icon.setAttribute("aria-hidden","true");
+ const text=el("span"),icon=el("img",__f4.globals.undefined,"tc-date-icon");icon.src="/assets/icons/calendar.svg";icon.alt="";icon.setAttribute("aria-hidden","true");
  trigger.append(text,icon);wrap.append(input,trigger);
  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
  const days=["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
  const format=iso=>{
-  const m=String(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m?Number(m[3])+" "+(compact?months[Number(m[2])-1].slice(0,3):months[Number(m[2])-1])+" "+m[1]:"Pilih tanggal";
+  const m=(0,__f4.globals.String)(iso).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m?(0,__f4.globals.Number)(m[3])+" "+(compact?months[(0,__f4.globals.Number)(m[2])-1].slice(0,3):months[(0,__f4.globals.Number)(m[2])-1])+" "+m[1]:"Pilih tanggal";
  };
- const two=n=>String(n).padStart(2,"0");
+ const two=n=>(0,__f4.globals.String)(n).padStart(2,"0");
  function update(){text.textContent=format(input.value)}
  update();
  trigger.onclick=()=>{
-  const parts=input.value.split("-").map(Number);
-  let year=parts[0]||new Date().getFullYear(),month=(parts[1]||1)-1;
-  const overlay=el("div",undefined,"tc-date-overlay");
-  const dialog=el("section",undefined,"tc-date-dialog");
+  const parts=input.value.split("-").map(__f4.globals.Number);
+  let year=parts[0]||new __f4.globals.Date().getFullYear(),month=(parts[1]||1)-1;
+  const overlay=el("div",__f4.globals.undefined,"tc-date-overlay");
+  const dialog=el("section",__f4.globals.undefined,"tc-date-dialog");
   dialog.setAttribute("role","dialog");dialog.setAttribute("aria-modal","true");
   dialog.setAttribute("aria-label","Kalender Pusat Keuangan");
-  overlay.append(dialog);document.body.append(overlay);
-  const oldFocus=document.activeElement;
+  overlay.append(dialog);__f4.globals.document.body.append(overlay);
+  const oldFocus=__f4.globals.document.activeElement;
   const close=()=>{
-   document.removeEventListener("keydown",keyHandler);
+   __f4.globals.document.removeEventListener("keydown",keyHandler);
    overlay.remove();oldFocus?.focus?.({preventScroll:true});
   };
   const keyHandler=e=>{if(e.key==="Escape"){e.preventDefault();close()}};
-  document.addEventListener("keydown",keyHandler);
+  __f4.globals.document.addEventListener("keydown",keyHandler);
   overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
   function render(){
    dialog.replaceChildren();
-   const nav=el("div",undefined,"tc-date-nav");
+   const nav=el("div",__f4.globals.undefined,"tc-date-nav");
    const prev=el("button"),heading=el("strong",months[month]+" "+year);
    const next=el("button");
    prev.append(tcSvgIcon('chevron-left'));
@@ -131,22 +135,22 @@ function treasuryDateControl(compact=false){
    prev.onclick=()=>{month--;if(month<0){month=11;year--}render()};
    next.onclick=()=>{month++;if(month>11){month=0;year++}render()};
    nav.append(prev,heading,next);
-   const grid=el("div",undefined,"tc-date-grid");
+   const grid=el("div",__f4.globals.undefined,"tc-date-grid");
    days.forEach(day=>grid.append(el("span",day,"tc-date-week")));
-   const offset=new Date(year,month,1).getDay();
+   const offset=new __f4.globals.Date(year,month,1).getDay();
    for(let j=0;j<offset;j++)grid.append(el("span"));
-   const max=new Date(year,month+1,0).getDate();
+   const max=new __f4.globals.Date(year,month+1,0).getDate();
    for(let day=1;day<=max;day++){
     const iso=year+"-"+two(month+1)+"-"+two(day);
-    const b=el("button",String(day),"tc-date-day"+(input.value===iso?" selected":""));
+    const b=el("button",(0,__f4.globals.String)(day),"tc-date-day"+(input.value===iso?" selected":""));
     b.type="button";b.setAttribute("aria-label",format(iso));
-    b.onclick=()=>{input.value=iso;input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+    b.onclick=()=>{input.value=iso;input.dispatchEvent(new __f4.globals.Event("input",{bubbles:true}));input.dispatchEvent(new __f4.globals.Event("change",{bubbles:true}));update();close()};
     grid.append(b);
    }
-   const footer=el("div",undefined,"tc-date-footer");
+   const footer=el("div",__f4.globals.undefined,"tc-date-footer");
    const current=el("button","Hari ini"),cancel=el("button","Tutup");
    current.type=cancel.type="button";
-   current.onclick=()=>{input.value=today();input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}));update();close()};
+   current.onclick=()=>{input.value=today();input.dispatchEvent(new __f4.globals.Event("input",{bubbles:true}));input.dispatchEvent(new __f4.globals.Event("change",{bubbles:true}));update();close()};
    cancel.onclick=close;footer.append(current,cancel);
    dialog.append(nav,grid,footer);
    prev.focus({preventScroll:true});
@@ -156,46 +160,46 @@ function treasuryDateControl(compact=false){
  return {input,element:wrap,trigger,refresh:update};
 }
 function buildOpeningGrid(target,data,refresh){
- const shell=el("section",undefined,"tc-panel tc-opening-panel tc-no-print");
- const head=el("div",undefined,"tc-opening-heading");
+ const shell=el("section",__f4.globals.undefined,"tc-panel tc-opening-panel tc-no-print");
+ const head=el("div",__f4.globals.undefined,"tc-opening-heading");
  head.append(el("h3","Saldo Awal"),el("small","Isi posisi uang sebenarnya, bukan seluruh pembayaran iuran."));
  shell.append(head);
- const form=el("form",undefined,"tc-opening-form");
- const controls=el("div",undefined,"tc-opening-controls");
+ const form=el("form",__f4.globals.undefined,"tc-opening-form");
+ const controls=el("div",__f4.globals.undefined,"tc-opening-controls");
  const dateCtl=treasuryDateControl(),date=dateCtl.input;
  date.value=data.openingDate||today();dateCtl.refresh();
  if(data.openingCount){dateCtl.trigger.disabled=true;dateCtl.trigger.title="Tanggal saldo awal sudah tercatat";}
  controls.append(field("Tanggal saldo awal",dateCtl.element));
  if(!data.openingDateConsistent)controls.append(el("p","Tanggal pembuka lama tidak seragam. Periksa sebelum menyimpan.","tc-source-warning"));
  shell.append(controls);
- const grid=el("div",undefined,"tc-opening-table");
- const header=el("div",undefined,"tc-opening-row tc-opening-header");
+ const grid=el("div",__f4.globals.undefined,"tc-opening-table");
+ const header=el("div",__f4.globals.undefined,"tc-opening-row tc-opening-header");
  ["Program","Cash","QRIS","Mandiri"].forEach(x=>header.append(el("strong",x)));
  grid.append(header);
  const entries=[];
  const use=["cash","qris","mandiri"];
  for(const f of data.catalog.funds){
-  const line=el("div",undefined,"tc-opening-row");
+  const line=el("div",__f4.globals.undefined,"tc-opening-row");
   line.append(el("strong",f.name,"tc-opening-name"));
   for(const type of use){
    const location=type==="cash"?f.cash:type;
-   const cell=el("label",undefined,"tc-opening-cell");
+   const cell=el("label",__f4.globals.undefined,"tc-opening-cell");
    cell.append(el("span",type==="cash"?"Cash":type==="qris"?"QRIS":"Mandiri"));
    const amountInput=el("input");
    amountInput.type="number";amountInput.inputMode="numeric";amountInput.min="0";amountInput.max="10000000000";
    amountInput.step="1";amountInput.placeholder="0";
    amountInput.setAttribute("aria-label",f.name+" — "+(type==="cash"?"Cash":type==="qris"?"QRIS":"Mandiri"));
    const existing=amount(data.balances,f.id,location);
-   amountInput.value=existing?String(existing):"";
+   amountInput.value=existing?(0,__f4.globals.String)(existing):"";
    cell.append(amountInput);line.append(cell);
    entries.push({fundId:f.id,locationId:location,input:amountInput});
   }
   grid.append(line);
  }
  form.append(grid);
- const footer=el("div",undefined,"tc-opening-footer");
+ const footer=el("div",__f4.globals.undefined,"tc-opening-footer");
  const total=el("strong","Total: Rp0","tc-opening-total");
- const actions=el("div",undefined,"tc-opening-actions");
+ const actions=el("div",__f4.globals.undefined,"tc-opening-actions");
  const save=el("button","Simpan Saldo Awal","tc-primary");save.type="submit";
  const approve=el("button","Sahkan Saldo","tc-secondary");approve.type="button";
  approve.disabled=!data.openingCount||!data.openingDateConsistent;
@@ -206,11 +210,11 @@ function buildOpeningGrid(target,data,refresh){
  const hint=el("p","Cash dipisah per program. QRIS hanya yang belum cair; Mandiri hanya yang sudah masuk rekening.","tc-helper");
  shell.append(hint);target.append(shell);
  let requestKey="";
- const positions=()=>entries.map(e=>({fundId:e.fundId,locationId:e.locationId,amountRp:Number(e.input.value||0)}));
+ const positions=()=>entries.map(e=>({fundId:e.fundId,locationId:e.locationId,amountRp:(0,__f4.globals.Number)(e.input.value||0)}));
  const updateTotal=()=>{
   const values=positions(),sum=values.reduce((n,x)=>n+x.amountRp,0);
   total.textContent="Total: "+rp(sum);
-  save.disabled=values.some(x=>!Number.isSafeInteger(x.amountRp)||x.amountRp<0||x.amountRp>10000000000)
+  save.disabled=values.some(x=>!__f4.globals.Number.isSafeInteger(x.amountRp)||x.amountRp<0||x.amountRp>10000000000)
    ||sum<=0||!data.openingDateConsistent;
  };
  form.addEventListener("input",()=>{requestKey="";updateTotal()});
@@ -218,7 +222,7 @@ function buildOpeningGrid(target,data,refresh){
  form.onsubmit=async e=>{
   e.preventDefault();
   if(!form.reportValidity()||save.disabled)return;
-  requestKey||=crypto.randomUUID();
+  requestKey||=__f4.globals.crypto.randomUUID();
   save.disabled=true;approve.disabled=true;status.textContent="Menyimpan saldo awal…";
   try{
    const result=await post({action:"opening-grid",date:date.value,positions:positions(),requestKey});
@@ -243,9 +247,9 @@ function buildOpeningGrid(target,data,refresh){
 }
 // Bookkeeping-style print lives in a separate document. Superadmin CSS is not printed.
 function tidyHistory(data){
- const groups=new Map();
- const funds=new Map(data.catalog.funds.map(x=>[x.id,x.name]));
- const locations=new Map(data.catalog.locations.map(x=>[x.id,x.name]));
+ const groups=new __f4.globals.Map();
+ const funds=new __f4.globals.Map(data.catalog.funds.map(x=>[x.id,x.name]));
+ const locations=new __f4.globals.Map(data.catalog.locations.map(x=>[x.id,x.name]));
  for(const line of data.history||[]){
   if(line.kind==="opening")continue; // Revisi saldo pembuka bukan arus kas.
   if(!groups.has(line.id))groups.set(line.id,{id:line.id,date:line.occurred_on,kind:line.kind,note:line.note||"",entries:[]});
@@ -253,10 +257,10 @@ function tidyHistory(data){
  }
  const desc=line=>line?(funds.get(line.fund_id)||"Pos arsip")+" / "+(locations.get(line.location_id)||"Tempat arsip"):"—";
  return [...groups.values()].map(event=>{
-  const debit=event.entries.find(x=>Number(x.amount_rp)<0);
-  const credit=event.entries.find(x=>Number(x.amount_rp)>0);
+  const debit=event.entries.find(x=>(0,__f4.globals.Number)(x.amount_rp)<0);
+  const credit=event.entries.find(x=>(0,__f4.globals.Number)(x.amount_rp)>0);
   const quantity=credit||debit;
-  return {...event,from:desc(debit),to:desc(credit),amount:Math.abs(Number(quantity?.amount_rp||0)),
+  return {...event,from:desc(debit),to:desc(credit),amount:__f4.globals.Math.abs((0,__f4.globals.Number)(quantity?.amount_rp||0)),
     kindName:kindLabels[event.kind]||event.kind};
  });
 }
@@ -270,12 +274,12 @@ function openingSummary(data){
  return {rows,grand,date:data.openingDate||data.confirmedOn};
 }
 function formatDate(value){
- if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||"")))return String(value||"—");
- const [y,m,d]=value.split("-").map(Number);
- return new Date(y,m-1,d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+ if(!/^\d{4}-\d{2}-\d{2}$/.test((0,__f4.globals.String)(value||"")))return (0,__f4.globals.String)(value||"—");
+ const [y,m,d]=value.split("-").map(__f4.globals.Number);
+ return new __f4.globals.Date(y,m-1,d).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
 }
 function safeHTML(value){
- return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ return (0,__f4.globals.String)(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 function printTreasury(data){
  if(!data.confirmed||!data.riwayatLengkap){showMessage("Laporan belum siap dicetak lengkap.");return}
@@ -290,7 +294,7 @@ function printTreasury(data){
  const fmt=n=>rp(n);
  const body=byFund.map(x=>`<tr><td>${safeHTML(x.name)}</td><td class="num">${fmt(x.cash)}</td><td class="num">${fmt(x.qris)}</td><td class="num">${fmt(x.mandiri)}</td><td class="num"><strong>${fmt(x.total)}</strong></td></tr>`).join("");
  const eventRows=movements.map((x,i)=>`<tr><td class="center">${i+1}</td><td class="center nowrap">${safeHTML(formatDate(x.date))}</td><td>${safeHTML(x.kindName)}<span class="sub">${safeHTML(x.note)}</span></td><td>${safeHTML(x.from)}</td><td>${safeHTML(x.to)}</td><td class="num nowrap">${fmt(x.amount)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">Belum ada mutasi setelah saldo awal.</td></tr>';
- const dated=new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+ const dated=new __f4.globals.Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
  const html=`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
  <title>Laporan Pusat Keuangan Flamboyan 4</title>
  <style>
@@ -336,7 +340,7 @@ function printTreasury(data){
  </body></html>`;
  // Gunakan jendela cetak berukuran nyata seperti laporan Pembukuan.
  // iframe lama berukuran 0×0 membuat preview Firefox menjadi halaman kosong.
- const printWindow=window.open("","_blank");
+ const printWindow=__f4.window.open("","_blank");
  if(!printWindow){
   showMessage("Jendela cetak diblokir browser. Izinkan pop-up untuk laporan, lalu coba lagi.");
   return;
@@ -351,9 +355,9 @@ function printTreasury(data){
  const afterReady=()=>{
   const image=printWindow.document.querySelector(".logo");
   const schedule=()=>{
-   Promise.resolve(printWindow.document.fonts?.ready).catch(()=>{}).then(()=>{
+   __f4.globals.Promise.resolve(printWindow.document.fonts?.ready).catch(()=>{}).then(()=>{
     if(printWindow.closed)return;
-    printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>setTimeout(startPrint,250)));
+    printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>(0,__f4.globals.setTimeout)(startPrint,250)));
    });
   };
   if(!image||image.complete)schedule();
@@ -367,18 +371,18 @@ function printTreasury(data){
  printWindow.addEventListener("load",afterReady,{once:true});
  printWindow.document.close();
  // Fallback jika browser tidak memancarkan event load pada about:blank hasil document.write.
- setTimeout(()=>{
+ (0,__f4.globals.setTimeout)(()=>{
   if(!started&&!printWindow.closed&&printWindow.document.querySelector("table"))
    startPrint();
  },1800);
 }
 function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
- const shell=el("details",undefined,"tc-panel tc-mutation-panel tc-no-print");
- shell.open=entryOpen===null?window.matchMedia("(min-width: 761px)").matches:entryOpen;
+ const shell=el("details",__f4.globals.undefined,"tc-panel tc-mutation-panel tc-no-print");
+ shell.open=entryOpen===null?__f4.window.matchMedia("(min-width: 761px)").matches:entryOpen;
  shell.addEventListener("toggle",()=>{entryOpen=shell.open});
  shell.append(el("summary","Catat Transaksi"));
- const form=el("form",undefined,"tc-form");
+ const form=el("form",__f4.globals.undefined,"tc-form");
  const action=select([{id:"",name:"Pilih jenis transaksi…"},{id:"incoming",name:"Pemasukan"},{id:"outgoing",name:"Pengeluaran"},{id:"move",name:"Pindah tempat uang"},{id:"allocation",name:"Pindah antarpos"}]);
  action.required=true;
  const fromFund=select(funds),toFund=select(funds);
@@ -388,7 +392,7 @@ function buildForm(target,data,refresh){
  const note=el("input");note.maxLength=240;note.minLength=4;note.required=true;note.placeholder="Keterangan singkat";
  const originFund=field("Pos asal",fromFund,"tc-origin-fund"),destinationFund=field("Pos tujuan",toFund,"tc-destination-fund");
  const originLoc=field("Tempat asal",fromLoc,"tc-origin-location"),destinationLoc=field("Tempat tujuan",toLoc,"tc-destination-location");
- const grid=el("div",undefined,"tc-form-grid");
+ const grid=el("div",__f4.globals.undefined,"tc-form-grid");
  append(grid,
   field("Jenis transaksi",action,"tc-kind-field"),
   field("Tanggal",dateCtl.element,"tc-date-field"),
@@ -434,8 +438,8 @@ function buildForm(target,data,refresh){
  form.addEventListener("input",()=>{pendingKey=""});
  form.onsubmit=async e=>{
   e.preventDefault();if(!form.reportValidity())return;
-  pendingKey||=crypto.randomUUID();save.disabled=true;status.textContent="Menyimpan…";
-  const payload={action:action.value,date:date.value,amountRp:Number(value.value),note:note.value.trim(),
+  pendingKey||=__f4.globals.crypto.randomUUID();save.disabled=true;status.textContent="Menyimpan…";
+  const payload={action:action.value,date:date.value,amountRp:(0,__f4.globals.Number)(value.value),note:note.value.trim(),
    fromFund:fromFund.value,fromLocation:fromLoc.value,toFund:toFund.value,toLocation:toLoc.value,requestKey:pendingKey};
   try{await post(payload);await refresh()}
   catch(err){status.textContent=err.message;save.disabled=false}
@@ -444,17 +448,17 @@ function buildForm(target,data,refresh){
 function buildSources(target,data,refresh){
  if(!data.confirmed)return;
  const sources=(data.sources||[]),warnings=data.sourceWarnings||[];
- const section=el("section",undefined,"tc-panel tc-review tc-no-print");
- const top=el("div",undefined,"tc-section-head");
- const pendingBank=new Map();
+ const section=el("section",__f4.globals.undefined,"tc-panel tc-review tc-no-print");
+ const top=el("div",__f4.globals.undefined,"tc-section-head");
+ const pendingBank=new __f4.globals.Map();
  for(const x of data.bankSourceBalances||[]){
-  pendingBank.set(x.fundId,(pendingBank.get(x.fundId)||0)+Number(x.amountRp||0));
+  pendingBank.set(x.fundId,(pendingBank.get(x.fundId)||0)+(0,__f4.globals.Number)(x.amountRp||0));
  }
- const eligibleBank=new Map();
+ const eligibleBank=new __f4.globals.Map();
  for(const x of data.bankPendingCounts||[])eligibleBank.set(x.fundId,
-   (eligibleBank.get(x.fundId)||0)+Number(x.amountRp||0));
- const bankApprovalFunds=new Set([...pendingBank].filter(([fund,total])=>{
-   const central=(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+Number(y.amount_rp||0),0);
+   (eligibleBank.get(x.fundId)||0)+(0,__f4.globals.Number)(x.amountRp||0));
+ const bankApprovalFunds=new __f4.globals.Set([...pendingBank].filter(([fund,total])=>{
+   const central=(data.balances||[]).filter(y=>y.fund_id===fund).reduce((n,y)=>n+(0,__f4.globals.Number)(y.amount_rp||0),0);
    const fresh=eligibleBank.get(fund)||0;
    return fresh>0&&total>central&&fresh<=total-central;
  }).map(([fund])=>fund));
@@ -465,17 +469,17 @@ function buildSources(target,data,refresh){
  top.append(label,reload);section.append(top);
  if(warnings.length||(data.bankCoverageWarnings||[]).length)
     section.append(el("p","Ada perubahan data yang sudah disahkan. Periksa riwayat.","tc-source-warning"));
- if(!visibleSources.length&&!(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)>0))
+ if(!visibleSources.length&&!(data.bankSourceBalances||[]).some(x=>(0,__f4.globals.Number)(x.amountRp)>0))
     section.append(el("p","Belum ada dana baru.","tc-muted"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
  // Setiap sumber tetap dicatat melalui API pengesahan yang sudah ada.
  const bulkCandidates=[];
- const funds=new Map(data.catalog.funds.map(x=>[x.id,x]));
- const list=el("div",undefined,"tc-source-list");
+ const funds=new __f4.globals.Map(data.catalog.funds.map(x=>[x.id,x]));
+ const list=el("div",__f4.globals.undefined,"tc-source-list");
  for(const src of visibleSources.slice(0,100)){
-  const item=el("div",undefined,"tc-review-row");
-  const meta=el("div",undefined,"tc-review-meta");
-  meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(Math.abs(src.amountRp))),
+  const item=el("div",__f4.globals.undefined,"tc-review-row");
+  const meta=el("div",__f4.globals.undefined,"tc-review-meta");
+  meta.append(el("strong",src.sourceLabel+" · "+formatDate(src.date)+" · "+rp(__f4.globals.Math.abs(src.amountRp))),
     el("span",(funds.get(src.fund)?.name||"Pos perlu diperiksa")+" · "+(src.note||src.category)));
   if(src.type==="bank"&&src.sourceDate&&src.sourceDate!==src.date)
     meta.append(el("small","Jual "+formatDate(src.sourceDate)+" · Sah "+formatDate(src.date),"tc-source-date"));
@@ -487,9 +491,9 @@ function buildSources(target,data,refresh){
   pick.value=options.some(x=>x.id===src.suggestedLocation)?src.suggestedLocation:"";
   pick.setAttribute("aria-label","Pilih tempat dana untuk "+src.sourceLabel);
   // Transaksi pada tanggal pembukaan wajib diperiksa sendiri.
-  if(src.type!=="bank"&&src.id&&src.fund&&Number.isFinite(Number(src.amountRp))&&Number(src.amountRp)!==0&&!sameDay){
+  if(src.type!=="bank"&&src.id&&src.fund&&__f4.globals.Number.isFinite((0,__f4.globals.Number)(src.amountRp))&&(0,__f4.globals.Number)(src.amountRp)!==0&&!sameDay){
    bulkCandidates.push({
-    fundId:src.fund,pick,nominal:Math.abs(Number(src.amountRp)),
+    fundId:src.fund,pick,nominal:__f4.globals.Math.abs((0,__f4.globals.Number)(src.amountRp)),
     note:src.sourceLabel,
     payload:()=>({action:"link",sourceType:src.type,sourceId:src.id,
      expectedAmountRp:src.amountRp,expectedFundId:src.fund,location:pick.value})
@@ -498,7 +502,7 @@ function buildSources(target,data,refresh){
   const save=el("button","Periksa & Sahkan","tc-primary");save.type="button";
   save.onclick=async()=>{
    if(!pick.value){status.textContent="Pilih tempat uang yang benar dahulu.";pick.focus();return}
-   const question="Sahkan "+rp(Math.abs(src.amountRp))+" dari "+src.sourceLabel+
+   const question="Sahkan "+rp(__f4.globals.Math.abs(src.amountRp))+" dari "+src.sourceLabel+
      " untuk "+(funds.get(src.fund)?.name||"pos")+"?\n\nPastikan uang benar-benar ada."+
      (sameDay?"\n\nPERHATIAN: Tanggal sama dengan saldo awal. Pastikan TIDAK termasuk saldo awal.":"");
    if(!await askConfirm(question))return;
@@ -527,23 +531,23 @@ function buildSources(target,data,refresh){
  }
  section.append(list);
  if(data.sourcePartial)section.append(el("p","Masih ada transaksi lain. Selesaikan daftar ini, lalu muat ulang.","tc-muted"));
- const bankGroups=new Map();
+ const bankGroups=new __f4.globals.Map();
  for(const x of data.bankSourceBalances||[]){
   if(!x.fundId)continue;
-  bankGroups.set(x.fundId,(bankGroups.get(x.fundId)||0)+Number(x.amountRp||0));
+  bankGroups.set(x.fundId,(bankGroups.get(x.fundId)||0)+(0,__f4.globals.Number)(x.amountRp||0));
  }
  const bankItems=[...bankGroups].map(([fundId,source])=>{
   const central=(data.balances||[]).filter(y=>y.fund_id===fundId)
-    .reduce((n,y)=>n+Number(y.amount_rp||0),0);
+    .reduce((n,y)=>n+(0,__f4.globals.Number)(y.amount_rp||0),0);
   return {fundId,source,central,diff:source-central,available:eligibleBank.get(fundId)||0,fund:funds.get(fundId)};
  }).filter(x=>x.source!==0||x.central!==0);
  if(bankItems.length){
-  const panel=el("div",undefined,"tc-bank-reconcile");
+  const panel=el("div",__f4.globals.undefined,"tc-bank-reconcile");
   panel.append(el("h4","Saldo Bank Sampah"));
-  const board=el("div",undefined,"tc-bank-rows");
+  const board=el("div",__f4.globals.undefined,"tc-bank-rows");
   for(const row of bankItems){
-   const item=el("div",undefined,"tc-bank-row");
-   const info=el("div",undefined,"tc-bank-info");
+   const item=el("div",__f4.globals.undefined,"tc-bank-row");
+   const info=el("div",__f4.globals.undefined,"tc-bank-info");
    info.append(el("strong",(row.fund?.name||row.fundId).replace(/^Bank Sampah — /,"")),
     el("span","Sumber "+rp(row.source)+" · Tercatat "+rp(row.central)));
    item.append(info);
@@ -555,7 +559,7 @@ function buildSources(target,data,refresh){
      note:row.fund?.name||row.fundId,
      payload:()=>({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
       expectedSourceRp:row.source,expectedCentralRp:row.central,expectedAvailableRp:row.available,
-      requestKey:crypto.randomUUID(),confirmation:"SUDAH COCOK"})
+      requestKey:__f4.globals.crypto.randomUUID(),confirmation:"SUDAH COCOK"})
     });
     const confirmButton=el("button","Sahkan "+rp(row.available),"tc-primary");confirmButton.type="button";
     confirmButton.onclick=async()=>{
@@ -567,7 +571,7 @@ function buildSources(target,data,refresh){
      try{
       await post({action:"approve-bank-balance",fundId:row.fundId,location:pick.value,
         expectedSourceRp:row.source,expectedCentralRp:row.central,expectedAvailableRp:row.available,
-        requestKey:crypto.randomUUID(),confirmation:"SUDAH COCOK"});
+        requestKey:__f4.globals.crypto.randomUUID(),confirmation:"SUDAH COCOK"});
       await refresh();
      }catch(e){status.textContent=e.message;confirmButton.disabled=false}
     };
@@ -580,10 +584,10 @@ function buildSources(target,data,refresh){
  }
  const excluded=data.excludedSources||[];
  if(excluded.length){
-  const hidden=el("details",undefined,"tc-excluded");
+  const hidden=el("details",__f4.globals.undefined,"tc-excluded");
   hidden.append(el("summary","Sudah tercakup / dikecualikan ("+excluded.length+")"));
   for(const row of excluded.slice(0,100)){
-    const entry=el("div",undefined,"tc-excluded-row");
+    const entry=el("div",__f4.globals.undefined,"tc-excluded-row");
     entry.append(el("span",row.reason+" · "+row.source_key));
     const restore=el("button","Pulihkan","tc-secondary");restore.type="button";
     restore.onclick=async()=>{
@@ -598,11 +602,11 @@ function buildSources(target,data,refresh){
  // Satu aksi pengesahan untuk beberapa dana yang sudah diperiksa bersama.
  // Tidak ada transaksi yang disahkan otomatis saat halaman dimuat.
  if(bulkCandidates.length>=2){
-  const bar=el("div",undefined,"tc-bulk-bar");
-  const intro=el("div",undefined,"tc-bulk-intro");
+  const bar=el("div",__f4.globals.undefined,"tc-bulk-bar");
+  const intro=el("div",__f4.globals.undefined,"tc-bulk-intro");
   intro.append(el("strong","Sahkan Bersama ("+bulkCandidates.length+")"),
    el("small","Pilih lokasi uang dan periksa nominal sebelum mengesahkan."));
-  const group=el("div",undefined,"tc-bulk-actions");
+  const group=el("div",__f4.globals.undefined,"tc-bulk-actions");
   const where=select([
    {id:"",name:"Tempat untuk semua…"},
    {id:"cash",name:"Cash masing-masing pos"},
@@ -665,7 +669,7 @@ function buildSources(target,data,refresh){
    if(error){
     const message="Berhasil "+completed+" dari "+count+
      " dana; sisanya belum disahkan. Periksa saldo dan muat ulang sebelum mencoba lagi. "+
-     (error.message||String(error));
+     (error.message||(0,__f4.globals.String)(error));
     if(completed)showMessage(message);
     else status.textContent=message;
     if(!completed){submitting=false;approve.disabled=false;where.disabled=false}
@@ -678,8 +682,8 @@ function buildSources(target,data,refresh){
 }
 function buildDynamicFund(target,data,refresh){
  if(!data.confirmed)return;
- const shell=el("section",undefined,"tc-panel tc-custom-fund tc-no-print");
- const form=el("form",undefined,"tc-custom-fund-form");
+ const shell=el("section",__f4.globals.undefined,"tc-panel tc-custom-fund tc-no-print");
+ const form=el("form",__f4.globals.undefined,"tc-custom-fund-form");
  const name=el("input");name.maxLength=70;name.minLength=3;name.required=true;name.placeholder="Contoh: Donasi Gapura";
  const purpose=el("input");purpose.maxLength=200;purpose.placeholder="Catatan (opsional)";
  const save=el("button","Tambah","tc-secondary");save.type="submit";
@@ -696,30 +700,30 @@ function buildDynamicFund(target,data,refresh){
  // Pos bawaan/projek berasal dari modul lain dan tidak boleh dihapus lewat pengelola dana.
  // Tampilkan juga di sini agar setiap pos yang terlihat di Saldo per Pos jelas statusnya.
  const fixed=(data.catalog.funds||[]).filter(f=>f.kind!=="custom"&&f.active!==false&&(
-  (data.balances||[]).some(b=>b.fund_id===f.id&&Number(b.amount_rp)!==0)||
+  (data.balances||[]).some(b=>b.fund_id===f.id&&(0,__f4.globals.Number)(b.amount_rp)!==0)||
   (data.sources||[]).some(src=>src.fund===f.id)
  ));
- const listTitle=el("div",undefined,"tc-fund-list-heading");
+ const listTitle=el("div",__f4.globals.undefined,"tc-fund-list-heading");
  listTitle.append(el("strong","Daftar Pos"),el("span","Kelola pos tambahan"));
  shell.append(listTitle);
  if(!custom.length)shell.append(el("p","Belum ada pos tambahan.","tc-custom-empty"));
  if(custom.length){
-  const list=el("div",undefined,"tc-custom-list");
+  const list=el("div",__f4.globals.undefined,"tc-custom-list");
   for(const fund of custom){
-   const row=el("div",undefined,"tc-custom-row");
-   const info=el("div",undefined,"tc-custom-info");
+   const row=el("div",__f4.globals.undefined,"tc-custom-row");
+   const info=el("div",__f4.globals.undefined,"tc-custom-info");
    info.append(el("strong",fund.name));
    if(fund.purpose)info.append(el("span",fund.purpose));
    if(!fund.active)info.append(el("small","Arsip"));
    const balance=(data.balances||[]).filter(x=>x.fund_id===fund.id);
-   const outstanding=balance.some(x=>Number(x.amount_rp)!==0);
+   const outstanding=balance.some(x=>(0,__f4.globals.Number)(x.amount_rp)!==0);
    if(outstanding)info.append(el("small","Saldo masih ada"));
-   const actions=el("div",undefined,"tc-custom-actions");
+   const actions=el("div",__f4.globals.undefined,"tc-custom-actions");
    if(fund.active){
     const edit=el("button","Edit","tc-secondary");edit.type="button";edit.title="Edit nama atau catatan";
     edit.onclick=()=>{
      if(row.querySelector(".tc-custom-edit"))return;
-     const editor=el("form",undefined,"tc-custom-edit");
+     const editor=el("form",__f4.globals.undefined,"tc-custom-edit");
      const newName=el("input");newName.value=fund.name;newName.required=true;newName.minLength=3;newName.maxLength=70;
      newName.readOnly=!!fund.hasHistory;newName.title=fund.hasHistory?"Nama terkunci karena sudah ada transaksi":"";
      const newPurpose=el("input");newPurpose.value=fund.purpose||"";newPurpose.maxLength=200;newPurpose.placeholder="Catatan";
@@ -761,13 +765,13 @@ function buildDynamicFund(target,data,refresh){
   shell.append(list);
  }
  if(fixed.length){
-  const builtins=el("details",undefined,"tc-fixed-funds");
+  const builtins=el("details",__f4.globals.undefined,"tc-fixed-funds");
   builtins.open=false;
   builtins.append(el("summary","Pos bawaan / projek ("+fixed.length+")"));
-  const fixedList=el("div",undefined,"tc-custom-list");
+  const fixedList=el("div",__f4.globals.undefined,"tc-custom-list");
   for(const fund of fixed){
-   const row=el("div",undefined,"tc-custom-row tc-fixed-row");
-   const info=el("div",undefined,"tc-custom-info");
+   const row=el("div",__f4.globals.undefined,"tc-custom-row tc-fixed-row");
+   const info=el("div",__f4.globals.undefined,"tc-custom-info");
    info.append(el("strong",fund.name));
    const kind=fund.kind==="project"?"Projek":"Bawaan";
    const status=el("span",kind,"tc-fund-kind");
@@ -780,29 +784,29 @@ function buildDynamicFund(target,data,refresh){
 }
 function pendingTreasuryCount(data){
  const raw=data.sources||[];
- const pending=new Map();
+ const pending=new __f4.globals.Map();
  for(const x of data.bankSourceBalances||[]){
-  pending.set(x.fundId,(pending.get(x.fundId)||0)+Number(x.amountRp||0));
+  pending.set(x.fundId,(pending.get(x.fundId)||0)+(0,__f4.globals.Number)(x.amountRp||0));
  }
- const eligible=new Map();
+ const eligible=new __f4.globals.Map();
  for(const x of data.bankPendingCounts||[]){
-  eligible.set(x.fundId,(eligible.get(x.fundId)||0)+Number(x.amountRp||0));
+  eligible.set(x.fundId,(eligible.get(x.fundId)||0)+(0,__f4.globals.Number)(x.amountRp||0));
  }
  let count=raw.length;
  for(const [fund,total] of pending){
   const central=(data.balances||[]).filter(x=>x.fund_id===fund)
-   .reduce((n,x)=>n+Number(x.amount_rp||0),0);
+   .reduce((n,x)=>n+(0,__f4.globals.Number)(x.amount_rp||0),0);
   const available=eligible.get(fund)||0;
   if(available>0&&total>central&&available<=total-central)
     count=count-raw.filter(x=>x.type==="bank"&&x.fund===fund).length+1;
   else if(total!==central)count++;
  }
- return Math.max(0,count);
+ return __f4.globals.Math.max(0,count);
 }
 function render(data){
  current=data;
  main.replaceChildren();
- const panel=el("div",undefined,"tc-center");
+ const panel=el("div",__f4.globals.undefined,"tc-center");
  main.append(panel);
  panel.append(heading("Pusat Keuangan","Saldo dan transaksi semua program"));
  const refresh=()=>fetchData().then(render);
@@ -817,11 +821,11 @@ function render(data){
  }
 
  const balances=data.balances||[];
- const cash=balances.filter(x=>x.location_id.startsWith("cash:")).reduce((n,x)=>n+Number(x.amount_rp||0),0);
- const qris=balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+Number(x.amount_rp||0),0);
- const mandiri=balances.filter(x=>x.location_id==="mandiri").reduce((n,x)=>n+Number(x.amount_rp||0),0);
+ const cash=balances.filter(x=>x.location_id.startsWith("cash:")).reduce((n,x)=>n+(0,__f4.globals.Number)(x.amount_rp||0),0);
+ const qris=balances.filter(x=>x.location_id==="qris").reduce((n,x)=>n+(0,__f4.globals.Number)(x.amount_rp||0),0);
+ const mandiri=balances.filter(x=>x.location_id==="mandiri").reduce((n,x)=>n+(0,__f4.globals.Number)(x.amount_rp||0),0);
  const catalog=data.catalog.funds||[];
- const metrics=el("div",undefined,"tc-overview");
+ const metrics=el("div",__f4.globals.undefined,"tc-overview");
  metrics.append(
   card("Total Dana",rp(data.totalRp),"Seluruh program"),
   card("Cash",rp(cash),"Uang tunai"),
@@ -838,7 +842,7 @@ function render(data){
   {id:"transaksi",name:"Transaksi",icon:"pay.svg"},
   {id:"laporan",name:"Laporan",icon:"book.svg"}
  ];
- const nav=el("div",undefined,"tc-view-nav");
+ const nav=el("div",__f4.globals.undefined,"tc-view-nav");
  nav.setAttribute("role","tablist");
  nav.setAttribute("aria-label","Menu Pusat Keuangan");
  const viewPanels={},buttons={};
@@ -849,15 +853,15 @@ function render(data){
    const selected=view.id===id;
    viewPanels[view.id].hidden=!selected;
    viewPanels[view.id].inert=!selected;
-   viewPanels[view.id].setAttribute("aria-hidden",String(!selected));
+   viewPanels[view.id].setAttribute("aria-hidden",(0,__f4.globals.String)(!selected));
    buttons[view.id].classList.toggle("is-active",selected);
-   buttons[view.id].setAttribute("aria-selected",String(selected));
+   buttons[view.id].setAttribute("aria-selected",(0,__f4.globals.String)(selected));
    buttons[view.id].tabIndex=selected?0:-1;
   }
   if(focus)buttons[id].focus();
  }
  for(const view of views){
-  const button=el("button",undefined,"tc-view-btn");
+  const button=el("button",__f4.globals.undefined,"tc-view-btn");
   button.type="button";
   button.id="tc-tab-"+view.id;
   button.setAttribute("role","tab");
@@ -865,7 +869,7 @@ function render(data){
   const img=el("img");img.src="/assets/icons/"+view.icon;img.alt="";img.setAttribute("aria-hidden","true");
   button.append(img,el("span",view.name));
   if(view.id==="transaksi"&&reviewCount>0){
-   const badge=el("span",String(reviewCount),"tc-tab-count");
+   const badge=el("span",(0,__f4.globals.String)(reviewCount),"tc-tab-count");
    badge.setAttribute("aria-label",reviewCount+" dana perlu diperiksa");
    button.append(badge);
   }
@@ -878,7 +882,7 @@ function render(data){
    if(e.key==="End"){e.preventDefault();switchView(views[views.length-1].id,true)}
   };
   nav.append(button);buttons[view.id]=button;
-  const region=el("section",undefined,"tc-view");
+  const region=el("section",__f4.globals.undefined,"tc-view");
   region.id="tc-view-"+view.id;
   region.setAttribute("role","tabpanel");
   region.setAttribute("aria-labelledby",button.id);
@@ -892,10 +896,10 @@ function render(data){
 
  // Saldo: daftar ringkas, rincian hanya saat satu pos dibuka.
  const saldo=viewPanels.saldo;
- const saldoGrid=el("div",undefined,"tc-saldo-layout");
+ const saldoGrid=el("div",__f4.globals.undefined,"tc-saldo-layout");
  saldo.append(saldoGrid);
- const ownership=el("section",undefined,"tc-panel tc-ownership");
- const ownHead=el("div",undefined,"tc-section-head");
+ const ownership=el("section",__f4.globals.undefined,"tc-panel tc-ownership");
+ const ownHead=el("div",__f4.globals.undefined,"tc-section-head");
  ownHead.append(el("h3","Saldo per Pos"));
  const manage=el("button","Kelola Pos","tc-secondary tc-manage-trigger");
  manage.type="button";
@@ -904,25 +908,25 @@ function render(data){
   fundManage.scrollIntoView({behavior:"smooth",block:"start"});
  };
  ownHead.append(manage);ownership.append(ownHead);
- const fundList=el("div",undefined,"tc-fund-balances");
+ const fundList=el("div",__f4.globals.undefined,"tc-fund-balances");
  const rows=catalog.map(f=>{
   const ownCash=amount(balances,f.id,f.cash),ownQris=amount(balances,f.id,"qris");
   const ownBank=amount(balances,f.id,"mandiri");
   return {f,cash:ownCash,qris:ownQris,mandiri:ownBank,total:ownCash+ownQris+ownBank};
  }).filter(x=>x.total!==0||(x.f.kind==="custom"&&x.f.active!==false));
  for(const x of rows){
-  const item=el("details",undefined,"tc-fund-balance");
-  const summary=el("summary",undefined,"tc-fund-balance-summary");
-  const label=el("span",undefined,"tc-balance-name");
+  const item=el("details",__f4.globals.undefined,"tc-fund-balance");
+  const summary=el("summary",__f4.globals.undefined,"tc-fund-balance-summary");
+  const label=el("span",__f4.globals.undefined,"tc-balance-name");
   label.append(el("strong",x.f.name));
   if(x.f.active===false)label.append(el("small","Arsip"));
-  const right=el("span",undefined,"tc-balance-total");
+  const right=el("span",__f4.globals.undefined,"tc-balance-total");
   right.append(el("strong",rp(x.total)));
-  const caret=el("span",undefined,"tc-balance-caret");caret.setAttribute("aria-hidden","true");
+  const caret=el("span",__f4.globals.undefined,"tc-balance-caret");caret.setAttribute("aria-hidden","true");
   caret.append(tcSvgIcon('chevron-right'));
   right.append(caret);
   summary.append(label,right);item.append(summary);
-  const split=el("div",undefined,"tc-balance-breakdown");
+  const split=el("div",__f4.globals.undefined,"tc-balance-breakdown");
   for(const [name,value] of [["Cash",x.cash],["QRIS",x.qris],["Mandiri",x.mandiri]]){
    const sub=el("div");sub.append(el("span",name),el("strong",rp(value)));split.append(sub);
   }
@@ -933,14 +937,14 @@ function render(data){
 
  // Transaksi: satu tempat untuk pencatatan dan pemeriksaan dana.
  const transaksi=viewPanels.transaksi;
- const transaksiGrid=el("div",undefined,"tc-transaksi-layout");
+ const transaksiGrid=el("div",__f4.globals.undefined,"tc-transaksi-layout");
  transaksi.append(transaksiGrid);
  buildForm(transaksiGrid,data,refresh);
  // Pemeriksaan dana mudah ditemukan tanpa menutup bagian transaksi.
- if(hasReview||(data.excludedSources||[]).length||(data.bankSourceBalances||[]).some(x=>Number(x.amountRp)!==0)){
-  const fold=el("details",undefined,"tc-review-fold");
+ if(hasReview||(data.excludedSources||[]).length||(data.bankSourceBalances||[]).some(x=>(0,__f4.globals.Number)(x.amountRp)!==0)){
+  const fold=el("details",__f4.globals.undefined,"tc-review-fold");
   fold.open=reviewOpen;
-  const summary=el("summary",undefined);
+  const summary=el("summary",__f4.globals.undefined);
   const title=el("strong",reviewCount>0?"Periksa Dana ("+reviewCount+")":"Pemeriksaan Dana");
   const info=el("span",hasReview?"Ada dana yang perlu diperiksa · Klik untuk melihat":"Lihat catatan pemeriksaan","tc-review-hint");
   summary.append(title,info);fold.append(summary);
@@ -952,18 +956,18 @@ function render(data){
   buildSources(fold,data,refresh);
   transaksi.append(fold);
  }else reviewOpen=false;
- const entries=tidyHistory(data).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- const recent=el("section",undefined,"tc-panel tc-recent");
- const recentHeader=el("div",undefined,"tc-section-head");
+ const entries=tidyHistory(data).sort((a,b)=>(0,__f4.globals.String)(b.date).localeCompare((0,__f4.globals.String)(a.date)));
+ const recent=el("section",__f4.globals.undefined,"tc-panel tc-recent");
+ const recentHeader=el("div",__f4.globals.undefined,"tc-section-head");
  recentHeader.append(el("h3","Transaksi Terakhir"));
  const seeAll=el("button","Riwayat","tc-secondary");
  seeAll.type="button";seeAll.onclick=()=>switchView("laporan",true);
  recentHeader.append(seeAll);recent.append(recentHeader);
  if(entries.length){
   for(const x of entries.slice(0,3)){
-   const line=el("div",undefined,"tc-recent-row");
+   const line=el("div",__f4.globals.undefined,"tc-recent-row");
    const info=el("div");
-   const description=String(x.note||"").trim();
+   const description=(0,__f4.globals.String)(x.note||"").trim();
    info.append(el("strong",description||x.kindName),el("small",formatDate(x.date)+" · "+x.kindName));
    const val=el("b",(x.kind==="incoming"?"+ ":x.kind==="outgoing"?"− ":"")+rp(x.amount));
    if(x.kind==="incoming")val.classList.add("is-income");
@@ -974,8 +978,8 @@ function render(data){
  transaksiGrid.append(recent);
 
  // Pengelolaan pos berdampingan dengan saldo di PC, satu kolom di HP.
- const fundManage=el("details",undefined,"tc-fund-manage");
- fundManage.open=manageOpen===null?window.matchMedia("(min-width: 1280px)").matches:manageOpen;
+ const fundManage=el("details",__f4.globals.undefined,"tc-fund-manage");
+ fundManage.open=manageOpen===null?__f4.window.matchMedia("(min-width: 1280px)").matches:manageOpen;
  fundManage.append(el("summary","Kelola Pos Dana"));
  fundManage.addEventListener("toggle",()=>{manageOpen=fundManage.open});
  buildDynamicFund(fundManage,data,refresh);
@@ -983,21 +987,21 @@ function render(data){
 
  // Laporan: saldo pembuka, seluruh riwayat, dan cetak.
  const laporan=viewPanels.laporan;
- const reportTop=el("div",undefined,"tc-report-top");
+ const reportTop=el("div",__f4.globals.undefined,"tc-report-top");
  laporan.append(reportTop);
- const reportHead=el("div",undefined,"tc-panel tc-report-head");
- const reportCaption=el("div",undefined,"tc-report-caption");
+ const reportHead=el("div",__f4.globals.undefined,"tc-panel tc-report-head");
+ const reportCaption=el("div",__f4.globals.undefined,"tc-report-caption");
  reportCaption.append(el("h3","Laporan Keuangan"),el("span","Saldo dan seluruh riwayat"));
  const print=el("button","Cetak Laporan","tc-primary");
  print.type="button";print.disabled=!data.riwayatLengkap;
  print.onclick=()=>printTreasury(data);
  reportHead.append(reportCaption,print);reportTop.append(reportHead);
- const history=el("section",undefined,"tc-panel tc-history-panel");
+ const history=el("section",__f4.globals.undefined,"tc-panel tc-history-panel");
  history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
- const opened=el("details",undefined,"tc-opening-recap");
- const openingTitle=el("summary",undefined,"tc-opening-summary");
- const openingMeta=el("span",undefined,"tc-opening-summary-copy");
+ const opened=el("details",__f4.globals.undefined,"tc-opening-recap");
+ const openingTitle=el("summary",__f4.globals.undefined,"tc-opening-summary");
+ const openingMeta=el("span",__f4.globals.undefined,"tc-opening-summary-copy");
  openingMeta.append(el("strong","Saldo awal (arsip)"),el("small",formatDate(opening.date)));
  const openingAmount=el("strong",rp(opening.grand),"tc-opening-summary-total");
  openingTitle.append(openingMeta,openingAmount);
@@ -1007,13 +1011,13 @@ function render(data){
  openingRows.push(["TOTAL",rp(opening.rows.reduce((n,x)=>n+x.cash,0)),rp(opening.rows.reduce((n,x)=>n+x.qris,0)),
   rp(opening.rows.reduce((n,x)=>n+x.mandiri,0)),rp(opening.grand)]);
  simpleTable(opened,["Program","Cash","QRIS","Mandiri","Total"],openingRows,"tc-balance-table");
- const mobileOpening=el("div",undefined,"tc-opening-mobile");
+ const mobileOpening=el("div",__f4.globals.undefined,"tc-opening-mobile");
  mobileOpening.setAttribute("aria-label","Rincian saldo awal menurut pos");
  for(const rowData of opening.rows.filter(x=>x.total!==0)){
-  const item=el("details",undefined,"tc-opening-mobile-item");
-  const rowHead=el("summary",undefined,"tc-opening-mobile-summary");
+  const item=el("details",__f4.globals.undefined,"tc-opening-mobile-item");
+  const rowHead=el("summary",__f4.globals.undefined,"tc-opening-mobile-summary");
   rowHead.append(el("span",rowData.name),el("strong",rp(rowData.total)));
-  const split=el("div",undefined,"tc-opening-mobile-split");
+  const split=el("div",__f4.globals.undefined,"tc-opening-mobile-split");
   for(const [label,nominal] of [["Cash",rowData.cash],["QRIS",rowData.qris],["Mandiri",rowData.mandiri]]){
    const line=el("div");
    line.append(el("span",label),el("strong",rp(nominal)));
@@ -1027,27 +1031,27 @@ function render(data){
  const historyRows=entries.map(x=>[formatDate(x.date),x.kindName,x.from,x.to,rp(x.amount),x.note]);
  if(historyRows.length){
   simpleTable(history,["Tanggal","Jenis","Dari","Ke","Nominal","Keterangan"],historyRows,"tc-history-table");
-  const mobileHistory=el("div",undefined,"tc-mobile-history");
+  const mobileHistory=el("div",__f4.globals.undefined,"tc-mobile-history");
   mobileHistory.setAttribute("aria-label","Daftar riwayat transaksi");
   for(const x of entries){
-   const item=el("details",undefined,"tc-mobile-history-item");
+   const item=el("details",__f4.globals.undefined,"tc-mobile-history-item");
    const summary=el("summary");
-   const left=el("span",undefined,"tc-mobile-history-copy");
-   const note=String(x.note||"").trim();
+   const left=el("span",__f4.globals.undefined,"tc-mobile-history-copy");
+   const note=(0,__f4.globals.String)(x.note||"").trim();
    left.append(el("strong",note||x.kindName));
    const detailLocation=x.kind==="incoming"?x.to:x.kind==="outgoing"?x.from:x.from+" ke "+x.to;
-   const dateText=[formatDate(x.date),x.kindName].filter(Boolean).join(" · ");
+   const dateText=[formatDate(x.date),x.kindName].filter(__f4.globals.Boolean).join(" · ");
    left.append(el("small",dateText));
-   const right=el("span",undefined,"tc-mobile-history-side");
+   const right=el("span",__f4.globals.undefined,"tc-mobile-history-side");
    const value=el("b",(x.kind==="incoming"?"+ ":x.kind==="outgoing"?"− ":"")+rp(x.amount));
    if(x.kind==="incoming")value.classList.add("is-income");
    if(x.kind==="outgoing")value.classList.add("is-expense");
-   const caret=el("span",undefined,"tc-mobile-history-caret");
+   const caret=el("span",__f4.globals.undefined,"tc-mobile-history-caret");
    caret.setAttribute("aria-hidden","true");
    caret.append(tcSvgIcon("chevron-right"));
    right.append(value,caret);
    summary.append(left,right);
-   const expanded=el("div",undefined,"tc-mobile-history-detail");
+   const expanded=el("div",__f4.globals.undefined,"tc-mobile-history-detail");
    for(const [label,valueText] of [["Dari",x.from],["Ke",x.to],["Keterangan",x.note||"—"]]){
     const row=el("div");
     row.append(el("span",label),el("strong",valueText||"—"));
@@ -1069,17 +1073,17 @@ async function open(){
 }
 // Baca ulang sumber tanpa menulis saldo. Jangan mengganti form yang sedang diedit.
 let polling=false;
-setInterval(async()=>{
- if(polling||!document.querySelector(".tc-center")||document.hidden||!current?.confirmed)return;
+(0,__f4.globals.setInterval)(async()=>{
+ if(polling||!__f4.globals.document.querySelector(".tc-center")||__f4.globals.document.hidden||!current?.confirmed)return;
  polling=true;
  try{
   const latest=await fetchData();
   const before=(current.sources||[]).map(x=>x.type+":"+x.id).sort().join("|");
   const after=(latest.sources||[]).map(x=>x.type+":"+x.id).sort().join("|");
   if(before!==after){
-   const center=document.querySelector(".tc-center");
+   const center=__f4.globals.document.querySelector(".tc-center");
    if(center&&!center.querySelector(".tc-new-source")){
-    const alert=el("div",undefined,"tc-new-source");
+    const alert=el("div",__f4.globals.undefined,"tc-new-source");
     alert.append(el("span","Ada perubahan transaksi yang perlu diperiksa."));
     const button=el("button","Lihat","tc-secondary");button.type="button";button.onclick=()=>render(latest);
     alert.append(button);center.insertBefore(alert,center.children[1]||null);
@@ -1088,5 +1092,7 @@ setInterval(async()=>{
  }catch(e){/* Dashboard lama tetap tampil bila jaringan putus. */}
  finally{polling=false}
 },45000);
-window.f4OpenTreasuryCenter=open;
+__f4.window.f4OpenTreasuryCenter=open;
 })();
+
+});

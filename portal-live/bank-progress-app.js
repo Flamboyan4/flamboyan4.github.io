@@ -1,11 +1,15 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-progress-app.js",function(__f4){
+
+
 /* Bank Sampah: ringkasan perkembangan warga, memakai agregat publik D1 saja. */
 (()=>{
  'use strict';
  const API='https://api.flamboyan4.web.id';
  const state={range:'month',unit:'kg'};
- const n=value=>Number.isFinite(Number(value))?Math.max(0,Number(value)):0;
+ const n=value=>__f4.globals.Number.isFinite((0,__f4.globals.Number)(value))?__f4.globals.Math.max(0,(0,__f4.globals.Number)(value)):0;
  const idNum=value=>n(value).toLocaleString('id-ID',{maximumFractionDigits:2});
- const money=value=>'Rp '+Math.round(n(value)).toLocaleString('id-ID');
+ const money=value=>'Rp '+__f4.globals.Math.round(n(value)).toLocaleString('id-ID');
  const amount=(value,unit)=>unit==='kg'?idNum(value)+' kg':money(value);
  const shortAmount=(value,unit)=>{
    const v=n(value);
@@ -16,26 +20,26 @@
    return v===0?'0':idNum(v);
  };
  const el=(tag,cls,text)=>{
-   const node=document.createElement(tag);
+   const node=__f4.globals.document.createElement(tag);
    if(cls)node.className=cls;
-   if(text!==undefined)node.textContent=String(text);
+   if(text!==__f4.globals.undefined)node.textContent=(0,__f4.globals.String)(text);
    return node;
  };
  const today=()=>{
-   const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{
+   const parts=__f4.globals.Object.fromEntries(new __f4.globals.Intl.DateTimeFormat('en-GB',{
       timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'
-   }).formatToParts(new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
-   return new Date(Date.UTC(+parts.year,+parts.month-1,+parts.day,12));
+   }).formatToParts(new __f4.globals.Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+   return new __f4.globals.Date(__f4.globals.Date.UTC(+parts.year,+parts.month-1,+parts.day,12));
  };
  const dayKey=d=>d.toISOString().slice(0,10);
  const monthKey=d=>dayKey(d).slice(0,7);
- const moved=(d,days)=>new Date(d.getTime()+days*86400000);
+ const moved=(d,days)=>new __f4.globals.Date(d.getTime()+days*86400000);
  const monthName=key=>{
-   const date=/^\d{4}-\d{2}$/.test(key)?new Date(Date.UTC(+key.slice(0,4),+key.slice(5,7)-1,15)):null;
+   const date=/^\d{4}-\d{2}$/.test(key)?new __f4.globals.Date(__f4.globals.Date.UTC(+key.slice(0,4),+key.slice(5,7)-1,15)):null;
    return date?date.toLocaleDateString('id-ID',{timeZone:'UTC',month:'short'}):key;
  };
  const shortDay=key=>{
-   const d=/^\d{4}-\d{2}-\d{2}$/.test(key)?new Date(key+'T12:00:00Z'):null;
+   const d=/^\d{4}-\d{2}-\d{2}$/.test(key)?new __f4.globals.Date(key+'T12:00:00Z'):null;
    return d?d.toLocaleDateString('id-ID',{timeZone:'UTC',day:'numeric',month:'numeric'}):key;
  };
  const normalized=r=>({
@@ -44,28 +48,28 @@
  });
  const entry=(label,values)=>({label,...values});
  function monthlyRows(data,report){
-   const chosen=new Map();
-   const official=Array.isArray(report?.bulanan)?report.bulanan:null;
+   const chosen=new __f4.globals.Map();
+   const official=__f4.globals.Array.isArray(report?.bulanan)?report.bulanan:null;
    if(official)for(const row of official){
-     const key=String(row.periode||'');
+     const key=(0,__f4.globals.String)(row.periode||'');
      if(/^\d{4}-\d{2}$/.test(key))chosen.set(key,normalized(row));
-   }else for(const row of (Array.isArray(data.monthlyWeights)?data.monthlyWeights:[])){
-     const key=String(row.month||'');
+   }else for(const row of (__f4.globals.Array.isArray(data.monthlyWeights)?data.monthlyWeights:[])){
+     const key=(0,__f4.globals.String)(row.month||'');
      if(/^\d{4}-\d{2}$/.test(key))chosen.set(key,{kg:n(row.beratKg),estimateKg:0,rp:0,estimateRp:0});
    }
    const current=today(),items=[];
    for(let offset=5;offset>=0;offset--){
-     const date=new Date(Date.UTC(current.getUTCFullYear(),current.getUTCMonth()-offset,15,12));
+     const date=new __f4.globals.Date(__f4.globals.Date.UTC(current.getUTCFullYear(),current.getUTCMonth()-offset,15,12));
      const key=monthKey(date);
      items.push(entry(monthName(key),chosen.get(key)||normalized({})));
    }
    return items;
  }
  function dailyRows(report,days){
-   if(!Array.isArray(report?.harian))return null;
-   const index=new Map();
+   if(!__f4.globals.Array.isArray(report?.harian))return null;
+   const index=new __f4.globals.Map();
    for(const row of report.harian){
-     const date=String(row.tanggal||'');
+     const date=(0,__f4.globals.String)(row.tanggal||'');
      if(/^\d{4}-\d{2}-\d{2}$/.test(date))index.set(date,normalized(row));
    }
    const end=today(),start=moved(end,1-days),all=[];
@@ -95,7 +99,7 @@
    group.setAttribute('role','group');group.setAttribute('aria-label',groupLabel);
    for(const [key,label] of options){
      const button=el('button',key===selected?'is-active':'',label);
-     button.type='button';button.setAttribute('aria-pressed',String(key===selected));
+     button.type='button';button.setAttribute('aria-pressed',(0,__f4.globals.String)(key===selected));
      button.addEventListener('click',()=>onPick(key));
      group.append(button);
    }
@@ -116,7 +120,7 @@
    const footer=el('div','f4-activity-totals');
    const caption=el('p','f4-activity-chart-caption');
    card.append(head,controls,bars,legend,footer,caption);
-   const dailyAvailable=Array.isArray(report?.harian);
+   const dailyAvailable=__f4.globals.Array.isArray(report?.harian);
    function draw(){
      const range=[['week','7 hari'],['days30','30 hari'],['month','Per bulan']];
      rangeControl.replaceChildren(toggleGroup(range,state.range,next=>{
@@ -150,7 +154,7 @@
      // Keep every period in one horizontal chart row (7 days = 7 columns; month/30 days = 6).
      bars.style.gridTemplateColumns='repeat('+rows.length+',minmax(0,1fr))';
      const key=isRupiah?'rp':'kg',pending=isRupiah?'estimateRp':'estimateKg';
-     const maximum=Math.max(0,...rows.map(r=>r[key]+r[pending]));
+     const maximum=__f4.globals.Math.max(0,...rows.map(r=>r[key]+r[pending]));
      bars.replaceChildren();
      for(const row of rows){
        const total=row[key]+row[pending];
@@ -162,8 +166,8 @@
        const confirmed=el('span','f4-activity-bar-confirmed');
        const estimate=el('span','f4-activity-bar-pending');
        if(maximum>0){
-         confirmed.style.height=(row[key]>0?Math.max(3,row[key]/maximum*100):0)+'%';
-         estimate.style.height=(row[pending]>0?Math.max(3,row[pending]/maximum*100):0)+'%';
+         confirmed.style.height=(row[key]>0?__f4.globals.Math.max(3,row[key]/maximum*100):0)+'%';
+         estimate.style.height=(row[pending]>0?__f4.globals.Math.max(3,row[pending]/maximum*100):0)+'%';
        }
        track.append(confirmed,estimate);
        column.append(value,track,el('span','f4-activity-axis-label',row.label));
@@ -171,7 +175,7 @@
      }
      legend.replaceChildren();
      for(const [label,kind] of [[isRupiah?'Hasil jual sah':'Berat sah','confirmed'],[isRupiah?'Perkiraan belum terjual':'Belum terjual','pending']]){
-       const item=el('span');item.append(el('i','is-'+kind),document.createTextNode(label));legend.append(item);
+       const item=el('span');item.append(el('i','is-'+kind),__f4.globals.document.createTextNode(label));legend.append(item);
      }
      const sum=key=>rows.reduce((t,r)=>t+r[key],0);
      footer.replaceChildren(metric(amount(sum(key),state.unit),isRupiah?'Hasil jual sah':'Berat sah','confirmed'),
@@ -186,7 +190,7 @@
  const statusKind=text=>/selesai|tuntas|rampung/i.test(text)?'done':
    /berjalan|proses|berlangsung/i.test(text)?'active':'planned';
  const iconSvg=(kind)=>{
-   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+   const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
    svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');
    svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');
    svg.setAttribute('stroke-width','2');svg.setAttribute('stroke-linecap','round');
@@ -197,7 +201,7 @@
    return svg;
  };
  function activityItem(item){
-   const status=String(item.status||'').trim()||'Tercatat';
+   const status=(0,__f4.globals.String)(item.status||'').trim()||'Tercatat';
    const kind=statusKind(status);
    const li=el('li','f4-activity-entry');
    const details=el('details','f4-activity-step is-'+kind);
@@ -205,10 +209,10 @@
    const avatar=el('span','f4-activity-step-icon');avatar.append(iconSvg(kind));
    const heading=el('span','f4-activity-step-copy');
    heading.append(el('strong','',item.title||'Kegiatan'));
-   const timestamp=String(item.happened_on||'');
-   const formatted=/^\d{4}-\d{2}-\d{2}$/.test(timestamp)?new Date(timestamp+'T12:00:00Z')
+   const timestamp=(0,__f4.globals.String)(item.happened_on||'');
+   const formatted=/^\d{4}-\d{2}-\d{2}$/.test(timestamp)?new __f4.globals.Date(timestamp+'T12:00:00Z')
       .toLocaleDateString('id-ID',{timeZone:'UTC',day:'numeric',month:'short',year:'numeric'}):timestamp;
-   heading.append(el('small','',[formatted,item.stage].filter(Boolean).join(' • ')));
+   heading.append(el('small','',[formatted,item.stage].filter(__f4.globals.Boolean).join(' • ')));
    const right=el('span','f4-activity-step-right');
    right.append(el('span','f4-activity-status',status));
    const arrow=el('span','f4-activity-chevron');
@@ -220,9 +224,9 @@
    if(item.description)body.append(el('p','',item.description));
    if(item.next_step){
      const next=el('p','f4-activity-next');
-     next.append(el('b','','Berikutnya: '),document.createTextNode(item.next_step));body.append(next);
+     next.append(el('b','','Berikutnya: '),__f4.globals.document.createTextNode(item.next_step));body.append(next);
    }
-   const imgUrl=String(item.photoUrl||'');
+   const imgUrl=(0,__f4.globals.String)(item.photoUrl||'');
    if(/^https:\/\/[^\s]+$/i.test(imgUrl)){
      const image=el('img','f4-activity-photo');image.src=imgUrl;image.alt='Dokumentasi '+(item.title||'kegiatan');
      image.loading='lazy';body.append(image);
@@ -231,8 +235,8 @@
    details.append(summary,body);li.append(details);return li;
  }
  function allActivities(timeline){
-   const focusBefore=document.activeElement,oldOverflow=document.body.style.overflow;
-   document.querySelector('.f4-activity-dialog')?.remove();
+   const focusBefore=__f4.globals.document.activeElement,oldOverflow=__f4.globals.document.body.style.overflow;
+   __f4.globals.document.querySelector('.f4-activity-dialog')?.remove();
    const overlay=el('div','f4-activity-dialog');
    overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');
    overlay.setAttribute('aria-label','Semua kegiatan Bank Sampah');
@@ -247,8 +251,8 @@
    const list=el('ol','f4-activity-list');for(const x of timeline)list.append(activityItem(x));
    scroll.append(list);panel.append(head,scroll);overlay.append(panel);
    function dismiss(){
-     overlay.remove();document.body.style.overflow=oldOverflow;
-     document.removeEventListener('keydown',keyboard);
+     overlay.remove();__f4.globals.document.body.style.overflow=oldOverflow;
+     __f4.globals.document.removeEventListener('keydown',keyboard);
      if(focusBefore?.isConnected)focusBefore.focus();
    }
    function keyboard(e){
@@ -256,19 +260,19 @@
      if(e.key==='Tab'){
        const items=[...panel.querySelectorAll('button,summary,[tabindex="0"]')];
        const first=items[0],last=items[items.length-1];
-       if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
-       else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+       if(e.shiftKey&&__f4.globals.document.activeElement===first){e.preventDefault();last.focus();}
+       else if(!e.shiftKey&&__f4.globals.document.activeElement===last){e.preventDefault();first.focus();}
      }
    }
    close.onclick=dismiss;
    overlay.addEventListener('click',e=>{if(e.target===overlay)dismiss()});
-   document.body.append(overlay);document.body.style.overflow='hidden';
-   document.addEventListener('keydown',keyboard);close.focus();
+   __f4.globals.document.body.append(overlay);__f4.globals.document.body.style.overflow='hidden';
+   __f4.globals.document.addEventListener('keydown',keyboard);close.focus();
  }
  function progressCard(rows){
    const card=el('section','f4-activity-panel f4-activity-timeline-panel');
-   const total=rows.length,done=rows.filter(x=>statusKind(String(x.status||''))==='done').length;
-   const active=rows.filter(x=>statusKind(String(x.status||''))==='active').length;
+   const total=rows.length,done=rows.filter(x=>statusKind((0,__f4.globals.String)(x.status||''))==='done').length;
+   const active=rows.filter(x=>statusKind((0,__f4.globals.String)(x.status||''))==='active').length;
    const head=el('div','f4-activity-panel-head');
    const heading=el('div');heading.append(el('h3','','Kegiatan lingkungan'),el('p','','Perjalanan program Bank Sampah'));
    head.append(heading,el('span','f4-activity-mini-tag',total+' tahap'));
@@ -277,8 +281,8 @@
    line.append(el('strong','',done+' dari '+total+' selesai'),el('span','',active+' berjalan'));
    const meter=el('div','f4-activity-progress-track');meter.setAttribute('role','progressbar');
    meter.setAttribute('aria-label','Tahap kegiatan selesai');
-   meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(total||1));
-   meter.setAttribute('aria-valuenow',String(done));
+   meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',(0,__f4.globals.String)(total||1));
+   meter.setAttribute('aria-valuenow',(0,__f4.globals.String)(done));
    const fill=el('span');fill.style.width=(total?done/total*100:0)+'%';meter.append(fill);
    progress.append(line,meter);
    const list=el('ol','f4-activity-list');
@@ -293,7 +297,7 @@
  }
  function render(area,data,report){
    area.replaceChildren();area.classList.add('f4-activity-app');
-   const timeline=Array.isArray(data.progress)?data.progress:[];
+   const timeline=__f4.globals.Array.isArray(data.progress)?data.progress:[];
    const stats=el('div','f4-activity-summary');
    stats.append(
      metric(idNum(data.overview?.activeMembers),'Anggota aktif','members'),
@@ -303,5 +307,6 @@
    );
    area.append(stats,chartCard(data,report),progressCard(timeline));
  }
- window.F4BankProgressApp={render};
+ __f4.window.F4BankProgressApp={render};
 })();
+});

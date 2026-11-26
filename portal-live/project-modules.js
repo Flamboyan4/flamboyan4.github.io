@@ -1,28 +1,32 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/project-modules.js",function(__f4){
+
+
 /* Proyek dinamis Flamboyan 4: daftar pesanan / kontribusi terpisah per proyek.
  * Tidak pernah mengubah kas Pembukuan atau Jersey lama. Hanya Superadmin.
  */
 (()=>{
 'use strict';
 const ORIGIN='https://api.flamboyan4.web.id/api/v2/admin/projects/';
-const mount=document.querySelector('#f4-account-page main');
+const mount=__f4.globals.document.querySelector('#f4-account-page main');
 if(!mount)return;
-const rupiah=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
-const el=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=String(text);return x};
+const rupiah=n=>'Rp '+(0,__f4.globals.Number)(n||0).toLocaleString('id-ID');
+const el=(tag,cls,text)=>{const x=__f4.globals.document.createElement(tag);if(cls)x.className=cls;if(text!==__f4.globals.undefined)x.textContent=(0,__f4.globals.String)(text);return x};
 const button=(label,cb,cls='f4-pm-btn')=>{const b=el('button',cls,label);b.type='button';b.addEventListener('click',cb);return b};
 const text=(label,value)=>{const p=el('div','f4-pm-kpi');p.append(el('span','',label),el('strong','',value));return p};
 const api=async(path,options={})=>{
- const response=await fetch(ORIGIN+path,{credentials:'include',cache:'no-store',...options});
+ const response=await (0,__f4.globals.fetch)(ORIGIN+path,{credentials:'include',cache:'no-store',...options});
  const data=await response.json().catch(()=>({}));
- if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+ if(!response.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+response.status);
  return data;
 };
-const safeCsv=x=>{const v=String(x??'');const x2=/^[=+@-]/.test(v)?'\''+v:v;return '"'+x2.replaceAll('"','""')+'"'};
+const safeCsv=x=>{const v=(0,__f4.globals.String)(x??'');const x2=/^[=+@-]/.test(v)?'\''+v:v;return '"'+x2.replaceAll('"','""')+'"'};
 function downloadCsv(title,rows,columns){
  const lines=[columns.map(c=>safeCsv(c[1])).join(','),...rows.map(r=>columns.map(([key])=>safeCsv(r[key])).join(','))];
- const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
- const url=URL.createObjectURL(blob),link=el('a');
- link.href=url;link.download='Proyek_'+String(title||'Data').replace(/[^a-z0-9_-]/gi,'_').slice(0,65)+'.csv';
- document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+ const blob=new __f4.globals.Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const url=__f4.globals.URL.createObjectURL(blob),link=el('a');
+ link.href=url;link.download='Proyek_'+(0,__f4.globals.String)(title||'Data').replace(/[^a-z0-9_-]/gi,'_').slice(0,65)+'.csv';
+ __f4.globals.document.body.append(link);link.click();link.remove();(0,__f4.globals.setTimeout)(()=>__f4.globals.URL.revokeObjectURL(url),1500);
 }
 let current=null;
 function field(form,key,label,type='text',value='',required=false){
@@ -33,18 +37,18 @@ function field(form,key,label,type='text',value='',required=false){
   control=el('select');for(const [v,title] of [
    ['','Belum dicatat'],['QRIS','QRIS'],['Cash','Cash (tunai)'],
    ['Campuran','Campuran'],['Transfer','Transfer'],['Lainnya','Lainnya']
-  ])control.add(new Option(title,v));
+  ])control.add(new __f4.globals.Option(title,v));
  }else{
   control=el('input');control.type=type;
   if(type==='number'){control.min=key==='quantity'?'1':'0';control.step='1';control.inputMode='numeric'}
  }
  control.name=key;control.required=required;
- control.value=value==null?'':String(value);
+ control.value=value==null?'':(0,__f4.globals.String)(value);
  wrap.append(control);form.append(wrap);
  return control;
 }
 async function confirmCancel(label){
- return new Promise(resolve=>{
+ return new __f4.globals.Promise(resolve=>{
   const shade=el('div','f4-pm-shade');
   const box=el('section','f4-pm-dialog');
   box.setAttribute('role','alertdialog');box.setAttribute('aria-modal','true');
@@ -52,12 +56,12 @@ async function confirmCancel(label){
   const controls=el('div','f4-pm-actions');
   const done=approved=>{shade.remove();resolve(approved)};
   controls.append(button('Kembali',()=>done(false)),button('Ya, batalkan',()=>done(true),'f4-pm-btn f4-pm-danger'));
-  box.append(controls);shade.append(box);document.body.append(shade);
+  box.append(controls);shade.append(box);__f4.globals.document.body.append(shade);
   shade.addEventListener('click',e=>{if(e.target===shade)done(false)});
  });
 }
 async function open(record){
- if(!document.body.classList.contains('role-superadmin'))return;
+ if(!__f4.globals.document.body.classList.contains('role-superadmin'))return;
  if(!record?.id)return;
  const orders=record.project_kind==='pesanan';
  const contributions=record.project_kind==='penggalangan';
@@ -70,7 +74,7 @@ async function open(record){
  left.append(el('p','f4-pm-eyebrow','Portal Utama / Proyek'),el('h2','',record.title||'Proyek'));
  const sub=el('p','',orders?'Daftar Pesanan Barang':'Daftar Penggalangan Dana');
  left.append(sub);
- head.append(left,button('← Kembali ke Project Card',()=>window.openSuperadminEditor?.('projects')));
+ head.append(left,button('← Kembali ke Project Card',()=>__f4.window.openSuperadminEditor?.('projects')));
  panel.append(head);
  const description=el('p','f4-pm-message','Memuat catatan proyek…');
  panel.append(description);
@@ -82,20 +86,20 @@ async function open(record){
  async function reload(){
   list.replaceChildren();stats.replaceChildren();
   try{
-   const data=await api(mode+'?projectId='+encodeURIComponent(record.id));
+   const data=await api(mode+'?projectId='+(0,__f4.globals.encodeURIComponent)(record.id));
    if(current?.id!==record.id||!panel.isConnected)return;
-   const rows=Array.isArray(data.data)?data.data:[];
+   const rows=__f4.globals.Array.isArray(data.data)?data.data:[];
    const active=rows.filter(r=>r.status==='aktif');
    if(orders){
-    const totalDue=active.reduce((n,r)=>n+Number(r.amount_due_rp||0),0);
-    const totalPaid=active.reduce((n,r)=>n+Number(r.paid_rp||0),0);
-    const owing=active.reduce((n,r)=>n+Math.max(0,Number(r.amount_due_rp||0)-Number(r.paid_rp||0)),0);
-    const excess=active.reduce((n,r)=>n+Math.max(0,Number(r.paid_rp||0)-Number(r.amount_due_rp||0)),0);
-    const lunas=active.filter(r=>Number(r.amount_due_rp||0)>0&&Number(r.paid_rp||0)>=Number(r.amount_due_rp||0)).length;
+    const totalDue=active.reduce((n,r)=>n+(0,__f4.globals.Number)(r.amount_due_rp||0),0);
+    const totalPaid=active.reduce((n,r)=>n+(0,__f4.globals.Number)(r.paid_rp||0),0);
+    const owing=active.reduce((n,r)=>n+__f4.globals.Math.max(0,(0,__f4.globals.Number)(r.amount_due_rp||0)-(0,__f4.globals.Number)(r.paid_rp||0)),0);
+    const excess=active.reduce((n,r)=>n+__f4.globals.Math.max(0,(0,__f4.globals.Number)(r.paid_rp||0)-(0,__f4.globals.Number)(r.amount_due_rp||0)),0);
+    const lunas=active.filter(r=>(0,__f4.globals.Number)(r.amount_due_rp||0)>0&&(0,__f4.globals.Number)(r.paid_rp||0)>=(0,__f4.globals.Number)(r.amount_due_rp||0)).length;
     stats.append(text('Pesanan aktif',active.length),text('Lunas',lunas),text('Dana diterima',rupiah(totalPaid)),text('Sisa pembayaran',rupiah(owing)),text('Titipan / kelebihan',rupiah(excess)));
     description.textContent='Setiap pesanan tersimpan hanya untuk proyek ini. Pembayaran di sini tidak otomatis masuk kas lorong.';
    }else{
-    const amount=active.reduce((n,r)=>n+Number(r.amount_rp||0),0);
+    const amount=active.reduce((n,r)=>n+(0,__f4.globals.Number)(r.amount_rp||0),0);
     stats.append(text('Kontributor',active.length),text('Dana tercatat',rupiah(amount)),text('Target dana',rupiah(record.fund_target_rp||0)));
     description.textContent='Kontribusi disimpan di buku dana proyek. Ini bukan jurnal kas lorong dan tidak membuat transaksi kas otomatis.';
    }
@@ -112,7 +116,7 @@ async function open(record){
     const title=el('div','f4-pm-record-head');
     title.append(el('strong','',orders?r.resident:r.contributor),
       el('span','',r.status!=='aktif'?'Dibatalkan':orders?
-        Number(r.amount_due_rp)<=0?'Harga belum diisi':Number(r.paid_rp)>=Number(r.amount_due_rp)?'Lunas':Number(r.paid_rp)>0?'DP / Cicil':'Belum bayar':'Aktif'));
+        (0,__f4.globals.Number)(r.amount_due_rp)<=0?'Harga belum diisi':(0,__f4.globals.Number)(r.paid_rp)>=(0,__f4.globals.Number)(r.amount_due_rp)?'Lunas':(0,__f4.globals.Number)(r.paid_rp)>0?'DP / Cicil':'Belum bayar':'Aktif'));
     const details=el('p','',orders?
       r.item_name+' • '+r.quantity+' × '+rupiah(r.unit_price_rp)+' • Tagihan '+rupiah(r.amount_due_rp)+
       ' • Diterima '+rupiah(r.paid_rp)+(r.payment_method?' ('+r.payment_method+')':''):
@@ -125,9 +129,9 @@ async function open(record){
       actions.append(button('Batalkan',async()=>{
        if(!await confirmCancel(orders?r.resident:r.contributor))return;
        try{
-        await api(mode+'?projectId='+encodeURIComponent(record.id),{
+        await api(mode+'?projectId='+(0,__f4.globals.encodeURIComponent)(record.id),{
          method:'POST',headers:{'Content-Type':'application/json'},
-         body:JSON.stringify({action:'cancel',id:r.id})
+         body:__f4.globals.JSON.stringify({action:'cancel',id:r.id})
         });
         editor.replaceChildren();await reload();
        }catch(error){description.textContent='Pembatalan belum berhasil: '+error.message}
@@ -152,7 +156,7 @@ async function open(record){
   }else{
    field(fields,'contributor','Nama penyumbang & rumah','text',row?.contributor||'',true);
    field(fields,'amount_rp','Nominal kontribusi (Rp)','number',row?.amount_rp??0,true);
-   field(fields,'contributed_on','Tanggal','date',row?.contributed_on||new Date().toLocaleDateString('sv-SE'),true);
+   field(fields,'contributed_on','Tanggal','date',row?.contributed_on||new __f4.globals.Date().toLocaleDateString('sv-SE'),true);
   }
   field(fields,'payment_method','Cara bayar','select',row?.payment_method||'');
   field(fields,'notes','Keterangan (opsional)','text',row?.notes||'');
@@ -164,13 +168,13 @@ async function open(record){
   form.onsubmit=async event=>{
    event.preventDefault();
    if(!form.reportValidity())return;
-   const values=Object.fromEntries(new FormData(form).entries());
-   for(const key of (orders?['quantity','unit_price_rp','paid_rp']:['amount_rp']))values[key]=Number(values[key]);
+   const values=__f4.globals.Object.fromEntries(new __f4.globals.FormData(form).entries());
+   for(const key of (orders?['quantity','unit_price_rp','paid_rp']:['amount_rp']))values[key]=(0,__f4.globals.Number)(values[key]);
    save.disabled=true;message.textContent='Menyimpan dan memverifikasi data…';
    try{
-    await api(mode+'?projectId='+encodeURIComponent(record.id),{
+    await api(mode+'?projectId='+(0,__f4.globals.encodeURIComponent)(record.id),{
      method:'POST',headers:{'Content-Type':'application/json'},
-     body:JSON.stringify({action:'save',id:row?.id||'',values})
+     body:__f4.globals.JSON.stringify({action:'save',id:row?.id||'',values})
     });
     editor.replaceChildren();await reload();
    }catch(error){message.textContent='Gagal menyimpan: '+error.message;save.disabled=false}
@@ -179,8 +183,8 @@ async function open(record){
  }
  await reload();
 }
-window.F4ProjectModule={open};
-const style=document.createElement('style');style.id='f4-project-module-style-20261028';
+__f4.window.F4ProjectModule={open};
+const style=__f4.globals.document.createElement('style');style.id='f4-project-module-style-20261028';
 style.textContent=`
 .f4-pm-panel{display:grid;gap:14px;max-width:1180px;margin:0 auto;padding:10px 0 28px;color:#233c32}
 .f4-pm-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
@@ -224,5 +228,7 @@ style.textContent=`
 .f4-pm-head h2{font-size:19px}.f4-pm-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 .f4-pm-kpi strong{font-size:18px}}
 `;
-document.head.append(style);
+__f4.globals.document.head.append(style);
 })();
+
+});

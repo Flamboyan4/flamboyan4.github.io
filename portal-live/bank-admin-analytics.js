@@ -1,34 +1,38 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/bank-admin-analytics.js",function(__f4){
+
+
 /* Analisis Setoran Pengelola — baca-saja dari API D1 yang sudah ada.
    Status draft/batal, setoran milik bank, dan data parsial tidak dimasukkan. */
 (()=>{'use strict';
  const API='https://api.flamboyan4.web.id';
- const $=id=>document.getElementById(id);
+ const $=id=>__f4.globals.document.getElementById(id);
  const cls='f4-analisis';
  const state={data:null,loadedAt:0,pending:null,generation:0,member:'',item:'',from:'',to:'',trend:'period',trendUnit:'kg',ranking:'active',tab:'official'};
- const fmtKg=n=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(n)||0)+' kg';
- const fmtRp=n=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(Number(n)||0);
- const fmtInt=n=>new Intl.NumberFormat('id-ID').format(Number(n)||0);
- const isoDate=value=>String(value||'').slice(0,10);
- const normId=value=>String(value||'').trim().replace(/^member:/i,'');
+ const fmtKg=n=>new __f4.globals.Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format((0,__f4.globals.Number)(n)||0)+' kg';
+ const fmtRp=n=>'Rp '+new __f4.globals.Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format((0,__f4.globals.Number)(n)||0);
+ const fmtInt=n=>new __f4.globals.Intl.NumberFormat('id-ID').format((0,__f4.globals.Number)(n)||0);
+ const isoDate=value=>(0,__f4.globals.String)(value||'').slice(0,10);
+ const normId=value=>(0,__f4.globals.String)(value||'').trim().replace(/^member:/i,'');
  const dateLabel=value=>{const d=isoDate(value);if(!/^\d{4}-\d\d-\d\d$/.test(d))return d;return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4)};
- const monthLabel=m=>{const names=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return names[Number(String(m).slice(5,7))-1]+' '+String(m).slice(0,4)};
- const admin=()=>['admin','superadmin'].includes(String(document.body.dataset.f4BankRole||'').toLowerCase())
+ const monthLabel=m=>{const names=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return names[(0,__f4.globals.Number)((0,__f4.globals.String)(m).slice(5,7))-1]+' '+(0,__f4.globals.String)(m).slice(0,4)};
+ const admin=()=>['admin','superadmin'].includes((0,__f4.globals.String)(__f4.globals.document.body.dataset.f4BankRole||'').toLowerCase())
     &&!$('dashboardView')?.classList.contains('hidden');
- document.addEventListener('pointerdown',event=>{
+ __f4.globals.document.addEventListener('pointerdown',event=>{
   const picker=$(cls+'-trend-picker');
   if(picker&&!picker.contains(event.target)){
    const menu=$(cls+'-trend-dropdown');if(menu)menu.hidden=true;
    picker.querySelector('.f4-analisis-trend-trigger')?.setAttribute('aria-expanded','false');
   }
  });
- document.addEventListener('keydown',event=>{
+ __f4.globals.document.addEventListener('keydown',event=>{
   if(event.key!=='Escape')return;
   const picker=$(cls+'-trend-picker'),menu=$(cls+'-trend-dropdown');
   if(menu&&!menu.hidden){menu.hidden=true;picker?.querySelector('button')?.setAttribute('aria-expanded','false');}
  });
- const node=(tag,className='',value)=>{const el=document.createElement(tag);if(className)el.className=className;if(value!==undefined)el.textContent=String(value);return el};
+ const node=(tag,className='',value)=>{const el=__f4.globals.document.createElement(tag);if(className)el.className=className;if(value!==__f4.globals.undefined)el.textContent=(0,__f4.globals.String)(value);return el};
  const add=(p,...children)=>{children.forEach(x=>x&&p.append(x));return p};
- const options=(select,list,current)=>{select.replaceChildren();list.forEach(([value,label])=>select.add(new Option(label,value)));select.value=current;};
+ const options=(select,list,current)=>{select.replaceChildren();list.forEach(([value,label])=>select.add(new __f4.globals.Option(label,value)));select.value=current;};
  const svg=(name)=>{
   const paths={
    chart:'<path d="M3 3v18h18M7 16l4-5 4 3 5-8"/>',
@@ -39,60 +43,60 @@
    trophy:'<path d="M7 4h10v7a5 5 0 0 1-10 0zM7 6H4v3a4 4 0 0 0 4 4m9-7h3v3a4 4 0 0 1-4 4M12 16v4m-4 1h8"/>',
    chevron:'<path d="m6 9 6 6 6-6"/>'
   };
-  const el=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  const el=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
   el.setAttribute('viewBox','0 0 24 24');el.setAttribute('width','18');el.setAttribute('height','18');
   el.setAttribute('fill','none');el.setAttribute('stroke','currentColor');el.setAttribute('stroke-width','1.8');
   el.setAttribute('stroke-linecap','round');el.setAttribute('stroke-linejoin','round');
   el.setAttribute('aria-hidden','true');el.innerHTML=paths[name]||paths.chart;return el;
  };
  const get=async path=>{
-  const response=await fetch(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
-  let payload;try{payload=await response.json()}catch(_){throw Error('Layanan tidak mengirim data JSON.')}
-  if(!response.ok||payload?.ok===false)throw Error(payload?.error||'Akses data ditolak (HTTP '+response.status+').');
+  const response=await (0,__f4.globals.fetch)(API+path,{credentials:'include',mode:'cors',cache:'no-store'});
+  let payload;try{payload=await response.json()}catch(_){throw (0,__f4.globals.Error)('Layanan tidak mengirim data JSON.')}
+  if(!response.ok||payload?.ok===false)throw (0,__f4.globals.Error)(payload?.error||'Akses data ditolak (HTTP '+response.status+').');
   return payload;
  };
  const toRows=result=>{
-  const rows=Array.isArray(result)?result:Array.isArray(result?.rows)?result.rows:
-   Array.isArray(result?.items)?result.items:Array.isArray(result?.data?.rows)?result.data.rows:
-   Array.isArray(result?.data?.items)?result.data.items:Array.isArray(result?.data)?result.data:null;
-  if(!rows)throw Error('Daftar dari server tidak lengkap; peringkat tidak ditampilkan.');
+  const rows=__f4.globals.Array.isArray(result)?result:__f4.globals.Array.isArray(result?.rows)?result.rows:
+   __f4.globals.Array.isArray(result?.items)?result.items:__f4.globals.Array.isArray(result?.data?.rows)?result.data.rows:
+   __f4.globals.Array.isArray(result?.data?.items)?result.data.items:__f4.globals.Array.isArray(result?.data)?result.data:null;
+  if(!rows)throw (0,__f4.globals.Error)('Daftar dari server tidak lengkap; peringkat tidak ditampilkan.');
   return rows;
  };
  async function loadRecords(){
-  const [rawMembers,rawDeposits,rawCatalog]=await Promise.all(['members','deposits','catalog'].map(name=>
+  const [rawMembers,rawDeposits,rawCatalog]=await __f4.globals.Promise.all(['members','deposits','catalog'].map(name=>
     get('/api/v2/admin/bank/'+name+'?limit=300').then(toRows)));
   if([rawMembers,rawDeposits,rawCatalog].some(list=>list.length>=300))
-   throw Error('Data mencapai batas 300 baris. Analisis dihentikan agar tidak menghasilkan peringkat yang keliru.');
-  const members=rawMembers.map(x=>({id:normId(x.id),name:String(x.nama||'').trim(),house:String(x.rumah||'').trim()}))
+   throw (0,__f4.globals.Error)('Data mencapai batas 300 baris. Analisis dihentikan agar tidak menghasilkan peringkat yang keliru.');
+  const members=rawMembers.map(x=>({id:normId(x.id),name:(0,__f4.globals.String)(x.nama||'').trim(),house:(0,__f4.globals.String)(x.rumah||'').trim()}))
     .filter(x=>x.id&&x.name);
-  const memberById=new Map(members.map(x=>[x.id,x]));
-  const catalog=rawCatalog.map(x=>({id:String(x.id||''),name:String(x.name||'').trim()}));
-  const itemById=new Map(catalog.map(x=>[x.id,x]));
-  const itemByName=new Map(catalog.map(x=>[x.name.toLowerCase(),x]));
+  const memberById=new __f4.globals.Map(members.map(x=>[x.id,x]));
+  const catalog=rawCatalog.map(x=>({id:(0,__f4.globals.String)(x.id||''),name:(0,__f4.globals.String)(x.name||'').trim()}));
+  const itemById=new __f4.globals.Map(catalog.map(x=>[x.id,x]));
+  const itemByName=new __f4.globals.Map(catalog.map(x=>[x.name.toLowerCase(),x]));
   const deposits=rawDeposits.filter(x=>{
-   const status=String(x.status||'').toLowerCase();
+   const status=(0,__f4.globals.String)(x.status||'').toLowerCase();
    return ['estimasi','terkonfirmasi'].includes(status)
-    &&memberById.has(normId(x.member_id))&&/^\d{4}-\d\d-\d\d/.test(String(x.deposited_on||''));
+    &&memberById.has(normId(x.member_id))&&/^\d{4}-\d\d-\d\d/.test((0,__f4.globals.String)(x.deposited_on||''));
   });
   const output=[];
   for(let i=0;i<deposits.length;i+=8){
-   const batch=await Promise.all(deposits.slice(i,i+8).map(async deposit=>{
-    const response=await get('/api/v2/admin/bank/deposit-detail?id='+encodeURIComponent(deposit.id));
-    if(!Array.isArray(response.lines)||!response.lines.length)
-     throw Error('Rincian setoran '+deposit.id+' tidak lengkap.');
+   const batch=await __f4.globals.Promise.all(deposits.slice(i,i+8).map(async deposit=>{
+    const response=await get('/api/v2/admin/bank/deposit-detail?id='+(0,__f4.globals.encodeURIComponent)(deposit.id));
+    if(!__f4.globals.Array.isArray(response.lines)||!response.lines.length)
+     throw (0,__f4.globals.Error)('Rincian setoran '+deposit.id+' tidak lengkap.');
     const lines=response.lines.map(line=>{
-     const item=itemById.get(String(line.waste_item_id||''))||itemByName.get(String(line.name||'').trim().toLowerCase());
-     const grams=Number(line.grams);
-     if(!item||!Number.isFinite(grams)||grams<=0)
-      throw Error('Rincian jenis/berat setoran '+deposit.id+' tidak valid.');
+     const item=itemById.get((0,__f4.globals.String)(line.waste_item_id||''))||itemByName.get((0,__f4.globals.String)(line.name||'').trim().toLowerCase());
+     const grams=(0,__f4.globals.Number)(line.grams);
+     if(!item||!__f4.globals.Number.isFinite(grams)||grams<=0)
+      throw (0,__f4.globals.Error)('Rincian jenis/berat setoran '+deposit.id+' tidak valid.');
      return {item:item.id,name:item.name,kg:grams/1000};
     });
     const total=lines.reduce((sum,x)=>sum+x.kg,0);
-    if(Math.abs(total-(Number(deposit.total_grams)||0)/1000)>0.002)
-     throw Error('Berat barang tidak cocok pada setoran '+deposit.id+'.');
-    return {id:String(deposit.id),member:normId(deposit.member_id),batch:String(deposit.batch_id||''),
+    if(__f4.globals.Math.abs(total-((0,__f4.globals.Number)(deposit.total_grams)||0)/1000)>0.002)
+     throw (0,__f4.globals.Error)('Berat barang tidak cocok pada setoran '+deposit.id+'.');
+    return {id:(0,__f4.globals.String)(deposit.id),member:normId(deposit.member_id),batch:(0,__f4.globals.String)(deposit.batch_id||''),
      date:isoDate(deposit.deposited_on),month:isoDate(deposit.deposited_on).slice(0,7),
-     total,estimate:Number(deposit.estimated_total_rp)||0,lines};
+     total,estimate:(0,__f4.globals.Number)(deposit.estimated_total_rp)||0,lines};
    }));
    output.push(...batch);
   }
@@ -109,7 +113,7 @@
  }
  async function ensureData(force=false){
   if(!admin())return;
-  if(!force&&state.data&&Date.now()-state.loadedAt<60000){render();return;}
+  if(!force&&state.data&&__f4.globals.Date.now()-state.loadedAt<60000){render();return;}
   if(state.pending&&!force)return state.pending;
   const run=++state.generation;
   status('Memuat data setoran dari database…');
@@ -118,8 +122,8 @@
    try{
     const data=await loadRecords();
     if(run!==state.generation||!admin())return;
-    state.data=data;state.loadedAt=Date.now();
-    const months=[...new Set(data.deposits.map(x=>x.month))].sort();
+    state.data=data;state.loadedAt=__f4.globals.Date.now();
+    const months=[...new __f4.globals.Set(data.deposits.map(x=>x.month))].sort();
     // Awali dari seluruh riwayat agar peringkat aktif/terbanyak tidak terkunci ke satu bulan.
     if(state.from&&!months.includes(state.from))state.from='';
     if(state.to&&!months.includes(state.to))state.to='';
@@ -151,12 +155,12 @@
  function render(){
   if(!admin()||!state.data||!section()||state.tab!=='analysis')return;
   const d=state.data;
-  const months=[...new Set(d.deposits.map(x=>x.month))].sort();
+  const months=[...new __f4.globals.Set(d.deposits.map(x=>x.month))].sort();
   const monthOptions=months.map(m=>[m,monthLabel(m)]);
   options($(cls+'-from'),[['','Semua waktu'],...monthOptions],state.from);
   options($(cls+'-to'),[['','Semua waktu'],...monthOptions],state.to);
   options($(cls+'-member'),[['','Semua warga'],...d.members.slice().sort((a,b)=>a.name.localeCompare(b.name,'id')).map(m=>[m.id,memberTitle(m)])],state.member);
-  const usedIds=new Set(d.deposits.flatMap(x=>x.lines.map(line=>line.item)));
+  const usedIds=new __f4.globals.Set(d.deposits.flatMap(x=>x.lines.map(line=>line.item)));
   options($(cls+'-item'),[['','Semua jenis'],...d.catalog.filter(x=>usedIds.has(x.id)).sort((a,b)=>a.name.localeCompare(b.name,'id')).map(x=>[x.id,x.name])],state.item);
   const scope=$(cls+'-selection');
   if(scope){
@@ -191,8 +195,8 @@
    return {...x,lines,weight:lines.reduce((s,line)=>s+line.kg,0)};
   }).filter(x=>x.lines.length);
   const totalKg=filtered.reduce((s,x)=>s+x.weight,0);
-  const uniqueActive=new Set(filtered.map(x=>x.member));
-  const itemTotals=new Map();
+  const uniqueActive=new __f4.globals.Set(filtered.map(x=>x.member));
+  const itemTotals=new __f4.globals.Map();
   selected.forEach(x=>x.lines.forEach(line=>{
    const current=itemTotals.get(line.item)||{id:line.item,name:line.name,kg:0};
    current.kg+=line.kg;itemTotals.set(line.item,current);
@@ -200,7 +204,7 @@
   const categories=[...itemTotals.values()].sort((a,b)=>b.kg-a.kg||a.name.localeCompare(b.name,'id'));
   const ranks=d.members.map(m=>{
    const mine=rankingDeposits.filter(x=>x.member===m.id);
-   return {...m,active:new Set(mine.map(x=>x.batch||x.date)).size,weight:mine.reduce((sum,x)=>sum+x.weight,0),
+   return {...m,active:new __f4.globals.Set(mine.map(x=>x.batch||x.date)).size,weight:mine.reduce((sum,x)=>sum+x.weight,0),
     value:mine.reduce((sum,x)=>sum+x.estimate,0),records:mine.length};
   }).sort((a,b)=>b[state.ranking]-a[state.ranking]||b.weight-a.weight||a.name.localeCompare(b.name,'id'));
   const results=$(cls+'-results');results.replaceChildren();
@@ -226,9 +230,9 @@
   trigger.setAttribute('aria-controls',dropdown.id);
   const closeMenu=()=>{dropdown.hidden=true;trigger.setAttribute('aria-expanded','false');};
   const openMenu=()=>{dropdown.hidden=false;trigger.setAttribute('aria-expanded','true');};
-  for(const [value,label] of Object.entries(trendLabels)){
+  for(const [value,label] of __f4.globals.Object.entries(trendLabels)){
    const opt=node('button','f4-analisis-trend-option'+(state.trend===value?' is-active':''),label);
-   opt.type='button';opt.dataset.range=value;opt.setAttribute('aria-pressed',String(state.trend===value));
+   opt.type='button';opt.dataset.range=value;opt.setAttribute('aria-pressed',(0,__f4.globals.String)(state.trend===value));
    opt.addEventListener('click',()=>{state.trend=value;closeMenu();render();});
    dropdown.append(opt);
   }
@@ -241,7 +245,7 @@
    (event.key==='ArrowDown'?options[0]:options[options.length-1])?.focus();
   });
   dropdown.addEventListener('keydown',event=>{
-   const items=[...dropdown.querySelectorAll('button')],index=items.indexOf(document.activeElement);
+   const items=[...dropdown.querySelectorAll('button')],index=items.indexOf(__f4.globals.document.activeElement);
    if(event.key==='Escape'){event.preventDefault();closeMenu();trigger.focus();return;}
    if(event.key==='ArrowDown'||event.key==='ArrowUp'){
     event.preventDefault();items[(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();
@@ -253,7 +257,7 @@
   for(const [unit,label] of [['kg','Kg'],['rp','Rp']]){
    const button=node('button',state.trendUnit===unit?'is-active':'',label);
    button.type='button';button.dataset.unit=unit;
-   button.setAttribute('aria-pressed',String(state.trendUnit===unit));
+   button.setAttribute('aria-pressed',(0,__f4.globals.String)(state.trendUnit===unit));
    if(unit==='rp'&&state.item){
     button.disabled=true;button.title='Nilai per jenis belum tersedia. Pilih Semua jenis untuk melihat estimasi Rp.';
    }else if(unit==='rp')button.title='Nilai perkiraan setoran, bukan hasil penjualan sah';
@@ -261,13 +265,13 @@
    units.append(button);
   }
   trendControls.append(picker,units);trendHead.append(trendIntro,trendControls);trendBox.append(trendHead);
-  const isMoney=state.trendUnit==='rp',series=new Map();
-  const todayLocal=Object.fromEntries(new Intl.DateTimeFormat('en-US',{
+  const isMoney=state.trendUnit==='rp',series=new __f4.globals.Map();
+  const todayLocal=__f4.globals.Object.fromEntries(new __f4.globals.Intl.DateTimeFormat('en-US',{
    timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'
-  }).formatToParts(new Date()).filter(part=>['year','month','day'].includes(part.type))
+  }).formatToParts(new __f4.globals.Date()).filter(part=>['year','month','day'].includes(part.type))
    .map(part=>[part.type,part.value]));
   const latestDate=todayLocal.year+'-'+todayLocal.month+'-'+todayLocal.day;
-  const firstDay=new Date(Date.parse(latestDate+'T00:00:00Z')-29*86400000).toISOString().slice(0,10);
+  const firstDay=new __f4.globals.Date(__f4.globals.Date.parse(latestDate+'T00:00:00Z')-29*86400000).toISOString().slice(0,10);
   filtered.forEach(x=>{
    if(state.trend==='days30'&&(x.date<firstDay||x.date>latestDate))return;
    const key=state.trend==='month'?x.month:x.date;
@@ -280,7 +284,7 @@
    state.trend==='days30'?'Tidak ada setoran dalam 30 hari terakhir.':'Belum ada setoran pada filter ini.'));
   else{
    const chart=node('div','f4-analisis-trend');
-   const visible=entries.slice(-12),max=Math.max(...visible.map(x=>x[1]),0.001);
+   const visible=entries.slice(-12),max=__f4.globals.Math.max(...visible.map(x=>x[1]),0.001);
    chart.setAttribute('role','img');
    chart.setAttribute('aria-label','Tren '+currentTrend+' dalam '+(isMoney?'rupiah estimasi':'kilogram'));
    visible.forEach(([key,total])=>{
@@ -289,7 +293,7 @@
     col.title=label+' — '+valueLabel(total)+(isMoney?' (perkiraan)':'');
     const track=node('div','f4-analisis-trend-track');
     const fill=node('div','f4-analisis-trend-bar');
-    fill.style.height=total>0?Math.max(5,100*total/max)+'%':'0%';
+    fill.style.height=total>0?__f4.globals.Math.max(5,100*total/max)+'%':'0%';
     fill.style.minHeight=total>0?'5px':'0';track.append(fill);
     add(col,node('span','f4-analisis-trend-value',valueLabel(total)),track,
      node('small','',state.trend==='month'?label:label.slice(0,5)));
@@ -302,26 +306,26 @@
   const typeBox=node('section','f4-analisis-panel f4-analisis-types');typeBox.id=cls+'-section-types';
   const totalTypes=categories.reduce((sum,entry)=>sum+entry.kg,0);
   const percent=kg=>totalTypes>0?kg/totalTypes*100:0;
-  const fmtPct=value=>new Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(value)+'%';
+  const fmtPct=value=>new __f4.globals.Intl.NumberFormat('id-ID',{maximumFractionDigits:1}).format(value)+'%';
   const palette=['#009788','#43A047','#FDC010','#09BCD3','#5969DA','#EB6A48',
    '#8BC24A','#277FC6','#B452BA','#CA8B22','#22A97F','#D94880',
    '#426CB8','#CE6B43','#799126','#368EAA','#C44256','#7B62B8'];
   // Pemetaan berdasarkan ID katalog, tidak berganti ketika urutan peringkat berubah.
   const allSorted=d.catalog.slice().sort((a,b)=>a.id.localeCompare(b.id));
-  const itemColor=new Map(allSorted.map((entry,i)=>[entry.id,i<palette.length?palette[i]:
+  const itemColor=new __f4.globals.Map(allSorted.map((entry,i)=>[entry.id,i<palette.length?palette[i]:
    'hsl('+((i*137.508+17)%360).toFixed(1)+' 69% 43%)']));
   add(typeBox,node('h3','','Jenis Sampah'));
   const layout=node('div','f4-analisis-type-layout');
   const donutBox=node('div','f4-analisis-donut-box');
-  const donut=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  const donut=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
   donut.setAttribute('viewBox','0 0 180 180');
   donut.setAttribute('role','img');
   donut.setAttribute('aria-label','Diagram persentase berat sampah berdasarkan jenis');
   donut.classList.add('f4-analisis-donut');
   const circle=(radius,stroke,width)=>{
-   const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
-   el.setAttribute('cx','90');el.setAttribute('cy','90');el.setAttribute('r',String(radius));
-   el.setAttribute('fill','none');el.setAttribute('stroke',stroke);el.setAttribute('stroke-width',String(width));
+   const el=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','circle');
+   el.setAttribute('cx','90');el.setAttribute('cy','90');el.setAttribute('r',(0,__f4.globals.String)(radius));
+   el.setAttribute('fill','none');el.setAttribute('stroke',stroke);el.setAttribute('stroke-width',(0,__f4.globals.String)(width));
    return el;
   };
   donut.append(circle(68,'#eaf1ed',23));
@@ -338,7 +342,7 @@
     const chosen=categories.find(x=>x.id===state.item);
     if(chosen){top.pop();top.push({...chosen});}
    }
-   const selectedIds=new Set(top.map(x=>x.id));
+   const selectedIds=new __f4.globals.Set(top.map(x=>x.id));
    const leftover=categories.filter(x=>!selectedIds.has(x.id)).reduce((sum,x)=>sum+x.kg,0);
    const slices=[...top];
    if(leftover>0)slices.push({id:'',name:'Lainnya',kg:leftover,other:true});
@@ -348,9 +352,9 @@
     if(pct<=0)return;
     const arc=circle(68,entry.other?'#90a29b':itemColor.get(entry.id)||'#009788',23);
     arc.setAttribute('pathLength','100');
-    const gap=Math.min(.7,pct*.18);
-    arc.setAttribute('stroke-dasharray',Math.max(.15,pct-gap).toFixed(4)+' '+(100-Math.max(.15,pct-gap)).toFixed(4));
-    arc.setAttribute('stroke-dashoffset',String(-offset-gap/2));
+    const gap=__f4.globals.Math.min(.7,pct*.18);
+    arc.setAttribute('stroke-dasharray',__f4.globals.Math.max(.15,pct-gap).toFixed(4)+' '+(100-__f4.globals.Math.max(.15,pct-gap)).toFixed(4));
+    arc.setAttribute('stroke-dashoffset',(0,__f4.globals.String)(-offset-gap/2));
     arc.setAttribute('transform','rotate(-90 90 90)');
     arc.setAttribute('class','f4-analisis-donut-arc'+(entry.id&&state.item===entry.id?' is-selected':''));
     arc.setAttribute('aria-label',entry.name+', '+fmtKg(entry.kg)+', '+fmtPct(pct));
@@ -365,7 +369,7 @@
     arc.addEventListener('pointerleave',resetCenter);
     arc.addEventListener('focus',show);
     arc.addEventListener('blur',resetCenter);
-    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    const title=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','title');
     title.textContent=entry.name+' — '+fmtKg(entry.kg)+' ('+fmtPct(pct)+')';
     arc.append(title);donut.append(arc);
     offset+=pct;
@@ -408,21 +412,21 @@
   const ranking=node('div','f4-analisis-ranking');
   [['active','Aktif'],['weight','Berat'],['value','Nilai']].forEach(([mode,label])=>{
    const button=node('button',state.ranking===mode?'is-active':'',label);button.type='button';
-   button.setAttribute('aria-pressed',String(state.ranking===mode));
+   button.setAttribute('aria-pressed',(0,__f4.globals.String)(state.ranking===mode));
    if(mode==='value'&&state.item){button.disabled=true;button.title='Nilai estimasi hanya untuk semua jenis sampah.';}
    button.addEventListener('click',()=>{state.ranking=mode;render();});ranking.append(button);
   });
   rankControls.append(ranking);rankSection.append(rankControls);
 
   const rankList=node('div','f4-analisis-people-list');
-  const maxRank=Math.max(...ranks.map(r=>r[state.ranking]),1);
+  const maxRank=__f4.globals.Math.max(...ranks.map(r=>r[state.ranking]),1);
   const label=r=>state.ranking==='active'?fmtInt(r.active)+' periode':
     state.ranking==='weight'?fmtKg(r.weight):fmtRp(r.value);
   ranks.forEach((r,i)=>{
    const row=node('button','f4-analisis-person'+(i<3?' is-podium-'+(i+1):'')+
      (state.member===r.id?' is-selected':''));
    row.type='button';row.title='Lihat setoran '+r.name;
-   const number=node('span','f4-analisis-place',i===0?'1':String(i+1));
+   const number=node('span','f4-analisis-place',i===0?'1':(0,__f4.globals.String)(i+1));
    const who=node('div','f4-analisis-person-name');
    add(who,node('strong','',memberTitle(r)),node('small','',fmtKg(r.weight)+' · '+fmtInt(r.active)+'x timbang'));
    const amount=node('strong','f4-analisis-person-value',label(r));
@@ -441,7 +445,7 @@
   const detailList=node('div','f4-analisis-detail-list');
   if(!filtered.length)detailList.append(node('p','f4-analisis-empty','Belum ada setoran.'));
   else{
-   const byId=new Map(d.members.map(m=>[m.id,m]));
+   const byId=new __f4.globals.Map(d.members.map(m=>[m.id,m]));
    filtered.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)).forEach((r,i)=>{
     const wrap=node('details','f4-analisis-record');
     const summary=node('summary','f4-analisis-record-summary');
@@ -449,7 +453,7 @@
     add(main,node('strong','',memberTitle(byId.get(r.member))),
      node('small','',dateLabel(r.date)+' · '+fmtInt(r.lines.length)+' jenis'));
     const caret=svg('chevron');caret.classList.add('f4-analisis-record-chevron');
-    add(summary,node('span','f4-analisis-record-index',String(i+1)),main,node('strong','f4-analisis-record-weight',fmtKg(r.weight)),caret);
+    add(summary,node('span','f4-analisis-record-index',(0,__f4.globals.String)(i+1)),main,node('strong','f4-analisis-record-weight',fmtKg(r.weight)),caret);
     wrap.append(summary);
     const list=node('div','f4-analisis-record-lines');
     r.lines.forEach(line=>{
@@ -473,7 +477,7 @@
   tabs.append(official,analysis);
   // Pertahankan semua elemen laporan resmi di posisi semula agar CSS dan handler lama tidak berubah.
   const content=node('section','f4-analisis-content');content.id=cls+'-content';content.hidden=true;content.setAttribute('role','tabpanel');content.setAttribute('aria-labelledby',analysis.id);
-  const syncOfficial=()=>Array.from(report.children).filter(el=>el!==heading&&el!==tabRow&&el!==content)
+  const syncOfficial=()=>__f4.globals.Array.from(report.children).filter(el=>el!==heading&&el!==tabRow&&el!==content)
    .forEach(el=>el.classList.toggle('f4-analisis-official-off',state.tab==='analysis'));
   const refresh=node('button','f4-analisis-refresh');refresh.id=cls+'-refresh';refresh.type='button';
   refresh.setAttribute('aria-label','Muat ulang analisis');refresh.title='Muat ulang';
@@ -491,13 +495,13 @@
   report.append(content);
   syncOfficial();
   // Komponen laporan resmi lain dapat ditambahkan sesudah mount; tetap sembunyikan hanya saat tab analisis aktif.
-  new MutationObserver(syncOfficial).observe(report,{childList:true});
+  new __f4.globals.MutationObserver(syncOfficial).observe(report,{childList:true});
   function switchTo(which){
    if(!admin())return;
    state.tab=which;report.classList.toggle('f4-analisis-page-active',which==='analysis');syncOfficial();content.hidden=which!=='analysis';
    official.classList.toggle('is-active',which==='official');
    analysis.classList.toggle('is-active',which==='analysis');
-   official.setAttribute('aria-selected',String(which==='official'));analysis.setAttribute('aria-selected',String(which==='analysis'));
+   official.setAttribute('aria-selected',(0,__f4.globals.String)(which==='official'));analysis.setAttribute('aria-selected',(0,__f4.globals.String)(which==='analysis'));
    if(which==='analysis')ensureData();
   }
   official.onclick=()=>switchTo('official');
@@ -506,11 +510,11 @@
   $(cls+'-to').onchange=e=>{state.to=e.target.value;render()};
   $(cls+'-member').onchange=e=>{state.member=e.target.value;render()};
   $(cls+'-item').onchange=e=>{state.item=e.target.value;if(state.item&&state.ranking==='value')state.ranking='weight';render()};
-  const previousReset=window.f4BankResetForAccountSwitch;
-  window.f4BankResetForAccountSwitch=function(...args){
-   clearPrivate();return typeof previousReset==='function'?previousReset.apply(this,args):undefined;
+  const previousReset=__f4.window.f4BankResetForAccountSwitch;
+  __f4.window.f4BankResetForAccountSwitch=function(...args){
+   clearPrivate();return typeof previousReset==='function'?previousReset.apply(this,args):__f4.globals.undefined;
   };
-  const observer=new MutationObserver(()=>{
+  const observer=new __f4.globals.MutationObserver(()=>{
    if(!admin()){if(state.data||state.pending)clearPrivate();switchToOfficialOnLogout();}
   });
   function switchToOfficialOnLogout(){
@@ -518,7 +522,7 @@
    official.classList.add('is-active');analysis.classList.remove('is-active');
    official.setAttribute('aria-selected','true');analysis.setAttribute('aria-selected','false');
   }
-  observer.observe(document.body,{attributes:true,attributeFilter:['data-f4-bank-role']});
+  observer.observe(__f4.globals.document.body,{attributes:true,attributeFilter:['data-f4-bank-role']});
   const dashboard=$('dashboardView');if(dashboard)observer.observe(dashboard,{attributes:true,attributeFilter:['class']});
   return true;
  }
@@ -526,8 +530,9 @@
  // Pasang tab walau halaman laporannya baru muncul setelah DOM siap.
  function start(){
   if(mount())return;
-  const watch=new MutationObserver(()=>{if(mount())watch.disconnect();});
-  watch.observe(document.body,{childList:true,subtree:true});
+  const watch=new __f4.globals.MutationObserver(()=>{if(mount())watch.disconnect();});
+  watch.observe(__f4.globals.document.body,{childList:true,subtree:true});
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+ if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
+});

@@ -1,9 +1,13 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/resident-finance-ui.js",function(__f4){
+
+
 /* Portal Utama / Kas Saya — per-warga dues & compact payment history.
    Existing history DOM and listeners are moved, never cloned or rebuilt. */
 (()=>{
 'use strict';
 const API='https://api.flamboyan4.web.id';
-const money=value=>'Rp'+Math.max(0,Number(value)||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+const money=value=>'Rp'+__f4.globals.Math.max(0,(0,__f4.globals.Number)(value)||0).toLocaleString('id-ID',{maximumFractionDigits:0});
 const svg=(kind)=>{
  const paths={
   dues:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
@@ -15,12 +19,12 @@ const svg=(kind)=>{
  return '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[kind]+'</svg>';
 };
 const mk=(tag,cls,txt)=>{
- const node=document.createElement(tag);
+ const node=__f4.globals.document.createElement(tag);
  if(cls)node.className=cls;
- if(txt!==undefined)node.textContent=txt;
+ if(txt!==__f4.globals.undefined)node.textContent=txt;
  return node;
 };
-const media=window.matchMedia('(max-width:767px)');
+const media=__f4.window.matchMedia('(max-width:767px)');
 let activeSheet=null,triggerOfSheet=null,requestSerial=0;
 function enhance(personal){
  if(personal.dataset.f4DuesEnhanced==='1')return;
@@ -69,7 +73,7 @@ function enhance(personal){
  overlay.addEventListener('click',e=>{if(e.target===overlay)closeSheet()});
  overlay.querySelector('.f4-resident-sheet-close').onclick=closeSheet;
  finBlock.append(overlay);
- const watch=new MutationObserver(()=>{
+ const watch=new __f4.globals.MutationObserver(()=>{
   if(personal.hidden){if(activeSheet)closeSheet();return}
   loadDues(personal);
  });
@@ -78,7 +82,7 @@ function enhance(personal){
 }
 function currentPeriod(){
  // Date in WIB (UTC+7), matching the backend due-month convention.
- return new Date(Date.now()+7*60*60*1000).toISOString().slice(0,7);
+ return new __f4.globals.Date(__f4.globals.Date.now()+7*60*60*1000).toISOString().slice(0,7);
 }
 function writeDues(personal,data){
  const list=personal.querySelector('#f4-resident-dues-content');
@@ -88,10 +92,10 @@ function writeDues(personal,data){
  if(!list||!status||!badge||!subtitle)return;
  const period=data.period||currentPeriod();
  const parts=period.split('-');
- subtitle.textContent=new Date(Number(parts[0]),Number(parts[1])-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+ subtitle.textContent=new __f4.globals.Date((0,__f4.globals.Number)(parts[0]),(0,__f4.globals.Number)(parts[1])-1,1).toLocaleDateString('id-ID',{month:'long',year:'numeric'});
  list.replaceChildren();status.replaceChildren();
  badge.className='f4-resident-badge';
- if(!data.linked||!data.configured||!Array.isArray(data.components)){
+ if(!data.linked||!data.configured||!__f4.globals.Array.isArray(data.components)){
   badge.textContent='Belum tersedia';
   list.append(mk('p','f4-resident-placeholder',!data.linked?'Akun belum terhubung ke data pembayar.':'Kewajiban bulanan belum diatur oleh pengurus.'));
   status.append(mk('p','f4-resident-placeholder','Status belum dapat ditentukan.'));
@@ -99,7 +103,7 @@ function writeDues(personal,data){
  }
  const breakdown=[];
  for(const item of data.components){
-  const due=Math.max(0,Number(item.wajibRp)||0);
+  const due=__f4.globals.Math.max(0,(0,__f4.globals.Number)(item.wajibRp)||0);
   if(!due)continue;
   if(item.jenis==='IURAN_BULANAN'){
    if(due%25000===0){
@@ -121,9 +125,9 @@ function writeDues(personal,data){
  const total=mk('div','f4-resident-dues-total');
  total.append(mk('span','','Total per bulan'),mk('strong','',money(data.totalWajibRp)));
  list.append(rows,total);
- const due=Math.max(0,Number(data.totalWajibRp)||0);
- const paid=Math.max(0,Number(data.totalTerbayarRp)||0);
- const remaining=Math.max(0,Number(data.totalSisaRp)||0);
+ const due=__f4.globals.Math.max(0,(0,__f4.globals.Number)(data.totalWajibRp)||0);
+ const paid=__f4.globals.Math.max(0,(0,__f4.globals.Number)(data.totalTerbayarRp)||0);
+ const remaining=__f4.globals.Math.max(0,(0,__f4.globals.Number)(data.totalSisaRp)||0);
  const mark=personal.querySelector('.f4-resident-ticket-mark');
  if(mark)mark.innerHTML=svg(due>0&&remaining===0?'check':'dues');
  const receipt=mk('div','f4-resident-receipt-body');
@@ -150,16 +154,16 @@ function writeDues(personal,data){
    if(!value)return;
    const row=mk('div','f4-resident-receipt-detail');
    const title=mk('dt','',label);
-   const content=mk('dd','',String(value));
-   content.title=String(value);
+   const content=mk('dd','',(0,__f4.globals.String)(value));
+   content.title=(0,__f4.globals.String)(value);
    row.append(title,content);
    details.append(row);
   };
   const paidAt=data.pembayaranTerakhir;
   const dateOf=value=>{
-   const match=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
-   if(!match)return String(value||'');
-   return new Date(Number(match[1]),Number(match[2])-1,Number(match[3])).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+   const match=(0,__f4.globals.String)(value||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+   if(!match)return (0,__f4.globals.String)(value||'');
+   return new __f4.globals.Date((0,__f4.globals.Number)(match[1]),(0,__f4.globals.Number)(match[2])-1,(0,__f4.globals.Number)(match[3])).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
   };
   info('Warga',data.nama);
   info('Rumah',data.rumah);
@@ -170,8 +174,8 @@ function writeDues(personal,data){
   receipt.append(details);
   if(paidAt?.id){
    const receiptId=mk('div','f4-resident-receipt-id');
-   receiptId.append(mk('span','','Transaksi terakhir'),mk('span','',String(paidAt.id)));
-   receiptId.lastElementChild.title=String(paidAt.id);
+   receiptId.append(mk('span','','Transaksi terakhir'),mk('span','',(0,__f4.globals.String)(paidAt.id)));
+   receiptId.lastElementChild.title=(0,__f4.globals.String)(paidAt.id);
    receipt.append(receiptId);
   }
  }
@@ -186,9 +190,9 @@ async function loadDues(personal){
  if(status)status.textContent='Memeriksa pembayaran…';
  try{
   const period=currentPeriod();
-  const response=await fetch(API+'/api/member/dues?month='+encodeURIComponent(period),{credentials:'include',cache:'no-store'});
+  const response=await (0,__f4.globals.fetch)(API+'/api/member/dues?month='+(0,__f4.globals.encodeURIComponent)(period),{credentials:'include',cache:'no-store'});
   const body=await response.json().catch(()=>({}));
-  if(!response.ok||body.ok===false)throw Error(body.error||'Status belum tersedia');
+  if(!response.ok||body.ok===false)throw (0,__f4.globals.Error)(body.error||'Status belum tersedia');
   if(serial!==requestSerial||personal.hidden)return;
   writeDues(personal,body);
  }catch(error){
@@ -213,11 +217,11 @@ function openSheet(finBlock,kind,button){
  overlay.dataset.kind=kind;
  target.append(node);
  overlay.hidden=false;
- document.body.classList.add('f4-resident-sheet-open');
+ __f4.globals.document.body.classList.add('f4-resident-sheet-open');
  activeSheet={overlay,personal,node,kind};
  triggerOfSheet=button;
  overlay.querySelector('.f4-resident-sheet-close').focus({preventScroll:true});
- window.F4MobileSheets?.refresh?.();
+ __f4.window.F4MobileSheets?.refresh?.();
 }
 function closeSheet(){
  if(!activeSheet)return;
@@ -226,26 +230,28 @@ function closeSheet(){
  else personal.querySelector('.f4-resident-layout')?.append(node);
  overlay.hidden=true;
  overlay.querySelector('.f4-resident-sheet-content').replaceChildren();
- document.body.classList.remove('f4-resident-sheet-open');
+ __f4.globals.document.body.classList.remove('f4-resident-sheet-open');
  activeSheet=null;
  if(triggerOfSheet?.isConnected)triggerOfSheet.focus({preventScroll:true});
  triggerOfSheet=null;
- window.F4MobileSheets?.refresh?.();
+ __f4.window.F4MobileSheets?.refresh?.();
 }
-document.addEventListener('keydown',event=>{
+__f4.globals.document.addEventListener('keydown',event=>{
  if(event.key==='Escape'&&activeSheet){event.preventDefault();closeSheet()}
 });
 media.addEventListener?.('change',()=>{if(!media.matches)closeSheet()});
 function scan(){
- document.querySelectorAll('#keuangan .f4-user-finance #f4-personal-finance').forEach(enhance);
+ __f4.globals.document.querySelectorAll('#keuangan .f4-user-finance #f4-personal-finance').forEach(enhance);
 }
-const observer=new MutationObserver(scan);
+const observer=new __f4.globals.MutationObserver(scan);
 function init(){
- const root=document.getElementById('keuangan');
+ const root=__f4.globals.document.getElementById('keuangan');
  if(!root)return;
  observer.observe(root,{subtree:true,childList:true});
  scan();
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',init,{once:true});
 else init();
 })();
+
+});

@@ -1,3 +1,7 @@
+/* Original portal source; mount-scoped bindings and resource access. */
+window.F4PortalRuntime.define("/portal-live/dokumentasi/community-gallery.js",function(__f4){
+
+
 /* Galeri Warga: satu unggahan bisa satu atau banyak foto. Semua interaksi disimpan di D1. */
 (()=>{'use strict';
 const API='https://api.flamboyan4.web.id/api/v2/gallery';
@@ -22,7 +26,7 @@ const icons={
  sparkle:'<path d="m12 2 2.3 6.7L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/>'
 };
 const svg=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
-const elem=(tag,cls='',content)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(content!==undefined)e.textContent=String(content);return e};
+const elem=(tag,cls='',content)=>{const e=__f4.globals.document.createElement(tag);if(cls)e.className=cls;if(content!==__f4.globals.undefined)e.textContent=(0,__f4.globals.String)(content);return e};
 const button=(label,icon,fn,cls='')=>{
  const b=elem('button','f4g-btn '+cls);b.type='button';
  if(icon){const i=elem('span');i.innerHTML=svg(icon);b.append(i)}
@@ -31,27 +35,27 @@ const button=(label,icon,fn,cls='')=>{
 };
 const endpoint=path=>API+path;
 const get=async path=>{
- const r=await fetch(endpoint(path),{credentials:'include',cache:'no-store'});
+ const r=await (0,__f4.globals.fetch)(endpoint(path),{credentials:'include',cache:'no-store'});
  const data=await r.json().catch(()=>({}));
- if(!r.ok||data.ok===false)throw Error(data.error||'HTTP '+r.status);
+ if(!r.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+r.status);
  return data;
 };
 const post=async(path,payload)=>{
- const r=await fetch(endpoint(path),{method:'POST',credentials:'include',cache:'no-store',
-  headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+ const r=await (0,__f4.globals.fetch)(endpoint(path),{method:'POST',credentials:'include',cache:'no-store',
+  headers:{'content-type':'application/json'},body:__f4.globals.JSON.stringify(payload)});
  const data=await r.json().catch(()=>({}));
- if(!r.ok||data.ok===false)throw Error(data.error||'HTTP '+r.status);
+ if(!r.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+r.status);
  return data;
 };
 let user=null,ready=false,collection=null,photoTarget=null,albumTarget=null,sessionChecked=false;
 const activeSession=async()=>{
- try{const r=await fetch('https://api.flamboyan4.web.id/api/v2/auth/session',{credentials:'include',cache:'no-store'});const data=await r.json();user=r.ok?data.account:null;}
+ try{const r=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/auth/session',{credentials:'include',cache:'no-store'});const data=await r.json();user=r.ok?data.account:null;}
  catch{user=null}
  sessionChecked=true;return user;
 };
 const signedIn=async()=>{
  const who=await activeSession();
- if(!who){window.f4ShowLogin?.();throw Error('Silakan login sebagai warga terlebih dahulu.')}
+ if(!who){__f4.window.f4ShowLogin?.();throw (0,__f4.globals.Error)('Silakan login sebagai warga terlebih dahulu.')}
  return who;
 };
 let popupSequence=0;
@@ -64,29 +68,29 @@ function popup(title,wide=false,commentSheet=false){
  const body=elem('div','f4g-body');
  const token='gallery-dialog-'+(++popupSequence);
  const cleanups=[];let closed=false;
- history.pushState({...history.state,f4gDialog:token},'',location.href);
+ __f4.globals.history.pushState({...__f4.globals.history.state,f4gDialog:token},'',__f4.globals.location.href);
  const close=(fromHistory=false)=>{
   if(closed)return;
   closed=true;
   for(const cleanup of cleanups)try{cleanup()}catch{}
-  shade.remove();document.removeEventListener('keydown',escapeKey);
-  window.removeEventListener('popstate',onBack);
-  if(!fromHistory&&history.state?.f4gDialog===token)history.back();
+  shade.remove();__f4.globals.document.removeEventListener('keydown',escapeKey);
+  __f4.window.removeEventListener('popstate',onBack);
+  if(!fromHistory&&__f4.globals.history.state?.f4gDialog===token)__f4.globals.history.back();
  };
- const onBack=()=>{if(history.state?.f4gDialog!==token)close(true)};
+ const onBack=()=>{if(__f4.globals.history.state?.f4gDialog!==token)close(true)};
  const escapeKey=e=>{
-  if(e.key!=='Escape'||shade!==[...document.querySelectorAll('.f4g-overlay')].at(-1))return;
+  if(e.key!=='Escape'||shade!==[...__f4.globals.document.querySelectorAll('.f4g-overlay')].at(-1))return;
   e.preventDefault();e.stopPropagation();close();
  };
  head.append(strong,closeBtn);panel.append(head,body);shade.append(panel);
  shade.addEventListener('click',e=>{if(e.target===shade)close()});
- document.addEventListener('keydown',escapeKey);window.addEventListener('popstate',onBack);document.body.append(shade);
+ __f4.globals.document.addEventListener('keydown',escapeKey);__f4.window.addEventListener('popstate',onBack);__f4.globals.document.body.append(shade);
  if(commentSheet){
   let startY=null;
   head.addEventListener('touchstart',e=>{startY=e.touches[0]?.clientY??null},{passive:true});
   head.addEventListener('touchend',e=>{
    const finish=e.changedTouches[0]?.clientY;
-   if(startY!==null&&finish!==undefined&&finish-startY>85)close();
+   if(startY!==null&&finish!==__f4.globals.undefined&&finish-startY>85)close();
    startY=null;
   },{passive:true});
  }
@@ -94,9 +98,9 @@ function popup(title,wide=false,commentSheet=false){
 }
 
 function toast(note){
- document.querySelector('.f4g-toast')?.remove();
- const n=elem('div','f4g-toast',note);n.setAttribute('role','status');document.body.append(n);
- setTimeout(()=>n.remove(),2600);
+ __f4.globals.document.querySelector('.f4g-toast')?.remove();
+ const n=elem('div','f4g-toast',note);n.setAttribute('role','status');__f4.globals.document.body.append(n);
+ (0,__f4.globals.setTimeout)(()=>n.remove(),2600);
 }
 function notice(note){
  const dlg=popup('Informasi');
@@ -125,7 +129,7 @@ function manualCopy(url){
  const dlg=popup('Salin Tautan');
  const input=field(dlg.body,'Tautan langsung ke galeri','input');input.value=url;input.readOnly=true;input.select();
  dlg.body.append(button('Salin Tautan','share',async()=>{
-  try{await navigator.clipboard.writeText(url);dlg.close();toast('Tautan berhasil disalin.')}
+  try{await __f4.globals.navigator.clipboard.writeText(url);dlg.close();toast('Tautan berhasil disalin.')}
   catch{input.select()}
  },'primary'));
 }
@@ -140,16 +144,16 @@ function field(parent,label,tag='input',placeholder=''){
  control.placeholder=placeholder;lab.append();wrap.append(lab,control);parent.append(wrap);return control;
 }
 function photoLink(target){
- const u=new URL('/dokumentasi/',location.origin);
+ const u=new __f4.globals.URL('/dokumentasi/',__f4.globals.location.origin);
  if(target.albumId)u.searchParams.set('album',target.albumId);
  if(target.type==='photo'&&target.id)u.searchParams.set('foto',target.id);
  return u.href;
 }
 // Siapkan link saat album/foto dibuka agar browser HP tetap bisa memakai native share.
-const shareLinks=new Map();
+const shareLinks=new __f4.globals.Map();
 function prepareShare(target){
  const original=photoLink(target);
- if(!target?.id||!target.albumId)return Promise.resolve(original);
+ if(!target?.id||!target.albumId)return __f4.globals.Promise.resolve(original);
  const key=target.type+':'+target.albumId+':'+(target.type==='photo'?target.id:'');
  if(!shareLinks.has(key)){
   const ready=post('/share',{type:target.type,id:target.id,albumId:target.albumId})
@@ -160,26 +164,26 @@ function prepareShare(target){
 }
 async function share(target){
  const url=await prepareShare(target);
- if(navigator.share){try{await navigator.share({title:target.title||'Dokumentasi Flamboyan 4',url});return}catch(e){if(e.name==='AbortError')return}}
- try{await navigator.clipboard.writeText(url);toast('Tautan berhasil disalin.')}catch{manualCopy(url)}
+ if(__f4.globals.navigator.share){try{await __f4.globals.navigator.share({title:target.title||'Dokumentasi Flamboyan 4',url});return}catch(e){if(e.name==='AbortError')return}}
+ try{await __f4.globals.navigator.clipboard.writeText(url);toast('Tautan berhasil disalin.')}catch{manualCopy(url)}
 }
 // An existing Portal Utama photo can be cross-published by its uploader.
 // This edits a program tag, not the file or a second copy of its reactions.
 async function f4BankPhotoProgramControl(host,target){
  host.querySelector('.f4g-bank-program-button')?.remove();
- if(!/^f4photo:[-\w:]{8,180}$/.test(String(target?.id||'')))return;
+ if(!/^f4photo:[-\w:]{8,180}$/.test((0,__f4.globals.String)(target?.id||'')))return;
  try{
-  const state=await get('/category?type=photo&id='+encodeURIComponent(target.id));
+  const state=await get('/category?type=photo&id='+(0,__f4.globals.encodeURIComponent)(target.id));
   if(!host.isConnected||photoTarget?.id!==target.id)return;
   if(!state.canEdit&&state.category!=='bank_sampah')return;
-  let category=String(state.category||'');
+  let category=(0,__f4.globals.String)(state.category||'');
   const tag=button(null,'images',null,'f4g-bank-program-button');
   tag.setAttribute('aria-label','Tag program Bank Sampah');
   tag.title='Tampilkan foto yang sama di Dokumentasi Bank Sampah';
   const label=elem('span');tag.append(label);
   const draw=()=>{
    label.textContent=category==='bank_sampah'?'Bank Sampah ✓':'Tag Bank Sampah';
-   tag.setAttribute('aria-pressed',String(category==='bank_sampah'));
+   tag.setAttribute('aria-pressed',(0,__f4.globals.String)(category==='bank_sampah'));
   };
   draw();tag.disabled=!state.canEdit;
   if(state.canEdit)tag.onclick=async()=>{
@@ -194,7 +198,7 @@ async function f4BankPhotoProgramControl(host,target){
   };
   host.append(tag);
  }catch(error){
-  if(!/HTTP 404|tidak ditemukan/.test(String(error.message||'')))console.warn('Tag program foto belum dimuat:',error);
+  if(!/HTTP 404|tidak ditemukan/.test((0,__f4.globals.String)(error.message||'')))__f4.globals.console.warn('Tag program foto belum dimuat:',error);
  }
 }
 function socialButtons(host,target,isPhoto,onLoaded){
@@ -224,12 +228,12 @@ function socialButtons(host,target,isPhoto,onLoaded){
  host.append(like,comments,shareBtn);
  if(isPhoto)host.append(button(null,'flag',()=>report(target)));
  const updateSocial=data=>{
-  like.querySelector('span:last-child').textContent=String(data.likes||0);
+  like.querySelector('span:last-child').textContent=(0,__f4.globals.String)(data.likes||0);
   like.classList.toggle('f4g-liked',!!data.liked);
-  like.setAttribute('aria-pressed',String(!!data.liked));
-  comments.querySelector('span:last-child').textContent=String(data.comments?.length||0);
+  like.setAttribute('aria-pressed',(0,__f4.globals.String)(!!data.liked));
+  comments.querySelector('span:last-child').textContent=(0,__f4.globals.String)(data.comments?.length||0);
  };
- get('/social?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))
+ get('/social?type='+(0,__f4.globals.encodeURIComponent)(target.type)+'&id='+(0,__f4.globals.encodeURIComponent)(target.id))
  .then(data=>{
   if(!interacted&&like.isConnected&&host.contains(like)){updateSocial(data);onLoaded?.(data)}
  }).catch(()=>{
@@ -242,13 +246,13 @@ async function openComments(target){
  const form=elem('form','f4g-comment-form'),text=elem('textarea');
  text.placeholder='Tulis komentar untuk warga…';text.maxLength=500;text.rows=1;
  text.setAttribute('aria-label','Tulis komentar untuk warga');
- text.addEventListener('input',()=>{text.style.height='46px';text.style.height=Math.min(100,Math.max(46,text.scrollHeight))+'px'});
+ text.addEventListener('input',()=>{text.style.height='46px';text.style.height=__f4.globals.Math.min(100,__f4.globals.Math.max(46,text.scrollHeight))+'px'});
  const send=button(null,'send',null,'primary f4g-comment-send');send.type='submit';send.setAttribute('aria-label','Kirim komentar');send.title='Kirim komentar';
  form.append(text,send);dlg.body.append(form);
  const load=async()=>{
   comments.replaceChildren(elem('p','f4g-note','Memuat komentar…'));
   try{
-   const data=await get('/social?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id));
+   const data=await get('/social?type='+(0,__f4.globals.encodeURIComponent)(target.type)+'&id='+(0,__f4.globals.encodeURIComponent)(target.id));
    comments.replaceChildren();
    if(!data.comments.length)comments.append(elem('p','f4g-note','Belum ada komentar.'));
    for(const c of data.comments){
@@ -282,27 +286,27 @@ async function report(target){
  dlg.body.append(submit);
 }
 function refreshGallery(){
- location.assign('/dokumentasi/');
+ __f4.globals.location.assign('/dokumentasi/');
 }
 async function imageBlob(file){
- if(file.size>20*1024*1024)throw Error('Foto '+file.name+' melebihi 20 MB.');
- if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error(file.name+' bukan JPG, PNG, atau WebP.');
- const bitmap=await createImageBitmap(file);
+ if(file.size>20*1024*1024)throw (0,__f4.globals.Error)('Foto '+file.name+' melebihi 20 MB.');
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw (0,__f4.globals.Error)(file.name+' bukan JPG, PNG, atau WebP.');
+ const bitmap=await (0,__f4.globals.createImageBitmap)(file);
  try{
-  const scale=Math.min(1,2560/Math.max(bitmap.width,bitmap.height));
-  const canvas=document.createElement('canvas');
-  canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  const scale=__f4.globals.Math.min(1,2560/__f4.globals.Math.max(bitmap.width,bitmap.height));
+  const canvas=__f4.globals.document.createElement('canvas');
+  canvas.width=__f4.globals.Math.max(1,__f4.globals.Math.round(bitmap.width*scale));canvas.height=__f4.globals.Math.max(1,__f4.globals.Math.round(bitmap.height*scale));
   const ctx=canvas.getContext('2d');
   ctx.fillStyle='#ffffff';ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
-  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));
-  if(!blob||blob.size>5*1024*1024)throw Error('Foto terlalu besar setelah dikompresi.');
+  const blob=await new __f4.globals.Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));
+  if(!blob||blob.size>5*1024*1024)throw (0,__f4.globals.Error)('Foto terlalu besar setelah dikompresi.');
   return blob;
  }finally{bitmap.close()}
 }
 
 const f4TagError=(e)=>{
- const msg=String(e?.message||e||'');
+ const msg=(0,__f4.globals.String)(e?.message||e||'');
  return /Fitur galeri tidak tersedia|HTTP 404|HTTP 405|Failed to fetch/i.test(msg)
   ?'Tag warga belum tersedia pada API aktif. Pengelola perlu menerbitkan pembaruan Worker terlebih dahulu.'
   :msg;
@@ -331,13 +335,13 @@ async function f4TagManager(target){
  footer.append(cancel,save);
  dlg.body.append(description,searchWrap,selectedWrap,count,listNode,hint,footer);
  try{
-  const [people,previous]=await Promise.all([
-   get('/people'),get('/tags?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id))
+  const [people,previous]=await __f4.globals.Promise.all([
+   get('/people'),get('/tags?type='+(0,__f4.globals.encodeURIComponent)(target.type)+'&id='+(0,__f4.globals.encodeURIComponent)(target.id))
   ]);
-  const selected=new Set((previous.tags||[]).map(t=>String(t.memberId)));
-  const members=(people.members||[]).map(m=>({...m,id:String(m.id||'')}));
-  const names=new Map(members.map(m=>[m.id,m]));
-  const initials=value=>String(value||'W').replace(/^(Pak|Bu|Ibu)\s+/i,'').trim().slice(0,1).toUpperCase()||'W';
+  const selected=new __f4.globals.Set((previous.tags||[]).map(t=>(0,__f4.globals.String)(t.memberId)));
+  const members=(people.members||[]).map(m=>({...m,id:(0,__f4.globals.String)(m.id||'')}));
+  const names=new __f4.globals.Map(members.map(m=>[m.id,m]));
+  const initials=value=>(0,__f4.globals.String)(value||'W').replace(/^(Pak|Bu|Ibu)\s+/i,'').trim().slice(0,1).toUpperCase()||'W';
   const drawSelected=()=>{
    selectedWrap.replaceChildren();
    selectedWrap.hidden=!selected.size;
@@ -392,7 +396,7 @@ function f4CloseTagPopover(){
 function f4TagButton(host,target){
  f4CloseTagPopover();
  host.querySelector('.f4-tag-trigger')?.remove();
- if(!target?.id||!Array.isArray(window.f4GalleryCommunity?.categories))return;
+ if(!target?.id||!__f4.globals.Array.isArray(__f4.window.f4GalleryCommunity?.categories))return;
  const trigger=button(null,'user',null,'f4-tag-trigger');
  trigger.title='Lihat tag warga';trigger.setAttribute('aria-label','Lihat tag warga');
  trigger.setAttribute('aria-expanded','false');
@@ -403,39 +407,39 @@ function f4TagButton(host,target){
   const pop=elem('div','f4-tag-popup f4-tag-floating'+(target.type==='photo'?' f4-tag-photo':''));
   pop.setAttribute('role','group');pop.setAttribute('aria-label','Warga ditandai');
   pop.append(elem('span','f4-tag-loading','Memuat tag…'));
-  document.body.append(pop);
+  __f4.globals.document.body.append(pop);
   trigger.setAttribute('aria-expanded','true');
   const position=()=>{
    if(!trigger.isConnected||!pop.isConnected){f4CloseTagPopover();return}
    const rect=trigger.getBoundingClientRect();
-   const width=Math.min(pop.getBoundingClientRect().width,window.innerWidth-24);
+   const width=__f4.globals.Math.min(pop.getBoundingClientRect().width,__f4.window.innerWidth-24);
    const preferred=target.type==='album'?rect.right-width:rect.left;
-   pop.style.left=Math.min(Math.max(12,preferred),window.innerWidth-width-12)+'px';
+   pop.style.left=__f4.globals.Math.min(__f4.globals.Math.max(12,preferred),__f4.window.innerWidth-width-12)+'px';
    // Album actions sit near top of dialog; open below. Photo actions sit at bottom; open above.
-   const below=target.type==='album'||rect.top<window.innerHeight*.42;
-   pop.style.top=below?Math.min(window.innerHeight-pop.offsetHeight-12,rect.bottom+9)+'px':
-    Math.max(12,rect.top-pop.offsetHeight-9)+'px';
+   const below=target.type==='album'||rect.top<__f4.window.innerHeight*.42;
+   pop.style.top=below?__f4.globals.Math.min(__f4.window.innerHeight-pop.offsetHeight-12,rect.bottom+9)+'px':
+    __f4.globals.Math.max(12,rect.top-pop.offsetHeight-9)+'px';
   };
   const outside=e=>{
    if(!pop.contains(e.target)&&!trigger.contains(e.target))f4CloseTagPopover();
   };
   const escape=e=>{if(e.key==='Escape'){e.stopPropagation();f4CloseTagPopover()}};
   const onScroll=e=>{if(!pop.contains(e.target))f4CloseTagPopover()};
-  document.addEventListener('pointerdown',outside,true);
-  document.addEventListener('keydown',escape,true);
-  window.addEventListener('resize',position);
-  document.addEventListener('scroll',onScroll,true);
+  __f4.globals.document.addEventListener('pointerdown',outside,true);
+  __f4.globals.document.addEventListener('keydown',escape,true);
+  __f4.window.addEventListener('resize',position);
+  __f4.globals.document.addEventListener('scroll',onScroll,true);
   const dispose=()=>{
    trigger.setAttribute('aria-expanded','false');
-   document.removeEventListener('pointerdown',outside,true);
-   document.removeEventListener('keydown',escape,true);
-   window.removeEventListener('resize',position);
-   document.removeEventListener('scroll',onScroll,true);
+   __f4.globals.document.removeEventListener('pointerdown',outside,true);
+   __f4.globals.document.removeEventListener('keydown',escape,true);
+   __f4.window.removeEventListener('resize',position);
+   __f4.globals.document.removeEventListener('scroll',onScroll,true);
   };
   f4ActiveTagPopover={node:pop,anchor:trigger,dispose};
   position();
   try{
-   const data=await get('/tags?type='+encodeURIComponent(target.type)+'&id='+encodeURIComponent(target.id));
+   const data=await get('/tags?type='+(0,__f4.globals.encodeURIComponent)(target.type)+'&id='+(0,__f4.globals.encodeURIComponent)(target.id));
    if(f4ActiveTagPopover?.node!==pop)return;
    pop.replaceChildren();
    if(!data.tags?.length)pop.append(elem('span','f4-tag-empty-label','Belum ada warga ditandai'));
@@ -454,11 +458,11 @@ function f4TagButton(host,target){
 }
 
 async function uploadDialog(){
- if(!window.f4GalleryCommunity){
-  try{window.f4GalleryCommunity=await get('')}
+ if(!__f4.window.f4GalleryCommunity){
+  try{__f4.window.f4GalleryCommunity=await get('')}
   catch(e){notice('Koneksi galeri belum siap: '+e.message);return}
  }
- const enabled=Boolean(window.f4GalleryCommunity.uploadEnabled);
+ const enabled=(0,__f4.globals.Boolean)(__f4.window.f4GalleryCommunity.uploadEnabled);
  const dlg=popup('Unggah Foto');
  dlg.panel.classList.add('f4g-upload-modal');
  if(!enabled){
@@ -497,7 +501,7 @@ async function uploadDialog(){
  const preview=elem('div','f4g-previews');dlg.body.append(preview);
  const album=field(dlg.body,'Tujuan album','select');
  const makeOption=(value,label)=>{const o=elem('option','',label);o.value=value;return o};
- const options=window.f4GalleryAlbums?.()||[];
+ const options=__f4.window.f4GalleryAlbums?.()||[];
  album.append(makeOption('','Pilih album…'));
  for(const a of options)album.append(makeOption(a.id,a.title));
  album.append(makeOption('__new','+ Buat album baru'));
@@ -511,15 +515,15 @@ async function uploadDialog(){
  media.append(drop,preview);
  const category=field(dlg.body,'Kategori album','select');
   for(const [key,name] of f4TagCategories){const option=elem('option','',name);option.value=key;category.append(option)}
-  const cachedCategories=new Map((window.f4GalleryCommunity?.categories||[]).map(a=>[String(a.albumId),String(a.category)]));
+  const cachedCategories=new __f4.globals.Map((__f4.window.f4GalleryCommunity?.categories||[]).map(a=>[(0,__f4.globals.String)(a.albumId),(0,__f4.globals.String)(a.category)]));
   const refreshCategory=async()=>{
    if(album.value==='__new'){category.value='';category.disabled=false;return}
    category.value=cachedCategories.get(album.value)||'';
    category.disabled=false;
    if(!album.value)return;
-   try{const result=await get('/category?album='+encodeURIComponent(album.value));
+   try{const result=await get('/category?album='+(0,__f4.globals.encodeURIComponent)(album.value));
     if(album.value)category.value=result.category||'';
-   }catch(e){if(/Fitur galeri tidak tersedia|HTTP 404/i.test(String(e.message)))category.title='Kategori membutuhkan Worker API terbaru.'}
+   }catch(e){if(/Fitur galeri tidak tersedia|HTTP 404/i.test((0,__f4.globals.String)(e.message)))category.title='Kategori membutuhkan Worker API terbaru.'}
   };
   album.addEventListener('change',refreshCategory);
   void refreshCategory();
@@ -564,10 +568,10 @@ async function uploadDialog(){
     for(const option of select.options){
      const choice=elem('button','f4g-upload-choice-option'+(option.value===select.value?' selected':''),option.textContent);
      choice.type='button';choice.setAttribute('role','option');
-     choice.setAttribute('aria-selected',String(option.value===select.value));
+     choice.setAttribute('aria-selected',(0,__f4.globals.String)(option.value===select.value));
      choice.onclick=()=>{
       select.value=option.value;
-      select.dispatchEvent(new Event('change',{bubbles:true}));
+      select.dispatchEvent(new __f4.globals.Event('change',{bubbles:true}));
       sync();close(true);
      };
      list.append(choice);
@@ -587,8 +591,8 @@ async function uploadDialog(){
      event.preventDefault();event.stopImmediatePropagation();close(true);
     }
    };
-   document.addEventListener('keydown',onEscape,true);
-   dlg.onClose(()=>document.removeEventListener('keydown',onEscape,true));
+   __f4.globals.document.addEventListener('keydown',onEscape,true);
+   dlg.onClose(()=>__f4.globals.document.removeEventListener('keydown',onEscape,true));
    select.addEventListener('change',sync);
    select.classList.add('f4g-upload-source-select');
    select.after(root);root.append(trigger);sync();
@@ -608,17 +612,17 @@ async function uploadDialog(){
  const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;footer.append(send);dlg.panel.append(footer);
  if(!enabled)send.title='Unggah belum tersedia sampai Google Drive dihubungkan pengelola.';
  const viewGallery=button('Lihat di Galeri','arrow',refreshGallery,'primary');
- let files=[],urls=[],completedFiles=new Set();
+ let files=[],urls=[],completedFiles=new __f4.globals.Set();
  const update=()=>{
-  urls.forEach(x=>URL.revokeObjectURL(x));urls=[];
-  preview.replaceChildren();files=Array.from(picker.files||[]).slice(0,12);
+  urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x));urls=[];
+  preview.replaceChildren();files=__f4.globals.Array.from(picker.files||[]).slice(0,12);
   completedFiles.clear();viewGallery.remove();
   if(picker.files.length>12)message(dlg.body,'Maksimal 12 foto diproses dalam satu kiriman.',true);
   drop.classList.toggle('has-files',files.length>0);
   drop.querySelector('strong').textContent=files.length?'Tambah Foto':'Pilih Foto';
   drop.querySelector('.f4g-upload-pick-sub').textContent=files.length?files.length+' foto dipilih · Ketuk untuk mengganti':'Ketuk untuk memilih dari galeri atau file';
   files.forEach(file=>{
-   const fig=elem('figure'),img=elem('img'),link=URL.createObjectURL(file);urls.push(link);img.src=link;
+   const fig=elem('figure'),img=elem('img'),link=__f4.globals.URL.createObjectURL(file);urls.push(link);img.src=link;
    const label=elem('figcaption','',file.name.slice(0,24));
    fig.append(img,label);preview.append(fig);
   });
@@ -657,12 +661,12 @@ async function uploadDialog(){
     message(dlg.body,'Mengunggah foto '+(completedFiles.size+1)+' dari '+files.length+'…');
     try{
      const blob=await imageBlob(file);
-     const params=new URLSearchParams({album:albumId,name:file.name.replace(/\.[^.]+$/,'')+'.jpg',caption:caption.value.trim()});
-     const response=await fetch(endpoint('/upload?'+params),{
+     const params=new __f4.globals.URLSearchParams({album:albumId,name:file.name.replace(/\.[^.]+$/,'')+'.jpg',caption:caption.value.trim()});
+     const response=await (0,__f4.globals.fetch)(endpoint('/upload?'+params),{
       method:'POST',body:blob,headers:{'content-type':'image/jpeg'},credentials:'include',cache:'no-store'
      });
      const data=await response.json().catch(()=>({}));
-     if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+     if(!response.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+response.status);
      done++;completedFiles.add(file);
     }catch(e){errors.push(file.name+': '+e.message)}
    }
@@ -683,18 +687,18 @@ async function uploadDialog(){
   }
  });
  // URL pratinjau dibersihkan juga saat menutup dengan Back, Escape, atau backdrop.
- dlg.onClose(()=>urls.forEach(x=>URL.revokeObjectURL(x)));
+ dlg.onClose(()=>urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x)));
 }
 async function adminDialog(){
  try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}catch{return}
  const dlg=popup('Kelola Dokumentasi',true);dlg.panel.classList.add('f4g-manage-modal');
  let changed=false,active='photos';
- dlg.onClose(()=>{if(changed)location.reload()});
+ dlg.onClose(()=>{if(changed)__f4.globals.location.reload()});
  const tabs=elem('div','f4g-manage-tabs'),content=elem('div','f4g-manage-list'),status=elem('p','f4g-manage-status');
  tabs.setAttribute('role','tablist');status.setAttribute('role','status');dlg.body.append(tabs,content,status);
  const setTab=key=>{
   active=key;
-  tabs.querySelectorAll('button').forEach(b=>{const yes=b.dataset.tab===key;b.classList.toggle('selected',yes);b.setAttribute('aria-selected',String(yes))});
+  tabs.querySelectorAll('button').forEach(b=>{const yes=b.dataset.tab===key;b.classList.toggle('selected',yes);b.setAttribute('aria-selected',(0,__f4.globals.String)(yes))});
   content.querySelectorAll('[data-manage-section]').forEach(el=>el.hidden=el.dataset.manageSection!==key);
  };
  const section=type=>{const el=elem('section','f4g-manage-section');el.dataset.manageSection=type;content.append(el);return el};
@@ -710,7 +714,7 @@ async function adminDialog(){
   toggle.onclick=()=>{
    const next=menu.hidden;
    content.querySelectorAll('.f4g-manage-menu').forEach(m=>{m.hidden=true;m.parentElement?.querySelector('.f4g-manage-more')?.setAttribute('aria-expanded','false')});
-   menu.hidden=!next;toggle.setAttribute('aria-expanded',String(next));
+   menu.hidden=!next;toggle.setAttribute('aria-expanded',(0,__f4.globals.String)(next));
   };
   row.append(avatar,description,toggle,menu);
   return {row,menu};
@@ -724,11 +728,11 @@ async function adminDialog(){
    const counts=[['photos','Foto',photos.length],['albums','Album',albums.length],['reports','Laporan',reports.length]];
    for(const [key,title,n] of counts){
     const b=elem('button','f4g-manage-tab');b.type='button';b.dataset.tab=key;b.setAttribute('role','tab');
-    b.append(elem('span','',title),elem('small','',String(n)));b.onclick=()=>setTab(key);tabs.append(b);
+    b.append(elem('span','',title),elem('small','',(0,__f4.globals.String)(n)));b.onclick=()=>setTab(key);tabs.append(b);
    }
    const photoSection=section('photos'),albumSection=section('albums'),reportSection=section('reports');
    if(!photos.length)photoSection.append(elem('p','f4g-manage-empty','Belum ada foto warga.'));
-   const available=window.f4GalleryAlbums?.()||[];
+   const available=__f4.window.f4GalleryAlbums?.()||[];
    for(const p of photos){
     const img=elem('img','f4g-manage-thumb');img.src=p.url;img.alt='';img.loading='lazy';
     const state=p.status==='baru'?'Baru':p.status==='disembunyikan'?'Disembunyikan':p.status||'Foto';
@@ -772,21 +776,21 @@ async function adminDialog(){
 let galleryView='feed';
 function setGalleryView(value){
  galleryView=value==='albums'?'albums':'feed';
- const root=document.getElementById('media-albums-section');
+ const root=__f4.globals.document.getElementById('media-albums-section');
  if(!root)return;
  const feed=root.querySelector('.f4g-feed-pane'),albums=root.querySelector('.f4g-album-pane');
  if(feed)feed.hidden=galleryView!=='feed';
  if(albums)albums.hidden=galleryView!=='albums';
  root.querySelectorAll('[data-gallery-view]').forEach(b=>{
   const selected=b.dataset.galleryView===galleryView;
-  b.setAttribute('aria-selected',String(selected));
+  b.setAttribute('aria-selected',(0,__f4.globals.String)(selected));
   b.classList.toggle('selected',selected);
  });
  if(galleryView==='feed')renderRecent();
 }
 function renderRecent(){
- const grid=document.getElementById('f4g-feed-grid');if(!grid)return;
- const photos=window.f4GalleryRecentMedia?.()||[];grid.replaceChildren();
+ const grid=__f4.globals.document.getElementById('f4g-feed-grid');if(!grid)return;
+ const photos=__f4.window.f4GalleryRecentMedia?.()||[];grid.replaceChildren();
  if(!photos.length){
   const empty=elem('div','f4g-feed-empty');
   const icon=elem('span','f4g-feed-empty-icon');icon.innerHTML=svg('images');
@@ -804,7 +808,7 @@ function renderRecent(){
   card.append(image,info,badge);
   image.onerror=()=>{if(card.isConnected)card.remove()};
   card.onclick=async()=>{
-   try{await window.f4GalleryOpenRecent?.(item.albumId,item.id)}
+   try{await __f4.window.f4GalleryOpenRecent?.(item.albumId,item.id)}
    catch(e){notice('Foto belum dapat dibuka: '+e.message)}
   };
   grid.append(card);
@@ -824,7 +828,7 @@ function buildGalleryLayout(albums){
  hero.after(tabs);
  const albumPane=elem('div','f4g-album-pane');head.before(albumPane);
  for(const id of ['media-category-filters','media-search','media-albums']){
-  const node=document.getElementById(id);if(node)albumPane.append(node);
+  const node=__f4.globals.document.getElementById(id);if(node)albumPane.append(node);
  }
  albumPane.prepend(head);
  const tools=elem('div','f4g-album-tools'),filter=albumPane.querySelector('#media-category-filters'),search=albumPane.querySelector('#media-search');
@@ -835,7 +839,7 @@ function buildGalleryLayout(albums){
  setGalleryView(galleryView);return hero;
 }
 function mount(){
- const albums=document.getElementById('media-albums-section');if(!albums)return;
+ const albums=__f4.globals.document.getElementById('media-albums-section');if(!albums)return;
  const hero=buildGalleryLayout(albums);if(!hero)return;
  const actions=hero.querySelector('.f4g-top-actions');actions.replaceChildren();
  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
@@ -848,17 +852,17 @@ function mount(){
   manage.setAttribute('aria-label','Kelola Unggahan');
   actions.append(manage);
  }
- if(user?.role==='superadmin'&&ready&&new URLSearchParams(location.search).get('kelola')==='1'&&!window.f4gAdminAutoOpened){
-  window.f4gAdminAutoOpened=true;adminDialog();
+ if(user?.role==='superadmin'&&ready&&new __f4.globals.URLSearchParams(__f4.globals.location.search).get('kelola')==='1'&&!__f4.window.f4gAdminAutoOpened){
+  __f4.window.f4gAdminAutoOpened=true;adminDialog();
  }
 }
-document.addEventListener('f4:gallery:recent',renderRecent);
-document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=window.f4GalleryCommunity;mount();renderRecent()});
-document.addEventListener('f4:gallery:album',e=>{
+__f4.globals.document.addEventListener('f4:gallery:recent',renderRecent);
+__f4.globals.document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=__f4.window.f4GalleryCommunity;mount();renderRecent()});
+__f4.globals.document.addEventListener('f4:gallery:album',e=>{
  const target={type:'album',id:e.detail.id,albumId:e.detail.id,title:e.detail.title};
  albumTarget=target;
  void prepareShare(target);
- const head=document.querySelector('.f4p-album-overlay:not([hidden]) .f4p-album-head');
+ const head=__f4.globals.document.querySelector('.f4p-album-overlay:not([hidden]) .f4p-album-head');
  if(!head)return;
  let actions=head.querySelector('.f4g-album-actions');
  if(!actions){actions=elem('div','f4g-album-actions');head.querySelector('.f4p-close')?.before(actions)}
@@ -866,11 +870,11 @@ document.addEventListener('f4:gallery:album',e=>{
   f4TagButton(actions,target);
  if(!target.id)actions.append(button(null,'share',()=>share(target)));
 });
-document.addEventListener('f4:gallery:photo',e=>{
+__f4.globals.document.addEventListener('f4:gallery:photo',e=>{
  const target={type:'photo',id:e.detail.id,albumId:e.detail.albumId,title:e.detail.title,caption:e.detail.caption};
  photoTarget=target;
  void prepareShare(target);
- const viewer=document.querySelector('.f4p-photo-overlay');
+ const viewer=__f4.globals.document.querySelector('.f4p-photo-overlay');
  if(!viewer)return;
  // Foto tampil penuh, tidak pernah dijadikan bottom sheet.
  // Di PC komentar tetap disajikan di panel sebelah foto seperti Facebook;
@@ -896,7 +900,7 @@ document.addEventListener('f4:gallery:photo',e=>{
   const form=elem('form','f4g-photo-quick-form');
   const input=elem('textarea');input.placeholder='Tulis komentar…';input.maxLength=500;input.rows=1;
   input.setAttribute('aria-label','Tulis komentar');
-  const fitComment=()=>{input.style.height='auto';input.style.height=Math.min(144,Math.max(46,input.scrollHeight))+'px'};
+  const fitComment=()=>{input.style.height='auto';input.style.height=__f4.globals.Math.min(144,__f4.globals.Math.max(46,input.scrollHeight))+'px'};
   input.addEventListener('input',fitComment);
   const submit=button(null,'send',null,'primary f4g-comment-send');submit.type='submit';submit.setAttribute('aria-label','Kirim komentar');
   form.append(input,submit);
@@ -909,7 +913,7 @@ document.addEventListener('f4:gallery:photo',e=>{
     await post('/comment',{type:'photo',id:current.id,message:value});
     input.value='';fitComment();
     if(photoTarget?.id===current.id){
-     document.dispatchEvent(new CustomEvent('f4:gallery:photo',{detail:current}));
+     __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:gallery:photo',{detail:current}));
     }
    }catch(error){if(user)notice(error.message)}
    finally{submit.disabled=false}
@@ -918,7 +922,7 @@ document.addEventListener('f4:gallery:photo',e=>{
   viewer.append(side);
  }
  side.querySelector('.f4g-photo-side-titles strong').textContent=target.title||'Dokumentasi';
- const caption=String(target.caption||'').trim();
+ const caption=(0,__f4.globals.String)(target.caption||'').trim();
  const fileLabel=/^(WhatsApp (?:Image|Video)|IMG[_-]|DSC[_-]|PXL[_-]|VID[_-])/i.test(caption)||/\.(?:jpe?g|png|webp|mp4|mov|webm)$/i.test(caption);
  const captionNode=side.querySelector('.f4g-photo-side-caption');
  captionNode.textContent=caption&&!fileLabel?caption:'';
@@ -933,7 +937,7 @@ document.addEventListener('f4:gallery:photo',e=>{
    preview.append(elem('p','f4g-photo-no-comments','Belum ada komentar.'));
   }else for(const item of rows.slice(0,2)){
    const line=elem('p','f4g-photo-comment');
-   line.append(elem('b','',(item.author||item.nama||'Warga')+': '),document.createTextNode(item.message||''));
+   line.append(elem('b','',(item.author||item.nama||'Warga')+': '),__f4.globals.document.createTextNode(item.message||''));
    preview.append(line);
   }
  };
@@ -945,7 +949,8 @@ document.addEventListener('f4:gallery:photo',e=>{
  }
  f4TagButton(viewer.querySelector('.f4p-photo-stage')||actions,target);
 });
-document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
+__f4.globals.document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
 mount();
 activeSession().then(mount);
 })();
+});
