@@ -207,7 +207,7 @@ body.f4-account-open #f4-direct-bar{z-index:500}
 #f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45;
 isolation:isolate;
 background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s ease}
-#f4-direct-bar.f4-scrolled{background:rgba(255,255,255,.98);box-shadow:0 2px 11px rgba(15,24,45,.045)}
+#f4-direct-bar.f4-scrolled{background:#fff}
 #f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;}
 #f4-direct-sidebar .f4-direct-brand img{width:42px;height:43px;object-fit:contain;flex:none}
 #f4-direct-sidebar .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800}

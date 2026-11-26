@@ -24,8 +24,10 @@ const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease='20261126-single-notification-v1';
-function shellUrl(path){const u=new URL(path,location.origin);if(u.origin===location.origin&&Object.values(paths).filter(p=>p!==paths.donor).includes(u.pathname))u.searchParams.set('f4ui',shellRelease);return u.pathname+u.search+u.hash;}
+const shellRelease=document.documentElement.dataset.f4Release||'20261126-borderless-shell-v2';
+function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
+// Version ordinary cross-portal links too, including legacy links not built by navButton.
+document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
 const portal=/^\/bank-sampah(?:\/(?:index\.html)?)?$/i.test(pathname)?'bank':/^\/pembukuan(?:\/(?:index\.html)?)?$/i.test(pathname)?'book':/^\/superadmin(?:\/(?:index\.html)?)?$/i.test(pathname)?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
 document.body.classList.add('f4-direct-'+portal);
 document.body.classList.add(portal==='book'?'book-mode':portal==='bank'?'bank-mode':portal==='superadmin'?'superadmin-mode':'portal-mode');
@@ -256,7 +258,7 @@ logout.onclick=async()=>{
  }
  sessionChannel?.postMessage({type:'logout'});
  session=null;role='public';avatar.dataset.f4TagAccount='';
- if(portal==='book'||portal==='superadmin'){location.assign('/');return}
+ if(portal==='book'||portal==='superadmin'){location.assign(shellUrl('/'));return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
 };
 // Change-password already revokes sessions and clears the cookie on the Worker.
@@ -267,7 +269,7 @@ async function syncAfterSessionRevoked(share=true){
  closeLogin();
  session=null;role='public';avatar.dataset.f4TagAccount='';
  await refreshSession();
- if(portal==='book'||portal==='superadmin')location.replace('/');
+ if(portal==='book'||portal==='superadmin')location.replace(shellUrl('/'));
 }
 window.addEventListener('f4-account-password-updated',()=>{void syncAfterSessionRevoked()});
 if(sessionChannel)sessionChannel.onmessage=event=>{
@@ -368,7 +370,7 @@ function highlight(key){document.querySelectorAll('#f4-direct-sidebar [data-f4-p
 function closeSide(){document.querySelector('#f4-direct-sidebar')?.classList.remove('f4-open');const b=document.getElementById('f4-direct-sideback');if(b)b.hidden=true;hamburger.setAttribute('aria-expanded','false')}
 hamburger.addEventListener('click',()=>{
  if(portal==='portal'||portal==='simple'){
-  const side=document.getElementById('f4-direct-sidebar');if(!side){location.assign('/');return}
+  const side=document.getElementById('f4-direct-sidebar');if(!side){location.assign(shellUrl('/'));return}
   const opened=side.classList.toggle('f4-open');document.getElementById('f4-direct-sideback').hidden=!opened;hamburger.setAttribute('aria-expanded',String(opened));
  }else if(portal==='bank')window.f4ToggleBankMenu?.();
  else if(portal==='book')window.bukaMenu?.();
@@ -419,7 +421,7 @@ if(portal==='portal'&&legacy){
  if(key==='bank-sampah'||key==='pembukuan'||key==='superadmin'||key==='rapat'||key==='dokumentasi'||key==='inventaris'){
   const destination=key==='bank-sampah'?paths.bank:key==='pembukuan'?paths.book:key==='superadmin'?paths.superadmin:key==='inventaris'?'/dokumentasi/?halaman=inventaris':paths[key];
   const docId=key==='rapat'?new URLSearchParams(location.search).get('doc'):null;
-  location.replace(docId?destination+'?doc='+encodeURIComponent(docId):destination);
+  location.replace(shellUrl(docId?destination+'?doc='+encodeURIComponent(docId):destination));
   return;
  }
  if(['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(key)){
