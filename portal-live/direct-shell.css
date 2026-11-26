@@ -1,5 +1,5 @@
 /* Flamboyan 4 — shared navigation for native (non-iframe) portal pages. */
-:root{--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
+:root{--f4-shell-fallback-display:none;--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
 --f4-ui-ink:#23293c;--f4-ui-muted:#586477;--f4-ui-border:#dde3ea;--f4-heading:clamp(1.4rem,1.25rem + .7vw,1.85rem);
 --f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-control-height:42px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
 

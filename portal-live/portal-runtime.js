@@ -182,6 +182,18 @@ function copyAttributes(from,to,keep=[]){
  const protectedAttrs=new Set(keep);for(const name of to.getAttributeNames())if(!protectedAttrs.has(name))to.removeAttribute(name);
  for(const name of from.getAttributeNames())if(!protectedAttrs.has(name))to.setAttribute(name,from.getAttribute(name));
 }
+function pinShellStyles(){
+ const link=[...document.head.querySelectorAll('link[rel="stylesheet"]')].find(n=>/\/direct-shell\.css(?:\?|$)/.test(n.getAttribute('href')||''));
+ if(!link||document.getElementById('f4-shell-canonical-style'))return;
+ try{
+  const rules=[...link.sheet.cssRules];if(!rules.length)return;
+  const style=document.createElement('style');style.id='f4-shell-canonical-style';style.dataset.f4Persistent='shell';style.media=link.media;
+  style.textContent=rules.map(rule=>rule.cssText).join('\n');
+  document.head.insertBefore(style,link);
+  if(!style.sheet||style.sheet.cssRules.length!==rules.length){style.remove();return;}
+  link.remove();
+ }catch(e){console.warn('Stylesheet shell tetap menggunakan link asli.',e);}
+}
 function markPermanent(){
  for(const n of document.body.children)if(permanentBody(n))n.dataset.f4Persistent='shell';
  for(const n of document.head.querySelectorAll('style,link[rel="stylesheet"]'))if(permanentStyle(n))n.dataset.f4Persistent='shell';
@@ -198,7 +210,7 @@ async function prepare(key,target){
  const preparedStyles=[];
  // Keep shared navigation styles attached. Stage the incoming head sheets
  // ahead of shared links and Bank's trailing sheets after them.
- const sharedAnchor=[...document.head.querySelectorAll('link[rel="stylesheet"]')].find(permanentStyle)||null;
+ const sharedAnchor=[...document.head.querySelectorAll('style,link[rel="stylesheet"]')].find(n=>n.id==='f4-shell-canonical-style'||(n.tagName==='LINK'&&permanentStyle(n)))||null;
  const bodyStyles=key==='bank'?[...parsed.body.children].filter(n=>n.matches('style,link[rel="stylesheet"]')&&!permanentStyle(n)):[];
  const bodyStyleSet=new Set(bodyStyles);
  const prepareStyles=()=>Promise.all([
@@ -226,7 +238,7 @@ async function prepare(key,target){
  let scope=null,mounted=null;
  return {async mount(){
   markPermanent();
-  copyAttributes(parsed.documentElement,document.documentElement,['data-f4-release','data-f4-spa']);
+  copyAttributes(parsed.documentElement,document.documentElement,['data-f4-release','data-f4-spa','data-f4-swapping']);
   copyAttributes(parsed.body,document.body);
   document.title=parsed.title;
   for(const n of parsed.head.querySelectorAll('base'))if(!n.closest('noscript')&&!permanentStyle(n))document.head.append(document.importNode(n,true));
@@ -245,7 +257,7 @@ async function boot(){
  if(booted)return;booted=true;
  const key=keyOf(location.pathname);if(!key)return;
  const nav=window.F4PortalNavigation;if(!nav){window.F4Startup?.fail();throw Error('Kerangka aplikasi tidak ditemukan.');}
- markPermanent();
+ pinShellStyles();markPermanent();
  const specs=scriptSpecs(document),scope=scopeFor(key);active=scope;
  const contentError=document.createElement('p');contentError.hidden=true;contentError.setAttribute('role','alert');contentError.dataset.f4Persistent='boot-error';document.body.append(contentError);
  for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);

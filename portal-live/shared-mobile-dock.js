@@ -16,7 +16,7 @@ const dockPaths={
  report:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
  payout:'<rect x="3" y="9" width="18" height="12" rx="2"/><circle cx="12" cy="15" r="2.5"/><path d="M12 7V2m-3 3 3-3 3 3"/>'
 };
-const dockIcon=key=>dockPaths[key]?'<svg viewBox="0 0 24 24" aria-hidden="true">'+dockPaths[key]+'</svg>':svg(key);
+const dockIcon=key=>dockPaths[key]?'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'+dockPaths[key]+'</svg>':svg(key);
 const dockItems={
  superadmin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['input','Input','add'],['book','Pembukuan','book'],['superadmin','Superadmin','superadmin']],
  admin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['deposit','Input','add'],['sale','Penjualan','sale'],['report','Laporan','report']],

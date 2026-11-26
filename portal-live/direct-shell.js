@@ -50,7 +50,7 @@ function navButton(key,url,label){
 const portalMainLink=navButton('home',paths.portal,'Portal Utama');
 // One shared Portal Utama icon on every portal and for every role:
 // exactly the globe pictogram used by Bank Sampah; not the Beranda house.
-portalMainLink.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"></path></svg>';
+portalMainLink.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"></path></svg>';
 navButton('bank',paths.bank,'Bank Sampah');
 const bookLink=navButton('book',paths.book,'Pembukuan');const adminLink=navButton('superadmin',paths.superadmin,'Superadmin');const donorLink=navButton('donor',paths.donor,'Laporan Donatur');
 bookLink.hidden=true;adminLink.hidden=true;donorLink.hidden=true;
@@ -69,6 +69,7 @@ const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dat
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
 routeLoading.innerHTML='<span class="f4-route-loading-indicator"><span class="f4-route-spinner" aria-hidden="true"></span><span>Memuat halaman…</span></span>';
 document.body.append(routeLoading);
+const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.textContent='Memuat halaman…';document.body.append(swapFallback);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
 const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-first-paint-v5';document.head.append(notificationScript);
@@ -140,7 +141,7 @@ function afterPaint(){
 function endView(token){
  if(token===null||token!==viewSequence)return;
  const ready=window.F4PortalRuntime?.waitForView?.()||Promise.resolve();
- Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence)routeLoading.hidden=true});
+ Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence){document.documentElement.removeAttribute('data-f4-swapping');routeLoading.hidden=true}});
 }
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
@@ -185,6 +186,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(replace||pop)location.replace(url);else location.assign(url);return true;
  }
  const viewToken=beginView();navigationPending=true;
+ document.documentElement.setAttribute('data-f4-swapping','');
  const accountId=session?.account?.id||null,requestedRole=role;
  const stillAllowed=()=>accountId===(session?.account?.id||null)&&requestedRole===role&&canAccessPortal(key);
  let prepared=null,detached=false;
