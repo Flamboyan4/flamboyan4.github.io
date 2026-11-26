@@ -59,9 +59,10 @@ const login=el('button','f4-direct-login');login.type='button';login.textContent
 const avatar=el('button');avatar.id='f4-direct-avatar';avatar.type='button';avatar.innerHTML=svg('user');avatar.hidden=true;avatar.setAttribute('aria-label','Buka menu akun');
 const menu=el('div');menu.id='f4-direct-account-menu';menu.hidden=true;
 const menuName=el('div','f4-nav-account-name');
+const socialProfile=el('button');socialProfile.type='button';socialProfile.textContent='Profil Saya';socialProfile.dataset.accountAction='profile';socialProfile.hidden=true;
 const settings=el('button');settings.type='button';settings.textContent='Pengaturan Akun';settings.dataset.accountAction='settings';
 const logout=el('button');logout.type='button';logout.textContent='Keluar';logout.dataset.accountAction='logout';
-menu.append(menuName,settings,logout);
+menu.append(menuName,socialProfile,settings,logout);
 const identity=el('div','f4-direct-identity');identity.id='f4-direct-identity';identity.hidden=true;
 const identityName=el('strong');identity.append(identityName);
 const meeting=el('a');meeting.id='f4-direct-meeting';meeting.href=shellUrl(paths.rapat);meeting.title='Rapat';meeting.setAttribute('aria-label','Rapat');
@@ -312,7 +313,7 @@ function updatePortalChrome(key){
  applyPortalTheme(portal);hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(residentKeys.includes(key)?key:portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
  meeting.setAttribute('aria-current',key==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',key==='rapat');
- settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Kartu & Profil': ['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
+ syncAccountMenu();
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
  document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));
 }
@@ -505,6 +506,7 @@ async function api(path,options){
 function notifyRole(){
  syncPageMenu();
  syncResidentSide();
+ syncAccountMenu();
  if(portal==='bank'||portal==='portal'||activePortalKey==='dokumentasi'||residentKeys.includes(activePortalKey)){
   const member=session?.member||{};
   const data={type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}};
@@ -596,7 +598,7 @@ async function refreshSession(){
  if(avatar.dataset.f4TagAccount!==tagAccount)avatar.dataset.f4TagAccount=tagAccount;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';donorLink.hidden=role!=='donatur';
  updateAccountIdentity();rememberDockHint(authed?role:'');updateSharedDock();
- settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Kartu & Profil': ['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
+ syncAccountMenu();
  if(authed&&role!=='donatur')avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){
@@ -641,6 +643,11 @@ dialog.querySelector('form').addEventListener('submit',async e=>{
  finally{b.disabled=false;dialog.querySelector('#f4-direct-password').value=''}
 });
 avatar.onclick=()=>{menu.hidden=!menu.hidden};
+function syncAccountMenu(){
+ socialProfile.hidden=!(sessionCheckCompleted&&session?.account&&role==='warga');
+ settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Pengaturan Akun':['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
+}
+socialProfile.onclick=()=>{menu.hidden=true;if(canAccessPortal('profile')&&role==='warga')void navigatePortal(paths.profile);};
 function openAccountProfile(){
  menu.hidden=true;
  if(role==='donatur'){location.assign(paths.donor);return}

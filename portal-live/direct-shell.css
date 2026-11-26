@@ -69,6 +69,8 @@ body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 #f4-direct-account-menu{position:absolute;top:55px;right:10px;width:min(245px,92vw);border:1px solid var(--f4-nav-line);border-radius:13px;padding:9px;background:white;box-shadow:0 14px 45px #14243625}
 #f4-direct-account-menu[hidden],#f4-direct-dialog[hidden],#f4-direct-gate[hidden],#f4-direct-sidebar[hidden],#f4-direct-sideback[hidden]{display:none}
 #f4-direct-account-menu button{display:block;width:100%;height:auto;text-align:left;padding:13px 11px;font-size:13px;font-weight:650;color:#263b45}
+#f4-direct-account-menu button[hidden]{display:none}
+#f4-direct-account-menu button[data-account-action="logout"]{color:#b42332;border-top:1px solid var(--f4-nav-line)}
 #f4-direct-account-menu .f4-nav-account-name{padding:10px;font-size:12px;font-weight:650;border-bottom:1px solid var(--f4-nav-line)}
 #f4-direct-dialog{position:fixed;inset:0;display:grid;place-items:center;padding:15px;background:#111b2d7a;z-index:850;font:14px/1.5 system-ui,-apple-system,sans-serif}
 #f4-direct-dialog section{width:min(430px,100%);background:white;border-radius:16px;padding:23px;color:#223b37}
