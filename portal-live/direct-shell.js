@@ -176,7 +176,8 @@ const residentTools=(()=>{
   if(reset){lastY=y;wasBottom=false;setExpanded(false);return}
   if(drag||suggestion.open){lastY=y;return}
   if(y<lastY-2){if(!bottom||wasBottom)setExpanded(false)}
-  else if(bottom&&(!wasBottom||y>lastY+1))setExpanded(true);
+  // Only the home portal may reveal the shortcuts automatically.
+  else if(activePortalKey==='portal'&&bottom&&(!wasBottom||y>lastY+1))setExpanded(true);
   wasBottom=bottom;lastY=y;
  }
  function scheduleScroll(){
