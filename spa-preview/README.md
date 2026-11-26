@@ -19,3 +19,7 @@ Sembilan rute SPA: beranda, riwayat, laporan, pencairan, setoran, penjualan, tab
 
 ## Tahap 4 — Form operasi Bank Sampah
 Setoran, penjualan dan pengajuan pencairan menggunakan adapter asli melalui transport simulasi terisolasi tanpa fetch/penyimpanan. UI menyatakan eksplisit tidak ada transaksi disimpan. Pengesahan, kelola pembayaran, bukti dan pencetakan lengkap belum dimigrasikan. Bukan aktivasi write API.
+
+
+## Pengujian browser
+Di folder spa-preview: `npm install --no-package-lock`, `npx playwright install chromium firefox`, `npm run test:browser`. Tes server lokal memblokir akses eksternal dan menyimulasikan respons API. Memeriksa identitas node navbar, form, history dan nol POST eksternal. Belum merupakan uji sesi atau data produksi.

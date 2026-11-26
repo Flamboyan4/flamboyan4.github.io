@@ -1,1 +1,11 @@
-{"private":true,"type":"module","scripts":{"test":"node tests.mjs"}}
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests.mjs",
+    "test:browser": "node browser-tests.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.51.1"
+  }
+}
