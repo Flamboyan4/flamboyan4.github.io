@@ -459,12 +459,17 @@ if(deepLinkURL.searchParams.has('album')||deepLinkURL.searchParams.has('foto')){
 drawFilters();drawAlbums();drawInventory();const legacyInventory=__f4.globals.location.hash==='#inventaris';
 if(legacyInventory){const url=new __f4.globals.URL(__f4.globals.location.href);url.hash='';url.searchParams.set('halaman','inventaris');__f4.globals.history.replaceState(__f4.globals.history.state,'',url.pathname+url.search)}
 tab(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi',false);
-loadPortalArchive().catch(async error=>{
+let archivePromise=null;
+function ensureArchive(){if(archivePromise)return archivePromise;archivePromise=loadPortalArchive().catch(async error=>{
  docs.sort((a,b)=>parseDate(b.date)-parseDate(a.date));
  __f4.window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
  await hydrateArchiveCovers();
  __f4.globals.document.dispatchEvent(new __f4.globals.Event('f4:gallery:ready'));
  status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');
-});
+});return archivePromise;}
+__f4.window.f4EnsureGalleryArchive=ensureArchive;
+const isResidentProfile=()=>new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')==='profil';
+if(!isResidentProfile())void ensureArchive();
+__f4.window.addEventListener('popstate',()=>{if(!isResidentProfile())void ensureArchive()});
 
 });
