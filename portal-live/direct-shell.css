@@ -58,7 +58,14 @@
 #f4-direct-bar button,#f4-direct-bar a{display:grid;place-items:center;width:39px;height:39px;flex:none;border:0;border-radius:11px;background:transparent;color:var(--f4-nav);cursor:pointer;padding:0;text-decoration:none}
 #f4-direct-bar button:hover,#f4-direct-bar a:hover,#f4-direct-bar .f4-selected{background:var(--f4-nav-tint)}
 #f4-direct-bar svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-#f4-direct-bar .f4-nav-links{margin-left:auto;display:flex;align-items:center;gap:6px}
+#f4-direct-bar .f4-nav-links{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
+#f4-direct-bar .f4-direct-identity{display:grid;grid-template-rows:auto auto;align-content:center;gap:3px;flex:1 1 auto;min-width:0;margin:0;font-family:system-ui,-apple-system,sans-serif}
+#f4-direct-bar .f4-direct-identity[hidden]{display:none}
+#f4-direct-bar .f4-direct-identity strong,#f4-direct-bar .f4-direct-identity small{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#f4-direct-bar .f4-direct-identity strong{color:#20232d;font-size:16px;line-height:1.2;font-weight:800}
+#f4-direct-bar .f4-direct-identity small{color:#666975;font-size:11px;line-height:1.2;font-weight:550}
+body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
+body.f4-direct-bank #f4-direct-bar .f4-direct-identity small{color:#547465}
 #f4-direct-bar #f4-direct-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;border:1px solid var(--f4-nav-line);background:var(--f4-nav-tint)}
 #f4-direct-avatar img{height:100%;width:100%;object-fit:cover}
 #f4-direct-bar .f4-direct-login{width:auto;min-width:64px;padding:0 11px;background:var(--f4-nav-tint)}
@@ -155,6 +162,14 @@ html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
  body.f4-direct-portal,body.f4-direct-simple{padding-left:0}
  #f4-direct-bar{padding:0 10px}
  #f4-direct-bar .f4-nav-links{gap:3px}
+ #f4-direct-bar .f4-direct-identity strong{font-size:15px}
+}
+@media(max-width:480px){
+ #f4-direct-bar:has(.f4-direct-identity:not([hidden])){gap:4px;padding-inline:8px}
+ #f4-direct-bar:has(.f4-direct-identity:not([hidden])) .f4-nav-links{gap:1px}
+ #f4-direct-bar:has(.f4-direct-identity:not([hidden])) :is(.f4-nav-links a,#f4-mobile-menu,#f4-tag-bell){width:30px;min-width:30px;height:34px}
+ #f4-direct-bar:has(.f4-direct-identity:not([hidden])) #f4-direct-avatar{width:34px;height:34px}
+ #f4-direct-bar .f4-direct-identity strong{font-size:14px}
 }
 @media(min-width:1024px){
  #f4-direct-bar #f4-mobile-menu{display:none}

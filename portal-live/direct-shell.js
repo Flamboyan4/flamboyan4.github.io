@@ -24,7 +24,7 @@ const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease=document.documentElement.dataset.f4Release||'20261126-borderless-shell-v2';
+const shellRelease=document.documentElement.dataset.f4Release||'20261126-shared-account-greeting-v1';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
 // Version ordinary cross-portal links too, including legacy links not built by navButton.
 document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
@@ -56,7 +56,9 @@ const menuName=el('div','f4-nav-account-name');
 const settings=el('button');settings.type='button';settings.textContent='Pengaturan Akun';settings.dataset.accountAction='settings';
 const logout=el('button');logout.type='button';logout.textContent='Keluar';logout.dataset.accountAction='logout';
 menu.append(menuName,settings,logout);
-bar.append(hamburger,links,login,avatar,menu);document.body.prepend(bar);
+const identity=el('div','f4-direct-identity');identity.id='f4-direct-identity';identity.hidden=true;
+const identityName=el('strong'),identityDetail=el('small');identity.append(identityName,identityDetail);
+bar.append(hamburger,identity,links,login,avatar,menu);document.body.prepend(bar);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
 const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261126-single-notification-v1';document.head.append(notificationScript);
@@ -131,8 +133,26 @@ function notifyRole(){
  }
 }
 function displayAccountName(){return String(session?.account?.displayName||session?.member?.nama||session?.account?.username||'Pengguna')}
+function residentGreetingName(raw){
+ const full=String(raw||'').trim().replace(/\s+/g,' ');
+ if(!full)return 'Anggota';
+ if(/^(?:nama (?:warga|anggota) (?:belum|tidak) tersedia|warga (?:tidak|belum) tersedia|anggota(?: bank sampah)?|—)$/i.test(full))return full;
+ const words=full.split(' ');let title='Pak';
+ while(words.length&&/^(?:pak|bapak|bpk|bp|bu|ibu)\.?$/i.test(words[0])){
+  if(/^(?:bu|ibu)\.?$/i.test(words[0]))title='Bu';
+  words.shift();
+ }
+ return words.length?title+' '+words[0]:full;
+}
 function updateAccountIdentity(){
  const name=displayAccountName();
+ const show=Boolean(session?.account)&&['warga','admin','superadmin'].includes(role);
+ identity.hidden=!show;
+ const greeting=show?'Halo, '+(role==='warga'?residentGreetingName(name):name):'';
+ const house=String(session?.member?.rumah||'').trim();
+ const detail=show?(role==='warga'?(house&&house!=='—'?'Rumah '+house:'Anggota'):role==='superadmin'?'Superadmin':'Pengelola'):'';
+ identityName.textContent=greeting;identityName.title=greeting;
+ identityDetail.textContent=detail;identityDetail.title=detail;
  menuName.textContent=name+' · '+(role==='warga'?'Anggota':role==='superadmin'?'Superadmin':role==='admin'?'Admin':role==='donatur'?'Donatur':'Publik');
  avatar.title=name;avatar.setAttribute('aria-label','Buka menu akun: '+name);
 }
@@ -257,7 +277,7 @@ logout.onclick=async()=>{
   if(e.status!==401){if(window.f4UiDialog)await window.f4UiDialog.alert('Gagal keluar: '+e.message);else alert('Gagal keluar: '+e.message);return}
  }
  sessionChannel?.postMessage({type:'logout'});
- session=null;role='public';avatar.dataset.f4TagAccount='';
+ session=null;role='public';avatar.dataset.f4TagAccount='';updateAccountIdentity();
  if(portal==='book'||portal==='superadmin'){location.assign(shellUrl('/'));return}
  window.f4CloseUnifiedAccount?.();await refreshSession();
 };
@@ -267,7 +287,7 @@ async function syncAfterSessionRevoked(share=true){
  if(share)sessionChannel?.postMessage({type:'logout'});
  menu.hidden=true;
  closeLogin();
- session=null;role='public';avatar.dataset.f4TagAccount='';
+ session=null;role='public';avatar.dataset.f4TagAccount='';updateAccountIdentity();
  await refreshSession();
  if(portal==='book'||portal==='superadmin')location.replace(shellUrl('/'));
 }

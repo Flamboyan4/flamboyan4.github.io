@@ -127,11 +127,7 @@ function markDock(){
  }
  if(roleType()==="member")syncMemberBack();
  if(roleType()==="admin")syncAdminBack();
- syncAdminGreeting();
-}
-function syncAdminGreeting(){
- const greeting=$("f4BankPageGreeting");
- if(greeting)greeting.hidden=roleType()!=="admin"||screen!=="dashboard";
+
 }
 function previousBankPage(){
  let destination=routeHistory.pop()||"dashboard";
@@ -181,33 +177,6 @@ function syncAdminBack(){
   if(back.parentElement!==title)title.prepend(back);
  }else if(back.parentElement!==section)section.prepend(back);
  back.hidden=!show||!title;
-}
-// Compact member identity replaces the oversized greeting on the member dashboard.
-function memberTopIdentity(){
- const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
- let identity=$("f4BankMemberTopIdentity");
- // Member mobile header is intentionally only a greeting and global utilities.
- // Remove any extra brand from earlier versions, without duplicating it.
- $("f4BankMemberTopBrand")?.remove();
- if(roleType()!=="member"||!bar||!links){identity?.remove();return;}
- if(!identity){
-  identity=el("span","f4-bank-member-top-identity");identity.id="f4BankMemberTopIdentity";
-  bar.insertBefore(identity,links);
- }
- const name=displayWargaName($("pName")?.textContent?.trim()||"Anggota");
- const home=$("pHome")?.textContent?.trim()||"—";
- identity.replaceChildren(el("strong","","Halo, "+name),el("small","","Rumah "+home));
-}
-function adminTopIdentity(){
- const bar=$("f4-direct-bar"),links=bar?.querySelector(".f4-nav-links");
- let badge=$("f4BankAdminTopIdentity");
- if(roleType()!=="admin"||!bar||!links){badge?.remove();return;}
- if(!badge){
-  badge=el("strong","f4-bank-admin-top-identity","Pengelola");
-  badge.id="f4BankAdminTopIdentity";
-  bar.insertBefore(badge,links);
- }
- badge.textContent="Pengelola";
 }
 function syncMemberBack(){
  const button=$("f4-mobile-menu"),secondary=screen!=="dashboard";
@@ -317,8 +286,7 @@ function ensureHome(){
  }
  if(!hub){
   hub=el("section","f4-bank-app-home");hub.id="f4BankAppHome";
-  const welcome=el("div","f4-bank-app-personal-greeting");welcome.id="f4BankAppWelcome";
-  welcome.append(el("strong","", "Halo!"));
+
   const card=el("button","f4-bank-member-card");card.id="f4BankMemberCard";card.type="button";card.onclick=()=>navigate("profile");
   // ATM identity card: only real member fields are shown (no invented account digits).
   const cardHead=el("span","f4-bank-member-card-head");
@@ -378,18 +346,13 @@ function ensureHome(){
   }
   hero.append(heading,label,amount,secondary,breakdown);
   const minis=el("div","f4-bank-app-minis");minis.id="f4BankAppMinis";
-  hub.append(welcome,card,savings,hero,minis);
+  hub.append(card,savings,hero,minis);
   page.prepend(hub);
  }
  hub.dataset.bankRole=role;
  if(role!=="member")restoreMemberHomeLayout(hub);
- const name=displayWargaName($("pName")?.textContent?.trim()||"Anggota");
  const house=$("pHome")?.textContent?.trim()||"—";
- const welcome=$("f4BankAppWelcome");if(welcome){
-   welcome.replaceChildren(el("strong","",name));
-   welcome.append(el("small","","Rumah "+house));
- }
- memberTopIdentity();adminTopIdentity();
+
  updateCardNumber();
  const houseNode=hub.querySelector(".f4-bank-card-house");if(houseNode)houseNode.textContent=house;
  updateProfileCard();
@@ -2026,7 +1989,7 @@ function ensureAdminHome(){
  if(role!=="admin")return;
  ensureDesktopAdminSidebar();
  const home=$("f4BankAppHome");if(!home)return;
- // The page greeting already says "Halo, admin"; never repeat a home heading.
+ // The shared navbar owns the account greeting.
  $("f4BankAdminIntro")?.remove();
  if(!$("f4BankAdminOperations")){
   const actions=el("div","f4-bank-admin-operations");actions.id="f4BankAdminOperations";
@@ -3029,7 +2992,7 @@ window.f4BankResetForAccountSwitch=()=>{
  role=null;memberStatement=null;adminOverview=null;adminOverviewError='';
  dock().replaceChildren();
  document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
- $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
+
  memberSide(false);syncAdminPageFrames();
 };
 window.f4BankReconcileAccount=()=>sync();
@@ -3042,7 +3005,7 @@ function sync(){
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
   memberSide(false);
-  $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
+ 
   $("f4BankAdminBack")?.setAttribute("hidden","");
   role=null;memberStatement=null;memberSnapshotsLoaded=false;
   syncAdminPageFrames();
@@ -3056,7 +3019,7 @@ function sync(){
   memberStatement=null;adminOverview=null;adminOverviewError='';
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
- memberSide(role==="member");adminTopIdentity();
+ memberSide(role==="member");
  syncAdminPageFrames();
  // If route restoration has hidden every page, show the selected home again.
  // Do not interfere with any currently open operational screen.
@@ -3162,8 +3125,7 @@ function inlineMemberDisplayName(){
     const sidebar=$("v15AccountName");if(sidebar)sidebar.textContent=displayWargaName(persisted);
     const greeting=$("greeting");if(greeting)greeting.textContent="Halo, "+displayWargaName(persisted);
     const welcome=$("welcomeName");if(welcome)welcome.textContent=displayWargaName(persisted);
-    const mobile=$("f4BankAppHome")?.querySelector(".f4-bank-app-personal-greeting strong");
-    if(mobile)mobile.textContent="Halo, "+displayWargaName(persisted)+"!";
+
     updateCardNumber();
     mode(false);
     window.dispatchEvent(new CustomEvent("f4-account-profile-updated",{detail:{nama:persisted}}));
@@ -3241,7 +3203,7 @@ function init(){
   event.preventDefault();event.stopImmediatePropagation();
   if(screen!=="dashboard")previousBankPage();
  },true);
- window.addEventListener("f4-account-profile-updated",memberTopIdentity);
+
  const openPublic=window.v11ShowPublic;
  if(typeof openPublic==="function")window.v11ShowPublic=function(...args){
   restoreFeature();hideCustom();restoreAdminProgress();return openPublic.apply(this,args);

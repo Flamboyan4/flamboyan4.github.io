@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261126-borderless-shell-v2">
+<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261126-shared-account-greeting-v1">
 <head>
   <meta charset="utf-8">
   <base target="_top">
@@ -1261,7 +1261,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-borderless-shell-v2"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-shared-account-greeting-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261126-borderless-shell-v2">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -2295,7 +2295,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
     <section id="dashboardView" class="hidden">
       <div class="mobile-nav"><strong>Menu akun</strong><button class="secondary" onclick="toggleMenu()" aria-label="Buka tutup menu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg> Menu</button></div>
       <div class="grid"><nav id="sideNav" class="side"><div class="brand" style="margin-bottom:16px"><img src="/assets/icons/bank.svg" width="21" height="21" alt="" aria-hidden="true"> Menu</div><button id="navDashboard" onclick="goPage('dashboard')" class="secondary active">Dashboard</button><button id="navProfile" onclick="goPage('profile')" class="secondary">Profil saya</button><button id="navSetoran" onclick="goPage('setoran')" class="secondary hidden">Input setoran</button><button id="navRiwayat" onclick="goPage('riwayat')" class="secondary hidden">Riwayat setoran</button><button id="navPenjualan" onclick="goPage('penjualan')" class="secondary hidden">Penjualan lapak</button><button id="navRekonsiliasi" onclick="goPage('rekonsiliasi')" class="secondary hidden">Cek selisih</button><button id="navMaster" onclick="goPage('master')" class="secondary hidden">Harga barang</button><button id="navAdmin" onclick="goPage('admin')" class="secondary hidden">Kelola akun warga</button><button id="navProgress" onclick="goPage('progress')" class="secondary">Progres kegiatan</button><button id="navPassword" onclick="goPage('password')" class="secondary">Ganti password</button><button class="ghost" onclick="doLogout()">Keluar</button></nav>
-      <div class="section"><div class="toolbar" id="f4BankPageGreeting" style="margin-bottom:16px"><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
+      <div class="section"><div class="toolbar" id="f4BankPageGreeting" hidden><div><h1 id="greeting">Halo!</h1><div class="sub">Bank Sampah Flamboyan 4</div></div><span id="roleBadge" class="tag"></span></div>
         <div id="pageDashboard" class="card"><div class="toolbar"><div><h2>Dashboard Bank Sampah</h2></div><button class="secondary" onclick="loadDashboard()">Perbarui</button></div><div id="adminMetrics" class="hidden"><div id="metricGrid" class="metric-grid block-gap"></div><div id="dashboardWarnings" class="pill-note block-gap"></div></div><div id="memberWelcome" class="hidden"><div class="notice"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Data pribadi hanya untuk pemilik akun.</div><div class="stats"><div class="stat"><small>Nama</small><strong id="welcomeName">—</strong></div><div class="stat"><small>Rumah</small><strong id="welcomeHouse">—</strong></div><div class="stat"><small>ID anggota</small><strong id="welcomeId">—</strong></div></div></div><p class="hint" id="metricStatus">Memuat ringkasan...</p></div>
         <div id="pageProfile" class="card hidden f4-profile-card">
           <div class="f4-profile-header"><h2>Profil saya</h2></div>
@@ -7828,15 +7828,15 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 
 <link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261126-card-standard-admin-cash-v1">
 <link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261126-card-standard-admin-cash-v1">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261126-borderless-shell-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261126-shared-account-greeting-v1">
 <link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261126-card-standard-admin-cash-v1">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261126-borderless-shell-v1">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261126-shared-account-greeting-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261123-bank-teal-v3">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261123-prices-no-search-v3"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261126-borderless-shell-v2"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261126-single-notification-v1"></script>
+<script src="/portal-live/direct-shell.js?v=20261126-shared-account-greeting-v1"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
+<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261126-shared-account-greeting-v1"></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261126-card-standard-admin-cash-v1">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261124-finance-first-v5"></script>
 <script defer src="/portal-live/bank-admin-analytics.js?v=20261122-podium-colors-v12"></script>

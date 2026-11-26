@@ -3034,10 +3034,6 @@ display:grid;gap:12px;max-width:560px;margin:0;padding:13px;border-top:1px solid
  body.f4-bank-app-admin #f4-direct-bar{padding-left:12px}
 }
 /* Setoran milik Bank Sampah: tanpa membagikan saldo warga. */
-body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{
- display:flex;align-items:center;margin-right:auto;
- color:#164d35;font:850 15px/1.2 system-ui
-}
 body.f4-bank-app-admin #dashboardView #bank-admin-docs{
  align-content:start;gap:12px;max-width:none;width:100%;min-width:0;
  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
@@ -3390,7 +3386,6 @@ body.f4-bank-app-admin #bank-admin-cash{width:100%;max-width:none;align-content:
  .f4-bank-admin-cash-stat strong{font-size:13px}
 }
 @media(min-width:1024px){
- body.f4-bank-app-admin #f4-direct-bar .f4-bank-admin-top-identity{display:none}
 }
 /* Satu navigasi bawah untuk anggota & pengurus: HP dan tablet sebelum sidebar desktop aktif. */
 @media(max-width:1023px){
