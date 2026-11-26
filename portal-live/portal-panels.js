@@ -7,7 +7,7 @@ window.F4PortalRuntime.define("/portal-live/portal-panels.js",function(__f4){
 (()=>{
 'use strict';
 const main=__f4.globals.document.querySelector('body>main');if(!main)return;
-const footer=__f4.globals.document.getElementById('pembayaran');
+const paymentToggle=__f4.globals.document.getElementById('f4-mobile-payment-toggle');
 const current={panel:'beranda',role:'public',privateKind:'iuran_rt'};
 const finance=__f4.globals.document.getElementById('keuangan');
 const isMember=role=>['anggota','warga','member'].includes((0,__f4.globals.String)(role||'').toLowerCase());
@@ -22,7 +22,7 @@ const sectionTargets={
  kalender:__f4.globals.document.getElementById('rencana'),
   arisan:__f4.globals.document.getElementById('arisan'),
  komentar:__f4.globals.document.getElementById('komentar-warga'),
- pembayaran:footer
+ pembayaran:paymentToggle
 };
 const el=(tag,text,cls)=>{const a=__f4.globals.document.createElement(tag);if(text!==__f4.globals.undefined)a.textContent=(0,__f4.globals.String)(text);if(cls)a.className=cls;return a};
 const prefersReduced=()=>__f4.window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -41,18 +41,15 @@ function visiblePanel(){
    ['beranda',sectionTargets.beranda],
    ['keuangan',current.role==='public'?null:sectionTargets.keuangan],
    ['keuangan',current.role==='public'?null:__f4.globals.document.getElementById('arisan')],
-   ['projek',sectionTargets.projek],
    ['kalender',sectionTargets.kalender],
+   ['projek',sectionTargets.projek],
    ['inventaris',__f4.globals.document.getElementById('kegiatan')],
-   ['komentar',sectionTargets.komentar],
-   ['pembayaran',footer]
+   ['komentar',sectionTargets.komentar]
   ];
   let active='beranda';
   for(const [name,node] of landmarks){
    if(node&&node.getClientRects().length&&node.getBoundingClientRect().top<=150)active=name;
   }
-  const atBottom=__f4.window.innerHeight+__f4.window.scrollY>=__f4.globals.document.documentElement.scrollHeight-12;
-  if(atBottom&&footer?.getClientRects().length)active='pembayaran';
   current.panel=active;
   reportVisible(active);
  });
@@ -62,7 +59,7 @@ function showPanel(panel,recordHistory=true){
  if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(['keuangan','kas-warga'].includes(panel)&&current.role==='public'))panel='beranda';
  if(panel==='pembayaran'&&__f4.globals.F4ResidentTools?.openPayment())return;
- if(panel==='pembayaran'&&__f4.window.matchMedia('(max-width:767px)').matches){if(__f4.window.f4OpenMobilePayment)__f4.window.f4OpenMobilePayment();else __f4.globals.document.getElementById('f4-mobile-payment-toggle')?.click();return;}
+ if(panel==='pembayaran'){if(__f4.window.f4OpenMobilePayment)__f4.window.f4OpenMobilePayment();else __f4.globals.document.getElementById('f4-mobile-payment-toggle')?.click();return;}
  current.panel=panel;
  if(isMember(current.role)&&['keuangan','kas-warga'].includes(panel)){createFinanceTabs();setFinanceMode(false);}
  const element=sectionTargets[panel]||sectionTargets.beranda;
@@ -299,7 +296,7 @@ async function loadPersonal(kind){
 const css=__f4.globals.document.createElement('style');css.id='f4-portal-panels-style';
 css.textContent='.f4-user-finance-sub{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.f4-user-status{font-size:12px;color:#68718a}.f4-user-row{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #e4e9f2;padding:10px 0}.f4-user-row strong{font-size:12px}.f4-user-row small{font-size:10px;color:#718096;display:block}';
 
-css.textContent+="\nfooter#pembayaran{background:#fff;color:#53607a;border-top:1px solid #e1e6f0;padding:30px 0 18px;margin-top:18px;scroll-margin-top:72px}\nfooter#pembayaran>div>div:first-child{background:#f8f9fc;border:1px solid #dce3ee;box-shadow:0 3px 15px #1b34550a}\nfooter#pembayaran>div>div:first-child>div:first-child{border-color:#e0e5ef}\nfooter#pembayaran>div>div:first-child>div:first-child h4{color:#2b3155}\nfooter#pembayaran>div>div:first-child>div:first-child>span{color:#728096}\nfooter#pembayaran .grid>div{background:white;border:1px solid #dde5ef}\nfooter#pembayaran .grid>div p.font-bold{color:#273655}\nfooter#pembayaran .grid>div p.text-slate-400{color:#68778d}\nfooter#pembayaran .grid button,footer#pembayaran .grid a{border-radius:9px}\nfooter#pembayaran>div>div:last-child{color:#738095}\nhtml{scroll-behavior:smooth}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}\n";
+css.textContent+="\nhtml{scroll-behavior:smooth}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}\n";
 css.textContent+="\n#keuangan.f4-finance-personal-active> :not(.f4-user-finance){display:none}\n#keuangan .f4-user-finance [hidden]{display:none}\n#keuangan .f4-user-finance-sub{\n flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;\n width:100%;min-width:0;max-width:100%;touch-action:pan-x;\n overscroll-behavior-x:contain;scroll-snap-type:x proximity;\n scrollbar-width:none;padding:2px 2px 6px;margin:0 0 9px;\n}\n#keuangan .f4-user-finance-sub::-webkit-scrollbar{display:none}\n#keuangan .f4-user-finance-sub>button{flex:0 0 auto;white-space:nowrap;scroll-snap-align:start}\n#keuangan .f4-user-finance-controls>button{white-space:nowrap}\n@media(max-width:760px){\n #keuangan .f4-user-finance-controls{gap:7px}\n #keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 11px}\n #keuangan .f4-user-finance-sub{gap:7px}\n #keuangan .f4-user-finance-sub>button{padding:9px 13px;font-size:12px}\n}\n";
 css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa angka contoh. */\n"+
 
