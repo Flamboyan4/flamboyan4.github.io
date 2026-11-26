@@ -239,10 +239,10 @@ async function prepare(key,target){
  return {async mount(){
   markPermanent();
   copyAttributes(parsed.documentElement,document.documentElement,['data-f4-release','data-f4-spa','data-f4-swapping']);
-  // Role-owned chrome must keep its layout while the content body is replaced.
-  const sharedDockActive=document.body.classList.contains('f4-shared-dock');
-  copyAttributes(parsed.body,document.body);
-  if(sharedDockActive)document.body.classList.add('f4-shared-dock');
+  const nextClasses=new Set(parsed.body.classList);
+  if(document.body.classList.contains('f4-shared-dock'))nextClasses.add('f4-shared-dock');
+  copyAttributes(parsed.body,document.body,['class']);
+  document.body.className=[...nextClasses].join(' ');
   document.title=parsed.title;
   for(const n of parsed.head.querySelectorAll('base'))if(!n.closest('noscript')&&!permanentStyle(n))document.head.append(document.importNode(n,true));
   for(const {link,media} of preparedStyles){delete link.dataset.f4Persistent;link.media=media;}

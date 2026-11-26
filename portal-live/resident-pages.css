@@ -59,3 +59,12 @@
 .rp-photo img{display:block;width:100%;height:100%;object-fit:cover}
 .rp-photos>.rp-empty{grid-column:1/-1;text-align:center}
 @media(min-width:768px){.rp-calendar .rp-day{height:64px}.rp-card{padding:20px}.rp-bank{padding:24px}.rp-photos{gap:6px}}
+
+/* Native document scrolling, like the original Beranda. No inner scroll surface,
+   fixed content, touch interception or overscroll lock on these pages. */
+html:has(body.f4-resident-page),body.f4-resident-page{max-width:100%;overflow-x:clip;overflow-y:visible}
+body.f4-resident-page{box-sizing:border-box;margin:0;min-height:100dvh;background:#fff;color:#26344f;font:14px/1.5 system-ui,-apple-system,sans-serif}
+body.f4-resident-page>#f4-resident-main{box-sizing:border-box;max-width:1080px;width:100%;margin:0 auto;padding:24px;min-width:0}
+@media(max-width:1023px){
+ body.f4-resident-page>#f4-resident-main{padding:16px 14px 22px}
+}
