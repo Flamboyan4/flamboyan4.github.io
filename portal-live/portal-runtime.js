@@ -201,12 +201,26 @@ async function prepare(key,target){
 async function boot(){
  if(booted)return;booted=true;
  const key=keyOf(location.pathname);if(!key)return;
- const nav=window.F4PortalNavigation;if(!nav)throw Error('Kerangka aplikasi tidak ditemukan.');
+ const nav=window.F4PortalNavigation;if(!nav){window.F4Startup?.fail();throw Error('Kerangka aplikasi tidak ditemukan.');}
  markPermanent();
  const specs=scriptSpecs(document),scope=scopeFor(key);active=scope;
  const contentError=document.createElement('p');contentError.hidden=true;contentError.setAttribute('role','alert');contentError.dataset.f4Persistent='boot-error';document.body.append(contentError);
  for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);
- try{await prepareScripts(specs);await runScripts(specs,scope);nav.contentReady();contentError.remove()}catch(e){contentError.hidden=false;contentError.textContent='Konten portal tidak dapat dimuat. Muat ulang halaman. '+e.message;throw e}
+ try{
+  await prepareScripts(specs);await runScripts(specs,scope);nav.contentReady();contentError.remove();
+  // The first paint is held until all original factories and styles are installed.
+  // Allow the first session response to start its authorized view before revealing.
+  let sessionTimer;
+  try{await Promise.race([nav.initialSession||Promise.resolve(),new Promise(resolve=>{sessionTimer=setTimeout(resolve,4500)})])}
+  catch(e){console.warn('Sesi awal:',e)}finally{clearTimeout(sessionTimer)}
+  await scope.waitForView();
+  // Two frames give generated utility styles and icon/layout mutations a paint opportunity.
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  window.F4Startup?.finish();
+ }catch(e){
+  contentError.hidden=false;contentError.textContent='Konten portal tidak dapat dimuat. Muat ulang halaman. '+e.message;
+  window.F4Startup?.fail();throw e;
+ }
 }
 window.F4PortalRuntime={ready:()=>!!active?.ready(),waitForView:()=>active?.waitForView()||Promise.resolve(),define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>console.error('Portal:',e)),{once:true});else boot().catch(e=>console.error('Portal:',e));

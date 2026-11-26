@@ -1,8 +1,23 @@
 <!doctype html>
 <!-- v6.20.1 EDIT CLEANUP PREDEPLOY -->
-<html lang="id" data-f4-shell="book" data-f4-release="20261127-left-menu-v4" data-f4-spa="1">
+<html lang="id" data-f4-shell="book" data-f4-release="20261127-first-paint-v5" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
+<style id="f4-startup-critical" data-f4-persistent="shell">
+#f4-startup-screen{display:none}
+html[data-f4-starting]{background:#fff}
+html[data-f4-starting] #f4-startup-screen{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#fff;color:#5145cd;font:600 14px/1.5 system-ui,-apple-system,sans-serif;text-align:center;padding:24px;box-sizing:border-box;pointer-events:auto}
+html[data-f4-starting][data-f4-shell="bank"] #f4-startup-screen{color:#087c6c}
+html[data-f4-starting][data-f4-shell="book"] #f4-startup-screen{color:#7035c9}
+html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#6650cc}
+#f4-startup-screen .f4-startup-group{display:grid;justify-items:center;gap:14px;max-width:300px}
+#f4-startup-screen .f4-startup-spinner{width:30px;height:30px;border:3px solid #e5e7eb;border-top-color:currentColor;border-radius:50%;box-sizing:border-box;animation:f4-startup-spin .7s linear infinite}
+#f4-startup-screen [hidden]{display:none}
+#f4-startup-screen button{font:inherit;color:inherit;background:#fff;border:1px solid currentColor;border-radius:10px;padding:9px 16px;cursor:pointer}
+@keyframes f4-startup-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#f4-startup-screen .f4-startup-spinner{animation:none}}
+</style>
+<script>(()=>{const root=document.documentElement;root.setAttribute('data-f4-starting','');let done=false;const fail=()=>{if(done)return;const screen=document.getElementById('f4-startup-screen');if(!screen)return;screen.querySelector('.f4-startup-spinner').hidden=true;screen.querySelector('.f4-startup-message').textContent='Halaman belum dapat dimuat. Periksa koneksi dan coba lagi.';screen.querySelector('button').hidden=false;};const timer=setTimeout(fail,60000);window.F4Startup={finish(){if(done)return;done=true;clearTimeout(timer);root.removeAttribute('data-f4-starting');document.getElementById('f4-startup-screen')?.remove();},fail};})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <noscript><meta http-equiv="refresh" content="0;url=/"><style id="f4-private-noscript">body{display:none}</style></noscript>
 <title>Pembukuan Flamboyan 4</title>
@@ -1575,10 +1590,10 @@ main > section.card{overflow:visible}
 #history-talangan-panel td:nth-child(7) span{white-space:nowrap;display:inline-block;max-width:none}
 }
 </style>
-<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><!-- Production: offline-common.js removed because it denies all POST writes. --><script type="application/f4-source" data-f4-id="/portal-live/calendar-unified.js" data-f4-src="/portal-live/calendar-unified.js?v=20261127-left-menu-v4"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
-<script type="application/f4-source" data-f4-id="/portal-live/live-book-readonly.js" data-f4-src="/portal-live/live-book-readonly.js?v=20261127-left-menu-v4"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/f4-book-write-bridge.js" data-f4-src="/portal-live/f4-book-write-bridge.js?v=20261127-left-menu-v4"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/f4-book-operations-bridge.js" data-f4-src="/portal-live/f4-book-operations-bridge.js?v=20261127-left-menu-v4"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none} @media(max-width:850px){#f4-demo-book-hamburger{display:grid}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}
+<meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://api.flamboyan4.web.id; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com;"><!-- Production: offline-common.js removed because it denies all POST writes. --><script type="application/f4-source" data-f4-id="/portal-live/calendar-unified.js" data-f4-src="/portal-live/calendar-unified.js?v=20261127-first-paint-v5"></script><!-- D1 only: contoh offline tidak pernah dimuat pada laman operasional -->
+<script type="application/f4-source" data-f4-id="/portal-live/live-book-readonly.js" data-f4-src="/portal-live/live-book-readonly.js?v=20261127-first-paint-v5"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/f4-book-write-bridge.js" data-f4-src="/portal-live/f4-book-write-bridge.js?v=20261127-first-paint-v5"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/f4-book-operations-bridge.js" data-f4-src="/portal-live/f4-book-operations-bridge.js?v=20261127-first-paint-v5"></script><style id="f4-no-double-navbar">body>header:first-of-type{display:none} @media(max-width:850px){#f4-demo-book-hamburger{display:grid}} #f4-demo-book-hamburger{display:none;position:fixed;left:11px;top:9px;z-index:60;place-items:center;width:38px;height:38px;background:#f1ebff;color:#5b33c4;border:1px solid #d8cafa;border-radius:9px}
 
 /* CSS owner consolidated from #f4-book-integrated-alignment; prior cascade position preserved */
 
@@ -1737,7 +1752,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
  #report-arisan-panel .report-card{border-color:#d3dfed;border-radius:5px}
  #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums}
 }
-</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-left-menu-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261127-left-menu-v4"><style>html.f4-auth-pending body>:not(#f4-direct-bar):not(#f4-direct-dock):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-first-paint-v5"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261127-first-paint-v5"><style>html.f4-auth-pending body>:not(#f4-direct-bar):not(#f4-direct-dock):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 
 <style id="f4-bookkeeping-mobile-density-20261027">
 /* Compact forms only on mobile; no changes to input IDs, calculations or reports. */
@@ -1820,18 +1835,19 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 </style>
 
 <link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261126-card-standard-admin-cash-v1">
-<script type="application/f4-source" data-f4-id="/portal-live/payment-monitor.js" data-f4-src="/portal-live/payment-monitor.js?v=20261127-left-menu-v4" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/payment-monitor.js" data-f4-src="/portal-live/payment-monitor.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261126-card-standard-admin-cash-v1">
 <link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261126-card-standard-admin-cash-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-left-menu-v4" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-extras.js" data-f4-src="/portal-live/bookkeeping-extras.js?v=20261127-left-menu-v4" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-kas-mobile.js" data-f4-src="/portal-live/bookkeeping-kas-mobile.js?v=20261127-left-menu-v4" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-first-paint-v5" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-extras.js" data-f4-src="/portal-live/bookkeeping-extras.js?v=20261127-first-paint-v5" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-kas-mobile.js" data-f4-src="/portal-live/bookkeeping-kas-mobile.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
 </head>
-<body class="f4-direct-book"><script src="/portal-live/shared-mobile-dock.js?v=20261127-left-menu-v4"></script>
+<body class="f4-direct-book">
+<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-first-paint-v5"></script>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
@@ -2629,9 +2645,9 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
   </div>
 </div>
 
-<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-first-paint-v5"></script>
 
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-1" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-1" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <style id="v617-polish">
@@ -2713,9 +2729,9 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 </div>
 
 
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-2" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-2" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-3" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-3" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 
@@ -2827,7 +2843,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 }
 </style>
 
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-4" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-4" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <style id="v6213-mobile-buat-bayar-real-fix">
@@ -3006,7 +3022,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 .upr-range{display:flex;align-items:center;gap:8px;min-width:0}.upr-control{position:relative;min-width:0}.upr-field{width:190px;min-height:48px;border:1px solid #ddd6fe;background:#fff;border-radius:12px;padding:10px 40px 10px 13px;display:flex;align-items:center;justify-content:flex-start;font-size:15px;line-height:1.2;color:#1e1b2e;position:relative;white-space:nowrap}.upr-field:hover{background:#faf9ff}.upr-field:focus{outline:none;box-shadow:0 0 0 3px #ede9fe;border-color:#8b5cf6}.upr-field svg{position:absolute;right:12px;width:18px;height:18px;color:#6d28d9}.upr-sep{font-size:13px;font-weight:800;color:#64748b;white-space:nowrap}.upr-pop{position:absolute;left:0;top:calc(100% + 7px);z-index:190;width:310px;border:1px solid #ddd6fe;border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(46,16,101,.18);padding:10px;display:none}.upr-control.open .upr-pop{display:block}.upr-control[data-side="to"] .upr-pop{left:auto;right:0}.upr-head{display:grid;grid-template-columns:36px 1fr 36px;align-items:center;gap:4px;margin-bottom:8px}.upr-nav{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#6d28d9}.upr-nav:hover{background:#f5f3ff}.upr-title{height:38px;border-radius:10px;font-weight:900;color:#2e1065;text-align:center}.upr-title:hover{background:#f5f3ff}.upr-level-note{text-align:center;font-size:10px;color:#94a3b8;margin-top:-4px;margin-bottom:7px}.upr-week,.upr-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.upr-week div{text-align:center;font-size:10px;font-weight:800;color:#64748b;padding:4px 0}.upr-day{aspect-ratio:1/1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#1f2937}.upr-day:hover{background:#ede9fe;color:#5b21b6}.upr-day.muted{color:#cbd5e1}.upr-day.selected{background:#7c3aed;color:#fff;font-weight:900}.upr-day.today:not(.selected){box-shadow:inset 0 0 0 1px #8b5cf6;color:#6d28d9;font-weight:800}.upr-months,.upr-years{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:4px 2px}.upr-month,.upr-year{min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155}.upr-month:hover,.upr-year:hover{background:#ede9fe;color:#5b21b6}.upr-month.selected,.upr-year.selected{background:#7c3aed;color:#fff;font-weight:900}.report-universal-filter{display:flex;align-items:end;gap:10px;flex-wrap:wrap;max-width:100%}.upr-filter-status{width:150px;min-width:130px}
 @media(max-width:767px){.upr-range{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;width:100%}.upr-control{width:100%}.upr-field{width:100%;font-size:16px;min-height:50px;padding-left:11px;padding-right:36px}.upr-sep{font-size:12px}.upr-pop{width:min(318px,calc(100vw - 32px));max-width:calc(100vw - 32px)}.upr-control[data-side="from"] .upr-pop{left:0;right:auto}.upr-control[data-side="to"] .upr-pop{right:0;left:auto}.upr-day{font-size:13px}.upr-month,.upr-year{font-size:14px;min-height:50px}.report-universal-filter{display:block;width:100%}.report-universal-filter .upr-range{width:100%;margin-bottom:8px}.report-universal-filter .upr-filter-status{width:100%}}
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-5" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-5" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <style id="v6221-report-filter-calendar-layout-fix">
@@ -3047,7 +3063,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   overflow:visible;
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-6" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-6" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 <style id="v6223-report-talangan-history-filter-fix">
 /* v6.22.3 — visual polish */
@@ -3107,7 +3123,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   .mdc-pop{max-height:min(430px,calc(100vh - 120px));overflow-y:auto}
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-7" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-7" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <style id="v6226-clean-ui-fixes">
@@ -3141,7 +3157,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   }
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-8" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-8" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 <style id="v6230-year-closing-ui">
 /* v6.23.1 — Tutup Buku, Arsip & Year Lock */
@@ -3170,14 +3186,14 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
  .year-archive-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-9" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-9" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <style>
 .bulk-table th,.bulk-table td{white-space:nowrap;vertical-align:top}.bulk-table td:nth-child(3),.bulk-table td:nth-child(6){white-space:normal;min-width:220px}.bulk-badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:900}.bulk-badge.new{background:#dcfce7;color:#047857}.bulk-badge.update{background:#e0f2fe;color:#0369a1}.bulk-badge.same{background:#f1f5f9;color:#475569}.bulk-badge.error,.bulk-badge.conflict{background:#fee2e2;color:#b91c1c}.bulk-warning{margin-top:4px;color:#b45309;font-size:11px;font-weight:700}
 @media(max-width:640px){#tab-importbulk{padding:14px}.bulk-file-card{padding:12px}.bulk-table{font-size:12px}.bulk-table th,.bulk-table td{padding:9px}.bulk-table td:nth-child(3),.bulk-table td:nth-child(6){min-width:180px}.bulk-note{font-size:12px}}
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-10" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-10" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <!-- Popup koreksi tanggal migrasi: berada di DOM utama, bukan dokumen print -->
@@ -3407,7 +3423,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 }
 @media (min-width:768px){.mhistory-cards{display:none}}
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-11" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-11" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
 
 
 <!-- Penempatan dropdown dan kalender ditangani bersama oleh f4-popup-position-20261027. -->
@@ -3488,8 +3504,8 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
  }
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-12" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
-<script src="/portal-live/direct-shell.js?v=20261127-left-menu-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><style id="f4-book-date-label-alignment-20261027">
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-12" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
+<script src="/portal-live/direct-shell.js?v=20261127-first-paint-v5"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><style id="f4-book-date-label-alignment-20261027">
 /* Fix all mobile Pembukuan calendar widgets, not only the Iuran form. */
 @media screen and (max-width:767px){
   body .mdc-wrap{
@@ -3755,5 +3771,5 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   .upr-pop,.mdc-pop{max-width:calc(100vw - 20px)}
 }
 </style>
-<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-13" data-f4-src="/portal-live/book-inline.js?v=20261127-left-menu-v4"></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-left-menu-v4"></script></body></html>
+<script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-13" data-f4-src="/portal-live/book-inline.js?v=20261127-first-paint-v5"></script>
+<script src="/portal-live/portal-runtime.js?v=20261127-first-paint-v5"></script></body></html>
