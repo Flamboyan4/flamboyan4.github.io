@@ -16,3 +16,6 @@ Sembilan rute SPA: beranda, riwayat, laporan, pencairan, setoran, penjualan, tab
 - `book.js` memakai alokasi iuran asli untuk pratinjau; belum menyimpan. `community.js` menampilkan daftar dasar agenda, dokumentasi, inventaris, rapat, arisan, warga, akun, projek, dan status layanan jadwal. CRUD, media viewer, pembayaran, nota/cetak, penyuntingan dan seluruh desain asli belum mencapai parity.
 - Router membatalkan rute lama, menjaga draf dan mengunci interaksi konten selama loading. Tombol dock tidak dibuat ulang saat routing. Tes logika dengan transport tiruan tidak menjalankan API produksi.
 - **Belum siap deploy.** Uji browser dan staging dengan DB terisolasi, migrasi UI asli dan transaksi end-to-end tetap merupakan syarat sebelum merge. `main` tidak diubah.
+
+## Tahap 4 — Form operasi Bank Sampah
+Setoran, penjualan dan pengajuan pencairan menggunakan adapter asli melalui transport simulasi terisolasi tanpa fetch/penyimpanan. UI menyatakan eksplisit tidak ada transaksi disimpan. Pengesahan, kelola pembayaran, bukti dan pencetakan lengkap belum dimigrasikan. Bukan aktivasi write API.

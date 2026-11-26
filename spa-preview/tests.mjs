@@ -2,6 +2,7 @@ import {webcrypto} from 'node:crypto';
 import {createPortalRouter} from './router.js';
 import {createTransactionService} from './transactions.js';
 import {createBankModule,bankRoutes} from './bank.js';
+import {simulateBankOperation,validateSale} from './bank-operations.js';
 import {createBookModule,bookRoutes} from './book.js';
 import {createCommunityModule,communityRoutes,adminRoutes} from './community.js';
 if(!globalThis.crypto)Object.defineProperty(globalThis,'crypto',{value:webcrypto});
@@ -28,7 +29,7 @@ const fixture={
  '/api/v2/admin/bank/members':{rows:[{id:'member:1',nama:'Warga uji',rumah:'A/1',status:'aktif'}]},
  '/api/v2/admin/bank/catalog':{rows:[{id:'waste:1',name:'Kertas',active:1}]},
  '/api/v2/admin/bank/savings':{rows:[{member_id:'member:1',balanceRp:500}]},
- '/api/v2/admin/bank/sales':{rows:[]},'/api/v2/admin/bank/cash':{rows:[]},
+ '/api/v2/admin/bank/batches':{rows:[{id:'batch1',status:'draft'}]},'/api/v2/admin/bank/sales':{rows:[]},'/api/v2/admin/bank/cash':{rows:[]},
  '/api/v2/admin/content/obligations':{rows:[{payer_id:'payer:1'}]},
  '/api/bookkeeping/iuran/tariffs':{config:{TEST:1}},
  '/api/v2/admin/residents':{rows:[{household_id:'h1',payer_id:'payer:1',nama:'Warga uji',rumah:'A/1',active:1}]},
@@ -76,3 +77,10 @@ assert(await r.go('book'),'book mount');assert(!await r.go('bad')&&r.current()==
 assert(root.children[0]===header&&root.children[2]===dock,'same header and dock nodes');
 allowBook=false;assert(await r.go('book')&&r.current()==='home','role fallback');r.reset();assert(!outlet.children.length&&!outlet.inert,'reset');
 console.log('PASS: '+mounted+' mount, '+denied+' role denial; allocation, transaction payload, navigation lifecycle. All API calls mocked.');
+
+const sim=await simulateBankOperation({role:'admin',kind:'deposit',payload:{tanggal:'2026-11-26',wargaId:'member:1',nonce:'test',items:[{kode:'waste:1',berat:1.25}]}});
+assert(sim.length===2&&sim[1].body.items[0].grams===1250,'Simulated deposit');
+const sale=validateSale({batch:'batch1',date:'2026-11-26',buyer:'Lapak uji',received:'2500',items:[{id:'waste:1',weight:'1.25',price:'2000',unsold:'0'}],nonce:'test'},[{id:'batch1',status:'draft'}],[{id:'waste:1',active:1}]);
+const saleReq=await simulateBankOperation({role:'admin',kind:'sale',payload:sale});assert(saleReq[0].body.lines[0].grams===1250,'Simulated sale');
+const payoutReq=await simulateBankOperation({role:'warga',kind:'payout',payload:{requestKey:'test',amountRp:500,balanceRp:500,note:'uji'}});assert(payoutReq[0].body.amountRp===500,'Simulated payout');
+console.log('PASS: isolated Bank Sampah forms payloads');
