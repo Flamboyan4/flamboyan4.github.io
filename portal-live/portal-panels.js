@@ -75,10 +75,14 @@ function showPanel(panel,recordHistory=true){
   const dest=new __f4.globals.URL(__f4.globals.location.href);dest.hash='';
   if(panel==='beranda')dest.searchParams.delete('halaman');else dest.searchParams.set('halaman',panel);
   const currentPage=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'beranda';
-  if(currentPage!==panel)__f4.globals.history.pushState({...__f4.globals.history.state,f4PortalPanel:panel},'',dest.pathname+dest.search);
+  if(currentPage!==panel){__f4.globals.history.pushState({...__f4.globals.history.state,f4PortalPanel:panel},'',dest.pathname+dest.search);lastPanelPath=dest.pathname+dest.search;}
  }
 }
-__f4.window.addEventListener('popstate',event=>{
+let lastPanelPath=__f4.globals.location.pathname+__f4.globals.location.search;
+ __f4.window.addEventListener('popstate',event=>{
+ const path=__f4.globals.location.pathname+__f4.globals.location.search;
+ if(path===lastPanelPath)return;
+ lastPanelPath=path;
  const page=event.state?.f4PortalPanel||new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'beranda';
  if(__f4.globals.Object.hasOwn(sectionTargets,page))showPanel(page,false);
 });

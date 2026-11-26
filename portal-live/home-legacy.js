@@ -534,21 +534,67 @@ __f4.expose("loadProgresBankSampahIndex",()=>loadProgresBankSampahIndex,value=>l
       });
       __f4.cleanup(()=>query.off('value'));
     }
-    function f4SetChatCompose(open,focus=false){
-      const section=__f4.globals.document.getElementById('komentar-warga'),button=__f4.globals.document.getElementById('f4-chat-toggle');
-      if(!section||!button)return;
-      section.dataset.composeOpen=(0,__f4.globals.String)(open);
-      button.setAttribute('aria-expanded',(0,__f4.globals.String)(open));
-      button.querySelector('span').textContent=open?'Tutup':'Tulis pesan';
-      if(focus&&open){
-        const name=__f4.globals.document.getElementById('komentar-nama');
-        (name?.value.trim()?__f4.globals.document.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
+    const chatDoc=__f4.globals.document,chatCompose=chatDoc.getElementById('f4-chat-compose'),chatToggle=chatDoc.getElementById('f4-chat-toggle');
+    const chatSection=chatDoc.getElementById('komentar-warga'),chatMedia=__f4.window.matchMedia('(max-width:767px)');
+    const chatHome=chatCompose.parentNode,chatNext=chatCompose.nextSibling;
+    const chatSheet=chatDoc.createElement('div');chatSheet.id='f4-chat-sheet';chatSheet.hidden=true;
+    chatSheet.innerHTML='<div class="f4-chat-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="f4-chat-sheet-title"><div class="f4-chat-sheet-head"><span class="f4-chat-sheet-grip" aria-hidden="true"></span><h3 id="f4-chat-sheet-title">Tulis pesan</h3><button type="button" aria-label="Tutup" class="f4-chat-sheet-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="f4-chat-sheet-content"></div></div>';
+    chatDoc.body.append(chatSheet);
+    const chatPanel=chatSheet.querySelector('.f4-chat-sheet-panel'),chatContent=chatSheet.querySelector('.f4-chat-sheet-content');
+    let chatPreviousOverflow='',chatToken='',chatFocusTimer=0;
+    function chatViewport(){
+      if(chatSheet.hidden)return;
+      const viewport=__f4.window.visualViewport,offset=viewport?.offsetTop||0,height=viewport?.height||__f4.window.innerHeight;
+      chatSheet.style.setProperty('--f4-chat-vv-top',offset+'px');
+      chatSheet.style.setProperty('--f4-chat-vv-height',height+'px');
+      const active=chatDoc.activeElement;
+      if(active&&chatContent.contains(active)){
+        const r=active.getBoundingClientRect(),p=chatContent.getBoundingClientRect();
+        if(r.bottom>p.bottom||r.top<p.top)active.scrollIntoView({block:'nearest',inline:'nearest'});
       }
     }
-    __f4.globals.document.getElementById('f4-chat-toggle')?.addEventListener('click',()=>{
-      const open=__f4.globals.document.getElementById('komentar-warga').dataset.composeOpen!=='true';
-      f4SetChatCompose(open,true);
-    });
+    function chatRestore(){
+      if(chatSheet.hidden)return;
+      chatDoc.activeElement?.blur?.();
+      chatSheet.hidden=true;chatHome.insertBefore(chatCompose,chatNext);
+      chatDoc.body.style.overflow=chatPreviousOverflow;
+      chatSection.dataset.composeOpen='false';chatToggle.setAttribute('aria-expanded','false');chatToggle.querySelector('span').textContent='Tulis pesan';
+      chatToggle.focus({preventScroll:true});
+    }
+    function closeChatSheet(fromBack=false){
+      if(chatSheet.hidden)return;
+      const owns=__f4.globals.history.state?.f4ChatSheet===chatToken;
+      chatRestore();chatToken='';
+      if(owns&&!fromBack)__f4.globals.history.back();
+    }
+    function f4SetChatCompose(open,focus=false){
+      if(!open){closeChatSheet();return}
+      if(!chatMedia.matches)return;
+      if(!chatSheet.hidden)return;
+      chatPreviousOverflow=chatDoc.body.style.overflow;
+      chatContent.append(chatCompose);chatSheet.hidden=false;
+      chatSection.dataset.composeOpen='true';chatToggle.setAttribute('aria-expanded','true');
+      chatToggle.querySelector('span').textContent='Tutup';
+      chatDoc.body.style.overflow='hidden';
+      chatToken='chat-'+__f4.globals.Date.now();
+      __f4.globals.history.pushState({...__f4.globals.history.state,f4ChatSheet:chatToken},'',__f4.globals.location.href);
+      chatViewport();
+      if(focus){
+        const name=chatDoc.getElementById('komentar-nama');
+        (name?.value.trim()?chatDoc.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
+      }
+    }
+    chatToggle?.addEventListener('click',()=>{if(chatSheet.hidden)f4SetChatCompose(true,true);else closeChatSheet()});
+    chatSheet.querySelector('.f4-chat-sheet-close').onclick=()=>closeChatSheet();
+    chatSheet.addEventListener('click',e=>{if(e.target===chatSheet)closeChatSheet()});
+    chatDoc.addEventListener('keydown',e=>{if(chatSheet.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeChatSheet()}else if(e.key==='Tab'){const nodes=[...chatPanel.querySelectorAll('button:not([disabled]),input:not([tabindex="-1"]),textarea')].filter(el=>el.getClientRects().length);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&(chatDoc.activeElement===first||!chatPanel.contains(chatDoc.activeElement))){e.preventDefault();last?.focus()}else if(!e.shiftKey&&(chatDoc.activeElement===last||!chatPanel.contains(chatDoc.activeElement))){e.preventDefault();first?.focus()}}},true);
+    __f4.window.addEventListener('popstate',()=>{if(!chatSheet.hidden&&__f4.globals.history.state?.f4ChatSheet!==chatToken)closeChatSheet(true)});
+    __f4.window.visualViewport?.addEventListener('resize',chatViewport,{passive:true});
+    __f4.window.visualViewport?.addEventListener('scroll',chatViewport,{passive:true});
+    __f4.window.addEventListener('resize',()=>{if(!chatMedia.matches)closeChatSheet();else chatViewport()});
+    chatContent.addEventListener('focusin',()=>{chatViewport();if(chatFocusTimer)__f4.globals.clearTimeout(chatFocusTimer);chatFocusTimer=__f4.globals.setTimeout(chatViewport,280)});
+    __f4.cleanup(()=>{if(!chatSheet.hidden){chatHome.insertBefore(chatCompose,chatNext);chatDoc.body.style.overflow=chatPreviousOverflow}chatSheet.remove()});
+
     let f4LastChatAt=0;
     async function tambahKomentarWarga(e){
       e.preventDefault();

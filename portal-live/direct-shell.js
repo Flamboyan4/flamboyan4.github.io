@@ -118,7 +118,7 @@ const residentTools=(()=>{
  const glyph=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
  const root=el('div');root.id='f4-resident-tools';root.dataset.f4Persistent='shell';root.hidden=true;
  root.setAttribute('aria-label','Akses cepat warga');
- root.innerHTML='<button type="button" id="f4-resident-top" aria-label="Kembali ke atas" hidden>'+glyph('up')+'</button><div id="f4-resident-edge" data-expanded="false"><button type="button" class="f4-resident-edge-btn" data-action="feedback" aria-label="Tampilkan tombol kirim masukan" aria-expanded="false">'+glyph('feedback')+'</button><button type="button" class="f4-resident-edge-btn" data-action="payment" aria-label="Tampilkan tombol pembayaran" aria-expanded="false">'+glyph('wallet')+'</button></div><section id="f4-resident-pay-panel" aria-label="Metode pembayaran" hidden><div class="f4-resident-pay-head"><strong>Pembayaran</strong><button type="button" data-close-payment aria-label="Tutup pembayaran">'+glyph('close')+'</button></div><a class="f4-resident-qr" href="'+qris+'" download="QRIS_Flamboyan4.jpg">'+glyph('qr')+'Unduh QRIS</a><div class="f4-resident-pay-accounts"></div><p class="f4-resident-pay-status" role="status" aria-live="polite"></p></section>';
+ root.innerHTML='<button type="button" id="f4-resident-top" aria-label="Kembali ke atas" hidden>'+glyph('up')+'</button><div id="f4-resident-edge"><button type="button" class="f4-resident-edge-btn" data-action="feedback" data-expanded="false" aria-label="Tampilkan tombol kirim masukan" aria-expanded="false">'+glyph('feedback')+'<span>Masukan</span></button><button type="button" class="f4-resident-edge-btn" data-action="payment" data-expanded="false" aria-label="Tampilkan tombol pembayaran" aria-expanded="false">'+glyph('wallet')+'<span>Pembayaran</span></button></div><section id="f4-resident-pay-panel" aria-label="Metode pembayaran" hidden><div class="f4-resident-pay-head"><strong>Pembayaran</strong><button type="button" data-close-payment aria-label="Tutup pembayaran">'+glyph('close')+'</button></div><a class="f4-resident-qr" href="'+qris+'" download="QRIS_Flamboyan4.jpg">'+glyph('qr')+'Unduh QRIS</a><div class="f4-resident-pay-accounts"></div><p class="f4-resident-pay-status" role="status" aria-live="polite"></p></section>';
  document.body.append(root);
  const edge=root.querySelector('#f4-resident-edge'),top=root.querySelector('#f4-resident-top'),pay=root.querySelector('#f4-resident-pay-panel'),payStatus=pay.querySelector('.f4-resident-pay-status');
  const paymentButton=edge.querySelector('[data-action="payment"]'),feedbackButton=edge.querySelector('[data-action="feedback"]');
@@ -133,23 +133,27 @@ const residentTools=(()=>{
  suggestion.innerHTML='<div class="f4-resident-feedback-head"><h2 id="f4-resident-feedback-title">Kotak Saran</h2><button type="button" data-close-feedback aria-label="Tutup">'+glyph('close')+'</button></div><form><p>Saran dikirim ke pengurus. Tak perlu nama atau data pribadi.</p><textarea name="pesan" rows="5" minlength="5" maxlength="2000" required placeholder="Tulis saran atau keluhan..."></textarea><div class="f4-resident-feedback-trap" aria-hidden="true"><label>Website (kosongkan)<input name="website" tabindex="-1" autocomplete="off"></label></div><button type="submit">'+glyph('send')+'Kirim Saran</button><p class="f4-resident-feedback-status" role="status" aria-live="polite"></p></form>';
  document.body.append(suggestion);
  const form=suggestion.querySelector('form'),send=form.querySelector('[type="submit"]'),feedbackStatus=form.querySelector('.f4-resident-feedback-status');
- let enabled=false,expanded=false,lastY=0,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false;
+ let enabled=false,lastY=0,wasBottom=false,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false,scrollFrame=0;
  function closePayment(){pay.hidden=true;paymentButton.setAttribute('aria-expanded','false');payStatus.textContent=''}
- function setExpanded(value){
-  expanded=!!value;edge.dataset.expanded=String(expanded);edge.style.removeProperty('--f4-edge-drag-width');
-  feedbackButton.setAttribute('aria-label',expanded?'Kirim masukan':'Tampilkan tombol kirim masukan');
-  feedbackButton.setAttribute('aria-expanded',String(expanded));
-  paymentButton.setAttribute('aria-label',expanded?'Pembayaran':'Tampilkan tombol pembayaran');
-  paymentButton.setAttribute('aria-expanded',String(expanded&&!pay.hidden));
-  if(!expanded)closePayment();
+ const edgeButtons=[feedbackButton,paymentButton];
+ const isExpanded=button=>button.dataset.expanded==='true';
+ function setExpanded(value,only=null){
+  for(const button of edgeButtons){
+   const expanded=!!value&&(!only||only===button);
+   button.dataset.expanded=String(expanded);button.style.removeProperty('--f4-edge-drag-width');
+   const label=button===paymentButton?'Pembayaran':'Masukan';
+   button.setAttribute('aria-label',expanded?label:'Tampilkan '+label.toLowerCase());
+   button.setAttribute('aria-expanded',String(expanded));
+  }
+  if(!isExpanded(paymentButton))closePayment();
  }
  function openPayment(){
   if(!enabled)return false;
-  setExpanded(true);pay.hidden=false;paymentButton.setAttribute('aria-expanded','true');return true;
+  setExpanded(true,paymentButton);pay.hidden=false;paymentButton.setAttribute('aria-expanded','true');return true;
  }
  function openFeedback(){
   if(!enabled)return false;
-  closePayment();setExpanded(true);
+  closePayment();setExpanded(true,feedbackButton);
   if(!suggestion.open){feedbackStatus.textContent='';suggestion.showModal()}
   return true;
  }
@@ -160,12 +164,24 @@ const residentTools=(()=>{
  }
  function syncScroll(reset=false){
   if(!enabled)return;
-  const scroller=document.scrollingElement||document.documentElement,y=Math.max(0,scroller.scrollTop),max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+  const scroller=document.scrollingElement||document.documentElement;
+  const y=Math.max(0,window.scrollY||scroller.scrollTop||0),height=Math.max(scroller.clientHeight,window.innerHeight||0);
+  const total=Math.max(scroller.scrollHeight,document.body.scrollHeight,document.documentElement.scrollHeight);
+  const max=Math.max(0,total-height);
+  const dock=document.getElementById('f4-direct-dock');
+  const dockHeight=dock&&!dock.hidden?dock.getBoundingClientRect().height:0;
+  // The final readable content is above the dock and its reserved bottom padding.
+  const bottom=max-y<=Math.max(24,dockHeight+28);
   top.hidden=y<=120;
-  if(reset){lastY=y;setExpanded(false);return}
-  if(max>8&&max-y<=12)setExpanded(true);
-  else if(y<lastY-2)setExpanded(false);
-  lastY=y;
+  if(reset){lastY=y;wasBottom=false;setExpanded(false);return}
+  if(drag||suggestion.open){lastY=y;return}
+  if(y<lastY-2){if(!bottom||wasBottom)setExpanded(false)}
+  else if(bottom&&(!wasBottom||y>lastY+1))setExpanded(true);
+  wasBottom=bottom;lastY=y;
+ }
+ function scheduleScroll(){
+  if(scrollFrame)return;
+  scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;syncScroll()});
  }
  function syncRole(next){
   const allowed=next==='warga'&&!!session?.account&&['portal','bank','finance','agenda','profile','dokumentasi','rapat'].includes(activePortalKey);
@@ -174,31 +190,31 @@ const residentTools=(()=>{
   if(enabled===allowed)return;
   enabled=allowed;setExpanded(false);lastRoute='';drag=null;
   if(!enabled){top.hidden=true;if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent=''}
-  else syncScroll(true);
+  else {syncScroll(true);scheduleScroll();}
  }
  top.addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
  for(const button of edge.querySelectorAll('button')){
   button.addEventListener('pointerdown',e=>{
    if(e.button!==0||!e.isPrimary)return;
-   drag={id:e.pointerId,x:e.clientX,start:expanded?44:13,moved:false,button};
+   drag={id:e.pointerId,x:e.clientX,start:isExpanded(button)?136:21,moved:false,button};
    button.setPointerCapture?.(e.pointerId);
   });
   button.addEventListener('pointermove',e=>{
    if(!drag||drag.id!==e.pointerId)return;
    const dx=drag.x-e.clientX;
    if(Math.abs(dx)>5)drag.moved=true;
-   if(drag.moved)edge.style.setProperty('--f4-edge-drag-width',Math.max(13,Math.min(44,drag.start+dx))+'px');
+   if(drag.moved)button.style.setProperty('--f4-edge-drag-width',Math.max(21,Math.min(136,drag.start+dx))+'px');
   });
   button.addEventListener('pointerup',e=>{
    if(!drag||drag.id!==e.pointerId)return;
    const d=drag;drag=null;
-   if(d.moved){suppressClickUntil=Date.now()+350;setExpanded(d.x-e.clientX>6?true:e.clientX-d.x>6?false:expanded)}
-   else edge.style.removeProperty('--f4-edge-drag-width');
+   if(d.moved){suppressClickUntil=Date.now()+350;setExpanded(d.x-e.clientX>6?true:e.clientX-d.x>6?false:isExpanded(button),button)}
+   else button.style.removeProperty('--f4-edge-drag-width');
   });
-  button.addEventListener('pointercancel',()=>{drag=null;edge.style.removeProperty('--f4-edge-drag-width')});
+  button.addEventListener('pointercancel',()=>{drag=null;button.style.removeProperty('--f4-edge-drag-width')});
   button.addEventListener('click',e=>{
    if(Date.now()<suppressClickUntil){e.preventDefault();return}
-   if(!expanded){setExpanded(true);return}
+   if(!isExpanded(button)){setExpanded(true,button);return}
    if(button===paymentButton){if(pay.hidden)openPayment();else closePayment()}
    else openFeedback();
   });
@@ -222,10 +238,12 @@ const residentTools=(()=>{
  });
  document.addEventListener('click',e=>{if(!pay.hidden&&!root.contains(e.target))closePayment()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pay.hidden){closePayment();paymentButton.focus()}});
- window.addEventListener('scroll',()=>syncScroll(),{passive:true});
- window.addEventListener('resize',()=>syncScroll(),{passive:true});
- document.addEventListener('f4:portal-changed',()=>{lastRoute='';if(suggestion.open)suggestion.close();syncScroll(true)});
- window.addEventListener('f4-shared-bank-route',e=>{if(lastRoute===e.detail)return;lastRoute=e.detail;syncScroll(true)});
+ window.addEventListener('scroll',scheduleScroll,{passive:true});
+ window.addEventListener('resize',scheduleScroll,{passive:true});
+ window.visualViewport?.addEventListener('resize',scheduleScroll,{passive:true});
+ if(window.ResizeObserver){const observer=new ResizeObserver(scheduleScroll);observer.observe(document.body);observer.observe(document.documentElement)}
+ document.addEventListener('f4:portal-changed',()=>{lastRoute='';if(suggestion.open)suggestion.close();syncScroll(true);scheduleScroll()});
+ window.addEventListener('f4-shared-bank-route',e=>{if(lastRoute===e.detail)return;lastRoute=e.detail;syncScroll(true);scheduleScroll()});
  return {syncRole,openPayment,copyNumber,accounts,qris,refresh:()=>syncScroll()};
 })();
 window.F4ResidentTools=residentTools;

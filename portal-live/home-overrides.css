@@ -162,12 +162,26 @@
   #f4-upcoming-agenda .f4-agenda-preview-card{grid-template-columns:58px minmax(0,1fr) 23px;gap:9px;padding:10px}
   .f4-agenda-preview-title{font-size:13px}
  }
- #komentar-warga[data-compose-open="false"] #f4-chat-compose{display:none}
+ #komentar-warga #f4-chat-compose{display:none}
  #komentar-warga .f4-chat-layout{gap:10px;padding:12px}
  #komentar-warga .f4-chat-online{display:none}
  #komentar-warga .f4-chat-actions{flex:none}
- #komentar-warga #f4-chat-compose{padding:12px;min-width:0}
- #komentar-warga #f4-chat-compose>h4{display:none}
+ #f4-chat-sheet:not([hidden]){position:fixed;inset:auto 0 auto;top:var(--f4-chat-vv-top,0px);height:var(--f4-chat-vv-height,100dvh);z-index:920;display:flex;align-items:flex-end;justify-content:center;background:#10182b70;overscroll-behavior:contain}
+ #f4-chat-sheet .f4-chat-sheet-panel{box-sizing:border-box;display:flex;flex-direction:column;width:100%;max-height:100%;min-height:0;overflow:hidden;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px #15233929;animation:f4-chat-slide-up .2s ease-out}
+ #f4-chat-sheet .f4-chat-sheet-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:19px 16px 8px;flex:none;border-bottom:1px solid #edf0f4}
+ #f4-chat-sheet .f4-chat-sheet-grip{position:absolute;top:6px;left:calc(50% - 18px);width:36px;height:4px;border-radius:3px;background:#cbd5e1}
+ #f4-chat-sheet .f4-chat-sheet-head h3{font:700 15px/1.4 system-ui;color:#26344f;margin:0}
+ #f4-chat-sheet .f4-chat-sheet-close{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:#f1f3f8;color:#475569}
+ #f4-chat-sheet .f4-chat-sheet-close svg{width:18px;height:18px}
+ #f4-chat-sheet .f4-chat-sheet-content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:10px 16px max(12px,env(safe-area-inset-bottom,0px));scroll-padding-block:8px}
+ #f4-chat-sheet #f4-chat-compose{padding:0;margin:0;min-width:0;border:0;border-radius:0;background:#fff;box-shadow:none}
+ #f4-chat-sheet #f4-chat-compose>h4{display:none}
+ #f4-chat-sheet #form-komentar :is(input,textarea){font-size:16px}
+ #f4-chat-sheet #komentar-pesan{min-height:64px;max-height:110px}
+ #f4-chat-sheet #form-komentar>div:nth-child(3)>div{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+ #f4-chat-sheet #form-komentar>div:nth-child(3)>div button{flex:none}
+ #f4-chat-sheet #btn-submit-chat{min-height:42px}
+
  #container-komentar-list{scrollbar-width:none}
  #container-komentar-list::-webkit-scrollbar{display:none}
 
@@ -177,3 +191,7 @@
 
 
 /* Resident route layout is owned by the permanent direct-shell stylesheet. */
+
+#f4-chat-sheet[hidden]{display:none}
+@keyframes f4-chat-slide-up{from{transform:translateY(28px);opacity:.75}to{transform:translateY(0);opacity:1}}
+@media(prefers-reduced-motion:reduce){#f4-chat-sheet .f4-chat-sheet-panel{animation:none}}

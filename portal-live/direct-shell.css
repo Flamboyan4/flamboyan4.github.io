@@ -579,16 +579,17 @@ body.f4-resident-tools-active #f4-portal-float-actions{display:none}
 #f4-resident-tools button,#f4-resident-feedback button{font:inherit;cursor:pointer}
 #f4-resident-tools svg,#f4-resident-feedback svg{display:block;width:22px;height:22px;flex:none}
 #f4-resident-top:not([hidden]){display:grid;place-items:center;width:39px;height:39px;margin-right:8px;padding:0;border:1px solid #dcd8f5;border-radius:50%;color:#5145cd;background:#f1effb;box-shadow:0 2px 8px #211b501a;pointer-events:auto}
-#f4-resident-edge{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none;--f4-edge-width:13px}
-#f4-resident-edge[data-expanded="true"]{--f4-edge-width:44px}
-#f4-resident-edge .f4-resident-edge-btn{display:grid;place-items:center;box-sizing:border-box;width:var(--f4-edge-drag-width,var(--f4-edge-width));height:44px;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:22px 0 0 22px;color:#fff;overflow:hidden;pointer-events:auto;touch-action:pan-y;transition:width .2s ease,background .15s ease;box-shadow:0 2px 8px #211b5020}
-#f4-resident-edge .f4-resident-edge-btn[data-action="feedback"]{background:rgba(81,69,205,.76)}
-#f4-resident-edge .f4-resident-edge-btn[data-action="payment"]{background:rgba(5,150,105,.76)}
-#f4-resident-edge .f4-resident-edge-btn svg{opacity:0;transition:opacity .15s ease}
-#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn svg{opacity:1}
+#f4-resident-edge{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+#f4-resident-edge .f4-resident-edge-btn{--f4-edge-width:21px;position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-start;gap:7px;width:max(48px,var(--f4-edge-drag-width,var(--f4-edge-width)));height:48px;min-width:0;min-height:0;margin:0;padding:0 12px;border:0;border-radius:24px 0 0 24px;background:transparent;color:#fff;overflow:hidden;pointer-events:auto;touch-action:pan-y;transition:width .2s ease;font:650 12px/1.2 system-ui;white-space:nowrap}
+#f4-resident-edge .f4-resident-edge-btn::before{content:'';position:absolute;z-index:-1;inset:0 0 0 auto;width:var(--f4-edge-drag-width,var(--f4-edge-width));border-radius:24px 0 0 24px;transition:width .2s ease,background .15s ease;box-shadow:0 2px 8px #211b5020}
+#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"]{--f4-edge-width:136px}
+#f4-resident-edge .f4-resident-edge-btn[data-action="feedback"]::before{background:rgba(81,69,205,.76)}
+#f4-resident-edge .f4-resident-edge-btn[data-action="payment"]::before{background:rgba(5,150,105,.76)}
+#f4-resident-edge .f4-resident-edge-btn :is(svg,span){visibility:hidden;opacity:0;transition:opacity .15s ease}
+#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"] :is(svg,span){visibility:visible;opacity:1}
 #f4-resident-edge .f4-resident-edge-btn:focus-visible{outline:2px solid #26344f;outline-offset:-2px}
-#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn[data-action="feedback"]:hover{background:#5145cd}
-#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn[data-action="payment"]:hover{background:#059669}
+#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="feedback"]:hover::before{background:#5145cd}
+#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="payment"]:hover::before{background:#059669}
 #f4-resident-pay-panel:not([hidden]){display:block;position:absolute;right:8px;bottom:calc(100% + 8px);width:min(290px,calc(100vw - 20px));max-height:min(330px,calc(100dvh - 230px));overflow:auto;overscroll-behavior:contain;padding:13px;border:1px solid #dce8df;border-radius:12px;background:#fff;box-shadow:0 8px 24px #172b2526;pointer-events:auto}
 #f4-resident-pay-panel .f4-resident-pay-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 #f4-resident-pay-panel .f4-resident-pay-head button,#f4-resident-feedback [data-close-feedback]{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:inherit}
@@ -618,7 +619,7 @@ body.f4-resident-tools-active #f4-portal-float-actions{display:none}
 #f4-resident-feedback .f4-resident-feedback-trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #f4-resident-feedback .f4-resident-feedback-status:empty{display:none}
 html[data-f4-starting] #f4-resident-tools,html[data-f4-swapping] #f4-resident-tools,html.f4p-overlay-active #f4-resident-tools,
-body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-resident-feedback[open],#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden]),dialog[open]) #f4-resident-tools{visibility:hidden;pointer-events:none}
+body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-resident-feedback[open],#modal-saran:not(.hidden),#f4-chat-sheet:not([hidden]),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden]),dialog[open]) #f4-resident-tools{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
  #f4-resident-tools:not([hidden]){bottom:calc(12px + env(safe-area-inset-bottom,0px))}
  body.f4-shared-dock:has(#f4-direct-dock:not([hidden])) #f4-resident-tools:not([hidden]){bottom:calc(12px + var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
