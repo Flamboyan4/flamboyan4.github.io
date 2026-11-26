@@ -149,8 +149,8 @@
  #media-albums-section .f4g-album-tools{display:grid;gap:10px}
  #media-albums-section .f4g-album-tools .media-search{width:100%}
  #media-albums-section .media-album-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;width:100vw;margin-inline:calc(50% - 50vw)}
- #media-albums-section .media-album-card.f4g-album-card{position:relative;aspect-ratio:1;border:0;border-radius:0;box-shadow:none;min-width:0}
- #media-albums-section .f4g-album-card .media-album-cover{width:100%;height:100%;aspect-ratio:1}
+ #media-albums-section .media-album-card.f4g-album-card{position:relative;aspect-ratio:3/4;border:0;border-radius:0;box-shadow:none;min-width:0;min-height:0;padding:0}
+ #media-albums-section .f4g-album-card .media-album-cover{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:3/4;overflow:hidden}
  #media-albums-section .f4g-album-card .media-album-info{position:absolute;inset:auto 0 0;display:block;padding:24px 7px 7px;background:linear-gradient(transparent,#000b);text-align:left;color:white}
  #media-albums-section .f4g-album-card .media-album-info strong{color:#fff;font:700 11px/1.25 system-ui;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
  #media-albums-section .f4g-album-card :is(.media-category-tag,small.muted,.f4g-album-open){display:none}
@@ -431,6 +431,7 @@
  body[data-section-page="dokumentasi"] .media-top-tabs .btn:not(.outline)::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--f4-portal-primary,#4f46e5)}
 @media (max-width:760px){
  body[data-section-page="dokumentasi"] main.page-stack{gap:10px}
+ body[data-section-page="dokumentasi"] .media-top-tabs{box-sizing:border-box;width:100vw;max-width:none;margin-inline:calc(50% - 50vw);padding:0}
  body[data-section-page="dokumentasi"] .portal-section-heading{font-size:22px;line-height:1.25;margin:0}
  #media-albums-section{position:relative;margin-top:0}
  #media-albums-section .f4g-hero{display:none}
@@ -438,7 +439,7 @@
  #media-albums-section .f4g-top-actions .f4g-btn{display:grid;place-items:center;box-sizing:border-box;flex:0 0 42px;width:42px;min-height:44px;padding:8px;border:0;border-radius:0;background:none;color:var(--f4-portal-primary,#4f46e5)}
  #media-albums-section .f4g-top-actions .f4g-btn>span:last-child:not(:first-child){display:none}
  #media-albums-section .f4g-top-actions .f4g-btn svg{width:22px;height:22px}
- #media-albums-section .f4g-view-tabs{display:flex;align-items:stretch;gap:0;width:100%;min-height:44px;padding:0;margin:0 0 3px;border-bottom:1px solid #e3e5ef}
+ #media-albums-section .f4g-view-tabs{box-sizing:border-box;display:flex;align-items:stretch;gap:0;width:100vw;max-width:none;min-height:44px;padding:0;margin:0 calc(50% - 50vw) 3px;border-bottom:1px solid #e3e5ef}
  #media-albums-section .f4g-view-tabs>.f4g-btn{flex:1;gap:5px;min-width:0;min-height:44px;padding:8px 4px;font-size:12px;font-weight:650;justify-content:center;white-space:nowrap}
  #media-albums-section .f4g-view-tabs .f4g-btn svg{width:16px;height:16px}
  #media-albums-section .f4g-view-tabs .f4g-btn.selected::after{height:2px;left:0;right:0;bottom:-1px;border-radius:0}
