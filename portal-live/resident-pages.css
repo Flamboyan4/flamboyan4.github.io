@@ -23,7 +23,9 @@
 .rp-split small,.rp-split b{display:block;overflow-wrap:anywhere}
 .rp-split small{font-size:11px}.rp-split b{font-size:16px}
 .rp-bank-link{display:inline-block;font-weight:650;margin-top:14px}
-.rp-month{min-width:0;max-width:145px;padding:7px;border:1px solid var(--rp-line);border-radius:8px;background:#fff;color:#26344f}
+.rp-dues-card .rp-between{flex-wrap:wrap}
+.rp-dues-card .rp-between>.f4-control-trigger{width:auto;max-width:100%;flex:0 1 auto;white-space:normal}
+.rp-month{min-width:0;max-width:100%;padding:7px;border:1px solid var(--rp-line);border-radius:8px;background:#fff;color:#26344f}
 .rp-line{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--rp-line)}
 .rp-line>div{min-width:0}.rp-line b{white-space:nowrap;font-variant-numeric:tabular-nums}
 .rp-line small,.rp-who p,.rp-counts small{display:block;font-size:12px;color:var(--rp-muted)}

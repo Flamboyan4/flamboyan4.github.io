@@ -85,39 +85,7 @@ window.F4PortalRuntime.define("/portal-live/cash-date-picker.js",function(__f4){
    }
    position();
  }
- function show(){
-   if(!trigger||!input)return;
-   if(popup){hide();return}
-   const selected=/^\d{4}-\d{2}-\d{2}$/.test(input.value)?input.value:today();
-   const m=selected.split('-');viewYear=(0,__f4.globals.Number)(m[0]);viewMonth=(0,__f4.globals.Number)(m[1])-1;
-   popup=__f4.globals.document.createElement('div');popup.id='f4-cash-calendar';popup.className='f4-cash-calendar';
-   popup.setAttribute('role','dialog');popup.setAttribute('aria-label','Pilih tanggal transaksi');
-   backdrop=__f4.globals.document.createElement('div');backdrop.className='f4-cash-calendar-backdrop';
-   backdrop.addEventListener('click',()=>hide(true));
-   __f4.globals.document.body.append(backdrop,popup);
-   __f4.globals.document.body.classList.add('f4-cash-calendar-open');
-   trigger.setAttribute('aria-expanded','true');
-   popup.addEventListener('click',e=>{
-     const date=e.target.closest('[data-date]')?.dataset.date;
-     if(date){selectDate(date);return}
-     const action=e.target.closest('[data-action]')?.dataset.action;
-     if(action==='close'){hide(true);return}
-     if(action==='reset'){selectDate('');return}
-     if(action==='today'){selectDate(today());return}
-     if(action==='previous'||action==='next'){
-       const next=new __f4.globals.Date(viewYear,viewMonth+(action==='previous'?-1:1),1);
-       viewYear=next.getFullYear();viewMonth=next.getMonth();draw();
-     }
-   });
-   popup.addEventListener('change',e=>{
-     const type=e.target.dataset.change;
-     if(type==='month')viewMonth=(0,__f4.globals.Number)(e.target.value);
-     if(type==='year')viewYear=(0,__f4.globals.Number)(e.target.value);
-     if(type==='month'||type==='year')draw();
-   });
-   draw();
-   popup.querySelector('.f4-cash-calendar-day.is-selected, .f4-cash-calendar-day.is-today')?.focus({preventScroll:true});
- }
+ function show(){if(trigger&&input)__f4.window.f4ModernControls?.openDate(input,trigger,{kind:'date',allowClear:true})}
  function init(){
    input=__f4.globals.document.getElementById('f4-cash-date-filter');
    trigger=__f4.globals.document.getElementById('f4-cash-date-trigger');

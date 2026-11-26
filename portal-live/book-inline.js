@@ -3,66 +3,8 @@ window.F4PortalRuntime.define("/pembukuan/index.html#inline-1",function(__f4){
 
 
 
-(function(){
-  const RESIDENT_IDS=new __f4.globals.Set(['inp-warga','edit-warga','loan-warga','tal-warga','denda-warga','pm-payer']);
-  const STATE=new __f4.globals.WeakMap();
-  function getResidentMeta(value){
-    const warga=(typeof __f4.globals.DATA!=='undefined'&&__f4.globals.DATA&&__f4.globals.Array.isArray(__f4.globals.DATA.warga))?__f4.globals.DATA.warga:[];
-    const w=warga.find(x=>(0,__f4.globals.String)(x.idWarga)===(0,__f4.globals.String)(value));
-    return w?{name:w.nama||'',house:[w.blok,w.noRumah].filter(__f4.globals.Boolean).join('/')}:null;
-  }
-  function residentMetaForOption(select,opt){
-    if(!opt||!opt.value)return null;
-    if(select.id==='pm-payer')return {name:opt.dataset.residentName||opt.textContent||'',house:opt.dataset.residentHouse||''};
-    return getResidentMeta(opt.value);
-  }
-  function closeAll(except){__f4.globals.document.querySelectorAll('.custom-select-wrap.open').forEach(w=>{if(w!==except)w.classList.remove('open')})}
-  function buildOption(select,opt,isResident){
-    const btn=__f4.globals.document.createElement('button');btn.type='button';btn.className='cs-option'+((0,__f4.globals.String)(select.value)===(0,__f4.globals.String)(opt.value)?' selected':'');btn.dataset.value=opt.value;
-    if(isResident && opt.value){
-      const meta=residentMetaForOption(select,opt);const row=__f4.globals.document.createElement('span');row.className='cs-resident-row';
-      const n=__f4.globals.document.createElement('span');n.className='cs-name';n.textContent=meta?.name||opt.textContent;
-      const h=__f4.globals.document.createElement('span');h.className='cs-house';h.textContent=meta?.house||'';row.append(n,h);btn.append(row);
-    } else { const t=__f4.globals.document.createElement('span');t.className='min-w-0';t.textContent=opt.textContent;btn.append(t); }
-    const ck=__f4.globals.document.createElement('span');ck.className='cs-check';ck.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';btn.append(ck);
-    btn.addEventListener('click',()=>{select.value=opt.value;select.dispatchEvent(new __f4.globals.Event('change',{bubbles:true}));refresh(select);const st=STATE.get(select);st?.wrap.classList.remove('open')});
-    return btn;
-  }
-  function refresh(select){
-    const st=STATE.get(select);if(!st)return;
-    const isResident=RESIDENT_IDS.has(select.id);const selected=select.options[select.selectedIndex];
-    st.value.classList.remove('resident-value');st.value.innerHTML='';
-    if(isResident && selected?.value){
-      const m=residentMetaForOption(select,selected);
-      if(m){st.value.classList.add('resident-value');const n=__f4.globals.document.createElement('span');n.className='rv-name';n.textContent=m.name;const h=__f4.globals.document.createElement('span');h.className='rv-house';h.textContent=m.house;st.value.append(n,h)}
-      else st.value.textContent=selected.textContent;
-    }else st.value.textContent=selected?.textContent||'Pilih...';
-    const q=(st.search?.value||'').trim().toLowerCase();st.list.innerHTML='';
-    const opts=[...select.options].filter(o=>!o.disabled).filter(o=>{const m=isResident?residentMetaForOption(select,o):null;return !q||o.textContent.toLowerCase().includes(q)||(m&&(`${m.name} ${m.house}`).toLowerCase().includes(q));});
-    if(isResident){const head=__f4.globals.document.createElement('div');head.className='cs-resident-head';head.innerHTML='<span>Nama Warga</span><span style="text-align:right">Blok/No</span>';st.list.append(head)}
-    if(!opts.length){const e=__f4.globals.document.createElement('div');e.className='cs-empty';e.textContent='Tidak ada pilihan.';st.list.append(e);return}
-    opts.forEach(o=>st.list.append(buildOption(select,o,isResident)));
-  }
-  function enhance(select){
-    if(STATE.has(select)||select.dataset.noCustom==='1')return;
-    const wrap=__f4.globals.document.createElement('div');wrap.className='custom-select-wrap';
-    const btn=__f4.globals.document.createElement('button');btn.type='button';btn.className='custom-select-btn';btn.innerHTML='<span class="cs-value"></span><span class="cs-arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>';
-    const panel=__f4.globals.document.createElement('div');panel.className='custom-select-panel';
-    const isResident=RESIDENT_IDS.has(select.id);let search=null;
-    if(select.dataset.noSearch!=='1' && (isResident || select.options.length>8)){const sw=__f4.globals.document.createElement('div');sw.className='cs-search-wrap';search=__f4.globals.document.createElement('input');search.type='search';search.className='cs-search';search.placeholder=isResident?'Cari nama / blok rumah...':'Cari pilihan...';sw.append(search);panel.append(sw)}
-    const list=__f4.globals.document.createElement('div');list.className='cs-list';panel.append(list);
-    select.parentNode.insertBefore(wrap,select);wrap.append(select,btn,panel);select.classList.add('select-enhanced');
-    STATE.set(select,{wrap,btn,panel,list,search,value:btn.querySelector('.cs-value')});
-    btn.addEventListener('click',()=>{const will=!wrap.classList.contains('open');closeAll(wrap);wrap.classList.toggle('open',will);if(will){refresh(select);(0,__f4.globals.setTimeout)(()=>search?.focus(),40)}});
-    search?.addEventListener('input',()=>refresh(select));
-    select.addEventListener('change',()=>refresh(select));
-    const mo=new __f4.globals.MutationObserver(()=>refresh(select));mo.observe(select,{childList:true,subtree:true,characterData:true});
-    refresh(select);
-  }
-  function init(){__f4.globals.document.querySelectorAll('select.field').forEach(enhance);__f4.globals.document.addEventListener('click',e=>{if(!e.target.closest('.custom-select-wrap'))closeAll()});__f4.globals.document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});}
-  if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',init);else init();
-  __f4.window.refreshAllCustomSelects=()=>__f4.globals.document.querySelectorAll('select.field').forEach(s=>STATE.has(s)?refresh(s):enhance(s));
-})();
+__f4.window.refreshAllCustomSelects=()=>__f4.window.f4ModernControls?.scan();
+
 
 });
 
@@ -451,7 +393,7 @@ window.F4PortalRuntime.define("/pembukuan/index.html#inline-7",function(__f4){
   }
   function init(){
     if(!isMobile())return;
-    __f4.globals.document.querySelectorAll('input[type="date"]').forEach(attach);
+    // Standard date inputs are handled by native-controls.js.
     hookUPR();
     try{__f4.globals.lucide.createIcons()}catch(e){}
     (0,__f4.globals.setInterval)(()=>{__f4.globals.document.querySelectorAll('input.mdc-source').forEach(sync);hookUPR()},700);

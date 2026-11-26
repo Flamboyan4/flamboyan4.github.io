@@ -7,7 +7,17 @@ window.F4PortalRuntime.define("/portal-live/native-controls.js",function(__f4){
 (()=>{
 'use strict';
 if(__f4.window.f4ModernControls)return;
-const small=()=>(0,__f4.globals.matchMedia)('(max-width:760px)').matches;
+const fields=new __f4.globals.WeakMap();
+const isResident=field=>/^(setWarga|v9Member|pm-payer|(?:inp|edit|loan|tal|denda)-warga)$/i.test(field.id)||/^(resident_id|member_id|warga_id|payer_id)$/.test(field.name||'')||field.hasAttribute('data-f4-resident-picker');
+function residentMeta(field,opt){
+ const raw=(opt.textContent||'').replace(/\s*\(member:[^)]+\)/ig,'').trim();
+ const match=raw.match(/(?:[—•-]\s*|\s+)([A-Z]\d{1,2}\s*\/\s*\d{1,3})\b/i);
+ const residents=__f4.globals.DATA?.warga;
+ const resident=Array.isArray(residents)?residents.find(x=>String(x.idWarga)===String(opt.value)):null;
+ const name=opt.dataset.residentName||opt.dataset.fullName||resident?.nama||(match?raw.slice(0,match.index).trim():raw);
+ const house=opt.dataset.residentHouse||(resident?[resident.blok,resident.noRumah].filter(Boolean).join('/'):'')||(match?match[1].replace(/\s/g,'').toUpperCase():'');
+ return {name,house};
+}
 let overlay=null,historyToken=0;
 const monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const fmtDate=value=>{
@@ -26,9 +36,8 @@ function close(fromBack=false){
 }
 __f4.window.addEventListener('popstate',()=>{if(overlay)close(true)});
 function start(trigger,title,dropdown=false,options={}){
- // Selects and calendars in Bank Sampah are anchored dropdowns.
- // Other portals keep the bottom-sheet date picker.
- const reuse=!!overlay&&__f4.globals.document.body.classList.contains('f4-direct-bank');
+ // Every portal uses the same anchored dropdown.
+ const reuse=!!overlay;
  if(overlay)close(reuse);
  const mask=__f4.globals.document.createElement('div');mask.className='f4-control-overlay';mask.setAttribute('role','presentation');
  if(dropdown)mask.classList.add('f4-bank-select-dropdown');
@@ -95,23 +104,25 @@ function action(field,value){
  close();
 }
 function selectPicker(field,trigger){
- const options=[...field.options].map(o=>({value:o.value,label:o.textContent,disabled:o.disabled,group:o.parentElement?.label||''}));
- const dropdown=!!__f4.globals.document.body.classList.contains('f4-direct-bank');
+ const resident=isResident(field);
+ const options=[...field.options].map(o=>({value:o.value,label:o.textContent,disabled:o.disabled||o.parentElement?.disabled,meta:resident&&o.value?residentMeta(field,o):null}));
+ const dropdown=true;
  const goods=!!field.closest('#saleItems,#setBarang,#f4BankOwnLines');
  const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',
-  dropdown,{kind:'select',minWidth:goods?300:options.length>10?276:0});
- if(options.length>10){
+  dropdown,{kind:'select',minWidth:resident?310:goods?300:options.length>10?276:0});
+ if(resident||options.length>10){
   const searchRow=__f4.globals.document.createElement('div');searchRow.className='f4-bank-picker-search-row';
   const input=__f4.globals.document.createElement('input');input.type='search';input.className='f4-control-search';
-  input.placeholder='Cari pilihan…';input.setAttribute('aria-label','Cari pilihan');
+  input.placeholder=resident?'Cari nama atau nomor rumah…':'Cari pilihan…';input.setAttribute('aria-label',resident?'Cari warga':'Cari pilihan');
   searchRow.append(input);panel.append(searchRow);
   input.oninput=()=>{paint(input.value);(0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.())};
  }
  const list=__f4.globals.document.createElement('div');list.className='f4-control-list';list.setAttribute('role','listbox');
+ if(resident){const header=__f4.globals.document.createElement('div');header.className='f4-control-resident-head';header.innerHTML='<span>Nama warga</span><span>Rumah</span>';panel.append(header)}
  panel.append(list);
  function paint(q=''){
   list.replaceChildren();
-  const matching=options.filter(o=>!q||o.label.toLocaleLowerCase('id-ID').includes(q.toLocaleLowerCase('id-ID')));
+  const matching=options.filter(o=>!q||[o.label,o.meta?.name,o.meta?.house].filter(Boolean).join(' ').toLocaleLowerCase('id-ID').includes(q.trim().toLocaleLowerCase('id-ID')));
   for(const o of matching){
    const b=__f4.globals.document.createElement('button');b.type='button';b.className='f4-control-choice';
    b.setAttribute('role','option');b.setAttribute('aria-selected',(0,__f4.globals.String)(o.value===field.value));
@@ -119,6 +130,7 @@ function selectPicker(field,trigger){
    const label=__f4.globals.document.createElement('span');label.textContent=o.label||'—';
    const mark=__f4.globals.document.createElement('span');mark.className='f4-control-check';
    mark.innerHTML=o.value===field.value?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>':'';
+   if(o.meta){label.className='f4-control-resident-row';label.textContent='';const name=__f4.globals.document.createElement('span');name.textContent=o.meta.name;const house=__f4.globals.document.createElement('span');house.textContent=o.meta.house||'—';label.append(name,house)}
    b.append(label,mark);b.onclick=()=>action(field,o.value);list.append(b);
   }
   if(!matching.length){const p=__f4.globals.document.createElement('p');p.className='f4-control-empty';p.textContent='Tidak ada pilihan cocok';list.append(p)}
@@ -142,18 +154,18 @@ function formatValue(field){
  }
  return fmtDate(field.value);
 }
-function calendar(field,trigger){
- const kind=field.type;const hasValue=!!field.value;
+function calendar(field,trigger,settings={}){
+ const kind=settings.kind|| (field.type==='month'?'month':'date');
  let y,m;
  const match=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})/);
  if(match){y=(0,__f4.globals.Number)(match[1]);m=(0,__f4.globals.Number)(match[2])-1}
  else{const now=new __f4.globals.Date();y=now.getFullYear();m=now.getMonth()}
- const anchored=!!__f4.globals.document.body.classList.contains('f4-direct-bank');
+ const anchored=true;
  const panel=start(trigger,kind==='month'?'Pilih bulan':'Pilih tanggal',anchored,
   {kind:'calendar',minWidth:318});
  const nav=__f4.globals.document.createElement('div');nav.className='f4-control-calendar-nav';
  const prev=__f4.globals.document.createElement('button');prev.type='button';prev.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';prev.setAttribute('aria-label','Bulan atau tahun sebelumnya');
- const heading=__f4.globals.document.createElement('strong');
+ const heading=__f4.globals.document.createElement('button');heading.type='button';heading.className='f4-control-calendar-title';heading.setAttribute('aria-label','Pilih bulan atau tahun');
  const next=__f4.globals.document.createElement('button');next.type='button';next.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';next.setAttribute('aria-label','Bulan atau tahun berikutnya');
  nav.append(prev,heading,next);panel.append(nav);
  const grid=__f4.globals.document.createElement('div');grid.className='f4-control-calendar';
@@ -165,7 +177,9 @@ function calendar(field,trigger){
  const cancel=__f4.globals.document.createElement('button');cancel.type='button';cancel.textContent='Batal';cancel.onclick=()=>close();
  const accept=__f4.globals.document.createElement('button');accept.type='button';accept.textContent='Terapkan';
  accept.onclick=()=>{const v=input.value.trim();if(valid(v)){action(field,v)}else{input.setCustomValidity('Masukkan tanggal yang benar');input.reportValidity();input.setCustomValidity('')}};
+ if(settings.allowClear){const clear=__f4.globals.document.createElement('button');clear.type='button';clear.textContent='Semua tanggal';clear.onclick=()=>action(field,'');footer.append(clear)}
  footer.append(cancel,accept);panel.append(footer);
+ let mode=kind==='month'?'month':'day';
  function valid(v){
   if(kind==='month'){
    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(v))return false;
@@ -182,14 +196,20 @@ function calendar(field,trigger){
  function render(){
   grid.replaceChildren();
   heading.textContent=kind==='month'?(0,__f4.globals.String)(y):monthNames[m]+' '+y;
-  grid.classList.toggle('f4-month-choice',kind==='month');
-  if(kind==='month'){
+  grid.classList.toggle('f4-month-choice',mode!=='day');
+  if(mode==='year'){
+   const startYear=Math.floor(y/12)*12;heading.textContent=startYear+' – '+(startYear+11);grid.classList.add('f4-month-choice');
+   for(let yr=startYear;yr<startYear+12;yr++){const b=__f4.globals.document.createElement('button');b.type='button';b.className='f4-control-day';b.textContent=String(yr);if(yr===y)b.classList.add('selected');b.onclick=()=>{y=yr;mode='month';render()};grid.append(b)}
+   (0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());return;
+  }
+  if(mode==='month'){
+   heading.textContent=String(y);grid.classList.add('f4-month-choice');
    monthNames.forEach((name,index)=>{
     const v=y+'-'+(0,__f4.globals.String)(index+1).padStart(2,'0');
     const b=__f4.globals.document.createElement('button');b.type='button';b.textContent=name.slice(0,3);
-    b.className='f4-control-day';b.disabled=!valid(v);
+    b.className='f4-control-day';b.disabled=kind==='month'&&!valid(v);
     if(field.value===v)b.classList.add('selected');
-    b.onclick=()=>{input.value=v;action(field,v)};grid.append(b);
+    b.onclick=()=>{if(kind==='month'){input.value=v;action(field,v)}else{m=index;mode='day';render()}};grid.append(b);
    });
    if(anchored)(0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());
    return;
@@ -207,47 +227,40 @@ function calendar(field,trigger){
   }
   if(anchored)(0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());
  }
- prev.onclick=()=>{if(kind==='month')y--;else{m--;if(m<0){m=11;y--}}render()};
- next.onclick=()=>{if(kind==='month')y++;else{m++;if(m>11){m=0;y++}}render()};
+ heading.onclick=()=>{mode=mode==='day'?'month':mode==='month'?'year':kind==='month'?'month':'day';render()};
+ prev.onclick=()=>{if(mode==='year')y-=12;else if(mode==='month')y--;else{m--;if(m<0){m=11;y--}}render()};
+ next.onclick=()=>{if(mode==='year')y+=12;else if(mode==='month')y++;else{m++;if(m>11){m=0;y++}}render()};
  render();
 }
 function enhance(field){
- if(field.dataset.f4ModernPicker)return;
- if(field.closest('.f4-warga-picker,.f4-control-overlay,.v18-custom-select,[data-f4-picker-skip]'))return;
- if(field.matches('select')){
-  if(field.multiple||field.size>1)return;
- }else if(!field.matches('input[type=date],input[type=month]'))return;
+ if(fields.has(field)){fields.get(field)();return}
+ if(field.closest('.f4-warga-picker,.f4-control-overlay,.v18-custom-select,[data-f4-picker-skip],.mdc-wrap,.custom-select-wrap')||field.dataset.noCustom==='1')return;
+ if(field.matches('select')){if(field.multiple||field.size>1)return}
+ else if(!field.matches('input[type=date],input[type=month]'))return;
  field.dataset.f4ModernPicker='1';
  const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';
- button.setAttribute('aria-haspopup','dialog');
+ const label=__f4.globals.document.createElement('span');label.className='f4-control-value';
+ const icon=__f4.globals.document.createElement('span');icon.className='f4-control-icon';icon.innerHTML=field.matches('select')?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>';
+ button.append(label,icon);button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',field.getAttribute('aria-label')||field.labels?.[0]?.textContent?.trim()||'Pilih');
  function sync(){
   if(!field.isConnected||!button.isConnected)return;
-  button.disabled=field.disabled;
-  button.textContent=field.matches('select')?(field.selectedOptions[0]?.textContent||'Pilih') : formatValue(field);
-  if(field.matches('select'))button.title=button.textContent;
+  button.disabled=field.disabled;button.hidden=field.hidden||field.classList.contains('hidden')||field.style.display==='none';
+  const option=field.selectedOptions?.[0];
+  const meta=option?.value&&isResident(field)?residentMeta(field,option):null;
+  label.textContent=meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
+  button.title=label.textContent;
  }
- button.onclick=()=>{
-  sync();if(!small()||field.disabled)return;
-  field.matches('select')?selectPicker(field,button):calendar(field,button);
- };
+ button.onclick=()=>{sync();if(field.disabled)return;field.matches('select')?selectPicker(field,button):calendar(field,button)};
  button.addEventListener('focus',sync);
- // A click on an associated <label> normally opens Android's native picker.
- // Cancel the synthetic click and send it to our accessible website dialog.
- field.addEventListener('click',e=>{
-  if(!small())return;
-  e.preventDefault();e.stopImmediatePropagation();
-  button.click();
- },true);
- field.addEventListener('change',sync);
- field.addEventListener('input',sync);
- const m=new __f4.globals.MutationObserver(sync);m.observe(field,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled','selected']});
- field.insertAdjacentElement('afterend',button);
- field.classList.add('f4-modern-native-hidden');sync();
+ field.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();button.click()},true);
+ field.addEventListener('change',sync);field.addEventListener('input',sync);
+ const m=new __f4.globals.MutationObserver(sync);m.observe(field,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','selected','class','hidden','style','value']});
+ if(__f4.globals.document.body.classList.contains('f4-direct-book')&&field.matches('select.field')){
+  const wrap=__f4.globals.document.createElement('div');wrap.className='custom-select-wrap';field.before(wrap);wrap.append(field,button);
+ }else{field.insertAdjacentElement('afterend',button)}
+ field.classList.add('f4-modern-native-hidden');field.tabIndex=-1;fields.set(field,sync);sync();
 }
-function scan(){
- if(!small())return;
- __f4.globals.document.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance);
-}
+function scan(){__f4.globals.document.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance)}
 let pending=false;function schedule(){
  if(pending)return;pending=true;(0,__f4.globals.requestAnimationFrame)(()=>{pending=false;scan()});
 }
@@ -255,7 +268,9 @@ if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventLi
 new __f4.globals.MutationObserver(ms=>{
  if(ms.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select,input,form')||n.querySelector?.('select,input[type=date],input[type=month]')))))schedule();
 }).observe(__f4.globals.document.documentElement,{childList:true,subtree:true});
-__f4.window.f4ModernControls={scan,close};
+__f4.window.f4ModernControls={scan,close,openDate:calendar};
+__f4.cleanup(()=>{if(overlay){overlay.remove();overlay=null;__f4.globals.document.body.classList.remove('f4-custom-picker-open')}});
+__f4.globals.document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay){e.preventDefault();close()}});
 })();
 
 });
