@@ -2312,8 +2312,9 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       // dates are visible on the calendar and can be opened individually.
       const bankNext=globalRencanaData.filter(x=>x.source==='bank-weighing'&&x.parsedDate>=today).sort((a,b)=>a.parsedDate.localeCompare(b.parsedDate))[0];
       const display=globalRencanaData.filter(x=>x.source!=='bank-weighing'||x===bankNext);
-      const group=x=>/selesai/i.test(x.status)?3:x.parsedDate>=today?0:/progress|rancang|jalan/i.test(x.status)?1:2;
-      display.sort((a,b)=>group(a)-group(b)||(group(a)===0?a.parsedDate.localeCompare(b.parsedDate):b.parsedDate.localeCompare(a.parsedDate)));
+      // Status takes precedence over date: ongoing work stays pinned above upcoming events.
+      const group=x=>/selesai/i.test(x.status)?3:/progress|rancang|jalan/i.test(x.status)?0:x.parsedDate>=today?1:2;
+      display.sort((a,b)=>group(a)-group(b)||(group(a)===1?a.parsedDate.localeCompare(b.parsedDate):b.parsedDate.localeCompare(a.parsedDate)));
       f4RenderAgenda(display,today);
       renderCalendar();
     }
