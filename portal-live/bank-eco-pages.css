@@ -992,11 +992,11 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
   box-sizing:border-box;min-width:0;max-width:100%
  }
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAppAdminHero{order:0}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;order:2}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminOperations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;order:1}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation{flex-direction:row;min-height:56px;gap:7px;padding:8px 7px;border-radius:12px}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy strong{font-size:12px}
  #dashboardView #f4BankAdminOperations .f4-bank-admin-operation-copy small{font-size:10px}
- #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:1}
+ #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminShortcuts{order:2}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>.v14-panel{order:3}
  #dashboardView #f4BankAppHome[data-bank-role="admin"]>#f4BankAdminInsights{order:4}
  #dashboardView #f4BankAppAdminHero{
