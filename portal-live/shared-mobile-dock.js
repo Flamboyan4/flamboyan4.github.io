@@ -64,7 +64,7 @@ function markSharedDock(){
   else if(portal==='portal'||portal==='simple')active='home';
  }
  for(const b of sharedDock.querySelectorAll('[data-dock-key]')){
-  if(b.dataset.dockKey===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
+  if(b.dataset.dockKey===active){if(b.getAttribute('aria-current')!=='page')b.setAttribute('aria-current','page')}else if(b.hasAttribute('aria-current'))b.removeAttribute('aria-current');
  }
 }
 function updateSharedDock(next=''){

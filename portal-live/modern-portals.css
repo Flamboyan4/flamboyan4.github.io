@@ -605,56 +605,6 @@ body.f4-bank-app-admin #dashboardView .v14-kpi,body.f4-bank-app-admin #dashboard
  #dashboardView button.wide .f4-action-symbol{display:none}
 }
 
-/* Date picker in the standalone Kegiatan edit dialog follows the same mobile control. */
-@media screen and (max-width:760px){
- #v24ProgressOverlay .f4-modern-native-hidden{
-  position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%);
-  width:1px;height:1px;opacity:0;padding:0;margin:0;
-  pointer-events:none
- }
- #v24ProgressOverlay .f4-control-trigger{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;min-width:0;max-width:100%;min-height:44px;
-  padding:10px 14px;text-align:left;
-  background:#fff;border:1px solid #d7e8df;border-radius:11px;
-  font:550 14px/1.4 system-ui,sans-serif;color:#235642;
- }
-}
-@media screen and (min-width:761px){#v24ProgressOverlay .f4-control-trigger{display:none}}
-
-/* Picker coverage for every native input in the two admin portals, including body-level modals. */
-@media screen and (max-width:760px){
- body.f4-direct-bank select.f4-modern-native-hidden,
- body.f4-direct-bank input.f4-modern-native-hidden,
- body.f4-direct-superadmin select.f4-modern-native-hidden,
- body.f4-direct-superadmin input.f4-modern-native-hidden,
- body:has(#dashboardView) select.f4-modern-native-hidden,
- body:has(#f4-account-page) select.f4-modern-native-hidden,
- body:has(#dashboardView) input.f4-modern-native-hidden,
- body:has(#f4-account-page) input.f4-modern-native-hidden{
-  position:absolute;clip-path:inset(50%);clip:rect(0 0 0 0);
-  width:1px;height:1px;min-width:1px;min-height:1px;
-  margin:0;padding:0;opacity:0;border:0;
-  pointer-events:none
- }
- body.f4-direct-bank .f4-control-trigger,
- body.f4-direct-superadmin .f4-control-trigger,
- body:has(#dashboardView) .f4-control-trigger,
- body:has(#f4-account-page) .f4-control-trigger{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;min-width:0;max-width:100%;
-  min-height:44px;text-align:left;padding:10px 13px;
-  border:1px solid #dfe7e4;background:white;border-radius:var(--f4-panel-radius,12px);
-  color:inherit;font:550 14px/1.4 system-ui,sans-serif
- }
-}
-@media screen and (min-width:761px){
- body.f4-direct-bank .f4-control-trigger,body.f4-direct-superadmin .f4-control-trigger,
- body:has(#dashboardView) .f4-control-trigger,body:has(#f4-account-page) .f4-control-trigger{
-  display:none
- }
-}
-
 /* Specificity fix: action buttons remain visible when a card has nothing to expand. */
 @media screen and (max-width:760px){
  #f4-account-page .f4-compact-super-card.f4-card-no-detail:not(.f4-card-expanded)>.f4-admin-action-set:not(.f4-card-detail-toggle),

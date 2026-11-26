@@ -417,7 +417,7 @@
   });
   observer.observe(document.body,{subtree:true,childList:true});
   window.addEventListener('resize',requestRefresh,{passive:true});
-  window.addEventListener('scroll',()=>{if(!document.body.classList.contains('f4-direct-bank'))requestRefresh()},{passive:true,capture:true});
+  window.addEventListener('scroll',()=>{if(active?.isConnected&&!grip?.hidden)requestRefresh()},{passive:true,capture:true});
   window.visualViewport?.addEventListener('resize',requestRefresh,{passive:true});
   media.addEventListener?.('change',()=>{
    if(!media.matches){

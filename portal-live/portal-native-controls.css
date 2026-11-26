@@ -37,3 +37,8 @@ body .f4-control-date-input{margin-bottom:10px}
 body .f4-control-footer{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
 body .f4-control-footer button{min-height:37px;padding:7px 11px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:8px;background:#fff;color:var(--f4-nav,#5145cd);font-weight:650}
 body .f4-control-footer button:last-child{background:var(--f4-nav,#5145cd);color:#fff;border-color:var(--f4-nav,#5145cd)}
+
+body .f4-control-overlay[hidden]{display:none}
+.f4-control-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.f4-control-levels button{min-height:36px;padding:6px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:8px;background:#fff;color:var(--f4-nav,#5145cd);font-weight:650}
+.f4-control-levels button[aria-pressed=true]{background:var(--f4-nav,#5145cd);color:white}

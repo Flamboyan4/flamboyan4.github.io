@@ -523,7 +523,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 /* Shared mobile dock: compact, one visual owner across all native portals. */
 #f4-direct-dock,#f4-direct-dock[hidden],#f4-direct-dock .f4-direct-dock-menu[hidden]{display:none}
 @media(max-width:1023px){
- body.f4-shared-dock{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-inset-bottom,0px)}
+ body.f4-shared-dock{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-max-inset-bottom,env(safe-area-inset-bottom,0px))}
  @supports (-moz-appearance:none){@media(pointer:coarse){body.f4-shared-dock{--f4-dock-safe:0px}}}
  body.f4-shared-dock #f4-direct-bar .f4-nav-links{display:none}
  body.f4-shared-dock:not(.f4-direct-bank){padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
