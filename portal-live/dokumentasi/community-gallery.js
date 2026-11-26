@@ -11,6 +11,7 @@ const icons={
  comment:'<path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.8-5.2a8.5 8.5 0 1 1 16.2-4.3z"/>',
  share:'<circle cx="18" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="18" cy="19" r="2"/><path d="m8 11 8-5M8 13l8 5"/>',
  close:'<path d="M18 6 6 18M6 6l12 12"/>',
+ check:'<path d="m5 12 4 4L19 6"/>',
  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
  arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',
  send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
@@ -139,9 +140,9 @@ const message=(container,text,bad=false)=>{
  if(!p){p=elem('p','f4g-status');container.append(p)}
  p.textContent=text||'';p.hidden=!text;p.classList.toggle('error',bad);return p;
 };
-function field(parent,label,tag='input',placeholder=''){
+function field(parent,label,tag='input',placeholder='',ownPicker=false){
  const wrap=elem('div','f4g-field'),lab=elem('label','',label),control=elem(tag);
- control.placeholder=placeholder;lab.append();wrap.append(lab,control);parent.append(wrap);return control;
+ control.placeholder=placeholder;if(ownPicker)control.dataset.noCustom='1';lab.append();wrap.append(lab,control);parent.append(wrap);return control;
 }
 function photoLink(target){
  const u=new __f4.globals.URL('/dokumentasi/',__f4.globals.location.origin);
@@ -182,7 +183,8 @@ async function f4BankPhotoProgramControl(host,target){
   tag.title='Tampilkan foto yang sama di Dokumentasi Bank Sampah';
   const label=elem('span');tag.append(label);
   const draw=()=>{
-   label.textContent=category==='bank_sampah'?'Bank Sampah ✓':'Tag Bank Sampah';
+   label.textContent=category==='bank_sampah'?'Bank Sampah':'Tag Bank Sampah';
+   if(category==='bank_sampah'){const mark=elem('span','f4g-program-check');mark.innerHTML=svg('check');label.append(mark)}
    tag.setAttribute('aria-pressed',(0,__f4.globals.String)(category==='bank_sampah'));
   };
   draw();tag.disabled=!state.canEdit;
@@ -349,7 +351,8 @@ async function f4TagManager(target){
    for(const id of selected){
     const member=names.get(id);if(!member)continue;
     const chip=elem('button','f4-tag-selected-chip');chip.type='button';
-    chip.append(elem('span','',member.name),elem('span','f4-tag-chip-x','×'));
+    const removeIcon=elem('span','f4-tag-chip-x');removeIcon.innerHTML=svg('close');
+    chip.append(elem('span','',member.name),removeIcon);
     chip.setAttribute('aria-label','Hapus tag '+member.name);
     chip.onclick=()=>{selected.delete(id);render()};
     selectedWrap.append(chip);
@@ -505,7 +508,7 @@ async function uploadDialog(onUploaded){
  drop.append(elem('small','f4g-upload-file-help','Maksimal 12 foto · JPG, PNG, WebP'));
  dlg.body.append(drop);
  const preview=elem('div','f4g-previews');dlg.body.append(preview);
- const album=field(dlg.body,'Tujuan album','select');
+ const album=field(dlg.body,'Tujuan album','select','',true);
  const makeOption=(value,label)=>{const o=elem('option','',label);o.value=value;return o};
  const knownAlbums=__f4.window.f4GalleryAlbums?.();
  const options=new __f4.globals.Map((knownAlbums||__f4.window.f4GalleryCommunity.albums||[]).filter(a=>a.id&&a.title&&!a.id.startsWith('gfolder:')).map(a=>[a.id,a.title]));
@@ -530,7 +533,7 @@ async function uploadDialog(onUploaded){
  const composer=elem('div','f4g-upload-layout');
  const media=elem('div','f4g-upload-media'),settings=elem('div','f4g-upload-settings');
  media.append(drop,preview);
- const category=field(dlg.body,'Kategori album','select');
+ const category=field(dlg.body,'Kategori album','select','',true);
   for(const [key,name] of f4TagCategories){const option=elem('option','',name);option.value=key;category.append(option)}
   const cachedCategories=new __f4.globals.Map((__f4.window.f4GalleryCommunity?.categories||[]).map(a=>[(0,__f4.globals.String)(a.albumId),(0,__f4.globals.String)(a.category)]));
   const refreshCategory=async()=>{

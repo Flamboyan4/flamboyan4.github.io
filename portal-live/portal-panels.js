@@ -346,7 +346,7 @@ css.textContent+=[
  '#keuangan .f4-user-year-popover{position:absolute;z-index:100;right:0;top:calc(100% + 7px);width:max-content;min-width:100%;max-width:min(82vw,240px);max-height:240px;overflow-y:auto;padding:5px;background:#fff;border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:12px;box-shadow:0 14px 34px rgba(39,38,93,.15)}',
  '#keuangan .f4-user-year-popover button.f4-user-year-option{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;background:#fff;color:#495670;font:650 12px system-ui;text-align:left;white-space:nowrap}',
  '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]{background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary,#4f46e5);font-weight:800}',
- '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]:after{content:"✓";font-weight:900}',
+ '#keuangan .f4-user-year-popover button.f4-user-year-option[aria-pressed=true]:after{content:"";display:inline-block;width:16px;height:16px;flex:none;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m5 12 4 4L19 6%22/%3E%3C/svg%3E") center/contain no-repeat}',
  '#keuangan .f4-user-year-popover button.f4-user-year-option:hover{background:var(--f4-portal-soft,#eef2ff)}',
  '#keuangan .f4-user-year-context{font-size:11px;color:#80899a;margin:0 0 12px}',
  '#keuangan .f4-user-more-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px}',
