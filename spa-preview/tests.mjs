@@ -1,3 +1,4 @@
+import {simulateBookOperation} from './book-operations.js';
 import {bookReceipt,bankReceipt} from './receipts.js';
 import {collectCommunityAlbums,normalizeBankMedia} from './gallery.js';
 import {simulateApproval,simulatePayoutDecision,validateAllocation} from './bank-approval.js';
@@ -115,3 +116,17 @@ assert(bankReceipt({id:'deposit-test',status:'terkonfirmasi',nilaiSahRp:null,tan
 assert(bankReceipt({id:'deposit-test',status:'estimasi',estimasiRp:500,tanggal:'2026-11-27'}).status==='ESTIMASI','Estimate not paid');
 assert(normalizeBankMedia({id:'f4photo:test',media_type:'foto',external_url:'https://api.flamboyan4.web.id/test-photo'}).social,'Real gallery photo ID');
 console.log('PASS: receipt source and status validation');
+
+const opBase={role:'superadmin',accountKey:'test',get,signal:{aborted:false}};
+const cashTest=await simulateBookOperation({...opBase,action:'inputtransaksikas',params:{tanggal:'2026-11-27',jenis:'pemasukan',kategori:'Donasi',keterangan:'Uji',nominal:25000,metode:'Cash'}});
+assert(cashTest.write.path==='/api/bookkeeping/cash'&&cashTest.write.body.jumlahRp===25000,'Cash payload');
+const fineTest=await simulateBookOperation({...opBase,action:'buatdenda',params:{idWarga:'payer:1',tanggalKegiatan:'2026-11-27',namaKegiatan:'Gorol',nominal:20000,keterangan:'Uji'}});
+assert(fineTest.write.body.jumlahRp===20000&&fineTest.write.body.payerId==='payer:1','Fine payload');
+const loanTest=await simulateBookOperation({...opBase,action:'buatpinjaman',params:{idWarga:'payer:1',tanggal:'2026-11-27',nominal:100000,metode:'Cash'}});
+assert(loanTest.write.path==='/api/bookkeeping/pinjaman'&&loanTest.write.body.jumlahRp===100000,'Loan payload');
+const advanceTest=await simulateBookOperation({...opBase,action:'buattalangan',params:{idWarga:'payer:1',tanggal:'2026-11-27',tahun:2026,bulan:11}});
+assert(advanceTest.write.body.jumlahRp===45000,'Advance derived from dues');
+const paymentTest=await simulateBookOperation({...opBase,action:'simpaniuran',params});
+assert(paymentTest.write.path==='/api/bookkeeping/iuran'&&paymentTest.write.body.jumlahRp===115000,'Payment payload');
+let deniedBook=false;try{await simulateBookOperation({...opBase,role:'warga',action:'buatpinjaman',params:{}})}catch{deniedBook=true}assert(deniedBook,'Unauthorized operation denied');
+console.log('PASS: bookkeeping operation simulation');

@@ -35,6 +35,7 @@ const fixtures={
  '/api/v2/admin/content/obligations':{rows:[{payer_id:'payer:1'}]},'/api/bookkeeping/iuran/tariffs':{config:{TEST:1}},
  '/api/v2/admin/residents':{rows:[{household_id:'h1',payer_id:'payer:1',nama:'Warga uji',rumah:'A/1',active:1}]},
  '/api/v2/admin/content/settings':{data:[]},
+ '/api/bookkeeping/cash':{data:[]},
  '/api/bookkeeping/iuran/history':{data:[{idPembayaran:'pay-test',tanggal:'2026-11-15',nama:'Warga uji',status:'AKTIF',totalDiterima:10000,metode:'Cash'}]},
  '/api/bookkeeping/iuran/outstanding':{komponen:[{jenis:'IURAN_BULANAN',sisaRp:25000},{jenis:'KEBERSIHAN',sisaRp:20000},{jenis:'KAS_LORONG',sisaRp:10000},{jenis:'ARISAN',sisaRp:60000}]},
  '/api/bookkeeping/iuran/fines':{data:[{id:'fine1',sisaRp:20000}]},'/api/bookkeeping/talangan':{data:[]}
@@ -115,6 +116,7 @@ async function run(browser,role){
     await page.getByRole('button',{name:'Uji setujui',exact:true}).click();await page.getByText(/Validasi setujui berhasil/).waitFor();
    }else{
     await click('book');await heading('Pembukuan');await identity();await page.getByRole('button',{name:'Riwayat Pembayaran',exact:true}).click();await heading('Riwayat Pembayaran');await page.getByRole('button',{name:'Resi JPG pay-test',exact:true}).click();await page.getByAltText('Pratinjau bukti transaksi JPG').waitFor();await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();await click('book');await heading('Pembukuan');
+    await page.getByRole('button',{name:'Buku Kas',exact:true}).click();await heading('Buku Kas');await page.getByLabel('Kategori',{exact:true}).fill('Donasi');await page.getByLabel('Keterangan',{exact:true}).fill('Uji kas');await page.getByLabel('Nominal (Rp)',{exact:true}).fill('25000');await page.getByRole('button',{name:'Periksa transaksi',exact:true}).click();await page.getByText(/Validasi berhasil: Rp 25.000/).waitFor();await identity();await click('book');await heading('Pembukuan');
     await click('input');await heading('Input Iuran');await identity();
     await page.getByLabel('Nama warga',{exact:true}).selectOption('payer:1');
     await page.getByLabel('Nominal dibayar (Rp)',{exact:true}).fill('115000');

@@ -45,3 +45,7 @@ Portal Utama dan Bank Sampah menggunakan viewer yang sama, foto asli, daftar alb
 
 ## Tahap 8 — Resi JPG
 Renderer tiket asli dari `portal-live/transaction-receipts.js` digunakan kembali, dengan dialog dan object URL dikelola lifecycle route. Resi riwayat iuran dan setoran tersedia untuk ID transaksi asli dan nominal terverifikasi. Setoran estimasi tetap berstatus ESTIMASI, transaksi batal dan nominal sah yang null ditolak. Resi belum mengubah status transaksi. Cetak laporan lengkap dan resi denda/pinjaman/talangan belum dipindahkan. Perbaikan dokumentasi: fixture membaca album ID URL-encoded, dan ID foto unggahan mengikuti prefix Worker `f4photo:`.
+
+
+## Tahap 9 — Form operasional Pembukuan
+Input iuran, transaksi kas, pencatatan/pembayaran denda, pencatatan/angsuran pinjaman, dan talangan menggunakan adapter asli dengan simulasi write terisolasi. Validasi membaca data yang diperlukan dari API terautentikasi, tidak mengirim mutasi. Perlindungan draf berlaku pada setiap form. Belum mencakup seluruh edit, batal, rekap/setoran RT, penguncian tahun, cetak dan CRUD produksi.

@@ -1,8 +1,8 @@
+import {simulateBookOperation,attachBookOperations} from './book-operations.js';
 import {createReceiptViewer,bookReceipt} from './receipts.js';
 /* Native Pembukuan preview routes. All reads use the original data mapper.
    Payment preview uses the existing allocation algorithm; it never posts. */
 import {createBookReader} from './book-reader.js';
-import {createTransactionService} from './transactions.js';
 export const bookRoutes={
  book:'Pembukuan','book-input':'Input Iuran','book-history':'Riwayat Pembayaran',
  'book-cash':'Buku Kas','book-fines':'Denda','book-loans':'Pinjaman',
@@ -29,7 +29,7 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
   if(role!=='superadmin'||!accountKey)throw Error('Akses Pembukuan ditolak.');
   if(!Object.prototype.hasOwnProperty.call(bookRoutes,key))throw Error('Rute tidak ditemukan.');
   const read=createBookReader(path=>get(path,signal,true));
-  const root=title(bookRoutes[key]);
+  const root=title(bookRoutes[key]);let canLeave;const operations=records=>attachBookOperations(root,{key,role,accountKey,get,read,signal,el,panel,row,today,records});
   if(key==='book'){
    nav(root,Object.entries(bookRoutes).filter(([k])=>k!=='book'));
    const p=panel(root,'Input Data');row(p,'Iuran, transaksi kas, dan kewajiban lain','Modul baca dan validasi sedang diuji. Penyimpanan tetap di portal asli.');
@@ -44,11 +44,11 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
    const method=select([['Cash','Cash'],['QRIS','QRIS'],['Transfer Mandiri','Transfer Mandiri']]),memo=input('text','');memo.required=false;memo.maxLength=500;
    const check=el('button','Periksa alokasi');check.type='submit';const status=formStatus(el('p')),preview=el('div');let busy=false,dirty=false,revision=0;
    form.addEventListener('input',()=>{dirty=true;revision++;preview.replaceChildren();status.textContent=''});
-   const service=createTransactionService({role,accountKey,allowWrites:false,transport:(path,payload)=>{if(payload!==undefined)throw Error('Mode uji tidak melakukan POST.');return get(path,signal,true)}});
+   
    form.addEventListener('submit',async e=>{
     e.preventDefault();if(busy)return;busy=true;check.disabled=true;preview.replaceChildren();status.textContent='Memeriksa kewajiban…';const version=revision;
     try{
-     const payload=await service.book('previewiuran',{idWarga:person.value,tanggal:date.value,tahun:Number(year.value),bulan:Number(month.value),jumlahBulan:Number(periods.value),nominalDibayar:Number(amount.value),metode:method.value,catatan:memo.value});
+     const {write}=await simulateBookOperation({action:'simpaniuran',role,accountKey,get,signal,params:{idWarga:person.value,tanggal:date.value,tahun:Number(year.value),bulan:Number(month.value),jumlahBulan:Number(periods.value),nominalDibayar:Number(amount.value),metode:method.value,catatan:memo.value}});const payload=write.body;
      if(signal.aborted||version!==revision)return;
      const result=panel(preview,'Rincian alokasi');const names={IURAN_BULANAN:'Iuran Bulanan',KEBERSIHAN:'Kebersihan',KAS_LORONG:'Kas Lorong',ARISAN:'Arisan'};
      for(const x of payload.alokasi)row(result,names[x.jenis]||x.jenis,x.bulan+'/'+x.tahun+' · '+money(x.nominal));
@@ -70,16 +70,16 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
    }
    note(p,d.data,1000);
   }else if(key==='book-cash'){
-   const d=await read('datatransaksikas',{allPeriods:true}),p=panel(root,'Pemasukan & pengeluaran');
+   const d=await read('datatransaksikas',{allPeriods:true});canLeave=await operations(d.data);const p=panel(root,'Pemasukan & pengeluaran');
    list(p,dateSort(d.data,'tanggal'),x=>x.keterangan||x.kategori||x.jenis,x=>[x.tanggal,x.jenis,money(x.debit>0?x.debit:x.kredit),x.status].filter(Boolean).join(' · '),500);
   }else if(key==='book-fines'){
-   const d=await read('datadenda'),p=panel(root,'Riwayat denda');
+   const d=await read('datadenda');canLeave=await operations(d.data.rows);const p=panel(root,'Riwayat denda');
    list(p,dateSort(d.data.rows,'tanggalKegiatan'),recordTitle,x=>[x.tanggalKegiatan,x.namaKegiatan,money(x.nominal),x.status].filter(Boolean).join(' · '),200);
   }else if(key==='book-loans'){
-   const d=await read('datapinjaman'),p=panel(root,'Riwayat pinjaman');
+   const d=await read('datapinjaman');canLeave=await operations(d.data.rows);const p=panel(root,'Riwayat pinjaman');
    list(p,dateSort(d.data.rows,'tanggalPinjaman'),recordTitle,x=>[x.tanggalPinjaman,'Pokok '+money(x.nominalPinjaman),'Sisa '+money(x.sisaPinjaman),x.status].join(' · '),200);
   }else if(key==='book-advances'){
-   const d=await read('datatalangan'),p=panel(root,'Riwayat talangan');
+   const d=await read('datatalangan');canLeave=await operations(d.data.rows);const p=panel(root,'Riwayat talangan');
    list(p,dateSort(d.data.rows,'tanggalTalangan'),recordTitle,x=>[x.tanggalTalangan,x.bulan+' '+x.tahun,'Sisa '+money(x.sisaTalangan),x.status,x.perluRekonsiliasi?'Perlu rekonsiliasi':''].filter(Boolean).join(' · '),200);
   }else if(key==='book-residents'){
    const d=await read('bootstrap'),p=panel(root,'Warga');
@@ -106,7 +106,7 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
    }catch(error){if(!signal.aborted&&token===revision)status.textContent=error.message;}}
    year.onchange=refresh;p.append(field('Tahun',year),status,result);await refresh();
   }
-  legacy(root,'Buka fungsi lengkap dan cetak di portal asli');return {node:root};
+  legacy(root,'Buka fungsi lengkap dan cetak di portal asli');return {node:root,canLeave};
  }
  return {mount};
 }
