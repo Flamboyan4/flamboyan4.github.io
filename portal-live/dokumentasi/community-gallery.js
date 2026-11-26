@@ -818,9 +818,10 @@ async function adminDialog(){
  await load();
 }
 
-let galleryView='feed';
-function setGalleryView(value){
+let galleryView=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('tampilan')==='album'?'albums':'feed';
+function setGalleryView(value,record=false){
  galleryView=value==='albums'?'albums':'feed';
+ if(record){const u=new __f4.globals.URL(__f4.globals.location.href);if(galleryView==='albums')u.searchParams.set('tampilan','album');else u.searchParams.delete('tampilan');if(u.href!==__f4.globals.location.href)__f4.globals.history.pushState({...__f4.globals.history.state},'',u.pathname+u.search)}
  const root=__f4.globals.document.getElementById('media-albums-section');
  if(!root)return;
  const feed=root.querySelector('.f4g-feed-pane'),albums=root.querySelector('.f4g-album-pane');
@@ -841,22 +842,27 @@ function renderRecent(){
   const icon=elem('span','f4g-feed-empty-icon');icon.innerHTML=svg('images');
   empty.append(icon,elem('strong','','Sedang memuat foto kegiatan…'),
     elem('p','','Foto dari album dokumentasi akan muncul di sini.'),
-    button('Jelajahi album','images',()=>setGalleryView('albums')));
+    button('Jelajahi album','images',()=>setGalleryView('albums',true)));
   grid.append(empty);return;
  }
  for(const item of photos){
-  const card=elem('button','f4g-feed-card');card.type='button';card.setAttribute('aria-label','Buka foto dari '+item.title);
+  const card=elem('article','f4g-feed-card');
+  const media=elem('button','f4g-feed-media');media.type='button';media.setAttribute('aria-label','Buka foto dari '+item.title);
   const image=elem('img');image.src=item.url;image.loading='lazy';image.alt=item.caption||item.title;
-  const info=elem('span','f4g-feed-card-caption');
-  info.append(elem('strong','',item.title),elem('small','',item.caption&&item.caption!==item.title?item.caption:item.date||'Dokumentasi'));
-  const badge=elem('span','f4g-feed-card-icon');badge.innerHTML=svg('images');
-  card.append(image,info,badge);
-  image.onerror=()=>{if(card.isConnected)card.remove()};
-  card.onclick=async()=>{
-   try{await __f4.window.f4GalleryOpenRecent?.(item.albumId,item.id)}
-   catch(e){notice('Foto belum dapat dibuka: '+e.message)}
-  };
+  const badge=elem('span','f4g-feed-card-icon');badge.innerHTML=svg('images');media.append(image,badge);
+  const meta=elem('div','f4g-feed-meta');meta.append(elem('strong','',item.uploader||'Dokumentasi Flamboyan 4'),elem('small','',item.date||''));
+  const info=elem('div','f4g-feed-card-caption'),actions=elem('div','f4g-feed-social'),comments=elem('p','f4g-feed-comments');
+  info.append(actions,elem('strong','',item.title));
+  if(item.caption&&item.caption!==item.title)info.append(elem('small','',item.caption));
+  info.append(comments);card.append(meta,media,info);
+  image.onerror=()=>{if(card.isConnected){image.remove();media.classList.add('f4g-feed-unavailable');media.append(elem('span','','Foto belum tersedia'))}};
+  media.onclick=async()=>{try{await __f4.window.f4GalleryOpenRecent?.(item.albumId,item.id)}catch(e){notice('Foto belum dapat dibuka: '+e.message)}};
   grid.append(card);
+  if(item.id){
+   const target={type:'photo',id:item.id,albumId:item.albumId,title:item.title,caption:item.caption};
+   const init=()=>socialButtons(actions,target,true,data=>{if(!comments.isConnected)return;const last=data.comments?.[0];comments.textContent=last?((last.author||last.nama||'Warga')+': '+(last.message||'')):'Belum ada komentar'});
+   if(__f4.globals.IntersectionObserver){const obs=new __f4.globals.IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){obs.disconnect();if(card.isConnected)init()}},{rootMargin:'160px'});obs.observe(actions)}else init();
+  }
  }
 }
 function buildGalleryLayout(albums){
@@ -864,13 +870,13 @@ function buildGalleryLayout(albums){
  const head=albums.querySelector('.panel-head');if(!head)return null;
  hero=elem('header','f4g-hero');const copy=elem('div','f4g-hero-copy');
  copy.append(elem('h2','f4g-hero-title','Cerita Warga'));
- hero.append(copy,elem('div','f4g-top-actions'));albums.insertBefore(hero,head);
+ hero.append(copy);albums.insertBefore(hero,head);
  const tabs=elem('nav','f4g-view-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Tampilan galeri');
  for(const [value,name,icon] of [['feed','Foto Terbaru','grid'],['albums','Album Kegiatan','images']]){
-  const btn=button(name,icon,()=>setGalleryView(value),'f4g-view-button');
+  const btn=button(name,icon,()=>setGalleryView(value,true),'f4g-view-button');
   btn.dataset.galleryView=value;btn.setAttribute('role','tab');tabs.append(btn);
  }
- hero.after(tabs);
+ tabs.append(elem('div','f4g-top-actions'));hero.after(tabs);
  const albumPane=elem('div','f4g-album-pane');head.before(albumPane);
  for(const id of ['media-category-filters','media-search','media-albums']){
   const node=__f4.globals.document.getElementById(id);if(node)albumPane.append(node);
@@ -886,7 +892,7 @@ function buildGalleryLayout(albums){
 function mount(){
  const albums=__f4.globals.document.getElementById('media-albums-section');if(!albums)return;
  const hero=buildGalleryLayout(albums);if(!hero)return;
- const actions=hero.querySelector('.f4g-top-actions');actions.replaceChildren();
+ const actions=albums.querySelector('.f4g-top-actions');actions.replaceChildren();
  const upload=button('Unggah Foto','upload',uploadDialog,'primary');
  upload.title='Unggah satu atau beberapa foto sekaligus';
  upload.setAttribute('aria-label','Unggah Foto');
@@ -901,6 +907,7 @@ function mount(){
   __f4.window.f4gAdminAutoOpened=true;adminDialog();
  }
 }
+__f4.window.addEventListener('popstate',()=>setGalleryView(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('tampilan')==='album'?'albums':'feed'));
 __f4.globals.document.addEventListener('f4:gallery:recent',renderRecent);
 __f4.globals.document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=__f4.window.f4GalleryCommunity;mount();renderRecent()});
 __f4.globals.document.addEventListener('f4:gallery:album',e=>{

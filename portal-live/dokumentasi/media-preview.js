@@ -94,7 +94,7 @@ function publishRecentMedia(){
    if(seen.has(key))continue;
    seen.add(key);count++;
    rows.push({id,albumId:doc.id,title:doc.title,url:item.url,
-    caption:item.caption||doc.title,date:doc.date});
+    caption:item.caption||doc.title,date:item.date||doc.date,uploader:item.uploader||'Dokumentasi Flamboyan 4'});
   }
  }
  recentMedia=rows.slice(0,30);
@@ -255,7 +255,7 @@ async function loadPortalArchive(){
     for(const p of collection.photos||[]){
      const a=docById.get(p.albumId);if(!a)continue;
      if(!a.communityPhotos)a.communityPhotos=[];
-     a.communityPhotos.push({id:p.id,albumId:p.albumId,url:p.url,type:'foto',caption:p.caption||p.uploader||'Foto warga'});
+     a.communityPhotos.push({id:p.id,albumId:p.albumId,url:p.url,type:'foto',caption:p.caption||p.uploader||'Foto warga',uploader:p.uploader,date:p.date});
      if(!a.cover)a.cover=p.url;
     }
    }
@@ -435,7 +435,7 @@ function tab(value,writeHash){
   const btn=$('media-tab-'+name);
   btn.className='btn'+(is?'':' outline');btn.setAttribute('aria-selected',(0,__f4.globals.String)(is));
  }
- if(writeHash){const url=new __f4.globals.URL(__f4.globals.location.href);if(inv)url.searchParams.set('halaman','inventaris');else url.searchParams.delete('halaman');url.hash='';__f4.globals.history.replaceState(__f4.globals.history.state,'',url.pathname+url.search)}
+ if(writeHash){const url=new __f4.globals.URL(__f4.globals.location.href);if(inv)url.searchParams.set('halaman','inventaris');else url.searchParams.delete('halaman');url.hash='';if(url.href!==__f4.globals.location.href)__f4.globals.history.pushState(__f4.globals.history.state,'',url.pathname+url.search)}
  if(window!==__f4.window.top)__f4.window.parent.postMessage({type:'f4:section',target:inv?'inventaris':'dokumentasi'},__f4.globals.location.origin);
 }
 $('media-tab-albums').onclick=()=>tab('dokumentasi',true);
