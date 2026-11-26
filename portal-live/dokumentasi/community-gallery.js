@@ -856,7 +856,7 @@ function renderRecent(){
   if(item.caption&&item.caption!==item.title)info.append(elem('small','',item.caption));
   info.append(comments);card.append(meta,media,info);
   image.onerror=()=>{if(card.isConnected){image.remove();media.classList.add('f4g-feed-unavailable');media.append(elem('span','','Foto belum tersedia'))}};
-  media.onclick=async()=>{try{await __f4.window.f4GalleryOpenRecent?.(item.albumId,item.id)}catch(e){notice('Foto belum dapat dibuka: '+e.message)}};
+  media.onclick=()=>{try{if(!__f4.window.f4MediaGallery?.openStandalonePhoto(item,media))notice('Foto belum dapat dibuka.')}catch(e){notice('Foto belum dapat dibuka: '+e.message)}};
   grid.append(card);
   if(item.id){
    const target={type:'photo',id:item.id,albumId:item.albumId,title:item.title,caption:item.caption};
@@ -907,7 +907,7 @@ function mount(){
   __f4.window.f4gAdminAutoOpened=true;adminDialog();
  }
 }
-__f4.window.addEventListener('popstate',()=>setGalleryView(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('tampilan')==='album'?'albums':'feed'));
+__f4.window.addEventListener('popstate',()=>{const next=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('tampilan')==='album'?'albums':'feed';if(next!==galleryView)setGalleryView(next)});
 __f4.globals.document.addEventListener('f4:gallery:recent',renderRecent);
 __f4.globals.document.addEventListener('f4:gallery:ready',()=>{ready=true;collection=__f4.window.f4GalleryCommunity;mount();renderRecent()});
 __f4.globals.document.addEventListener('f4:gallery:album',e=>{

@@ -1174,7 +1174,7 @@ function salinLinkAgenda(url) {
 
     function initHomeSummarySlides(){
       const mobile=__f4.window.matchMedia('(max-width:767px)');
-      for(const [id,labels] of [['f4-cash-summary-slides',['Saldo kas','Kas masuk dan kas keluar']],['f4-arisan-slides',['Arisan bulan ini','Tuan rumah berikutnya']]]){
+      for(const [id,labels] of [['f4-cash-summary-slides',['Saldo kas','Kas masuk dan kas keluar']]]){
         const track=__f4.globals.document.getElementById(id),nav=__f4.globals.document.querySelector('[data-slide-nav="'+id+'"]');
         if(!track||!nav)continue;
         const cards=[...track.children];

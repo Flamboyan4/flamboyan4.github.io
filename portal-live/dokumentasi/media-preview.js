@@ -394,12 +394,10 @@ function drawFilters(){
   });
  }
 }
-__f4.window.f4GalleryOpenRecent=async(albumId,photoId)=>{
- const album=docs.find(row=>row.id===albumId);
- if(!album)return false;
- await openAlbum(album);
- if(photoId)return __f4.window.f4MediaGallery?.openPhotoById(photoId)||false;
- return true;
+__f4.window.f4GalleryOpenRecent=(albumId,photoId,origin=null)=>{
+ const item=recentMedia.find(row=>row.albumId===albumId&&row.id===photoId);
+ if(!item)return false;
+ return __f4.window.f4MediaGallery?.openStandalonePhoto(item,origin)||false;
 };
 function drawInventory(){
  const box=$('media-inventory-list');box.replaceChildren();

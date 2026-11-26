@@ -37,11 +37,11 @@ const normalize=item=>{
    type==='video'&&yt?'https://img.youtube.com/vi/'+yt+'/hqdefault.jpg':''));
  return {url:safe(raw),type,driveId,poster,
   id:(0,__f4.globals.String)(item.id||(driveId?'gdrive:'+driveId:'')).slice(0,190),
-  albumId:(0,__f4.globals.String)(item.albumId||'').slice(0,180),caption:(0,__f4.globals.String)(item.caption||item.nama||'').slice(0,140),
+  albumId:(0,__f4.globals.String)(item.albumId||'').slice(0,180),title:(0,__f4.globals.String)(item.title||'').slice(0,180),caption:(0,__f4.globals.String)(item.caption||item.nama||'').slice(0,140),
   embed:type==='video'&&driveId?'https://drive.google.com/file/d/'+(0,__f4.globals.encodeURIComponent)(driveId)+'/preview':
    type==='video'&&yt?'https://www.youtube-nocookie.com/embed/'+yt:null};
 };
-let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',mediaContext='gallery',lastTile=null,closing=false;
+let album=null,photo=null,items=[],at=0,albumTitle='Dokumentasi',currentAlbumId='',mediaContext='gallery',lastTile=null,standaloneOrigin=null,closing=false;
 // A restored browser-history entry belongs to an older viewer after reload.
 const viewerSession=__f4.globals.crypto.randomUUID();
 let photoZoom={scale:1,x:0,y:0};
@@ -261,9 +261,9 @@ function ensure(){
   closing=false;
   const layer=__f4.globals.history.state?.f4DocSession===viewerSession?__f4.globals.history.state?.f4DocOverlay:null;
   if(isOpen(photo)&&layer!=='photo'){
-   stopVideo();show(photo,false);view.replaceChildren();
+   stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content')?.replaceChildren();
    clearClosedLink('foto');
-   if(isOpen(album))lastTile?.focus({preventScroll:true});
+   if(isOpen(album))lastTile?.focus({preventScroll:true});else standaloneOrigin?.focus({preventScroll:true});
   }
   if(isOpen(album)&&layer!=='photo'&&layer!=='album'){
    show(album,false);
@@ -292,7 +292,7 @@ function closeTop(){
   if(isOpen(photo)){
    stopVideo();show(photo,false);
    photo.querySelector('.f4p-photo-content')?.replaceChildren();
-   if(isOpen(album))lastTile?.focus({preventScroll:true});
+   if(isOpen(album))lastTile?.focus({preventScroll:true});else standaloneOrigin?.focus({preventScroll:true});
   }else if(isOpen(album)){
    show(album,false);
   }
@@ -303,7 +303,7 @@ function closeTop(){
  }
  if(isOpen(photo)){
   stopVideo();show(photo,false);photo.querySelector('.f4p-photo-content').replaceChildren();
-  clearClosedLink('foto');return;
+  clearClosedLink('foto');if(isOpen(album))lastTile?.focus({preventScroll:true});else standaloneOrigin?.focus({preventScroll:true});return;
  }
  if(isOpen(album)){
   show(album,false);
@@ -318,7 +318,8 @@ function pushLayer(layer){
 function renderPhoto(){
  if(!photo||!items.length)return;
  const item=items[at];
- photo.querySelector('.f4p-photo-name').textContent=albumTitle;
+ const title=item.title||albumTitle;
+ photo.querySelector('.f4p-photo-name').textContent=title;
  const view=photo.querySelector('.f4p-photo-content');stopVideo();resetPhotoZoom();view.replaceChildren();
  if(item.type==='video'){
   // Restore the portal's own player and its controls. The publicly shared
@@ -353,7 +354,7 @@ function renderPhoto(){
  photo.querySelector('.f4p-photo-zoom').hidden=item.type==='video';
  photo.querySelector('.f4p-photo-count').textContent=(at+1)+' / '+items.length;
  for(const b of photo.querySelectorAll('.f4p-photo-arrow'))b.hidden=items.length<2;
- if(mediaContext==='gallery')__f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title:albumTitle,caption:item.caption,url:item.url}}));
+ if(mediaContext==='gallery')__f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:gallery:photo',{detail:{id:item.id,albumId:currentAlbumId||item.albumId,title,caption:item.caption,url:item.url}}));
  else{photo.classList.remove('f4g-social-enabled');photo.querySelector('.f4g-photo-side')?.remove();photo.querySelector('.f4g-photo-actions')?.remove();}
 }
 function shift(n){if(!items.length)return;at=(at+n+items.length)%items.length;renderPhoto();
@@ -367,6 +368,12 @@ function openPhoto(index=0){ensure();if(!items.length)return;at=__f4.globals.Mat
 function openMediaViewer(title,records,index=0){
  ensure();items=(records||[]).map(normalize).filter(x=>x?.url);if(!items.length)return;
  albumTitle=title||'Dokumentasi';currentAlbumId='';mediaContext='inventory';openPhoto(index);
+}
+function openStandalonePhoto(record,origin=null){
+ const item=normalize(record);if(!item?.url)return false;
+ ensure();if(isOpen(photo)||isOpen(album))return false;
+ items=[item];albumTitle=item.title||'Dokumentasi';currentAlbumId=item.albumId;mediaContext='gallery';lastTile=null;standaloneOrigin=origin||__f4.globals.document.activeElement;
+ openPhoto(0);return true;
 }
 function openMediaGallery(title,records,opts={}){
  ensure();
@@ -422,6 +429,6 @@ function openMediaGallery(title,records,opts={}){
  __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:gallery:album',{detail:{id:currentAlbumId,title:albumTitle}}));
  album.querySelector('.f4p-close')?.focus({preventScroll:true});
 }
-__f4.window.f4MediaGallery={openMediaViewer,openMediaGallery,openPhotoById:(id)=>{const n=items.findIndex(x=>x.id===id);if(n>=0)openPhoto(n);return n>=0;}};
+__f4.window.f4MediaGallery={openMediaViewer,openMediaGallery,openStandalonePhoto,openPhotoById:(id)=>{const n=items.findIndex(x=>x.id===id);if(n>=0)openPhoto(n);return n>=0;}};
 })();
 });

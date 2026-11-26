@@ -28,7 +28,9 @@ const pathFor=x=>{const u=new __f4.globals.URL('/dokumentasi/',__f4.globals.loca
 let newest=[],popularRows=[],mode='terbaru';
 function card(item){
  const block=el('article','f4g-home-card');
- const href=pathFor(item),photo=el('a','f4g-home-photo');photo.href=href;photo.title='Buka foto di Dokumentasi Warga';
+ const href=pathFor(item),photo=el('a','f4g-home-photo');photo.href=href;photo.title='Buka foto';
+ const openPhoto=e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;const viewer=__f4.window.f4MediaGallery;if(viewer?.openStandalonePhoto(item,e.currentTarget))e.preventDefault()};
+ photo.addEventListener('click',openPhoto);
  const img=el('img');img.src=item.url;img.loading='lazy';img.alt=item.caption||item.title||'Foto kegiatan warga';
  const file=fileId(item.url),sources=file?[
    'https://drive.google.com/thumbnail?id='+(0,__f4.globals.encodeURIComponent)(file)+'&sz=w1200',
@@ -40,12 +42,12 @@ function card(item){
   img.replaceWith(el('div','f4g-home-photo-unavailable','Foto belum dapat dimuat'));
  });
  photo.append(img);
- const body=el('div','f4g-home-card-content'),title=el('a','f4g-home-title',item.title||item.caption||'Dokumentasi Warga');title.href=href;
+ const body=el('div','f4g-home-card-content'),title=el('a','f4g-home-title',item.title||item.caption||'Dokumentasi Warga');title.href=href;title.addEventListener('click',openPhoto);
  const info=el('div','f4g-home-info');
  info.append(el('span','',item.uploader||'Dokumentasi Flamboyan 4'),el('span','',textDate(item)));
  const stats=el('div','f4g-home-stats'),likes=el('span','f4g-home-stat'),comments=el('a','f4g-home-stat f4g-home-comment-link');
  likes.innerHTML=icon('heart');likes.append(el('span','',(0,__f4.globals.String)(item.likes||0)));
- comments.href=href;comments.setAttribute('aria-label','Buka komentar pada '+(item.title||'album'));
+ comments.href=href;comments.addEventListener('click',openPhoto);comments.setAttribute('aria-label','Buka komentar pada '+(item.title||'album'));
  comments.innerHTML=icon('comment');comments.append(el('span','',(0,__f4.globals.String)(item.commentCount??item.comments?.length??0)));
  stats.append(likes,comments);
  const preview=el('div','f4g-home-comments');
