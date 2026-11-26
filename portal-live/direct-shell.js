@@ -64,7 +64,10 @@ const logout=el('button');logout.type='button';logout.textContent='Keluar';logou
 menu.append(menuName,settings,logout);
 const identity=el('div','f4-direct-identity');identity.id='f4-direct-identity';identity.hidden=true;
 const identityName=el('strong');identity.append(identityName);
-bar.append(hamburger,identity,links,login,avatar,menu);document.body.prepend(bar);
+const meeting=el('a');meeting.id='f4-direct-meeting';meeting.href=shellUrl(paths.rapat);meeting.title='Rapat';meeting.setAttribute('aria-label','Rapat');
+ meeting.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 12h8M8 16h8"/></svg>';
+ meeting.setAttribute('aria-current',initialKey==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',initialKey==='rapat');
+ bar.append(hamburger,identity,links,login,meeting,avatar,menu);document.body.prepend(bar);
 // Persistent loading surface; navbar and dock are never replaced.
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
@@ -308,6 +311,7 @@ function updatePortalChrome(key){
  document.documentElement.dataset.f4Shell=portal;
  applyPortalTheme(portal);hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(residentKeys.includes(key)?key:portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
+ meeting.setAttribute('aria-current',key==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',key==='rapat');
  settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Kartu & Profil': ['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
  document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));
@@ -728,13 +732,12 @@ function makePortalSide(){
  const brandName=el('div');const h=el('h2');h.textContent='Portal Utama';
  const sub=el('small');sub.textContent='Flamboyan 4';brandName.append(h,sub);brand.append(logo,brandName);side.append(brand);
  const groupHead=el('div','f4-direct-group-label');groupHead.textContent='MENU';side.append(groupHead);
- // The scrolling sections must appear in the same sequence as the sidebar.
- // Rapat and Dokumentasi are separate pages, kept in their own group.
+ // Dokumentasi and Inventaris are two tabs of the same page.
+ // Payments remain in the shortcut/footer; Rapat belongs to the shared navbar.
  const items=[
   ['beranda','Beranda','home'],['keuangan','Kas Warga','cash'],['projek','Projek','project'],
-  ['kalender','Kalender','calendar'],['inventaris','Inventaris','inventory'],
-  ['komentar','Obrolan','message'],['pembayaran','Pembayaran','pay'],
-  ['dokumentasi','Dokumentasi','image'],['rapat','Rapat','meeting']
+  ['kalender','Kalender','calendar'],['komentar','Obrolan','message'],
+  ['dokumentasi','Dokumentasi','image'],['inventaris','Inventaris','inventory']
  ];
  for(const [key,label,iconName] of items){
   if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='LAINNYA';side.append(group);}
@@ -745,15 +748,15 @@ function makePortalSide(){
   const labelEl=el('span','f4-direct-menu-label');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{
    closeSide();
-   if(key==='pembayaran'&&residentTools.openPayment())return;
-   if(key==='rapat'||key==='dokumentasi'){void navigatePortal(paths[key]);return}
-   if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key==='keuangan'?'kas-warga':key));return}
-   if(key==='inventaris'){
-    const target=document.getElementById('kegiatan');
-    if(target)window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-74),behavior:'smooth'});
-    else void navigatePortal('/dokumentasi/?halaman=inventaris');
-    highlight(key);return;
+   if(key==='dokumentasi'||key==='inventaris'){
+    const inv=key==='inventaris';
+    if(activePortalKey==='dokumentasi'){
+     const tab=document.getElementById(inv?'media-tab-inventory':'media-tab-albums');
+     if(tab){tab.click();highlight(key);window.scrollTo({top:0,behavior:'instant'});return}
+    }
+    void navigatePortal(paths.dokumentasi+(inv?'?halaman=inventaris':''));return;
    }
+   if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key==='keuangan'?'kas-warga':key));return}
    try{window.f4PortalSelectPanel?.(key==='keuangan'?'kas-warga':key)}catch(err){console.warn('Panel:',err)}
    highlight(key);
   });
@@ -762,9 +765,10 @@ function makePortalSide(){
  document.body.append(side);
  const backdrop=el('button');backdrop.id='f4-direct-sideback';backdrop.type='button';backdrop.hidden=true;
  backdrop.setAttribute('aria-label','Tutup menu');backdrop.onclick=closeSide;document.body.append(backdrop);
- highlight(residentKeys.includes(activePortalKey)?'':portal==='simple'?(activePortalKey==='rapat'?'rapat':'dokumentasi'):'beranda');
+ highlight(activePortalKey==='dokumentasi'?(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi'):portal==='portal'?'beranda':'');
 }
 function highlight(key){document.querySelectorAll('#f4-direct-sidebar [data-f4-panel]').forEach(x=>x.setAttribute('aria-current',x.dataset.f4Panel===key?'page':'false'))}
+ document.addEventListener('f4:documentation-tab',event=>{if(activePortalKey==='dokumentasi')highlight(event.detail==='inventaris'?'inventaris':'dokumentasi')});
 function closeSide(){document.querySelector('#f4-direct-sidebar')?.classList.remove('f4-open');const b=document.getElementById('f4-direct-sideback');if(b)b.hidden=true;hamburger.setAttribute('aria-expanded','false')}
 hamburger.addEventListener('click',()=>{
  if(portal==='portal'||portal==='simple'){

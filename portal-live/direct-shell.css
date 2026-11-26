@@ -165,7 +165,7 @@ html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 @media(max-width:480px){
  #f4-direct-bar:has(.f4-direct-identity:not([hidden])){gap:4px;padding-inline:8px}
  #f4-direct-bar:has(.f4-direct-identity:not([hidden])) .f4-nav-links{gap:1px}
- #f4-direct-bar:has(.f4-direct-identity:not([hidden])) :is(.f4-nav-links a,#f4-mobile-menu,#f4-tag-bell){width:30px;min-width:30px;height:34px}
+ #f4-direct-bar:has(.f4-direct-identity:not([hidden])) :is(.f4-nav-links a,#f4-mobile-menu,#f4-tag-bell,#f4-direct-meeting){width:30px;min-width:30px;height:34px}
  #f4-direct-bar:has(.f4-direct-identity:not([hidden])) #f4-direct-avatar{width:34px;height:34px}
  #f4-direct-bar .f4-direct-identity strong{font-size:14px}
 }

@@ -434,6 +434,7 @@ function tab(value,writeHash){
   btn.className='btn'+(is?'':' outline');btn.setAttribute('aria-selected',(0,__f4.globals.String)(is));
  }
  if(writeHash){const url=new __f4.globals.URL(__f4.globals.location.href);if(inv)url.searchParams.set('halaman','inventaris');else url.searchParams.delete('halaman');url.hash='';if(url.href!==__f4.globals.location.href)__f4.globals.history.pushState(__f4.globals.history.state,'',url.pathname+url.search)}
+ __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:documentation-tab',{detail:inv?'inventaris':'dokumentasi'}));
  if(window!==__f4.window.top)__f4.window.parent.postMessage({type:'f4:section',target:inv?'inventaris':'dokumentasi'},__f4.globals.location.origin);
 }
 $('media-tab-albums').onclick=()=>tab('dokumentasi',true);
