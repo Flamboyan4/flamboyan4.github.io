@@ -1533,6 +1533,7 @@ const adminShortcuts=[
  ["Dokumentasi","bank-admin-docs","images"]
 ];
 const adminShortcutPaths={
+ home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
  "shield-check":'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m8 12 3 3 5-5"/>',
  history:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',
  wallet:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M3 10h18M16 15h2M7 3h12"/>',
@@ -1556,8 +1557,8 @@ function adminShortcut([name,route,iconName]){
 }
 /* Four operational shortcuts; remaining routes share the existing admin drawer and desktop sidebar. */
 const adminQuickRoutes=["rekonsiliasi","bank-admin-cash","master","tabungan"];
-const adminDrawerRoutes=["bank-admin-history","bank-payout-admin","admin","laporan","bank-admin-docs"];
-const adminRoutesInOrder=routes=>routes.map(route=>adminShortcuts.find(item=>item[1]===route)).filter(Boolean);
+const adminDrawerRoutes=["dashboard","bank-admin-history","bank-payout-admin","admin","laporan","bank-admin-docs"];
+const adminRoutesInOrder=routes=>routes.map(route=>route==="dashboard"?["Beranda","dashboard","home"]:adminShortcuts.find(item=>item[1]===route)).filter(Boolean);
 let adminDrawerFocus=null;
 function getAdminDrawer(){return __f4.globals.document.querySelector("#f4-direct-sidebar[data-bank-admin-drawer]");}
 function isAdminDrawerOpen(){return !!getAdminDrawer()?.classList.contains("f4-open");}
@@ -2852,7 +2853,7 @@ function handleRoute(route,old,args){
  if(route==="dashboard"&&role==="member"){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
- if(route==="dashboard"&&role==="admin"){ensureHome();ensureAdminHome();}
+ if(route==="dashboard"&&role==="admin"){ensureHome();ensureAdminHome();__f4.window.scrollTo(0,0);}
  if(route==="laporan"&&role==="admin")ensureAdminReportLink();
  if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();

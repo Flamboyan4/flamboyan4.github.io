@@ -2461,8 +2461,9 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
 }
 /* Pengurus: komponen operasional asli, tanpa menu/portal duplikat pada HP. */
 body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
- display:grid;gap:14px;margin:0;padding:15px 8px;background:#fff;
- border:0;border-radius:16px
+ display:grid;gap:10px;margin:0;padding:14px 10px;background:#fff;
+ border:1px solid var(--eco-line,#e4ece6);border-radius:var(--f4-panel-radius,12px);
+ box-shadow:var(--f4-panel-shadow,0 3px 14px rgba(35,48,64,.055))
 }
 .f4-bank-admin-shortcuts>h2{margin:0;font-size:16px;font-weight:850;color:#174c33}
 /* Empat akses cepat operasional dalam satu baris. */

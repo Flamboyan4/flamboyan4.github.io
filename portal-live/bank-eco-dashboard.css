@@ -22,7 +22,7 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primar
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panels{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--f4-grid-gap);margin-bottom:var(--f4-grid-gap)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel{box-sizing:border-box;min-width:0;padding:4px 14px 8px;background:#fff;border:1px solid var(--eco-line);border-radius:var(--f4-panel-radius)}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panel-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:12px}
-body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel>.v14-panel-head{display:none}
+@media(min-width:1024px){body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel>.v14-panel-head{display:none}}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading h3{font-size:16px;color:#174b36;font-weight:800}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .f4-eco-panel-heading p{font-size:13px;color:#496757}
 body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-link{font-size:12px;color:var(--f4-bank-primary,#087c6c);font-weight:700}
@@ -43,19 +43,23 @@ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14QuickA
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary{gap:8px}
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #v14Primary>.f4-eco-kpi{min-height:96px;padding:12px}
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-panels{grid-template-columns:minmax(0,1fr)}
- /* Setoran terbaru: daftar kartu ringan seperti referensi, bukan tabel di dalam kartu besar. */
+
+ body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{flex-wrap:wrap}
+}
+
+/* Mobile: independent quick-access and recent-deposit panels, same card tokens. */
+@media(max-width:1023px){
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome>.v14-panel{
-  padding:2px 0 0;background:transparent;border:0;border-radius:0;box-shadow:none
+  padding:14px 10px 8px;background:#fff;border:1px solid var(--eco-line,#e4ece6);
+  border-radius:var(--f4-panel-radius,12px);box-shadow:var(--f4-panel-shadow,0 3px 14px rgba(35,48,64,.055))
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .v14-panel-head{
-  padding:0 2px;align-items:center;margin:0 0 4px
+  padding:0 2px;align-items:center;margin:0 0 6px
  }
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome #v14Recent{
   overflow:visible;background:transparent;border:0
  }
- body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard .v14-head{flex-wrap:wrap}
 }
-
 /* Shared HP/PC Setoran Terbaru cards: one presentation source across
    breakpoints; only the outer panel changes with the viewport. */
  body.f4-bank-app-admin #dashboardView #pageDashboard.f4-eco-dashboard #f4BankAppHome .f4-recent-list{
