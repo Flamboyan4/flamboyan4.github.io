@@ -4,7 +4,7 @@ import {createBookModule,bookRoutes} from './book.js';
 import {createCommunityModule,communityRoutes,adminRoutes} from './community.js';
 const API='https://api.flamboyan4.web.id',outlet=document.getElementById('outlet'),dock=document.getElementById('app-dock'),status=document.getElementById('route-status');
 const paths={home:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/'},labels={home:'Beranda',bank:'Bank Sampah',book:'Pembukuan',superadmin:'Superadmin'};
-let role='public',session=null,active='home',menu=null;
+let role='public',session=null,active='home',menu=null,sessionReady=false,sessionBusy=false,sessionVersion=0;
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.textContent=String(text);if(cls)n.className=cls;return n};
 async function get(path,signal,privateRead=false){
  const r=await fetch(API+path,{credentials:privateRead?'include':'omit',mode:'cors',cache:'no-store',signal});const d=await r.json();if(!r.ok||d?.ok===false)throw Error('Layanan belum tersedia ('+r.status+')');return d;
@@ -23,7 +23,7 @@ function row(root,a,b){const n=el('div',null,'row');n.append(el('strong',a),el('
 function metric(root,a,b){const n=el('div',null,'metric');n.append(el('small',a),el('strong',b));root.append(n)}
 function links(root,items){const n=el('div',null,'links');for(const [label,url] of items){const a=el('a',label);a.href=url;n.append(a)}root.append(n)}
 const has=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
-const allowed=key=>has(communityRoutes,key)||(has(bankRoutes,key)&&bankRoutes[key].includes(role))||(role==='superadmin'&&(has(bookRoutes,key)||has(adminRoutes,key)));
+const allowed=key=>sessionReady&&(has(communityRoutes,key)||(has(bankRoutes,key)&&bankRoutes[key].includes(role))||(role==='superadmin'&&(has(bookRoutes,key)||has(adminRoutes,key))));
 const deps=()=>({get,role,accountKey:session?.account?.id,previewRequest,go:key=>router.go(key),el,panel,row,metric,links});
 const loaders=(map,create)=>Object.fromEntries(Object.keys(map).map(key=>[key,async()=>create(deps())]));
 const routeLoaders={...loaders(communityRoutes,createCommunityModule),...loaders(bankRoutes,createBankModule),...loaders(bookRoutes,createBookModule),...loaders(adminRoutes,createCommunityModule)};
@@ -52,6 +52,7 @@ function action(key){
  if(allowed(route))void router.go(route);
 }
 function mountDock(){
+ dock.replaceChildren();menu=null;
  const items=roles[role]||roles.public;dock.style.setProperty('--columns',items.length);
  for(const [key,label,icon] of items){
   const b=el('button');b.type='button';b.dataset.route=key;if(key==='input'||key==='payout')b.className='primary';
@@ -60,8 +61,93 @@ function mountDock(){
  if(role==='superadmin'){menu=el('div',null,'choices');menu.hidden=true;for(const [name,run] of [['Catat setoran',()=>router.go('bank-deposit')],['Input iuran',()=>router.go('book-input')]]){const b=el('button',name);b.type='button';b.onclick=()=>{menu.hidden=true;run()};menu.append(b)}dock.append(menu)}
  dock.hidden=false;
 }
+// Single session lifecycle. Only a verified change of role can rebuild dock buttons.
+// Account changes invalidate old requests and remove all private content before reuse.
+const loginButton=document.getElementById('app-login'),logoutButton=document.getElementById('app-logout'),loginDialog=document.getElementById('app-login-dialog'),loginForm=document.getElementById('app-login-form'),sessionStatus=document.getElementById('session-status');
+const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('f4-session'):null;
+let mountedRole=null,lastVerified=0,renewing=false;
+const normalizeRole=s=>{
+ const r=String(s?.account?.role||'public').toLowerCase(),normalized=r==='anggota'?'warga':r;
+ return s?.account?.id&&['warga','admin','superadmin'].includes(normalized)?normalized:'public';
+};
+async function auth(path,{method='GET',body,signal}={}){
+ const response=await fetch(API+path,{method,credentials:'include',cache:'no-store',mode:'cors',signal,...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
+ const data=await response.json().catch(()=>({}));if(!response.ok||data.ok===false){const error=Error(data.error||'HTTP '+response.status);error.status=response.status;throw error}return data;
+}
+function controls(){
+ loginButton.hidden=Boolean(session?.account);
+ logoutButton.hidden=!session?.account;
+ loginButton.disabled=logoutButton.disabled=sessionBusy||!sessionReady;
+}
+function clearPrivate(){
+ sessionReady=false;session=null;role='public';router.reset();dock.hidden=true;document.getElementById('greeting').textContent='Flamboyan 4';document.getElementById('identity').textContent='Memeriksa sesi…';controls();
+}
+function paintSession(next){
+ const previousId=session?.account?.id||'',nextId=next?.account?.id||'',nextRole=normalizeRole(next);
+ const changed=!sessionReady||previousId!==nextId||role!==nextRole;
+ if(changed)router.reset();
+ session=next;role=nextRole;sessionReady=true;lastVerified=Date.now();sessionStatus.textContent='';
+ document.getElementById('greeting').textContent=session?.account?'Halo, '+String(session.account.displayName||session.member?.nama||session.account.username||'Pengguna'):'Flamboyan 4';
+ document.getElementById('identity').textContent=role==='public'?'Publik':role==='warga'?[session?.member?.rumah,'Anggota'].filter(Boolean).join(' · '):role==='admin'?'Pengelola':'Superadmin';
+ if(mountedRole!==role){mountDock();mountedRole=role}else dock.hidden=false;
+ controls();
+ return changed;
+}
+let verification=null;
+async function verify({invalidate=false,forceHome=false}={}){
+ if(invalidate)clearPrivate();
+ const token=++sessionVersion;verification?.abort();const controller=new AbortController();verification=controller;
+ const desired=forceHome?'home':read();
+ try{
+  const next=await auth('/api/v2/auth/session',{signal:controller.signal});
+  if(token!==sessionVersion)return false;
+  const changed=paintSession(next);
+  if(changed||!router.current())await router.go(desired,{history:'replace'});
+  return true;
+ }catch(error){
+  if(token!==sessionVersion||controller.signal.aborted)return false;
+  if(error.status===401){const changed=paintSession(null);if(changed||!router.current())await router.go('home',{history:'replace'});return true}
+  // A temporary failure cannot grant permissions or display another account.
+  if(!sessionReady){dock.hidden=true;sessionStatus.textContent='Sesi belum dapat diperiksa.';controls();}
+  else sessionStatus.textContent='Koneksi sesi terganggu.';
+  const retry=el('button','Coba lagi');retry.type='button';retry.onclick=()=>verify();sessionStatus.append(' ',retry);return false;
+ }finally{if(token===sessionVersion)verification=null}
+}
+loginButton.onclick=()=>{document.getElementById('app-login-error').textContent='';loginDialog.showModal();document.getElementById('app-username').focus()};
+loginDialog.addEventListener('close',()=>{document.getElementById('app-password').value=''});
+document.getElementById('app-cancel-login').onclick=()=>{if(!sessionBusy)loginDialog.close()};
+loginForm.addEventListener('submit',async e=>{
+ e.preventDefault();if(sessionBusy)return;sessionBusy=true;controls();const errorNode=document.getElementById('app-login-error'),submit=document.getElementById('app-login-submit');submit.disabled=true;errorNode.textContent='';
+ try{
+  await auth('/api/auth/login',{method:'POST',body:{username:document.getElementById('app-username').value.trim(),password:document.getElementById('app-password').value}});
+  document.getElementById('app-password').value='';loginDialog.close();channel?.postMessage({type:'login'});await verify({invalidate:true});
+ }catch(error){errorNode.textContent='Login gagal: '+error.message}
+ finally{document.getElementById('app-password').value='';sessionBusy=false;submit.disabled=false;controls()}
+});
+logoutButton.onclick=async()=>{
+ if(sessionBusy||!session?.account||!window.confirm('Keluar dari akun?'))return;
+ sessionBusy=true;controls();
+ try{
+  try{await auth('/api/auth/logout',{method:'POST'})}catch(error){if(error.status!==401)throw error}
+  channel?.postMessage({type:'logout'});await verify({invalidate:true,forceHome:true});
+ }catch(error){sessionStatus.textContent='Gagal keluar: '+error.message}
+ finally{sessionBusy=false;controls()}
+};
+async function renew(){
+ if(!sessionReady||!session?.account||sessionBusy||renewing||document.visibilityState==='hidden'||Date.now()-lastVerified<15*60*1000)return;
+ renewing=true;const token=sessionVersion;
+ try{await auth('/api/v2/auth/renew',{method:'POST'});if(token===sessionVersion)lastVerified=Date.now()}
+ catch(error){if(token===sessionVersion){if(error.status===401)await verify({invalidate:true,forceHome:true});else sessionStatus.textContent='Perpanjangan sesi belum berhasil.'}}
+ finally{renewing=false}
+}
+document.addEventListener('pointerdown',()=>void renew(),{passive:true});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')void verify()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&menu)menu.hidden=true;void renew()});
+document.addEventListener('pointerdown',e=>{if(menu&&!dock.contains(e.target))menu.hidden=true});
+window.addEventListener('online',()=>void verify());
 let popSerial=0;
-window.addEventListener('popstate',async()=>{const token=++popSerial,before=router.current();const ok=await router.restore();if(token===popSerial&&!ok&&before&&router.current()===before)write(before,'replace');});window.addEventListener('pagehide',()=>router.reset());window.addEventListener('pageshow',e=>{if(e.persisted)location.reload()});
-const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('f4-session'):null;if(channel)channel.onmessage=e=>{if(['login','logout'].includes(e.data?.type)){router.reset();location.reload()}};
-try{session=await get('/api/v2/auth/session',undefined,true);const r=String(session?.account?.role||'public').toLowerCase();role=session?.account?.id?(r==='anggota'?'warga':Object.prototype.hasOwnProperty.call(roles,r)?r:'public'):'public';}catch{role='public';session=null}
-document.getElementById('greeting').textContent=session?.account?'Halo, '+String(session.account.displayName||session.account.username||'Pengguna'):'Flamboyan 4';document.getElementById('identity').textContent=role==='public'?'Publik':role==='warga'?'Anggota':role==='admin'?'Pengelola':'Superadmin';mountDock();void router.go(read(),{history:'replace'});
+window.addEventListener('popstate',async()=>{if(!sessionReady)return;const token=++popSerial,before=router.current();const ok=await router.restore();if(token===popSerial&&!ok&&before&&router.current()===before)write(before,'replace')});
+window.addEventListener('pagehide',()=>{++sessionVersion;verification?.abort();clearPrivate()});
+window.addEventListener('pageshow',e=>{if(e.persisted)void verify({invalidate:true})});
+if(channel)channel.onmessage=e=>{if(e.data?.type==='logout')void verify({invalidate:true,forceHome:true});else if(e.data?.type==='login')void verify({invalidate:true})};
+controls();await verify();

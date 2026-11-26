@@ -29,3 +29,7 @@ Di folder spa-preview: `npm install --no-package-lock`, `npx playwright install 
 - Pengesahan: pratinjau dari endpoint POST /api/admin/reconciliation/preview yang pada sumber Worker hanya membaca dan menghitung; endpoint confirm tetap tidak dikirim ke server. Alokasi, selisih timbang, metode dan saldo hak warga memakai hasil server, validasi konfirmasi diuji melalui transport lokal.
 - Pencairan pengelola: uji setujui/tolak/dibayar memakai status dan adapter asli; tidak mengubah status produksi. Form warga memperhitungkan pengajuan aktif dan menolak estimasi saldo jika daftar mencapai batas 100.
 - Belum produksi: penyimpanan transaksi, cetak, CRUD dan UI asli tetap pada portal lama. Preview POST hanya boleh ke endpoint baca pengesahan; tidak boleh mengirim POST mutasi.
+
+
+## Tahap 6 — Sesi bersama
+Sesi, login/logout, pembaruan token dan sinkronisasi lintas tab kini menggunakan satu lifecycle. Pergantian portal tidak memanggil login ulang atau membuat ulang dock; perubahan hak akses boleh membangun kembali tombol sesuai peran. Logout/pergantian akun mengosongkan outlet, membatalkan request lama dan memverifikasi sesi sebelum membaca konten baru. Tidak menyimpan password atau token pada browser storage. Belum teruji pada API produksi; pengujian autentikasi memakai mock.
