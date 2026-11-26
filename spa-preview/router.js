@@ -7,6 +7,7 @@ export function createPortalRouter({outlet,routes,allowed,read,write,onState,ini
   const key=Object.prototype.hasOwnProperty.call(routes,requested)&&allowed(requested)?requested:initial;
   if(!allowed(key))return false;
   if(current?.key===key&&!pending){if(history==='replace')write(key,history);return true;}
+  if(current?.key!==key&&current?.view?.canLeave&&!current.view.canLeave())return false;
   const id=++sequence;dispose(pending);
   const controller=createScope();pending={key,controller};
   publish({active:current?.key,pending:key,error:null});
