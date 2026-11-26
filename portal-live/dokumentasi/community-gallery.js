@@ -461,6 +461,8 @@ async function uploadDialog(onUploaded){
  const fromProfile=typeof onUploaded==='function';
  const dlg=popup('Unggah Foto');
  dlg.panel.classList.add('f4g-upload-modal');
+ // This composer owns its album and category pickers. Exclude them before any async loading.
+ dlg.panel.dataset.f4PickerSkip='1';
  dlg.body.append(elem('p','f4g-note','Memuat pilihan album…'));
  if(!__f4.window.f4GalleryCommunity){
   try{__f4.window.f4GalleryCommunity=await get('')}
@@ -519,6 +521,7 @@ async function uploadDialog(onUploaded){
  album.append(makeOption('','Pilih album…'));
  for(const [id,title] of options)album.append(makeOption(id,title));
  album.append(makeOption('__new','+ Buat album baru'));
+ album.value='';
  const newWrap=elem('div','f4g-field');newWrap.hidden=true;newWrap.append(elem('label','','Nama album baru'));
  const newTitle=elem('input');newTitle.placeholder='Contoh: Arisan November 2026';newTitle.maxLength=100;newWrap.append(newTitle);
  dlg.body.append(newWrap);album.addEventListener('change',()=>newWrap.hidden=album.value!=='__new');
@@ -535,12 +538,11 @@ async function uploadDialog(onUploaded){
    category.value=cachedCategories.get(album.value)||'';
    category.disabled=false;
    if(!album.value)return;
-   try{const result=await get('/category?album='+(0,__f4.globals.encodeURIComponent)(album.value));
-    if(album.value)category.value=result.category||'';
+   const requestedAlbum=album.value;
+   try{const result=await get('/category?album='+(0,__f4.globals.encodeURIComponent)(requestedAlbum));
+    if(album.value===requestedAlbum)category.value=result.category||'';
    }catch(e){if(/Fitur galeri tidak tersedia|HTTP 404/i.test((0,__f4.globals.String)(e.message)))category.title='Kategori membutuhkan Worker API terbaru.'}
   };
-  album.addEventListener('change',refreshCategory);
-  void refreshCategory();
   const optional=elem('details','f4g-upload-optional');
   const optionalTitle=elem('summary','f4g-upload-optional-title','Tambahan (opsional)');
   const optionalBody=elem('div','f4g-upload-optional-body');
@@ -616,8 +618,7 @@ async function uploadDialog(onUploaded){
   const categoryChoice=customSelect(category,'Kategori album');
   album.addEventListener('change',()=>{albumChoice.refresh();optional.open=album.value==='__new'});
   category.addEventListener('change',categoryChoice.refresh);
-  const originalCategoryRefresh=refreshCategory;
-  album.addEventListener('change',()=>{void originalCategoryRefresh().then(()=>categoryChoice.refresh())});
+  album.addEventListener('change',()=>{void refreshCategory().then(()=>categoryChoice.refresh())});
   // Preserve selected values when returning to a previously created album.
   const captionWrap=caption.parentElement;
   captionWrap.classList.add('f4g-upload-caption');

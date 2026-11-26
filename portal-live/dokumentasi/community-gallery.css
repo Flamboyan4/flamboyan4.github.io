@@ -22,7 +22,8 @@
 .f4g-head button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .f4g-head button svg{width:19px;height:19px}
 .f4g-body{padding:15px 17px;min-height:0;overflow:auto;overscroll-behavior:contain;display:grid;gap:13px}
-.f4g-field{display:grid;gap:5px}
+.f4g-field:not([hidden]){display:grid;gap:5px}
+.f4g-field[hidden]{display:none}
 .f4g-field label{color:#393753;font:650 12px system-ui}
 .f4g-field input,.f4g-field textarea,.f4g-field select{box-sizing:border-box;width:100%;min-height:42px;padding:10px 12px;border:1px solid #dcdce9;border-radius:9px;background:#fff;color:#23233a;font:13px system-ui}
 .f4g-field textarea{resize:vertical;min-height:72px}
