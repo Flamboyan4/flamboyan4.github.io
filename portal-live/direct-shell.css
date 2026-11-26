@@ -529,11 +529,11 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-shared-dock:not(.f4-direct-bank){padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock.f4-direct-bank:not(.f4-bank-app-private) #v11Public{padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;inset:auto 0 var(--f4-dock-offset,0px);z-index:55;display:grid;
+  box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:55;display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:2px;
   width:100%;max-width:100%;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
-  border-top:1px solid #e8eceb;box-shadow:none;transform:translateZ(0);backface-visibility:hidden;touch-action:none;transition:none;visibility:visible;
+  border-top:1px solid #e8eceb;box-shadow:none;transform:none;visibility:visible;
  }
  #f4-direct-dock .f4-direct-dock-item{
   box-sizing:border-box;display:grid;grid-template-rows:32px 13px;align-content:center;justify-items:center;gap:2px;

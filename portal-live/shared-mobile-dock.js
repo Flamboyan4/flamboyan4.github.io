@@ -26,35 +26,6 @@ const dockItems={
 
 let dockRole='',dockMenu=null,dockTrigger=null,bankRoute='',bookRoute='',handler=null,pending=null;
 const dockHintKey='f4-mobile-nav-presentation-v2';
-// Mobile browser bars can change the visual viewport independently from
-// the layout viewport. Correct only a measured gap, never scroll the page.
-const dockMedia=window.matchMedia('(max-width:1023px)');
-let dockOffset=0,dockFrame=0;
-function alignDockToViewport(){
- dockFrame=0;
- const viewport=window.visualViewport;
- if(!dockMedia.matches||sharedDock.hidden||!viewport||Math.abs(viewport.scale-1)>.01){
-  if(dockOffset){dockOffset=0;sharedDock.style.removeProperty('--f4-dock-offset')}
-  return;
- }
- const rect=sharedDock.getBoundingClientRect();
- if(!rect.height||!Number.isFinite(viewport.height))return;
- const gap=rect.bottom-(viewport.offsetTop+viewport.height);
- const corrected=Math.round(dockOffset+gap);
- if(Math.abs(corrected-dockOffset)>1){
-  dockOffset=corrected;
-  sharedDock.style.setProperty('--f4-dock-offset',dockOffset+'px');
- }
-}
-function scheduleDockAlignment(){
- if(!dockFrame)dockFrame=window.requestAnimationFrame(alignDockToViewport);
-}
-window.visualViewport?.addEventListener('resize',scheduleDockAlignment,{passive:true});
-window.visualViewport?.addEventListener('scroll',scheduleDockAlignment,{passive:true});
-window.addEventListener('resize',scheduleDockAlignment,{passive:true});
-window.addEventListener('scroll',scheduleDockAlignment,{passive:true});
-window.addEventListener('pageshow',scheduleDockAlignment);
-dockMedia.addEventListener('change',scheduleDockAlignment);
 function validDockRole(value){return Object.prototype.hasOwnProperty.call(dockItems,value);}
 function readDockHint(){
  if(!window.matchMedia('(max-width:1023px)').matches)return '';
@@ -124,7 +95,7 @@ function updateSharedDock(next=''){
    }
   }
  }
- sharedDock.hidden=!next;document.body.classList.toggle('f4-shared-dock',!!next);markSharedDock();scheduleDockAlignment();
+ sharedDock.hidden=!next;document.body.classList.toggle('f4-shared-dock',!!next);markSharedDock();
 }
 
 window.addEventListener('f4-shared-bank-route',e=>{bankRoute=String(e.detail||'');markSharedDock();});
