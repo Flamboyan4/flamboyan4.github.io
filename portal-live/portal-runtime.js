@@ -44,7 +44,16 @@ function scopeFor(key){
   if(write&&leaving)throw Error('Perpindahan portal sedang berlangsung.');
   const c=new AbortController(),signal=init.signal||(input instanceof Request?input.signal:null),abort=()=>c.abort(signal?.reason);
   if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});
-  const entry={controller:c,write};controllers.add(entry);if(write)writes++;
+  // Home's above-the-fold data must not wait on gallery rankings, per-photo reactions,
+  // or other below-the-fold requests. Keep all requests scoped and cancellable.
+  let viewCritical=true;
+  if(key==='portal'&&!write){
+   try{
+    const url=new URL(input instanceof Request?input.url:String(input),location.href);
+    viewCritical=url.origin==='https://api.flamboyan4.web.id'&&['/api/v2/public/portal','/api/v2/public/portal/cash','/api/v2/public/bank'].includes(url.pathname);
+   }catch{viewCritical=false}
+  }
+  const entry={controller:c,write,viewCritical};controllers.add(entry);if(write)writes++;
   let finished=false,grace=null;
   const finish=()=>{if(finished)return;finished=true;if(grace)window.clearTimeout(grace);if(write)writes--;controllers.delete(entry);signal?.removeEventListener('abort',abort)};
   try{
@@ -108,11 +117,11 @@ function scopeFor(key){
  api.ready=()=>ready&&alive;
  // Wait for scoped reads and a quiet interval, bounded by existing error/loading states.
  api.waitForView=()=>new Promise(resolve=>{
-  const started=performance.now();let quietSince=started;
+  const started=performance.now(),maxWait=key==='portal'?1200:4500;let quietSince=started;
   const check=()=>{
    const now=performance.now();
-   if(!alive||now-started>=4500){resolve();return}
-   if([...controllers].some(entry=>!entry.write))quietSince=now;
+   if(!alive||now-started>=maxWait){resolve();return}
+   if([...controllers].some(entry=>!entry.write&&entry.viewCritical))quietSince=now;
    else if(now-quietSince>=180){resolve();return}
    window.setTimeout(check,40);
   };
@@ -176,9 +185,16 @@ async function prepare(key,target){
  const parsed=new DOMParser().parseFromString(await response.text(),'text/html');
  if(parsed.documentElement.dataset.f4Release!==release||parsed.documentElement.dataset.f4Spa!=='1')throw Error('Versi portal belum sama.');
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
- await prepareScripts(specs);
  const preparedStyles=[];
- try{await Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript')&&!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})))}catch(e){for(const {link} of preparedStyles)link.remove();throw e}
+ const prepareStyles=()=>Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript')&&!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})));
+ try{
+  if(key==='portal'){
+   // Independent local factories and CSS download concurrently. Script execution
+   // still follows the original dependency order in runScripts.
+   const results=await Promise.allSettled([prepareScripts(specs),prepareStyles()]);
+   const failed=results.find(result=>result.status==='rejected');if(failed)throw failed.reason;
+  }else{await prepareScripts(specs);await prepareStyles()}
+ }catch(e){for(const {link} of preparedStyles)link.remove();throw e}
  let scope=null,mounted=null;
  return {async mount(){
   markPermanent();
