@@ -74,7 +74,8 @@ async function open(record){
  left.append(el('p','f4-pm-eyebrow','Portal Utama / Proyek'),el('h2','',record.title||'Proyek'));
  const sub=el('p','',orders?'Daftar Pesanan Barang':'Daftar Penggalangan Dana');
  left.append(sub);
- head.append(left,button('← Kembali ke Project Card',()=>__f4.window.openSuperadminEditor?.('projects')));
+ const back=button('Kembali ke Project Card',()=>__f4.window.openSuperadminEditor?.('projects'));
+ back.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="M19 12H5m7 7-7-7 7-7"/></svg> ');head.append(left,back);
  panel.append(head);
  const description=el('p','f4-pm-message','Memuat catatan proyek…');
  panel.append(description);

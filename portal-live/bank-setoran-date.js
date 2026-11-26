@@ -67,8 +67,8 @@ window.F4PortalRuntime.define("/portal-live/bank-setoran-date.js",function(__f4)
  const draw=()=>{
   if(!pop)return;pop.replaceChildren();
   const nav=make('div','f4-bs-calendar-nav');
-  const prev=make('button','f4-bs-calendar-arrow','‹'),title=make('strong','',months[month]+' '+year),next=make('button','f4-bs-calendar-arrow','›');
-  prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
+  const prev=make('button','f4-bs-calendar-arrow'),title=make('strong','',months[month]+' '+year),next=make('button','f4-bs-calendar-arrow');
+  prev.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="m15 18-6-6 6-6"/></svg>';next.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="m9 18 6-6-6-6"/></svg>';prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
   prev.onclick=()=>{const d=new __f4.globals.Date(year,month-1,1);year=d.getFullYear();month=d.getMonth();draw()};
   next.onclick=()=>{const d=new __f4.globals.Date(year,month+1,1);year=d.getFullYear();month=d.getMonth();draw()};
   nav.append(prev,title,next);pop.append(nav);

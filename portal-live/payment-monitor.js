@@ -124,7 +124,8 @@ window.F4PortalRuntime.define("/portal-live/payment-monitor.js",function(__f4){
     const heading = node('div',null,'pm-detail-heading');
     const title = node('div');
     title.append(node('strong',member.nama),node('small',[member.rumah,monthName(entry.period,'long')].filter(__f4.globals.Boolean).join(' · ')));
-    const close = node('button','×','pm-detail-close');
+    const close = node('button',null,'pm-detail-close');
+    close.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="M18 6 6 18M6 6l12 12"/></svg>';
     close.type='button';close.setAttribute('aria-label','Tutup rincian');close.addEventListener('click',closeDetail);
     heading.append(title,close);
     const badge = node('span',states[state],'pm-status');badge.dataset.state=state;

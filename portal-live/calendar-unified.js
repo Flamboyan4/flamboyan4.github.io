@@ -55,8 +55,8 @@ window.F4PortalRuntime.define("/portal-live/calendar-unified.js",function(__f4){
   }
   function draw(){
     if(!pop||!input)return;pop.replaceChildren();
-    const head=mk('div','f4-cal-head'),prev=mk('button','f4-cal-btn','‹'),next=mk('button','f4-cal-btn','›');
-    prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
+    const head=mk('div','f4-cal-head'),prev=mk('button','f4-cal-btn'),next=mk('button','f4-cal-btn');
+    prev.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="m15 18-6-6 6-6"/></svg>';next.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:middle"><path d="m9 18 6-6-6-6"/></svg>';prev.type=next.type='button';prev.setAttribute('aria-label','Bulan sebelumnya');next.setAttribute('aria-label','Bulan berikutnya');
     const monthMode=input.type==='month',title=mk('strong','',monthMode?(0,__f4.globals.String)(viewYear):months[viewMonth]+' '+viewYear);
     prev.onclick=()=>{if(monthMode)viewYear--;else {viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--}}draw()};
     next.onclick=()=>{if(monthMode)viewYear++;else {viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++}}draw()};
