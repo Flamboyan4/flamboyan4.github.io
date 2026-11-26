@@ -453,9 +453,17 @@
 }
 
 
-/* Full-screen upload composer, two steps with the same existing uploader. */
-.f4g-overlay:has(.f4g-upload-modal){padding:0;background:#fff;align-items:stretch;z-index:3000}
-.f4g-upload-modal.f4g-panel{position:relative;width:100%;height:100%;max-height:none;border-radius:0;box-shadow:none;overflow:hidden}
+/* Two-step upload composer: compact desktop dialog, fullscreen on mobile. */
+.f4g-overlay:has(.f4g-upload-modal){z-index:3000;box-sizing:border-box}
+.f4g-upload-modal.f4g-panel{position:relative;overflow:hidden}
+@media(min-width:1024px){
+ .f4g-overlay:has(.f4g-upload-modal){padding:24px;align-items:center;justify-content:center}
+ .f4g-upload-modal.f4g-panel{width:min(100%,600px);height:auto;max-height:min(88dvh,calc(100dvh - 48px));border-radius:var(--f4-panel-radius,16px)}
+}
+@media(max-width:1023px){
+ .f4g-overlay:has(.f4g-upload-modal){padding:0;background:#fff;align-items:stretch}
+ .f4g-upload-modal.f4g-panel{width:100%;height:100%;max-height:none;border-radius:0;box-shadow:none}
+}
 .f4g-upload-modal .f4g-head{flex:0 0 auto;min-height:56px;box-sizing:border-box;padding:10px 18px;gap:10px}
 .f4g-upload-modal .f4g-head strong{font-size:17px}
 .f4g-upload-modal .f4g-upload-step{font:600 12px system-ui;color:#73758a;white-space:nowrap}
@@ -502,6 +510,11 @@
 .f4g-upload-modal .f4g-upload-footer .f4g-status{margin:0 0 8px}
 .f4g-upload-modal .f4g-upload-footer>.f4g-btn.primary:not([hidden]){display:flex;justify-content:center;width:100%;min-height:46px;border-radius:11px}
 .f4g-upload-modal .f4g-drive-check{font-size:11px;padding:6px 8px}
+@media(min-width:1024px){
+ .f4g-upload-modal .f4g-body{flex:0 1 auto;padding:18px 20px}
+ .f4g-upload-modal[data-upload-stage="1"] .f4g-previews{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .f4g-upload-modal .f4g-upload-footer{padding:12px 20px}
+}
 @media(max-width:720px){
  .f4g-upload-modal .f4g-head{padding:10px 14px}
  .f4g-upload-modal .f4g-body{padding:16px;gap:12px}
