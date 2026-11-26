@@ -10,25 +10,8 @@ window.F4PortalRuntime.define("/index.html#inline-2",function(__f4){
 
 
 
-__f4.globals.document.addEventListener('DOMContentLoaded',()=>{
- const footer=__f4.globals.document.getElementById('pembayaran');
- const floating=__f4.globals.document.getElementById('f4-portal-float-actions');
- if(!footer||!floating)return;
- // Desktop retains the footer lift; mobile uses a fixed dock-safe offset.
- let queued=false;
- const update=()=>{
-  queued=false;
-  if(__f4.window.matchMedia('(max-width:767px)').matches){floating.style.removeProperty('--f4-footer-lift');return;}
-  const top=footer.getBoundingClientRect().top;
-  const baseBottom=18;
-  const lift=__f4.globals.Math.max(0,__f4.globals.Math.ceil(__f4.window.innerHeight-baseBottom-top+12));
-  floating.style.setProperty('--f4-footer-lift',lift+'px');
- };
- const schedule=()=>{if(queued)return;queued=true;(0,__f4.globals.requestAnimationFrame)(update)};
- __f4.window.addEventListener('scroll',schedule,{passive:true});
- __f4.window.addEventListener('resize',schedule,{passive:true});
- update();
-});
+/* Payment shortcut no longer follows a footer. */
+
 
 });
 
