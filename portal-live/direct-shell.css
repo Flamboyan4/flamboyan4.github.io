@@ -523,13 +523,13 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 /* Shared mobile dock: compact, one visual owner across all native portals. */
 #f4-direct-dock,#f4-direct-dock[hidden],#f4-direct-dock .f4-direct-dock-menu[hidden]{display:none}
 @media(max-width:1023px){
- body.f4-shared-dock{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-inset-bottom,0px)}
- @supports (-moz-appearance:none){@media(pointer:coarse){body.f4-shared-dock{--f4-dock-safe:0px}}}
+ :root{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-inset-bottom,0px)}
+ @supports (-moz-appearance:none){@media(pointer:coarse){:root{--f4-dock-safe:0px}}}
  body.f4-shared-dock #f4-direct-bar .f4-nav-links{display:none}
  body.f4-shared-dock:not(.f4-direct-bank){padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock.f4-direct-bank:not(.f4-bank-app-private) #v11Public{padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
- body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:55;display:grid;
+ body:not(.f4-denied)>#f4-direct-dock:not([hidden]){
+  box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:195;display:grid;
   grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:2px;
   width:100%;max-width:100%;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
@@ -559,7 +559,30 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   background:#fff;color:var(--f4-nav);font:600 13px/1.2 system-ui,sans-serif;text-align:left;cursor:pointer
  }
  #f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}
- body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
+ body.f4-account-open>#f4-direct-dock:not([hidden]),html.f4p-overlay-active body>#f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
  html.f4-bank-auth-pending body.f4-shared-dock #f4-bank-startup{bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
 }
 @media print{#f4-direct-dock{display:none}}
+
+/* Resident routes: one viewport, one shared chrome, only the active content scrolls.
+   Beranda, Bank Sampah and other roles keep their original scrolling layouts. */
+body[data-f4-resident-view]>section,body[data-f4-resident-view]>#pembayaran{display:none}
+body[data-f4-resident-view="keuangan"] #f4-portal-home-main>section:not(#keuangan),
+body[data-f4-resident-view="kalender"] #f4-portal-home-main>section:not(#rencana){display:none}
+body[data-f4-resident-view="kalender"] #rencana #calendar-wrapper{display:block}
+body[data-f4-resident-view="kalender"] #rencana #container-rencana{display:block;max-height:none;overflow:visible}
+body[data-f4-resident-view="kalender"] #rencana #f4-upcoming-agenda,
+body[data-f4-resident-view="kalender"] #rencana #f4-agenda-pagination{display:none}
+@media(max-width:1023px){
+ html:has(body[data-f4-resident-view]),html:has(body.f4-resident-profile-view){overflow:hidden;overscroll-behavior:none}
+ body[data-f4-resident-view],body.f4-resident-profile-view{overflow:hidden;height:100dvh;min-height:0}
+ body[data-f4-resident-view]>#f4-portal-home-main,
+ body.f4-resident-profile-view>#page-start{
+  box-sizing:border-box;position:fixed;inset:56px 0 calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px));
+  width:100%;max-width:none;min-width:0;height:auto;min-height:0;margin:0;padding:14px 14px 20px;
+  overflow-x:clip;overflow-y:auto;overscroll-behavior-y:contain;scroll-behavior:auto;
+  background:#fff;
+ }
+ body[data-f4-resident-view]>#f4-portal-home-main>section{margin:0}
+ body.f4-resident-profile-view>#page-start>#f4-resident-profile{padding:0;max-width:100%}
+}

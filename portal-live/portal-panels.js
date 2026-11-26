@@ -65,7 +65,8 @@ function showPanel(panel,recordHistory=true){
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(['keuangan','kas-warga'].includes(panel)&&current.role==='public'))panel='beranda';
  current.panel=panel;
  const isolated=isMember(current.role)&&['keuangan','kalender'].includes(panel);
- const wasIsolated=!!__f4.globals.document.body.dataset.f4ResidentView;
+ const previousView=__f4.globals.document.body.dataset.f4ResidentView;
+ const wasIsolated=!!previousView;
  if(isolated)__f4.globals.document.body.dataset.f4ResidentView=panel;else delete __f4.globals.document.body.dataset.f4ResidentView;
  if(isMember(current.role)){
   createFinanceTabs();
@@ -75,7 +76,8 @@ function showPanel(panel,recordHistory=true){
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
  const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
- __f4.window.scrollTo({top:isolated||wasIsolated||panel==='beranda'?0:top,behavior:isolated||wasIsolated||panel==='beranda'||prefersReduced()?'instant':'smooth'});
+ if(isolated){if(previousView!==panel)main.scrollTop=0;if(!wasIsolated)__f4.window.scrollTo({top:0,left:0,behavior:'instant'});}
+ else{if(wasIsolated)main.scrollTop=0;__f4.window.scrollTo({top:wasIsolated||panel==='beranda'?0:top,behavior:wasIsolated||panel==='beranda'||prefersReduced()?'instant':'smooth'});}
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel==='kas-warga'?'keuangan':panel);
  if(recordHistory){
@@ -345,10 +347,6 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "@media(max-width:760px){#keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 5px}#keuangan .f4-user-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#keuangan .f4-user-metric{padding:12px}#keuangan .f4-user-metric-primary{grid-column:1/-1}#keuangan .f4-user-metric strong{font-size:16px}#keuangan .f4-user-finance-intro h3{font-size:16px}#keuangan .f4-user-row{padding:12px 11px}#keuangan .f4-user-amount{font-size:12px}}\n";
 css.textContent+=[
  '#keuangan .f4-user-finance[data-f4-dedicated]>.f4-user-finance-controls,#keuangan .f4-user-finance[data-f4-dedicated]>.f4-user-finance-heading{display:none}',
- 'body[data-f4-resident-view="keuangan"] #f4-portal-home-main > section:not(#keuangan),body[data-f4-resident-view="kalender"] #f4-portal-home-main > section:not(#rencana){display:none}',
- 'body[data-f4-resident-view="kalender"] #rencana #calendar-wrapper{display:block}',
- 'body[data-f4-resident-view="kalender"] #rencana #container-rencana{display:block;max-height:none;overflow:visible}',
- 'body[data-f4-resident-view="kalender"] #rencana #f4-upcoming-agenda,body[data-f4-resident-view="kalender"] #rencana #f4-agenda-pagination{display:none}',
  '#keuangan .f4-user-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:7px 0 6px}',
  '#keuangan .f4-user-year-filter{display:flex;align-items:center;gap:8px;margin-left:auto;color:#6f7b8f;font-size:11px;font-weight:700}',
  '#keuangan .f4-user-year-picker{position:relative;min-width:110px;z-index:12;color:var(--f4-portal-primary-ink,#3730a3)}',

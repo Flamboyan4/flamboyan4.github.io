@@ -71,7 +71,7 @@ function enhance(personal){
    if(total<=0)continue;
    const row=mk('button','f4-personal-reminder');row.type='button';
    row.append(mk('span','',title+' belum lunas'),mk('strong','',money(total)));
-   row.onclick=()=>{tabs.querySelector('[data-kind="'+kind+'"]')?.click();if(media.matches)openSheet(finBlock,'history',row);else pane.scrollIntoView({block:'nearest',behavior:'instant'});};
+   row.onclick=()=>{tabs.querySelector('[data-kind="'+kind+'"]')?.click();if(media.matches&&!finBlock.dataset.f4Dedicated)openSheet(finBlock,'history',row);else pane.scrollIntoView({block:'nearest',behavior:'instant'});};
    reminders.append(row);count++;
   }
   reminders.hidden=!count;

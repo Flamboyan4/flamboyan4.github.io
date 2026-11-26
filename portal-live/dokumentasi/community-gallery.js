@@ -1013,7 +1013,7 @@ function syncResidentProfile(){
 }
 __f4.window.f4ShowResidentProfile=record=>{
  if(record&&!isProfileRoute()){const u=new __f4.globals.URL(__f4.globals.location.href);u.search='?halaman=profil';u.hash='';__f4.globals.history.pushState({...__f4.globals.history.state},'',u.pathname+u.search)}
- syncResidentProfile();__f4.window.scrollTo({top:0,left:0,behavior:'instant'});
+ syncResidentProfile();const main=__f4.globals.document.getElementById('page-start');if(main)main.scrollTop=0;
 };
 __f4.window.addEventListener('popstate',syncResidentProfile);
 __f4.window.addEventListener('message',e=>{if(e.origin!==__f4.globals.location.origin||e.source!==window||e.data?.type!=='f4:demo-role'||!isProfileRoute())return;if(e.data.role!=='warga'){profileSerial++;profileData=null;const root=profileRoot();root?.replaceChildren(elem('p','f4-profile-empty','Silakan login sebagai warga.'))}else void loadResidentProfile()});

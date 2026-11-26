@@ -205,7 +205,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   await current.dispose();mountedContent=null;detached=true;
   if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
-  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
+  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();const residentView=document.body.dataset.f4ResidentView||document.body.classList.contains('f4-resident-profile-view');if(!residentView)window.scrollTo({top:0,left:0,behavior:'instant'});return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);

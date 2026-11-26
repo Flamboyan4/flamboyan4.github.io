@@ -7,7 +7,7 @@ if(window.F4MobileDock)return;
 const el=(tag,cl)=>{const n=document.createElement(tag);if(cl)n.className=cl;return n};
 const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></span>';
 let portal=document.documentElement.dataset.f4Shell||'portal';
-const sharedDock=el('nav');sharedDock.id='f4-direct-dock';sharedDock.hidden=true;
+const sharedDock=el('nav');sharedDock.id='f4-direct-dock';sharedDock.dataset.f4Persistent='shell';sharedDock.hidden=true;
 sharedDock.setAttribute('aria-label','Navigasi utama');document.body.append(sharedDock);
 const dockPaths={
  add:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/>',
