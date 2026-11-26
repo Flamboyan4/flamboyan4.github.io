@@ -1,4 +1,4 @@
-/* Photo tag inbox: separate component, no overrides of existing cards. */
+/* Single header inbox for photo tags and operational tasks. */
 #f4-direct-bar #f4-tag-bell{position:relative;flex:none}
 @media(max-width:767px){body.f4-direct-bank #f4-direct-bar #f4-tag-bell{width:35px;height:35px;min-width:35px}}
 @media(max-width:380px){body.f4-direct-bank #f4-direct-bar #f4-tag-bell{width:32px;height:34px;min-width:32px}}
@@ -26,6 +26,7 @@ html.f4-tag-inbox-open,html.f4-tag-inbox-open body{overflow:hidden}
 .f4-tag-inbox-item:focus-visible,.f4-tag-inbox-close:focus-visible{outline:2px solid var(--f4-nav,#4f46e5);outline-offset:-2px}
 .f4-tag-inbox-symbol{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--f4-nav-tint,#eef2ff);color:var(--f4-nav,#4f46e5)}
 .f4-tag-inbox-symbol svg{width:23px;height:23px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.f4-tag-work-count{flex:none;min-width:25px;text-align:center;font-size:14px;color:var(--f4-nav,#5145CD);font-variant-numeric:tabular-nums}
 .f4-tag-inbox-photo{width:55px;height:55px;flex:none;object-fit:cover;border-radius:6px;background:#e7eaf2}
 .f4-tag-inbox-copy{display:grid;gap:3px;flex:1;min-width:0;overflow-wrap:anywhere}
 .f4-tag-inbox-message{font-size:13px;font-weight:400;line-height:1.4}

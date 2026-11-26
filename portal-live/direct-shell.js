@@ -24,7 +24,7 @@ const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease='20261126-stable-shell-v4';
+const shellRelease='20261126-single-notification-v1';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin===location.origin&&Object.values(paths).filter(p=>p!==paths.donor).includes(u.pathname))u.searchParams.set('f4ui',shellRelease);return u.pathname+u.search+u.hash;}
 const portal=/^\/bank-sampah(?:\/(?:index\.html)?)?$/i.test(pathname)?'bank':/^\/pembukuan(?:\/(?:index\.html)?)?$/i.test(pathname)?'book':/^\/superadmin(?:\/(?:index\.html)?)?$/i.test(pathname)?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
 document.body.classList.add('f4-direct-'+portal);
@@ -56,8 +56,8 @@ const logout=el('button');logout.type='button';logout.textContent='Keluar';logou
 menu.append(menuName,settings,logout);
 bar.append(hamburger,links,login,avatar,menu);document.body.prepend(bar);
 // Shared resident notification component for all native portals.
-const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261124-slide-in-v3';document.head.append(notificationStyle);
-const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261124-slide-in-v3';document.head.append(notificationScript);
+const notificationStyle=el('link');notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
+const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261126-single-notification-v1';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
 dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
@@ -192,6 +192,7 @@ async function refreshSession(){
  if(role==='anggota')role='warga';
  const authed=!!session?.account;
  const tagAccount=authed&&['warga','admin','superadmin'].includes(role)?String(session.account.id||''):'';
+ if(avatar.dataset.f4TagRole!==role)avatar.dataset.f4TagRole=role;
  if(avatar.dataset.f4TagAccount!==tagAccount)avatar.dataset.f4TagAccount=tagAccount;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';donorLink.hidden=role!=='donatur';
  updateAccountIdentity();

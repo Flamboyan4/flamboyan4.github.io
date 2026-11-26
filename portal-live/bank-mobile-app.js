@@ -1555,8 +1555,7 @@ async function loadManagerRequests(){
  try{
   const response=await api("/api/admin/bank/payout-requests");host.replaceChildren();
   const items=alertRows(response);
-  adminAlerts.payout=items.filter(x=>["diajukan","disetujui"].includes(x.status)).length;
-  paintAdminAlerts();
+  window.dispatchEvent(new Event("f4-bank-data-changed"));
   for(const item of items){
    const card=el("article","f4-bank-manager-request");
    const top=el("div","f4-bank-manager-request-head");
@@ -1620,98 +1619,7 @@ function moveFeature(ids,target){
   moved.push({node,anchor});target.append(node);
  }
 }
-/* Badge tugas pengurus: stok belum dijual dan pencairan aktif.
-   API ringkas D1 lebih diutamakan; fallback menjaga kompatibilitas selama Worker diperbarui. */
-const adminAlerts={unsold:null,payout:null};
-let adminAlertBusy=false,adminAlertFetched=0,adminAlertGeneration=0,adminAlertRefreshAgain=false;
 const alertRows=result=>Array.isArray(result?.data)?result.data:Array.isArray(result?.items)?result.items:[];
-function paintAdminAlerts(){
- if(role!=="admin"||roleType()!=="admin")return;
- for(const [route,count,unit] of [
-  ["penjualan",adminAlerts.unsold,"setoran atau stok menunggu penjualan"],
-  ["bank-payout-admin",adminAlerts.payout,"pengajuan pencairan belum selesai"]
- ]){
-  for(const button of document.querySelectorAll('[data-bank-app-route="'+route+'"]')){
-   if(button.tagName!=="BUTTON")continue;
-   let badge=button.querySelector(":scope > .f4-bank-alert-badge");
-   if(!button.dataset.f4AlertBaseLabel){
-    button.dataset.f4AlertBaseLabel=button.getAttribute("aria-label")||
-     button.querySelector(".f4-bank-admin-operation-copy strong")?.textContent||
-     button.querySelector("span:last-child")?.textContent||"Menu";
-   }
-   if(!Number.isFinite(count)||count<=0){
-    badge?.remove();button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
-    continue;
-   }
-   if(!badge){
-    badge=el("span","f4-bank-alert-badge");
-    badge.setAttribute("aria-hidden","true");
-    button.prepend(badge);
-   }
-   badge.textContent=count>99?"99+":String(count);
-   badge.title=count+" "+unit;
-   button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel+" — "+count+" "+unit);
-  }
- }
-}
-function resetAdminAlerts(){
- adminAlertGeneration++;adminAlertBusy=false;adminAlertRefreshAgain=false;adminAlertFetched=0;
- adminAlerts.unsold=null;adminAlerts.payout=null;
- document.querySelectorAll(".f4-bank-alert-badge").forEach(b=>b.remove());
- for(const button of document.querySelectorAll("[data-f4-alert-base-label]")){
-  button.setAttribute("aria-label",button.dataset.f4AlertBaseLabel);
-  delete button.dataset.f4AlertBaseLabel;
- }
-}
-async function fallbackAdminAlerts(){
- const [deposits,sales,stock,requests]=await Promise.all([
-  api("/api/v2/admin/bank/deposits?limit=300"),
-  api("/api/v2/admin/bank/sales?limit=300"),
-  api("/api/v2/admin/bank/own-deposits"),
-  api("/api/admin/bank/payout-requests")
- ]);
- const sold=new Set(alertRows(sales).filter(x=>String(x.status).toLowerCase()!=="dibatalkan")
-  .map(x=>String(x.batch_id||"")).filter(Boolean));
- const member=alertRows(deposits).filter(x=>
-  String(x.status).toLowerCase()==="estimasi"&&!sold.has(String(x.batch_id||""))).length;
- const bank=alertRows(stock).filter(x=>
-  x.status==="stok_belum_terjual"&&Number(x.sisaGram||0)>0).length;
- const payout=alertRows(requests).filter(x=>["diajukan","disetujui"].includes(x.status)).length;
- return {unsoldDeposits:member+bank,pendingPayouts:payout};
-}
-async function refreshAdminAlerts(force=false){
- if(role!=="admin"||roleType()!=="admin"||document.hidden||
-    $("dashboardView")?.classList.contains("hidden"))return;
- if(adminAlertBusy){if(force)adminAlertRefreshAgain=true;return;}
- if(!force&&Date.now()-adminAlertFetched<45000){paintAdminAlerts();return;}
- const generation=adminAlertGeneration;
- adminAlertBusy=true;adminAlertFetched=Date.now();
- try{
-  let result;
-  try{result=await api("/api/admin/bank/action-counts");}
-  catch(error){
-   // Saat endpoint baru belum terpasang, baca endpoint operasional yang sudah ada.
-   if(/401|403|akses ditolak|sesi/i.test(String(error.message)))throw error;
-   result=await fallbackAdminAlerts();
-  }
-  if(generation!==adminAlertGeneration||role!=="admin"||roleType()!=="admin")return;
-  adminAlerts.unsold=Number(result.unsoldDeposits)||0;
-  adminAlerts.payout=Number(result.pendingPayouts)||0;
-  paintAdminAlerts();
- }catch(error){
-  if(generation===adminAlertGeneration){
-   adminAlertFetched=0;
-   console.warn("Notifikasi pengurus belum dapat diperbarui:",error.message);
-  }
- }finally{
-  if(generation===adminAlertGeneration){
-   adminAlertBusy=false;
-   if(adminAlertRefreshAgain){
-    adminAlertRefreshAgain=false;refreshAdminAlerts(true);
-   }
-  }
- }
-}
 /* Pengurus: Akses Cepat tetap di beranda HP; PC menggunakan rute yang sama pada sidebar. */
 const adminShortcuts=[
  ["Cek & Sahkan","rekonsiliasi","shield-check"],
@@ -1771,7 +1679,7 @@ function ensureAdminMenuSheet(){
  dialog.addEventListener("click",event=>{if(event.target===dialog)closeAdminMenuSheet();});
  dialog.addEventListener("cancel",event=>{event.preventDefault();closeAdminMenuSheet();});
  document.body.append(dialog);
- paintAdminAlerts();
+ 
  return dialog;
 }
 function openAdminMenuSheet(){
@@ -2142,8 +2050,8 @@ function ensureAdminHome(){
  }
  ensureAdminMenuSheet();
  adminInsightMount(home);
- paintAdminAlerts();
- refreshAdminAlerts();
+ 
+ 
 }
 function showAdminProgress(){
  const page=ensureScreen("bank-admin-progress","Perkembangan Bank Sampah");
@@ -3055,7 +2963,7 @@ function handleRoute(route,old,args){
  if(route==="dashboard"&&role==="member"){
   const link=$("v14AllDeposits");if(link){link.textContent="Lihat semua";link.onclick=()=>navigate("bank-history");}
  }
- if(route==="dashboard"&&role==="admin"){ensureHome();ensureAdminHome();refreshAdminAlerts(true);}
+ if(route==="dashboard"&&role==="admin"){ensureHome();ensureAdminHome();}
  if(route==="laporan"&&role==="admin")ensureAdminReportLink();
  if(route==="setoran"&&role==="admin")ensureOwnDepositForm();
  screen=route;markDock();
@@ -3069,7 +2977,7 @@ function resetRoleSurface(){
  adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
  if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
  $("f4BankAdminMenuSheet")?.remove();
- resetAdminAlerts();resetMemberPublicMini();memberBalancePrivacy.hidden=true;
+ resetMemberPublicMini();memberBalancePrivacy.hidden=true;
  adminInsightVersion++;adminInsightPending=null;adminInsightReport=null;
  adminInsightPublic=null;adminInsightSchedule=null;adminInsightLoadedAt=0;
  routeHistory.length=0;returningFromBack=false;screen="dashboard";
@@ -3342,13 +3250,13 @@ function init(){
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
  window.addEventListener("f4-bank-admin-overview-error",event=>{if(roleType()!=="admin")return;adminOverview=null;adminOverviewError=String(event.detail||"Data tidak tersedia");updateDashboard();});
  window.addEventListener("f4-bank-data-changed",()=>{
-  refreshAdminAlerts(true);
+  
   if(roleType()==="admin"&&$("f4BankAdminInsights"))adminInsightFetch(true);
   if(roleType()==="member"){loadMemberPublicMini(true);loadMemberAward(true);}
  });
- window.addEventListener("focus",()=>{refreshAdminAlerts();if(roleType()==="member"){loadMemberPublicMini();loadMemberAward();updateWeighingCard();loadWeighingDay();}});
- document.addEventListener("visibilitychange",()=>{if(!document.hidden){refreshAdminAlerts();if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}});
- setInterval(()=>{if(!document.hidden){refreshAdminAlerts();if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
+ window.addEventListener("focus",()=>{if(roleType()==="member"){loadMemberPublicMini();loadMemberAward();updateWeighingCard();loadWeighingDay();}});
+ document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}});
+ setInterval(()=>{if(!document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
  const original=window.goPage;
  if(typeof original==="function")window.goPage=function(route,...args){
    window.f4BankPageHistory?.begin?.();
