@@ -8,15 +8,15 @@ body:has(#f4-account-page){
  --tc-muted:var(--muted,#69748b);
 }
 
-.tc-center{display:grid;gap:10px;width:100%;max-width:1380px;margin:0 auto;color:var(--tc-ink)}
+.tc-center{display:grid;gap:14px;width:100%;max-width:880px;margin:0 auto;color:var(--tc-ink);min-width:0}
 .tc-center *{box-sizing:border-box}
 /* Navigasi tiga tahap: posisi dana, transaksi/pengesahan, dan laporan. */
-.tc-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:4px;background:#fff;border:1px solid var(--tc-line);border-radius:12px}
+.tc-overview{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,1fr));gap:0;padding:4px;background:#fff;border:1px solid var(--tc-line);border-radius:12px}
 .tc-overview .tc-stat{padding:10px 14px;border:0;border-radius:0;gap:2px;background:transparent}
 .tc-overview .tc-stat:not(:last-child){border-right:1px solid var(--tc-line)}
-.tc-overview .tc-stat:first-child{background:transparent}
+.tc-overview .tc-stat:first-child{background:var(--tc-soft);border-radius:8px;border-right:0}
 .tc-overview .tc-stat small{color:var(--tc-muted);font-size:11px}
-.tc-overview .tc-stat strong{font-size:clamp(16px,1.7vw,23px);line-height:1.2;color:var(--tc-ink);white-space:normal;overflow-wrap:anywhere;letter-spacing:-.025em}
+.tc-overview .tc-stat strong{font-size:clamp(16px,1.5vw,21px);line-height:1.2;color:var(--tc-ink);white-space:normal;overflow-wrap:anywhere;letter-spacing:-.025em}
 .tc-overview .tc-stat span{font-size:10px;color:var(--tc-muted)}
 .tc-view-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:4px;background:#fff;border:1px solid var(--tc-line);border-radius:11px}
 .tc-view-btn{appearance:none;min-width:0;min-height:40px;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:7px;padding:7px 10px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--tc-muted);font:750 13px system-ui;cursor:pointer;transition:background-color .15s,border-color .15s}
@@ -26,7 +26,7 @@ body:has(#f4-account-page){
 .tc-view-btn.is-active{color:var(--tc-accent);background:var(--tc-soft);border-color:var(--tc-line)}
 .tc-view-btn.is-active img{opacity:1}
 .tc-view-btn:focus-visible{outline:2px solid var(--tc-accent);outline-offset:2px}
-.tc-view{display:grid;align-content:start;gap:9px;min-width:0}
+.tc-view{display:grid;align-content:start;gap:12px;min-width:0}
 /* `hidden` must beat .tc-view display:grid (previously all three panels stayed visible). */
 .tc-center .tc-view[hidden]{display:none}
 .tc-fund-manage{margin:0;min-width:0;background:#fff;border:1px solid var(--tc-line);border-radius:var(--f4-panel-radius,12px);overflow:visible}
@@ -41,13 +41,13 @@ body:has(#f4-account-page){
 .tc-fund-balances{display:grid}
 .tc-fund-balance{border-top:1px solid #e8eef2}
 .tc-fund-balance:first-child{border-top:0}
-.tc-fund-balance-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:51px;padding:9px 4px;cursor:pointer}
+.tc-fund-balance-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:9px 4px;cursor:pointer}
 .tc-fund-balance-summary::-webkit-details-marker{display:none}
 .tc-balance-name{display:grid;min-width:0;gap:3px}
-.tc-balance-name strong{font-size:12px;color:var(--tc-ink);overflow-wrap:anywhere}
+.tc-balance-name strong{font-size:13px;color:var(--tc-ink);overflow-wrap:anywhere}
 .tc-balance-name small{color:#8e6a33;font-size:10px}
 .tc-balance-total{display:flex;align-items:center;justify-content:flex-end;gap:12px;white-space:nowrap;color:#1f4a6b}
-.tc-balance-total strong{font-size:13px;font-variant-numeric:tabular-nums}
+.tc-balance-total strong{font-size:15px;font-variant-numeric:tabular-nums}
 .tc-balance-caret{display:inline-flex;align-items:center;justify-content:center;color:#7892a4;transition:transform .15s;flex:none}
 .tc-balance-caret svg{display:block;width:18px;height:18px;stroke-width:2}
 .tc-fund-balance[open] .tc-balance-caret{transform:rotate(90deg)}
@@ -90,7 +90,9 @@ body:has(#f4-account-page){
 .tc-history-panel>h3{margin-bottom:10px}
 /* Laporan desktop tetap tabel; versi HP memiliki list transaksi sendiri. */
 .tc-mobile-history,.tc-opening-mobile{display:none}
-.tc-center .f4-work-heading{margin-bottom:0}
+.tc-page-heading{box-sizing:border-box;width:100%;max-width:880px;margin:0 auto;padding:2px 0 4px;color:var(--tc-ink)}
+.tc-page-heading h2{font-size:25px;line-height:1.25;font-weight:800;letter-spacing:-.025em;margin:0}
+.tc-page-heading p{font-size:12px;color:var(--tc-muted);line-height:1.4;margin:4px 0 0}
 .tc-panel,.tc-stat{min-width:0;background:#fff;border:1px solid var(--tc-line);border-radius:12px}
 .tc-panel{padding:12px 14px}
 .tc-panel h3{font-size:14px;font-weight:800;color:var(--tc-ink);margin:0 0 8px}
@@ -135,11 +137,12 @@ body:has(#f4-account-page){
 .tc-opening-recap summary{font-size:12px;color:#536a78}
 .tc-opening-recap .tc-table-wrap{margin-top:9px}
 .tc-opening-explain{margin:6px 0 10px;color:var(--tc-muted);font-size:11px;line-height:1.5}
-.tc-form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 12px;align-items:end}
-.tc-form-grid>.tc-kind-field{grid-column:span 2}
+.tc-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.tc-form-grid>:is(.tc-kind-field,.tc-note-field){grid-column:1/-1}
+.tc-form-grid[data-kind="move"]>.tc-destination-location{grid-column:1/-1}
 .tc-field{display:grid;gap:4px;min-width:0;font-size:12px;font-weight:750;color:var(--tc-muted)}
 .tc-field[hidden]{display:none}
-.tc-field input,.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:var(--tc-ink);font:500 13px/1.3 system-ui;vertical-align:middle}
+.tc-field input:not([type=hidden]),.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:var(--tc-ink);font:500 13px/1.3 system-ui;vertical-align:middle}
 .tc-field input:focus-visible,.tc-field select:focus-visible{outline:2px solid var(--tc-accent);outline-offset:1px}
 .tc-wide{grid-column:span 2}
 .tc-form .tc-primary{margin-top:8px}
@@ -185,7 +188,8 @@ body:has(#f4-account-page){
 .tc-excluded-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;font-size:11px;border-bottom:1px solid #e8eef1;overflow-wrap:anywhere}
 .tc-custom-fund>h3{font-size:15px;font-weight:800;color:var(--tc-ink);margin:0 0 10px}
 .tc-custom-fund-form{margin-bottom:4px;display:grid;grid-template-columns:minmax(110px,1fr) minmax(160px,1.4fr) auto;gap:9px;align-items:end}
-.tc-custom-fund-form .tc-status{grid-column:1/-1}
+.tc-custom-fund-form .tc-status{grid-column:1/-1;margin:0}
+.tc-custom-fund-form .tc-status:empty{display:none}
 .tc-fund-list-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:10px;margin-top:11px;border-top:1px solid #e7eef3;color:#31536b;font-size:12px}
 .tc-fund-list-heading span{color:var(--tc-muted);font-size:10px;font-weight:500}
 .tc-custom-empty{margin:7px 0 0;font-size:11px;color:var(--tc-muted)}
@@ -228,7 +232,7 @@ body:has(#f4-account-page){
 .tc-opening-actions .tc-secondary{border:1px solid #bbd2e3}
 .tc-opening-notice{padding:9px 12px;border-radius:9px;background:var(--tc-soft);color:#415f75;font-size:11px}
 .tc-date-control{position:relative;width:100%;min-width:0}
-.tc-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:38px;border:1px solid #cddde7;border-radius:8px;background:#fff;color:var(--tc-ink);font:500 12px system-ui;text-align:left;padding:8px 10px;cursor:pointer}
+.tc-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);border:1px solid #cddde7;border-radius:8px;background:#fff;color:var(--tc-ink);font:500 12px system-ui;text-align:left;padding:8px 10px;cursor:pointer}
 .tc-date-trigger:disabled{background:#f5f7f9;cursor:default;color:#637180}
 .tc-date-trigger:focus-visible{outline:2px solid var(--tc-accent);outline-offset:2px}
 .tc-date-icon{width:17px;height:17px}
@@ -269,13 +273,13 @@ body:has(#f4-account-page){
 
  /* Mobile app layout: one active panel, minimal containers, consistent spacing. */
  .tc-center{gap:8px;min-width:0}
- .tc-center .f4-work-heading{
+ .tc-center .tc-page-heading{
   margin:0;padding:4px 0 6px;border:0
  }
- .tc-center .f4-work-heading h2{
+ .tc-center .tc-page-heading h2{
   font-size:22px;line-height:1.22;letter-spacing:-.035em;margin:0
  }
- .tc-center .f4-work-heading p{display:none}
+ .tc-center .tc-page-heading p{display:none}
  .tc-center .tc-overview{
   grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:2px;
   border-radius:var(--f4-panel-radius,12px);background:#fff
@@ -312,7 +316,6 @@ body:has(#f4-account-page){
  }
  .tc-center #tc-view-saldo .tc-ownership .tc-section-head{margin-bottom:2px}
  .tc-center #tc-view-saldo .tc-ownership h3{font-size:14px}
- .tc-center #tc-view-saldo .tc-manage-trigger{display:none}
  .tc-center #tc-view-saldo .tc-fund-balance-summary{min-height:48px;padding:10px 0}
  .tc-center #tc-view-saldo .tc-fund-manage{
   border:0;border-top:1px solid #eee9f5;border-radius:0 0 16px 16px;background:transparent
@@ -625,16 +628,14 @@ body:has(#f4-account-page){
 
 .tc-fund-manage[open]>summary::after{transform:rotate(180deg)}
 .tc-fund-manage .tc-custom-fund-form{
- grid-template-columns:repeat(2,minmax(0,1fr));
- gap:9px;
+ grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;
+ gap:12px;align-items:end;
 }
 .tc-fund-manage .tc-custom-fund-form button{
- grid-column:1/-1;
- justify-self:end;
+ justify-self:stretch;
  min-width:88px;
 }
 .tc-fund-manage .tc-fund-list-heading{margin-top:11px}
-.tc-saldo-layout .tc-manage-trigger{display:none}
 .tc-report-top .tc-opening-recap{
  margin:0;
  min-width:0;
@@ -648,16 +649,17 @@ body:has(#f4-account-page){
  min-height:49px;
  padding:12px 14px;
 }
-@media(min-width:1280px){
- .tc-saldo-layout{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr)}
- .tc-transaksi-layout{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr)}
- .tc-transaksi-layout .tc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
- .tc-transaksi-layout .tc-wide{grid-column:span 2}
- .tc-report-top{grid-template-columns:minmax(245px,.8fr) minmax(0,1.5fr)}
-}
-@media(max-width:1279px){
- .tc-saldo-layout .tc-manage-trigger{display:inline-flex}
- .tc-fund-manage .tc-custom-fund-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media(min-width:761px){
+ .tc-saldo-layout{gap:12px}
+ .tc-saldo-layout>.tc-ownership{padding:16px 20px}
+ .tc-transaksi-layout .tc-form-grid{gap:12px 16px}
+ .tc-transaksi-layout .tc-form>.tc-primary{display:flex;margin:12px 0 0 auto;min-width:180px}
+ .tc-transaksi-layout .tc-field>span{min-height:18px;line-height:18px}
+ .tc-report-top{grid-template-columns:minmax(0,1fr);gap:12px}
+ .tc-report-top .tc-opening-summary{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .tc-report-top .tc-opening-summary-copy{display:grid;gap:2px}
+ .tc-report-top .tc-opening-summary-copy small{font-size:11px;font-weight:500;color:var(--tc-muted)}
+ .tc-report-top .tc-opening-summary-total{font-variant-numeric:tabular-nums}
 }
 @media(max-width:760px){
  .tc-saldo-layout,.tc-transaksi-layout,.tc-report-top{gap:9px}
