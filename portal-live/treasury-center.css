@@ -87,6 +87,18 @@ body:has(#f4-account-page){
 .tc-report-caption{display:grid;gap:4px}
 .tc-report-caption h3{margin:0}
 .tc-report-caption span{font-size:11px;color:var(--tc-muted)}
+.tc-report-options{display:grid;gap:12px}
+.tc-report-options h3,.tc-report-options .tc-muted,.tc-report-options .tc-status{margin:0}
+.tc-report-options .tc-status:empty{display:none}
+.tc-report-checks{display:flex;flex-wrap:wrap;gap:8px 18px}
+.tc-report-checks label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:650;cursor:pointer}
+.tc-report-checks input{accent-color:var(--tc-accent);width:16px;height:16px;margin:0}
+.tc-report-filter{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.tc-report-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+@media(max-width:760px){
+ .tc-report-filter{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tc-report-actions>*{flex:1 1 135px}
+}
 .tc-history-panel>h3{margin-bottom:10px}
 /* Laporan desktop tetap tabel; versi HP memiliki list transaksi sendiri. */
 .tc-mobile-history,.tc-opening-mobile{display:none}

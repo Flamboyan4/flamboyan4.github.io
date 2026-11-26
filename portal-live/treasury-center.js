@@ -281,16 +281,24 @@ function formatDate(value){
 function safeHTML(value){
  return (0,__f4.globals.String)(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-function printTreasury(data){
- if(!data.confirmed||!data.riwayatLengkap){showMessage("Laporan belum siap dicetak lengkap.");return}
- const movements=tidyHistory(data),opening=openingSummary(data);
- const byFund=data.catalog.funds.map(f=>{
-  const cash=amount(data.balances,f.id,f.cash),qris=amount(data.balances,f.id,"qris"),mandiri=amount(data.balances,f.id,"mandiri");
+function treasuryReport(data,options){
+ const funds=data.catalog.funds.filter(f=>!options.fund||f.id===options.fund);
+ const positions=balances=>funds.map(f=>{
+  const cash=amount(balances,f.id,f.cash),qris=amount(balances,f.id,"qris"),mandiri=amount(balances,f.id,"mandiri");
   return {name:f.name,cash,qris,mandiri,total:cash+qris+mandiri};
- }).filter(f=>f.total!==0);
- const totalCash=byFund.reduce((n,x)=>n+x.cash,0),totalQris=byFund.reduce((n,x)=>n+x.qris,0);
- const totalBank=byFund.reduce((n,x)=>n+x.mandiri,0);
- const total=totalCash+totalQris+totalBank;
+ }).filter(f=>options.fund||f.cash!==0||f.qris!==0||f.mandiri!==0);
+ const byFund=positions(data.balances||[]),openingRows=positions(data.openingBalances||[]);
+ const totals=rows=>({cash:rows.reduce((n,x)=>n+x.cash,0),qris:rows.reduce((n,x)=>n+x.qris,0),mandiri:rows.reduce((n,x)=>n+x.mandiri,0),total:rows.reduce((n,x)=>n+x.total,0)});
+ const opening={rows:openingRows,date:data.openingDate||data.confirmedOn,grand:totals(openingRows).total};
+ const movements=options.history?tidyHistory(data).filter(x=>(!options.fund||x.entries.some(e=>e.fund_id===options.fund))&&(!options.from||x.date>=options.from)&&(!options.to||x.date<=options.to)&&(!options.kind||x.kind===options.kind)): [];
+ const scope=options.fund?(funds[0]?.name||"Pos dana"):"Semua pos dana";
+ const period=(options.from||options.to)?(options.from?formatDate(options.from):"Awal riwayat")+" – "+(options.to?formatDate(options.to):"Terakhir"):"Seluruh periode";
+ return {byFund,opening,movements,totals:totals(byFund),openingTotals:totals(openingRows),scope,period};
+}
+function printTreasury(data,options){
+ if(!data.confirmed||options.history&&!data.riwayatLengkap){showMessage("Riwayat belum tersedia lengkap.");return}
+ const {byFund,opening,movements,totals,openingTotals,scope,period}=treasuryReport(data,options);
+ const {cash:totalCash,qris:totalQris,mandiri:totalBank,total}=totals;
  const fmt=n=>rp(n);
  const body=byFund.map(x=>`<tr><td>${safeHTML(x.name)}</td><td class="num">${fmt(x.cash)}</td><td class="num">${fmt(x.qris)}</td><td class="num">${fmt(x.mandiri)}</td><td class="num"><strong>${fmt(x.total)}</strong></td></tr>`).join("");
  const eventRows=movements.map((x,i)=>`<tr><td class="center">${i+1}</td><td class="center nowrap">${safeHTML(formatDate(x.date))}</td><td>${safeHTML(x.kindName)}<span class="sub">${safeHTML(x.note)}</span></td><td>${safeHTML(x.from)}</td><td>${safeHTML(x.to)}</td><td class="num nowrap">${fmt(x.amount)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">Belum ada mutasi setelah saldo awal.</td></tr>';
@@ -316,26 +324,26 @@ function printTreasury(data){
  .bold td{font-weight:800;background:#f8fafc}.sub{display:block;color:#64748b;font-size:8px;line-height:1.3;margin-top:2px}
  .empty{text-align:center;padding:9px;color:#64748b}
  .opening-note{font-size:9px;color:#475569;margin:7px 0 9px}
- .approval{width:62mm;margin:12mm auto 0;text-align:center;break-inside:avoid}
- .approval .space{height:14mm}.approval .line{border-top:1px solid #000;padding-top:4px;font-weight:700}
+ .approval{margin:4mm 0 0;text-align:right;font-size:9px;line-height:1.4;font-weight:600;break-inside:avoid;page-break-inside:avoid}
  .footer{font-size:8px;color:#64748b;border-top:1px solid #000;padding-top:5px;margin-top:9px}
  @media screen{body{max-width:186mm;margin:14px auto}}
  </style></head><body>
  <header class="header"><img class="logo" src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4">
- <div class="headtext"><h1>LAPORAN PUSAT KEUANGAN FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="period">Saldo per ${safeHTML(dated)} · Saldo awal ${safeHTML(formatDate(opening.date))}</p></div><span class="tag">HUMAS</span></header>
- <div class="summary"><div class="metric"><div class="label">Total Dana</div><div class="value">${fmt(total)}</div></div>
+ <div class="headtext"><h1>LAPORAN PUSAT KEUANGAN FLAMBOYAN 4</h1><p>RT 001 RW 026 Pesona Kahuripan 2</p><p class="period">${safeHTML(scope)}${options.history?" · Transaksi: "+safeHTML(period):""}</p></div><span class="tag">HUMAS</span></header>
+ ${options.balance?`<h2>Saldo Terkini per ${safeHTML(dated)}</h2><div class="summary"><div class="metric"><div class="label">Total Dana</div><div class="value">${fmt(total)}</div></div>
  <div class="metric"><div class="label">Cash</div><div class="value">${fmt(totalCash)}</div></div>
  <div class="metric"><div class="label">QRIS + Mandiri</div><div class="value">${fmt(totalQris+totalBank)}</div></div></div>
  <h2>Rincian Saldo per Program</h2>
  <table><colgroup><col style="width:32%"><col style="width:17%"><col style="width:17%"><col style="width:17%"><col style="width:17%"></colgroup>
  <thead><tr><th>Program</th><th>Cash</th><th>QRIS</th><th>Mandiri</th><th>Total</th></tr></thead><tbody>${body}</tbody>
- <tfoot><tr class="bold"><td>TOTAL</td><td class="num">${fmt(totalCash)}</td><td class="num">${fmt(totalQris)}</td><td class="num">${fmt(totalBank)}</td><td class="num">${fmt(total)}</td></tr></tfoot></table>
- <p class="opening-note"><strong>Saldo Awal:</strong> ${fmt(opening.grand)} per ${safeHTML(formatDate(opening.date))}. Koreksi sebelum pengesahan tersimpan di audit dan tidak dianggap sebagai uang masuk atau keluar.</p>
- <h2>Riwayat Transaksi Setelah Saldo Awal</h2>
+ <tfoot><tr class="bold"><td>TOTAL</td><td class="num">${fmt(totalCash)}</td><td class="num">${fmt(totalQris)}</td><td class="num">${fmt(totalBank)}</td><td class="num">${fmt(total)}</td></tr></tfoot></table>`:""}
+ ${options.opening?`<h2>Saldo Awal (Arsip) per ${safeHTML(formatDate(opening.date))}</h2>
+ <table><thead><tr><th>Program</th><th>Cash</th><th>QRIS</th><th>Mandiri</th><th>Total</th></tr></thead><tbody>${opening.rows.map(x=>`<tr><td>${safeHTML(x.name)}</td><td class="num">${fmt(x.cash)}</td><td class="num">${fmt(x.qris)}</td><td class="num">${fmt(x.mandiri)}</td><td class="num">${fmt(x.total)}</td></tr>`).join("")}</tbody><tfoot><tr class="bold"><td>TOTAL</td><td class="num">${fmt(openingTotals.cash)}</td><td class="num">${fmt(openingTotals.qris)}</td><td class="num">${fmt(openingTotals.mandiri)}</td><td class="num">${fmt(opening.grand)}</td></tr></tfoot></table>`:""}
+ ${options.history?`<h2>Riwayat Transaksi · ${safeHTML(period)}</h2>
  <table><colgroup><col style="width:5%"><col style="width:13%"><col style="width:28%"><col style="width:19%"><col style="width:19%"><col style="width:16%"></colgroup>
  <thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th>Dari</th><th>Ke</th><th>Nominal</th></tr></thead>
- <tbody>${eventRows}</tbody></table>
- <section class="approval"><div>Mengetahui,<br>Humas Flamboyan 4</div><div class="space"></div><div class="line">Nama / Tanda tangan</div></section>
+ <tbody>${eventRows}</tbody></table>`:""}
+ <section class="approval">Mengetahui,<br>Humas Flamboyan 4</section>
  <div class="footer">Dicetak pada ${safeHTML(dated)} • Flamboyan 4 • Cash disimpan terpisah; QRIS dan Mandiri digunakan bersama sesuai pos masing-masing.</div>
  </body></html>`;
  // Gunakan jendela cetak berukuran nyata seperti laporan Pembukuan.
@@ -376,6 +384,69 @@ function printTreasury(data){
    startPrint();
  },1800);
 }
+
+async function exportTreasuryExcel(data,options){
+ const Zip=__f4.globals.JSZip;
+ if(!Zip)throw Error("Pustaka Excel belum tersedia.");
+ const report=treasuryReport(data,options),sheets=[];
+ const balanceRows=(rows,total,date)=>[["Pos dana",report.scope],["Tanggal saldo",date],["Program","Cash","QRIS","Mandiri","Total"],...rows.map(x=>[x.name,x.cash,x.qris,x.mandiri,x.total]),["TOTAL",total.cash,total.qris,total.mandiri,total.total]];
+ if(options.balance)sheets.push({name:"Saldo Terkini",rows:balanceRows(report.byFund,report.totals,today()),header:3,money:[2,3,4,5],widths:[36,18,18,18,18]});
+ if(options.opening)sheets.push({name:"Saldo Awal",rows:balanceRows(report.opening.rows,report.openingTotals,report.opening.date||""),header:3,money:[2,3,4,5],widths:[36,18,18,18,18]});
+ if(options.history)sheets.push({name:"Riwayat Transaksi",rows:[["Pos dana",report.scope],["Periode",report.period],["Jenis",options.kind?kindLabels[options.kind]:"Semua jenis"],["No","Tanggal","Jenis","Keterangan","Dari","Ke","Nominal"],...report.movements.map((x,i)=>[i+1,x.date,x.kindName,x.note,x.from,x.to,x.amount])],header:4,money:[7],widths:[7,15,19,45,32,32,20]});
+ const esc=v=>safeHTML(String(v??"").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,""));
+ const ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main',rel='http://schemas.openxmlformats.org/officeDocument/2006/relationships',pkg='http://schemas.openxmlformats.org/package/2006/relationships';
+ const xml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ const zip=new Zip();
+ zip.file("[Content_Types].xml",xml+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((s,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("")+'</Types>');
+ zip.file("_rels/.rels",xml+'<Relationships xmlns="'+pkg+'"><Relationship Id="rId1" Type="'+rel+'/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+ zip.file("xl/workbook.xml",xml+'<workbook xmlns="'+ns+'" xmlns:r="'+rel+'"><sheets>'+sheets.map((s,i)=>'<sheet name="'+esc(s.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join("")+'</sheets></workbook>');
+ zip.file("xl/_rels/workbook.xml.rels",xml+'<Relationships xmlns="'+pkg+'">'+sheets.map((s,i)=>'<Relationship Id="rId'+(i+1)+'" Type="'+rel+'/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join("")+'<Relationship Id="rId'+(sheets.length+1)+'" Type="'+rel+'/styles" Target="styles.xml"/></Relationships>');
+ zip.file("xl/styles.xml",xml+'<styleSheet xmlns="'+ns+'"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF6650CC"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+ sheets.forEach((s,i)=>{
+  const rows=s.rows.map((row,ri)=>'<row r="'+(ri+1)+'">'+row.map((v,ci)=>{
+   const ref=String.fromCharCode(65+ci)+(ri+1),style=ri+1===s.header?1:typeof v==="number"&&s.money.includes(ci+1)?2:0;
+   return typeof v==="number"&&Number.isFinite(v)?'<c r="'+ref+'" s="'+style+'"><v>'+v+'</v></c>':'<c r="'+ref+'" s="'+style+'" t="inlineStr"><is><t xml:space="preserve">'+esc(v)+'</t></is></c>';
+  }).join("")+'</row>').join("");
+  const cols=s.widths.map((w,k)=>'<col min="'+(k+1)+'" max="'+(k+1)+'" width="'+w+'" customWidth="1"/>').join("");
+  zip.file("xl/worksheets/sheet"+(i+1)+".xml",xml+'<worksheet xmlns="'+ns+'"><sheetViews><sheetView workbookViewId="0"><pane ySplit="'+s.header+'" topLeftCell="A'+(s.header+1)+'" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'+cols+'</cols><sheetData>'+rows+'</sheetData></worksheet>');
+ });
+ const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",compression:"DEFLATE"});
+ const url=__f4.globals.URL.createObjectURL(blob),link=el("a");
+ link.href=url;link.download="Laporan-Pusat-Keuangan-"+today()+".xlsx";__f4.globals.document.body.append(link);link.click();link.remove();
+ (0,__f4.globals.setTimeout)(()=>__f4.globals.URL.revokeObjectURL(url),1000);
+}
+let reportOptions={balance:true,opening:true,history:true,fund:"",from:"",to:"",kind:""};
+function buildReportOptions(target,data){
+ const head=el("section",__f4.globals.undefined,"tc-panel tc-report-options");
+ head.append(el("h3","Pilihan Cetak & Excel"),el("p","Pilih bagian laporan. Filter tanggal hanya berlaku untuk riwayat transaksi.","tc-muted"));
+ const checks=el("div",__f4.globals.undefined,"tc-report-checks");
+ const toggles={};
+ for(const [key,label] of [["balance","Saldo terkini"],["opening","Saldo awal"],["history","Riwayat transaksi"]]){
+  const input=el("input");input.type="checkbox";input.disabled=key==="history"&&!data.riwayatLengkap;input.checked=!!reportOptions[key]&&!input.disabled;
+  const wrap=el("label");wrap.append(input,el("span",label));checks.append(wrap);toggles[key]=input;
+ }
+ const grid=el("div",__f4.globals.undefined,"tc-report-filter");
+ const fund=select([{id:"",name:"Semua pos dana"},...data.catalog.funds.map(f=>({id:f.id,name:f.name}))]);fund.value=reportOptions.fund;
+ const kind=select([{id:"",name:"Semua transaksi"},...Object.entries(kindLabels).filter(([id])=>id!=="opening").map(([id,name])=>({id,name}))]);kind.value=reportOptions.kind;
+ const from=el("input"),to=el("input");from.type=to.type="date";from.value=reportOptions.from;to.value=reportOptions.to;
+ grid.append(field("Pos dana",fund),field("Jenis transaksi",kind),field("Dari tanggal",from),field("Sampai tanggal",to));
+ const actions=el("div",__f4.globals.undefined,"tc-report-actions"),msg=el("p","","tc-status");msg.setAttribute("role","status");
+ const print=el("button","Cetak Laporan","tc-primary"),excel=el("button","Unduh Excel (.xlsx)","tc-secondary");
+ print.type=excel.type="button";actions.append(excel,print);
+ function readOptions(){return {balance:toggles.balance.checked,opening:toggles.opening.checked,history:toggles.history.checked,fund:fund.value,kind:kind.value,from:from.value,to:to.value}}
+ function sync(){
+  reportOptions=readOptions();const o=reportOptions;
+  [kind,from,to].forEach(x=>x.disabled=!o.history);
+  const invalid=o.history&&o.from&&o.to&&o.from>o.to;
+  print.disabled=excel.disabled=!!invalid||!(o.balance||o.opening||o.history);
+  msg.textContent=invalid?"Tanggal awal tidak boleh melebihi tanggal akhir.":!data.riwayatLengkap?"Riwayat belum lengkap; hanya saldo dapat diekspor.":o.history?treasuryReport(data,o).movements.length+" transaksi sesuai pilihan.":"";
+ }
+ head.addEventListener("change",sync);
+ print.onclick=()=>{sync();if(!print.disabled)printTreasury(data,readOptions())};
+ excel.onclick=async()=>{sync();if(excel.disabled)return;excel.disabled=true;try{await exportTreasuryExcel(data,readOptions())}catch(e){showMessage(e.message||"Excel gagal dibuat.")}finally{sync()}};
+ head.append(checks,grid,actions,msg);target.append(head);sync();
+}
+
 function buildForm(target,data,refresh){
  const funds=data.catalog.funds.filter(f=>f.active!==false);
  const shell=el("details",__f4.globals.undefined,"tc-panel tc-mutation-panel tc-no-print");
@@ -983,13 +1054,7 @@ function render(data){
  const laporan=viewPanels.laporan;
  const reportTop=el("div",__f4.globals.undefined,"tc-report-top");
  laporan.append(reportTop);
- const reportHead=el("div",__f4.globals.undefined,"tc-panel tc-report-head");
- const reportCaption=el("div",__f4.globals.undefined,"tc-report-caption");
- reportCaption.append(el("h3","Laporan Keuangan"),el("span","Saldo dan seluruh riwayat"));
- const print=el("button","Cetak Laporan","tc-primary");
- print.type="button";print.disabled=!data.riwayatLengkap;
- print.onclick=()=>printTreasury(data);
- reportHead.append(reportCaption,print);reportTop.append(reportHead);
+ buildReportOptions(reportTop,data);
  const history=el("section",__f4.globals.undefined,"tc-panel tc-history-panel");
  history.append(el("h3","Riwayat Transaksi"));
  const opening=openingSummary(data);
@@ -1056,7 +1121,7 @@ function render(data){
   }
   history.append(mobileHistory);
  }else history.append(el("p","Belum ada transaksi setelah saldo awal.","tc-muted"));
- if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; cetak dinonaktifkan agar tidak terpotong.","tc-status"));
+ if(!data.riwayatLengkap)history.append(el("p","Riwayat panjang; ekspor riwayat dinonaktifkan agar tidak terpotong.","tc-status"));
  laporan.append(history);
  switchView(views.some(x=>x.id===activeView)?activeView:"saldo",false);
 }
