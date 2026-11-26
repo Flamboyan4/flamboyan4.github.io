@@ -418,7 +418,8 @@ async function exportTreasuryExcel(data,options){
 let reportOptions={balance:true,opening:true,history:true,fund:"",from:"",to:"",kind:""};
 function buildReportOptions(target,data){
  const head=el("section",__f4.globals.undefined,"tc-panel tc-report-options");
- head.append(el("h3","Pilihan Cetak & Excel"),el("p","Pilih bagian laporan. Filter tanggal hanya berlaku untuk riwayat transaksi.","tc-muted"));
+ const top=el("div",__f4.globals.undefined,"tc-report-options-head");
+ top.append(el("h3","Pilihan Cetak & Excel"));
  const checks=el("div",__f4.globals.undefined,"tc-report-checks");
  const toggles={};
  for(const [key,label] of [["balance","Saldo terkini"],["opening","Saldo awal"],["history","Riwayat transaksi"]]){
@@ -429,7 +430,9 @@ function buildReportOptions(target,data){
  const fund=select([{id:"",name:"Semua pos dana"},...data.catalog.funds.map(f=>({id:f.id,name:f.name}))]);fund.value=reportOptions.fund;
  const kind=select([{id:"",name:"Semua transaksi"},...Object.entries(kindLabels).filter(([id])=>id!=="opening").map(([id,name])=>({id,name}))]);kind.value=reportOptions.kind;
  const from=el("input"),to=el("input");from.type=to.type="date";from.value=reportOptions.from;to.value=reportOptions.to;
- grid.append(field("Pos dana",fund),field("Jenis transaksi",kind),field("Dari tanggal",from),field("Sampai tanggal",to));
+ grid.append(field("Pos dana",fund),field("Jenis transaksi",kind),field("Transaksi dari",from),field("Transaksi sampai",to));
+ from.title=to.title="Filter tanggal hanya berlaku untuk riwayat transaksi.";
+ top.append(checks);
  const actions=el("div",__f4.globals.undefined,"tc-report-actions"),msg=el("p","","tc-status");msg.setAttribute("role","status");
  const print=el("button","Cetak Laporan","tc-primary"),excel=el("button","Unduh Excel (.xlsx)","tc-secondary");
  print.type=excel.type="button";actions.append(excel,print);
@@ -444,7 +447,8 @@ function buildReportOptions(target,data){
  head.addEventListener("change",sync);
  print.onclick=()=>{sync();if(!print.disabled)printTreasury(data,readOptions())};
  excel.onclick=async()=>{sync();if(excel.disabled)return;excel.disabled=true;try{await exportTreasuryExcel(data,readOptions())}catch(e){showMessage(e.message||"Excel gagal dibuat.")}finally{sync()}};
- head.append(checks,grid,actions,msg);target.append(head);sync();
+ const footer=el("div",__f4.globals.undefined,"tc-report-footer");
+ footer.append(msg,actions);head.append(top,grid,footer);target.append(head);sync();
 }
 
 function buildForm(target,data,refresh){
