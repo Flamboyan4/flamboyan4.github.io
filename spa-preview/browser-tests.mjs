@@ -35,7 +35,7 @@ const fixtures={
 const assert=(v,m)=>{if(!v)throw Error(m)};
 async function run(browser,role){
  const ctx=await browser.newContext({viewport:{width:360,height:812},deviceScaleFactor:2,hasTouch:true});
- const errors=[],posts=[],unknown=[];
+ const errors=[],posts=[],unknown=[];let currentRole=role,accountId='test-'+role;const authCalls=[];
  await ctx.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url());
   if(url.origin===origin){await route.continue();return}
@@ -46,8 +46,10 @@ async function run(browser,role){
    const body=req.postDataJSON();if(body.batchId!=='batch1'||!['admin','superadmin'].includes(role)){await route.fulfill({status:403,headers,json:{ok:false}});return}
    await route.fulfill({status:200,headers,json:{ok:true,batchId:'batch1',saleId:'sale-test',receivedRp:10000,grossRp:10000,citizenRightsRp:5000,environmentRp:5000,wargaPercent:50,weightDifferenceGrams:0,hasWeightDifference:false}});return;
   }
+  if(req.method()==='POST'&&url.pathname==='/api/auth/logout'){authCalls.push('logout');currentRole='public';await route.fulfill({status:200,headers,json:{ok:true}});return;}
+  if(req.method()==='POST'&&url.pathname==='/api/auth/login'){authCalls.push('login');const b=req.postDataJSON();if(b.username!=='test'||b.password!=='test-only'){await route.fulfill({status:401,headers,json:{ok:false,error:'Invalid mock login'}});return;}currentRole='warga';accountId='test-new-warga';await route.fulfill({status:200,headers,json:{ok:true}});return;}
   if(req.method()!=='GET'){posts.push(url.pathname);await route.fulfill({status:403,headers,json:{ok:false}});return}
-  const data=url.pathname==='/api/v2/auth/session'?{account:role==='public'?null:{id:'test-'+role,role:role==='warga'?'anggota':role,displayName:'Akun uji'}}:fixtures[url.pathname];
+  const data=url.pathname==='/api/v2/auth/session'?{account:currentRole==='public'?null:{id:accountId,role:currentRole==='warga'?'anggota':currentRole,displayName:accountId==='test-new-warga'?'Akun baru':'Akun uji'}}:fixtures[url.pathname];
   if(data===undefined){unknown.push(url.pathname);await route.fulfill({status:404,headers,json:{ok:false}});return}
   if(url.pathname==='/api/v2/public/bank')await new Promise(r=>setTimeout(r,180));
   await route.fulfill({status:200,headers,json:data});
@@ -107,6 +109,19 @@ async function run(browser,role){
   }
   await click('home');await heading('Portal Utama');await routeIs('home');await identity();
   await page.goBack();await page.waitForFunction(()=>new URL(location.href).searchParams.get('portal')!=='home');await page.waitForFunction(()=>document.querySelector('#outlet')?.getAttribute('aria-busy')==='false');await identity();
+  // Verify login/logout and cross-tab account replacement without a document reload.
+  if(role==='superadmin'){
+   await click('book');await heading('Pembukuan');await identity();
+   page.once('dialog',d=>d.accept());await page.getByRole('button',{name:'Keluar',exact:true}).click();await heading('Portal Utama');await page.getByRole('button',{name:'Login',exact:true}).waitFor();
+   assert(await page.evaluate(()=>window.testShell.header===document.getElementById('app-header')&&window.testShell.dock===document.getElementById('app-dock')),'Shell replaced on logout');
+   assert(await dock.locator('[data-route=book]').count()===0,'Protected dock remained');
+   await page.getByRole('button',{name:'Login',exact:true}).click();await page.locator('#app-username').fill('test');await page.locator('#app-password').fill('test-only');await page.getByRole('button',{name:'Masuk',exact:true}).click();await page.getByText('Halo, Akun baru',{exact:true}).waitFor();await heading('Portal Utama');
+   assert(await page.evaluate(()=>window.testShell.header===document.getElementById('app-header')&&window.testShell.dock===document.getElementById('app-dock')),'Shell replaced on login');
+   await click('bank');await heading('Bank Sampah');await click('payout');await heading('Pengajuan pencairan');
+   currentRole='public';await page.evaluate(()=>{const ch=new BroadcastChannel('f4-session');ch.postMessage({type:'logout'});ch.close()});await heading('Portal Utama');
+   assert(await page.evaluate(()=>window.testShell.header===document.getElementById('app-header')&&window.testShell.dock===document.getElementById('app-dock')),'Shell replaced on cross-tab logout');
+   assert(authCalls.join(',')==='logout,login','Unexpected auth operations');
+  }
   assert(posts.length===0,'Unexpected external POST: '+posts.join(','));
   assert(unknown.length===0,'Unmocked endpoint: '+unknown.join(','));
   assert(errors.length===0,'Browser JS error: '+errors.join(','));
