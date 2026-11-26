@@ -4315,13 +4315,13 @@ dialog.f4-bank-sheet-modal::backdrop{background:#152b2673;backdrop-filter:blur(2
  .f4-bank-prices-screen .f4-bank-price-category-title{font-size:12px}
 }
 
-/* Bank admin mobile drawer uses the canonical direct-shell sidebar and backdrop. */
+/* Bank private mobile drawer uses the canonical direct-shell sidebar and backdrop. */
 @media(max-width:1023px){
- body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer]{width:min(var(--f4-rail-open,226px),84vw);height:calc(100dvh - 56px);visibility:hidden;pointer-events:none}
- body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer].f4-open{visibility:visible;pointer-events:auto}
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-drawer]{width:min(var(--f4-rail-open,226px),84vw);height:calc(100dvh - 56px);visibility:hidden;pointer-events:none}
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-drawer].f4-open{visibility:visible;pointer-events:auto}
 }
 @media(min-width:1024px){
- body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer],body.f4-direct-bank #f4-direct-sideback{display:none}
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-drawer],body.f4-direct-bank #f4-direct-sideback{display:none}
 }
 /* Analisis setoran admin: satu pemilik gaya di bank-eco-pages.css (2026-11-22).
    Semua aturan hanya berlaku pada halaman laporan pengelola. */

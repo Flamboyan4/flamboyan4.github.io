@@ -95,24 +95,17 @@ login.addEventListener('click',openLogin);
 dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLogin);
 dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});
 window.f4ShowLogin=openLogin;
-let session=null,role='public',bankNavRoute='dashboard';
+let session=null,role='public';
 // The persistent navbar owns its own menu state; mounted pages only report routes.
 function syncPageMenu(){
- const mode=portal==='bank'&&role==='warga'?(bankNavRoute==='dashboard'?'none':'back'):'menu';
- if(hamburger.dataset.f4MenuMode!==mode){
-  hamburger.dataset.f4MenuMode=mode;
-  hamburger.innerHTML=mode==='back'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg>':svg('menu');
+ if(hamburger.dataset.f4MenuMode!=='menu'){
+  hamburger.dataset.f4MenuMode='menu';hamburger.innerHTML=svg('menu');
  }
  if(!document.body.classList.contains('f4-account-open')){
-  const label=mode==='back'?'Kembali ke Beranda':'Buka menu halaman';
-  hamburger.title=label;hamburger.setAttribute('aria-label',label);
+  hamburger.title='Buka menu halaman';hamburger.setAttribute('aria-label','Buka menu halaman');
  }
 }
 syncPageMenu();
-window.addEventListener('f4-shared-bank-route',event=>{
- if(portal!=='bank')return;
- bankNavRoute=String(event.detail||'dashboard');syncPageMenu();
-});
 /* Shared dock presentation is mounted at the beginning of the document.
    Keep authentication and navigation dispatch here, not in the presentation. */
 const dock=window.F4MobileDock;
@@ -151,7 +144,7 @@ function updatePortalChrome(key){
  activePortalKey=key;
  portal=key==='rapat'||key==='dokumentasi'?'simple':key;
  document.documentElement.dataset.f4Shell=portal;
- applyPortalTheme(portal);bankNavRoute='dashboard';hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
+ applyPortalTheme(portal);hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
  settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
@@ -172,7 +165,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  const here=activePortalKey===key;
  if(here&&!target.hash){
   if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
-   window.f4PortalSelectPanel(route||'beranda',!pop);return true;
+   window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
   }
   if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
   if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
@@ -274,8 +267,13 @@ function dockAction(key){
  if(key==='input-deposit'){openBankRoute('setoran');return}
  if(key==='input-iuran'){openBookRoute('input');return}
  if(key==='home'){
-  if(portal==='portal'&&typeof window.f4PortalSelectPanel==='function'){window.f4PortalSelectPanel('beranda');return;}
+  if(portal==='portal'&&typeof window.f4PortalSelectPanel==='function'){window.f4PortalSelectPanel('beranda');dock?.refresh?.();return;}
   void navigatePortal(paths.portal);return;
+ }
+ if(role==='warga'&&['finance','agenda','docs'].includes(key)){
+  if(key==='docs'){void navigatePortal(paths.dokumentasi);return;}
+  const panel=key==='finance'?'keuangan':'kalender';
+  void navigatePortal(paths.portal+'?halaman='+panel);return;
  }
  if(key==='book'){openBookRoute('inputdata');return;}
  if(key==='superadmin'){void navigatePortal(paths.superadmin);return;}
@@ -543,7 +541,7 @@ window.addEventListener('message',e=>{
   if(Object.hasOwn(paths,target))void navigatePortal(paths[target]);
  }
  if(data.type==='f4:manage-home')void navigatePortal(paths.superadmin);
- if(data.type==='f4:portal-visible-panel'&&portal==='portal')highlight(data.panel);
+ if(data.type==='f4:portal-visible-panel'&&portal==='portal'){highlight(data.panel);dock?.refresh?.();}
 });
 function makePortalSide(){
  if(portal!=='portal'&&portal!=='simple')return;

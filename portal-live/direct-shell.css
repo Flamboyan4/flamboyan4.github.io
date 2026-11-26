@@ -154,8 +154,7 @@ body.f4-direct-portal:has(
 body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar,
 html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
- #f4-direct-bar #f4-mobile-menu:is([data-f4-menu-mode="menu"],[data-f4-menu-mode="back"]){display:grid}
- #f4-direct-bar #f4-mobile-menu[data-f4-menu-mode="none"]{display:none}
+ #f4-direct-bar #f4-mobile-menu[data-f4-menu-mode="menu"]{display:grid}
  #f4-direct-sidebar{transform:translateX(-103%);transition:transform .2s;box-shadow:10px 0 25px #1c304016}
  #f4-direct-sidebar.f4-open{transform:translateX(0)}
  body.f4-direct-portal,body.f4-direct-simple{padding-left:0}
@@ -231,7 +230,6 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 @keyframes f4-route-reveal{from{opacity:0}to{opacity:1}}
 @media(max-width:1023px){
  body.f4-shared-dock:has(#f4-direct-dock:not([hidden])) #f4-route-loading{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
- body.f4-bank-app-member #f4-route-loading{top:68px}
 }
 @media(min-width:1024px){
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-route-loading{left:var(--f4-portal-rail,226px)}

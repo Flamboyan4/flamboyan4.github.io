@@ -379,6 +379,7 @@ __f4.window.addEventListener('message',event=>{
  if(event.origin!==__f4.globals.location.origin||event.source!==__f4.window.parent)return;
  if(event.data?.type==='f4:portal-panel')showPanel((0,__f4.globals.String)(event.data.panel||'beranda'));
  if(event.data?.type==='f4:demo-role'){
+  const priorRole=current.role;
   current.role=(0,__f4.globals.String)(event.data.role||'public').toLowerCase();
   // This attribute is the UI's existing signed-in visibility guard for cash
   // print buttons and the recent ledger, not an authorization token.
@@ -403,6 +404,11 @@ __f4.window.addEventListener('message',event=>{
     const personal=finBlock.querySelector('#f4-personal-finance');
     if(personal)personal.hidden=true;
    }
+  }
+  // The verified role must reveal the finance section before selecting it after SPA mounting.
+  if(authenticated&&priorRole==='public'){
+   const requested=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman');
+   if(requested&&__f4.globals.Object.hasOwn(sectionTargets,requested))showPanel(requested,false);
   }
   visiblePanel();
  }

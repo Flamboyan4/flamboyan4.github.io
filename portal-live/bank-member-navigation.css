@@ -2,17 +2,6 @@
    Proportions match Portal Utama (226px sidebar, 44px menu rows, 14px labels).
    Soft botanical canvas and white sidebar, green as an accent with teal/sky for information. */
 body.f4-bank-app-member{background:var(--f4-bank-canvas,#edf9f2)}
-body.f4-bank-app-member #f4-direct-bar .f4-nav-links{margin-left:auto}
-body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu{
- place-items:center;width:36px;height:38px;min-width:36px;
- padding:0;margin:0 4px 0 0;border:0;border-radius:10px;
- background:transparent;color:#16764b;cursor:pointer
-}
-body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu:hover{background:#f1f7f2}
-body.f4-bank-app-member.f4-bank-member-secondary #f4-direct-bar #f4-mobile-menu svg{
- width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;
- stroke-linecap:round;stroke-linejoin:round
-}
 body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-shortcut,.f4-member-feature-header) button:focus-visible{
  outline:2px solid #168454;outline-offset:2px
 }
@@ -98,33 +87,9 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   box-sizing:border-box;min-width:0;width:100%;max-width:780px;
   margin-inline:auto;padding:14px 15px 10px;background:#fff
  }
- /* One clean mobile banking bar: member identity + global actions. */
- body.f4-bank-app-member #f4-direct-bar{
-  box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;
-  left:0;right:auto;width:100vw;max-width:100vw;min-width:0;
-  height:68px;min-height:68px;gap:8px;padding:0 15px;background:#fff;
-  box-shadow:none
- }
- body.f4-bank-app-member #f4-direct-bar .f4-nav-links{
-  display:flex;align-items:center;gap:3px;flex:none;min-width:0;
-  margin:0;padding:0
- }
- body.f4-bank-app-member #f4-direct-bar .f4-nav-links a{
-  width:35px;height:35px;min-width:35px
- }
- body.f4-bank-app-member #f4-direct-bar #f4-direct-avatar{
-  width:38px;height:38px;flex:none;margin:0
- }
- body.f4-bank-app-member #f4-direct-bar .f4-direct-login{flex:none}
- body.f4-bank-app-member #f4-direct-bar #f4-mobile-menu{flex:none}
  body.f4-bank-app-member #dashboardView{padding-top:12px}
 }
 @media(max-width:380px){
- body.f4-bank-app-member #f4-direct-bar{padding:0 10px;gap:5px}
- body.f4-bank-app-member #f4-direct-bar .f4-nav-links{gap:1px}
- body.f4-bank-app-member #f4-direct-bar .f4-nav-links a{
-  width:32px;height:34px;min-width:32px
- }
  body.f4-bank-app-member #dashboardView>.grid>.section{padding-inline:11px}
 }
 

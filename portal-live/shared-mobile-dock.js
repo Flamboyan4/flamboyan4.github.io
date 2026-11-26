@@ -20,7 +20,7 @@ const dockIcon=key=>dockPaths[key]?'<svg viewBox="0 0 24 24" aria-hidden="true">
 const dockItems={
  superadmin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['input','Input','add'],['book','Pembukuan','book'],['superadmin','Superadmin','superadmin']],
  admin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['deposit','Input','add'],['sale','Penjualan','sale'],['report','Laporan','report']],
- warga:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['payout','Pencairan','payout'],['history','Riwayat','history'],['report','Laporan','report']]
+ warga:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['finance','Keuangan','cash'],['agenda','Agenda','calendar'],['docs','Dokumentasi','image']]
 };
 
 let dockRole='',dockMenu=null,dockTrigger=null,bankRoute='',bookRoute='',handler=null,pending=null;
@@ -56,7 +56,11 @@ function markSharedDock(){
  if(portal==='bank'){
   if(shownRole==='superadmin'&&route==='setoran')active='input';
   if(shownRole==='admin')active=({setoran:'deposit',penjualan:'sale',laporan:'report'})[route]||'bank';
-  if(shownRole==='warga')active=({'bank-payout':'payout','bank-history':'history','bank-report':'report'})[route]||'bank';
+  if(shownRole==='warga')active='bank';
+ }
+ if(shownRole==='warga'){
+  if(portal==='portal')active=({keuangan:'finance',arisan:'agenda',kalender:'agenda'})[new URLSearchParams(location.search).get('halaman')]||'home';
+  else if(portal==='simple'&&location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')==='/dokumentasi/')active='docs';
  }
  for(const b of sharedDock.querySelectorAll('[data-dock-key]')){
   if(b.dataset.dockKey===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
@@ -68,7 +72,7 @@ function updateSharedDock(next=''){
   dockRole=next;dockMenu=null;dockTrigger=null;sharedDock.replaceChildren();
   if(next){
    for(const [i,[key,label,icon]] of dockItems[next].entries()){
-    const b=el('button','f4-direct-dock-item'+(i===2?' is-primary':''));
+    const b=el('button','f4-direct-dock-item'+(i===2&&next!=='warga'?' is-primary':''));
     b.type='button';b.dataset.dockKey=key;
     const name=label;
     const symbol=el('span','f4-direct-dock-icon');
@@ -102,7 +106,7 @@ window.matchMedia('(max-width:1023px)').addEventListener('change',()=>closeDockM
 
 window.F4MobileDock={
  getRole:()=>dockRole,validRole:validDockRole,allowed,remember:rememberDockHint,update:updateSharedDock,
- closeMenu:closeDockMenu,toggleMenu,
+ closeMenu:closeDockMenu,toggleMenu,refresh:markSharedDock,
  bind(fn){handler=fn;const p=pending;pending=null;if(p&&p.role===dockRole)fn(p.key)},
  setPortal(next){if(!['portal','bank','book','superadmin','simple'].includes(next))return;portal=next;bankRoute='';bookRoute='';closeDockMenu();markSharedDock()}
 };
