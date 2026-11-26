@@ -570,3 +570,58 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  html[data-f4-starting] body.f4-shared-dock:has(>#f4-direct-dock:not([hidden])) #f4-startup-screen{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
  html[data-f4-starting] body.f4-shared-dock:has(>#f4-direct-bar) #f4-startup-screen{top:56px}
 }
+
+/* Resident action rail — permanent SPA chrome, independent of page/footer layout. */
+body.f4-resident-tools-active #f4-portal-float-actions{display:none}
+#f4-resident-tools[hidden],#f4-resident-tools [hidden]{display:none}
+#f4-resident-tools:not([hidden]){position:fixed;right:0;bottom:12px;z-index:24;display:flex;flex-direction:column;align-items:flex-end;gap:8px;pointer-events:none;font:13px/1.4 system-ui,sans-serif;color:#26344f}
+#f4-resident-tools *,#f4-resident-feedback *{box-sizing:border-box}
+#f4-resident-tools button,#f4-resident-feedback button{font:inherit;cursor:pointer}
+#f4-resident-tools svg,#f4-resident-feedback svg{display:block;width:22px;height:22px;flex:none}
+#f4-resident-top:not([hidden]){display:grid;place-items:center;width:39px;height:39px;margin-right:8px;padding:0;border:1px solid #dcd8f5;border-radius:50%;color:#5145cd;background:#f1effb;box-shadow:0 2px 8px #211b501a;pointer-events:auto}
+#f4-resident-edge{display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none;--f4-edge-width:13px}
+#f4-resident-edge[data-expanded="true"]{--f4-edge-width:44px}
+#f4-resident-edge .f4-resident-edge-btn{display:grid;place-items:center;box-sizing:border-box;width:var(--f4-edge-drag-width,var(--f4-edge-width));height:44px;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:22px 0 0 22px;color:#fff;overflow:hidden;pointer-events:auto;touch-action:pan-y;transition:width .2s ease,background .15s ease;box-shadow:0 2px 8px #211b5020}
+#f4-resident-edge .f4-resident-edge-btn[data-action="feedback"]{background:rgba(81,69,205,.76)}
+#f4-resident-edge .f4-resident-edge-btn[data-action="payment"]{background:rgba(5,150,105,.76)}
+#f4-resident-edge .f4-resident-edge-btn svg{opacity:0;transition:opacity .15s ease}
+#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn svg{opacity:1}
+#f4-resident-edge .f4-resident-edge-btn:focus-visible{outline:2px solid #26344f;outline-offset:-2px}
+#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn[data-action="feedback"]:hover{background:#5145cd}
+#f4-resident-edge[data-expanded="true"] .f4-resident-edge-btn[data-action="payment"]:hover{background:#059669}
+#f4-resident-pay-panel:not([hidden]){display:block;position:absolute;right:8px;bottom:calc(100% + 8px);width:min(290px,calc(100vw - 20px));max-height:min(330px,calc(100dvh - 230px));overflow:auto;overscroll-behavior:contain;padding:13px;border:1px solid #dce8df;border-radius:12px;background:#fff;box-shadow:0 8px 24px #172b2526;pointer-events:auto}
+#f4-resident-pay-panel .f4-resident-pay-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+#f4-resident-pay-panel .f4-resident-pay-head button,#f4-resident-feedback [data-close-feedback]{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:inherit}
+#f4-resident-pay-panel .f4-resident-pay-head svg,#f4-resident-feedback [data-close-feedback] svg{width:17px;height:17px}
+#f4-resident-pay-panel .f4-resident-qr{display:flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:8px;border-radius:9px;background:#059669;color:#fff;text-decoration:none;font-weight:650}
+#f4-resident-pay-panel .f4-resident-qr svg{width:18px;height:18px}
+#f4-resident-pay-panel .f4-resident-pay-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid #edf0f4}
+#f4-resident-pay-panel .f4-resident-pay-row:last-child{border:0;padding-bottom:0}
+#f4-resident-pay-panel .f4-resident-pay-info{display:grid;min-width:0;gap:2px;font-size:12px;overflow-wrap:anywhere}
+#f4-resident-pay-panel .f4-resident-pay-info span{font-variant-numeric:tabular-nums}
+#f4-resident-pay-panel .f4-resident-pay-info small{font-size:10px;color:#64748b}
+#f4-resident-pay-panel .f4-resident-pay-copy{display:flex;align-items:center;gap:4px;min-height:36px;padding:7px 9px;border:1px solid #a7e1cb;border-radius:8px;background:#e9f9f1;color:#08734e;font-size:11px;font-weight:650}
+#f4-resident-pay-panel .f4-resident-pay-copy svg{width:15px;height:15px}
+#f4-resident-pay-panel .f4-resident-pay-status{font-size:11px;color:#08734e;margin:0}
+#f4-resident-pay-panel .f4-resident-pay-status:not(:empty){margin-top:8px}
+#f4-resident-feedback{box-sizing:border-box;width:min(420px,calc(100% - 28px));max-height:85dvh;overflow:auto;border:0;border-radius:16px;padding:0;background:#fff;color:#26344f;box-shadow:0 15px 45px #17263b40;font:14px/1.45 system-ui,sans-serif}
+#f4-resident-feedback:not([open]){display:none}
+#f4-resident-feedback::backdrop{background:#10182b75}
+#f4-resident-feedback .f4-resident-feedback-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#5145cd;color:#fff}
+#f4-resident-feedback h2{font:700 16px/1.4 system-ui;margin:0}
+#f4-resident-feedback form{display:grid;gap:12px;padding:16px;margin:0}
+#f4-resident-feedback form p{margin:0;font-size:12px;color:#64748b}
+#f4-resident-feedback textarea{display:block;width:100%;min-height:110px;padding:12px;border:1px solid #dce1eb;border-radius:10px;background:#fff;color:#26344f;font:14px/1.5 system-ui;resize:vertical}
+#f4-resident-feedback button[type="submit"]{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px;border:0;border-radius:10px;background:#5145cd;color:#fff;font-weight:650}
+#f4-resident-feedback button[type="submit"] svg{width:18px;height:18px}
+#f4-resident-feedback button:disabled{opacity:.6}
+#f4-resident-feedback .f4-resident-feedback-trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+#f4-resident-feedback .f4-resident-feedback-status:empty{display:none}
+html[data-f4-starting] #f4-resident-tools,html[data-f4-swapping] #f4-resident-tools,html.f4p-overlay-active #f4-resident-tools,
+body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-resident-feedback[open],#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden]),dialog[open]) #f4-resident-tools{visibility:hidden;pointer-events:none}
+@media(max-width:1023px){
+ #f4-resident-tools:not([hidden]){bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+ body.f4-shared-dock:has(#f4-direct-dock:not([hidden])) #f4-resident-tools:not([hidden]){bottom:calc(12px + var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
+}
+@media(prefers-reduced-motion:reduce){#f4-resident-edge .f4-resident-edge-btn,#f4-resident-edge .f4-resident-edge-btn svg{transition:none}}
+@media print{#f4-resident-tools,#f4-resident-feedback{display:none}}

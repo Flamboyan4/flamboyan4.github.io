@@ -16,6 +16,15 @@ window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
  const options=doc.getElementById('f4-mobile-payment-options');
  const mobileStatus=doc.getElementById('f4-mobile-payment-status');
  const mobile=__f4.window.matchMedia('(max-width:767px)');
+ // The shell owns the canonical bank details, used by the legacy desktop/public UI too.
+ for(const account of __f4.globals.F4ResidentTools.accounts){
+   for(const button of doc.querySelectorAll('[data-account-key="'+account.key+'"]')){
+     button.dataset.accountCopy=account.number;
+     const info=button.parentElement.querySelector('.f4-account-info,.f4-payment-desktop-info');
+     if(info){info.querySelector('strong').textContent=account.bank;info.querySelector('small').textContent='a.n. '+account.owner;const number=info.querySelector('.f4-account-number');if(number)number.textContent=account.number;}
+   }
+ }
+ const originalQris=doc.querySelector('footer#pembayaran .f4-payment-qris');if(originalQris)originalQris.href=__f4.globals.F4ResidentTools.qris;
  if(options){
    const qris=doc.querySelector('footer#pembayaran .f4-payment-qris');
    if(qris)options.append(qris.cloneNode(true));
@@ -34,21 +43,7 @@ window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
    __f4.window.addEventListener('resize',()=>{if(!mobile.matches)setOpen(false);});
    __f4.window.f4OpenMobilePayment=()=>setOpen(true);
  }
- async function copyNumber(value){
-   if(__f4.globals.navigator.clipboard?.writeText){
-     try{await __f4.globals.navigator.clipboard.writeText(value);return true;}catch{}
-   }
-   const el=__f4.globals.document.createElement('textarea');
-   el.value=value;
-   el.setAttribute('readonly','');
-   el.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';
-   __f4.globals.document.body.appendChild(el);
-   el.select();
-   let ok=false;
-   try{ok=__f4.globals.document.execCommand('copy');}catch{}
-   el.remove();
-   return ok;
- }
+ const copyNumber=value=>__f4.globals.F4ResidentTools.copyNumber(value);
  __f4.globals.document.addEventListener('click',async event=>{
    const button=event.target.closest?.('[data-account-copy]');
    if(!button||!button.closest('#modal-rekening,footer#pembayaran,#f4-mobile-payment-menu'))return;

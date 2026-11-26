@@ -98,6 +98,138 @@ dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLog
 dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});
 window.f4ShowLogin=openLogin;
 let session=null,role='public';
+
+/* Verified residents: one permanent action rail for all mounted portal pages. */
+const residentTools=(()=>{
+ const accounts=Object.freeze([
+  Object.freeze({key:'mandiri',bank:'Mandiri',number:'1330022606479',owner:'ROSALINDA'}),
+  Object.freeze({key:'seabank',bank:'SeaBank',number:'901493321399',owner:'HERI JUWANDI'})
+ ]);
+ const qris='/assets/qris-flamboyan4.jpg';
+ const icons={
+  wallet:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 9h18m0 3h-5a2 2 0 0 0 0 4h5"/><path d="M16 14h.01"/>',
+  feedback:'<path d="M21 14a3 3 0 0 1-3 3H8l-5 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3zM12 7v6m-3-3h6"/>',
+  up:'<path d="M12 19V5m-6 6 6-6 6 6"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+  qr:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><path d="M15 15h3v3h3m-6 3h3m3-6v-3m-9-9v3m0 6h-3m3 0v3"/>',
+  close:'<path d="m6 6 12 12M18 6 6 18"/>',
+  send:'<path d="m22 2-7 20-4-9-9-4 20-7ZM22 2 11 13"/>'
+ };
+ const glyph=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
+ const root=el('div');root.id='f4-resident-tools';root.dataset.f4Persistent='shell';root.hidden=true;
+ root.setAttribute('aria-label','Akses cepat warga');
+ root.innerHTML='<button type="button" id="f4-resident-top" aria-label="Kembali ke atas" hidden>'+glyph('up')+'</button><div id="f4-resident-edge" data-expanded="false"><button type="button" class="f4-resident-edge-btn" data-action="feedback" aria-label="Tampilkan tombol kirim masukan" aria-expanded="false">'+glyph('feedback')+'</button><button type="button" class="f4-resident-edge-btn" data-action="payment" aria-label="Tampilkan tombol pembayaran" aria-expanded="false">'+glyph('wallet')+'</button></div><section id="f4-resident-pay-panel" aria-label="Metode pembayaran" hidden><div class="f4-resident-pay-head"><strong>Pembayaran</strong><button type="button" data-close-payment aria-label="Tutup pembayaran">'+glyph('close')+'</button></div><a class="f4-resident-qr" href="'+qris+'" download="QRIS_Flamboyan4.jpg">'+glyph('qr')+'Unduh QRIS</a><div class="f4-resident-pay-accounts"></div><p class="f4-resident-pay-status" role="status" aria-live="polite"></p></section>';
+ document.body.append(root);
+ const edge=root.querySelector('#f4-resident-edge'),top=root.querySelector('#f4-resident-top'),pay=root.querySelector('#f4-resident-pay-panel'),payStatus=pay.querySelector('.f4-resident-pay-status');
+ const paymentButton=edge.querySelector('[data-action="payment"]'),feedbackButton=edge.querySelector('[data-action="feedback"]');
+ for(const account of accounts){
+  const row=el('div','f4-resident-pay-row'),info=el('div','f4-resident-pay-info'),name=el('strong'),number=el('span'),owner=el('small'),copy=el('button','f4-resident-pay-copy');
+  name.textContent=account.bank;number.textContent=account.number;owner.textContent='a.n. '+account.owner;
+  info.append(name,number,owner);copy.type='button';copy.setAttribute('aria-label','Salin rekening '+account.bank);copy.innerHTML=glyph('copy')+'<span>Salin</span>';
+  copy.addEventListener('click',async()=>{copy.disabled=true;let ok=false;try{ok=await copyNumber(account.number)}finally{copy.disabled=false}payStatus.textContent=ok?'Nomor '+account.bank+' berhasil disalin.':'Gagal menyalin. Tekan lama nomor rekening.';copy.querySelector('span').textContent=ok?'Tersalin':'Salin';setTimeout(()=>{copy.querySelector('span').textContent='Salin'},1800)});
+  row.append(info,copy);pay.querySelector('.f4-resident-pay-accounts').append(row);
+ }
+ const suggestion=el('dialog');suggestion.id='f4-resident-feedback';suggestion.dataset.f4Persistent='shell';suggestion.setAttribute('aria-labelledby','f4-resident-feedback-title');
+ suggestion.innerHTML='<div class="f4-resident-feedback-head"><h2 id="f4-resident-feedback-title">Kotak Saran</h2><button type="button" data-close-feedback aria-label="Tutup">'+glyph('close')+'</button></div><form><p>Saran dikirim ke pengurus. Tak perlu nama atau data pribadi.</p><textarea name="pesan" rows="5" minlength="5" maxlength="2000" required placeholder="Tulis saran atau keluhan..."></textarea><div class="f4-resident-feedback-trap" aria-hidden="true"><label>Website (kosongkan)<input name="website" tabindex="-1" autocomplete="off"></label></div><button type="submit">'+glyph('send')+'Kirim Saran</button><p class="f4-resident-feedback-status" role="status" aria-live="polite"></p></form>';
+ document.body.append(suggestion);
+ const form=suggestion.querySelector('form'),send=form.querySelector('[type="submit"]'),feedbackStatus=form.querySelector('.f4-resident-feedback-status');
+ let enabled=false,expanded=false,lastY=0,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false;
+ function closePayment(){pay.hidden=true;paymentButton.setAttribute('aria-expanded','false');payStatus.textContent=''}
+ function setExpanded(value){
+  expanded=!!value;edge.dataset.expanded=String(expanded);edge.style.removeProperty('--f4-edge-drag-width');
+  feedbackButton.setAttribute('aria-label',expanded?'Kirim masukan':'Tampilkan tombol kirim masukan');
+  feedbackButton.setAttribute('aria-expanded',String(expanded));
+  paymentButton.setAttribute('aria-label',expanded?'Pembayaran':'Tampilkan tombol pembayaran');
+  paymentButton.setAttribute('aria-expanded',String(expanded&&!pay.hidden));
+  if(!expanded)closePayment();
+ }
+ function openPayment(){
+  if(!enabled)return false;
+  setExpanded(true);pay.hidden=false;paymentButton.setAttribute('aria-expanded','true');return true;
+ }
+ function openFeedback(){
+  if(!enabled)return false;
+  closePayment();setExpanded(true);
+  if(!suggestion.open){feedbackStatus.textContent='';suggestion.showModal()}
+  return true;
+ }
+ async function copyNumber(value){
+  if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(value);return true}catch{}}
+  const input=el('textarea');input.value=value;input.readOnly=true;input.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.append(input);input.select();
+  let ok=false;try{ok=document.execCommand('copy')}catch{}input.remove();return ok;
+ }
+ function syncScroll(reset=false){
+  if(!enabled)return;
+  const scroller=document.scrollingElement||document.documentElement,y=Math.max(0,scroller.scrollTop),max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+  top.hidden=y<=120;
+  if(reset){lastY=y;setExpanded(false);return}
+  if(max>8&&max-y<=12)setExpanded(true);
+  else if(y<lastY-2)setExpanded(false);
+  lastY=y;
+ }
+ function syncRole(next){
+  const allowed=next==='warga'&&!!session?.account&&['portal','bank','finance','agenda','profile','dokumentasi','rapat'].includes(activePortalKey);
+  document.body.classList.toggle('f4-resident-tools-active',allowed);
+  root.hidden=!allowed;
+  if(enabled===allowed)return;
+  enabled=allowed;setExpanded(false);lastRoute='';drag=null;
+  if(!enabled){top.hidden=true;if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent=''}
+  else syncScroll(true);
+ }
+ top.addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
+ for(const button of edge.querySelectorAll('button')){
+  button.addEventListener('pointerdown',e=>{
+   if(e.button!==0||!e.isPrimary)return;
+   drag={id:e.pointerId,x:e.clientX,start:expanded?44:13,moved:false,button};
+   button.setPointerCapture?.(e.pointerId);
+  });
+  button.addEventListener('pointermove',e=>{
+   if(!drag||drag.id!==e.pointerId)return;
+   const dx=drag.x-e.clientX;
+   if(Math.abs(dx)>5)drag.moved=true;
+   if(drag.moved)edge.style.setProperty('--f4-edge-drag-width',Math.max(13,Math.min(44,drag.start+dx))+'px');
+  });
+  button.addEventListener('pointerup',e=>{
+   if(!drag||drag.id!==e.pointerId)return;
+   const d=drag;drag=null;
+   if(d.moved){suppressClickUntil=Date.now()+350;setExpanded(d.x-e.clientX>6?true:e.clientX-d.x>6?false:expanded)}
+   else edge.style.removeProperty('--f4-edge-drag-width');
+  });
+  button.addEventListener('pointercancel',()=>{drag=null;edge.style.removeProperty('--f4-edge-drag-width')});
+  button.addEventListener('click',e=>{
+   if(Date.now()<suppressClickUntil){e.preventDefault();return}
+   if(!expanded){setExpanded(true);return}
+   if(button===paymentButton){if(pay.hidden)openPayment();else closePayment()}
+   else openFeedback();
+  });
+ }
+ pay.querySelector('[data-close-payment]').onclick=closePayment;
+ suggestion.querySelector('[data-close-feedback]').onclick=()=>suggestion.close();
+ suggestion.addEventListener('click',e=>{if(e.target===suggestion){const r=suggestion.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)suggestion.close()}});
+ suggestion.addEventListener('close',()=>{if(enabled)feedbackButton.focus({preventScroll:true})});
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();if(!enabled||sending||form.elements.website.value)return;
+  if(Date.now()-lastSuggestionAt<60000){feedbackStatus.textContent='Saran baru dapat dikirim lagi setelah satu menit.';return}
+  const pesan=String(form.elements.pesan.value||'').trim();
+  if(pesan.length<5||pesan.length>2000){feedbackStatus.textContent='Saran harus berisi 5–2000 karakter.';return}
+  sending=true;send.disabled=true;feedbackStatus.textContent='Mengirim…';
+  try{
+   const response=await fetch(API+'/api/v2/public/portal/suggestions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pesan})});
+   const result=await response.json();if(!response.ok||result.ok===false)throw Error(result.error||'HTTP '+response.status);
+   lastSuggestionAt=Date.now();form.reset();feedbackStatus.textContent='Terima kasih! Pesan Anda telah terkirim.';
+  }catch(error){feedbackStatus.textContent='Saran belum berhasil disimpan: '+error.message}
+  finally{sending=false;send.disabled=false}
+ });
+ document.addEventListener('click',e=>{if(!pay.hidden&&!root.contains(e.target))closePayment()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pay.hidden){closePayment();paymentButton.focus()}});
+ window.addEventListener('scroll',()=>syncScroll(),{passive:true});
+ window.addEventListener('resize',()=>syncScroll(),{passive:true});
+ document.addEventListener('f4:portal-changed',()=>{lastRoute='';if(suggestion.open)suggestion.close();syncScroll(true)});
+ window.addEventListener('f4-shared-bank-route',e=>{if(lastRoute===e.detail)return;lastRoute=e.detail;syncScroll(true)});
+ return {syncRole,openPayment,copyNumber,accounts,qris,refresh:()=>syncScroll()};
+})();
+window.F4ResidentTools=residentTools;
+
 // The persistent navbar owns its own menu state; mounted pages only report routes.
 function syncPageMenu(){
  if(hamburger.dataset.f4MenuMode!=='menu'){
@@ -114,7 +246,7 @@ const dock=window.F4MobileDock;
 let queuedDockAction=null,bankNavigationObserver=null,bankNavigationTimer=null;
 const validDockRole=value=>dock?.validRole(value)||false;
 const rememberDockHint=value=>dock?.remember(value);
-function updateSharedDock(next=session?.account&&validDockRole(role)?role:''){dock?.update(next)}
+function updateSharedDock(next=session?.account&&validDockRole(role)?role:''){dock?.update(next);residentTools.syncRole(next)}
 function closeDockMenu(focus=false){dock?.closeMenu(focus)}
 function cancelBankNavigation(){
  bankNavigationObserver?.disconnect();bankNavigationObserver=null;
@@ -142,7 +274,7 @@ function afterPaint(){
 function endView(token){
  if(token===null||token!==viewSequence)return;
  const ready=window.F4PortalRuntime?.waitForView?.()||Promise.resolve();
- Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence){document.documentElement.removeAttribute('data-f4-swapping');routeLoading.hidden=true}});
+ Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence){document.documentElement.removeAttribute('data-f4-swapping');routeLoading.hidden=true;residentTools.refresh()}});
 }
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
@@ -594,6 +726,7 @@ function makePortalSide(){
   const labelEl=el('span','f4-direct-menu-label');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{
    closeSide();
+   if(key==='pembayaran'&&residentTools.openPayment())return;
    if(key==='rapat'||key==='dokumentasi'){void navigatePortal(paths[key]);return}
    if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key==='keuangan'?'kas-warga':key));return}
    if(key==='inventaris'){

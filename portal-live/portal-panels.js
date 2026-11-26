@@ -61,6 +61,7 @@ function showPanel(panel,recordHistory=true){
  // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
  if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(['keuangan','kas-warga'].includes(panel)&&current.role==='public'))panel='beranda';
+ if(panel==='pembayaran'&&__f4.globals.F4ResidentTools?.openPayment())return;
  if(panel==='pembayaran'&&__f4.window.matchMedia('(max-width:767px)').matches){if(__f4.window.f4OpenMobilePayment)__f4.window.f4OpenMobilePayment();else __f4.globals.document.getElementById('f4-mobile-payment-toggle')?.click();return;}
  current.panel=panel;
  if(isMember(current.role)&&['keuangan','kas-warga'].includes(panel)){createFinanceTabs();setFinanceMode(false);}
