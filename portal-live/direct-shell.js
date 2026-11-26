@@ -147,6 +147,7 @@ function endView(token){
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
  if(key==='donor')return sessionCheckCompleted&&!!session?.account&&role==='donatur';
+ if(key==='profile')return sessionCheckCompleted&&!!session?.account&&['warga','admin','superadmin'].includes(role);
  if(residentKeys.includes(key))return sessionCheckCompleted&&!!session?.account&&role==='warga';
  return ['portal','bank','rapat','dokumentasi'].includes(key);
 }
@@ -163,6 +164,7 @@ function updatePortalChrome(key){
 async function navigatePortal(path,{replace=false,pop=false}={}){
  let target=new URL(path,location.origin);
  if(target.origin===location.origin&&portalKey(target.pathname)==='dokumentasi'&&target.searchParams.get('halaman')==='profil')target=new URL(paths.profile,location.origin);
+ if(target.origin===location.origin&&portalKey(target.pathname)==='bank'&&target.searchParams.get('halaman')==='profile')target=new URL(paths.profile+'?halaman=edit',location.origin);
  const key=portalKey(target.pathname);
  if(target.origin!==location.origin||!key)return false;
  if(navigationPending){if(pop)restoreActiveUrl();return false;}
@@ -175,6 +177,12 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  const route=target.searchParams.get('halaman');
  const here=activePortalKey===key;
  if(here&&!target.hash){
+  if(key==='profile'){
+   if(mountedContent?.canLeave&&!mountedContent.canLeave()){if(pop)history.replaceState(history.state,'',lastActiveUrl);return false;}
+   const edit=route==='edit'||role!=='warga',dest=paths.profile+(edit?'?halaman=edit':'');
+   if(dest!==location.pathname+location.search)history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',dest);
+   window.f4ProfileSetMode?.(edit?'edit':'social');rememberActiveUrl();dock?.refresh?.();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
+  }
   if(residentKeys.includes(key)){dock?.refresh?.();return true;}
   if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
    window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
@@ -235,7 +243,7 @@ window.F4PortalNavigation={
 };
 window.addEventListener('popstate',()=>{
  const key=portalKey(location.pathname);
- if(key&&key!==activePortalKey)void navigatePortal(location.href,{pop:true});
+ if(key&&(key!==activePortalKey||key==='profile'))void navigatePortal(location.href,{pop:true});
 });
 document.addEventListener('click',event=>{
  const a=event.target?.closest?.('a[href]');
@@ -245,6 +253,7 @@ document.addEventListener('click',event=>{
 });
 function openBankRoute(route){
  if(!session?.account)return;
+ if(route==='profile'){openAccountProfile();return;}
  if(portal!=='bank'){void navigatePortal(paths.bank+'?halaman='+encodeURIComponent(route));return;}
  cancelBankNavigation();
  const accountId=session.account.id,requestedRole=role;
@@ -481,8 +490,7 @@ function openAccountProfile(){
  if(role==='donatur'){location.assign(paths.donor);return}
  if(!session?.account){openLogin();return}
  if(!['warga','admin','superadmin'].includes(role))return;
- if(portal==='bank'&&typeof window.f4OpenBankProfile==='function'){window.f4OpenBankProfile();return}
- openBankRoute('profile');
+ void navigatePortal(paths.profile+'?halaman=edit');
 }
 window.f4OpenAccountProfile=openAccountProfile;
 settings.onclick=openAccountProfile;
@@ -645,6 +653,7 @@ if(portal==='bank'){
  window.v11ShowLogin=()=>openLogin();
 }
 const legacy=new URLSearchParams(location.search).get('halaman');
+if(initialKey==='bank'&&legacy==='profile'){location.replace(shellUrl(paths.profile+'?halaman=edit'));return;}
 if(initialKey==='dokumentasi'&&legacy==='profil'){location.replace(shellUrl(paths.profile));return;}
 if(portal==='portal'&&legacy){
  const key=String(legacy).split('/')[0];

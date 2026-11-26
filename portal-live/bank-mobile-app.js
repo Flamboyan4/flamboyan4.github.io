@@ -2763,6 +2763,7 @@ function navigate(route){
  if(typeof __f4.window.goPage==="function")__f4.window.goPage(route);
 }
 function handleRoute(route,old,args){
+ if(route==='profile'&&roleType()){__f4.window.f4OpenAccountProfile?.();return;}
  // Legacy bookmarks resolve to the consolidated member information page.
  if(roleType()==="member"&&route==="bank-member-progress")route="bank-member-info";
  if(roleType()==="member"&&route==="bank-prices"){

@@ -625,7 +625,7 @@ body.f4-bank-app-member #dashboardView{--bank-brand:var(--f4-bank-teal,var(--f4-
 }
 #dashboardView .f4-bank-member-card-foot{
  display:flex;justify-content:space-between;align-items:flex-end;gap:14px;
- position:relative;z-index:1;min-width:0
+ position:relative;z-index:1;min-width:0;flex:none
 }
 #dashboardView .f4-bank-member-card-foot>span{display:grid;gap:5px;min-width:0}
 #dashboardView .f4-bank-atm-person{max-width:70%}
@@ -3696,7 +3696,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard,
  #dashboardView #pageProfile .f4-bank-profile-detail>.f4-bank-profile-card{
-  width:100%;height:auto;aspect-ratio:1.83;min-height:0;
+  width:100%;height:auto;aspect-ratio:1.83;min-height:208px;
   padding:17px 19px;border-radius:19px
  }
  #dashboardView #f4BankAppHome[data-bank-role="member"]>#f4BankMemberCard .f4-bank-atm-brand-label,

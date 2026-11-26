@@ -55,16 +55,7 @@ window.F4PortalRuntime.define("/bank-sampah/index.html#inline-2",function(__f4){
     // "Pengaturan Akun Warga"; Dashboard is a separate root destination.
     if(accountGroup)accountGroup.tabs=originalAccountTabs.slice();
   }
-  function openOriginalProfile(){
-    if(currentRole==='public'||!__f4.globals.profile){pendingProfile=true;return;}
-    pendingProfile=false;
-    // The authenticated visitor may currently be on the public page.
-    // goPage() alone changes a HIDDEN dashboard; reveal it first.
-    if(__f4.globals.document.getElementById('dashboardView')?.classList.contains('hidden'))
-      (0,__f4.globals.showDashboard)(__f4.globals.profile);
-    (0,__f4.globals.goPage)('profile');
-    if(inPortal)__f4.window.parent.postMessage({type:'f4:bank-profile-opened'},__f4.globals.location.origin);
-  }
+  function openOriginalProfile(){if(currentRole==='public'){pendingProfile=true;return}pendingProfile=false;__f4.window.f4OpenAccountProfile?.()}
   __f4.window.f4OpenBankProfile=openOriginalProfile;
   // Back from a public page may restore a private view only if the same session is active.
   __f4.window.f4BankRevealPrivateForHistory=()=>{
