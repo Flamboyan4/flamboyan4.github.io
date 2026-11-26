@@ -67,12 +67,11 @@ body.f4-account-open #f4-mobile-overlay{display:none}
  #f4-unified-account .ua-content{height:calc(100dvh - 118px);box-sizing:border-box}
  #f4-unified-account h1{font-size:22px}
 }
-/* Account mobile: drawer follows the hamburger side; Bank retains its left control. */
+/* Account mobile: original left navigation as drawer. The site's ONE hamburger owns it. */
 @media(max-width:760px){
  body.f4-account-open #f4-mobile-menu{display:grid;visibility:visible;opacity:1;pointer-events:auto;z-index:310}
  #f4-unified-account{display:block;padding-top:62px;height:100dvh;overflow:hidden}
- #f4-unified-account .ua-side{position:fixed;top:62px;left:var(--ua-drawer-left,auto);right:var(--ua-drawer-right,0);bottom:0;width:min(288px,84vw);height:calc(100dvh - 62px);min-height:0;max-height:none;box-sizing:border-box;z-index:6;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:5px;padding:15px 12px;overflow-y:auto;overflow-x:hidden;border-right:0;border-left:1px solid var(--ua-edge);box-shadow:var(--ua-drawer-shadow,-12px) 0 28px #16331e23;transform:translateX(var(--ua-drawer-offset,110%));visibility:hidden;transition:transform .2s ease,visibility .2s ease}
- body.f4-direct-bank #f4-unified-account{--ua-drawer-left:0;--ua-drawer-right:auto;--ua-drawer-shadow:12px;--ua-drawer-offset:-110%}
+ #f4-unified-account .ua-side{position:fixed;top:62px;left:0;bottom:0;width:min(288px,84vw);height:calc(100dvh - 62px);min-height:0;max-height:none;box-sizing:border-box;z-index:6;display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:5px;padding:15px 12px;overflow-y:auto;overflow-x:hidden;box-shadow:12px 0 28px #16331e23;transform:translateX(-110%);visibility:hidden;transition:transform .2s ease,visibility .2s ease}
  #f4-unified-account .ua-side.open{transform:translateX(0);visibility:visible}
  #f4-unified-account .ua-brand{display:flex;flex:none;min-width:0;padding:7px 9px 14px;margin:0 0 8px;border-bottom:1px solid var(--ua-edge)}
  #f4-unified-account .ua-menu{display:block;flex:none;min-width:0;white-space:normal;text-align:left;padding:11px 12px}
