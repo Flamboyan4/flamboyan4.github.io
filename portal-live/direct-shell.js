@@ -25,7 +25,7 @@ const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/sup
 const pathname=location.pathname;
 const portalKey=path=>Object.keys(paths).find(key=>paths[key]===path.replace(/index\.html$/i,'').replace(/\/?$/,'/'))||null;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease=document.documentElement.dataset.f4Release||'20261127-first-paint-v5';
+const shellRelease=document.documentElement.dataset.f4Release||'20261127-stable-bank-navbar-v8';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
 // Version ordinary cross-portal links too, including legacy links not built by navButton.
 document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
@@ -95,7 +95,24 @@ login.addEventListener('click',openLogin);
 dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLogin);
 dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});
 window.f4ShowLogin=openLogin;
-let session=null,role='public';
+let session=null,role='public',bankNavRoute='dashboard';
+// The persistent navbar owns its own menu state; mounted pages only report routes.
+function syncPageMenu(){
+ const mode=portal==='bank'&&role==='warga'?(bankNavRoute==='dashboard'?'none':'back'):'menu';
+ if(hamburger.dataset.f4MenuMode!==mode){
+  hamburger.dataset.f4MenuMode=mode;
+  hamburger.innerHTML=mode==='back'?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg>':svg('menu');
+ }
+ if(!document.body.classList.contains('f4-account-open')){
+  const label=mode==='back'?'Kembali ke Beranda':'Buka menu halaman';
+  hamburger.title=label;hamburger.setAttribute('aria-label',label);
+ }
+}
+syncPageMenu();
+window.addEventListener('f4-shared-bank-route',event=>{
+ if(portal!=='bank')return;
+ bankNavRoute=String(event.detail||'dashboard');syncPageMenu();
+});
 /* Shared dock presentation is mounted at the beginning of the document.
    Keep authentication and navigation dispatch here, not in the presentation. */
 const dock=window.F4MobileDock;
@@ -134,7 +151,7 @@ function updatePortalChrome(key){
  activePortalKey=key;
  portal=key==='rapat'||key==='dokumentasi'?'simple':key;
  document.documentElement.dataset.f4Shell=portal;
- applyPortalTheme(portal);dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
+ applyPortalTheme(portal);bankNavRoute='dashboard';hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
  settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
@@ -309,6 +326,7 @@ async function api(path,options){
  return d;
 }
 function notifyRole(){
+ syncPageMenu();
  if(portal==='bank'||portal==='portal'){
   const member=session?.member||{};
   window.postMessage({type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
@@ -576,7 +594,12 @@ hamburger.addEventListener('click',()=>{
  if(portal==='portal'||portal==='simple'){
   const side=document.getElementById('f4-direct-sidebar');if(!side){location.assign(shellUrl('/'));return}
   const opened=side.classList.toggle('f4-open');document.getElementById('f4-direct-sideback').hidden=!opened;hamburger.setAttribute('aria-expanded',String(opened));
- }else if(portal==='bank')window.f4ToggleBankMenu?.();
+ }else if(portal==='bank'){
+  if(window.f4BankHandleNavbarMenu?.())return;
+  // Verified private accounts must never open the legacy public menu during mounting.
+  if(role==='admin'||role==='superadmin'||role==='warga')return;
+  window.f4ToggleBankMenu?.();
+ }
  else if(portal==='book')window.bukaMenu?.();
  else if(portal==='superadmin')window.f4ToggleSuperadminMenu?.();
 });

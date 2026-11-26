@@ -289,7 +289,6 @@ body.f4-bank-embedded:not(.f4-bank-app-member) #dashboardView .section,
    display:none;visibility:hidden;pointer-events:none
  }
  html body.f4-bank-app-admin #v16Backdrop.open{display:none}
- html body.f4-bank-app-admin #f4-direct-bar #f4-mobile-menu{display:grid}
  html body.f4-bank-app-admin.v17-dashboard #dashboardView>.grid{
    display:block;grid-template-columns:minmax(0,1fr)
  }

@@ -154,6 +154,8 @@ body.f4-direct-portal:has(
 body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar,
 html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
+ #f4-direct-bar #f4-mobile-menu:is([data-f4-menu-mode="menu"],[data-f4-menu-mode="back"]){display:grid}
+ #f4-direct-bar #f4-mobile-menu[data-f4-menu-mode="none"]{display:none}
  #f4-direct-sidebar{transform:translateX(-103%);transition:transform .2s;box-shadow:10px 0 25px #1c304016}
  #f4-direct-sidebar.f4-open{transform:translateX(0)}
  body.f4-direct-portal,body.f4-direct-simple{padding-left:0}

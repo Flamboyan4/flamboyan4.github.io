@@ -133,22 +133,7 @@ function syncAdminBack(){
  back.hidden=!show||!title;
 }
 function syncMemberBack(){
- const button=$("f4-mobile-menu"),secondary=screen!=="dashboard";
- __f4.globals.document.body.classList.toggle("f4-bank-member-secondary",secondary);
- if(!button)return;
- if(secondary){
-  // Consistent accessible back icon, not a text glyph that varies by device/font.
-  const arrow=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
-  arrow.setAttribute("viewBox","0 0 24 24");
-  arrow.setAttribute("aria-hidden","true");
-  arrow.innerHTML='<path d="M19 12H5m7-7-7 7 7 7"/>';
-  button.replaceChildren(arrow);
-  button.setAttribute("aria-label","Kembali ke Beranda");
-  button.title="Kembali ke Beranda";
- }else{
-  button.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));
-  button.setAttribute("aria-label","Buka menu halaman");button.title="Buka menu halaman";
- }
+ __f4.globals.document.body.classList.toggle("f4-bank-member-secondary",screen!=="dashboard");
 }
 function orderMemberHome(){
  const home=$("f4BankAppHome");if(!home||roleType()!=="member")return;
@@ -1525,8 +1510,6 @@ function restoreFeature(){
  // The public homepage must not retain the album-only mode after member navigation.
  __f4.globals.document.querySelector("#v11Public .v17-public-main")?.classList.remove("v22-show-docs");
  __f4.globals.document.body.classList.remove("f4-member-feature");
- const back=$("f4-mobile-menu");
- if(back){back.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));back.title="Buka menu halaman";back.setAttribute("aria-label","Buka menu halaman");}
 }
 function moveFeature(ids,target){
  restoreFeature();
@@ -2914,11 +2897,6 @@ function resetRoleSurface(){
  for(const id of ["f4BankAdminOperations","f4BankAdminShortcuts","f4BankAdminNext"]){$(id)?.remove();}
  $("f4BankAdminBack")?.setAttribute("hidden","");
  if($("f4BankPageGreeting"))$("f4BankPageGreeting").hidden=true;
- const menu=$("f4-mobile-menu");
- if(menu){
-  menu.replaceChildren(el("span","f4-svg-icon f4-svg-menu"));
-  menu.setAttribute("aria-label","Buka menu halaman");menu.title="Buka menu halaman";
- }
  $("f4BankProfileDetail")?.remove();
  if($("f4BankWeighingDialog")?.open)$("f4BankWeighingDialog").close();
  __f4.window.F4MemberPrices?.close?.();
@@ -3142,13 +3120,14 @@ function init(){
   if(role==="admin"){ensureHome();ensureAdminHome();}
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
- $("f4-mobile-menu")?.addEventListener("click",event=>{
+ // Export a mount-scoped action instead of attaching listeners to the persistent navbar.
+ __f4.window.f4BankHandleNavbarMenu=()=>{
   const type=roleType();
-  if(type!=="member"&&type!=="admin")return;
-  event.preventDefault();event.stopImmediatePropagation();
-  if(type==="admin"){openAdminDrawer();return;}
+  if(type!=="member"&&type!=="admin")return false;
+  if(type==="admin"){if(role!=="admin")sync();openAdminDrawer();return true;}
   if(screen!=="dashboard")previousBankPage();
- },true);
+  return true;
+ };
 
  const openPublic=__f4.window.v11ShowPublic;
  if(typeof openPublic==="function")__f4.window.v11ShowPublic=function(...args){
