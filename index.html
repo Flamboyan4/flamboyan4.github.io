@@ -58,7 +58,7 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
   
   <!-- Tailwind CSS CDN -->
   <script type="application/f4-source" data-f4-id="https://cdn.tailwindcss.com" data-f4-src="https://cdn.tailwindcss.com" data-f4-external></script>
-  <script type="application/f4-source" data-f4-id="/index.html#inline-1" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script>
+  <script type="application/f4-source" data-f4-id="/index.html#inline-1" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
   <!-- Lucide Icons CDN -->
   <script type="application/f4-source" data-f4-id="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js" data-f4-src="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js" data-f4-external></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
@@ -66,7 +66,7 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
 <script type="application/f4-source" data-f4-id="/portal-live/portal-d1-bridge.js" data-f4-src="/portal-live/portal-d1-bridge.js?v=20261127-first-paint-v5"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-chat-saran-v46"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-meeting-nav-v52"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-desktop-payment-v54"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-meeting-nav-v52"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261127-history-spacing-v39">
 <link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-single-photo-v49">
 
@@ -971,52 +971,21 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
       </span>
     </button>
     <div id="f4-mobile-payment">
-      <button type="button" id="f4-mobile-payment-toggle" aria-expanded="false" aria-controls="f4-mobile-payment-menu" aria-label="Metode pembayaran">
+      <button type="button" id="f4-mobile-payment-toggle" aria-expanded="false" aria-controls="f4-mobile-payment-menu" aria-label="Metode pembayaran" title="Pembayaran">
         <i data-lucide="wallet" aria-hidden="true"></i>
       </button>
       <div id="f4-mobile-payment-menu" hidden role="region" aria-label="Metode pembayaran">
         <strong class="f4-mobile-pay-title">Pembayaran</strong>
-        <div id="f4-mobile-payment-options"></div>
+        <div id="f4-mobile-payment-options">
+          <a class="f4-payment-qris" href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" aria-label="Unduh gambar QRIS Flamboyan 4">
+          <i data-lucide="qr-code" aria-hidden="true"></i>
+          <span>Unduh QRIS</span>
+        </a>
+        </div>
         <p id="f4-mobile-payment-status" role="status" aria-live="polite"></p>
       </div>
     </div>
   </div>
-
-  <!-- FOOTER: payment actions for desktop. -->
-  <footer id="pembayaran" class="f4-payment-footer">
-    <div class="f4-payment-inner">
-      <nav class="f4-payment-actions" aria-label="Metode pembayaran">
-        <a class="f4-payment-qris" href="/assets/qris-flamboyan4.jpg" download="QRIS_Flamboyan4.jpg" aria-label="Unduh gambar QRIS Flamboyan 4">
-          <i data-lucide="qr-code" aria-hidden="true"></i>
-          <span>Unduh QRIS</span>
-        </a>
-        <button class="f4-payment-rekening" type="button" aria-haspopup="dialog" aria-controls="modal-rekening" onclick="openModal('modal-rekening')">
-          <i data-lucide="landmark" aria-hidden="true"></i>
-          <span>Rekening</span>
-          <i data-lucide="chevron-up" aria-hidden="true"></i>
-        </button>
-        <!-- Desktop: nomor rekening langsung terlihat, tanpa popup. -->
-        <div class="f4-payment-desktop-account">
-          <div class="f4-payment-desktop-info">
-            <strong>Mandiri</strong>
-            <small></small>
-          </div>
-          <button class="f4-payment-desktop-copy" type="button" data-account-key="mandiri" aria-label="Salin nomor rekening Mandiri">
-            <i data-lucide="copy" aria-hidden="true"></i><span>Salin</span>
-          </button>
-        </div>
-        <div class="f4-payment-desktop-account">
-          <div class="f4-payment-desktop-info">
-            <strong>SeaBank</strong>
-            <small></small>
-          </div>
-          <button class="f4-payment-desktop-copy" type="button" data-account-key="seabank" aria-label="Salin nomor rekening SeaBank">
-            <i data-lucide="copy" aria-hidden="true"></i><span>Salin</span>
-          </button>
-        </div>
-      </nav>
-    </div>
-  </footer>
 
   <div id="modal-rekening" class="f4-account-overlay hidden" onclick="if(event.target===this)closeModalDirect('modal-rekening')">
     <section class="f4-account-dialog" role="dialog" aria-modal="true" aria-labelledby="f4-account-title" tabindex="-1">
@@ -1064,8 +1033,8 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-single-photo-v49"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-shared-resident-tools-v47" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-edge-chat-v48"></script><script type="application/f4-source" data-f4-id="/portal-live/resident-finance-ui.js" data-f4-src="/portal-live/resident-finance-ui.js?v=20261127-resident-pages-v18"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-meeting-nav-v52"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-mobile-pay-v44"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-desktop-payment-v54" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/resident-finance-ui.js" data-f4-src="/portal-live/resident-finance-ui.js?v=20261127-resident-pages-v18"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-meeting-nav-v52"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/dokumentasi/media-viewer.js" data-f4-src="/portal-live/dokumentasi/media-viewer.js?v=20261127-single-photo-v49" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/dokumentasi/community-gallery.js" data-f4-src="/portal-live/dokumentasi/community-gallery.js?v=20261127-single-photo-v49" data-f4-defer></script>
