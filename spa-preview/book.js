@@ -1,3 +1,4 @@
+import {createReceiptViewer,bookReceipt} from './receipts.js';
 /* Native Pembukuan preview routes. All reads use the original data mapper.
    Payment preview uses the existing allocation algorithm; it never posts. */
 import {createBookReader} from './book-reader.js';
@@ -62,7 +63,12 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
   }
   if(key==='book-history'){
    const d=await read('riwayatpembayaran'),p=panel(root,'Pembayaran warga');
-   list(p,dateSort(d.data,'tanggalIso'),recordTitle,x=>[x.tanggal,money(x.totalDiterima),x.metode,x.status].filter(Boolean).join(' · '),1000);
+   const receipts=createReceiptViewer(root,{el,signal});
+   for(const x of dateSort(d.data,'tanggalIso')){
+    const item=el('div',null,'receipt-row');row(item,recordTitle(x),[x.tanggal,money(x.totalDiterima),x.metode,x.status].filter(Boolean).join(' · '));
+    const button=receipts.button(bookReceipt(x));if(button)item.append(button);p.append(item);
+   }
+   note(p,d.data,1000);
   }else if(key==='book-cash'){
    const d=await read('datatransaksikas',{allPeriods:true}),p=panel(root,'Pemasukan & pengeluaran');
    list(p,dateSort(d.data,'tanggal'),x=>x.keterangan||x.kategori||x.jenis,x=>[x.tanggal,x.jenis,money(x.debit>0?x.debit:x.kredit),x.status].filter(Boolean).join(' · '),500);

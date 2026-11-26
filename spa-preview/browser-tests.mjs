@@ -17,16 +17,16 @@ const server=createServer(async(req,res)=>{
 await new Promise((done,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',done)});
 const origin='http://127.0.0.1:'+server.address().port;
 const fixtures={
- '/api/v2/gallery':{albums:[{id:'galbum:test',title:'Album uji',date:'2026-11-27'}],photos:[{id:'gphoto:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://api.flamboyan4.web.id/test-photo'}],suppressedDriveIds:[]},
+ '/api/v2/gallery':{albums:[{id:'galbum:test',title:'Album uji',date:'2026-11-27'}],photos:[{id:'f4photo:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://api.flamboyan4.web.id/test-photo'}],suppressedDriveIds:[]},
  '/api/v2/gallery/social':{likes:2,liked:false,comments:[{author:'Warga uji',message:'Komentar uji'}]},
  '/api/v2/gallery/tag-notifications':{items:[{id:'photo-test',title:'Foto uji',read:false}]},
  '/api/admin/bank/action-counts':{unsoldDeposits:1,pendingApprovals:2,pendingPayouts:1},
  '/api/v2/admin/treasury':{pendingCount:0,needsOpening:false,warningCount:0},
  '/api/v2/public/portal':{agenda:[],documentation:[],inventory:[],meetings:[],arisan:[]},
- '/api/v2/public/bank/album/galbum:test':{album:{id:'galbum:test',title:'Album Bank uji'},media:[{id:'gphoto:test',media_type:'foto',external_url:'https://api.flamboyan4.web.id/test-photo'}]},
+ '/api/v2/public/bank/album/galbum:test':{album:{id:'galbum:test',title:'Album Bank uji'},media:[{id:'f4photo:test',media_type:'foto',external_url:'https://api.flamboyan4.web.id/test-photo'}]},
  '/api/v2/public/bank':{albums:[{id:'galbum:test',title:'Album Bank uji',coverUrl:'https://api.flamboyan4.web.id/test-photo'}],overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
  '/api/v2/public/bank/report':{summary:{beratKg:1.25,hasilPenjualan:1000,hakWarga:500,pendingWeightKg:0},monthly:[]},
- '/api/member/savings':{saldoTersediaRp:500,totalCairRp:0,riwayatLengkap:true,setoran:[],mutasi:[]},
+ '/api/member/savings':{anggota:{nama:'Warga uji',rumah:'A/1'},saldoTersediaRp:500,totalCairRp:0,riwayatLengkap:true,setoran:[{id:'deposit-test',tanggal:'2026-11-15',status:'terkonfirmasi',beratSahGram:1250,nilaiSahRp:500}],mutasi:[]},
  '/api/member/bank/payout-requests':{items:[]},'/api/admin/bank/payout-requests':{items:[{id:'request:bank:00000000-0000-4000-8000-000000000001',nama:'Warga uji',rumah:'A/1',status:'diajukan',amount_rp:500,balance_rp:1000}]},
  '/api/v2/admin/bank/members':{rows:[{id:'member:1',nama:'Warga uji',rumah:'A/1',status:'aktif'}]},
  '/api/v2/admin/bank/catalog':{rows:[{id:'waste:1',name:'Kertas',active:1}]},
@@ -35,6 +35,7 @@ const fixtures={
  '/api/v2/admin/content/obligations':{rows:[{payer_id:'payer:1'}]},'/api/bookkeeping/iuran/tariffs':{config:{TEST:1}},
  '/api/v2/admin/residents':{rows:[{household_id:'h1',payer_id:'payer:1',nama:'Warga uji',rumah:'A/1',active:1}]},
  '/api/v2/admin/content/settings':{data:[]},
+ '/api/bookkeeping/iuran/history':{data:[{idPembayaran:'pay-test',tanggal:'2026-11-15',nama:'Warga uji',status:'AKTIF',totalDiterima:10000,metode:'Cash'}]},
  '/api/bookkeeping/iuran/outstanding':{komponen:[{jenis:'IURAN_BULANAN',sisaRp:25000},{jenis:'KEBERSIHAN',sisaRp:20000},{jenis:'KAS_LORONG',sisaRp:10000},{jenis:'ARISAN',sisaRp:60000}]},
  '/api/bookkeeping/iuran/fines':{data:[{id:'fine1',sisaRp:20000}]},'/api/bookkeeping/talangan':{data:[]}
 };
@@ -56,14 +57,14 @@ async function run(browser,role){
   if(req.method()==='POST'&&url.pathname==='/api/auth/login'){authCalls.push('login');const b=req.postDataJSON();if(b.username!=='test'||b.password!=='test-only'){await route.fulfill({status:401,headers,json:{ok:false,error:'Invalid mock login'}});return;}currentRole='warga';accountId='test-new-warga';await route.fulfill({status:200,headers,json:{ok:true}});return;}
   if(req.method()==='GET'&&url.pathname==='/test-photo'){await route.fulfill({status:200,headers,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="green"/></svg>'});return}
   if(req.method()==='POST'&&['/api/v2/gallery/react','/api/v2/gallery/comment'].includes(url.pathname)){
-   const b=req.postDataJSON();if(currentRole==='public'||b.type!=='photo'||b.id!=='gphoto:test'){await route.fulfill({status:403,headers,json:{ok:false}});return}
+   const b=req.postDataJSON();if(currentRole==='public'||b.type!=='photo'||b.id!=='f4photo:test'){await route.fulfill({status:403,headers,json:{ok:false}});return}
    socialCalls.push(url.pathname);
    if(url.pathname.endsWith('/react')){socialState={...socialState,liked:!socialState.liked,likes:socialState.likes+(socialState.liked?-1:1)};await route.fulfill({status:200,headers,json:socialState});return}
    socialState.comments.push({author:'Akun uji',message:b.message});await route.fulfill({status:201,headers,json:{ok:true,created:true}});return;
   }
   if(req.method()==='GET'&&url.pathname==='/api/v2/gallery/social'){await route.fulfill({status:200,headers,json:socialState});return}
   if(req.method()!=='GET'){posts.push(url.pathname);await route.fulfill({status:403,headers,json:{ok:false}});return}
-  const data=url.pathname==='/api/v2/auth/session'?{account:currentRole==='public'?null:{id:accountId,role:currentRole==='warga'?'anggota':currentRole,displayName:accountId==='test-new-warga'?'Akun baru':'Akun uji'}}:fixtures[url.pathname];
+  const data=url.pathname==='/api/v2/auth/session'?{account:currentRole==='public'?null:{id:accountId,role:currentRole==='warga'?'anggota':currentRole,displayName:accountId==='test-new-warga'?'Akun baru':'Akun uji'}}:fixtures[decodeURIComponent(url.pathname)];
   if(data===undefined){unknown.push(url.pathname);await route.fulfill({status:404,headers,json:{ok:false}});return}
   if(url.pathname==='/api/v2/public/bank')await new Promise(r=>setTimeout(r,180));
   await route.fulfill({status:200,headers,json:data});
@@ -113,7 +114,7 @@ async function run(browser,role){
     await click('bank');await heading('Bank Sampah');await page.getByRole('button',{name:'Pencairan',exact:true}).click();await heading('Pencairan tabungan');await identity();
     await page.getByRole('button',{name:'Uji setujui',exact:true}).click();await page.getByText(/Validasi setujui berhasil/).waitFor();
    }else{
-    await click('book');await heading('Pembukuan');await identity();
+    await click('book');await heading('Pembukuan');await identity();await page.getByRole('button',{name:'Riwayat Pembayaran',exact:true}).click();await heading('Riwayat Pembayaran');await page.getByRole('button',{name:'Resi JPG pay-test',exact:true}).click();await page.getByAltText('Pratinjau bukti transaksi JPG').waitFor();await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();await click('book');await heading('Pembukuan');
     await click('input');await heading('Input Iuran');await identity();
     await page.getByLabel('Nama warga',{exact:true}).selectOption('payer:1');
     await page.getByLabel('Nominal dibayar (Rp)',{exact:true}).fill('115000');
@@ -126,7 +127,7 @@ async function run(browser,role){
    const amount=page.getByLabel('Nominal pencairan (Rp)',{exact:true});
    await amount.fill('501');await page.getByRole('button',{name:'Periksa pengajuan',exact:true}).click();await page.getByText(/Nominal atau catatan pengajuan tidak valid/).waitFor();
    await amount.fill('500');await page.getByRole('button',{name:'Periksa pengajuan',exact:true}).click();await page.getByText(/Simulasi pengajuan berhasil/).waitFor();
-   await click('report');await heading('Laporan tabungan');await identity();
+   await click('report');await heading('Laporan tabungan');await identity();await page.getByRole('button',{name:'Resi JPG deposit-test',exact:true}).click();await page.getByAltText('Pratinjau bukti transaksi JPG').waitFor();assert((await page.getByRole('link',{name:'Simpan JPG'}).getAttribute('download')).endsWith('.jpg'),'Receipt file name');await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();
   }
   await click('home');await heading('Portal Utama');await routeIs('home');await identity();
   await page.goBack();await page.waitForFunction(()=>new URL(location.href).searchParams.get('portal')!=='home');await page.waitForFunction(()=>document.querySelector('#outlet')?.getAttribute('aria-busy')==='false');await identity();

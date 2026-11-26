@@ -39,7 +39,7 @@ export function normalizeBankMedia(m){
  const raw=m.mediaUrl||m.external_url||m.url,fid=drive(raw),id=String(m.id||'');
  const url=kind==='video'&&validDrive(fid)?videoUrl(fid):safeUrl(raw);
  if(!url||!id)return null;
- return {id,driveId:fid,type:kind,url,caption:m.caption,date:m.created_at,social:kind==='foto'&&/^(gphoto:|gdrive:)/.test(id)};
+ return {id,driveId:fid,type:kind,url,caption:m.caption,date:m.created_at,social:kind==='foto'&&/^(f4photo:|gdrive:)/.test(id)};
 }
 export async function mountGallery({root,role,get,getArchive,socialWrite,el,signal,bank=false,portalData,bankData}){
  const result=el('div',null,'gallery-results'),status=el('p'),tabs=el('div',null,'gallery-tabs');status.setAttribute('role','status');

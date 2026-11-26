@@ -1,3 +1,4 @@
+import {bookReceipt,bankReceipt} from './receipts.js';
 import {collectCommunityAlbums,normalizeBankMedia} from './gallery.js';
 import {simulateApproval,simulatePayoutDecision,validateAllocation} from './bank-approval.js';
 import {webcrypto} from 'node:crypto';
@@ -103,7 +104,14 @@ assert(paid.paidOn==='2026-11-27','Payout paid payload');
 let invalid=false;try{await simulatePayoutDecision({role:'admin',item:request,action:'dibayar',paidOn:'2026-11-27'})}catch{invalid=true}assert(invalid,'Cannot pay unapproved request');
 console.log('PASS: approval and payout management simulation');
 
-const archiveTest=collectCommunityAlbums({albums:[{id:'galbum:test',title:'Album'}],photos:[{id:'gphoto:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://lh3.googleusercontent.com/d/abcdefghijkl'}],suppressedDriveIds:['abcdefghijkl']},[{id:'private',visibility:'privat',drive_url:'https://drive.google.com/drive/folders/abcdefghijkl'}],{folders:{abcdefghijkl:[{id:'abcdefghijkl',type:'foto'}]}});
+const archiveTest=collectCommunityAlbums({albums:[{id:'galbum:test',title:'Album'}],photos:[{id:'f4photo:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://lh3.googleusercontent.com/d/abcdefghijkl'}],suppressedDriveIds:['abcdefghijkl']},[{id:'private',visibility:'privat',drive_url:'https://drive.google.com/drive/folders/abcdefghijkl'}],{folders:{abcdefghijkl:[{id:'abcdefghijkl',type:'foto'}]}});
 assert(archiveTest.length===1&&archiveTest[0].media.length===0,'Private or suppressed photo excluded');
 assert(normalizeBankMedia({id:'video-test',media_type:'video',external_url:'https://drive.google.com/file/d/abcdefghijkl/view'}).url.endsWith('/public-video/abcdefghijkl'),'Native video proxy');
 console.log('PASS: shared gallery privacy and video normalization');
+
+assert(bookReceipt({idPembayaran:'D1-1',status:'AKTIF',totalDiterima:10000,tanggalIso:'2026-11-27'})===null,'No synthetic receipt');
+assert(bookReceipt({idPembayaran:'pay-test',status:'BATAL',totalDiterima:10000,tanggalIso:'2026-11-27'})===null,'No cancelled receipt');
+assert(bankReceipt({id:'deposit-test',status:'terkonfirmasi',nilaiSahRp:null,tanggal:'2026-11-27'})===null,'No unverified confirmed amount');
+assert(bankReceipt({id:'deposit-test',status:'estimasi',estimasiRp:500,tanggal:'2026-11-27'}).status==='ESTIMASI','Estimate not paid');
+assert(normalizeBankMedia({id:'f4photo:test',media_type:'foto',external_url:'https://api.flamboyan4.web.id/test-photo'}).social,'Real gallery photo ID');
+console.log('PASS: receipt source and status validation');

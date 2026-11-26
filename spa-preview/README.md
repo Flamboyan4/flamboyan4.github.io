@@ -41,3 +41,7 @@ Satu tombol permanen membaca tag dokumentasi, tugas Bank Sampah dan (khusus supe
 
 ## Tahap 7 — Dokumentasi native
 Portal Utama dan Bank Sampah menggunakan viewer yang sama, foto asli, daftar album, arsip yang hanya berasal dari album publik, video native dengan proxy MP4 yang sudah ada, serta komentar dan suka dari API yang sama. Bank memakai daftar media album yang difilter tag di server. Aksi suka/komentar hanya dijalankan setelah interaksi pengguna dan pemeriksaan akun; tidak ada transaksi keuangan yang diaktifkan. Upload, tag orang/program, moderasi dan pembukaan foto spesifik dari notifikasi belum dipindahkan. Tes browser menggunakan API tiruan; tidak mengirim komentar/reaksi ke server asli.
+
+
+## Tahap 8 — Resi JPG
+Renderer tiket asli dari `portal-live/transaction-receipts.js` digunakan kembali, dengan dialog dan object URL dikelola lifecycle route. Resi riwayat iuran dan setoran tersedia untuk ID transaksi asli dan nominal terverifikasi. Setoran estimasi tetap berstatus ESTIMASI, transaksi batal dan nominal sah yang null ditolak. Resi belum mengubah status transaksi. Cetak laporan lengkap dan resi denda/pinjaman/talangan belum dipindahkan. Perbaikan dokumentasi: fixture membaca album ID URL-encoded, dan ID foto unggahan mengikuti prefix Worker `f4photo:`.
