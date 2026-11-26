@@ -1,3 +1,4 @@
+import {collectCommunityAlbums,normalizeBankMedia} from './gallery.js';
 import {simulateApproval,simulatePayoutDecision,validateAllocation} from './bank-approval.js';
 import {webcrypto} from 'node:crypto';
 import {createPortalRouter} from './router.js';
@@ -21,6 +22,7 @@ const el=(tag,text,cls)=>new Node(tag,text,cls),panel=(root,name)=>{const n=el('
 const row=(root,name,detail)=>root.append(el('div',name+' '+(detail??'')));
 const metric=row,links=(root,items)=>{for(const [a,b] of items){const n=el('a',a);n.href=b;root.append(n)}};
 const fixture={
+ '/api/v2/gallery':{albums:[],photos:[],suppressedDriveIds:[]},
  '/api/v2/public/portal':{agenda:[{title:'Agenda uji',starts_on:'2026-11-29'}],documentation:[],inventory:[],meetings:[],arisan:[]},
  '/api/v2/public/bank':{overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
  '/api/v2/public/bank/report':{summary:{beratKg:1.25,hasilPenjualan:1000,hakWarga:500,pendingWeightKg:0},monthly:[]},
@@ -55,7 +57,7 @@ for(const role of ['public','warga','admin','superadmin']){
   }
  }
 }
-assert(mounted===66&&denied===58,'Matriks 124 kombinasi');
+assert(mounted===70&&denied===58,'Matriks 128 kombinasi');
 const service=createTransactionService({role:'superadmin',accountKey:'test',transport:(path,payload)=>{assert(payload===undefined,'POST tidak diperbolehkan');return get(path)},allowWrites:false});
 const params={idWarga:'payer:1',tanggal:'2026-11-26',tahun:2026,bulan:11,jumlahBulan:1,nominalDibayar:115000,metode:'Cash',catatan:''};
 const p=await service.book('previewiuran',params);
@@ -100,3 +102,8 @@ const paid=await simulatePayoutDecision({role:'superadmin',item:{...request,stat
 assert(paid.paidOn==='2026-11-27','Payout paid payload');
 let invalid=false;try{await simulatePayoutDecision({role:'admin',item:request,action:'dibayar',paidOn:'2026-11-27'})}catch{invalid=true}assert(invalid,'Cannot pay unapproved request');
 console.log('PASS: approval and payout management simulation');
+
+const archiveTest=collectCommunityAlbums({albums:[{id:'galbum:test',title:'Album'}],photos:[{id:'gphoto:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://lh3.googleusercontent.com/d/abcdefghijkl'}],suppressedDriveIds:['abcdefghijkl']},[{id:'private',visibility:'privat',drive_url:'https://drive.google.com/drive/folders/abcdefghijkl'}],{folders:{abcdefghijkl:[{id:'abcdefghijkl',type:'foto'}]}});
+assert(archiveTest.length===1&&archiveTest[0].media.length===0,'Private or suppressed photo excluded');
+assert(normalizeBankMedia({id:'video-test',media_type:'video',external_url:'https://drive.google.com/file/d/abcdefghijkl/view'}).url.endsWith('/public-video/abcdefghijkl'),'Native video proxy');
+console.log('PASS: shared gallery privacy and video normalization');

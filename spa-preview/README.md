@@ -37,3 +37,7 @@ Sesi, login/logout, pembaruan token dan sinkronisasi lintas tab kini menggunakan
 
 ## Notifikasi bersama
 Satu tombol permanen membaca tag dokumentasi, tugas Bank Sampah dan (khusus superadmin) ringkasan tugas Pusat Keuangan. Data dibatalkan dan dibersihkan saat sesi berubah. Untuk sementara membuka daftar dokumentasi, bukan viewer foto bertag spesifik, dan tugas treasury masih menggunakan portal asli. Belum mengubah status baca.
+
+
+## Tahap 7 — Dokumentasi native
+Portal Utama dan Bank Sampah menggunakan viewer yang sama, foto asli, daftar album, arsip yang hanya berasal dari album publik, video native dengan proxy MP4 yang sudah ada, serta komentar dan suka dari API yang sama. Bank memakai daftar media album yang difilter tag di server. Aksi suka/komentar hanya dijalankan setelah interaksi pengguna dan pemeriksaan akun; tidak ada transaksi keuangan yang diaktifkan. Upload, tag orang/program, moderasi dan pembukaan foto spesifik dari notifikasi belum dipindahkan. Tes browser menggunakan API tiruan; tidak mengirim komentar/reaksi ke server asli.

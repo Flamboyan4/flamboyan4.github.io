@@ -17,6 +17,8 @@ const server=createServer(async(req,res)=>{
 await new Promise((done,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',done)});
 const origin='http://127.0.0.1:'+server.address().port;
 const fixtures={
+ '/api/v2/gallery':{albums:[{id:'galbum:test',title:'Album uji',date:'2026-11-27'}],photos:[{id:'gphoto:test',albumId:'galbum:test',driveId:'abcdefghijkl',url:'https://api.flamboyan4.web.id/test-photo'}],suppressedDriveIds:[]},
+ '/api/v2/gallery/social':{likes:2,liked:false,comments:[{author:'Warga uji',message:'Komentar uji'}]},
  '/api/v2/gallery/tag-notifications':{items:[{id:'photo-test',title:'Foto uji',read:false}]},
  '/api/admin/bank/action-counts':{unsoldDeposits:1,pendingApprovals:2,pendingPayouts:1},
  '/api/v2/admin/treasury':{pendingCount:0,needsOpening:false,warningCount:0},
@@ -51,6 +53,7 @@ async function run(browser,role){
   }
   if(req.method()==='POST'&&url.pathname==='/api/auth/logout'){authCalls.push('logout');currentRole='public';await route.fulfill({status:200,headers,json:{ok:true}});return;}
   if(req.method()==='POST'&&url.pathname==='/api/auth/login'){authCalls.push('login');const b=req.postDataJSON();if(b.username!=='test'||b.password!=='test-only'){await route.fulfill({status:401,headers,json:{ok:false,error:'Invalid mock login'}});return;}currentRole='warga';accountId='test-new-warga';await route.fulfill({status:200,headers,json:{ok:true}});return;}
+  if(req.method()==='GET'&&url.pathname==='/test-photo'){await route.fulfill({status:200,headers,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="green"/></svg>'});return}
   if(req.method()!=='GET'){posts.push(url.pathname);await route.fulfill({status:403,headers,json:{ok:false}});return}
   const data=url.pathname==='/api/v2/auth/session'?{account:currentRole==='public'?null:{id:accountId,role:currentRole==='warga'?'anggota':currentRole,displayName:accountId==='test-new-warga'?'Akun baru':'Akun uji'}}:fixtures[url.pathname];
   if(data===undefined){unknown.push(url.pathname);await route.fulfill({status:404,headers,json:{ok:false}});return}
@@ -65,6 +68,7 @@ async function run(browser,role){
   await page.goto(origin);await heading('Portal Utama');await routeIs('home');
   await page.evaluate(()=>{window.testShell={header:document.getElementById('app-header'),dock:document.getElementById('app-dock'),items:[...document.querySelectorAll('#app-dock>button')]};});
   const identity=async()=>assert(await page.evaluate(()=>{const s=window.testShell;return s.header===document.getElementById('app-header')&&s.dock===document.getElementById('app-dock')&&s.items.every((n,i)=>n===document.querySelectorAll('#app-dock>button')[i]);}),'Header/dock node changed: '+role);
+  await page.getByRole('button',{name:'Dokumentasi',exact:true}).click();await heading('Dokumentasi');await page.getByRole('button',{name:'Buka Album uji',exact:true}).click();await page.getByText('Komentar uji',{exact:true}).waitFor();await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();
   await click('bank');await heading('Bank Sampah');await routeIs('bank-home');await identity();
   if(role!=='public'){
    await page.locator('#app-inbox-button').click();await page.getByRole('button',{name:'Foto uji',exact:true}).waitFor();await page.getByRole('button',{name:'Tutup notifikasi',exact:true}).click();await identity();

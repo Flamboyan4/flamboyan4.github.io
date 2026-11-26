@@ -1,3 +1,4 @@
+import {mountGallery} from './gallery.js';
 import {attachApproval,attachPayoutManager} from './bank-approval.js';
 import {simulateBankOperation,attachSaleForm,attachPayoutForm} from './bank-operations.js';
 /* Bank Sampah native SPA module — read-only migration preview.
@@ -11,7 +12,8 @@ export const bankRoutes={
  'bank-sale':['admin','superadmin'],
  'bank-savings':['warga','admin','superadmin'],
  'bank-cash':['admin','superadmin'],
- 'bank-prices':['public','warga','admin','superadmin']
+ 'bank-prices':['public','warga','admin','superadmin'],
+ 'bank-docs':['public','warga','admin','superadmin']
 };
 const count=v=>v!=null&&v!==''&&Number.isFinite(Number(v))?new Intl.NumberFormat('id-ID',{maximumFractionDigits:3}).format(Number(v)):'—';
 const rp=v=>count(v)==='—'?'—':'Rp '+count(v);
@@ -39,7 +41,7 @@ export function validateDeposit({date,member,items,nonce},members,catalog){
  });
  return {month:date.slice(0,7),requestKey:nonce,memberId:'member:'+idOf(member),depositedOn:date,items:lines};
 }
-export function createBankModule({get,role,go,el,panel,row,metric,links,previewRequest}){
+export function createBankModule({get,role,go,el,panel,row,metric,links,previewRequest,socialWrite}){
  const admin=rolesAdmin(role),member=role==='warga',read=(p,s,priv=true)=>get(p,s,priv);
  const list=async(name,s)=>requiredRows(await read('/api/v2/admin/bank/'+name+'?limit=300',s));
  const savings=s=>read('/api/member/savings',s);
@@ -66,6 +68,7 @@ export function createBankModule({get,role,go,el,panel,row,metric,links,previewR
    nav(root,[['Tabungan','bank-savings'],['Pencairan','bank-payout'],['Riwayat','bank-history'],['Laporan','bank-report'],['Harga Barang','bank-prices']]);
   }else if(admin)nav(root,[['Catat setoran','bank-deposit'],['Penjualan','bank-sale'],['Riwayat','bank-history'],['Saldo warga','bank-savings'],['Debit/Kredit','bank-cash'],['Pencairan','bank-payout'],['Laporan','bank-report'],['Harga Barang','bank-prices']]);
   else nav(root,[['Harga Barang','bank-prices']]);
+  nav(root,[['Dokumentasi','bank-docs']]);
   const q=panel(root,'Tahap Bank Sampah');for(const x of (array(d.progress)||[]))row(q,x.title||x.judul||x.stage||'Tahap',x.status);empty(q,array(d.progress)||[]);return root;
  }
  async function history(s){const root=title('Riwayat');if(member){const d=checkStatement(await savings(s));historyRows(root,d.setoran,false);const p=panel(root,'Mutasi tabungan');for(const x of sorted(d.mutasi,'tanggal'))row(p,x.tanggal||'Mutasi',[x.jenis,rp(x.jumlahRp),x.keterangan].filter(Boolean).join(' · '));empty(p,d.mutasi)}else historyRows(root,await list('deposits',s),true);return root}
@@ -101,6 +104,6 @@ export function createBankModule({get,role,go,el,panel,row,metric,links,previewR
   form.append(field('Nama warga',select),field('Tanggal setoran',date),items,add,check,result);p.append(form);addLine();
   row(root,'Mode uji','Form ini hanya memeriksa hasil timbang, tidak menyimpan ke database.');links(root,[['Simpan setoran melalui portal asli','/bank-sampah/?halaman=setoran']]);return {node:root,canLeave:()=>!busy&&(!dirty||window.confirm('Draf uji belum diperiksa. Tinggalkan halaman?'))};
  }
- const views={'bank-home':home,'bank-history':history,'bank-report':reports,'bank-payout':payout,'bank-deposit':deposit,'bank-sale':sale,'bank-savings':balances,'bank-cash':cash,'bank-prices':prices};
+ const views={'bank-home':home,'bank-history':history,'bank-report':reports,'bank-payout':payout,'bank-deposit':deposit,'bank-sale':sale,'bank-savings':balances,'bank-cash':cash,'bank-prices':prices,'bank-docs':async s=>mountGallery({root:title('Dokumentasi Bank Sampah'),role,get,socialWrite,el,signal:s,bank:true,bankData:await publicData(s)})};
  return {async mount({key,signal}){if(!bankRoutes[key]?.includes(role))throw Error('Akses tidak diizinkan.');const view=await views[key](signal);return view?.node?view:{node:view}}};
 }

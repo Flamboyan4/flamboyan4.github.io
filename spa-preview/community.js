@@ -1,3 +1,4 @@
+import {mountGallery} from './gallery.js';
 /* Native route surfaces for Portal Utama and Superadmin. Read-only migration. */
 export const communityRoutes={home:'Portal Utama','home-agenda':'Kalender','home-docs':'Dokumentasi','home-inventory':'Inventaris','home-meetings':'Hasil Rapat','home-arisan':'Arisan'};
 export const adminRoutes={superadmin:'Superadmin','superadmin-residents':'Data Warga & Rumah','superadmin-accounts':'Akun & Hak Akses','superadmin-projects':'Projek','superadmin-schedule':'Jadwal Penimbangan'};
@@ -5,7 +6,7 @@ const has=(x,k)=>Object.prototype.hasOwnProperty.call(x,k);
 const rows=d=>Array.isArray(d)?d:Array.isArray(d?.rows)?d.rows:Array.isArray(d?.data)?d.data:Array.isArray(d?.akun)?d.akun:Array.isArray(d?.accounts)?d.accounts:null;
 function requireRows(d){const r=rows(d);if(!r)throw Error('Format daftar belum tersedia.');return r}
 const safe=v=>v==null?'':String(v);
-export function createCommunityModule({role,get,go,el,panel,row,links}){
+export function createCommunityModule({role,get,go,el,panel,row,links,getArchive,socialWrite}){
  function title(name){const n=el('section');n.append(el('h1',name));return n}
  function nav(root,items){const n=el('div',null,'bank-route-links');for(const [k,label] of items){const b=el('button',label);b.type='button';b.onclick=()=>go(k);n.append(b)}root.append(n)}
  function list(root,items,map){for(const item of items){const [name,detail]=map(item);row(root,name||'Tanpa judul',detail||'')}if(!items.length)row(root,'Belum ada data','')}
@@ -39,8 +40,7 @@ export function createCommunityModule({role,get,go,el,panel,row,links}){
    const p=panel(root,key==='home'?'Agenda warga':'Agenda terpublikasi'),items=requireRows(d.agenda);
    list(p,byDate(items,'starts_on').slice(0,key==='home'?8:items.length),x=>[x.title,[x.starts_on,x.status,x.description].filter(Boolean).join(' · ')]);
   }else if(key==='home-docs'){
-   const p=panel(root,'Album kegiatan'),items=requireRows(d.documentation).filter(x=>(!x.visibility||x.visibility==='publik')&&(x.active==null||x.active===true||String(x.active)==='1')&&!/^Bank Sampah\s*[:/]/i.test(safe(x.category)));
-   list(p,byDate(items,'event_on'),x=>[x.title,[x.event_on,x.description].filter(Boolean).join(' · ')]);links(root,[['Buka foto dan video lengkap','/dokumentasi/']]);
+   return mountGallery({root,role,get,getArchive,socialWrite,el,signal,portalData:d});
   }else if(key==='home-inventory'){
    list(panel(root,'Barang inventaris'),requireRows(d.inventory),x=>[x.name,[x.quantity,x.unit,x.condition||x.description].filter(v=>v!=null&&v!=='').join(' · ')]);
   }else if(key==='home-meetings'){

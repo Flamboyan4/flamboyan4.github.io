@@ -25,10 +25,26 @@ function metric(root,a,b){const n=el('div',null,'metric');n.append(el('small',a)
 function links(root,items){const n=el('div',null,'links');for(const [label,url] of items){const a=el('a',label);a.href=url;n.append(a)}root.append(n)}
 const has=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
 const allowed=key=>sessionReady&&(has(communityRoutes,key)||(has(bankRoutes,key)&&bankRoutes[key].includes(role))||(role==='superadmin'&&(has(bookRoutes,key)||has(adminRoutes,key))));
-const deps=()=>({get,role,accountKey:session?.account?.id,previewRequest,go:key=>router.go(key),el,panel,row,metric,links});
+async function getArchive(signal){
+ const r=await fetch('/assets/data/portal-photo-index.json',{signal,cache:'default'});
+ if(!r.ok)throw Error('Arsip tidak tersedia');return r.json();
+}
+function accountSocialWrite(accountKey){
+ if(!accountKey)return undefined;
+ return async(path,body)=>{
+  if(!['/api/v2/gallery/react','/api/v2/gallery/comment'].includes(path)||body?.type!=='photo'||typeof body.id!=='string'||!body.id||body.id.length>180)throw Error('Aksi dokumentasi tidak dikenal.');
+  if(path.endsWith('/comment')&&(typeof body.message!=='string'||!body.message.trim()||body.message.length>500))throw Error('Komentar tidak valid.');
+  if(!sessionReady||session?.account?.id!==accountKey||!['warga','admin','superadmin'].includes(role))throw Error('Sesi berubah.');
+  // User-triggered social action, never a financial write or automatic retry.
+  const checked=await auth('/api/v2/auth/session');
+  if(checked?.account?.id!==accountKey||session?.account?.id!==accountKey||!sessionReady)throw Error('Sesi berubah. Muat ulang akun.');
+  return auth(path,{method:'POST',body});
+ };
+}
+const deps=()=>({get,role,accountKey:session?.account?.id,previewRequest,getArchive,socialWrite:accountSocialWrite(session?.account?.id),go:key=>router.go(key),el,panel,row,metric,links});
 const loaders=(map,create)=>Object.fromEntries(Object.keys(map).map(key=>[key,async()=>create(deps())]));
 const routeLoaders={...loaders(communityRoutes,createCommunityModule),...loaders(bankRoutes,createBankModule),...loaders(bookRoutes,createBookModule),...loaders(adminRoutes,createCommunityModule)};
-Object.assign(labels,communityRoutes,bookRoutes,adminRoutes,{'bank-home':'Bank Sampah','bank-history':'Riwayat','bank-report':'Laporan','bank-payout':'Pencairan','bank-deposit':'Input','bank-sale':'Penjualan','bank-savings':'Tabungan','bank-cash':'Debit/Kredit','bank-prices':'Harga Barang'});
+Object.assign(labels,communityRoutes,bookRoutes,adminRoutes,{'bank-home':'Bank Sampah','bank-history':'Riwayat','bank-report':'Laporan','bank-payout':'Pencairan','bank-deposit':'Input','bank-sale':'Penjualan','bank-savings':'Tabungan','bank-cash':'Debit/Kredit','bank-prices':'Harga Barang','bank-docs':'Dokumentasi Bank Sampah'});
 const read=()=>{const value=new URL(location.href).searchParams.get('portal')||'home';return value==='bank'?'bank-home':value;};
 function write(key,mode){const u=new URL(location.href);u.searchParams.set('portal',key);history[mode==='replace'?'replaceState':'pushState']({f4Spa:key},'',u);}
 const router=createPortalRouter({outlet,routes:routeLoaders,allowed,read,write,onState(s){
