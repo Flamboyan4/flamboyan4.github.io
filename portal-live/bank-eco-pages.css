@@ -3725,33 +3725,22 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   background:transparent;border:0;border-radius:0;box-shadow:none
  }
  #dashboardView #f4MemberQuickActions>:is(#f4BankWeighingSchedule,#f4MemberPriceShortcut){
-  flex-direction:column;justify-content:center;align-items:center;
-  gap:7px;width:100%;height:102px;min-height:0;padding:8px 5px;
+  flex-direction:row;justify-content:center;align-items:center;
+  gap:8px;width:100%;height:102px;min-height:0;padding:8px;
   border:1px solid #e4eee5;border-radius:var(--f4-panel-radius,12px);background:#fff;
-  box-shadow:0 3px 9px #15482b0b;text-align:center
+  box-shadow:0 3px 9px #15482b0b;text-align:left
  }
- #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy,
- #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-copy{
-  flex:0 0 auto;display:grid;justify-items:center;align-content:center;width:100%
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy,.f4-bank-price-shortcut-copy){
+  flex:0 1 auto;display:grid;justify-items:start;align-content:center;width:auto;min-width:0;gap:4px
  }
  #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon,.f4-bank-price-shortcut-icon){
-  flex:0 0 36px;width:36px;height:36px;border-radius:11px
- }
- #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
-  width:21px;height:21px
- }
- #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-copy > span,.f4-bank-price-shortcut-copy small){
-  display:none
- }
- #dashboardView #f4MemberQuickActions>#f4BankWeighingSchedule{
-  flex-direction:row;justify-content:center;align-items:center;gap:8px;padding:8px;text-align:left
- }
- #dashboardView #f4MemberQuickActions #f4BankWeighingSchedule .f4-bank-weigh-icon{
   display:grid;flex:0 0 30px;width:30px;height:30px;border-radius:9px
  }
- #dashboardView #f4MemberQuickActions #f4BankWeighingSchedule .f4-bank-weigh-icon svg{width:19px;height:19px}
- #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy{
-  flex:0 1 auto;width:auto;min-width:0;justify-items:start;gap:4px
+ #dashboardView #f4MemberQuickActions :is(.f4-bank-weigh-icon svg,.f4-bank-price-shortcut-icon svg){
+  width:19px;height:19px
+ }
+ #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > span{
+  display:none
  }
  #dashboardView #f4MemberQuickActions .f4-bank-weigh-copy > strong{
   display:grid;justify-items:start;gap:3px;width:100%;min-width:0
@@ -3762,7 +3751,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
   font-weight:850;line-height:1.15;white-space:normal;font-variant-numeric:tabular-nums
  }
  #dashboardView #f4MemberQuickActions .f4-bank-price-shortcut-label{
-  font-size:11px;line-height:1.18;max-width:100%;font-weight:800
+  font-size:clamp(12px,3.5vw,15px);line-height:1.2;max-width:100%;font-weight:850
  }
  #dashboardView #f4MemberContent>.v14-panel{height:auto;padding:13px;border-radius:17px}
 }
