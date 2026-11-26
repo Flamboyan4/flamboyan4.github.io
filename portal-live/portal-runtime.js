@@ -55,7 +55,7 @@ function scopeFor(key){
  };
  const makeObserver=Native=>Native?class extends Native{constructor(fn){assert();super((...args)=>{if(alive)fn(...args)});observers.add(this)}}:undefined;
  const scopedLocation=new Proxy(Object.create(null),{get(_,p){const t=location;if(p==='assign'||p==='replace')return value=>{assert();const u=new URL(value,location.href);if(u.origin===location.origin&&keyOf(u.pathname)&&keyOf(u.pathname)!==key)return window.F4PortalNavigation.go(u.href,{replace:p==='replace'});return t[p](value)};if(p==='reload')return()=>{assert();t.reload()};const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v},set(_,p,v){const t=location;assert();if(p==='href'){const u=new URL(v,location.href);if(u.origin===location.origin&&keyOf(u.pathname)&&keyOf(u.pathname)!==key){void window.F4PortalNavigation.go(u.href);return true}}return Reflect.set(t,p,v,t)}});
- const scopedHistory=new Proxy(Object.create(null),{get(_,p){const t=history;const v=Reflect.get(t,p,t);return typeof v==='function'?(...a)=>{assert();return v.apply(t,a)}:v},set(_,p,v){assert();return Reflect.set(history,p,v,history)}});
+ const scopedHistory=new Proxy(Object.create(null),{get(_,p){const t=history;const v=Reflect.get(t,p,t);return typeof v==='function'?(...a)=>{assert();const result=v.apply(t,a);if(p==='pushState'||p==='replaceState')window.F4PortalNavigation?.recordUrl();return result}:v},set(_,p,v){assert();return Reflect.set(history,p,v,history)}});
  const guardedDocument=new Proxy(document,{get(t,p){
   if(p==='readyState')return ready?document.readyState:'loading';
   if(p==='addEventListener')return(...a)=>track(document,...a);

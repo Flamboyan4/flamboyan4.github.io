@@ -106,7 +106,9 @@ function cancelBankNavigation(){
 /* The production shell is the sole entry point for cross-portal navigation.
    A content adapter must provide both prepare and dispose before it can be
    switched in the same document. Never replay unscoped classic scripts. */
-let activePortalKey=initialKey;
+let activePortalKey=initialKey,lastActiveUrl=location.pathname+location.search+location.hash;
+function rememberActiveUrl(){if(portalKey(location.pathname)===activePortalKey)lastActiveUrl=location.pathname+location.search+location.hash;}
+function restoreActiveUrl(){if(portalKey(location.pathname)!==activePortalKey)history.replaceState({f4PortalKey:activePortalKey},'',lastActiveUrl);}
 const contentAdapters=new Map();
 let mountedContent=null,navigationPending=false;
 function canAccessPortal(key){
@@ -127,8 +129,10 @@ function updatePortalChrome(key){
 async function navigatePortal(path,{replace=false,pop=false}={}){
  const target=new URL(path,location.origin);
  const key=portalKey(target.pathname);
- if(target.origin!==location.origin||!key||navigationPending)return false;
+ if(target.origin!==location.origin||!key)return false;
+ if(navigationPending){if(pop)restoreActiveUrl();return false;}
  if(!canAccessPortal(key)){
+  if(pop)restoreActiveUrl();
   if(!session?.account)openLogin();
   else showSessionNotice('Akun ini tidak memiliki akses ke portal tersebut.','Tutup',()=>{sessionNotice.hidden=true});
   return false;
@@ -140,42 +144,45 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
    window.f4PortalSelectPanel(route||'beranda',!pop);return true;
   }
   if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
-  if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['input','inputdata'].includes(route))){window.pilihMenu(route||'inputdata');return true}
+  if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
   if(key==='superadmin'&&!route)return true;
  }
  const current=mountedContent,next=contentAdapters.get(key);
  // Existing pages stay operational until their own lifecycle is migrated.
- if(!current||!next||here){
+ if(!current||!next){
   const url=shellUrl(target.href);
   if(replace||pop)location.replace(url);else location.assign(url);return true;
  }
  navigationPending=true;
- const accountId=session?.account?.id||null;
- let prepared=null;
+ const accountId=session?.account?.id||null,requestedRole=role;
+ const stillAllowed=()=>accountId===(session?.account?.id||null)&&requestedRole===role&&canAccessPortal(key);
+ let prepared=null,detached=false;
  try{
-  if(current.canLeave&&!(await current.canLeave())){showSessionNotice('Konten atau transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
+  if(current.canLeave&&!(await current.canLeave())){if(pop)restoreActiveUrl();showSessionNotice('Konten atau transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   prepared=await next.prepare(target);
   if(!prepared||typeof prepared.mount!=='function'||typeof prepared.dispose!=='function')throw Error('Lifecycle konten tidak lengkap.');
-  if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();return false}
+  if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
+  if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   closeSide();closeDockMenu();menu.hidden=true;cancelBankNavigation();
-  await current.dispose();mountedContent=null;
-  if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();location.replace(shellUrl('/'));return false;}
+  await current.dispose();mountedContent=null;detached=true;
+  if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
-  await prepared.mount();mountedContent=prepared;window.scrollTo(0,0);return true;
+  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo(0,0);return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);
-  // Restore the original document if a migrated adapter cannot mount.
+  if(!detached){if(pop)restoreActiveUrl();showSessionNotice('Portal belum dapat dimuat.','Coba Lagi',()=>{void navigatePortal(target.href,{replace})});return false;}
+  // A hard reload is only an error recovery after the old content has been disposed.
   location.replace(shellUrl(canAccessPortal(key)?target.href:'/'));return false;
  }finally{navigationPending=false}
 }
 window.F4PortalNavigation={
- go:navigatePortal,current:()=>activePortalKey,
+ go:navigatePortal,current:()=>activePortalKey,recordUrl:rememberActiveUrl,
  activate:updatePortalChrome,
  contentReady(){
   if(portal==='portal'){window.f4GoBank=()=>navigatePortal(paths.bank);if(typeof window.openModalDokumentasi==='function')window.openModalDokumentasi=()=>navigatePortal(paths.dokumentasi)}
   if(portal==='bank')window.v11ShowLogin=()=>openLogin();
-  if(sessionCheckCompleted)notifyRole();
+  if(sessionCheckCompleted)notifyRole();rememberActiveUrl();
   const calendar=document.getElementById('rencana'),inventory=document.getElementById('kegiatan');if(portal==='portal'&&calendar&&inventory&&calendar.parentElement===inventory.parentElement)inventory.before(calendar);
   window.F4MobileSheets?.refresh?.();
  },
