@@ -953,12 +953,38 @@ function salinLinkAgenda(url) {
       listenKomentarFirebase();
     });
 
-    function scrollProjek(direction) {
-      const slider = document.getElementById('slider-projek');
-      if (!slider) return;
-      const cardWidth = slider.querySelector('div')?.offsetWidth || 320;
-      slider.scrollBy({ left: direction * (cardWidth + 16), behavior: 'smooth' });
+    function f4ProjectSnapPositions(slider) {
+      const origin=slider.getBoundingClientRect().left+slider.clientLeft;
+      const max=Math.max(0,slider.scrollWidth-slider.clientWidth);
+      const positions=[0,max,...Array.from(slider.querySelectorAll(':scope > .f4-project-card'))
+        .filter(card=>card.getClientRects().length)
+        .map(card=>Math.max(0,Math.min(max,slider.scrollLeft+card.getBoundingClientRect().left-origin)))];
+      return positions.sort((a,b)=>a-b).filter((x,i,a)=>i===0||x-a[i-1]>1);
     }
+    function scrollProjek(direction) {
+      const slider=document.getElementById('slider-projek');
+      if(!slider||!direction)return;
+      const stops=f4ProjectSnapPositions(slider),left=slider.scrollLeft;
+      const target=direction>0?stops.find(x=>x>left+2):[...stops].reverse().find(x=>x<left-2);
+      if(target!==undefined)slider.scrollTo({left:target,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    }
+    function initProjectCarousel(){
+      const slider=document.getElementById('slider-projek'),nav=document.getElementById('f4-project-nav');
+      if(!slider||!nav)return;
+      const [prev,next]=nav.querySelectorAll('button');
+      const update=()=>{
+        const max=Math.max(0,slider.scrollWidth-slider.clientWidth);
+        nav.hidden=max<=2;
+        prev.disabled=slider.scrollLeft<=2;
+        next.disabled=slider.scrollLeft>=max-2;
+      };
+      slider.addEventListener('scroll',update,{passive:true});
+      window.addEventListener('resize',update,{passive:true});
+      if(typeof ResizeObserver==='function')new ResizeObserver(update).observe(slider);
+      new MutationObserver(update).observe(slider,{childList:true,subtree:true,attributes:true,attributeFilter:['data-f4-project-inactive','hidden']});
+      update();
+    }
+    document.addEventListener('DOMContentLoaded',initProjectCarousel);
 
     const formSaran=document.getElementById('form-saran');
     let f4LastSuggestionAt=0;
@@ -2840,7 +2866,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
     function f4ProjectGeneric(row){
       const container=f4ProjectCardEl('article',
-        'snap-start shrink-0 w-[88%] sm:w-[340px] md:w-[360px] bg-white rounded-lg border border-slate-200 p-4 flex flex-col');
+        'f4-project-card bg-white rounded-lg border border-slate-200 p-4 flex flex-col');
       container.dataset.dynamicProject='true';
       container.dataset.projectId=String(row.id||'');
       container.style.order=String(Number(row.sort_order)||0);

@@ -69,6 +69,16 @@
 #slider-projek > :is(#jersey,#gapura,#bank-sampah)[data-f4-project-inactive="false"]{display:flex}
 #slider-projek > [data-f4-project-inactive="true"]{display:none}
 #slider-projek>#f4-project-empty[hidden]{display:none}
+/* Single responsive project carousel: exact fit, no partial card at rest. */
+.f4-project-track{--project-gap:16px;--project-card-width:100%;display:flex;gap:var(--project-gap);width:100%;min-width:0;padding-block:4px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.f4-project-track::-webkit-scrollbar{display:none}
+.f4-project-track>.f4-project-card{box-sizing:border-box;flex:0 0 var(--project-card-width);width:var(--project-card-width);min-width:0;max-width:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow-wrap:anywhere}
+.f4-project-nav{display:flex;align-items:center;gap:4px}
+.f4-project-nav[hidden]{display:none}
+.f4-project-nav button:disabled{opacity:.35;cursor:default}
+@media(min-width:640px){.f4-project-track{--project-card-width:calc((100% - var(--project-gap))/2)}}
+@media(min-width:1024px){.f4-project-track{--project-card-width:calc((100% - 2 * var(--project-gap))/3)}}
+
 
 
 /* Mobile home carousels: native swipe, no visible scrollbar. */
