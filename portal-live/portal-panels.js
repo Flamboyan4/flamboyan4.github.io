@@ -16,6 +16,7 @@ const financeDisplayCache=new __f4.globals.WeakMap();
 const sectionTargets={
  beranda:__f4.globals.document.querySelector('body>main>section:first-of-type'),
  keuangan:__f4.globals.document.getElementById('keuangan'),
+ 'kas-warga':__f4.globals.document.getElementById('keuangan'),
  projek:__f4.globals.document.getElementById('projek'),
  inventaris:__f4.globals.document.getElementById('container-inventaris-warga')||__f4.globals.document.getElementById('kegiatan'),
  kalender:__f4.globals.document.getElementById('rencana'),
@@ -61,7 +62,7 @@ function visiblePanel(){
 function showPanel(panel,recordHistory=true){
  // Inventaris sudah memiliki halaman khusus di Dokumentasi, bukan kartu di Beranda.
  if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
- if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
+ if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(['keuangan','kas-warga'].includes(panel)&&current.role==='public'))panel='beranda';
  current.panel=panel;
  const isolated=isMember(current.role)&&['keuangan','kalender'].includes(panel);
  const wasIsolated=!!__f4.globals.document.body.dataset.f4ResidentView;
@@ -69,14 +70,14 @@ function showPanel(panel,recordHistory=true){
  if(isMember(current.role)){
   createFinanceTabs();
   if(panel==='keuangan'){finBlock.dataset.f4Dedicated='1';if(finBlock.querySelector('#f4-personal-finance').hidden)setFinanceMode(true);}
-  else if(finBlock?.dataset.f4Dedicated){delete finBlock.dataset.f4Dedicated;setFinanceMode(false);}
+  else if(finBlock?.dataset.f4Dedicated||panel==='kas-warga'){delete finBlock.dataset.f4Dedicated;setFinanceMode(false);}
  }
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
  const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
  __f4.window.scrollTo({top:isolated||wasIsolated||panel==='beranda'?0:top,behavior:isolated||wasIsolated||panel==='beranda'||prefersReduced()?'instant':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
- reportVisible(panel);
+ reportVisible(panel==='kas-warga'?'keuangan':panel);
  if(recordHistory){
   const dest=new __f4.globals.URL(__f4.globals.location.href);dest.hash='';
   if(panel==='beranda')dest.searchParams.delete('halaman');else dest.searchParams.set('halaman',panel);
@@ -403,7 +404,7 @@ __f4.window.addEventListener('message',event=>{
   __f4.globals.document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
    node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
   });
-  if(!authenticated&&['keuangan','kalender'].includes(current.panel))showPanel('beranda');
+  if(!authenticated&&['keuangan','kas-warga','kalender'].includes(current.panel))showPanel('beranda');
   if(!isMember(current.role)){delete __f4.globals.document.body.dataset.f4ResidentView;if(finBlock)delete finBlock.dataset.f4Dedicated;}
   __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
