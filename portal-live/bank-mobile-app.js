@@ -2762,6 +2762,10 @@ function navigate(route){
  }
  if(typeof __f4.window.goPage==="function")__f4.window.goPage(route);
 }
+function showHiddenDashboard(old,args){
+ __f4.window.f4BankSkipDashboardLoad=true;
+ try{return old.call(window,"dashboard",...args)}finally{__f4.window.f4BankSkipDashboardLoad=false}
+}
 function handleRoute(route,old,args){
  if(route==='profile'&&roleType()){__f4.window.f4OpenAccountProfile?.();return;}
  // Legacy bookmarks resolve to the consolidated member information page.
@@ -2782,13 +2786,13 @@ function handleRoute(route,old,args){
   if(route==="pengesahan")route="rekonsiliasi";
   if(["kegiatan","dokumentasi","inventaris","progress","public"].includes(route))route="dashboard";
   if(route==="bank-admin-cash"){
-   hideCustom();old.call(window,"dashboard",...args);
+   hideCustom();showHiddenDashboard(old,args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminCash();screen=route;
    __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="bank-admin-docs"){
-   hideCustom();old.call(window,"dashboard",...args);
+   hideCustom();showHiddenDashboard(old,args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminDocumentation();screen=route;
    __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
@@ -2800,7 +2804,7 @@ function handleRoute(route,old,args){
    __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
   }
   if(route==="bank-admin-progress"){
-   hideCustom();old.call(window,"dashboard",...args);
+   hideCustom();showHiddenDashboard(old,args);
    $("pageDashboard")?.classList.add("hidden");
    showAdminProgress();screen=route;
    __f4.window.v16Sync?.(route);markDock();__f4.window.scrollTo(0,0);return;
@@ -2823,7 +2827,7 @@ function handleRoute(route,old,args){
  }
  if(roleType()==="member"&&featureRoutes.includes(route)){
   restoreFeature();hideCustom();
-  old.call(window,"dashboard",...args);
+  showHiddenDashboard(old,args);
   $("pageDashboard")?.classList.add("hidden");
   memberFeature(route);
   $(route)?.classList.remove("hidden");
@@ -3154,7 +3158,8 @@ function init(){
  (0,__f4.globals.setInterval)(()=>{if(!__f4.globals.document.hidden){if(roleType()==="member"){updateWeighingCard();loadWeighingDay();}}},45000);
  const original=__f4.window.goPage;
  if(typeof original==="function")__f4.window.goPage=function(route,...args){
-    const viewToken=route!==screen?__f4.globals.F4PortalNavigation?.beginView():null;
+    // Internal Bank routes render their own loading state; do not block the page on background requests.
+    const viewToken=null;
     __f4.window.f4BankPageHistory?.begin?.();
    try{return handleRoute(route,original,args)}
    finally{

@@ -47,10 +47,10 @@ function scopeFor(key){
   // Home's above-the-fold data must not wait on gallery rankings, per-photo reactions,
   // or other below-the-fold requests. Keep all requests scoped and cancellable.
   let viewCritical=true;
-  if(key==='portal'&&!write){
+  if(['portal','bank'].includes(key)&&!write){
    try{
     const url=new URL(input instanceof Request?input.url:String(input),location.href);
-    viewCritical=url.origin==='https://api.flamboyan4.web.id'&&['/api/v2/public/portal','/api/v2/public/portal/cash','/api/v2/public/bank'].includes(url.pathname);
+    viewCritical=url.origin==='https://api.flamboyan4.web.id'&&(key==='portal'?['/api/v2/public/portal','/api/v2/public/portal/cash','/api/v2/public/bank'].includes(url.pathname):document.body.dataset.f4BankRole==='public'&&url.pathname==='/api/v2/public/bank');
    }catch{viewCritical=false}
   }
   const entry={controller:c,write,viewCritical};controllers.add(entry);if(write)writes++;
@@ -117,7 +117,7 @@ function scopeFor(key){
  api.ready=()=>ready&&alive;
  // Wait for scoped reads and a quiet interval, bounded by existing error/loading states.
  api.waitForView=()=>new Promise(resolve=>{
-  const started=performance.now(),maxWait=key==='portal'?1200:4500;let quietSince=started;
+  const started=performance.now(),maxWait=key==='portal'||key==='bank'?1200:4500;let quietSince=started;
   const check=()=>{
    const now=performance.now();
    if(!alive||now-started>=maxWait){resolve();return}
@@ -228,9 +228,8 @@ async function prepare(key,target){
   insert();
  })));
  try{
-  if(key==='portal'){
-   // Independent local factories and CSS download concurrently. Script execution
-   // still follows the original dependency order in runScripts.
+  // Download Bank styles and scripts concurrently, keeping execution order.
+  if(key==='portal'||key==='bank'){
    const results=await Promise.allSettled([prepareScripts(specs),prepareStyles()]);
    const failed=results.find(result=>result.status==='rejected');if(failed)throw failed.reason;
   }else{await prepareScripts(specs);await prepareStyles()}

@@ -47,15 +47,30 @@ window.F4PortalRuntime.define("/portal-live/live-bank-readonly.js",function(__f4
   if(!response.ok||result?.ok===false)throw (0,__f4.globals.Error)(result?.error||'Gagal membaca data (HTTP '+response.status+').');
   return result;
  }
- let cache,loadedAt=0;
+ let cache,loadedAt=0,publicPending=null;
  const publicData=async()=>{
   if(cache&&__f4.globals.Date.now()-loadedAt<15000)return cache;
-  const result=await get('/api/v2/public/bank');
-  if(__f4.globals.Array.isArray(result.catalog))result.catalog=result.catalog.map(item=>({
-   ...item,category:itemCategory(item.name,item.category)
-  }));
-  cache=result;loadedAt=__f4.globals.Date.now();return result;
+  if(publicPending)return publicPending;
+  publicPending=get('/api/v2/public/bank').then(result=>{
+   if(__f4.globals.Array.isArray(result.catalog))result.catalog=result.catalog.map(item=>({...item,category:itemCategory(item.name,item.category)}));
+   cache=result;loadedAt=__f4.globals.Date.now();return result;
+  }).finally(()=>{publicPending=null});
+  return publicPending;
  };
+ // Deduplicate simultaneous private reads only within the current scoped
+ // session. A one-use access response is consumed by the statement loader.
+ let savingsPending=null,savingsAccess=null;
+ const memberKey=()=>String(__f4.globals.token||'')+'|'+String(__f4.globals.profile?.wargaId||'');
+ function getSavings(){
+  const key=memberKey();
+  if(savingsPending?.key===key)return savingsPending.promise;
+  const promise=get('/api/member/savings').finally(()=>{if(savingsPending?.promise===promise)savingsPending=null});
+  savingsPending={key,promise};return promise;
+ }
+ function statementSavings(){
+  const entry=savingsAccess;savingsAccess=null;
+  return entry?.key===memberKey()&&Date.now()-entry.at<3000?Promise.resolve(entry.data):getSavings();
+ }
  const progress=items=>onlyArray(items).map(item=>({
   tanggal:item.tanggal||item.happened_on||item.date||'',
   langkah:item.langkah||item.stage||'',
@@ -183,7 +198,7 @@ window.F4PortalRuntime.define("/portal-live/live-bank-readonly.js",function(__f4
  }
  async function memberSavings(){
   const [r,publicInfo]=await __f4.globals.Promise.all([
-    get('/api/member/savings'),publicData().catch(()=>({catalog:[]}))
+    statementSavings(),publicData().catch(()=>({catalog:[]}))
   ]);
   // Never generate an incomplete statement as an apparently complete CSV/PDF.
   if(r.riwayatLengkap===false)throw (0,__f4.globals.Error)('Riwayat tabungan melebihi batas halaman API. Laporan lengkap ditahan agar tidak ada transaksi hilang.');
@@ -270,7 +285,8 @@ window.F4PortalRuntime.define("/portal-live/live-bank-readonly.js",function(__f4
     deskripsi:r.album?.description||'',media,catatan:media.length?'':'Album belum memiliki media aktif.'};
  }
  async function accessStatement(){
-  await get('/api/member/savings');
+  const key=memberKey(),data=await getSavings();
+  if(key===memberKey())savingsAccess={key,data,at:Date.now()};
   return {siap:true,pesan:'Laporan pribadi tersedia'};
  }
  const adminRows=async name=>onlyArray(await get('/api/v2/admin/bank/'+name+'?limit=300'));

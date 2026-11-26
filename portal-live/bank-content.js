@@ -2062,7 +2062,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     render();
   }
   async function v14LoadDashboard(){
-    if(!profile)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
+    if(!profile||__f4.window.f4BankSkipDashboardLoad)return;v14Setup();const isAdmin=profile.peran==='Admin',currentToken=token;
     $('pageDashboard').classList.toggle('f4-member-dashboard',!isAdmin);
     // Bersihkan komponen peran sebelumnya ketika sesi berpindah.
     $('f4-member-weight-chart')?.remove();
