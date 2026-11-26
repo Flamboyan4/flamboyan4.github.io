@@ -153,7 +153,17 @@ function loadScript(url){
  const promise=new Promise((resolve,reject)=>{const before=new Set(document.head.querySelectorAll('style'));const node=document.createElement('script');node.src=id;node.async=false;node.dataset.f4Persistent='script';const timer=setTimeout(()=>{node.remove();reject(Error('Script tidak merespons: '+u.pathname))},20000);node.onload=()=>{clearTimeout(timer);if(u.hostname==='cdn.tailwindcss.com'){const styles=[...document.head.querySelectorAll('style')].filter(n=>!before.has(n));styles.forEach(n=>n.dataset.f4Persistent='tailwind');sharedLibraries.set('tailwind',styles)}resolve()};node.onerror=()=>{clearTimeout(timer);node.remove();reject(Error('Script gagal dimuat: '+u.pathname))};document.head.append(node)});
  loads.set(id,promise);promise.catch(()=>loads.delete(id));return promise;
 }
-async function prepareScripts(specs){await Promise.all([...new Set(specs.filter(x=>!x.external).map(x=>x.src))].map(loadScript))}
+async function prepareScripts(specs){
+ // Start independent downloads early, but execute external libraries only
+ // in the original order in runScripts (Firebase app before database).
+ for(const src of new Set(specs.filter(x=>x.external).map(x=>x.src))){
+  const u=new URL(src,location.origin);
+  if(u.protocol!=='https:'||!['cdn.tailwindcss.com','unpkg.com','cdnjs.cloudflare.com','www.gstatic.com'].includes(u.hostname))continue;
+  if(loads.has(u.href)||[...document.head.querySelectorAll('link[rel="preload"][as="script"]')].some(n=>n.href===u.href))continue;
+  const link=document.createElement('link');link.rel='preload';link.as='script';link.href=u.href;link.dataset.f4Persistent='script-preload';document.head.append(link);
+ }
+ await Promise.all([...new Set(specs.filter(x=>!x.external).map(x=>x.src))].map(loadScript));
+}
 async function runScripts(specs,scope){
  const needsTailwind=specs.some(x=>x.external&&x.src.includes('cdn.tailwindcss.com'));
  for(const n of sharedLibraries.get('tailwind')||[])n.media=needsTailwind?'all':'not all';
