@@ -16,6 +16,7 @@ async function fetchApi(path,post){
  const response=await (0,__f4.globals.fetch)(API+path,{method:post?'POST':'GET',credentials:'include',cache:'no-store',mode:'cors',...(post?{headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(post)}:{})});
  const body=await response.json().catch(()=>{throw (0,__f4.globals.Error)('Respons layanan tidak dapat dibaca.')});
  if(!response.ok||body?.ok===false)throw (0,__f4.globals.Error)(body?.error||'HTTP '+response.status);
+ if(post)__f4.window.dispatchEvent(new __f4.globals.CustomEvent('f4-bookkeeping-updated'));
  return body;
 }
 function requireInput(p){

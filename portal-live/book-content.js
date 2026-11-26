@@ -1853,11 +1853,14 @@ function bukaMenu(){__f4.globals.document.querySelectorAll('.custom-select-wrap.
 function tutupMenu(){const d=__f4.globals.document.getElementById('side-drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');__f4.globals.document.body.style.overflow=''}
 
 let f4BookRouteInitialized=false,f4BookRestoring=false;
-function pilihMenu(n){
+function pilihMenu(n,period=null){
   if(!__f4.globals.document.getElementById('tab-'+n))n='inputdata';
   const u=new __f4.globals.URL(__f4.globals.location.href),prior=u.searchParams.get('halaman')||'inputdata';
   if(n==='inputdata')u.searchParams.delete('halaman');else u.searchParams.set('halaman',n);
-  if(!f4BookRestoring&&(!f4BookRouteInitialized||prior!==n))__f4.globals.history[f4BookRouteInitialized?'pushState':'replaceState']({...__f4.globals.history.state,f4BookRoute:n},'',u.pathname+u.search);
+  const month=Number(period?.month),year=Number(period?.year);
+  const selectedPeriod=n==='kas'&&Number.isInteger(month)&&month>=1&&month<=12&&Number.isInteger(year)&&year>=2020&&year<=2100;
+  if(selectedPeriod){u.searchParams.set('bulan',month);u.searchParams.set('tahun',year);}else if(n!=='kas'){u.searchParams.delete('bulan');u.searchParams.delete('tahun');}
+  if(!f4BookRestoring&&(!f4BookRouteInitialized||prior!==n||selectedPeriod&&u.search!==__f4.globals.location.search))__f4.globals.history[f4BookRouteInitialized?'pushState':'replaceState']({...__f4.globals.history.state,f4BookRoute:n},'',u.pathname+u.search);
   f4BookRouteInitialized=true;
   const viewToken=__f4.globals.F4PortalNavigation?.beginView();
   try{
@@ -1911,7 +1914,10 @@ function pilihMenu(n){
   if(n==='monitor')__f4.window.F4PaymentMonitor.open();
   if(n==='riwayat')pilihRiwayat('iuran');
   if(n==='transaksi')initTransaksiKasUi();
-  if(n==='kas'){if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas()}
+  if(n==='kas'){
+   if(selectedPeriod){__f4.globals.document.getElementById('kas-bulan-iuran').value=month;__f4.globals.document.getElementById('kas-tahun-iuran').value=year;__f4.globals.document.getElementById('kas-jenis-sumber').value='kas_lorong';f4ChangeKasSource();}
+   else if(!KAS_LOADED)loadPembukuanKas();else renderPembukuanKas();
+  }
   if(n==='pinjaman'){initPinjamanUi();loadPinjaman(true)}
   if(n==='talangan'){initTalanganUi();loadTalangan(true)}
   if(n==='denda'){initDendaUi();loadDenda(true);}
@@ -1965,7 +1971,8 @@ __f4.window.addEventListener('popstate',()=>{const target=new __f4.globals.URLSe
 __f4.globals.document.addEventListener('DOMContentLoaded',()=>{
   __f4.globals.lucide.createIcons();
   initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
-  pilihMenu(new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')||'inputdata');
+  const routeParams=new __f4.globals.URLSearchParams(__f4.globals.location.search);
+  pilihMenu(routeParams.get('halaman')||'inputdata',{month:routeParams.get('bulan'),year:routeParams.get('tahun')});
   muatUlang();
 });
 

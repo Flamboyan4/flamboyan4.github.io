@@ -16,12 +16,30 @@ const list=el('div','f4-tag-inbox-list');dialog.append(head,list);document.body.
 let items=[],busy=false,generation=0,archiveIndex=null,failed=false,lastCheck=0,accountKey='';
 const currentPortal=()=>location.pathname.startsWith('/bank-sampah')?'bank':location.pathname.startsWith('/superadmin')?'superadmin':null;
 let portal=currentPortal();
-const workEligible=()=>eligible()&&(portal==='bank'?['admin','superadmin'].includes(avatar.dataset.f4TagRole)&&document.body.classList.contains('f4-bank-app-admin')&&!document.getElementById('dashboardView')?.classList.contains('hidden'):portal==='superadmin'&&avatar.dataset.f4TagRole==='superadmin'&&!document.getElementById('f4-account-page')?.hidden&&!document.body.classList.contains('f4-denied'));
+const workEligible=()=>eligible()&&(avatar.dataset.f4TagRole==='superadmin'||(portal==='bank'&&avatar.dataset.f4TagRole==='admin'&&document.body.classList.contains('f4-bank-app-admin')&&!document.getElementById('dashboardView')?.classList.contains('hidden')));
 let workItems=[],workBusy=false,workFailed=false,workChecked=0,workGeneration=0,workAccount='',workAgain=false;
 const workCount=value=>Number.isSafeInteger(Number(value))&&Number(value)>0?Number(value):0;
-function workRows(data){
- const row=(title,description,count,route)=>({title,description,count:workCount(count),route});
- return portal==='bank'?[row('Setoran belum dijual','Setoran dan stok menunggu penjualan',data.unsoldDeposits,'penjualan'),row('Penjualan belum disahkan','Hasil lapak menunggu pengesahan',data.pendingApprovals,'rekonsiliasi'),row('Pengajuan pencairan','Permintaan pencairan warga belum selesai',data.pendingPayouts,'bank-payout-admin')]:[row('Dana menunggu pengesahan','Transaksi program belum dicatat di Pusat Keuangan',data.pendingCount,'treasury'),row(data.needsOpening?'Saldo awal belum disahkan':'Perlu pemeriksaan',data.needsOpening?'Sahkan saldo pembuka':'Selisih atau data sumber perlu diperiksa',data.needsOpening?1:data.warningCount,'treasury')];
+const row=(group,title,description,count,route)=>({group,title,description,count:workCount(count),route});
+const bankRows=data=>[
+ row('Bank Sampah','Setoran belum dijual','Setoran dan stok menunggu penjualan',data.unsoldDeposits,'/bank-sampah/?halaman=penjualan'),
+ row('Bank Sampah','Penjualan belum disahkan','Hasil lapak menunggu pengesahan',data.pendingApprovals,'/bank-sampah/?halaman=rekonsiliasi'),
+ row('Bank Sampah','Pengajuan pencairan','Permintaan pencairan warga belum selesai',data.pendingPayouts,'/bank-sampah/?halaman=bank-payout-admin')
+];
+const treasuryRows=data=>[
+ row('Pusat Keuangan','Transaksi belum disahkan','Transaksi program menunggu pemeriksaan dan pengesahan',data.pendingCount,'/superadmin/?halaman=treasury'),
+ row('Pusat Keuangan',data.needsOpening?'Saldo awal belum disahkan':'Perlu pemeriksaan',data.needsOpening?'Sahkan saldo pembuka':'Selisih atau data sumber perlu diperiksa',data.needsOpening?1:data.warningCount,'/superadmin/?halaman=treasury')
+];
+const bookPeriods=()=>{
+ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'numeric'}).formatToParts(new Date());
+ const year=Number(parts.find(x=>x.type==='year').value),month=Number(parts.find(x=>x.type==='month').value);
+ return [0,1,2].map(offset=>{const d=new Date(Date.UTC(year,month-1-offset,1));return {year:d.getUTCFullYear(),month:d.getUTCMonth()+1,label:new Intl.DateTimeFormat('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}).format(d)};});
+};
+const bookRows=(data,p)=>[row('Pembukuan','Iuran Kas Lorong belum dibukukan',p.label+' · Pembayaran yang siap dibukukan',data.data?.ringkasan?.qtyBelum,'/pembukuan/?halaman=kas&bulan='+p.month+'&tahun='+p.year)];
+async function workRequest(path){
+ const response=await fetch('https://api.flamboyan4.web.id'+path,{credentials:'include',mode:'cors',cache:'no-store'});
+ const data=await response.json();
+ if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+ return data;
 }
 function clearWork(){
  workGeneration++;workItems=[];workBusy=false;workFailed=false;workChecked=0;workAccount='';workAgain=false;
@@ -34,11 +52,15 @@ async function refreshWork(force=false){
  if(!force&&Date.now()-workChecked<45000)return;
  const stamp=workGeneration;workBusy=true;workFailed=false;paint();
  try{
-  const response=await fetch('https://api.flamboyan4.web.id'+(portal==='bank'?'/api/admin/bank/action-counts':'/api/v2/admin/treasury?view=notifications'),{credentials:'include',mode:'cors',cache:'no-store'});
-  const data=await response.json();
-  if(!response.ok||data.ok===false)throw Error(data.error||'HTTP '+response.status);
+  const requests=[workRequest('/api/admin/bank/action-counts').then(bankRows)];
+  if(avatar.dataset.f4TagRole==='superadmin'){
+   requests.push(workRequest('/api/v2/admin/treasury?view=notifications').then(treasuryRows));
+   for(const p of bookPeriods())requests.push(workRequest('/api/bookkeeping/kas-batches?category=kas_lorong&year='+p.year+'&month='+p.month).then(data=>bookRows(data,p)));
+  }
+  const results=await Promise.allSettled(requests);
   if(stamp!==workGeneration||!workEligible()||key!==avatar.dataset.f4TagAccount)return;
-  workItems=workRows(data);workChecked=Date.now();
+  workItems=results.flatMap(r=>r.status==='fulfilled'?r.value:[]);
+  workFailed=results.some(r=>r.status==='rejected');workChecked=Date.now();
  }catch(error){
   if(stamp===workGeneration){workFailed=true;workChecked=Date.now();}
  }finally{
@@ -48,7 +70,13 @@ async function refreshWork(force=false){
 function openWork(item){
  if(!workEligible())return;
  // Consume the inbox history entry before routing, so Back never opens a stale notification panel.
- const route=()=>{if(!workEligible())return;if(portal==='bank')window.goPage?.(item.route);else if(typeof window.f4SuperadminNavigate==='function')window.f4SuperadminNavigate('treasury');else location.hash='#sa-treasury';};
+ const route=()=>{
+  if(!workEligible())return;
+  const target=new URL(item.route,location.origin);
+  if(target.pathname==='/superadmin/'&&portal==='superadmin'&&typeof window.f4SuperadminNavigate==='function'){window.f4SuperadminNavigate('treasury');return;}
+  if(window.F4PortalNavigation)void window.F4PortalNavigation.go(target.href);
+  else location.assign(target.href);
+ };
  if(history.state?.f4TagInbox===true){
   pendingWorkRoute=route;requestClose();
  }else{hideInbox(true);route();}
@@ -58,10 +86,12 @@ function paintWork(){
  if(!workEligible())return;
  list.append(el('h3','f4-tag-inbox-section','Tugas pengelola'));
  const active=workItems.filter(x=>x.count>0);
- if(workFailed){const p=el('p','f4-tag-inbox-empty','Tugas belum dapat dimuat.');const retry=el('button','f4-tag-inbox-retry','Coba lagi');retry.type='button';retry.onclick=()=>refreshWork(true);list.append(p,retry);}
+ if(workFailed){const p=el('p','f4-tag-inbox-empty','Sebagian tugas belum dapat dimuat.');const retry=el('button','f4-tag-inbox-retry','Coba lagi');retry.type='button';retry.onclick=()=>refreshWork(true);list.append(p,retry);}
  else if(workBusy&&!workChecked)list.append(el('p','f4-tag-inbox-empty','Memeriksa tugas…'));
  else if(!active.length)list.append(el('p','f4-tag-inbox-empty','Tidak ada tugas menunggu.'));
+ let group='';
  for(const item of active){
+  if(item.group!==group){group=item.group;list.append(el('h3','f4-tag-inbox-section',group));}
   const button=el('button','f4-tag-inbox-item is-unread');button.type='button';
   const symbol=el('span','f4-tag-inbox-symbol');symbol.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="m8 12 3 3 5-6"/></svg>';
   const copy=el('span','f4-tag-inbox-copy');copy.append(el('strong','',item.title),el('small','',item.description));
@@ -180,10 +210,11 @@ new MutationObserver(syncWork).observe(document.body,{attributes:true,attributeF
 let surfaceObserver=null;
 function bindWorkSurface(){surfaceObserver?.disconnect();surfaceObserver=null;const surface=portal?document.getElementById(portal==='bank'?'dashboardView':'f4-account-page'):null;if(surface){surfaceObserver=new MutationObserver(syncWork);surfaceObserver.observe(surface,{attributes:true,attributeFilter:['class','hidden']})}}
 bindWorkSurface();
-document.addEventListener('f4:portal-changed',()=>{portal=currentPortal();pendingWorkRoute=null;clearWork();bindWorkSurface();paint();syncWork()});
+document.addEventListener('f4:portal-changed',()=>{portal=currentPortal();pendingWorkRoute=null;if(avatar.dataset.f4TagRole!=='superadmin')clearWork();bindWorkSurface();paint();syncWork()});
 const changed=()=>{if(workEligible())refreshWork(true);};
 window.addEventListener('f4-bank-data-changed',changed);document.addEventListener('f4-bank-data-changed',changed);
 window.addEventListener('f4-treasury-updated',changed);
+window.addEventListener('f4-bookkeeping-updated',changed);
 window.addEventListener('focus',()=>refresh());document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});
 window.addEventListener('pageshow',()=>refresh(true));
 setInterval(()=>{if(!document.hidden&&eligible())refresh();},60000);

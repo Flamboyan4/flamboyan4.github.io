@@ -28,6 +28,7 @@ async function api(path,payload){
  const res=await (0,__f4.globals.fetch)(API+path,{method:payload?'POST':'GET',credentials:'include',cache:'no-store',mode:'cors',...(payload?{headers:{'Content-Type':'application/json'},body:__f4.globals.JSON.stringify(payload)}:{})});
  const data=await res.json().catch(()=>{throw (0,__f4.globals.Error)('Respons Worker tidak valid (bukan JSON).')});
  if(!res.ok||data?.ok===false)throw (0,__f4.globals.Error)(data?.error||'Worker menolak permintaan ('+res.status+').');
+ if(payload)__f4.window.dispatchEvent(new __f4.globals.CustomEvent('f4-bookkeeping-updated'));
  return data;
 }
 const pendingMem=new __f4.globals.Map();

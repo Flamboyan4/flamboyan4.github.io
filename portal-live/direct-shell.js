@@ -77,7 +77,7 @@ document.body.append(routeLoading);
 const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.textContent='Memuat halaman…';document.body.append(swapFallback);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
-const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-first-paint-v5';document.head.append(notificationScript);
+const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-finance-inbox-v58';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
 dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
 document.body.append(dialog);
@@ -344,7 +344,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
    window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
   }
   if(key==='bank'&&session?.account&&(!route||/^(?:dashboard|profile|pribadi|setoran|penjualan|tabungan|laporan|riwayat|riwayatJual|rekonsiliasi|master|admin|bank-[a-z-]+)$/.test(route))){openBankRoute(route||'dashboard');return true}
-  if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
+  if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata',route==='kas'?{month:target.searchParams.get('bulan'),year:target.searchParams.get('tahun')}:null);return true}
   if(key==='superadmin'&&!route)return true;
  }
  const current=mountedContent,next=contentAdapters.get(key);
