@@ -51,7 +51,7 @@ export function attachApproval(root,{el,panel,row,role,sales,previewRequest,sign
  const select=el('select'),read=el('button','Periksa hasil penjualan'),status=el('p'),result=el('div'),label=el('label','Batch penjualan');
  const option=el('option','Pilih batch');option.value='';select.append(option);
  for(const x of drafts){const o=el('option',[x.sold_on,x.buyer_name,x.batch_id].filter(Boolean).join(' · '));o.value=String(x.batch_id);select.append(o)}
- label.append(select);read.type='button';read.disabled=!drafts.length||typeof previewRequest!=='function';status.setAttribute('role','status');
+ select.setAttribute('aria-label','Batch penjualan');label.append(select);read.type='button';read.disabled=!drafts.length||typeof previewRequest!=='function';status.setAttribute('role','status');
  let rev=0,busy=false,dirty=false;
  select.onchange=()=>{rev++;result.replaceChildren();status.textContent='';dirty=false};
  read.onclick=async()=>{if(!select.value||busy)return;const version=++rev;busy=true;read.disabled=true;result.replaceChildren();status.textContent='Memeriksa alokasi dari server…';dirty=false;
@@ -63,7 +63,7 @@ export function attachApproval(root,{el,panel,row,role,sales,previewRequest,sign
    if(integer(preview.remainingStockGrams))row(result,'Sisa belum terjual',String(preview.remainingStockGrams/1000)+' kg');
    row(result,'Metode',preview.method==='fixed_buy_price'?'Harga beli tetap':'Bagi hasil '+preview.wargaPercent+'% warga');
    if(preview.warning)result.append(el('p',preview.warning));
-   const form=el('form',null,'bank-draft'),field=(name,node)=>{const l=el('label',name);l.append(node);return l};
+   const form=el('form',null,'bank-draft'),field=(name,node)=>{const l=el('label',name);node.setAttribute('aria-label',name);l.append(node);return l};
    const input=(type,value)=>{const n=el('input');n.type=type;n.value=value;n.required=true;return n};
    const reserve=input('number','0'),neighborhood=input('number','0'),operation=input('number','0'),confirmation=input('text',''),all=el('input'),note=input('text',''),submit=el('button','Uji pengesahan'),message=el('p');
    for(const n of [reserve,neighborhood,operation]){n.min='0';n.step='1'}all.type='checkbox';all.required=true;note.required=Boolean(preview.hasWeightDifference);note.maxLength=300;submit.type='submit';

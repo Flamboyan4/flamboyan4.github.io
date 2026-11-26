@@ -84,7 +84,7 @@ export function createBankModule({get,role,go,el,panel,row,metric,links,previewR
   const root=title('Catat setoran'),[members,catalog]=await Promise.all([list('members',s),list('catalog',s)]);
   const p=panel(root,'Uji formulir setoran'),form=el('form',null,'bank-draft'),date=el('input'),select=el('select'),items=el('div'),result=el('p');
   date.type='date';date.required=true;date.value=today();
-  const field=(name,node)=>{const label=el('label',name);label.append(node);return label};
+  const field=(name,node)=>{const label=el('label',name);node.setAttribute('aria-label',name);label.append(node);return label};
   const opt=(value,label)=>{const o=el('option',label);o.value=value;return o};
   select.required=true;select.append(opt('','Pilih warga'));
   for(const x of members.filter(x=>x.status==='aktif'))select.append(opt(String(x.id),[x.nama,x.rumah].filter(Boolean).join(' · ')));

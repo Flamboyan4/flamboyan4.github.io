@@ -16,7 +16,7 @@ export function createBookModule({role,accountKey,get,go,el,panel,row,metric,lin
  function nav(root,items){const bar=el('div',null,'bank-route-links');for(const [key,label] of items){const b=el('button',label);b.type='button';b.onclick=()=>go(key);bar.append(b)}root.append(bar)}
  function note(root,items,limit){if(!items.length)row(root,'Belum ada data','');if(items.length>=limit)row(root,'Batas daftar '+limit+' baris tercapai','Gunakan laporan lengkap untuk memastikan seluruh periode tercakup.')}
  function legacy(root,label){links(root,[[label,'/pembukuan/']]);}
- function field(name,input){const l=el('label',name);l.append(input);return l}
+ function field(name,input){const l=el('label',name);input.setAttribute('aria-label',name);l.append(input);return l}
  function opt(value,name){const o=el('option',name);o.value=String(value);return o}
  function input(type,value){const n=el('input');n.type=type;n.value=value??'';n.required=true;return n}
  function select(items){const s=el('select');s.required=true;for(const [value,label] of items)s.append(opt(value,label));return s}

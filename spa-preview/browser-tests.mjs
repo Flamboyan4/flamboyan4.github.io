@@ -21,11 +21,11 @@ const fixtures={
  '/api/v2/public/bank':{overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
  '/api/v2/public/bank/report':{summary:{beratKg:1.25,hasilPenjualan:1000,hakWarga:500,pendingWeightKg:0},monthly:[]},
  '/api/member/savings':{saldoTersediaRp:500,totalCairRp:0,riwayatLengkap:true,setoran:[],mutasi:[]},
- '/api/member/bank/payout-requests':{items:[]},'/api/admin/bank/payout-requests':{items:[]},
+ '/api/member/bank/payout-requests':{items:[]},'/api/admin/bank/payout-requests':{items:[{id:'request:bank:00000000-0000-4000-8000-000000000001',nama:'Warga uji',rumah:'A/1',status:'diajukan',amount_rp:500,balance_rp:1000}]},
  '/api/v2/admin/bank/members':{rows:[{id:'member:1',nama:'Warga uji',rumah:'A/1',status:'aktif'}]},
  '/api/v2/admin/bank/catalog':{rows:[{id:'waste:1',name:'Kertas',active:1}]},
  '/api/v2/admin/bank/batches':{rows:[{id:'batch1',status:'draft'}]},
- '/api/v2/admin/bank/sales':{rows:[]},
+ '/api/v2/admin/bank/sales':{rows:[{id:'sale-test',batch_id:'batch1',status:'draft',sold_on:'2026-11-26',buyer_name:'Lapak uji',amount_received_rp:10000}]},
  '/api/v2/admin/content/obligations':{rows:[{payer_id:'payer:1'}]},'/api/bookkeeping/iuran/tariffs':{config:{TEST:1}},
  '/api/v2/admin/residents':{rows:[{household_id:'h1',payer_id:'payer:1',nama:'Warga uji',rumah:'A/1',active:1}]},
  '/api/v2/admin/content/settings':{data:[]},
@@ -40,8 +40,12 @@ async function run(browser,role){
   const req=route.request(),url=new URL(req.url());
   if(url.origin===origin){await route.continue();return}
   if(url.origin!=='https://api.flamboyan4.web.id'){await route.abort();return}
-  const headers={'access-control-allow-origin':origin,'access-control-allow-credentials':'true','access-control-allow-methods':'GET,OPTIONS','access-control-allow-headers':'content-type'};
+  const headers={'access-control-allow-origin':origin,'access-control-allow-credentials':'true','access-control-allow-methods':'GET,POST,OPTIONS','access-control-allow-headers':'content-type'};
   if(req.method()==='OPTIONS'){await route.fulfill({status:204,headers});return}
+  if(req.method()==='POST'&&url.pathname==='/api/admin/reconciliation/preview'){
+   const body=req.postDataJSON();if(body.batchId!=='batch1'||!['admin','superadmin'].includes(role)){await route.fulfill({status:403,headers,json:{ok:false}});return}
+   await route.fulfill({status:200,headers,json:{ok:true,batchId:'batch1',saleId:'sale-test',receivedRp:10000,grossRp:10000,citizenRightsRp:5000,environmentRp:5000,wargaPercent:50,weightDifferenceGrams:0,hasWeightDifference:false}});return;
+  }
   if(req.method()!=='GET'){posts.push(url.pathname);await route.fulfill({status:403,headers,json:{ok:false}});return}
   const data=url.pathname==='/api/v2/auth/session'?{account:role==='public'?null:{id:'test-'+role,role:role==='warga'?'anggota':role,displayName:'Akun uji'}}:fixtures[url.pathname];
   if(data===undefined){unknown.push(url.pathname);await route.fulfill({status:404,headers,json:{ok:false}});return}
@@ -76,6 +80,15 @@ async function run(browser,role){
     await page.getByLabel('Uang diterima (Rp)',{exact:true}).fill('2500');
     await page.getByRole('button',{name:'Periksa transaksi',exact:true}).click();
     await page.getByText(/Simulasi penjualan:/).waitFor();
+    await page.getByLabel('Batch penjualan',{exact:true}).selectOption('batch1');
+    await page.getByRole('button',{name:'Periksa hasil penjualan',exact:true}).click();
+    await page.getByLabel('Kas Lorong (Rp)',{exact:true}).fill('5000');
+    await page.getByLabel('Ketik ID batch: batch1',{exact:true}).fill('batch1');
+    await page.getByLabel('Setujui hasil timbang dan alokasi',{exact:true}).check();
+    await page.getByRole('button',{name:'Uji pengesahan',exact:true}).click();
+    await page.getByText(/Kontrak pengesahan valid/).waitFor();
+    await click('bank');await heading('Bank Sampah');await page.getByRole('button',{name:'Pencairan',exact:true}).click();await heading('Pencairan tabungan');await identity();
+    await page.getByRole('button',{name:'Uji setujui',exact:true}).click();await page.getByText(/Validasi setujui berhasil/).waitFor();
    }else{
     await click('book');await heading('Pembukuan');await identity();
     await click('input');await heading('Input Iuran');await identity();

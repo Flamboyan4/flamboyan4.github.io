@@ -34,7 +34,7 @@ function draft(root,{el,panel,title,signal,submitLabel,execute}){
  const p=panel(root,title),form=el('form',null,'bank-draft'),status=el('p'),submit=el('button',submitLabel);
  status.setAttribute('role','status');submit.type='submit';let dirty=false,busy=false,revision=0;
  function change(){dirty=true;revision++;status.textContent=''}
- function field(label,node){const n=el('label',label);n.append(node);return n}
+ function field(label,node){const n=el('label',label);node.setAttribute('aria-label',label);n.append(node);return n}
  function input(type,value='',required=true){const n=el('input');n.type=type;n.value=value;n.required=required;return n}
  function select(choices){const n=el('select');n.required=true;for(const [v,t] of choices){const o=el('option',t);o.value=String(v);n.append(o)}return n}
  form.addEventListener('input',change);
