@@ -81,8 +81,8 @@ function render(){
  }
  grid.replaceChildren(...(unique.length?unique.map(card):[empty()]));
  section.hidden=false;
- latest.setAttribute('aria-selected',(0,__f4.globals.String)(mode==='terbaru'));
- popular.setAttribute('aria-selected',(0,__f4.globals.String)(mode==='populer'));
+ latest.setAttribute('aria-pressed',(0,__f4.globals.String)(mode==='terbaru'));
+ popular.setAttribute('aria-pressed',(0,__f4.globals.String)(mode==='populer'));
 }
 latest.addEventListener('click',()=>{mode='terbaru';render()});
 popular.addEventListener('click',()=>{mode='populer';render()});
