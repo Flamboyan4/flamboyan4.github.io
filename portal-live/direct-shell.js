@@ -658,6 +658,54 @@ document.addEventListener('touchend',e=>{
  moving=false;
  if(e.changedTouches[0].clientY-start>110){try{sessionStorage.setItem('f4-native-account-refresh','1')}catch{} location.reload()}
 },{passive:true});
+// Standalone resident pages scroll inside a fixed content surface, so the
+// browser's native root-scroll pull-to-refresh is unavailable there.
+let residentPull=null,residentRefreshing=false;
+function clearResidentPull(){
+ const p=residentPull;residentPull=null;p?.indicator?.remove();
+}
+function residentOverlayOpen(){
+ return document.body.classList.contains('f4-account-open')||document.documentElement.classList.contains('f4p-overlay-active')||!dialog.hidden||!routeLoading.hidden;
+}
+document.addEventListener('touchstart',e=>{
+ clearResidentPull();
+ const content=e.target.closest?.('#f4-resident-main');
+ if(residentRefreshing||e.touches.length!==1||!content||content.scrollTop>2||!residentKeys.includes(activePortalKey)||residentOverlayOpen()||e.target.closest('input,select,textarea,[contenteditable]'))return;
+ const t=e.touches[0];
+ residentPull={content,key:activePortalKey,id:t.identifier,x:t.clientX,y:t.clientY,distance:0,indicator:null};
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+ const p=residentPull;if(!p)return;
+ const t=e.touches[0];
+ if(e.touches.length!==1||!t||t.identifier!==p.id||!p.content.isConnected||p.content.scrollTop>2||residentOverlayOpen()){clearResidentPull();return}
+ const dy=t.clientY-p.y,dx=Math.abs(t.clientX-p.x);
+ if(dy< -8||(dx>12&&dx>dy*.8)){clearResidentPull();return}
+ if(dy<10&&!p.indicator)return;
+ if(e.cancelable)e.preventDefault();
+ p.distance=Math.max(0,dy);
+ if(!p.indicator){
+  const n=el('div','f4-resident-pull');n.setAttribute('role','status');
+  n.innerHTML='<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M20 12a8 8 0 1 0-2.3 5.7"/></svg><span></span>';
+  p.content.prepend(n);p.indicator=n;
+ }
+ p.indicator.style.setProperty('--pull-offset',Math.min(55,p.distance*.45)+'px');
+ p.indicator.querySelector('span').textContent=p.distance>=90?'Lepaskan untuk memperbarui':'Tarik untuk memperbarui';
+},{passive:false});
+document.addEventListener('touchcancel',clearResidentPull,{passive:true});
+document.addEventListener('touchend',async e=>{
+ const p=residentPull;if(!p)return;
+ const t=Array.from(e.changedTouches).find(x=>x.identifier===p.id);
+ if(!t)return;
+ residentPull=null;
+ if(p.distance<90||t.clientY-p.y<90||!p.content.isConnected||p.key!==activePortalKey||residentOverlayOpen()||residentRefreshing){p.indicator?.remove();return}
+ const refresh=window.f4RefreshResidentPage;
+ if(typeof refresh!=='function'){p.indicator?.remove();return}
+ residentRefreshing=true;
+ p.indicator?.classList.add('is-refreshing');
+ if(p.indicator)p.indicator.querySelector('span').textContent='Memperbarui…';
+ try{await refresh()}catch(err){if(err?.name!=='AbortError')console.warn('Refresh halaman warga:',err)}
+ finally{p.indicator?.remove();residentRefreshing=false}
+},{passive:true});
 const legacy=new URLSearchParams(location.search).get('halaman');
 if(initialKey==='dokumentasi'&&legacy==='profil'){location.replace(shellUrl(paths.profile));return;}
 if(portal==='portal'&&legacy){

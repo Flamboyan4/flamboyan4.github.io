@@ -22,6 +22,12 @@ function roleChanged(e){
  account=identity.accountId;void load();
 }
 win.addEventListener('message',roleChanged);
+let pullRefresh=null;
+win.f4RefreshResidentPage=()=>{
+ if(!identity||!account)return Promise.resolve();
+ if(!pullRefresh)pullRefresh=Promise.resolve().then(()=>load()).finally(()=>{pullRefresh=null});
+ return pullRefresh;
+};
 __f4.cleanup(()=>{serial++;identity=null;account='';});
 
 const iso=d=>d.toISOString().slice(0,10);

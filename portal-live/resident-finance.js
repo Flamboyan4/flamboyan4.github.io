@@ -22,6 +22,12 @@ function roleChanged(e){
  account=identity.accountId;void load();
 }
 win.addEventListener('message',roleChanged);
+let pullRefresh=null;
+win.f4RefreshResidentPage=()=>{
+ if(!identity||!account)return Promise.resolve();
+ if(!pullRefresh)pullRefresh=Promise.resolve().then(()=>load()).finally(()=>{pullRefresh=null});
+ return pullRefresh;
+};
 __f4.cleanup(()=>{serial++;identity=null;account='';});
 
 const eye=(shown)=>'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(shown?'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>':'<path d="M3 3l18 18M9.8 5.3A11 11 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-2.4 3.3M6.2 6.2C3.5 8.2 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.3-.9"/>')+'</svg>';
@@ -43,7 +49,7 @@ async function load(){
  for(const item of data.components||[]){const due=Number(item.wajibRp),paid=Number(item.terbayarRp);if(!Number.isFinite(due)||!Number.isFinite(paid)||due<=0)continue;const row=el('div','rp-line');const info=el('div');info.append(el('strong','',names[item.jenis]||item.jenis),el('small','rp-state '+(paid>=due?'paid':'unpaid'),status(due,paid)));row.append(info,el('b','',money(due)));dueBody.append(row)}
  const total=el('div','rp-total');total.append(el('span','','Sisa kewajiban'),el('strong','',money(data.totalSisaRp)));dueBody.append(total);
  }catch(e){if(seq===serial&&request===dueSeq)dueBody.replaceChildren(el('p','rp-empty','Kewajiban belum dapat dimuat.'),btn('Coba lagi',loadDues,'rp-small'))}}
- period.onchange=loadDues;void loadDues();
+ period.onchange=loadDues;const pendingReads=[loadDues()];
  const reminders=el('section','rp-reminders');reminders.hidden=true;root.append(reminders);
  const history=el('section','rp-card');history.append(el('h2','','Riwayat pembayaran'));
  const controls=el('div','rp-tabs');const historyBody=el('div');history.append(controls,historyBody);root.append(history);
@@ -55,10 +61,10 @@ async function load(){
  function paintHistory(){historyBody.replaceChildren();for(const row of ordered.slice(0,limit)){const line=el('div','rp-line');const info=el('div');info.append(el('strong','',names[row.jenis]||row.jenis||types.find(x=>x[0]===kind)?.[1]||'Transaksi'),el('small','', [row.periode,dateLabel(row.tanggal),row.status].filter(Boolean).join(' · ')));line.append(info,el('b','',Number.isFinite(Number(row.nominalRp))?money(row.nominalRp):'—'));historyBody.append(line)}if(ordered.length>limit)historyBody.append(btn('Tampilkan lainnya',()=>{limit+=10;paintHistory()},'rp-small'))}
  paintHistory();
  }catch(e){if(seq===serial&&req===historySeq)historyBody.replaceChildren(el('p','rp-empty','Riwayat belum dapat dimuat.'),btn('Coba lagi',()=>showHistory(kind),'rp-small'))}}
- for(const [kind,label] of types){const b=btn(label,()=>showHistory(kind),'rp-tab');b.dataset.kind=kind;controls.append(b)}void showHistory(selected);
- read('/api/member/savings').then(b=>{if(seq!==serial)return;if(Number.isFinite(b.saldoTersediaRp)&&Number.isFinite(b.estimasiMenungguRp))savings=b;paint()}).catch(()=>{if(seq===serial)paint()});
- for(const [kind,label] of [['fines','Denda'],['loans','Pinjaman']])read('/api/member/'+kind).then(data=>{if(seq!==serial)return;cache[kind]=data;if(data.linked===false)throw Error('Akun belum terhubung');const total=(data.rows||[]).filter(r=>!['dibatalkan','batal','lunas'].includes(String(r.status||'').toLowerCase())).reduce((sum,r)=>sum+Math.max(0,(Number(r.nominalRp)||0)-(Number(r.dibayarRp)||0)),0);if(total>0){if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}const b=btn('',()=>{void showHistory(kind);history.scrollIntoView({block:'start',behavior:'instant'})},'rp-warning');b.append(el('span','',label+' belum lunas'),el('strong','',money(total)));reminders.append(b)}}).catch(()=>{if(seq!==serial)return;if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}reminders.append(el('p','rp-empty','Status '+label.toLowerCase()+' belum dapat diperiksa.'))});
- busy=false;
+ for(const [kind,label] of types){const b=btn(label,()=>showHistory(kind),'rp-tab');b.dataset.kind=kind;controls.append(b)}pendingReads.push(showHistory(selected));
+ pendingReads.push(read('/api/member/savings').then(b=>{if(seq!==serial)return;if(Number.isFinite(b.saldoTersediaRp)&&Number.isFinite(b.estimasiMenungguRp))savings=b;paint()}).catch(()=>{if(seq===serial)paint()}));
+ for(const [kind,label] of [['fines','Denda'],['loans','Pinjaman']])pendingReads.push(read('/api/member/'+kind).then(data=>{if(seq!==serial)return;cache[kind]=data;if(data.linked===false)throw Error('Akun belum terhubung');const total=(data.rows||[]).filter(r=>!['dibatalkan','batal','lunas'].includes(String(r.status||'').toLowerCase())).reduce((sum,r)=>sum+Math.max(0,(Number(r.nominalRp)||0)-(Number(r.dibayarRp)||0)),0);if(total>0){if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}const b=btn('',()=>{void showHistory(kind);history.scrollIntoView({block:'start',behavior:'instant'})},'rp-warning');b.append(el('span','',label+' belum lunas'),el('strong','',money(total)));reminders.append(b)}}).catch(()=>{if(seq!==serial)return;if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}reminders.append(el('p','rp-empty','Status '+label.toLowerCase()+' belum dapat diperiksa.'))}));
+ await Promise.allSettled(pendingReads);if(seq===serial)busy=false;
 }
 
 });
