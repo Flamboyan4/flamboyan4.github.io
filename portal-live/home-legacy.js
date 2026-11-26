@@ -2615,8 +2615,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       for (let i = firstDay - 1; i >= 0; i--) {
         const prevDayNum = prevMonthDays - i;
         gridHTML += `
-          <div class="p-1.5 min-h-[44px] border border-slate-100/60 rounded-lg flex flex-col items-center justify-start bg-slate-50/50 opacity-40 select-none">
-            <span class="text-slate-400 text-xs font-normal">${prevDayNum}</span>
+          <div class="f4-calendar-day f4-calendar-outside">
+            <span class="f4-calendar-number">${prevDayNum}</span><span class="f4-calendar-dots" aria-hidden="true"></span>
           </div>
         `;
       }
@@ -2626,58 +2626,21 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         
         let dayEvents = globalRencanaData.filter(item => item.parsedDate === dateKey);
 
-        let isGorol = false;
-        let isArisan = false;
-        const isBank=dayEvents.some(e=>e.isBank);
-        let hasEvent = dayEvents.length > 0;
-
-        if (hasEvent) {
-          isGorol = dayEvents.some(e => e.isGorol);
-          isArisan = dayEvents.some(e => {
-            if (e.isArisan) return true;
-            const txt = (e.judul + " " + (e.deskripsi || '')).toLowerCase();
-            return txt.includes('arisan');
-          });
+        const hasEvent=dayEvents.length>0;
+        const isToday=isCurrentMonth&&day===today.getDate();
+        const kinds=new __f4.globals.Set();
+        for(const event of dayEvents){
+          if(event.isGorol)kinds.add('gorol');
+          if(event.isBank)kinds.add('bank');
+          if(event.isArisan||(!event.isGorol&&!event.isBank)||((event.judul||'')+' '+(event.deskripsi||'')).toLowerCase().includes('arisan'))kinds.add('activity');
         }
-
-        let dayClass = "p-1.5 min-h-[44px] border border-slate-100 rounded-lg flex flex-col items-center justify-between relative transition hover:border-indigo-300 bg-white";
-        let badgeClass = "";
-
-        if (isCurrentMonth && day === today.getDate()) {
-          dayClass += " bg-indigo-50/60 font-bold border-indigo-200 ring-1 ring-indigo-300";
-        }
-
-        if (hasEvent) {
-          dayClass += " cursor-pointer shadow-sm";
-          if (isGorol) {
-            badgeClass = "bg-amber-500 text-white font-bold";
-            dayClass += " bg-amber-50 border-amber-300 hover:bg-amber-100";
-          } else if(isBank&&!isArisan){
-            badgeClass = "f4-calendar-bank-badge";
-            dayClass += " f4-calendar-bank-day";
-          } else {
-            badgeClass = "bg-indigo-600 text-white font-bold";
-            dayClass += " bg-indigo-50 border-indigo-300 hover:bg-indigo-100";
-          }
-        }
-
-        const safeDateStr = `${day} ${monthNames[month]} ${year}`;
-       const clickAttr = hasEvent ? `role="button" tabindex="0" data-agenda-date="${dateKey}" aria-label="${safeDateStr}, ${dayEvents.length} kegiatan"` : '';
-        
-        let badgeLabel = '📌 Acara';
-        if (isArisan) badgeLabel = '🏠 Arisan';
-        else if (isGorol) badgeLabel = '🧹 Gorol';
-        else if (isBank) badgeLabel = 'Bank Sampah';
-        if(dayEvents.length>1)badgeLabel += ' +' +(dayEvents.length-1);
-
-        gridHTML += `
-          <div class="${dayClass}" ${clickAttr}>
-            <span class="${isCurrentMonth && day === today.getDate() ? 'text-indigo-700 font-black' : 'text-slate-700'}">${day}</span>
-            ${hasEvent ? `
-              <span class="w-full text-[9px] py-0.5 px-1 rounded truncate text-center mt-1 ${badgeClass}">
-                ${badgeLabel}
-              </span>
-            ` : ''}
+        const safeDateStr=`${day} ${monthNames[month]} ${year}`;
+        const clickAttr=hasEvent?`role="button" tabindex="0" data-agenda-date="${dateKey}" aria-label="${safeDateStr}, ${dayEvents.length} kegiatan"`:'';
+        const dots=['gorol','activity','bank'].filter(kind=>kinds.has(kind)).map(kind=>`<span class="f4-calendar-dot" data-kind="${kind}"></span>`).join('');
+        gridHTML+=`
+          <div class="f4-calendar-day${isToday?' f4-calendar-today':''}" ${clickAttr} ${isToday?'aria-current="date"':''}>
+            <span class="f4-calendar-number">${day}</span>
+            <span class="f4-calendar-dots" aria-hidden="true">${dots}</span>
           </div>
         `;
       }
@@ -2688,8 +2651,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
       for (let nextDayNum = 1; nextDayNum <= nextDaysCount; nextDayNum++) {
         gridHTML += `
-          <div class="p-1.5 min-h-[44px] border border-slate-100/60 rounded-lg flex flex-col items-center justify-start bg-slate-50/50 opacity-40 select-none">
-            <span class="text-slate-400 text-xs font-normal">${nextDayNum}</span>
+          <div class="f4-calendar-day f4-calendar-outside">
+            <span class="f4-calendar-number">${nextDayNum}</span><span class="f4-calendar-dots" aria-hidden="true"></span>
           </div>
         `;
       }

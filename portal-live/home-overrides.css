@@ -105,8 +105,17 @@
 .f4-agenda-status{font-size:10px;font-weight:650;padding:3px 7px;border-radius:20px;color:var(--f4-portal-primary-ink);background:var(--f4-portal-soft);white-space:nowrap}
 .f4-agenda-status.is-progress{color:#92400e;background:#fef3c7}
 .f4-agenda-status.is-done,.f4-agenda-status.is-bank{color:#065f46;background:#d1fae5}
-#calendar-days-grid .f4-calendar-bank-day{border-color:#86d9b0;background:#ecfdf5}
-#calendar-days-grid .f4-calendar-bank-badge{background:#09845e;color:#fff;font-weight:600}
+/* Calendar: equal-height dates, with a reserved dot row on every day. */
+#calendar-days-grid .f4-calendar-day{box-sizing:border-box;display:grid;grid-template-rows:20px 6px;align-content:center;justify-items:center;gap:4px;height:44px;min-width:0;padding:3px 2px;border:1px solid #edf0f4;border-radius:8px;background:#fff;color:#334155;font-weight:400}
+#calendar-days-grid .f4-calendar-number{font-size:14px;font-weight:400;line-height:20px;font-variant-numeric:tabular-nums}
+#calendar-days-grid .f4-calendar-outside{background:#f8fafc;color:#b0b8c5}
+#calendar-days-grid .f4-calendar-today{border-color:var(--f4-portal-primary,#5145cd);color:var(--f4-portal-primary,#5145cd)}
+#calendar-days-grid .f4-calendar-day[data-agenda-date]{cursor:pointer}
+#calendar-days-grid .f4-calendar-day[data-agenda-date]:focus-visible{outline:2px solid var(--f4-portal-primary,#5145cd);outline-offset:1px}
+#calendar-days-grid .f4-calendar-dots{display:flex;align-items:center;justify-content:center;gap:3px;height:6px}
+#calendar-days-grid .f4-calendar-dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--f4-portal-primary,#5145cd)}
+#calendar-days-grid .f4-calendar-dot[data-kind="gorol"]{background:#f59e0b}
+#calendar-days-grid .f4-calendar-dot[data-kind="bank"]{background:#059669}
 @media screen and (max-width:767px){
  .f4-home-mobile-action{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:none;min-height:35px;padding:7px 9px;border:1px solid var(--f4-portal-line,#c7d2fe);border-radius:9px;background:var(--f4-portal-soft,#eef2ff);color:var(--f4-portal-primary-ink,#3730a3);font:700 11px/1.3 system-ui;cursor:pointer;white-space:nowrap}
  .f4-home-mobile-action svg{width:15px;height:15px;flex:none}
@@ -160,9 +169,7 @@
  #container-komentar-list::-webkit-scrollbar{display:none}
 
  #calendar-wrapper .grid.grid-cols-7.text-center{font-size:14px;line-height:1.25}
- #calendar-days-grid>div>span:first-child{font-size:16px;line-height:1.2;font-weight:650}
- #calendar-days-grid>div>span.w-full{font-size:10px;line-height:1.2}
- #calendar-days-grid>div{min-width:0;padding-left:2px;padding-right:2px}
+ #calendar-days-grid .f4-calendar-number{font-size:15px}
 }
 
 
