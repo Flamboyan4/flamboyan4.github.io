@@ -31,12 +31,12 @@ function reportVisible(panel){
  (__f4.window.parent!==window?__f4.window.parent:window).postMessage({type:'f4:portal-visible-panel',panel},__f4.globals.location.origin);
 }
 function visiblePanel(){
- if(isMember(current.role)&&['keuangan','kalender'].includes(current.panel)){reportVisible(current.panel);return;}
+ if(__f4.globals.document.body.dataset.f4ResidentView){reportVisible(__f4.globals.document.body.dataset.f4ResidentView);return;}
  if(scrollScheduled)return;
  scrollScheduled=true;
  (0,__f4.globals.requestAnimationFrame)(()=>{
   scrollScheduled=false;
-  if(isMember(current.role)&&['keuangan','kalender'].includes(current.panel))return;
+  if(__f4.globals.document.body.dataset.f4ResidentView)return;
   // Scrollspy: the last section reaching the reading line is the active menu.
   const landmarks=[
    ['beranda',sectionTargets.beranda],
