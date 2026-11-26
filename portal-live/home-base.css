@@ -1,5 +1,5 @@
 /* Portal Utama: satu palet warna aksi, tanpa mengubah warna status. */
-:root{--f4-portal-card-radius:12px;--f4-portal-primary:#5145CD;--f4-portal-primary-hover:#4539B8;--f4-portal-primary-ink:#393099;--f4-portal-accent:#FFBA26;--f4-portal-soft:#EDEBFA;--f4-portal-soft-hover:#DCD8F5;--f4-portal-line:#DCD8F5;--f4-portal-line-hover:#C3BDF0;--f4-portal-text:#20232D;--f4-portal-muted:#666975}
+:root{--f4-portal-card-radius:var(--f4-panel-radius,12px);--f4-portal-primary:#5145CD;--f4-portal-primary-hover:#4539B8;--f4-portal-primary-ink:#393099;--f4-portal-accent:#FFBA26;--f4-portal-soft:#EDEBFA;--f4-portal-soft-hover:#DCD8F5;--f4-portal-line:#DCD8F5;--f4-portal-line-hover:#C3BDF0;--f4-portal-text:#20232D;--f4-portal-muted:#666975}
 
 /* Former <style anonymous>; order preserved. */
 

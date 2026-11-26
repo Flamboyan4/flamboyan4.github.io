@@ -58,7 +58,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
  display:inline-flex;align-items:center;justify-content:center;gap:8px;
  min-height:42px;margin:0;padding:8px 15px;
- border:0;border-radius:11px;background:#ffcc32;color:#184735;
+ border:0;border-radius:var(--f4-panel-radius,12px);background:#ffcc32;color:#184735;
  box-shadow:0 5px 14px #07563e22;font-size:11px;font-weight:820;line-height:1.2;
  white-space:nowrap;cursor:pointer
 }
@@ -185,7 +185,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;position:fixed;z-index:400;
  width:min(345px,calc(100vw - 24px));max-width:calc(100vw - 24px);
  min-width:0;margin:0;padding:0;
- border:1px solid #cce5d8;border-radius:15px;background:#fff;
+ border:1px solid #cce5d8;border-radius:var(--f4-panel-radius,12px);background:#fff;
  box-shadow:0 15px 44px #183e2d30,0 3px 10px #183e2d16;
  color:#234c36;overflow-y:auto;overscroll-behavior:contain;
  scrollbar-width:none
@@ -479,13 +479,13 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);
  grid-template-rows:auto 1fr;align-items:center;column-gap:8px;row-gap:6px;
  min-width:0;min-height:106px;margin:0;padding:14px;
- border:1px solid #c0decf;border-radius:17px;background:#fff;
+ border:1px solid #c0decf;border-radius:var(--f4-panel-radius,12px);background:#fff;
  box-shadow:0 8px 19px #0b785621
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
  content:"";box-sizing:border-box;grid-column:1;grid-row:1;
  display:grid;place-items:center;width:30px;height:30px;margin:0;
- border-radius:10px;background:#daf7e6
+ border-radius:var(--f4-panel-radius,12px);background:#daf7e6
  url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
@@ -570,7 +570,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
   min-height:94px;padding:12px;border-radius:16px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
-  width:27px;height:27px;border-radius:9px;background-size:16px
+  width:27px;height:27px;border-radius:var(--f4-panel-radius,12px);background-size:16px
  }
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
   font-size:10px;line-height:1.25
@@ -611,7 +611,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #f4BankPrivateFinancialSummary .f4-bank-private-finance-hero{
  box-sizing:border-box;position:relative;overflow:hidden;min-width:0;
- padding:21px 23px 18px;border-radius:20px;
+ padding:21px 23px 18px;border-radius:var(--f4-panel-radius,12px);
  background:radial-gradient(circle at 90% 6%,#ffffff20 0,transparent 43%),
  linear-gradient(125deg,#086754 0%,#07816b 57%,#0a8760 100%);
  color:#fff

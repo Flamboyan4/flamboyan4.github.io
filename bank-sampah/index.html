@@ -28,12 +28,12 @@
     
     *{box-sizing:border-box}button,input{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:12px 16px;background:var(--forest);color:white;font-weight:650}button:disabled{opacity:.55;cursor:wait}button.secondary{background:var(--sage);color:var(--forest)}button.ghost{background:transparent;color:var(--forest);border:1px solid var(--line)}button.warning{background:#f5e7d4;color:#75521c}input{width:100%;padding:13px 12px;border:1px solid #c8d7cb;border-radius:11px;background:white;color:var(--ink);outline-color:var(--leaf)}label{display:block;font-weight:600;margin-bottom:6px;font-size:13px}.field{margin:0 0 15px}.hint{font-size:12px;color:var(--muted);margin-top:5px}.brand{font-weight:800;color:var(--forest);display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:43px;height:43px;background:var(--sage);border-radius:14px;font-size:23px}.sub{font-weight:500;font-size:12px;color:var(--muted)}.auth{max-width:440px;margin:32px auto}h1{font-size:25px;margin:0 0 6px;line-height:1.2}h2{font-size:20px;margin:0 0 12px}.desc{color:var(--muted);margin:0 0 23px}.switch{display:flex;gap:6px;background:var(--sage);padding:5px;border-radius:13px;margin-bottom:22px}.switch button{flex:1;background:transparent;color:var(--forest);padding:9px 6px}.switch button.active{background:white;box-shadow:0 2px 7px #3363451a}.wide{width:100%}.notice{border-radius:12px;padding:12px 14px;margin:14px 0;font-size:13px;background:#eaf1e8;color:var(--forest);overflow-wrap:anywhere}.notice.error{background:#fff0e7;color:#96551f}.hidden{display:none}#v11Public.v18-public-shell.hidden{display:none}.side .active{background:var(--forest);color:white}.section{min-width:0}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.stat{padding:16px;background:var(--sage);border-radius:15px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:17px;margin-top:7px;overflow-wrap:anywhere}.tag{display:inline-block;padding:4px 10px;background:var(--sage);color:var(--forest);border-radius:99px;font-size:12px;font-weight:650}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.tablewrap{overflow:auto;margin-top:12px}table{border-collapse:collapse;width:100%;min-width:640px}th,td{padding:13px 11px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}th{font-size:12px;color:var(--muted);background:var(--cream)}td{font-size:13px}td button{padding:8px 10px;font-size:12px}.code{font-size:20px;letter-spacing:2px;font-weight:800;overflow-wrap:anywhere}.tiny{font-size:12px;color:var(--muted)}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}.mobile-nav{display:none}
     @media(max-width:720px){.auth{margin:15px auto}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:auto}.tablewrap{overflow:visible}table{min-width:0}thead{display:none}tbody{display:grid;gap:10px}tr{display:block;background:var(--cream);border-radius:12px;border:1px solid var(--line);padding:10px}td{display:none;border:0;padding:4px 2px}td:nth-child(1),td:nth-child(2),td:last-child{display:block}tr.expanded td{display:block}td[data-label]:before{content:attr(data-label) ': ';font-weight:700;color:var(--muted)}td:last-child button{width:100%;margin-top:5px}.mobile-detail{display:inline-block}tr.expanded .mobile-detail{display:inline-block}}
-    .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{background:#eaf1e9;border-radius:14px;padding:16px}.metric small{display:block;color:#617367}.metric strong{display:block;font-size:23px;color:#2e6146;margin-top:5px}.section-caption{color:#687a70;font-size:13px;margin:0}.pill-note{background:#fff0db;color:#7c5a20;padding:11px 13px;border-radius:12px;font-size:13px}.block-gap{margin-top:17px}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{background:#eaf1e9;border-radius:var(--f4-panel-radius,12px);padding:16px}.metric small{display:block;color:#617367}.metric strong{display:block;font-size:23px;color:#2e6146;margin-top:5px}.section-caption{color:#687a70;font-size:13px;margin:0}.pill-note{background:#fff0db;color:#7c5a20;padding:11px 13px;border-radius:12px;font-size:13px}.block-gap{margin-top:17px}
     select{width:100%;padding:12px;border:1px solid #c8d7cb;border-radius:11px;background:#fff;font:inherit;color:var(--ink)}.input-small{max-width:140px}.summary-box{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;background:#e9f0e6;padding:15px;border-radius:12px}.summary-box strong{font-size:18px;color:#2e6146}
     @media(max-width:720px){.metric-grid{grid-template-columns:1fr 1fr}.metric strong{font-size:18px}.input-small{max-width:none}}
     @media(min-width:721px){.mobile-detail{display:none}}
     @media(max-width:720px){#saleItems td,#setBarang td,#reconDetails td{display:block}#saleItems td input,#setBarang td input{width:100%}#reconResult .metric{min-width:0}}
-    .details-panel{background:#f3f7ef;border-radius:12px;padding:13px;margin:7px 0}.details-panel table{min-width:0}.details-panel td{padding:8px 6px}
+    .details-panel{background:#f3f7ef;border-radius:var(--f4-panel-radius,12px);padding:13px;margin:7px 0}.details-panel table{min-width:0}.details-panel td{padding:8px 6px}
     @media print{body .shell{display:none}#v10Print{display:block;color:#111}@page{size:A4;margin:14mm}}
     .public-hero h1{font-size:28px}.public-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.public-tile h3{margin:0 0 5px;font-size:16px}.public-tile p{color:var(--muted);font-size:13px;margin:4px 0}.public-tile a{color:var(--forest);overflow-wrap:anywhere}.public-image{width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:5px 0}.public-section{margin-top:24px}.public-section h2{font-size:19px}@media(max-width:720px){.public-hero h1{font-size:23px}.public-grid{grid-template-columns:1fr}.public-tile{padding:14px}}@media(min-width:721px) and (max-width:900px){.public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
     /* v13 — gaya Pembukuan: sidebar kompak, konten lapang, hijau daun lembut. */
@@ -55,10 +55,10 @@
     .nav-group button.active{background:var(--forest);color:#fff}
     .card{
  background:white;border:1px solid var(--line);
-border-radius:16px;box-shadow:0 7px 23px #1f503710;padding:23px
+border-radius:var(--f4-panel-radius,12px);box-shadow:0 7px 23px #1f503710;padding:23px
 }
     .stat strong,.metric strong{color:#244f38}
-    .toolbar button{white-space:normal}.public-hero{border-radius:20px;padding:26px;margin-bottom:17px;
+    .toolbar button{white-space:normal}.public-hero{border-radius:var(--f4-panel-radius,12px);padding:26px;margin-bottom:17px;
 background:linear-gradient(115deg,#e6f0e3,#f5f4e6);border:1px solid #dce7d8
 }
     .public-tile{
@@ -69,7 +69,7 @@ box-shadow:0 4px 16px #234d350b
     .v13-kop-mark{display:grid;place-items:center;width:54px;height:54px;background:#e8f0e6;color:#2e6247;border-radius:13px;font-size:28px}
     .v13-kop strong{display:block;font-size:18px;line-height:1.3;color:#235037}.v13-kop small{color:#526858;font-size:11px}
     @media(max-width:720px){
-      .card{border-radius:15px;
+      .card{border-radius:var(--f4-panel-radius,12px);
 padding:16px
 }
       .mobile-nav{
@@ -112,7 +112,7 @@ font-size:12.5px
     .v14-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
     .v14-head h2{font-size:25px;margin:0 0 4px;letter-spacing:-.5px}.v14-head p{margin:0;color:var(--muted);font-size:13px}
     .v14-action{padding:11px 15px;border-radius:9px;font-size:13px;white-space:nowrap}
-    .v14-hero{display:flex;min-height:150px;border-radius:15px;overflow:hidden;background:#1e4b36;color:#fff;margin-bottom:15px;position:relative}
+    .v14-hero{display:flex;min-height:150px;border-radius:var(--f4-panel-radius,12px);overflow:hidden;background:#1e4b36;color:#fff;margin-bottom:15px;position:relative}
     .v14-hero-content{padding:22px 25px;flex:1;position:relative;z-index:1}
     .v14-eyebrow{font-size:11px;letter-spacing:1.2px;color:#d2e3d0;text-transform:uppercase;font-weight:700}
     .v14-hero h3{font-weight:700;font-size:24px;line-height:1.2;letter-spacing:-.5px;margin:8px 0 9px;color:#fff}
@@ -124,7 +124,7 @@ font-size:12.5px
     .v14-kpi .v14-kpi-label{font-size:12px;color:#708076;margin:0 0 10px}.v14-kpi strong{display:block;font-size:23px;line-height:1.22;color:#254b38;overflow-wrap:anywhere}
     .v14-kpi small{display:block;margin-top:7px;color:#668473;font-size:11px}
     .v14-panels{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(250px,1fr);gap:13px;margin-bottom:13px}
-    .v14-panel{border:1px solid var(--line);background:#fff;border-radius:13px;padding:17px;min-width:0}
+    .v14-panel{border:1px solid var(--line);background:#fff;border-radius:var(--f4-panel-radius,12px);padding:17px;min-width:0}
     .v14-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
     .v14-panel h3{font-size:15px;margin:0;color:#213d2d}.v14-panel p{font-size:12px;color:#60756a}
     .v14-link{background:transparent;color:#286647;padding:3px 0;font-size:12px}
@@ -165,7 +165,7 @@ border:1px solid var(--line)
  border:1px solid var(--line);border-radius:11px;padding:13px 15px;
 background:#fff
 }.v14-kpi{
- border:1px solid var(--line);border-radius:12px;padding:16px 15px;min-width:0;
+ border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:16px 15px;min-width:0;
 background:#fff
 }
     .side{height:max-content;
@@ -205,7 +205,7 @@ padding:0 0 3px 10px;border-left:1px solid #e2eae0;margin-left:13px
     .account-entry .account-role{font-size:10px;color:#708476;margin-top:1px}
     .side-footer .account-exit{flex-shrink:0;width:37px;min-height:37px;padding:8px;font-size:17px;text-align:center;color:#526b59;border:1px solid transparent}
     .side-footer .account-exit:hover{background:#fff0e5;color:#9b5b28}
-    #v15PhotoPanel{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:12px;padding:13px;margin:17px 0;background:#fff}
+    #v15PhotoPanel{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:13px;margin:17px 0;background:#fff}
     #v15PhotoPreview{height:66px;width:66px;flex-shrink:0;border-radius:50%;object-fit:cover;background:#e7f0e6}
     #v15PhotoInput{max-width:340px;width:100%;font-size:12px;padding:9px}
     .v15-profile-name{font-weight:800;font-size:15px}
@@ -268,12 +268,12 @@ padding:0
     .v17-finance-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}
     .v17-finance-head h2{margin:0;font-size:20px}.v17-finance-head p{margin:3px 0 0;font-size:12px;color:var(--muted)}
     .v17-finance-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}
-    .v17-finance-kpi{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff;min-width:0}
+    .v17-finance-kpi{border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:16px;background:#fff;min-width:0}
     .v17-finance-kpi.first{background:#1f4c37;color:#fff}.v17-finance-kpi small{display:block;color:#6a7c70;font-size:11px}
     .v17-finance-kpi.first small,.v17-finance-kpi.first strong{color:#fff}
     .v17-finance-kpi strong{font-size:20px;display:block;margin:9px 0 2px;overflow-wrap:anywhere;color:#244e37}
     .v17-finance-grid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(230px,1fr);gap:12px}
-    .v17-panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;min-width:0}
+    .v17-panel{background:#fff;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:16px;min-width:0}
     .v17-panel h3{font-size:15px;margin:0 0 10px}.v17-subtle{color:#708274;font-size:12px}
     .v17-bars{display:flex;align-items:flex-end;justify-content:space-around;gap:8px;height:180px;padding:18px 0 0;border-bottom:1px solid var(--line)}
     .v17-bar-group{display:flex;align-items:end;justify-content:center;gap:4px;flex:1;min-width:0;height:100%;position:relative}
@@ -306,7 +306,7 @@ padding:0
     #v17Program.f4-bank-program{
       box-sizing:border-box;grid-column:auto;display:flex;flex-direction:column;
       min-width:0;width:100%;height:100%;margin:0;padding:18px;
-      border:1px solid #dce9dd;border-radius:19px;background:#fff;
+      border:1px solid #dce9dd;border-radius:var(--f4-panel-radius,12px);background:#fff;
       box-shadow:0 5px 18px #123a2710;scroll-margin-top:76px;color:#214d36
     }
     #v17Program .f4-bank-program-heading{
@@ -417,7 +417,7 @@ padding:0
       #dashboardView .section{
 padding:12px 10px 30px;min-width:0;width:100%
 }
-      #dashboardView .section>.card{padding:16px 14px;border-radius:14px;min-width:0}
+      #dashboardView .section>.card{padding:16px 14px;border-radius:var(--f4-panel-radius,12px);min-width:0}
       #dashboardView .section .toolbar{gap:8px}
       #dashboardView .section .toolbar button{padding:10px 11px;font-size:12px}
       #dashboardView .stat,#dashboardView .metric{min-width:0;overflow-wrap:anywhere}
@@ -944,7 +944,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   .v24-progress-item .v24-edit-tag{background:#e2f0e5;color:#2b6744;border-radius:9px;padding:7px 11px;flex:none;font-size:11px;font-weight:800}
   .v24-progress-hidden{font-size:11px;background:#f2e8d7;color:#795e2d;padding:4px 7px;border-radius:7px}
   .v24-edit-overlay{position:fixed;inset:0;z-index:110;background:#14271bcc;display:grid;place-items:center;padding:14px}
-  .v24-edit-overlay.hidden{display:none}.v24-edit-card{width:min(100%,650px);max-height:94dvh;overflow:auto;background:#fff;border-radius:16px;padding:22px;box-shadow:0 18px 55px #14271b44}
+  .v24-edit-overlay.hidden{display:none}.v24-edit-card{width:min(100%,650px);max-height:94dvh;overflow:auto;background:#fff;border-radius:var(--f4-panel-radius,12px);padding:22px;box-shadow:0 18px 55px #14271b44}
   .v24-edit-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.v24-edit-title h2{margin:0}
   .v24-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v24-edit-grid .field{margin:0}.v24-edit-card .field{margin-bottom:12px}
   .v24-edit-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.v24-edit-actions button{flex:1}
@@ -957,7 +957,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   .v25-progress-copy{min-width:0}.v25-progress-copy strong{display:block}.v25-progress-copy small{display:block;margin:5px 0}.v25-progress-copy p{margin:3px 0 0}
   .v25-detail-image{display:block;max-width:100%;max-height:66dvh;object-fit:contain;margin:0 auto 16px;border-radius:12px}
   .v25-detail-text{white-space:pre-wrap;color:#344d3d;line-height:1.6}
-  .v25-photo-preview{display:block;max-width:100%;width:240px;max-height:190px;object-fit:contain;border:1px solid #e0eae0;border-radius:10px;margin:8px 0}
+  .v25-photo-preview{display:block;max-width:100%;width:240px;max-height:190px;object-fit:contain;border:1px solid #e0eae0;border-radius:var(--f4-panel-radius,12px);margin:8px 0}
   .v25-photo-preview.hidden{display:none}
 
   /* v26 — jalur masuk singkat, kembali ke portal mudah, kartu publik ringkas. */
@@ -973,7 +973,7 @@ body.f4-bank-app-admin #dashboardView #pageAdmin .f4-bank-admin-actions svg{
   #authView.v26-simple-login{padding-top:23px;padding-bottom:22px}
     .v27-progress-no-photo{width:80px;height:78px;display:grid;place-items:center;border-radius:9px;background:#e2eee3;color:#83a58a;font-size:23px}
   .v27-photo-missing{color:#b57c49;font-size:10px}
-  .v27-cancel-panel{border:1px solid #efcaa9;border-radius:12px;margin-top:22px;background:#fffaf4;padding:15px}
+  .v27-cancel-panel{border:1px solid #efcaa9;border-radius:var(--f4-panel-radius,12px);margin-top:22px;background:#fffaf4;padding:15px}
   .v27-cancel-panel summary{font-weight:750;color:#885226;cursor:pointer}
   .v27-cancel-panel .field{margin-top:12px}.v27-cancel-panel button{background:#9a5d3a}
   #v27PrintReport{display:none}
@@ -1261,7 +1261,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-stable-shell-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261123-bank-teal-v3">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -1411,7 +1411,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
 @media(max-width:760px){
  #pageLaporan #f4BankReportResults{padding:13px 15px 10px;border-radius:17px}
 }
-#pageLaporan #v10ReportSummary>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:12px;background:#fff}
+#pageLaporan #v10ReportSummary>.stat{min-width:0;padding:12px 13px;margin:0;border:1px solid #e1ebe5;border-radius:var(--f4-panel-radius,12px);background:#fff}
 #pageLaporan #v10ReportSummary strong,#pageLaporan #v33ReportMoreMetrics strong{font-size:18px;line-height:1.3;color:#175b40}
 #pageLaporan .v33-report-more{margin:5px 0 12px;border-top:1px solid #e8eee9;padding:0}
 #pageLaporan #v33ReportMoreMetrics{
@@ -1481,14 +1481,14 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
  align-content:center;flex:none;position:relative;
  min-width:0;margin:0;padding:19px 21px;
- border:0;border-radius:21px;
+ border:0;border-radius:var(--f4-panel-radius,12px);
  background:linear-gradient(120deg,#0d9580 0%,#3f9c4a 100%);
  box-shadow:0 7px 18px #00968818;color:#fff
 }
 #pageLaporan #v17FinanceKpis>.v17-finance-refresh{
  position:absolute;top:10px;right:10px;display:grid;place-items:center;
  width:30px;height:30px;min-width:30px;min-height:30px;margin:0;padding:0;
- border:1px solid #ffffff75;border-radius:9px;background:#ffffff1b;color:#fff;
+ border:1px solid #ffffff75;border-radius:var(--f4-panel-radius,12px);background:#ffffff1b;color:#fff;
  box-shadow:none;cursor:pointer
 }
 #pageLaporan #v17FinanceKpis>.v17-finance-refresh:hover{background:#ffffff34}
@@ -1695,7 +1695,7 @@ overflow:visible
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-panel{
     display:flex;flex-direction:column;min-width:0;min-height:170px;
     box-sizing:border-box;padding:8px 10px 7px;border:1px solid #c8dfd2;
-    border-radius:8px;background:#fff;break-inside:avoid;
+    border-radius:var(--f4-panel-radius,12px);background:#fff;break-inside:avoid;
     print-color-adjust:exact;-webkit-print-color-adjust:exact
   }
   body.f4-bank-single-print.f4-bank-print-admin #v10Print .f4-single-member-trend h2{
@@ -1774,11 +1774,11 @@ overflow:visible
 #pagePengesahan .field label{display:block;margin-bottom:5px;font-weight:700;font-size:12px;color:#29463c}
 #pagePengesahan .field input,#pagePengesahan .field select{width:100%;min-width:0;min-height:41px;padding:9px 11px;border-radius:9px;border:1px solid #d8e5dc;font-size:13px;background:#fff}
 #pagePengesahan .f4-approval-summary{margin:0 0 14px}
-#pagePengesahan #v8Preview .metric{margin:0;padding:12px 13px;border-radius:11px;min-width:0;background:#fff;border:1px solid #e0eae3;box-shadow:none}
+#pagePengesahan #v8Preview .metric{margin:0;padding:12px 13px;border-radius:var(--f4-panel-radius,12px);min-width:0;background:#fff;border:1px solid #e0eae3;box-shadow:none}
 #pagePengesahan #v8Preview .metric small{font-size:11px;color:#658075;line-height:1.32;display:block}
 #pagePengesahan #v8Preview .metric strong{display:block;margin-top:6px;font-size:19px;line-height:1.2;color:#194a39;overflow-wrap:anywhere}
 #pagePengesahan #v8Preview .metric:nth-child(n+5){border-color:#cfe5d8;background:#f9fcfa}
-#pagePengesahan #v8Preview>.notice{margin:10px 0 0;padding:8px 11px;border-radius:9px;font-size:12px}
+#pagePengesahan #v8Preview>.notice{margin:10px 0 0;padding:8px 11px;border-radius:var(--f4-panel-radius,12px);font-size:12px}
 #pagePengesahan .f4-approval-form{border-top:1px solid #e4ece6;padding-top:15px;margin-top:3px}
 #pagePengesahan .f4-approval-section-heading{margin:0 0 12px}
 #pagePengesahan .f4-approval-section-heading h3{font-size:16px;margin:0 0 4px;color:#1a392e}
@@ -1797,13 +1797,13 @@ overflow:visible
 #pagePengesahan .f4-approval-auto-id span{font-size:10px;color:#718278}
 #pagePengesahan #v8Submit{width:100%;min-height:43px;border-radius:9px;font-size:13px;padding:10px 14px}
 #pagePengesahan #v8Notice:not(:empty){margin-top:12px;font-size:12px;line-height:1.45}
-#pagePengesahan #v27CancelPanel{margin-top:16px;border:1px solid #e4e8e3;border-radius:11px;padding:10px 13px;background:#fcfdfc}
+#pagePengesahan #v27CancelPanel{margin-top:16px;border:1px solid #e4e8e3;border-radius:var(--f4-panel-radius,12px);padding:10px 13px;background:#fcfdfc}
 #pagePengesahan #v27CancelPanel summary{color:#61766b;font-size:12px;font-weight:750;cursor:pointer}
 #pagePengesahan #v27CancelPanel[open]{padding:12px 14px}
 #pagePengesahan #v27CancelPanel[open] summary{margin-bottom:10px}
 #pagePengesahan #v27CancelPanel .hint{font-size:12px;margin:6px 0 10px}
 #pagePengesahan #v27CancelPanel form .field{margin:0 0 10px}
-#pagePengesahan #v27CancelPanel textarea{width:100%;min-height:75px;max-width:100%;padding:10px 11px;border:1px solid #d8e5dc;border-radius:9px;background:#fff;font:inherit;font-size:13px;resize:vertical}
+#pagePengesahan #v27CancelPanel textarea{width:100%;min-height:75px;max-width:100%;padding:10px 11px;border:1px solid #d8e5dc;border-radius:var(--f4-panel-radius,12px);background:#fff;font:inherit;font-size:13px;resize:vertical}
 #pagePengesahan #v27CancelPanel button{padding:10px 13px;border-radius:9px;font-size:12px}
 @media(max-width:640px){
  #pagePengesahan.card{padding:15px 13px}
@@ -1846,7 +1846,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9KasInfo.f4-savings-kpis{disp
 #pageTabungan .f4-saldo-hero{
  position:relative;isolation:isolate;overflow:hidden;
  display:grid;grid-template-columns:minmax(0,1fr);gap:13px;
- padding:23px;border-radius:23px;
+ padding:23px;border-radius:var(--f4-panel-radius,12px);
  background:linear-gradient(120deg,var(--f4-bank-primary,#087c6c) 0%,#43a047 100%);color:#fff;
  box-shadow:0 10px 23px #00968826
 }
@@ -1892,7 +1892,7 @@ body.f4-bank-app-admin #dashboardView #pageTabungan .f4-savings-utility>.f4-bank
 
 /* Saldo anggota — satu daftar ringkas dengan avatar, label rumah dan nominal. */
 #pageTabungan .f4-savings-main{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
-#pageTabungan .f4-savings-panel,#pageTabungan .f4-savings-roster{min-width:0;padding:14px;border:1px solid #e2ebe3;border-radius:17px;background:#fff}
+#pageTabungan .f4-savings-panel,#pageTabungan .f4-savings-roster{min-width:0;padding:14px;border:1px solid #e2ebe3;border-radius:var(--f4-panel-radius,12px);background:#fff}
 #pageTabungan .f4-savings-panel-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 11px}
 #pageTabungan .f4-savings-panel-title h3,#pageTabungan #v9Form>h3,#pageTabungan .f4-savings-history h3{margin:0;color:#234735;font-size:16px;line-height:1.3}
 #pageTabungan .f4-savings-panel-title p,#pageTabungan .f4-payout-intro{margin:0;color:#738579;font-size:11px}
@@ -1941,7 +1941,7 @@ body.f4-direct-bank #dashboardView #pageTabungan #v9Form :is(input,select){
 }
 body.f4-direct-bank #dashboardView #pageTabungan #v9Form>.f4-payout-submit{
  min-height:39px;width:100%;padding:8px 10px;margin:0;
- border-radius:9px;font-size:12px;font-weight:750;white-space:normal;
+ border-radius:var(--f4-panel-radius,12px);font-size:12px;font-weight:750;white-space:normal;
  justify-self:stretch
 }
 #pageTabungan #v9Notice:not(:empty){font-size:11.5px;line-height:1.45;margin-top:9px}
@@ -1995,7 +1995,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric{
  justify-content:center;align-items:flex-start;
  min-width:0;min-height:76px;
  margin:0;padding:10px 13px;
- border-radius:11px;
+ border-radius:var(--f4-panel-radius,12px);
  background:#fff;border:1px solid #dfebe4;
  box-shadow:none
 }
@@ -2260,13 +2260,13 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
   body.f4-direct-bank #dashboardView #pageLaporan #v10ReportTable .f4-card-detail-toggle{
     width:26px;min-width:26px;max-width:26px;
     height:26px;min-height:26px;max-height:26px;
-    margin:0;padding:0;border:0;border-radius:8px;
+    margin:0;padding:0;border:0;border-radius:var(--f4-panel-radius,12px);
     color:#19835e;background:transparent;box-shadow:none
   }
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261123-bank-teal-v3">
+<link rel="stylesheet" href="/portal-live/bank-progress-app.css?v=20261126-card-standard-admin-cash-v1">
 
 
 
@@ -2338,7 +2338,7 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 </div>
 <!-- The active Cloudflare read bridge is maintained once in live-bank-readonly.js. -->
 
-<script src="/portal-live/live-bank-readonly.js?v=20261123-public-chart-aggregates-v7"></script>
+<script src="/portal-live/live-bank-readonly.js?v=20261126-card-standard-admin-cash-v1"></script>
 <script src="/portal-live/bank-progress-app.js?v=20261121-belum-terjual-v1"></script>
 <script src="/portal-live/f4-bank-write-bridge.js?v=20261115-deposit-edit-v1"></script>
 <script id="f4-bank-split-readonly">
@@ -4212,9 +4212,9 @@ const inv=document.createElement('div');inv.id='pageInventaris';inv.className='c
         v14Stat('Hasil diterima lapak',rupiah(d.diterimaLapakRp),''),
         v14Stat('Setoran',d.jumlahSetoran,'')
       );
-      $('v14Extra').replaceChildren(v14ExtraStat('Menunggu sah',rupiah(d.estimasiSetoranRp)),v14ExtraStat('Barang aktif',d.jenisBarangAktif+' jenis'),v14ExtraStat('Kas gabungan',rupiah(d.kasGabunganRp)),v14ExtraStat('Berat terjual',kg(d.beratPenjualanKg)),v14ExtraStat('Riwayat tabungan',rupiah(d.netMutasiTabunganRp)),v14ExtraStat('Jumlah penjualan',d.jumlahPenjualan));
+      $('v14Extra').replaceChildren(v14ExtraStat('Menunggu sah',rupiah(d.estimasiSetoranRp)),v14ExtraStat('Barang aktif',d.jenisBarangAktif+' jenis'),v14ExtraStat('Kas gabungan',rupiah(d.kasGabunganRp)),v14ExtraStat('Berat terjual',d.beratPenjualanKg==null?'—':kg(d.beratPenjualanKg)),v14ExtraStat('Riwayat tabungan',rupiah(d.netMutasiTabunganRp)),v14ExtraStat('Jumlah penjualan',d.jumlahPenjualan));
       $('v14Status').textContent=(d.tarifBelumDitetapkan?'Perhatian: '+d.tarifBelumDitetapkan+' barang belum memiliki tarif warga. ':'')+'';
-    }else{$('v14Primary').textContent='Ringkasan belum tersedia.';$('v14Status').textContent=String(stats.reason?.message||stats.reason);}
+    }else{$('v14Primary').textContent='Ringkasan belum tersedia.';$('v14Status').textContent=String(stats.reason?.message||stats.reason);window.dispatchEvent(new CustomEvent('f4-bank-admin-overview-error',{detail:$('v14Status').textContent}));}
     if(deposits.status==='fulfilled')v14WeightTrend(deposits.value);
     const recent=deposits.status==='fulfilled'?deposits.value.filter(r=>r.status!=='Dibatalkan').slice(0,5):[];
     const recentBox=$('v14Recent');recentBox.replaceChildren();if(recent.length)recentBox.appendChild(v14RecentTable(recent));else recentBox.textContent='Belum ada setoran terbaru.';
@@ -7826,18 +7826,18 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261123-bank-teal-v3">
-<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261123-bank-teal-v3">
-<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261126-rail-label-repair-v3">
-<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261123-bank-teal-v3">
-<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261126-rail-label-repair-v3">
+<link rel="stylesheet" href="/portal-live/bank-member-polish.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-dashboard.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bank-eco-pages.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bank-development-app.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bank-member-navigation.css?v=20261126-card-standard-admin-cash-v1">
   <link rel="stylesheet" href="/portal-live/bank-mobile-dock.css?v=20261123-bank-teal-v3">
 <script defer src="/portal-live/transaction-receipts.js?v=20261115-bank-sale-receipt-actions-v3"></script>
 <script src="/portal-live/bank-sale-sheet.js?v=20261114-sale-note-short-v3"></script><script src="/portal-live/bank-sale-report.js?v=20261103-internal-v1"></script><script src="/portal-live/bank-member-prices.js?v=20261123-prices-no-search-v3"></script>
 
 <script src="/portal-live/direct-shell.js?v=20261126-stable-shell-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script defer src="/portal-live/mobile-cards.js?v=20261121-setoran-item-matrix-v1"></script><script defer src="/portal-live/bank-setoran-date.js?v=20261115-custom-date-dekstop-v1"></script><script defer src="/portal-live/native-controls.js?v=20261116-short-report-dates-v11"></script><script defer src="/portal-live/bank-page-history.js?v=20261113-back-guard-v3"></script>
-<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261126-rail-label-repair-v3"></script>
-<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261124-member-info-full-v2">
+<script defer src="/portal-live/bank-policy-admin.js?v=20261122-master-two-column-v1"></script><script defer src="/portal-live/bank-mobile-app.js?v=20261126-card-standard-admin-cash-v1"></script>
+<link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261126-card-standard-admin-cash-v1">
 <script defer src="/portal-live/bank-impact-summary.js?v=20261124-finance-first-v5"></script>
 <link rel="stylesheet" href="/portal-live/work-notifications.css?v=20261109-all-portals-sheet-v5">
 <script defer src="/portal-live/work-notifications.js?v=20261109-greeting-icons-v3"></script>

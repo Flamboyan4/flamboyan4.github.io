@@ -317,9 +317,11 @@
    });
  };
  const adminOverview=async()=>{
-  const [members,items,deposits,sales,ledger,cash,publicInfo]=await Promise.all([
+  // Public aggregates must not gate private ledger totals.
+  const [members,items,deposits,sales,ledger,cash]=await Promise.all([
     adminMembers(),adminRows('catalog'),adminDeposits(),adminSales(),
-    adminRows('ledger'),adminRows('cash'),publicData()]);
+    adminRows('ledger'),adminRows('cash')]);
+  const publicInfo=cache&&Date.now()-loadedAt<15000?cache:null;
   if([members,items,deposits,sales,ledger,cash].some(x=>x.length>=300))
    throw Error('Dashboard mencapai 300 baris data; ringkasan dihentikan agar jumlah tidak terpotong.');
   const validDeposits=deposits.filter(x=>x.status!=='Dibatalkan');
@@ -346,7 +348,7 @@
    estimasiSetoranRp:validDeposits.filter(x=>x.status==='Estimasi').reduce((n,x)=>n+x.estimasi,0),
    hakWargaSahRp:validDeposits.filter(x=>x.status==='Terkonfirmasi'&&x.nilaiSahRp!==null).reduce((n,x)=>n+x.nilaiSahRp,0),
    jumlahPenjualan:confirmedSales.length,
-   beratPenjualanKg:number(publicInfo.overview?.confirmedSalesWeightKg),
+   beratPenjualanKg:publicInfo?.overview?.confirmedSalesWeightKg==null?null:number(publicInfo.overview.confirmedSalesWeightKg),
    diterimaLapakRp:confirmedSales.reduce((n,x)=>n+x.diterima,0),
    netMutasiTabunganRp:netSavings,
    netKasRp:totalCash,

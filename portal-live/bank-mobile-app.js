@@ -59,7 +59,7 @@ let memberAward={badge:null,memberId:"",loadedAt:0,pending:null,generation:0};
 let memberHomeChartGroup="month";
 let memberBalancePrivacy={hidden:true};
 let memberPublicMini={data:null,pending:null,loadedAt:0,version:0};
-let adminOverview=null;
+let adminOverview=null,adminOverviewError='';
 let refreshing=false;
 const custom=["bank-history","bank-payout","bank-report","bank-prices","bank-payout-admin","bank-admin-history","bank-admin-docs","bank-admin-cash","bank-admin-progress"];
 const featureRoutes=["bank-member-info","bank-member-docs"];
@@ -577,7 +577,7 @@ function updateDashboard(){
   const owned=current?.kasMilikBankRp;
   const headline=$("f4BankAppAdminHero")?.querySelector(".f4-bank-app-balance-title");if(headline)headline.textContent="Kas milik Bank Sampah";
   text("f4BankAppBalance",Number.isFinite(owned)?rupiah(owned):"—");
-  text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):"Memuat posisi kas...");
+  text("f4BankAppSecondary",current?"Hasil diterima lapak: "+rupiah(current.diterimaLapakRp):adminOverviewError?"Posisi kas belum dapat dimuat.":"Memuat posisi kas...");
   text("f4BankAdminHeroWarga",current?rupiah(current.hakWargaBelumCairRp):"—");
   text("f4BankAdminHeroLingkungan",current?rupiah(current.kasLingkunganRp):"—");
   // Pos hak warga dan kas lingkungan sudah ditampilkan di kartu saldo utama.
@@ -604,7 +604,7 @@ function updateDashboard(){
 }
 function updateAdminOverview(event){
  if(roleType()!=="admin"||!event.detail)return;
- adminOverview=event.detail;updateDashboard();
+ adminOverview=event.detail;adminOverviewError='';updateDashboard();
 }
 // Admin has an unframed page shell on PC and HP; inner information cards stay intact.
 // Restore the original page class if a member account is opened in the same session.
@@ -3112,13 +3112,13 @@ function resetRoleSurface(){
   const page=$(id);if(page&&history?.contains(page)&&section)section.append(page);
  }
  document.body.classList.remove("f4-bank-member-secondary");
- memberStatement=null;adminOverview=null;memberSnapshotsLoaded=false;
+ memberStatement=null;adminOverview=null;adminOverviewError='';memberSnapshotsLoaded=false;
  weighingRequestId++;weighingRequest=null;weighingWeekday=0;weighingLastFetched=0;weighingReady=false;
  requestNonce="";requestEnabled=false;memberSnapshotsLoaded=false;
 }
 window.f4BankResetForAccountSwitch=()=>{
  resetRoleSurface();
- role=null;memberStatement=null;adminOverview=null;
+ role=null;memberStatement=null;adminOverview=null;adminOverviewError='';
  dock().replaceChildren();
  document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
  $("f4BankMemberTopIdentity")?.remove();$("f4BankMemberTopBrand")?.remove();$("f4BankAdminTopIdentity")?.remove();
@@ -3145,7 +3145,7 @@ function sync(){
   role=next;screen="dashboard";
   dock().replaceChildren(...(role==="member"?memberDock:adminDock).map(x=>action(x,true)));
   if(role==="member")requestNonce="";
-  memberStatement=null;adminOverview=null;
+  memberStatement=null;adminOverview=null;adminOverviewError='';
   if(role==="admin")$("f4BankProfileDetail")?.remove();
  }
  memberSide(role==="member");adminTopIdentity();
@@ -3340,6 +3340,7 @@ function init(){
  };
  window.addEventListener("f4-bank-member-statement",acceptMemberStatement);
  window.addEventListener("f4-bank-admin-overview",updateAdminOverview);
+ window.addEventListener("f4-bank-admin-overview-error",event=>{if(roleType()!=="admin")return;adminOverview=null;adminOverviewError=String(event.detail||"Data tidak tersedia");updateDashboard();});
  window.addEventListener("f4-bank-data-changed",()=>{
   refreshAdminAlerts(true);
   if(roleType()==="admin"&&$("f4BankAdminInsights"))adminInsightFetch(true);

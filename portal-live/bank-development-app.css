@@ -21,7 +21,7 @@
 #v17Perkembangan .f4-dev-chart-card,
 #v17Perkembangan .f4-dev-activity-card{
  min-width:0;margin:0;padding:16px;
- border:1px solid #e1eee6;border-radius:18px;background:#fff;box-shadow:0 6px 18px #176d4b0c
+ border:1px solid #e1eee6;border-radius:var(--f4-panel-radius,12px);background:#fff;box-shadow:0 6px 18px #176d4b0c
 }
 #v17Perkembangan .f4-dev-head{
  display:flex;align-items:center;justify-content:space-between;
