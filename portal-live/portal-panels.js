@@ -68,7 +68,7 @@ function showPanel(panel,recordHistory=true){
  if(isolated)__f4.globals.document.body.dataset.f4ResidentView=panel;else delete __f4.globals.document.body.dataset.f4ResidentView;
  if(isMember(current.role)){
   createFinanceTabs();
-  if(panel==='keuangan'){setFinanceMode(true);finBlock.dataset.f4Dedicated='1';}
+  if(panel==='keuangan'){finBlock.dataset.f4Dedicated='1';if(finBlock.querySelector('#f4-personal-finance').hidden)setFinanceMode(true);}
   else if(finBlock?.dataset.f4Dedicated){delete finBlock.dataset.f4Dedicated;setFinanceMode(false);}
  }
  const element=sectionTargets[panel]||sectionTargets.beranda;
@@ -408,7 +408,7 @@ __f4.window.addEventListener('message',event=>{
   __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.
-  personalRequestSerial++;
+  if(priorRole!==current.role)personalRequestSerial++;
   if(isMember(current.role)){
    createFinanceTabs();finBlock.hidden=false;
    if(priorRole!==current.role){const requested=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman');if(requested==='keuangan'||requested==='kalender')showPanel(requested,false);else setFinanceMode(false);}
