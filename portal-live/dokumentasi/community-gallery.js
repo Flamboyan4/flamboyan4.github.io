@@ -286,7 +286,6 @@ async function report(target){
  dlg.body.append(submit);
 }
 function refreshGallery(){
- if(isProfileRoute()){void loadResidentProfile();return;}
  __f4.globals.location.assign('/dokumentasi/');
 }
 async function imageBlob(file){
@@ -458,14 +457,18 @@ function f4TagButton(host,target){
  host.append(trigger);
 }
 
-async function uploadDialog(){
- if(!__f4.window.f4GalleryCommunity){
-  try{__f4.window.f4GalleryCommunity=await get('')}
-  catch(e){notice('Koneksi galeri belum siap: '+e.message);return}
- }
- const enabled=(0,__f4.globals.Boolean)(__f4.window.f4GalleryCommunity.uploadEnabled);
+async function uploadDialog(onUploaded){
+ const fromProfile=typeof onUploaded==='function';
  const dlg=popup('Unggah Foto');
  dlg.panel.classList.add('f4g-upload-modal');
+ dlg.body.append(elem('p','f4g-note','Memuat pilihan album…'));
+ if(!__f4.window.f4GalleryCommunity){
+  try{__f4.window.f4GalleryCommunity=await get('')}
+  catch(e){if(dlg.panel.isConnected)message(dlg.body,'Koneksi galeri belum siap: '+e.message,true);return}
+ }
+ const enabled=(0,__f4.globals.Boolean)(__f4.window.f4GalleryCommunity.uploadEnabled);
+ if(!dlg.panel.isConnected)return;
+ dlg.body.replaceChildren();
  if(!enabled){
   const note=elem('div','f4g-upload-offline');
   const mark=elem('span','f4g-upload-offline-icon');mark.innerHTML=svg('shield');
@@ -502,9 +505,19 @@ async function uploadDialog(){
  const preview=elem('div','f4g-previews');dlg.body.append(preview);
  const album=field(dlg.body,'Tujuan album','select');
  const makeOption=(value,label)=>{const o=elem('option','',label);o.value=value;return o};
- const options=__f4.window.f4GalleryAlbums?.()||[];
+ const knownAlbums=__f4.window.f4GalleryAlbums?.();
+ const options=new __f4.globals.Map((knownAlbums||__f4.window.f4GalleryCommunity.albums||[]).filter(a=>a.id&&a.title&&!a.id.startsWith('gfolder:')).map(a=>[a.id,a.title]));
+ if(fromProfile&&!knownAlbums){
+  try{
+   const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const data=await response.json();
+   for(const a of data.documentation||[]){const scope=String(a.portal||a.portal_scope||a.source_portal||a.scope||'').toLowerCase();const category=String(a.category||a.kategori||'');const title=a.title||a.judul;if(a.id&&title&&!String(a.id).startsWith('gfolder:')&&(!scope||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(scope))&&!/^Bank Sampah\s*[:/]/i.test(category))options.set(a.id,title);}
+  }catch(e){if(dlg.panel.isConnected)message(dlg.body,'Album arsip belum dapat dimuat. Album unggahan warga tetap tersedia.',true)}
+ }
+ if(!dlg.panel.isConnected)return;
  album.append(makeOption('','Pilih album…'));
- for(const a of options)album.append(makeOption(a.id,a.title));
+ for(const [id,title] of options)album.append(makeOption(id,title));
  album.append(makeOption('__new','+ Buat album baru'));
  const newWrap=elem('div','f4g-field');newWrap.hidden=true;newWrap.append(elem('label','','Nama album baru'));
  const newTitle=elem('input');newTitle.placeholder='Contoh: Arisan November 2026';newTitle.maxLength=100;newWrap.append(newTitle);
@@ -612,7 +625,9 @@ async function uploadDialog(){
  const status=elem('p','f4g-status');status.hidden=true;footer.append(status);
  const send=button(enabled?'Unggah Foto':'Menunggu Koneksi Drive','upload',null,'primary');send.disabled=true;footer.append(send);dlg.panel.append(footer);
  if(!enabled)send.title='Unggah belum tersedia sampai Google Drive dihubungkan pengelola.';
- const viewGallery=button('Lihat di Galeri','arrow',refreshGallery,'primary');
+ let uploaded=false;
+ const notifyProfile=()=>{if(fromProfile&&uploaded){uploaded=false;onUploaded()}};
+ const viewGallery=button(fromProfile?'Lihat unggahan':'Lihat di Galeri','arrow',fromProfile?()=>dlg.close():refreshGallery,'primary');
  let files=[],urls=[],completedFiles=new __f4.globals.Set();
  const update=()=>{
   urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x));urls=[];
@@ -668,7 +683,7 @@ async function uploadDialog(){
      });
      const data=await response.json().catch(()=>({}));
      if(!response.ok||data.ok===false)throw (0,__f4.globals.Error)(data.error||'HTTP '+response.status);
-     done++;completedFiles.add(file);
+     done++;completedFiles.add(file);uploaded=true;
     }catch(e){errors.push(file.name+': '+e.message)}
    }
    if(done&&!viewGallery.isConnected)dlg.body.append(viewGallery);
@@ -688,7 +703,7 @@ async function uploadDialog(){
   }
  });
  // URL pratinjau dibersihkan juga saat menutup dengan Back, Escape, atau backdrop.
- dlg.onClose(()=>urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x)));
+ dlg.onClose(()=>{urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x));notifyProfile()});
 }
 async function adminDialog(){
  try{await signedIn();if(user.role!=='superadmin'){notice('Fitur ini khusus superadmin.');return}}catch{return}
@@ -951,7 +966,7 @@ __f4.globals.document.addEventListener('f4:gallery:photo',e=>{
  f4TagButton(viewer.querySelector('.f4p-photo-stage')||actions,target);
 });
 __f4.globals.document.addEventListener('f4:auth-changed',()=>activeSession().then(mount));
-mount();
-activeSession().then(mount);
+__f4.window.f4OpenGalleryUpload=onUploaded=>uploadDialog(onUploaded);
+if(__f4.globals.document.getElementById('media-albums-section')){mount();activeSession().then(mount);}
 })();
 });
