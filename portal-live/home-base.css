@@ -44,7 +44,7 @@
  * sekarang sidebar/menu + utility bar berasal dari shell terpadu. */
 body>header, body>section:first-of-type { display:none; }
 body {background:#fff;color:var(--f4-portal-text)}
-#f4-portal-home-main {padding:24px 16px;max-width:1250px}
+#f4-portal-home-main {padding:24px 16px;max-width:var(--f4-content-max,1040px)}
 #banner-slider-container {border-radius:16px}
 
 

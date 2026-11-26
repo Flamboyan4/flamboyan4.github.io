@@ -81,7 +81,7 @@
 #f4-direct-sidebar button,#f4-direct-sidebar a{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;padding:10px 12px;margin:2px 0;background:transparent;border:0;border-radius:10px;color:#333b54;text-align:left;text-decoration:none;font:650 13px system-ui;cursor:pointer}
 #f4-direct-sidebar button[aria-current=page],#f4-direct-sidebar button:hover,#f4-direct-sidebar a:hover{color:var(--f4-nav);background:var(--f4-nav-tint)}
 #f4-direct-sideback{position:fixed;inset:56px 0 0;z-index:109;background:#0e19276b;border:0;width:100%;padding:0}
-body.f4-direct-portal{padding-top:56px;padding-left:226px;min-height:100dvh}
+body.f4-direct-portal{padding-top:56px;padding-left:var(--f4-portal-rail,226px);min-height:100dvh}
 body.f4-direct-portal>main{max-width:var(--f4-content-max);margin:0 auto}
 body.f4-direct-bank{--f4-nav:#087c6c;--f4-nav-tint:#e3f6f1;--f4-nav-line:#b9e7dc;
 padding-top:56px}
@@ -90,7 +90,7 @@ padding-top:56px}
 body.f4-direct-book>header{display:none}
 body.f4-direct-superadmin{--f4-nav:#6650cc;--f4-nav-tint:#f1edff;--f4-nav-line:#e4dff4;
 padding-top:0}
-body.f4-direct-simple{padding-top:56px;padding-left:226px}
+body.f4-direct-simple{padding-top:56px;padding-left:var(--f4-portal-rail,226px)}
 /* Rapat used its own tall legacy navbar. The unified 56px bar now replaces it. */
 body.f4-direct-simple>header{display:none}
 /* Akses langsung kedua portal privat: satu halaman penolakan, tanpa bar/sidebar. */
@@ -194,7 +194,8 @@ body.f4-account-open #f4-direct-bar{z-index:500}
 }
 /* 26 Oct — Unified top rail: same geometry as the approved Superadmin header. */
 @media(min-width:1024px){
- body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:226px}
+ body:is(.f4-direct-portal,.f4-direct-simple){--f4-content-max:1040px}
+ body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:var(--f4-portal-rail,226px)}
  body:is(.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin) #f4-direct-bar{left:var(--f4-rail-width,226px)}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0;bottom:0;height:100dvh;padding-top:0}
  body.f4-direct-bank #v18PublicSide{position:fixed;top:0;left:0;bottom:0;width:var(--f4-rail-width,226px);height:100dvh;max-height:100dvh}
@@ -291,7 +292,7 @@ body.f4-direct-portal:has(
 ) #f4-direct-sideback{display:none}
 /* Keep sidebar internally scrollable on short displays, without the
    intrusive independent scrollbar next to the page. */
-#f4-direct-sidebar{position:fixed;left:0;top:56px;bottom:0;width:226px;overflow-y:auto;background:#fff;z-index:110;border-right:1px solid var(--f4-nav-line);padding:14px 10px;font:600 13px system-ui;
+#f4-direct-sidebar{position:fixed;left:0;top:56px;bottom:0;width:var(--f4-portal-rail,226px);overflow-y:auto;background:#fff;z-index:110;border-right:1px solid var(--f4-nav-line);padding:14px 10px;font:600 13px system-ui;
 scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 #f4-direct-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
 
@@ -358,6 +359,30 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  }
  body.f4-direct-book > main > *{min-width:0;max-width:var(--f4-content-max);margin-inline:auto}
  body.f4-direct-simple > main{box-sizing:border-box;min-width:0;max-width:var(--f4-content-max,1200px)}
+}
+
+/* Portal Utama desktop: stable 72px icon rail; expand over content on hover
+   or keyboard focus, never change the content coordinate system. */
+@media screen and (min-width:1024px) and (hover:hover) and (pointer:fine){
+ body:is(.f4-direct-portal,.f4-direct-simple){--f4-portal-rail:72px}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{
+  overflow-x:hidden;transition:width .18s ease,box-shadow .18s ease;z-index:210
+ }
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:is(:hover,:has(:focus-visible)){
+  width:226px;box-shadow:8px 0 20px rgba(30,35,50,.08)
+ }
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button{
+  gap:12px;padding-inline:15px;white-space:nowrap
+ }
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button :is(.f4-svg-icon,svg){width:22px;height:22px}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{padding-inline:15px;white-space:nowrap}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar :is(.f4-direct-menu-label,.f4-direct-brand>div,.f4-direct-group-label){white-space:nowrap}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) :is(.f4-direct-menu-label,.f4-direct-brand>div){opacity:0;pointer-events:none}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-group-label{color:transparent}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button:focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
+}
+@media (prefers-reduced-motion:reduce){
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{transition-duration:0s}
 }
 
 /* 2026-11-17: ONE shared touch-interaction owner for native Flamboyan portals.

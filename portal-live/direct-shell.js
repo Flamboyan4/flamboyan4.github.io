@@ -338,7 +338,8 @@ function makePortalSide(){
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
   if(key==='keuangan'){b.hidden=true;b.classList.add('hidden');}
   b.innerHTML=svg(iconName);
-  const labelEl=el('span');labelEl.textContent=label;b.append(labelEl);
+  b.setAttribute('aria-label',label);
+  const labelEl=el('span','f4-direct-menu-label');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{
    closeSide();
    if(key==='rapat'||key==='dokumentasi'){location.assign(paths[key]);return}
