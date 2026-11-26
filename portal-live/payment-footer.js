@@ -2,8 +2,7 @@
 window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
 
 
-/* Portal Utama: copy bank account numbers from inline desktop footer or mobile sheet.
-   Opening/closing uses the existing global modal stack for Back and Escape. */
+/* Portal Utama: payment shortcut and account copy on desktop and mobile. */
 (()=>{
  'use strict';
  const root=__f4.globals.document.getElementById('modal-rekening');
@@ -15,8 +14,7 @@ window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
  const menu=doc.getElementById('f4-mobile-payment-menu');
  const options=doc.getElementById('f4-mobile-payment-options');
  const mobileStatus=doc.getElementById('f4-mobile-payment-status');
- const mobile=__f4.window.matchMedia('(max-width:767px)');
- // The shell owns the canonical bank details, used by the legacy desktop/public UI too.
+ // The shell owns the canonical bank details.
  for(const account of __f4.globals.F4ResidentTools.accounts){
    for(const button of doc.querySelectorAll('[data-account-key="'+account.key+'"]')){
      button.dataset.accountCopy=account.number;
@@ -24,29 +22,26 @@ window.F4PortalRuntime.define("/portal-live/payment-footer.js",function(__f4){
      if(info){info.querySelector('strong').textContent=account.bank;info.querySelector('small').textContent='a.n. '+account.owner;const number=info.querySelector('.f4-account-number');if(number)number.textContent=account.number;}
    }
  }
- const originalQris=doc.querySelector('footer#pembayaran .f4-payment-qris');if(originalQris)originalQris.href=__f4.globals.F4ResidentTools.qris;
+ const qris=options?.querySelector('.f4-payment-qris');if(qris)qris.href=__f4.globals.F4ResidentTools.qris;
  if(options){
-   const qris=doc.querySelector('footer#pembayaran .f4-payment-qris');
-   if(qris)options.append(qris.cloneNode(true));
    for(const row of root.querySelectorAll('.f4-account-item'))options.append(row.cloneNode(true));
    __f4.window.lucide?.createIcons?.();
  }
  function setOpen(open){
    if(!toggle||!menu)return;
-   const visible=!!open&&mobile.matches;
+   const visible=!!open;
    menu.hidden=!visible;toggle.setAttribute('aria-expanded',(0,__f4.globals.String)(visible));
  }
  if(toggle&&menu){
    toggle.addEventListener('click',()=>setOpen(menu.hidden));
    doc.addEventListener('click',e=>{if(!menu.hidden&&!e.target.closest?.('#f4-mobile-payment'))setOpen(false);});
    doc.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){setOpen(false);toggle.focus();}});
-   __f4.window.addEventListener('resize',()=>{if(!mobile.matches)setOpen(false);});
    __f4.window.f4OpenMobilePayment=()=>setOpen(true);
  }
  const copyNumber=value=>__f4.globals.F4ResidentTools.copyNumber(value);
  __f4.globals.document.addEventListener('click',async event=>{
    const button=event.target.closest?.('[data-account-copy]');
-   if(!button||!button.closest('#modal-rekening,footer#pembayaran,#f4-mobile-payment-menu'))return;
+   if(!button||!button.closest('#modal-rekening,#f4-mobile-payment-menu'))return;
    const inSheet=root.contains(button);
    const feedback=inSheet?status:menu?.contains(button)?mobileStatus:null;
    const number=button.getAttribute('data-account-copy')||'';
