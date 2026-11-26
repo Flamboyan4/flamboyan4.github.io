@@ -975,7 +975,7 @@ function renderResidentProfile(){
  }
  identity.append(counts);head.append(picture,identity);root.append(head);
  const actions=elem('div','f4-profile-actions');
- actions.append(button('Edit Profil','edit',()=>__f4.window.f4OpenUnifiedAccount?.()),button('Unggah Foto','upload',uploadDialog,'primary'));root.append(actions);
+ actions.append(button('Edit Profil','edit',()=>__f4.window.f4OpenUnifiedAccount?.()),button('Unggah Foto','upload',async()=>{await __f4.window.f4EnsureGalleryArchive?.();uploadDialog()},'primary'));root.append(actions);
  const tabs=elem('div','f4g-view-tabs f4-profile-tabs');tabs.setAttribute('role','tablist');
  for(const [key,label,icon] of [['uploads','Unggahan Saya','grid'],['tagged','Ditandai','user']]){
   const b=button(label,icon,()=>{profileTab=key;renderResidentProfile()},'f4g-view-button');b.setAttribute('role','tab');b.setAttribute('aria-selected',String(profileTab===key));b.classList.toggle('selected',profileTab===key);tabs.append(b)
@@ -1020,7 +1020,6 @@ __f4.window.addEventListener('message',e=>{if(e.origin!==__f4.globals.location.o
 __f4.window.addEventListener('f4-account-profile-updated',()=>{if(isProfileRoute())void loadResidentProfile()});
 syncResidentProfile();
 
-mount();
-activeSession().then(mount);
+if(!isProfileRoute()){mount();activeSession().then(mount);}
 })();
 });
