@@ -2163,7 +2163,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
               badgeMultiPhoto = `<span data-folder-badge="${folderId || ''}" class="absolute top-3 left-3 bg-black/75 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-md flex items-center space-x-1 z-10 shadow-sm"><i data-lucide="folder" class="w-3.5 h-3.5"></i><span>${badgeText}</span></span>`;
             }
 
-            allHTML += `<div role="button" tabindex="0" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGalleryGridModal('${safePhotoString}', '${safeTitle}')}" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition flex flex-col w-full h-full cursor-pointer group active:scale-[0.99]">
+            allHTML += `<div role="button" tabindex="0" onclick="openGalleryGridModal('${safePhotoString}', '${safeTitle}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openGalleryGridModal('${safePhotoString}', '${safeTitle}')}" class="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-indigo-300 transition flex flex-col w-full h-full cursor-pointer group active:scale-[0.99]">
               <div class="p-3.5 bg-slate-50 border-b border-slate-100">
                 <span class="text-[10px] text-indigo-600 font-bold block uppercase tracking-wider mb-0.5">${tanggal}</span>
                 <h4 class="text-slate-800 font-bold text-sm md:text-base leading-snug break-words group-hover:text-indigo-700 transition">${judul}</h4>
@@ -2866,7 +2866,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     }
     function f4ProjectGeneric(row){
       const container=f4ProjectCardEl('article',
-        'f4-project-card bg-white rounded-lg border border-slate-200 p-4 flex flex-col');
+        'f4-project-card bg-white rounded-card border border-slate-200 p-4 flex flex-col');
       container.dataset.dynamicProject='true';
       container.dataset.projectId=String(row.id||'');
       container.style.order=String(Number(row.sort_order)||0);
@@ -3071,56 +3071,64 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
     });
 
 
-    // URL CSV Progres Bank Sampah
-// Bank Sampah progress card reads D1 through the existing public Worker API.
-function formatDriveImgUrl(url) {
-  if (!url) return '';
-  const match = String(url).match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return match && match[1] ? 'https://lh3.googleusercontent.com/d/' + match[1] : String(url);
+// Bank progress preview uses public D1 data; a banner is only a visual fallback.
+const f4BankProjectFallback='/assets/banner-bank-sampah.jpg';
+function f4BankProjectPhotoCandidates(value){
+ const raw=String(value||'').trim();if(!raw)return [];
+ try{
+  const url=new URL(raw,'https://api.flamboyan4.web.id');
+  if(url.protocol!=='https:')return [];
+  if(/(^|\.)drive\.google\.com$/.test(url.hostname)){
+   const id=url.pathname.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1]||url.searchParams.get('id');
+   if(id&&/^[a-zA-Z0-9_-]+$/.test(id))return ['https://lh3.googleusercontent.com/d/'+id,'https://drive.google.com/thumbnail?id='+id+'&sz=w800'];
+  }
+  if(url.hostname==='lh3.googleusercontent.com'){
+   const id=url.pathname.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1];
+   if(id)return [url.href,'https://drive.google.com/thumbnail?id='+id+'&sz=w800'];
+  }
+  return [url.href];
+ }catch{return []}
+}
+function f4SetBankProjectPhoto(item){
+ const photo=document.getElementById('bs-step-img');if(!photo)return;
+ const candidates=f4BankProjectPhotoCandidates(item?.photo);let i=0;
+ const next=()=>{
+  if(i<candidates.length){photo.alt='Dokumentasi '+item.title;photo.src=candidates[i++];}
+  else{photo.onerror=null;photo.alt='Banner Bank Sampah Flamboyan 4';photo.src=f4BankProjectFallback;}
+ };
+ photo.onerror=next;next();
 }
 async function loadProgresBankSampahIndex(){
  const target=document.getElementById('bs-step-title');if(!target)return;
- const card=target.closest('.group')||target.closest('[id*=project]')||target.parentElement;
+ const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
+ const fallback=message=>{set('bs-step-tag','Bank Sampah');set('bs-step-title',message);set('bs-info-1','—');set('bs-info-2','—');f4SetBankProjectPhoto(null);};
  try{
-  const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',cache:'no-store'});
+  const response=await fetch('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
+  if(!response.ok)throw Error('HTTP '+response.status);
   const payload=await response.json();
-  if(!response.ok||payload.ok===false)throw Error(payload.error||'HTTP '+response.status);
-  const progress=Array.isArray(payload.progress)?payload.progress:[];
-  const items=progress.map(row=>({
+  if(payload.ok===false||!Array.isArray(payload.progress))throw Error(payload.error||'Data perkembangan tidak tersedia');
+  const items=payload.progress.map(row=>({
    title:String(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
-   stage:String(row.stage||row.langkah||'Tahap perkembangan'),
-   description:String(row.description||row.deskripsi||''),
+   stage:String(row.stage||row.langkah||''),
    status:String(row.status||''),
    date:String(row.happened_on||row.tanggal||row.date||''),
    next:String(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
    photo:String(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
   })).sort((a,b)=>b.date.localeCompare(a.date));
-  // Card Bank Sampah menampilkan progres terbaru sekali saja pada banner, bukan daftar berulang.
   document.getElementById('bs-project-timeline')?.remove();
-  if(!items.length){
-   target.textContent='Belum ada perkembangan';
-   return;
-  }
-  const active=items[0]; // satu progres terbaru menurut tanggal
-  const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=String(value||'—')};
+  if(!items.length){fallback('Belum ada perkembangan');return;}
+  const active=items[0];
   set('bs-step-tag','Terbaru');
   set('bs-step-title',active.title);
-  set('bs-info-1','Tahap: '+active.stage.replace(/^Tahap:\s*/i,''));
+  set('bs-info-1',active.stage?'Tahap: '+active.stage.replace(/^Tahap:\s*/i,''):'—');
   set('bs-info-2',active.next?'Agenda: '+active.next.replace(/^Agenda:\s*/i,''):'Status: '+(active.status||'Dicatat'));
-  const photo=document.getElementById('bs-step-img');
-  if(photo){const img=formatDriveImgUrl(active.photo);if(img)photo.src=img;photo.alt='Dokumentasi '+active.title;}
-  const status=document.getElementById('bs-status-badge');
-  if(status)status.textContent=active.status||'Aktif';
+  f4SetBankProjectPhoto(active);
+  if(active.status)set('bs-status-badge',active.status);
  }catch(error){
   console.error('Progres Bank Sampah tidak dapat dimuat:',error);
-  const host=document.getElementById('bs-step-title');
-  if(host)host.textContent='Perkembangan belum tersedia';
-  const txt=document.getElementById('bs-step-desc');
-  if(txt)txt.textContent='Info Bank Sampah belum tersedia.';
+  fallback('Perkembangan belum tersedia');
  }
 }
-
-// Jalankan otomatis saat halaman dimuat
 document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
     
   

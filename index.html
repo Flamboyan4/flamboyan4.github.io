@@ -37,7 +37,7 @@
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { theme: { extend: { colors: { indigo: {50:"#F7F6FC",100:"#EDEBFA",200:"#DCD8F5",300:"#C3BDF0",400:"#8E82DF",500:"#6558D6",600:"#5145CD",700:"#4539B8",800:"#393099",900:"#302873",950:"#211B50"} } } } };</script>
+  <script>tailwind.config = { theme: { extend: { borderRadius: { card: "var(--f4-portal-card-radius,12px)" }, colors: { indigo: {50:"#F7F6FC",100:"#EDEBFA",200:"#DCD8F5",300:"#C3BDF0",400:"#8E82DF",500:"#6558D6",600:"#5145CD",700:"#4539B8",800:"#393099",900:"#302873",950:"#211B50"} } } } };</script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@1.61.0/dist/umd/lucide.min.js"></script>
   <!-- PapaParse untuk membaca Google Sheets CSV -->
@@ -45,13 +45,13 @@
 <script src="/portal-live/portal-d1-bridge.js?v=20261124-arisan-saturday-rule-v2"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261126-compact-rail-v1"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-stable-shell-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261126-compact-rail-v1">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261126-project-three-up-v1">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261126-card-radius-photo-v1"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-stable-shell-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261123-unified-indigo-v2"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261126-card-radius-photo-v1">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261126-card-radius-photo-v1">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261123-portal-lightbox-grip-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261123-portal-lightbox-grip-v1"></script>
-<link rel="stylesheet" href="/portal-live/community-home.css?v=20261124-square-edge-feed-v7">
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261126-card-radius-photo-v1">
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261123-unified-indigo-v2">
 <script defer src="/portal-live/native-controls.js?v=20261113-portal-v2"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
@@ -132,7 +132,7 @@
 
     <!-- BANNER SLIDER DYNAMIK -->
   <section class="w-full mb-6">
-    <div id="banner-slider-container" class="relative w-full rounded-2xl overflow-hidden shadow-lg bg-slate-100 group aspect-[1600/500]">
+    <div id="banner-slider-container" class="relative w-full rounded-card overflow-hidden shadow-lg bg-slate-100 group aspect-[1600/500]">
       
       <!-- Track Gambar Slider -->
       <div id="banner-track" class="flex w-full h-full transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing">
@@ -161,7 +161,7 @@
       <div class="f4-cash-overview">
         <div id="f4-cash-summary-slides" class="f4-cash-summary" role="group" aria-label="Ringkasan saldo, pemasukan dan pengeluaran">
           <!-- Sisa Saldo Kas Utama -->
-        <div class="bg-indigo-600 p-5 rounded-xl border border-indigo-600 text-white relative overflow-hidden">
+        <div class="bg-indigo-600 p-5 border border-indigo-600 text-white relative overflow-hidden">
           <div class="f4-cash-card-heading flex items-center justify-between mb-1">
             <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
             <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
@@ -184,7 +184,7 @@
         </div>
         <div class="f4-cash-pair">
           <!-- Pemasukan Card -->
-        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
+        <div id="card-pemasukan" tabindex="0" class="bg-white p-5 md:p-6 rounded-card shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-emerald-400/50 select-none">
           <div class="f4-cash-card-main">
             <div class="f4-cash-card-heading flex items-center justify-between mb-2">
               <span id="label-pemasukan-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Masuk</span>
@@ -212,7 +212,7 @@
           </div>
         </div>
           <!-- Pengeluaran Card -->
-        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
+        <div id="card-pengeluaran" tabindex="0" class="bg-white p-5 md:p-6 rounded-card shadow-sm border border-slate-200 hover:border-rose-300 hover:shadow-md transition relative flex flex-col justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/50 select-none">
           <div class="f4-cash-card-main">
             <div class="f4-cash-card-heading flex items-center justify-between mb-2">
               <span id="label-pengeluaran-bulan" class="text-xs md:text-sm font-semibold text-slate-500">Kas Keluar</span>
@@ -251,7 +251,7 @@
           <i data-lucide="printer" aria-hidden="true"></i><span>Cetak</span>
         </button>
       </div>
-      <div id="f4-private-transactions" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
+      <div id="f4-private-transactions" class="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="f4-cash-table-toolbar">
           <span id="label-update-kas" class="f4-cash-last-update">Data Kas</span>
           <div class="f4-cash-table-actions">
@@ -310,7 +310,7 @@
       </div>
 
       <div id="f4-arisan-slides" class="grid f4-grid w-full" data-cols="2" role="group" aria-label="Arisan bulan ini dan berikutnya">
-        <div onclick="openModalArisan('current')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-lg flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
+        <div onclick="openModalArisan('current')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-card flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
             <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
               <span>Arisan Bulan Ini</span>
@@ -323,7 +323,7 @@
           </div>
         </div>
 
-        <div onclick="openModalArisan('next')" class="bg-white hover:bg-indigo-50 p-5 rounded-lg border border-slate-200 hover:border-indigo-300 flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
+        <div onclick="openModalArisan('next')" class="bg-white hover:bg-indigo-50 p-5 rounded-card border border-slate-200 hover:border-indigo-300 flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
             <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
               <span class="w-2 h-2 rounded-full bg-[#FFBA26] shrink-0" aria-hidden="true"></span>
@@ -361,7 +361,7 @@
       <div id="slider-projek" class="f4-project-track">
         
         <!-- CARD 1: JERSEY -->
-        <div id="jersey" class="order-3 f4-project-card bg-white rounded-lg border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="jersey" class="order-3 f4-project-card bg-white rounded-card border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -406,7 +406,7 @@
         </div>
 
         <!-- CARD 2: GAPURA -->
-        <div id="gapura" class="order-2 f4-project-card bg-white rounded-lg border border-slate-200 p-4 flex flex-col justify-between">
+        <div id="gapura" class="order-2 f4-project-card bg-white rounded-card border border-slate-200 p-4 flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -449,7 +449,7 @@
         </div>
 
         <!-- CARD 3: BANK SAMPAH (TERHUBUNG KE BANKSAMPAH.HTML) -->
-        <div id="bank-sampah" onclick="window.f4GoBank?.()" class="order-1 f4-project-card bg-white hover:bg-emerald-50/30 rounded-lg border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
+        <div id="bank-sampah" onclick="window.f4GoBank?.()" class="order-1 f4-project-card bg-white hover:bg-emerald-50/30 rounded-card border border-slate-200 hover:border-emerald-400 p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1 active:scale-98 group">
           <div>
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center space-x-1.5">
@@ -461,22 +461,22 @@
 
            <!-- Foto dimulai tepat setelah header, sejajar dengan kartu projek lain. -->
             <div class="relative rounded-lg h-32 overflow-hidden mb-2 shadow-sm bg-slate-100 border border-emerald-100">
-              <img id="bs-step-img" src="" alt="Progres Bank Sampah" class="block w-full h-full object-cover object-center">
+              <img id="bs-step-img" src="/assets/banner-bank-sampah.jpg" alt="Banner Bank Sampah Flamboyan 4" class="block w-full h-full object-cover object-center">
             </div>
             <div class="flex justify-start mb-1.5">
-              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Terbaru</span>
+              <span id="bs-step-tag" class="inline-flex text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Bank Sampah</span>
             </div>
             <!-- Hanya judul perkembangan terbaru, maksimal dua baris. -->
-            <p id="bs-step-title" class="text-[12px] font-bold text-slate-800 leading-snug line-clamp-2 mb-2">Pembuatan Wadah Drop Point</p>
+            <p id="bs-step-title" class="text-[12px] font-bold text-slate-800 leading-snug line-clamp-2 mb-2">Memuat perkembangan…</p>
 
                         <div class="space-y-1.5 text-xs text-slate-600">
               <div class="flex items-center space-x-2 text-[11px]">
                 <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500 shrink-0"></i>
-                <span id="bs-info-1">Tahap: Pembersihan area pemilahan</span>
+                <span id="bs-info-1">—</span>
               </div>
               <div class="flex items-center space-x-2 text-[11px]">
                 <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
-                <span id="bs-info-2">Agenda: Pembuatan tong/wadah drop point</span>
+                <span id="bs-info-2">—</span>
               </div>
             </div>
           </div>
@@ -510,7 +510,7 @@
        </div>
 
       <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 select-none touch-pan-y h-full">
+        <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 select-none touch-pan-y h-full">
           <div class="flex items-center justify-between mb-4">
             <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
             <div class="flex items-center space-x-1">
@@ -548,7 +548,7 @@
           <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
         </div>
 
-        <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-xl shadow-sm border border-slate-200 h-full flex flex-col">
+        <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 h-full flex flex-col">
           <h4 class="f4-agenda-desktop-heading font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
             <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
             <span>Agenda Berikutnya</span>
@@ -582,9 +582,9 @@
         </div>
       </div>
 
-      <div class="f4-chat-layout bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div class="f4-chat-layout bg-white rounded-card shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- FORM KIRIM KOMENTAR -->
-        <div id="f4-chat-compose" class="lg:col-span-5 bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div id="f4-chat-compose" class="lg:col-span-5 bg-slate-50 p-4 rounded-card border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
             <i data-lucide="message-square-plus" class="w-4 h-4 text-indigo-600"></i>
             <span>Tulis Pesan</span>
@@ -1029,7 +1029,7 @@
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script src="/portal-live/home-legacy.js?v=20261126-project-three-up-v1"></script>
+  <script src="/portal-live/home-legacy.js?v=20261126-card-radius-photo-v1"></script>
 <script defer src="/portal-live/payment-footer.js?v=20261117-desktop-inline-v2"></script>
 <script id="f4-footer-overlap-observer">
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1051,7 +1051,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  window.addEventListener('resize',schedule,{passive:true});
  update();
 });
-</script><script src="/portal-live/portal-panels.js?v=20261123-finance-theme-v3"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261124-paired-cash-v8"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261126-stable-shell-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
+</script><script src="/portal-live/portal-panels.js?v=20261126-card-radius-photo-v1"></script><link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261126-card-radius-photo-v1"><script src="/portal-live/resident-finance-ui.js?v=20261112-mini-receipt-v2"></script><script src="/portal-live/cash-date-picker.js?v=20261112-custom-v1"></script><script src="/portal-live/direct-shell.js?v=20261126-stable-shell-v4"></script><script src="/portal-live/unified-account.js?v=20261113-nohash-v3"></script><script id="f4-home-project-preview-align-20261112">
 (function(){
  function alignProject(){
   const image=document.getElementById('bs-step-img');

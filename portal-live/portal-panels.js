@@ -310,7 +310,7 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "#keuangan .f4-user-category-heading h4{margin:0;color:#293550;font-size:16px;font-weight:800}\n"+
 "#keuangan .f4-user-count{background:#f4f5f9;color:#6e778a;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}\n"+
 "#keuangan .f4-user-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}\n"+
-"#keuangan .f4-user-metric{min-width:0;border:1px solid #e8eaf2;background:#fbfcfe;border-radius:13px;padding:13px 12px}\n"+
+"#keuangan .f4-user-metric{min-width:0;border:1px solid #e8eaf2;background:#fbfcfe;border-radius:var(--f4-portal-card-radius,12px);padding:13px 12px}\n"+
 "#keuangan .f4-user-metric span{display:block;color:#7d8595;font-size:11px;font-weight:650;line-height:1.45}\n"+
 "#keuangan .f4-user-metric strong{display:block;color:#283752;font-size:17px;line-height:1.3;font-weight:800;margin-top:6px;overflow-wrap:anywhere}\n"+
 "#keuangan .f4-user-metric-primary{border-color:var(--f4-portal-line,#c7d2fe);background:var(--f4-portal-soft,#eef2ff)}\n"+
@@ -318,7 +318,7 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "#keuangan .f4-user-list-heading{margin:0 0 5px;padding-top:2px}\n"+
 "#keuangan .f4-user-list-heading strong{font-size:14px;color:#35435a}\n"+
 "#keuangan .f4-user-list-heading span{font-size:11px;color:#909aaa}\n"+
-"#keuangan .f4-user-entries{border:1px solid #edf0f4;border-radius:13px;overflow:hidden;background:#fff}\n"+
+"#keuangan .f4-user-entries{border:1px solid #edf0f4;border-radius:var(--f4-portal-card-radius,12px);overflow:hidden;background:#fff}\n"+
 "#keuangan .f4-user-row{padding:13px 14px;border-bottom:1px solid #eef0f4;gap:14px;background:#fff}\n"+
 "#keuangan .f4-user-row:last-child{border-bottom:0}\n"+
 "#keuangan .f4-user-row-content{min-width:0;flex:1}\n"+

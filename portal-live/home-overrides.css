@@ -121,7 +121,7 @@
   box-sizing:border-box;position:relative;flex:0 0 100%;width:100%;min-width:0;max-width:100%;
   display:grid;grid-template-columns:67px minmax(0,1fr) 25px;align-items:center;gap:12px;
   scroll-snap-align:start;scroll-snap-stop:always;padding:11px 12px;
-  border:1px solid #dfe4ee;border-radius:15px;background:#fff;text-align:left;color:#24324a;cursor:pointer;
+  border:1px solid #dfe4ee;border-radius:var(--f4-portal-card-radius,12px);background:#fff;text-align:left;color:#24324a;cursor:pointer;
  }
  #f4-upcoming-agenda .f4-agenda-preview-card[data-kind="bank"]{--agenda-accent:#087c6c;--agenda-ink:#08705e;--agenda-line:#b9e4d7}
  #f4-upcoming-agenda .f4-agenda-preview-card[data-kind="gorol"]{--agenda-accent:#dc810c;--agenda-ink:#9b5608;--agenda-line:#f6d8a0}

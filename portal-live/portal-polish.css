@@ -18,7 +18,7 @@
 .f4-bs-timeline-row small{display:block;font-size:10px;color:#768b81;line-height:1.5;margin-top:2px}
 #container-grid-rapat{gap:var(--f4-grid-gap,16px);align-items:stretch}
 #container-grid-rapat>div,#container-grid-rapat>button{
- overflow:hidden;border-radius:17px;border:1px solid #e1e5ef;
+ overflow:hidden;border-radius:var(--f4-portal-card-radius,12px);border:1px solid #e1e5ef;
  background:#fff;box-shadow:0 2px 12px rgba(43,47,76,.035);
  transition:border-color .15s ease,box-shadow .15s ease
 }
@@ -33,11 +33,11 @@ body[data-section-page=dokumentasi] .page-stack{max-width:min(1100px,var(--f4-co
 body[data-section-page=dokumentasi] .portal-section-heading{
  color:#29294b;font-weight:800;letter-spacing:-.7px
 }
-body[data-section-page=dokumentasi] .panel{background:white;border:1px solid #e4e5ef;border-radius:18px;box-shadow:none}
+body[data-section-page=dokumentasi] .panel{background:white;border:1px solid #e4e5ef;border-radius:var(--f4-portal-card-radius,12px);box-shadow:none}
 body[data-section-page=dokumentasi] .media-album-grid{gap:12px;max-height:none;overflow:visible;padding-right:0}
 body[data-section-page=dokumentasi] .media-inventory-list{max-height:none;overflow:visible;padding-right:0}
 body[data-section-page=dokumentasi] .media-album-card{
- border-radius:16px;border:1px solid #e3e4ee;box-shadow:0 2px 9px rgba(35,35,75,.025);
+ border-radius:var(--f4-portal-card-radius,12px);border:1px solid #e3e4ee;box-shadow:0 2px 9px rgba(35,35,75,.025);
 }
 body[data-section-page=dokumentasi] .media-album-cover{height:195px;background:#f4f3f9}
 body[data-section-page=dokumentasi] .media-album-cover img{object-fit:cover}
@@ -50,7 +50,6 @@ body[data-section-page=dokumentasi] .media-search{border-radius:12px;background:
  body[data-section-page=dokumentasi] .page-stack{padding:15px 15px 25px}
  body[data-section-page=dokumentasi] .media-album-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
  body[data-section-page=dokumentasi] .media-album-cover{height:145px}
- body[data-section-page=dokumentasi] .media-album-card{border-radius:14px}
  body[data-section-page=dokumentasi] .media-album-card .media-album-info{padding:10px}
 }
 

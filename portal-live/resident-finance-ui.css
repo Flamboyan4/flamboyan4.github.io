@@ -44,7 +44,7 @@
 #keuangan .f4-cash-summary>div:first-child,
 #keuangan .f4-cash-pair>div {
   display:flex;flex-direction:column;justify-content:space-between;
-  min-width:0;min-height:0;flex:1 1 0;padding:15px 17px;border-radius:16px;transform:none;
+  min-width:0;min-height:0;flex:1 1 0;padding:15px 17px;border-radius:var(--f4-portal-card-radius,12px);transform:none;
   box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-cash-summary>div:first-child {
@@ -55,7 +55,7 @@
 body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {
   min-width:0;min-height:0;height:100%;max-height:100%;
   display:flex;flex-direction:column;
-  overflow:hidden;border-radius:16px;box-shadow:0 5px 16px rgba(34,39,91,.035);
+  overflow:hidden;border-radius:var(--f4-portal-card-radius,12px);box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-cash-overview #f4-private-transactions>div.overflow-x-auto {
   min-width:0;min-height:0;flex:1;overflow-x:auto;overflow-y:auto;scrollbar-width:thin;
@@ -260,7 +260,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
     display:grid;grid-template-columns:minmax(0,1fr);
     grid-template-rows:minmax(24px,auto) minmax(32px,1fr) minmax(25px,auto);
     gap:5px;align-items:center;justify-content:stretch;
-    padding:11px 14px;border-radius:13px;overflow:hidden;touch-action:auto;
+    padding:11px 14px;border-radius:var(--f4-portal-card-radius,12px);overflow:hidden;touch-action:auto;
   }
   #keuangan .f4-cash-pair {
     display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch;
@@ -392,7 +392,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 #keuangan .f4-resident-right,
 #keuangan .f4-resident-history-pane {
   box-sizing:border-box;min-width:0;height:294px;
-  background:#fff;border:1px solid #e1e5f0;border-radius:16px;
+  background:#fff;border:1px solid #e1e5f0;border-radius:var(--f4-portal-card-radius,12px);
   padding:14px 15px;box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-resident-dues {display:flex;flex-direction:column;gap:8px}
@@ -573,7 +573,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 @media(max-width:767px) {
   #keuangan .f4-resident-layout {display:block}
   #keuangan .f4-resident-layout>.f4-resident-dues {display:none}
-  #keuangan .f4-resident-layout>.f4-resident-right {height:auto;padding:0;border-radius:14px;gap:0}
+  #keuangan .f4-resident-layout>.f4-resident-right {height:auto;padding:0;border-radius:var(--f4-portal-card-radius,12px);gap:0}
   #keuangan .f4-resident-layout .f4-resident-history-pane {display:none}
   #keuangan .f4-resident-status-content {padding:12px 15px}
   #keuangan .f4-resident-receipt-body {gap:10px}
