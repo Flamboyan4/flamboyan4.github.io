@@ -1571,7 +1571,10 @@ function adminShortcut([name,route,iconName]){
  circle.append(svg);button.append(circle,el("span","",name));
  button.onclick=()=>navigate(route);return button;
 }
-/* Akses Cepat: tujuh tujuan utama dan Lainnya; setiap tujuan memakai rute yang sama dengan sidebar PC. */
+/* Four operational shortcuts; remaining routes share the existing admin drawer and desktop sidebar. */
+const adminQuickRoutes=["rekonsiliasi","bank-admin-cash","master","tabungan"];
+const adminDrawerRoutes=["bank-admin-history","bank-payout-admin","admin","laporan","bank-admin-docs"];
+const adminRoutesInOrder=routes=>routes.map(route=>adminShortcuts.find(item=>item[1]===route)).filter(Boolean);
 let adminSheetFocus=null;
 function ensureAdminMenuSheet(){
  if(role!=="admin")return null;
@@ -1579,20 +1582,20 @@ function ensureAdminMenuSheet(){
  dialog=el("dialog","f4-bank-sheet-modal f4-bank-admin-menu-sheet");
  dialog.id="f4BankAdminMenuSheet";
  dialog.setAttribute("aria-labelledby","f4BankAdminMenuTitle");
- const grip=el("div","f4-bank-admin-menu-handle");grip.setAttribute("aria-hidden","true");
  const head=el("div","f4-bank-modal-heading");
- const title=el("h2","", "Semua Menu Pengelolaan");title.id="f4BankAdminMenuTitle";
+ const title=el("h2","", "Menu Pengelolaan");title.id="f4BankAdminMenuTitle";
  const close=el("button","f4-bank-modal-close");close.type="button";
- close.setAttribute("aria-label","Tutup menu lainnya");close.append(bankUiSvg("x"));
+ close.setAttribute("aria-label","Tutup menu pengelolaan");close.append(bankUiSvg("x"));
  close.onclick=()=>closeAdminMenuSheet();
  head.append(title,close);
  const grid=el("div","f4-bank-admin-menu-grid");
- grid.append(...adminShortcuts.map(item=>{
+ grid.append(...adminRoutesInOrder(adminDrawerRoutes).map(item=>{
   const button=adminShortcut(item);
   button.onclick=()=>closeAdminMenuSheet(item[1]);
   return button;
  }));
- dialog.append(grip,head,grid);
+ dialog.append(head,grid);
+ dialog.addEventListener("close",()=>{const menu=$("f4-mobile-menu");if(menu)menu.setAttribute("aria-expanded","false");});
  dialog.addEventListener("click",event=>{if(event.target===dialog)closeAdminMenuSheet();});
  dialog.addEventListener("cancel",event=>{event.preventDefault();closeAdminMenuSheet();});
  __f4.globals.document.body.append(dialog);
@@ -1604,7 +1607,13 @@ function openAdminMenuSheet(){
  const dialog=ensureAdminMenuSheet();
  if(!dialog||dialog.open)return;
  adminSheetFocus=__f4.globals.document.activeElement;
+ for(const button of dialog.querySelectorAll("[data-bank-app-route]")){
+  const active=button.dataset.bankAppRoute===screen;
+  button.classList.toggle("active",active);
+  if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
+ }
  dialog.showModal();
+ $("f4-mobile-menu")?.setAttribute("aria-expanded","true");
  __f4.window.F4BankModalHistory?.registerOpen?.(dialog);
 }
 function closeAdminMenuSheet(destination=null){
@@ -1618,17 +1627,6 @@ function closeAdminMenuSheet(destination=null){
  if(__f4.window.F4BankModalHistory?.closeAndThen)
   __f4.window.F4BankModalHistory.closeAndThen(dialog,after);
  else{dialog.close();after();}
-}
-function adminMoreShortcut(){
- const button=el("button","f4-bank-admin-shortcut f4-bank-admin-more");
- button.id="f4BankAdminMore";button.type="button";
- button.setAttribute("aria-label","Buka semua menu pengelolaan");
- const circle=el("span","f4-bank-admin-shortcut-icon");
- const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
- svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
- svg.innerHTML='<rect x="3" y="3" width="7" height="7" rx="1.4"/><rect x="14" y="3" width="7" height="7" rx="1.4"/><rect x="3" y="14" width="7" height="7" rx="1.4"/><rect x="14" y="14" width="7" height="7" rx="1.4"/>';
- circle.append(svg);button.append(circle,el("span","", "Lainnya"));
- button.onclick=openAdminMenuSheet;return button;
 }
 /* The legacy v16BuildNav() recreates nav children during page transitions.
    Observe only that list, and restore secondary routes idempotently. */
@@ -1960,8 +1958,7 @@ function ensureAdminHome(){
   shortcuts=el("section","f4-bank-admin-shortcuts");shortcuts.id="f4BankAdminShortcuts";
   shortcuts.append(el("h2","","Akses Cepat"));
   const grid=el("div","f4-bank-admin-shortcut-grid");
-  // Pengesahan tetap melalui menu Cek & Sahkan, tanpa aksi ganda di Beranda.
-  grid.append(...adminShortcuts.slice(1,7).map(adminShortcut),adminMoreShortcut());
+  grid.append(...adminRoutesInOrder(adminQuickRoutes).map(adminShortcut));
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
@@ -3153,8 +3150,10 @@ function init(){
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
  });
  $("f4-mobile-menu")?.addEventListener("click",event=>{
-  if(roleType()!=="member")return;
+  const type=roleType();
+  if(type!=="member"&&type!=="admin")return;
   event.preventDefault();event.stopImmediatePropagation();
+  if(type==="admin"){openAdminMenuSheet();return;}
   if(screen!=="dashboard")previousBankPage();
  },true);
 
