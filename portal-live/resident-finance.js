@@ -36,7 +36,7 @@ async function load(){
  const toggle=bank.querySelector('.rp-eye');
  function paint(){toggle.innerHTML=eye(shown);toggle.setAttribute('aria-pressed',String(shown));toggle.setAttribute('aria-label',shown?'Sembunyikan saldo':'Tampilkan saldo');for(const [key,v] of [['total',savings?savings.saldoTersediaRp+savings.estimasiMenungguRp:null],['available',savings?.saldoTersediaRp],['pending',savings?.estimasiMenungguRp]])bank.querySelector('[data-amount="'+key+'"]').textContent=shown?(Number.isFinite(v)?money(v):'Belum tersedia'):'Rp ••••'}
  toggle.onclick=()=>{shown=!shown;paint()};paint();
- const dues=el('section','rp-card rp-dues-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Rincian Kewajiban'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
+ const dues=el('section','rp-card rp-dues-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.dataset.f4CompactMonth='1';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Rincian Kewajiban'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
  // A standalone receipt, using the visual hierarchy of Portal Utama / Kas Saya.
  const receipt=el('section','rp-receipt');receipt.setAttribute('aria-label','Status Pembayaran');
  const receiptHead=el('div','rp-receipt-head'),receiptTitle=el('div'),receiptPeriod=el('p'),receiptIcon=el('span','rp-receipt-icon');

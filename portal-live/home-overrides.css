@@ -76,7 +76,8 @@
 .f4-project-nav{display:flex;align-items:center;gap:4px}
 .f4-project-nav[hidden]{display:none}
 .f4-project-nav button:disabled{opacity:.35;cursor:default}
-@media(min-width:640px){.f4-project-track{--project-card-width:calc((100% - var(--project-gap))/2)}}
+@media(min-width:768px){.f4-project-track{--project-card-width:calc((100% - var(--project-gap))/2)}}
+@media(max-width:767px){#projek .f4-project-track{box-sizing:border-box;width:calc(100% + 26px);max-width:none;margin-inline:-13px;padding-inline:13px;scroll-padding-inline:13px}}
 @media(min-width:1024px){.f4-project-track{--project-card-width:calc((100% - 2 * var(--project-gap))/3)}}
 
 
@@ -84,7 +85,7 @@
 /* Mobile home carousels: native swipe, no visible scrollbar. */
 .f4-home-slide-nav{display:none}
 @media(max-width:767px){
- #arisan #f4-arisan-slides{display:flex;gap:10px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+ #arisan #f4-arisan-slides{box-sizing:border-box;display:flex;gap:16px;width:calc(100% + 26px);max-width:none;margin-inline:-13px;padding-inline:13px;scroll-padding-inline:13px;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
  #f4-arisan-slides::-webkit-scrollbar{display:none}
  #arisan #f4-arisan-slides>div{box-sizing:border-box;flex:0 0 100%;width:100%;max-width:100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;transform:none;touch-action:auto}
  .f4-home-slide-nav{display:flex;align-items:center;justify-content:center;gap:2px;height:16px;margin-top:5px}
@@ -114,7 +115,7 @@
  #rencana #calendar-wrapper{grid-row:2;padding:12px;min-width:0}
  #f4-agenda-panel{grid-row:1;padding:0;min-width:0;max-width:100%;background:transparent;border:0;border-radius:0;box-shadow:none;height:auto}
  #container-rencana,#f4-agenda-panel>.f4-agenda-desktop-heading{display:none}
- #f4-upcoming-agenda{position:relative;display:flex;gap:0;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+ #f4-upcoming-agenda{box-sizing:border-box;position:relative;display:flex;gap:16px;width:calc(100% + 26px);max-width:none;margin-inline:-13px;padding-inline:13px;scroll-padding-inline:13px;min-width:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
  #f4-upcoming-agenda::-webkit-scrollbar{display:none}
  #f4-upcoming-agenda .f4-agenda-preview-card{
   --agenda-accent:var(--f4-portal-primary,#4f46e5);--agenda-ink:var(--f4-portal-primary-ink,#3730a3);--agenda-line:var(--f4-portal-line,#c7d2fe);

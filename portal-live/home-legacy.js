@@ -1134,13 +1134,13 @@ function salinLinkAgenda(url) {
         const cards=[...track.children];
         const dots=cards.map((card,index)=>{
           const b=__f4.globals.document.createElement('button');b.type='button';b.setAttribute('aria-label',labels[index]||('Kartu '+(index+1)));
-          b.addEventListener('click',()=>{track.scrollTo({left:card.getBoundingClientRect().left-track.getBoundingClientRect().left+track.scrollLeft,behavior:'smooth'});});
+          b.addEventListener('click',()=>{track.scrollTo({left:card.getBoundingClientRect().left-track.getBoundingClientRect().left+track.scrollLeft-(parseFloat(__f4.window.getComputedStyle(track).scrollPaddingLeft)||0),behavior:'smooth'});});
           return b;
         });
         nav.replaceChildren(...dots);
         const update=()=>{
           if(!mobile.matches||!track.clientWidth)return;
-          const left=track.getBoundingClientRect().left;
+          const left=track.getBoundingClientRect().left+(parseFloat(__f4.window.getComputedStyle(track).scrollPaddingLeft)||0);
           let index=0;
           for(let i=1;i<cards.length;i++)if(__f4.globals.Math.abs(cards[i].getBoundingClientRect().left-left)<__f4.globals.Math.abs(cards[index].getBoundingClientRect().left-left))index=i;
           dots.forEach((dot,i)=>dot.setAttribute('aria-current',(0,__f4.globals.String)(i===index)));
@@ -1159,7 +1159,7 @@ function salinLinkAgenda(url) {
     });
 
     function f4ProjectSnapPositions(slider) {
-      const origin=slider.getBoundingClientRect().left+slider.clientLeft;
+      const origin=slider.getBoundingClientRect().left+slider.clientLeft+(parseFloat(__f4.window.getComputedStyle(slider).scrollPaddingLeft)||0);
       const max=__f4.globals.Math.max(0,slider.scrollWidth-slider.clientWidth);
       const positions=[0,max,...__f4.globals.Array.from(slider.querySelectorAll(':scope > .f4-project-card'))
         .filter(card=>card.getClientRects().length)

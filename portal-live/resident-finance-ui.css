@@ -246,8 +246,8 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-cash-summary {
     grid-column:1/-1;
     display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:100%;grid-template-rows:minmax(124px,auto);
-    gap:10px;align-items:stretch;justify-items:stretch;
-    height:auto;min-height:0;width:100%;max-width:100%;
+    gap:16px;align-items:stretch;justify-items:stretch;
+    box-sizing:border-box;height:auto;min-height:0;width:calc(100% + 26px);max-width:none;margin-inline:-13px;padding-inline:13px;scroll-padding-inline:13px;
     overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;
   }
   #keuangan .f4-cash-summary::-webkit-scrollbar {display:none}

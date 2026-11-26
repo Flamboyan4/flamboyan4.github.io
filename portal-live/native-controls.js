@@ -151,7 +151,7 @@ function selectPicker(field,trigger){
 function formatValue(field){
  if(field.type==='month'){
   const m=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})$/);
-  return m?monthNames[(0,__f4.globals.Number)(m[2])-1]+' '+m[1]:'Pilih bulan';
+  return m?(field.dataset.f4CompactMonth==='1'?monthNames[Number(m[2])-1].slice(0,3):monthNames[Number(m[2])-1])+' '+m[1]:'Pilih bulan';
  }
  if(field.type==='date'&&/^f4BankReport(?:From|To)$/.test(field.id)){
   const m=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
