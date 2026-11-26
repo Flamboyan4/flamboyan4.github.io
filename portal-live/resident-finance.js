@@ -35,13 +35,13 @@ async function load(){
  const toggle=bank.querySelector('.rp-eye');
  function paint(){toggle.innerHTML=eye(shown);toggle.setAttribute('aria-pressed',String(shown));toggle.setAttribute('aria-label',shown?'Sembunyikan saldo':'Tampilkan saldo');for(const [key,v] of [['total',savings?savings.saldoTersediaRp+savings.estimasiMenungguRp:null],['available',savings?.saldoTersediaRp],['pending',savings?.estimasiMenungguRp]])bank.querySelector('[data-amount="'+key+'"]').textContent=shown?(Number.isFinite(v)?money(v):'Belum tersedia'):'Rp ••••'}
  toggle.onclick=()=>{shown=!shown;paint()};paint();
- const dues=el('section','rp-card rp-dues-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.dataset.f4CompactMonth='1';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Rincian Kewajiban'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
+ const dues=el('section','rp-card rp-dues-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.dataset.f4CompactMonth='1';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Rincian Kewajiban'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);
  // A standalone receipt, using the visual hierarchy of Portal Utama / Kas Saya.
  const receipt=el('section','rp-receipt');receipt.setAttribute('aria-label','Status Pembayaran');
  const receiptHead=el('div','rp-receipt-head'),receiptTitle=el('div'),receiptPeriod=el('p'),receiptIcon=el('span','rp-receipt-icon');
  const receiptSvg=paid=>'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paid?'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>':'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>')+'</svg>';
  receiptIcon.innerHTML=receiptSvg(false);receiptTitle.append(el('span','rp-receipt-brand','FLAMBOYAN 4'),el('h2','','Status Pembayaran'),receiptPeriod);receiptHead.append(receiptTitle,receiptIcon);
- const receiptBody=el('div','rp-receipt-body'),band=el('div','rp-receipt-band'),badge=el('strong','','Memeriksa…');badge.setAttribute('role','status');band.append(el('span','','Status'),badge);receipt.append(receiptHead,receiptBody,band);root.append(receipt);
+ const receiptBody=el('div','rp-receipt-body'),band=el('div','rp-receipt-band'),badge=el('strong','','Memeriksa…');badge.setAttribute('role','status');band.append(el('span','','Status'),badge);receipt.append(receiptHead,receiptBody,band);root.append(receipt,dues);
  function renderReceipt(data,state){
   const month=data?.period||period.value;
   receiptPeriod.textContent=/^\d{4}-\d{2}$/.test(month)?new Date(month+'-01T00:00:00Z').toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}):'Bulan berjalan';

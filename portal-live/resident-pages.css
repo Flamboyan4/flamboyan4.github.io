@@ -119,7 +119,7 @@ body[data-resident-page=profile] .rp-photos{margin-top:-16px}
 @media(max-width:767px){body[data-resident-page=profile] :is(.rp-profile-tabs,.rp-photos){margin-inline:-14px}}
 .rp-settings-heading{justify-content:flex-start;flex-wrap:wrap}
 .rp-back-profile{display:inline-flex;align-items:center;gap:3px;padding:5px 7px;border:0;background:transparent;color:var(--rp-primary);font-weight:650}
-.rp-member-atm{display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-width:0;min-height:208px;aspect-ratio:1.83;padding:17px 19px;border-radius:19px;max-width:530px;background:linear-gradient(115deg,#086356,#087c6c 55%,#0b9884);color:white;box-shadow:0 8px 20px #0a59341c}
+.rp-member-atm{display:flex;flex-direction:column;justify-content:space-between;gap:12px;min-width:0;width:100%;min-height:208px;aspect-ratio:1.83;padding:17px 19px;border-radius:19px;max-width:min(100%,530px);background:linear-gradient(115deg,#086356,#087c6c 55%,#0b9884);color:white;box-shadow:0 8px 20px #0a59341c}
 .rp-atm-head,.rp-atm-foot{display:flex;align-items:center;justify-content:space-between;gap:9px;min-width:0;flex:none}
 .rp-atm-brand{display:flex;align-items:center;gap:9px;min-width:0}
 .rp-atm-brand img{width:34px;height:34px;object-fit:contain;flex:none}
