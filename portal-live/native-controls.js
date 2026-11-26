@@ -66,13 +66,15 @@ function start(trigger,title,dropdown=false,options={}){
    const r=trigger.getBoundingClientRect(),v=__f4.window.visualViewport;
    const left=v?.offsetLeft||0,top=v?.offsetTop||0;
    const vw=v?.width||__f4.globals.innerWidth,vh=v?.height||__f4.globals.innerHeight;
-   const width=__f4.globals.Math.min(__f4.globals.Math.max(r.width,options.minWidth||0),__f4.globals.Math.max(0,vw-16));
-   const x=__f4.globals.Math.max(left+8,__f4.globals.Math.min(r.left,left+vw-width-8));
+   const minimum=typeof options.minWidth==='function'?options.minWidth():options.minWidth||0;
+   const width=Math.min(Math.max(r.width,minimum),Math.max(0,vw-16));
+   const origin=width>r.width&&r.left+r.width>left+vw/2?r.right-width:r.left;
+   const x=Math.max(left+8,Math.min(origin,left+vw-width-8));
    // Recalculate after options/calendar render. Never make the calendar as
    // narrow as its date input when the input occupies half a form row.
-   panel.style.maxHeight='none';
+   panel.style.width=width+'px';panel.style.maxHeight='none';
    const natural=__f4.globals.Math.max(90,panel.scrollHeight);
-   const desired=__f4.globals.Math.min(natural,options.kind==='calendar'?510:380);
+   const desired=__f4.globals.Math.min(natural,options.kind==='calendar'?350:280);
    const below=__f4.globals.Math.max(0,top+vh-r.bottom-10);
    const above=__f4.globals.Math.max(0,r.top-top-10);
    const up=below<desired&&above>below;
@@ -114,7 +116,7 @@ function selectPicker(field,trigger){
  const dropdown=true;
  const goods=!!field.closest('#saleItems,#setBarang,#f4BankOwnLines');
  const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',
-  dropdown,{kind:'select',minWidth:resident?310:goods?300:options.length>10?276:0});
+  dropdown,{kind:'select',minWidth:resident?220:0});
  if(resident||options.length>10){
   const searchRow=__f4.globals.document.createElement('div');searchRow.className='f4-bank-picker-search-row';
   const input=__f4.globals.document.createElement('input');input.type='search';input.className='f4-control-search';
@@ -167,8 +169,9 @@ function calendar(field,trigger,settings={}){
  if(match){y=Number(match[1]);m=match[2]?Number(match[2])-1:0}
  else{const now=new __f4.globals.Date();y=now.getFullYear();m=now.getMonth()}
  const anchored=true;
+ let mode=kind==='year'?'year':kind==='month'?'month':'day';
  const panel=start(trigger,kind==='month'?'Pilih bulan':kind==='year'?'Pilih tahun':'Pilih tanggal',anchored,
-  {kind:'calendar',minWidth:318});
+  {kind:'calendar',minWidth:()=>settings.range?240:mode==='day'?254:174});
  const levelButtons=__f4.globals.document.createElement('div');levelButtons.className='f4-control-levels';
  if(settings.range)panel.append(levelButtons);
  const nav=__f4.globals.document.createElement('div');nav.className='f4-control-calendar-nav';
@@ -187,7 +190,6 @@ function calendar(field,trigger,settings={}){
  accept.onclick=()=>{const v=input.value.trim();if(valid(v)){choose(v)}else{input.setCustomValidity('Masukkan tanggal yang benar');input.reportValidity();input.setCustomValidity('')}};
  if(settings.allowClear){const clear=__f4.globals.document.createElement('button');clear.type='button';clear.textContent='Semua tanggal';clear.onclick=()=>choose('');footer.append(clear)}
  footer.append(cancel,accept);panel.append(footer);
- let mode=kind==='year'?'year':kind==='month'?'month':'day';
  function valid(v){
   if(kind==='year'){if(!/^\d{4}$/.test(v))return false}
   else if(kind==='month'){
@@ -204,6 +206,7 @@ function calendar(field,trigger,settings={}){
  }
  function render(){
   if(settings.range){for(const btn of levelButtons.children)btn.setAttribute('aria-pressed',String(btn.dataset.kind===kind));input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD'}
+  panel.dataset.calendarMode=mode;
   grid.replaceChildren();
   heading.textContent=kind==='month'?(0,__f4.globals.String)(y):monthNames[m]+' '+y;
   grid.classList.toggle('f4-month-choice',mode!=='day');
@@ -255,11 +258,11 @@ function enhance(field){
  button.append(label,icon);button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',field.getAttribute('aria-label')||field.labels?.[0]?.textContent?.trim()||'Pilih');
  function sync(){
   if(!field.isConnected||!button.isConnected)return;
-  button.disabled=field.disabled;button.hidden=field.hidden||field.classList.contains('hidden')||field.style.display==='none';
+  const hidden=field.hidden||field.classList.contains('hidden')||field.style.display==='none';if(button.disabled!==field.disabled)button.disabled=field.disabled;if(button.hidden!==hidden)button.hidden=hidden;
   const option=field.selectedOptions?.[0];
   const meta=option?.value&&isResident(field)?residentMeta(field,option):null;
-  label.textContent=meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
-  button.title=label.textContent;
+  const value=meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
+  if(label.textContent!==value)label.textContent=value;if(button.title!==value)button.title=value;
  }
  button.onclick=()=>{sync();if(field.disabled)return;field.matches('select')?selectPicker(field,button):calendar(field,button)};
  button.addEventListener('focus',sync);

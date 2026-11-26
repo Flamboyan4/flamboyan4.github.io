@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id" data-f4-shell="superadmin" data-f4-release="20261127-full-bleed-v28" data-f4-spa="1">
+<html lang="id" data-f4-shell="superadmin" data-f4-release="20261127-compact-popups-sidebar-v29" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -119,14 +119,14 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
   display:block;grid-template-columns:1fr;max-width:100vw;overflow-x:clip
  }
  html body #f4-account-page>aside{
-  position:fixed;top:0;left:0;bottom:0;
-  margin:0;width:min(288px,84vw);height:100dvh;max-height:none;
-  z-index:102;transform:translate3d(-110%,0,0);visibility:hidden;
+  position:fixed;top:56px;left:0;bottom:0;
+  margin:0;width:min(var(--f4-rail-open,226px),82vw);height:auto;max-height:none;
+  z-index:110;transform:translate3d(-110%,0,0);visibility:hidden;
   transition:transform .22s ease,visibility .22s ease;
   overflow-x:hidden;overflow-y:auto;
   display:flex;flex-direction:column;flex-wrap:nowrap;
-  align-items:stretch;padding:16px 12px;
-  box-shadow:12px 0 28px #16304a24
+  align-items:stretch;padding:14px 10px;
+  box-shadow:10px 0 25px #1c304016
  }
  html body #f4-account-page.f4-sa-drawer-open>aside{
   transform:translate3d(0,0,0);visibility:visible
@@ -146,7 +146,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
   width:100%;min-width:0
  }
  #f4-account-page .f4-sa-mobile-backdrop{
-  display:none;position:fixed;inset:0;background:#10243890;z-index:101
+  display:none;position:fixed;inset:56px 0 0;background:#0e19276b;z-index:109
  }
  #f4-account-page.f4-sa-drawer-open .f4-sa-mobile-backdrop{display:block}
  #f4-account-page .sa-tabbar{max-width:100%;overflow-x:auto}
@@ -375,7 +375,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-picker-parity-v26"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
-<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-picker-parity-v26"></head>
+<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-compact-popups-sidebar-v29"></head>
 <body class="f4-direct-superadmin">
 <div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-picker-parity-v26"></script>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
@@ -388,5 +388,5 @@ html.f4-sa-drawer-lock{overflow:hidden}
 <script type="application/f4-source" data-f4-id="/portal-live/superadmin-editor.js" data-f4-src="/portal-live/superadmin-editor.js?v=20261127-first-paint-v5"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/project-modules.js" data-f4-src="/portal-live/project-modules.js?v=20261127-first-paint-v5"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261127-profile-general-v27"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-native-scroll-v20"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-full-bleed-v28" data-f4-defer></script></body></html>
+<script src="/portal-live/direct-shell.js?v=20261127-compact-popups-sidebar-v29"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script>
+<script src="/portal-live/portal-runtime.js?v=20261127-native-scroll-v20"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body></html>

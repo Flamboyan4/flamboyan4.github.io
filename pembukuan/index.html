@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- v6.20.1 EDIT CLEANUP PREDEPLOY -->
-<html lang="id" data-f4-shell="book" data-f4-release="20261127-full-bleed-v28" data-f4-spa="1">
+<html lang="id" data-f4-shell="book" data-f4-release="20261127-compact-popups-sidebar-v29" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -1649,8 +1649,9 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 @media(max-width:1023px){
  body>header:first-of-type{display:none}
  body>main{max-width:100%;min-width:0}
- body>#side-drawer{z-index:160}
- body>#side-drawer .drawer-panel{width:min(300px,86vw);max-width:86vw}
+ body>#side-drawer{top:56px;z-index:110}
+ body>#side-drawer .drawer-panel{width:min(var(--f4-rail-open,226px),82vw);max-width:82vw;box-shadow:10px 0 25px #1c304016}
+ body>#side-drawer .drawer-panel>div:first-child{flex:none;min-height:56px;padding:8px 14px}
  body>main .overflow-x-auto{max-width:100%}
 }
 
@@ -1851,7 +1852,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 <script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-extras.js" data-f4-src="/portal-live/bookkeeping-extras.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-kas-mobile.js" data-f4-src="/portal-live/bookkeeping-kas-mobile.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
-<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-picker-parity-v26"></head>
+<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-compact-popups-sidebar-v29"></head>
 <body class="f4-direct-book">
 <div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-picker-parity-v26"></script>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
@@ -3511,7 +3512,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 }
 </style>
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-12" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
-<script src="/portal-live/direct-shell.js?v=20261127-profile-general-v27"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><style id="f4-book-date-label-alignment-20261027">
+<script src="/portal-live/direct-shell.js?v=20261127-compact-popups-sidebar-v29"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><style id="f4-book-date-label-alignment-20261027">
 /* Fix all mobile Pembukuan calendar widgets, not only the Iuran form. */
 @media screen and (max-width:767px){
   body .mdc-wrap{
@@ -3778,4 +3779,4 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 }
 </style>
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-13" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-native-scroll-v20"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-full-bleed-v28" data-f4-defer></script></body></html>
+<script src="/portal-live/portal-runtime.js?v=20261127-native-scroll-v20"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body></html>

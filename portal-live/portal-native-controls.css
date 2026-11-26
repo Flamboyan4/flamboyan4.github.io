@@ -15,27 +15,27 @@ body .f4-control-search,body .f4-control-date-input{box-sizing:border-box;displa
 .f4-control-resident-head{display:grid;grid-template-columns:minmax(0,1fr) 68px 17px;gap:10px;padding:8px 16px 5px;color:#657189;font-size:12px;font-weight:700;border-bottom:1px solid #e9eaf0}
 .f4-control-resident-head span:last-child{text-align:right}
 body .f4-control-list{display:grid;gap:2px;flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:5px 6px 7px}
-body .f4-control-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:44px;padding:10px;border:0;border-radius:9px;background:transparent;color:#26344f;text-align:left;font:550 14px/1.35 system-ui,sans-serif;white-space:normal}
+body .f4-control-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:38px;padding:7px 8px;border:0;border-radius:9px;background:transparent;color:#26344f;text-align:left;font:550 14px/1.35 system-ui,sans-serif;white-space:normal}
 body .f4-control-choice[aria-selected=true]{background:var(--f4-nav-tint,#edebfa);color:var(--f4-nav,#5145cd);font-weight:750}
 body .f4-control-choice:disabled{opacity:.45;cursor:not-allowed}
 .f4-control-resident-row{display:grid;grid-template-columns:minmax(0,1fr) 68px;align-items:center;gap:10px;flex:1;min-width:0}
 .f4-control-resident-row span:last-child{text-align:right;color:inherit;white-space:nowrap;font-weight:650}
 .f4-control-check{display:grid;place-items:center;width:17px;flex:none;color:var(--f4-nav,#5145cd)}
 .f4-control-empty{padding:14px;color:#64748b;text-align:center}
-body .f4-bank-calendar-popover{display:block;padding:12px;overflow:auto}
-body .f4-control-calendar-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
-body .f4-control-calendar-nav button{display:grid;place-items:center;flex:none;width:36px;height:36px;min-width:0;padding:0;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:9px;background:#fff;color:var(--f4-nav,#5145cd)}
-body .f4-control-calendar-nav button.f4-control-calendar-title{width:auto;flex:1;border:0;font-weight:750;font-size:16px;color:#26344f}
-body .f4-control-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:0 0 12px}
-body .f4-control-calendar.f4-month-choice{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+body .f4-bank-calendar-popover{display:block;padding:8px;overflow:auto}
+body .f4-control-calendar-nav{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:0 0 7px}
+body .f4-control-calendar-nav button{display:grid;place-items:center;flex:none;width:30px;height:30px;min-width:0;padding:0;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:9px;background:#fff;color:var(--f4-nav,#5145cd)}
+body .f4-control-calendar-nav button.f4-control-calendar-title{width:auto;flex:1;border:0;font-weight:750;font-size:14px;color:#26344f}
+body .f4-control-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;margin:0 0 8px}
+body .f4-control-calendar.f4-month-choice{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 body .f4-control-weekday{padding:5px 0;text-align:center;color:#68758a;font-weight:650;font-size:12px}
-body .f4-control-day{display:grid;place-items:center;width:100%;min-width:0;min-height:36px;height:36px;padding:0;border:0;border-radius:8px;background:#f7f8fb;color:#26344f;font:600 15px/1.2 system-ui,sans-serif}
-body .f4-control-calendar.f4-month-choice .f4-control-day{min-height:44px;height:44px}
+body .f4-control-day{display:grid;place-items:center;width:100%;min-width:0;min-height:32px;height:32px;padding:0;border:0;border-radius:8px;background:#f7f8fb;color:#26344f;font:600 15px/1.2 system-ui,sans-serif}
+body .f4-control-calendar.f4-month-choice .f4-control-day{min-height:32px;height:32px}
 body .f4-control-day.selected{background:var(--f4-nav,#5145cd);color:#fff}
 body .f4-control-day:disabled{opacity:.3;cursor:not-allowed}
-body .f4-control-date-input{margin-bottom:10px}
-body .f4-control-footer{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap}
-body .f4-control-footer button{min-height:37px;padding:7px 11px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:8px;background:#fff;color:var(--f4-nav,#5145cd);font-weight:650}
+body .f4-control-date-input{margin-bottom:7px}
+body .f4-control-footer{display:flex;justify-content:flex-end;gap:4px;flex-wrap:wrap}
+body .f4-control-footer button{min-height:32px;padding:5px 8px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:8px;background:#fff;color:var(--f4-nav,#5145cd);font-weight:650}
 body .f4-control-footer button:last-child{background:var(--f4-nav,#5145cd);color:#fff;border-color:var(--f4-nav,#5145cd)}
 
 body .f4-control-overlay[hidden]{display:none}

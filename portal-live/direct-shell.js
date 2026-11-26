@@ -624,7 +624,7 @@ hamburger.addEventListener('click',()=>{
   if(role==='admin'||role==='superadmin'||role==='warga')return;
   window.f4ToggleBankMenu?.();
  }
- else if(portal==='book')window.bukaMenu?.();
+ else if(portal==='book'){const opened=document.getElementById('side-drawer')?.classList.contains('open');if(opened)window.tutupMenu?.();else window.bukaMenu?.();hamburger.setAttribute('aria-expanded',String(!opened));}
  else if(portal==='superadmin')window.f4ToggleSuperadminMenu?.();
 });
 makePortalSide();
