@@ -23,14 +23,19 @@ if(window.matchMedia('(pointer:coarse)').matches){
 const API='https://api.flamboyan4.web.id';
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/'};
 const pathname=location.pathname;
+const portalKey=path=>Object.keys(paths).find(key=>paths[key]===path.replace(/index\.html$/i,'').replace(/\/?$/,'/'))||null;
 // Version cross-portal navigation so an older HTML cache cannot reintroduce the old shell.
-const shellRelease=document.documentElement.dataset.f4Release||'20261127-early-shared-dock-v1';
+const shellRelease=document.documentElement.dataset.f4Release||'20261127-content-boundary-v1';
 function shellUrl(path){const u=new URL(path,location.origin);if(u.origin!==location.origin)return u.href;const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(Object.values(paths).filter(p=>p!==paths.donor).includes(canonical)){u.pathname=canonical;u.searchParams.set('f4ui',shellRelease);}return u.pathname+u.search+u.hash;}
 // Version ordinary cross-portal links too, including legacy links not built by navButton.
 document.addEventListener('click',event=>{const a=event.target?.closest?.('a[href]');if(!a||a.hasAttribute('download'))return;const u=new URL(a.href,location.origin);const canonical=u.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/');if(u.origin===location.origin&&canonical!==location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')&&Object.values(paths).filter(p=>p!==paths.donor).includes(canonical))a.href=shellUrl(u.href);},true);
-const portal=/^\/bank-sampah(?:\/(?:index\.html)?)?$/i.test(pathname)?'bank':/^\/pembukuan(?:\/(?:index\.html)?)?$/i.test(pathname)?'book':/^\/superadmin(?:\/(?:index\.html)?)?$/i.test(pathname)?'superadmin':pathname==='/rapat/'||pathname==='/dokumentasi/'?'simple':'portal';
-document.body.classList.add('f4-direct-'+portal);
-document.body.classList.add(portal==='book'?'book-mode':portal==='bank'?'bank-mode':portal==='superadmin'?'superadmin-mode':'portal-mode');
+const initialKey=portalKey(pathname)||'portal';
+let portal=initialKey==='rapat'||initialKey==='dokumentasi'?'simple':initialKey;
+function applyPortalTheme(next){
+ document.body.classList.remove('f4-direct-portal','f4-direct-simple','f4-direct-bank','f4-direct-book','f4-direct-superadmin','portal-mode','bank-mode','book-mode','superadmin-mode');
+ document.body.classList.add('f4-direct-'+next,next==='book'?'book-mode':next==='bank'?'bank-mode':next==='superadmin'?'superadmin-mode':'portal-mode');
+}
+applyPortalTheme(portal);
 // All navigation pictograms are locally hosted SVG files, never Unicode symbols.
 const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></span>';
 const el=(tag,cl)=>{const n=document.createElement(tag);if(cl)n.className=cl;return n};
@@ -38,7 +43,7 @@ const bar=el('div');bar.id='f4-direct-bar';
 const hamburger=el('button');hamburger.id='f4-mobile-menu';hamburger.type='button';hamburger.innerHTML=svg('menu');hamburger.setAttribute('aria-label','Buka menu halaman');
 const links=el('nav','f4-nav-links');links.setAttribute('aria-label','Pindah portal');
 function navButton(key,url,label){
- const a=el('a');a.href=shellUrl(url);a.title=label;a.setAttribute('aria-label',label);a.innerHTML=svg(key);
+ const a=el('a');a.dataset.f4PortalTarget=key==='home'?'portal':key;a.href=shellUrl(url);a.title=label;a.setAttribute('aria-label',label);a.innerHTML=svg(key);
  if((portal==='portal'&&key==='home')||(portal==='bank'&&key==='bank')||(portal==='book'&&key==='book')||(portal==='superadmin'&&key==='superadmin'))a.classList.add('f4-selected');
  links.append(a);return a;
 }
@@ -98,9 +103,92 @@ function cancelBankNavigation(){
  bankNavigationObserver?.disconnect();bankNavigationObserver=null;
  if(bankNavigationTimer){clearTimeout(bankNavigationTimer);bankNavigationTimer=null}
 }
+/* The production shell is the sole entry point for cross-portal navigation.
+   A content adapter must provide both prepare and dispose before it can be
+   switched in the same document. Never replay unscoped classic scripts. */
+let activePortalKey=initialKey;
+const contentAdapters=new Map();
+let mountedContent=null,navigationPending=false;
+function canAccessPortal(key){
+ if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
+ if(key==='donor')return sessionCheckCompleted&&!!session?.account&&role==='donatur';
+ return ['portal','bank','rapat','dokumentasi'].includes(key);
+}
+function updatePortalChrome(key){
+ activePortalKey=key;
+ portal=key==='rapat'||key==='dokumentasi'?'simple':key;
+ document.documentElement.dataset.f4Shell=portal;
+ applyPortalTheme(portal);dock?.setPortal(portal);
+ for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
+ settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
+ document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
+ document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));notifyRole();
+}
+async function navigatePortal(path,{replace=false,pop=false}={}){
+ const target=new URL(path,location.origin);
+ const key=portalKey(target.pathname);
+ if(target.origin!==location.origin||!key||navigationPending)return false;
+ if(!canAccessPortal(key)){
+  if(!session?.account)openLogin();
+  else showSessionNotice('Akun ini tidak memiliki akses ke portal tersebut.','Tutup',()=>{sessionNotice.hidden=true});
+  return false;
+ }
+ const route=target.searchParams.get('halaman');
+ const here=activePortalKey===key;
+ if(here&&!target.hash){
+  if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
+   window.f4PortalSelectPanel(route||'beranda',!pop);return true;
+  }
+  if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
+  if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['input','inputdata'].includes(route))){window.pilihMenu(route||'inputdata');return true}
+  if(key==='superadmin'&&!route)return true;
+ }
+ const current=mountedContent,next=contentAdapters.get(key);
+ // Existing pages stay operational until their own lifecycle is migrated.
+ if(!current||!next||here){
+  const url=shellUrl(target.href);
+  if(replace||pop)location.replace(url);else location.assign(url);return true;
+ }
+ navigationPending=true;
+ const accountId=session?.account?.id||null;
+ let prepared=null;
+ try{
+  if(current.canLeave&&!(await current.canLeave()))return false;
+  prepared=await next.prepare(target);
+  if(!prepared||typeof prepared.mount!=='function'||typeof prepared.dispose!=='function')throw Error('Lifecycle konten tidak lengkap.');
+  if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();return false}
+  closeSide();closeDockMenu();menu.hidden=true;cancelBankNavigation();
+  await current.dispose();mountedContent=null;
+  if(accountId!==(session?.account?.id||null)||!canAccessPortal(key)){await prepared.dispose();location.replace(shellUrl('/'));return false;}
+  history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
+  await prepared.mount();mountedContent=prepared;updatePortalChrome(key);window.scrollTo(0,0);return true;
+ }catch(error){
+  try{await prepared?.dispose?.()}catch{}
+  console.error('Navigasi portal:',error);
+  // Restore the original document if a migrated adapter cannot mount.
+  location.replace(shellUrl(canAccessPortal(key)?target.href:'/'));return false;
+ }finally{navigationPending=false}
+}
+window.F4PortalNavigation={
+ go:navigatePortal,current:()=>activePortalKey,
+ register(key,factory,{mounted}={}){
+  if(!['portal','bank','book','superadmin','rapat','dokumentasi'].includes(key)||typeof factory?.prepare!=='function')throw Error('Factory konten harus memiliki prepare.');
+  if(mounted&&(key!==activePortalKey||typeof mounted.dispose!=='function'||mountedContent))throw Error('Lifecycle konten aktif tidak valid.');
+  contentAdapters.set(key,factory);if(mounted)mountedContent=mounted;
+ }
+};
+window.addEventListener('popstate',()=>{
+ const key=portalKey(location.pathname);
+ if(key&&key!==activePortalKey)void navigatePortal(location.href,{pop:true});
+});
+document.addEventListener('click',event=>{
+ const a=event.target?.closest?.('a[data-f4-portal-target]');
+ if(!a||event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||a.target==='_blank'||a.hasAttribute('download'))return;
+ event.preventDefault();void navigatePortal(a.href);
+});
 function openBankRoute(route){
  if(!session?.account)return;
- if(portal!=='bank'){location.assign(shellUrl(paths.bank+'?halaman='+encodeURIComponent(route)));return;}
+ if(portal!=='bank'){void navigatePortal(paths.bank+'?halaman='+encodeURIComponent(route));return;}
  cancelBankNavigation();
  const accountId=session.account.id,requestedRole=role;
  function tryRoute(){
@@ -121,7 +209,7 @@ function openBankRoute(route){
 function openBookRoute(route){
  if(role!=='superadmin')return;
  if(portal==='book'&&typeof window.pilihMenu==='function'){window.pilihMenu(route);return;}
- location.assign(shellUrl(paths.book+(route==='input'?'?halaman=input':'')));
+ void navigatePortal(paths.book+(route==='input'?'?halaman=input':''));
 }
 function dockAction(key){
  if(!session?.account){
@@ -140,10 +228,10 @@ function dockAction(key){
  if(key==='input-iuran'){openBookRoute('input');return}
  if(key==='home'){
   if(portal==='portal'&&typeof window.f4PortalSelectPanel==='function'){window.f4PortalSelectPanel('beranda');return;}
-  location.assign(shellUrl(paths.portal));return;
+  void navigatePortal(paths.portal);return;
  }
  if(key==='book'){openBookRoute('inputdata');return;}
- if(key==='superadmin'){if(portal!=='superadmin')location.assign(shellUrl(paths.superadmin));return;}
+ if(key==='superadmin'){void navigatePortal(paths.superadmin);return;}
  const route={bank:'dashboard',deposit:'setoran',sale:'penjualan',payout:'bank-payout',history:'bank-history',report:role==='warga'?'bank-report':'laporan'}[key];
  if(route)openBankRoute(route);
 }
@@ -407,9 +495,9 @@ window.addEventListener('message',e=>{
  if(data.type==='f4:bank-avatar-updated')avatarLoad();
  if(data.type==='f4:go-portal'||data.type==='f4:navigate'){
   const target=data.portal||data.target;
-  if(paths[target])location.assign(shellUrl(paths[target]));
+  if(Object.hasOwn(paths,target))void navigatePortal(paths[target]);
  }
- if(data.type==='f4:manage-home')location.assign(shellUrl(paths.superadmin));
+ if(data.type==='f4:manage-home')void navigatePortal(paths.superadmin);
  if(data.type==='f4:portal-visible-panel'&&portal==='portal')highlight(data.panel);
 });
 function makePortalSide(){
@@ -437,12 +525,12 @@ function makePortalSide(){
   const labelEl=el('span','f4-direct-menu-label');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{
    closeSide();
-   if(key==='rapat'||key==='dokumentasi'){location.assign(shellUrl(paths[key]));return}
-   if(portal==='simple'){location.assign(shellUrl('/?halaman='+encodeURIComponent(key)));return}
+   if(key==='rapat'||key==='dokumentasi'){void navigatePortal(paths[key]);return}
+   if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key));return}
    if(key==='inventaris'){
     const target=document.getElementById('kegiatan');
     if(target)window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-74),behavior:'smooth'});
-    else location.assign(shellUrl('/dokumentasi/?halaman=inventaris'));
+    else void navigatePortal('/dokumentasi/?halaman=inventaris');
     highlight(key);return;
    }
    try{window.f4PortalSelectPanel?.(key)}catch(err){console.warn('Panel:',err)}
@@ -453,7 +541,7 @@ function makePortalSide(){
  document.body.append(side);
  const backdrop=el('button');backdrop.id='f4-direct-sideback';backdrop.type='button';backdrop.hidden=true;
  backdrop.setAttribute('aria-label','Tutup menu');backdrop.onclick=closeSide;document.body.append(backdrop);
- highlight(portal==='simple'?(pathname==='/rapat/'?'rapat':'dokumentasi'):'beranda');
+ highlight(portal==='simple'?(activePortalKey==='rapat'?'rapat':'dokumentasi'):'beranda');
 }
 function highlight(key){document.querySelectorAll('#f4-direct-sidebar [data-f4-panel]').forEach(x=>x.setAttribute('aria-current',x.dataset.f4Panel===key?'page':'false'))}
 function closeSide(){document.querySelector('#f4-direct-sidebar')?.classList.remove('f4-open');const b=document.getElementById('f4-direct-sideback');if(b)b.hidden=true;hamburger.setAttribute('aria-expanded','false')}
@@ -476,16 +564,15 @@ if(portal==='portal'){
 }
 // Utility bar is transparent at the top and becomes solid when scrolling.
 // Bank memakai header solid, tanpa render ulang untuk setiap scroll.
-if(portal!=='bank'){
- const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',window.scrollY>12);
- window.addEventListener('scroll',syncBarScroll,{passive:true});
- syncBarScroll();
-}else bar.classList.remove('f4-scrolled');
+const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',portal!=='bank'&&window.scrollY>12);
+window.addEventListener('scroll',syncBarScroll,{passive:true});
+document.addEventListener('f4:portal-changed',syncBarScroll);
+syncBarScroll();
 // Existing original page integration uses direct window messages instead of parent iframe.
 if(portal==='portal'){
- window.f4GoBank=()=>location.assign(shellUrl(paths.bank));
+ window.f4GoBank=()=>navigatePortal(paths.bank);
  const original=window.openModalDokumentasi;
- if(typeof original==='function')window.openModalDokumentasi=()=>location.assign(shellUrl(paths.dokumentasi));
+ if(typeof original==='function')window.openModalDokumentasi=()=>navigatePortal(paths.dokumentasi);
 }
 if(portal==='bank'){
  const old=window.v11ShowLogin;
