@@ -1,105 +1,51 @@
-name: F4 Original Portal Lifecycle Verification
+name: F4 Home Stories Ranking Browser Smoke
 on:
   push:
-    branches: [refactor/original-portal-lifecycle]
+    branches: [main]
+    paths: [.github/workflows/f4-home-stories-browser-smoke.yml]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check original production JavaScript
-        run: |
-          find portal-live -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Install browser automation
         run: |
-          npm install --no-save --ignore-scripts playwright@1.56.1
-          npx playwright install --with-deps chromium firefox
-      - name: Verify original HTML navigation and role boundaries
+          npm install --no-save --ignore-scripts playwright-core@1.57.0
+          command -v google-chrome || command -v chromium || command -v chromium-browser
+      - name: Verify latest and popular rank real preserved likes
         run: |
           node --input-type=module <<'JS'
-          import {chromium,firefox} from 'playwright';
-          import {createServer} from 'node:http';
-          import {readFile,stat} from 'node:fs/promises';
-          import {resolve,extname,sep} from 'node:path';
-          const root=process.cwd(),mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp'};
-          const server=createServer(async(req,res)=>{
-            try{const u=new URL(req.url,'http://localhost'),p=resolve(root,'.'+decodeURIComponent(u.pathname));if(p!==root&&!p.startsWith(root+sep))throw Error('path');const path=(await stat(p)).isDirectory()?resolve(p,'index.html'):p;res.writeHead(200,{'content-type':mime[extname(path)]||'application/octet-stream'});res.end(await readFile(path))}
-            catch{res.writeHead(404);res.end('Not found')}
-          });
-          await new Promise(r=>server.listen(0,'127.0.0.1',r));
-          const origin='http://127.0.0.1:'+server.address().port;
-          const assert=(v,msg)=>{if(!v)throw Error(msg)};
-          const base={ok:true,data:[],rows:[],items:[],summary:{},ringkasan:{},overview:{},catalog:[],members:[],albums:[],photos:[],suppressedDriveIds:[],documentation:[],agenda:[],projects:[],inventory:[],banners:[],arisan:[],meetings:[],expenses:[],sales:[],cash:[],monthly:[],setoran:[],mutasi:[],config:{},saldoTersediaRp:0,totalCairRp:0,riwayatLengkap:true};
-          const expected={superadmin:['home','bank','input','book','superadmin'],admin:['home','bank','deposit','sale','report'],warga:['home','bank','payout','history','report']};
+          import {chromium} from 'playwright-core';
+          import {existsSync} from 'node:fs';
+          const executablePath=['/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser'].find(existsSync);
+          const browser=await chromium.launch({headless:true,executablePath,args:['--no-sandbox']});
+          const page=await browser.newPage({viewport:{width:1366,height:768}});
+          page.on('pageerror',e=>console.log('STORIES_PAGE_ERROR',String(e).slice(0,280)));
+          page.on('console',m=>{if(m.type()==='error')console.log('STORIES_CONSOLE_ERROR',m.text().slice(0,220))});
+          const snapshot=()=>page.locator('#f4g-home-grid .f4g-home-card').evaluateAll(cards=>cards.map(c=>({
+            title:c.querySelector('.f4g-home-title')?.textContent?.trim(),
+            likes:Number(c.querySelector('.f4g-home-stats .f4g-home-stat:first-child span')?.textContent||0),
+            comments:Number(c.querySelector('.f4g-home-stats .f4g-home-stat:last-child span')?.textContent||0)
+          })));
           try{
-            for(const [name,engine] of [['Chromium',chromium],['Firefox',firefox]]){
-              const browser=await engine.launch({headless:true});
-              try{
-                for(const role of ['public','warga','admin','superadmin']){
-                  const page=await browser.newPage({viewport:{width:360,height:812}});
-                  const errors=[],posts=[],docs=[];
-                  page.on('pageerror',e=>{if(e.name!=='AbortError')errors.push(String(e));console.log(name,role,'PAGE ERROR',String(e).slice(0,300))});
-                  page.on('console',m=>{if(m.type()==='error'&&/Portal:|Inisialisasi|Navigasi portal:/.test(m.text())){errors.push(m.text());console.log(name,role,m.text().slice(0,300))}});
-                  page.on('framenavigated',f=>{if(f===page.mainFrame())docs.push(f.url())});
-                  await page.route('**/*',async route=>{
-                    const req=route.request(),u=new URL(req.url());
-                    if(u.origin===origin)return route.continue();
-                    if(u.origin==='https://api.flamboyan4.web.id'){
-                      const headers={'access-control-allow-origin':origin,'access-control-allow-credentials':'true','access-control-allow-headers':'content-type','access-control-allow-methods':'GET,POST,OPTIONS'};
-                      if(req.method()==='OPTIONS')return route.fulfill({status:204,headers});
-                      if(req.method()!=='GET'&&u.pathname!=='/api/v2/auth/renew'){posts.push(u.pathname);return route.fulfill({status:403,headers,json:{ok:false,error:'Writes blocked in browser verification'}})}
-                      if(u.pathname==='/api/v2/auth/session')return route.fulfill({status:200,headers,json:{ok:true,account:role==='public'?null:{id:'test-'+role,role:role==='warga'?'anggota':role,displayName:'Akun uji',username:'test'},member:{id:'member:test',nama:'Warga uji',rumah:'A/1'}}});
-                      if((u.pathname.startsWith('/api/bookkeeping/')||u.pathname.startsWith('/api/superadmin/'))&&role!=='superadmin')return route.fulfill({status:403,headers,json:{ok:false,error:'Akses ditolak'}});
-                      return route.fulfill({status:200,headers,json:base});
-                    }
-                    if(req.method()==='GET'&&['cdn.tailwindcss.com','unpkg.com','cdnjs.cloudflare.com','www.gstatic.com'].includes(u.hostname))return route.continue();
-                    return route.abort();
-                  });
-                  const ready=async(key,path)=>{
-                    await page.waitForFunction(({key,path})=>location.pathname===path&&window.F4PortalNavigation?.current()===key&&window.F4PortalRuntime?.ready(),{key,path},{timeout:50000});
-                  };
-                  await page.goto(origin+'/',{waitUntil:'domcontentloaded',timeout:60000});
-                  await ready('portal','/');
-                  if(role!=='public')await page.locator('#f4-direct-dock').waitFor({state:'visible'});
-                  else await page.locator('.f4-direct-login').waitFor({state:'visible'});
-                  await page.evaluate(()=>{window.__shellCheck={header:document.getElementById('f4-direct-bar'),dock:document.getElementById('f4-direct-dock'),buttons:[...document.querySelectorAll('#f4-direct-dock [data-dock-key]')]};});
-                  const identity=async()=>{
-                    assert(await page.evaluate(()=>window.__shellCheck?.header===document.getElementById('f4-direct-bar')&&window.__shellCheck?.dock===document.getElementById('f4-direct-dock')&&window.__shellCheck?.buttons.every((b,i)=>b===document.querySelectorAll('#f4-direct-dock [data-dock-key]')[i])),'Header/dock recreated or document reloaded');
-                    if(role!=='public')assert(JSON.stringify(await page.locator('#f4-direct-dock [data-dock-key]').evaluateAll(x=>x.map(b=>b.dataset.dockKey)))===JSON.stringify(expected[role]),'Role menu changed');
-                  };
-                  const click=async key=>page.locator('#f4-direct-dock [data-dock-key="'+key+'"]').click();
-                  if(role==='public')await page.locator('#f4-direct-bar [data-f4-portal-target="bank"]').click();else await click('bank');
-                  await ready('bank','/bank-sampah/');
-                  await page.waitForFunction(()=>!document.documentElement.classList.contains('f4-bank-auth-pending'),null,{timeout:30000});
-                  await identity();assert(await page.locator('#dashboardView').count()===1,'Original bank DOM missing');
-                  if(role==='superadmin'){
-                    await click('book');await ready('book','/pembukuan/');await identity();assert(await page.locator('#tab-input').count()===1,'Original book DOM missing');
-                    console.log('BOOK_DOCK',JSON.stringify(await page.evaluate(()=>{const dock=document.getElementById('f4-direct-dock'),b=dock.querySelector('[data-dock-key="input"]'),cs=getComputedStyle(dock),bs=getComputedStyle(b);const rules=[];function walk(list,src){for(const r of list){if(r.conditionText&&r instanceof CSSMediaRule&&!matchMedia(r.conditionText).matches)continue;if(r.selectorText){try{if(dock.matches(r.selectorText)||b.matches(r.selectorText))if(r.style.display||r.style.visibility)rules.push([src,r.selectorText,r.style.display,r.style.visibility]);}catch{}}if(r.cssRules)walk(r.cssRules,src)}}for(const sheet of document.styleSheets){try{walk(sheet.cssRules,sheet.href||'inline')}catch{}}return {body:document.body.className,html:document.documentElement.className,hidden:dock.hidden,display:cs.display,visibility:cs.visibility,buttonDisplay:bs.display,buttonVisibility:bs.visibility,rect:dock.getBoundingClientRect().toJSON(),buttonRect:b.getBoundingClientRect().toJSON(),width:innerWidth,mobile:matchMedia('(max-width:1023px)').matches,rules:rules.slice(-25)}}))); 
-                    await click('input');await page.locator('#tab-input').waitFor({state:'visible'});await identity();
-                    await click('superadmin');await ready('superadmin','/superadmin/');await identity();assert(await page.locator('#f4-account-page').count()===1,'Original superadmin DOM missing');
-                  }else if(role==='admin'){
-                    await click('deposit');await page.waitForFunction(()=>window.f4BankAppCurrentRoute?.()==='setoran',null,{timeout:20000});await identity();
-                  }else if(role==='warga'){
-                    await click('payout');await page.waitForFunction(()=>window.f4BankAppCurrentRoute?.()==='bank-payout',null,{timeout:20000});await identity();
-                  }
-                  if(role==='public')await page.locator('#f4-direct-bar [data-f4-portal-target="portal"]').click();else await click('home');
-                  await ready('portal','/');await identity();
-                  await page.evaluate(()=>window.F4PortalNavigation.go('/dokumentasi/'));await ready('dokumentasi','/dokumentasi/');await identity();assert(await page.locator('#page-start').count()===1,'Original documentation missing');
-                  await page.evaluate(()=>window.F4PortalNavigation.go('/rapat/'));await ready('rapat','/rapat/');await identity();
-                  await page.goBack({waitUntil:'commit'});await ready('dokumentasi','/dokumentasi/');await identity();
-                  if(role!=='superadmin'){const before=await page.url();assert(await page.evaluate(()=>window.F4PortalNavigation.go('/pembukuan/'))===false,'Unauthorized access allowed');assert(await page.url()===before,'Unauthorized URL entered')}
-                  assert(!posts.length,'Unexpected mutation attempts: '+posts.join(','));
-                  assert(!errors.length,'Script errors: '+errors.slice(0,5).join(' | '));
-                  console.log('PASS',name,role,'original source; persistent DOM; original URLs; role guard; no financial write');
-                  await page.close();
-                }
-              }finally{await browser.close()}
-            }
-          }finally{server.close()}
+            await page.goto('https://flamboyan4.web.id/?halaman=beranda',{waitUntil:'domcontentloaded',timeout:60000});
+            await page.waitForFunction(()=>document.querySelectorAll('#f4g-home-grid .f4g-home-card').length===3,null,{timeout:45000});
+            await page.locator('#f4g-home-latest').click();
+            const latest=await snapshot();
+            console.log('STORIES_LATEST',JSON.stringify(latest));
+            await page.locator('#f4g-home-popular').click();
+            const popular=await snapshot();
+            console.log('STORIES_POPULAR',JSON.stringify(popular));
+            if(popular.length!==3||popular[0].likes<2)throw Error('Most popular archived photo with two preserved likes is missing');
+            if(JSON.stringify(latest)===JSON.stringify(popular))throw Error('Latest and Popular still display identical rows');
+            if(!popular.some(x=>x.likes>0))throw Error('Preserved likes are not rendered');
+            console.log('STORIES_RANKINGS_CORRECT');
+          }finally{await browser.close()}
           JS
