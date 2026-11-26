@@ -23,7 +23,8 @@ const fixtures={
  '/api/admin/bank/action-counts':{unsoldDeposits:1,pendingApprovals:2,pendingPayouts:1},
  '/api/v2/admin/treasury':{pendingCount:0,needsOpening:false,warningCount:0},
  '/api/v2/public/portal':{agenda:[],documentation:[],inventory:[],meetings:[],arisan:[]},
- '/api/v2/public/bank':{overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
+ '/api/v2/public/bank/album/galbum:test':{album:{id:'galbum:test',title:'Album Bank uji'},media:[{id:'gphoto:test',media_type:'foto',external_url:'https://api.flamboyan4.web.id/test-photo'}]},
+ '/api/v2/public/bank':{albums:[{id:'galbum:test',title:'Album Bank uji',coverUrl:'https://api.flamboyan4.web.id/test-photo'}],overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
  '/api/v2/public/bank/report':{summary:{beratKg:1.25,hasilPenjualan:1000,hakWarga:500,pendingWeightKg:0},monthly:[]},
  '/api/member/savings':{saldoTersediaRp:500,totalCairRp:0,riwayatLengkap:true,setoran:[],mutasi:[]},
  '/api/member/bank/payout-requests':{items:[]},'/api/admin/bank/payout-requests':{items:[{id:'request:bank:00000000-0000-4000-8000-000000000001',nama:'Warga uji',rumah:'A/1',status:'diajukan',amount_rp:500,balance_rp:1000}]},
@@ -40,7 +41,7 @@ const fixtures={
 const assert=(v,m)=>{if(!v)throw Error(m)};
 async function run(browser,role){
  const ctx=await browser.newContext({viewport:{width:360,height:812},deviceScaleFactor:2,hasTouch:true});
- const errors=[],posts=[],unknown=[];let currentRole=role,accountId='test-'+role;const authCalls=[];
+ const errors=[],posts=[],unknown=[];let currentRole=role,accountId='test-'+role;const authCalls=[],socialCalls=[];let socialState={likes:2,liked:false,comments:[{author:'Warga uji',message:'Komentar uji'}]};
  await ctx.route('**/*',async route=>{
   const req=route.request(),url=new URL(req.url());
   if(url.origin===origin){await route.continue();return}
@@ -54,6 +55,13 @@ async function run(browser,role){
   if(req.method()==='POST'&&url.pathname==='/api/auth/logout'){authCalls.push('logout');currentRole='public';await route.fulfill({status:200,headers,json:{ok:true}});return;}
   if(req.method()==='POST'&&url.pathname==='/api/auth/login'){authCalls.push('login');const b=req.postDataJSON();if(b.username!=='test'||b.password!=='test-only'){await route.fulfill({status:401,headers,json:{ok:false,error:'Invalid mock login'}});return;}currentRole='warga';accountId='test-new-warga';await route.fulfill({status:200,headers,json:{ok:true}});return;}
   if(req.method()==='GET'&&url.pathname==='/test-photo'){await route.fulfill({status:200,headers,contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="green"/></svg>'});return}
+  if(req.method()==='POST'&&['/api/v2/gallery/react','/api/v2/gallery/comment'].includes(url.pathname)){
+   const b=req.postDataJSON();if(currentRole==='public'||b.type!=='photo'||b.id!=='gphoto:test'){await route.fulfill({status:403,headers,json:{ok:false}});return}
+   socialCalls.push(url.pathname);
+   if(url.pathname.endsWith('/react')){socialState={...socialState,liked:!socialState.liked,likes:socialState.likes+(socialState.liked?-1:1)};await route.fulfill({status:200,headers,json:socialState});return}
+   socialState.comments.push({author:'Akun uji',message:b.message});await route.fulfill({status:201,headers,json:{ok:true,created:true}});return;
+  }
+  if(req.method()==='GET'&&url.pathname==='/api/v2/gallery/social'){await route.fulfill({status:200,headers,json:socialState});return}
   if(req.method()!=='GET'){posts.push(url.pathname);await route.fulfill({status:403,headers,json:{ok:false}});return}
   const data=url.pathname==='/api/v2/auth/session'?{account:currentRole==='public'?null:{id:accountId,role:currentRole==='warga'?'anggota':currentRole,displayName:accountId==='test-new-warga'?'Akun baru':'Akun uji'}}:fixtures[url.pathname];
   if(data===undefined){unknown.push(url.pathname);await route.fulfill({status:404,headers,json:{ok:false}});return}
@@ -68,8 +76,11 @@ async function run(browser,role){
   await page.goto(origin);await heading('Portal Utama');await routeIs('home');
   await page.evaluate(()=>{window.testShell={header:document.getElementById('app-header'),dock:document.getElementById('app-dock'),items:[...document.querySelectorAll('#app-dock>button')]};});
   const identity=async()=>assert(await page.evaluate(()=>{const s=window.testShell;return s.header===document.getElementById('app-header')&&s.dock===document.getElementById('app-dock')&&s.items.every((n,i)=>n===document.querySelectorAll('#app-dock>button')[i]);}),'Header/dock node changed: '+role);
-  await page.getByRole('button',{name:'Dokumentasi',exact:true}).click();await heading('Dokumentasi');await page.getByRole('button',{name:'Buka Album uji',exact:true}).click();await page.getByText('Komentar uji',{exact:true}).waitFor();await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();
+  await page.getByRole('button',{name:'Dokumentasi',exact:true}).click();await heading('Dokumentasi');await page.getByRole('button',{name:'Buka Album uji',exact:true}).click();await page.getByText('Komentar uji',{exact:true}).waitFor();
+  if(role!=='public'){await page.getByRole('button',{name:'Suka',exact:true}).click();await page.getByRole('button',{name:'Batal suka',exact:true}).waitFor();await page.getByLabel('Tulis komentar').fill('Uji komentar SPA');await page.getByRole('button',{name:'Kirim',exact:true}).click();await page.getByText('Uji komentar SPA',{exact:true}).waitFor();}else assert(await page.getByRole('button',{name:'Suka',exact:true}).isDisabled(),'Public may not react');
+  await page.getByRole('button',{name:'Tutup',exact:true}).click();await identity();
   await click('bank');await heading('Bank Sampah');await routeIs('bank-home');await identity();
+  await page.getByRole('button',{name:'Dokumentasi',exact:true}).click();await heading('Dokumentasi Bank Sampah');await page.getByRole('button',{name:'Buka Album Bank uji',exact:true}).click();await page.getByText('Komentar uji',{exact:true}).waitFor();if(role!=='public'){await page.getByText('Uji komentar SPA',{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Batal suka',exact:true}).count()===1,'Same reaction in bank gallery')};await page.getByRole('button',{name:'Tutup',exact:true}).click();await click('bank');await heading('Bank Sampah');await identity();
   if(role!=='public'){
    await page.locator('#app-inbox-button').click();await page.getByRole('button',{name:'Foto uji',exact:true}).waitFor();await page.getByRole('button',{name:'Tutup notifikasi',exact:true}).click();await identity();
   }
@@ -132,6 +143,7 @@ async function run(browser,role){
    assert(await page.evaluate(()=>window.testShell.header===document.getElementById('app-header')&&window.testShell.dock===document.getElementById('app-dock')),'Shell replaced on cross-tab logout');
    assert(authCalls.join(',')==='logout,login','Unexpected auth operations');
   }
+  assert(socialCalls.length===(role==='public'?0:2),'Social calls not as expected');
   assert(posts.length===0,'Unexpected external POST: '+posts.join(','));
   assert(unknown.length===0,'Unmocked endpoint: '+unknown.join(','));
   assert(errors.length===0,'Browser JS error: '+errors.join(','));
