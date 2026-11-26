@@ -364,7 +364,70 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
       </div>
     </section>
 
-    <!-- SECTION 3: SLIDER PROJEK WARGA -->
+    <!-- SECTION 3: KALENDER KEGIATAN -->
+    <section id="rencana" class="scroll-mt-20 w-full space-y-6" data-calendar-open="false">
+      <div class="f4-calendar-heading flex items-center justify-between gap-2">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
+        </div>
+       </div>
+
+      <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 select-none touch-pan-y h-full">
+          <div class="flex items-center justify-between mb-4">
+            <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
+            <div class="flex items-center space-x-1">
+              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Sebelumnya">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+              <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition">Hari Ini</button>
+              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Berikutnya">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
+            <div class="flex items-center space-x-3">
+              <div class="flex items-center space-x-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                <span class="font-medium text-amber-800">Kerja Bakti</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
+                <span>Kegiatan / Arisan</span>
+              </div>
+              <div class="flex items-center space-x-1">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
+                <span>Bank Sampah</span>
+              </div>
+            </div>
+            </div>
+
+          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
+            <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+          </div>
+
+          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
+        </div>
+
+        <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 h-full flex flex-col">
+          <h4 class="f4-agenda-desktop-heading font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
+            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
+            <span>Agenda Berikutnya</span>
+          </h4>
+
+          <div id="f4-upcoming-agenda" role="region" aria-label="Geser untuk melihat agenda berikutnya"><p class="text-slate-400 text-xs">Memuat agenda terdekat...</p></div>
+          <div id="f4-agenda-pagination" aria-live="polite"></div>
+          <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+            <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SLIDER PROJEK WARGA -->
     <section id="projek" class="scroll-mt-20 w-full space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
@@ -522,69 +585,6 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
         <a class="f4g-home-link" href="/dokumentasi/">Lihat Semua Galeri</a>
       </div>
       <div id="f4g-home-grid" class="f4g-home-grid"></div>
-    </section>
-
-    <!-- SECTION 5: KALENDER KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20 w-full space-y-6" data-calendar-open="false">
-      <div class="f4-calendar-heading flex items-center justify-between gap-2">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender</h3>
-        </div>
-       </div>
-
-      <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 select-none touch-pan-y h-full">
-          <div class="flex items-center justify-between mb-4">
-            <h4 id="calendar-month-year" class="font-bold text-slate-800 text-base md:text-lg">Bulan Tahun</h4>
-            <div class="flex items-center space-x-1">
-              <button onclick="changeMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Sebelumnya">
-                <i data-lucide="chevron-left" class="w-5 h-5"></i>
-              </button>
-              <button onclick="resetToCurrentMonth()" class="px-2.5 py-1 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition">Hari Ini</button>
-              <button onclick="changeMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg transition text-slate-600" title="Bulan Berikutnya">
-                <i data-lucide="chevron-right" class="w-5 h-5"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-4 text-[11px] text-slate-500 border-b border-slate-100 pb-2">
-            <div class="flex items-center space-x-3">
-              <div class="flex items-center space-x-1">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                <span class="font-medium text-amber-800">Kerja Bakti</span>
-              </div>
-              <div class="flex items-center space-x-1">
-                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600 inline-block"></span>
-                <span>Kegiatan / Arisan</span>
-              </div>
-              <div class="flex items-center space-x-1">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
-                <span>Bank Sampah</span>
-              </div>
-            </div>
-            </div>
-
-          <div class="grid grid-cols-7 gap-1 text-center font-bold text-xs text-slate-400 mb-2">
-            <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
-          </div>
-
-          <div id="calendar-days-grid" class="grid grid-cols-7 gap-1 text-xs"></div>
-        </div>
-
-        <div id="f4-agenda-panel" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 h-full flex flex-col">
-          <h4 class="f4-agenda-desktop-heading font-bold text-slate-800 text-base mb-3 flex items-center space-x-1.5">
-            <i data-lucide="list-todo" class="w-4 h-4 text-indigo-600"></i>
-            <span>Agenda Berikutnya</span>
-          </h4>
-
-          <div id="f4-upcoming-agenda" role="region" aria-label="Geser untuk melihat agenda berikutnya"><p class="text-slate-400 text-xs">Memuat agenda terdekat...</p></div>
-          <div id="f4-agenda-pagination" aria-live="polite"></div>
-          <div id="container-rencana" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-            <p class="text-slate-400 text-xs">Memuat rencana kegiatan...</p>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
