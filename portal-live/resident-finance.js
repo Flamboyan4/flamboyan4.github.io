@@ -25,7 +25,6 @@ win.addEventListener('message',roleChanged);
 __f4.cleanup(()=>{serial++;identity=null;account='';});
 
 const eye=(shown)=>'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(shown?'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>':'<path d="M3 3l18 18M9.8 5.3A11 11 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-2.4 3.3M6.2 6.2C3.5 8.2 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4.3-.9"/>')+'</svg>';
-const status=(due,paid)=>paid>=due?'Lunas':paid>0?'Kurang bayar':'Belum bayar';
 const names={IURAN_BULANAN:'Iuran RT, RW & Keamanan',KAS_LORONG:'Kas Lorong',KEBERSIHAN:'Kebersihan',ARISAN:'Arisan'};
 let historySeq=0;
 async function load(){
@@ -37,22 +36,56 @@ async function load(){
  const toggle=bank.querySelector('.rp-eye');
  function paint(){toggle.innerHTML=eye(shown);toggle.setAttribute('aria-pressed',String(shown));toggle.setAttribute('aria-label',shown?'Sembunyikan saldo':'Tampilkan saldo');for(const [key,v] of [['total',savings?savings.saldoTersediaRp+savings.estimasiMenungguRp:null],['available',savings?.saldoTersediaRp],['pending',savings?.estimasiMenungguRp]])bank.querySelector('[data-amount="'+key+'"]').textContent=shown?(Number.isFinite(v)?money(v):'Belum tersedia'):'Rp ••••'}
  toggle.onclick=()=>{shown=!shown;paint()};paint();
- const dues=el('section','rp-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Kewajiban bulanan'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
+ const dues=el('section','rp-card rp-dues-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Rincian Kewajiban'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
+ // A standalone receipt, using the visual hierarchy of Portal Utama / Kas Saya.
+ const receipt=el('section','rp-receipt');receipt.setAttribute('aria-label','Status Pembayaran');
+ const receiptHead=el('div','rp-receipt-head'),receiptTitle=el('div'),receiptPeriod=el('p'),receiptIcon=el('span','rp-receipt-icon');
+ const receiptSvg=paid=>'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paid?'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>':'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>')+'</svg>';
+ receiptIcon.innerHTML=receiptSvg(false);receiptTitle.append(el('span','rp-receipt-brand','FLAMBOYAN 4'),el('h2','','Status Pembayaran'),receiptPeriod);receiptHead.append(receiptTitle,receiptIcon);
+ const receiptBody=el('div','rp-receipt-body'),band=el('div','rp-receipt-band'),badge=el('strong','','Memeriksa…');badge.setAttribute('role','status');band.append(el('span','','Status'),badge);receipt.append(receiptHead,receiptBody,band);root.append(receipt);
+ function renderReceipt(data,state){
+  const month=data?.period||period.value;
+  receiptPeriod.textContent=/^\d{4}-\d{2}$/.test(month)?new Date(month+'-01T00:00:00Z').toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}):'Bulan berjalan';
+  receiptBody.replaceChildren();band.className='rp-receipt-band';badge.textContent=state||'Belum tersedia';receiptIcon.innerHTML=receiptSvg(false);
+  if(!data){receiptBody.append(el('p','rp-empty',state==='Memeriksa…'?'Memeriksa pembayaran…':'Status pembayaran belum dapat diperiksa.'));return}
+  const due=data.totalWajibRp,paid=data.totalTerbayarRp,remaining=data.totalSisaRp;
+  if(![due,paid,remaining].every(x=>typeof x==='number'&&Number.isFinite(x)&&x>=0)){receiptBody.append(el('p','rp-empty','Status pembayaran belum dapat diperiksa.'));return}
+  const total=el('div','rp-receipt-total');total.append(el('span','','TOTAL DIBAYAR'),el('strong','',money(paid)));receiptBody.append(total);
+  if(due===0){badge.textContent='TANPA TAGIHAN';receiptBody.append(el('p','rp-empty','Tidak ada kewajiban rutin untuk bulan ini.'))}
+  else if(remaining===0){badge.textContent='LUNAS';band.classList.add('paid');receiptIcon.innerHTML=receiptSvg(true)}
+  else if(paid===0){badge.textContent='BELUM BAYAR';band.classList.add('unpaid');receiptBody.append(el('p','rp-empty','Belum ada pembayaran yang tercatat.'))}
+  else{badge.textContent='KURANG BAYAR';band.classList.add('partial')}
+  if(remaining>0){const missing=el('div','rp-receipt-due');missing.append(el('span','','Sisa kewajiban'),el('strong','',money(remaining)));receiptBody.append(missing)}
+  if(due>0&&paid>0){
+   const details=el('dl','rp-receipt-details');
+   function info(label,value){if(!value)return;const row=el('div');row.append(el('dt','',label),el('dd','',value));details.append(row)}
+   const last=data.pembayaranTerakhir;
+   info('Warga',data.nama||identity?.nama);info('Rumah',data.rumah||identity?.rumah);
+   if(last){if(last.tanggal)info('Bayar terakhir',dateLabel(last.tanggal));info('Metode',last.metode||'Tidak tercatat')}
+   receiptBody.append(details);
+   if(last?.id){const id=el('div','rp-receipt-id');id.append(el('span','','Transaksi terakhir'),el('span','',last.id));receiptBody.append(id)}
+  }
+ }
  let dueSeq=0;
- async function loadDues(){const request=++dueSeq;dueBody.replaceChildren(el('p','rp-empty','Memuat kewajiban…'));try{const data=await read('/api/member/dues?month='+encodeURIComponent(period.value));if(seq!==serial||request!==dueSeq)return;dueBody.replaceChildren();if(!data.linked||!data.configured||!Array.isArray(data.components)){dueBody.append(el('p','rp-empty','Kewajiban belum tersedia untuk periode ini.'));return}
- const totalDue=data.totalWajibRp,totalPaid=data.totalTerbayarRp,remaining=data.totalSisaRp;
- const hasTotals=[totalDue,totalPaid,remaining].every(x=>typeof x==='number'&&Number.isFinite(x)&&x>=0);
- const state=hasTotals?(totalDue===0?'Tidak ada kewajiban':remaining===0?'Lunas':totalPaid>0?'Kurang bayar':'Belum bayar'):'Belum tersedia';
- const summary=el('section','rp-payment-status');
- const label=el('div','rp-payment-heading');label.append(el('span','','Status pembayaran'),el('strong','rp-payment-badge '+(hasTotals&&totalDue>0&&remaining===0?'paid':hasTotals&&remaining>0?'unpaid':'neutral'),state));summary.append(label);
- if(hasTotals){const amounts=el('div','rp-payment-amounts');for(const [title,value] of [['Total kewajiban',totalDue],['Sudah dibayar',totalPaid]]){const cell=el('div');cell.append(el('small','',title),el('b','',money(value)));amounts.append(cell)}summary.append(amounts)}
- dueBody.append(summary);
- for(const item of data.components||[]){const due=Number(item.wajibRp),paid=Number(item.terbayarRp);if(!Number.isFinite(due)||!Number.isFinite(paid)||due<=0)continue;const row=el('div','rp-line');const info=el('div');info.append(el('strong','',names[item.jenis]||item.jenis),el('small','rp-state '+(paid>=due?'paid':'unpaid'),status(due,paid)));row.append(info,el('b','',money(due)));dueBody.append(row)}
- const total=el('div','rp-total');total.append(el('span','','Sisa kewajiban'),el('strong','',hasTotals?money(remaining):'—'));dueBody.append(total);
- }catch(e){if(seq===serial&&request===dueSeq)dueBody.replaceChildren(el('p','rp-empty','Kewajiban belum dapat dimuat.'),btn('Coba lagi',loadDues,'rp-small'))}}
+ async function loadDues(){
+  const request=++dueSeq;dueBody.replaceChildren(el('p','rp-empty','Memuat kewajiban…'));renderReceipt(null,'Memeriksa…');
+  try{
+   const data=await read('/api/member/dues?month='+encodeURIComponent(period.value));if(seq!==serial||request!==dueSeq)return;dueBody.replaceChildren();
+   if(!data.linked||!data.configured||!Array.isArray(data.components)){dueBody.append(el('p','rp-empty','Kewajiban belum tersedia untuk periode ini.'));renderReceipt(null,'Belum tersedia');return}
+   const rows=el('div','rp-dues-rows');
+   function row(label,amount){const line=el('div','rp-dues-row');line.append(el('span','',label),el('strong','',money(amount)));rows.append(line)}
+   for(const item of data.components){const due=item.wajibRp;if(typeof due!=='number'||!Number.isFinite(due)||due<=0)continue;
+    if(item.jenis==='IURAN_BULANAN'&&due%25000===0){const count=due/25000;row('Kas RT',10000*count);row('Kas RW',5000*count);row('Keamanan',10000*count)}
+    else row(names[item.jenis]||item.jenis,due);
+   }
+   if(!rows.children.length)rows.append(el('p','rp-empty','Tidak ada iuran rutin untuk periode ini.'));
+   const total=el('div','rp-dues-total');total.append(el('span','','Total per bulan'),el('strong','',typeof data.totalWajibRp==='number'&&Number.isFinite(data.totalWajibRp)?money(data.totalWajibRp):'—'));dueBody.append(rows,total);
+   renderReceipt(data);
+  }catch(e){if(seq===serial&&request===dueSeq){dueBody.replaceChildren(el('p','rp-empty','Kewajiban belum dapat dimuat.'),btn('Coba lagi',loadDues,'rp-small'));renderReceipt(null,'Belum tersedia')}}
+ }
  period.onchange=loadDues;void loadDues();
  const reminders=el('section','rp-reminders');reminders.hidden=true;root.append(reminders);
- const history=el('section','rp-card');history.append(el('h2','','Riwayat pembayaran'));
+ const history=el('section','rp-card rp-history-card');history.append(el('h2','','Riwayat pembayaran'));
  const controls=el('div','rp-tabs rp-history-tabs');const historyBody=el('div');history.append(controls,historyBody);root.append(history);
  const types=[['payments','Iuran'],['arisan','Arisan'],['fines','Denda'],['loans','Pinjaman']];
  let selected='payments';const cache={};

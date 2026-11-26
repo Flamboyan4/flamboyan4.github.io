@@ -34,21 +34,41 @@
 .rp-tabs{display:flex;gap:6px;overflow-x:auto;margin:10px 0;scrollbar-width:none}
 .rp-tab{flex:0 0 auto;font-size:13px;white-space:nowrap}
 .rp-tab[aria-pressed=true]{background:var(--rp-primary);color:#fff;border-color:var(--rp-primary)}
-/* History tabs are equal-width and snap at each complete button. */
-.rp-history-tabs{scroll-snap-type:x mandatory;scroll-padding-inline:0}
-#f4-resident-content .rp-history-tabs .rp-tab{flex:0 0 calc((100% - 18px)/4);min-width:0;padding:8px 4px;font-size:12px;scroll-snap-align:start;scroll-snap-stop:always}
-@media(max-width:480px){#f4-resident-content .rp-history-tabs .rp-tab{flex-basis:calc((100% - 12px)/3)}}
+/* Finance page: four complete, readable history tabs; no clipping frame. */
+.rp-history-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible;margin:12px 0 10px}
+#f4-resident-content .rp-history-tabs .rp-tab{width:100%;min-width:0;min-height:44px;padding:8px 3px;font-size:15px;font-weight:600;line-height:1.3;border-radius:9px}
 .rp-history-more{margin-top:12px}
-.rp-payment-status{background:#f7f6ff;border:1px solid #e4e0fa;border-radius:10px;padding:12px;margin:0 0 7px}
-.rp-payment-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:650}
-.rp-payment-badge{border-radius:7px;padding:4px 9px;font-size:12px;text-align:center;white-space:nowrap}
-.rp-payment-badge.paid{color:#08764b;background:#dcf6e7}
-.rp-payment-badge.unpaid{color:#96520b;background:#ffebc7}
-.rp-payment-badge.neutral{color:#536075;background:#e9eaf1}
-.rp-payment-amounts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
-.rp-payment-amounts small,.rp-payment-amounts b{display:block}
-.rp-payment-amounts small{font-size:11px;color:var(--rp-muted)}
-.rp-payment-amounts b{font-size:16px;overflow-wrap:anywhere}
+@media(max-width:480px){.rp-history-card{padding:12px}.rp-history-tabs{gap:5px}}
+@media(max-width:340px){.rp-history-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Independent finance layout, matching the original Kas Saya receipt. */
+.rp-dues-rows{display:grid;gap:12px;padding:7px 0 15px}
+.rp-dues-row,.rp-dues-total{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;line-height:1.35;color:#49556e}
+.rp-dues-row strong{font-weight:750;color:#283651;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rp-dues-total{border-top:1px solid #e8eaf3;padding-top:13px;color:#283651;font-weight:800}
+.rp-dues-total strong{font-size:19px;color:var(--rp-primary);font-variant-numeric:tabular-nums}
+.rp-receipt{min-width:0;background:#fff;border:1px solid #e1e5f0;border-radius:var(--f4-panel-radius,12px);overflow:hidden}
+.rp-receipt-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;background:var(--rp-primary);color:#fff}
+.rp-receipt-brand{display:block;color:#e0e7ff;font-size:11px;font-weight:800;letter-spacing:.065em}
+#f4-resident-content .rp-receipt-head h2{color:#fff;font-size:17px;font-weight:800;margin:3px 0 1px}
+#f4-resident-content .rp-receipt-head p{font-size:12px;color:#e0e7ff}
+.rp-receipt-icon{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;background:white;color:var(--rp-primary)}
+.rp-receipt-body{display:flex;flex-direction:column;gap:12px;padding:15px 16px 12px}
+.rp-receipt-total{display:flex;flex-direction:column;gap:2px}
+.rp-receipt-total>span{color:#64748b;font-size:11px;font-weight:800;letter-spacing:.045em}
+.rp-receipt-total>strong{color:var(--rp-primary);font-size:28px;font-weight:850;line-height:1.2;font-variant-numeric:tabular-nums}
+.rp-receipt-details{display:grid;gap:8px;margin:0}
+.rp-receipt-details>div{display:grid;grid-template-columns:105px minmax(0,1fr);gap:8px;align-items:baseline;font-size:13px}
+.rp-receipt-details dt{color:#788198}
+.rp-receipt-details dd{margin:0;text-align:right;color:#293047;font-weight:700;overflow-wrap:anywhere}
+.rp-receipt-id{border-top:1px dashed #cbd5e1;padding-top:9px;display:flex;justify-content:space-between;gap:10px;color:#7b8295;font-size:11px}
+.rp-receipt-id span:last-child{min-width:0;text-align:right;overflow-wrap:anywhere}
+.rp-receipt-due{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;background:#fff4e9;color:#985420;border-radius:7px;font-size:13px}
+.rp-receipt-band{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 16px 15px;padding:10px 12px;border-radius:8px;background:#f0f2f8;color:#58647d}
+.rp-receipt-band>span{font-size:12px;font-weight:750;text-transform:uppercase;letter-spacing:.04em}
+.rp-receipt-band strong{font-size:15px;font-weight:850;text-align:right}
+.rp-receipt-band.paid{background:#d9f7e9;color:#087850}
+.rp-receipt-band.unpaid{background:#fff3df;color:#975c06}
+.rp-receipt-band.partial{background:#fff0e0;color:#ad551b}
 .rp-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:14px 0}
 .rp-weekday{text-align:center;font-size:11px;font-weight:650;color:var(--rp-muted)}
 .rp-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;height:44px;border:1px solid transparent;border-radius:8px;background:#fff;color:#27334d}
