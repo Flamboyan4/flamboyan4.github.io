@@ -156,7 +156,7 @@ function updatePortalChrome(key){
  document.documentElement.dataset.f4Shell=portal;
  applyPortalTheme(portal);hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(residentKeys.includes(key)?key:portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
  for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
- settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
+ settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Kartu & Profil': ['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
  document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));
 }
@@ -179,7 +179,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
    window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
   }
-  if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
+  if(key==='bank'&&session?.account&&['dashboard','profile','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
   if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
   if(key==='superadmin'&&!route)return true;
  }
@@ -431,7 +431,7 @@ async function refreshSession(){
  if(avatar.dataset.f4TagAccount!==tagAccount)avatar.dataset.f4TagAccount=tagAccount;
  login.hidden=authed;avatar.hidden=!authed;bookLink.hidden=role!=='superadmin';adminLink.hidden=role!=='superadmin';donorLink.hidden=role!=='donatur';
  updateAccountIdentity();rememberDockHint(authed?role:'');updateSharedDock();
- settings.textContent=role==='donatur'?'Dashboard Donatur':portal==='bank'&&role==='warga'?'Kartu & Profil':portal==='bank'&&['admin','superadmin'].includes(role)?'Profil Pengurus':'Pengaturan Akun';
+ settings.textContent=role==='donatur'?'Dashboard Donatur':role==='warga'?'Kartu & Profil': ['admin','superadmin'].includes(role)?'Profil Pengurus':'Kartu & Profil';
  if(authed&&role!=='donatur')avatarLoad();
  notifyRole();
  if(portal==='book'||portal==='superadmin'){
@@ -476,17 +476,16 @@ dialog.querySelector('form').addEventListener('submit',async e=>{
  finally{b.disabled=false;dialog.querySelector('#f4-direct-password').value=''}
 });
 avatar.onclick=()=>{menu.hidden=!menu.hidden};
-settings.onclick=()=>{
+function openAccountProfile(){
  menu.hidden=true;
- // Bank Sampah hanya memiliki satu profil sesuai peran, tanpa menu akun ganda.
  if(role==='donatur'){location.assign(paths.donor);return}
- if(portal==='bank'&&['warga','admin','superadmin'].includes(role)){
-  window.f4CloseUnifiedAccount?.();
-  window.f4OpenBankProfile?.();
-  return;
- }
- window.f4OpenUnifiedAccount?.();
-};
+ if(!session?.account){openLogin();return}
+ if(!['warga','admin','superadmin'].includes(role))return;
+ if(portal==='bank'&&typeof window.f4OpenBankProfile==='function'){window.f4OpenBankProfile();return}
+ openBankRoute('profile');
+}
+window.f4OpenAccountProfile=openAccountProfile;
+settings.onclick=openAccountProfile;
 logout.onclick=async()=>{
  menu.hidden=true;
  try{await api('/api/auth/logout',{method:'POST'})}
@@ -645,19 +644,6 @@ if(portal==='bank'){
  const old=window.v11ShowLogin;
  window.v11ShowLogin=()=>openLogin();
 }
-// Native scroll is intentionally left to the browser. Only the fixed account
-// overlay uses a non-window scrolling container, so give it explicit refresh.
-let start=0,moving=false;
-document.addEventListener('touchstart',e=>{
- const content=e.target.closest?.('#f4-unified-account .ua-content');
- if(e.touches.length!==1||!content||content.scrollTop>2||e.target.closest('input,button,textarea,select')){moving=false;return}
- start=e.touches[0].clientY;moving=true;
-},{passive:true});
-document.addEventListener('touchend',e=>{
- if(!moving||!document.querySelector('#f4-unified-account:not([hidden])'))return;
- moving=false;
- if(e.changedTouches[0].clientY-start>110){try{sessionStorage.setItem('f4-native-account-refresh','1')}catch{} location.reload()}
-},{passive:true});
 const legacy=new URLSearchParams(location.search).get('halaman');
 if(initialKey==='dokumentasi'&&legacy==='profil'){location.replace(shellUrl(paths.profile));return;}
 if(portal==='portal'&&legacy){
@@ -672,11 +658,12 @@ if(portal==='portal'&&legacy){
   window.addEventListener('load',()=>window.f4PortalSelectPanel?.(key,false),{once:true});
  }
 }
-let restore=false;
-try{restore=sessionStorage.getItem('f4-native-account-refresh')==='1';sessionStorage.removeItem('f4-native-account-refresh')}catch{}
+try{sessionStorage.removeItem('f4-native-account-refresh')}catch{}
 window.F4PortalNavigation.initialSession=refreshSession().then(()=>{
- if((location.hash==='#akun'||restore)&&role!=='public')window.f4OpenUnifiedAccount?.();
-  if(location.hash==='#akun')history.replaceState(history.state,'',location.pathname+location.search);
+ if(location.hash==='#akun'){
+  history.replaceState(history.state,'',location.pathname+location.search);
+  if(role!=='public')openAccountProfile();
+ }
 });
 /* Pair search and reload in native search toolbars on every portal.
    Preserve original input and button listeners; only move their DOM nodes. */

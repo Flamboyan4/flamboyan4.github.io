@@ -45,7 +45,7 @@ function bankDates(rule,month){
  return rows;
 }
 async function load(){
- const seq=++serial;root.replaceChildren();const head=el('div','rp-heading');head.append(el('h1','','Agenda'),btn('Muat ulang',()=>void load(),'rp-small'));root.append(head);
+ const seq=++serial;root.replaceChildren();const head=el('div','rp-heading');head.append(el('h1','','Agenda'));root.append(head);
  const calendar=el('section','rp-card'),nav=el('div','rp-between'),title=el('h2'),grid=el('div','rp-calendar'),list=el('section','rp-card');let month=today().slice(0,7),selected='',events=[],rule=null,loaded=false;
  const move=n=>{const d=parse(month+'-01');d.setUTCMonth(d.getUTCMonth()+n);month=iso(d).slice(0,7);selected='';paint()};
  const arrow=(dir,fn)=>{const b=btn('',fn,'rp-arrow');b.setAttribute('aria-label',dir<0?'Bulan sebelumnya':'Bulan berikutnya');b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="'+(dir<0?'m15 6-6 6 6 6':'m9 6 6 6-6 6')+'"/></svg>';return b};
@@ -62,7 +62,7 @@ async function load(){
   const show=rows.filter(e=>!selected||e.date===selected).sort((a,b)=>a.date.localeCompare(b.date));if(!show.length){list.append(el('p','rp-empty','Tidak ada kegiatan tercatat.'));return}
   for(const event of show){const item=el('details','rp-event');const summary=el('summary');const day=el('div','rp-date '+event.kind);day.append(el('b','',event.date.slice(-2)),el('small','',parse(event.date).toLocaleDateString('id-ID',{month:'short',timeZone:'UTC'})));const info=el('div');info.append(el('strong','',event.title),el('small','',event.status));summary.append(day,info);item.append(summary,el('p','rp-event-detail',[event.location,event.description].filter(Boolean).join(' · ')||'Tidak ada rincian tambahan.'));list.append(item)}
  }
- paint();const result=await Promise.allSettled([read('/api/v2/public/portal'),read('/api/public/bank/weighing-schedule')]);if(seq!==serial)return;loaded=true;if(result[0].status==='fulfilled')events=merge(result[0].value);if(result[1].status==='fulfilled')rule=result[1].value;paint();if(result.some(r=>r.status==='rejected'))root.append(el('p','rp-empty','Sebagian jadwal belum dapat dimuat. Gunakan Muat ulang.'));
+ paint();const result=await Promise.allSettled([read('/api/v2/public/portal'),read('/api/public/bank/weighing-schedule')]);if(seq!==serial)return;loaded=true;if(result[0].status==='fulfilled')events=merge(result[0].value);if(result[1].status==='fulfilled')rule=result[1].value;paint();if(result.some(r=>r.status==='rejected'))root.append(el('p','rp-empty','Sebagian jadwal belum dapat dimuat. Tarik layar untuk memperbarui.'));
 }
 
 });

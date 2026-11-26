@@ -29,10 +29,10 @@ async function load(){
  const seq=++serial;message('Memuat profil…');
  try{const data=await read('/api/v2/gallery/my-profile');if(seq!==serial)return;
  const uploads=Array.isArray(data.uploads)?data.uploads:[],tagged=Array.isArray(data.tagged)?data.tagged:[];
- root.replaceChildren();const heading=el('div','rp-heading');heading.append(el('h1','','Profil'),btn('Muat ulang',()=>void load(),'rp-small'));root.append(heading);
+ root.replaceChildren();const heading=el('div','rp-heading');heading.append(el('h1','','Profil'));root.append(heading);
  const head=el('section','rp-profile-head'),avatar=el('img','rp-avatar');avatar.alt='Foto profil';avatar.width=76;avatar.height=76;avatar.src=API+'/api/member/avatar?v='+Date.now();avatar.onerror=()=>{const fallback=el('span','rp-avatar rp-avatar-fallback');fallback.innerHTML='<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';avatar.replaceWith(fallback)};
  const who=el('div','rp-who');who.append(el('h2','',identity.nama||'Warga'),el('p','',identity.rumah?'Rumah '+identity.rumah:'Flamboyan 4'));const counts=el('div','rp-counts');for(const [n,label] of [[uploads.length,'Unggahan'],[tagged.length,'Ditandai']]){const cell=el('div');cell.append(el('b','',n),el('small','',label));counts.append(cell)}who.append(counts);head.append(avatar,who);root.append(head);
- const actions=el('div','rp-actions');actions.append(btn('Edit profil',()=>win.f4OpenUnifiedAccount?.()),link('Unggah foto','/dokumentasi/'));root.append(actions);
+ const actions=el('div','rp-actions');actions.append(btn('Edit profil',()=>win.f4OpenAccountProfile?.()),link('Unggah foto','/dokumentasi/'));root.append(actions);
  const tabs=el('div','rp-tabs'),photos=el('div','rp-photos');root.append(tabs,photos);
  for(const [key,label] of [['uploads','Unggahan saya'],['tagged','Ditandai']]){const b=btn(label,()=>{profileTab=key;paint()},'rp-tab');b.dataset.kind=key;tabs.append(b)}
  function paint(){for(const b of tabs.children)b.setAttribute('aria-pressed',String(b.dataset.kind===profileTab));photos.replaceChildren();const rows=profileTab==='uploads'?uploads:tagged;if(!rows.length){photos.append(el('p','rp-empty',profileTab==='uploads'?'Belum ada unggahan.':'Belum ada foto yang menandai Anda.'));return}

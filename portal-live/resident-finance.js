@@ -30,7 +30,7 @@ const names={IURAN_BULANAN:'Iuran RT, RW & Keamanan',KAS_LORONG:'Kas Lorong',KEB
 let historySeq=0;
 async function load(){
  const seq=++serial;historySeq++;root.replaceChildren();busy=true;
- const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan Saya'),btn('Muat ulang',()=>void load(),'rp-small'));root.append(heading);
+ const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan Saya'));root.append(heading);
  const bank=el('section','rp-bank');bank.innerHTML='<div class="rp-between"><h2>Tabungan Bank Sampah</h2><button type="button" class="rp-eye" aria-label="Tampilkan saldo" aria-pressed="false"></button></div><p>Total saldo belum dicairkan</p><strong class="rp-saldo" data-amount="total">Rp ••••••</strong><div class="rp-split"><div><small>Bisa dicairkan</small><b data-amount="available">Rp ••••</b></div><div><small>Menunggu penjualan</small><b data-amount="pending">Rp ••••</b></div></div>';
  bank.append(link('Lihat tabungan','/bank-sampah/','rp-bank-link'));root.append(bank);
  let shown=false,savings=null;

@@ -146,6 +146,7 @@ window.F4PortalRuntime.define("/bank-sampah/index.html#inline-2",function(__f4){
   let activeAccountKey='public';
   function activate(role,account){
     try{
+    const requestedProfile=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman')==='profile';
     const nextRole=role||'public';
     const nextIdentity=account||{};
     const nextAccountKey=nextRole==='public'?'public':
@@ -196,7 +197,7 @@ window.F4PortalRuntime.define("/bank-sampah/index.html#inline-2",function(__f4){
     syncReturnButton();
     const requested=pendingSection||lastAdminSection;
     pendingSection='';
-    if(pendingProfile){openOriginalProfile();return;}
+    if(pendingProfile||requestedProfile){openOriginalProfile();return;}
     if(requested&&['admin','superadmin'].includes(currentRole))openAdmin(requested);
     }finally{
       // Release initial screen only after the selected public/private view is ready.
