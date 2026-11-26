@@ -1,7 +1,7 @@
 /* Bank Sampah content clearance; shared direct-shell owns dock visuals. */
 @media(max-width:1023px){
- body.f4-bank-app-private{--f4-bank-dock-height:var(--f4-dock-height,72px);--f4-bank-dock-safe-bottom:var(--f4-dock-safe,env(safe-area-inset-bottom,0px))}
+ body.f4-bank-app-private{--f4-bank-dock-height:var(--f4-dock-height,60px);--f4-bank-dock-safe-bottom:var(--f4-dock-safe,env(safe-area-inset-bottom,0px))}
  body.f4-bank-app-private .shell>.footer{display:none}
  body.f4-bank-app-private :is(#dashboardView,#dashboardView>.grid,#dashboardView>.grid>.section){box-sizing:border-box;min-width:0;max-width:100%}
- body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom) + 16px)}
+ body.f4-bank-app-private #dashboardView{padding-bottom:calc(var(--f4-bank-dock-height) + var(--f4-bank-dock-safe-bottom) + 12px)}
 }
