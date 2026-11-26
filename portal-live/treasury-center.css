@@ -145,7 +145,10 @@ body:has(#f4-account-page){
 .tc-field input:not([type=hidden]),.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:var(--tc-ink);font:500 13px/1.3 system-ui;vertical-align:middle}
 .tc-field input:focus-visible,.tc-field select:focus-visible{outline:2px solid var(--tc-accent);outline-offset:1px}
 .tc-wide{grid-column:span 2}
-.tc-form .tc-primary{margin-top:8px}
+.tc-form-grid>.tc-primary{grid-column:1/-1;align-self:end;min-height:var(--f4-control-height,42px);margin:0}
+.tc-form-grid>.tc-form-help{grid-column:1/-1;margin:0}
+.tc-form-grid>.tc-form-help[hidden],.tc-form>.tc-status:empty{display:none}
+.tc-form>.tc-status{margin:8px 0 0}
 .tc-mutation-panel{padding:12px 14px}
 .tc-mutation-panel>summary{font-size:14px;font-weight:800;color:var(--tc-accent)}
 .tc-mutation-panel[open]>summary{margin-bottom:9px}
@@ -395,7 +398,7 @@ body:has(#f4-account-page){
   margin:0;padding:0;font-size:11px;line-height:1.4;color:#766c82
  }
  .tc-center #tc-view-transaksi .tc-form-help[hidden]{display:none}
- .tc-center #tc-view-transaksi .tc-form>.tc-primary{
+ .tc-center #tc-view-transaksi .tc-form-grid>.tc-primary{
   display:flex;justify-content:center;align-items:center;
   width:100%;min-height:43px;margin:0;border-radius:var(--f4-panel-radius,12px);
   padding:10px 14px;font-size:13px;font-weight:800
@@ -653,13 +656,22 @@ body:has(#f4-account-page){
  .tc-saldo-layout{gap:12px}
  .tc-saldo-layout>.tc-ownership{padding:16px 20px}
  .tc-transaksi-layout .tc-form-grid{gap:12px 16px}
- .tc-transaksi-layout .tc-form>.tc-primary{display:flex;margin:12px 0 0 auto;min-width:180px}
+ .tc-transaksi-layout .tc-form-grid>.tc-primary{display:flex;margin:0;min-width:0}
  .tc-transaksi-layout .tc-field>span{min-height:18px;line-height:18px}
  .tc-report-top{grid-template-columns:minmax(0,1fr);gap:12px}
  .tc-report-top .tc-opening-summary{display:flex;align-items:center;justify-content:space-between;gap:12px}
  .tc-report-top .tc-opening-summary-copy{display:grid;gap:2px}
  .tc-report-top .tc-opening-summary-copy small{font-size:11px;font-weight:500;color:var(--tc-muted)}
  .tc-report-top .tc-opening-summary-total{font-variant-numeric:tabular-nums}
+}
+@media(min-width:1024px){
+ .tc-transaksi-layout .tc-form-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:10px 12px}
+ .tc-transaksi-layout .tc-form-grid>:is(.tc-kind-field,.tc-date-field,.tc-amount-field){grid-column:span 2}
+ .tc-transaksi-layout .tc-form-grid>:is(.tc-origin-fund,.tc-origin-location,.tc-destination-fund,.tc-destination-location){grid-column:span 3}
+ .tc-transaksi-layout .tc-form-grid[data-kind="move"]>:is(.tc-origin-fund,.tc-origin-location,.tc-destination-location){grid-column:span 2}
+ .tc-transaksi-layout .tc-form-grid>.tc-note-field{grid-column:span 4}
+ .tc-transaksi-layout .tc-form-grid>.tc-primary{grid-column:span 2;width:100%;height:var(--f4-control-height,42px);align-self:end}
+ .tc-transaksi-layout .tc-field>span{min-height:16px;line-height:16px}
 }
 @media(max-width:760px){
  .tc-saldo-layout,.tc-transaksi-layout,.tc-report-top{gap:9px}

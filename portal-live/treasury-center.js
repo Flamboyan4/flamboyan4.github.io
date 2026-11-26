@@ -401,10 +401,10 @@ function buildForm(target,data,refresh){
   field("Keterangan",note,"tc-wide tc-note-field"));
  form.append(grid);
  const help=el("p","Pilih jenis transaksi agar kolom yang diperlukan muncul.","tc-form-help");
- form.append(help);
+ grid.insertBefore(help,grid.querySelector(".tc-note-field"));
  const status=el("p","","tc-status");status.setAttribute("role","status");
  const save=el("button","Simpan Transaksi","tc-primary");save.type="submit";
- append(form,save,status);shell.append(form);target.append(shell);
+ grid.append(save);form.append(status);shell.append(form);target.append(shell);
  function locChoices(box,fund){
   const previous=box.value;box.replaceChildren();
   fields(data.catalog,fund).forEach(o=>{const opt=el("option",o.name);opt.value=o.id;box.append(opt)});
