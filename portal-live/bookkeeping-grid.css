@@ -1,6 +1,22 @@
 /* Pembukuan: satu pemilik grid layar untuk seluruh modul. Tidak mengubah cetak. */
 @media screen{
  :root{--book-gap:var(--f4-grid-gap);--book-tight:var(--f4-grid-gap-compact);--book-control:44px;--f4-control-height:var(--book-control)}
+ /* Shared field grid: labels and visible controls use the same baseline regardless of picker implementation. */
+ body.f4-direct-book :is(#form-iuran,#form-transaksi-kas,#form-talangan,#form-denda-catat,#form-denda-bayar,#loan-form-buat form,#loan-form-bayar form,#modal-edit form,.kas-batch-card) div:has(>label):has(>:is(.field,.custom-select-wrap,.mdc-wrap,.f4-control-trigger)){
+  display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:4px;min-width:0
+ }
+ body.f4-direct-book :is(#form-iuran,#form-transaksi-kas,#form-talangan,#form-denda-catat,#form-denda-bayar,#loan-form-buat form,#loan-form-bayar form,#modal-edit form,.kas-batch-card) div:has(>label):has(>:is(.field,.custom-select-wrap,.mdc-wrap,.f4-control-trigger))>label{
+  display:block;min-height:18px;line-height:18px;margin:0;font-size:13px
+ }
+ body.f4-direct-book :is(#form-iuran,#form-transaksi-kas,#form-talangan,#form-denda-catat,#form-denda-bayar,#loan-form-buat form,#loan-form-bayar form,#modal-edit form,.kas-batch-card) div:has(>label)>:is(.field,.custom-select-wrap,.mdc-wrap,.f4-control-trigger):not(.f4-modern-native-hidden):not(.select-enhanced){
+  width:100%;min-width:0;max-width:100%;margin:0;box-sizing:border-box
+ }
+ body.f4-direct-book :is(#form-iuran,#form-transaksi-kas,#form-talangan,#form-denda-catat,#form-denda-bayar,#loan-form-buat form,#loan-form-bayar form,#modal-edit form,.kas-batch-card) :is(.field:not(textarea):not(.f4-modern-native-hidden):not(.select-enhanced),.custom-select-btn,.mdc-btn,.f4-control-trigger){
+  height:var(--book-control);min-height:var(--book-control);max-height:var(--book-control);border-radius:var(--f4-control-radius,10px);box-sizing:border-box
+ }
+ body.f4-direct-book :is(#form-iuran,#form-transaksi-kas,#form-talangan,#form-denda-catat,#form-denda-bayar,#loan-form-buat form,#loan-form-bayar form,#modal-edit form,.kas-batch-card) .f4-control-value{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+ }
  /* Edit Riwayat: selalu di atas navbar 200; dialog membatasi tinggi pada viewport. */
  #modal-edit{
   z-index:320;box-sizing:border-box;padding:16px;overscroll-behavior:contain;
@@ -99,7 +115,7 @@
  /* Grid Input Iuran: same two columns and same label/control baselines. */
  #tab-input #form-iuran.f4-book-iuran-grid{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-auto-flow:row;column-gap:var(--book-gap);row-gap:14px;
+  grid-auto-flow:row;column-gap:var(--book-gap);row-gap:12px;
   align-items:start;width:100%;min-width:0;margin:0;
  }
  #tab-input #form-iuran.f4-book-iuran-grid>*{min-width:0;max-width:100%;margin:0}
@@ -111,7 +127,7 @@
  #tab-input #form-iuran.f4-book-iuran-grid>#save-status{grid-column:1/-1;grid-row:5}
  #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-submit{grid-column:2;grid-row:4;align-self:start}
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-date-method{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.8fr) minmax(0,1fr);gap:var(--book-tight)}
+ #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--book-gap)}
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
  #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-date-method,.f4-book-period,.f4-book-money)>div{
   display:flex;flex-direction:column;align-items:stretch;justify-content:start;min-width:0;max-width:100%
@@ -129,7 +145,7 @@
 
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-heading{
   display:flex;align-items:center;justify-content:space-between;
-  min-height:20px;line-height:20px;gap:8px;color:#2e1065
+  min-height:18px;line-height:18px;gap:8px;font-size:13px;font-weight:650;color:#475569
  }
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-heading .f4-preview-auto{
   font-size:11px;line-height:1.4;font-weight:600;color:#766893
@@ -150,9 +166,9 @@
  }
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid>div{min-width:0;overflow-wrap:anywhere}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{
-  display:grid;grid-template-rows:20px var(--book-control);gap:4px;min-width:0
+  display:grid;grid-template-rows:var(--book-control);padding-top:22px;min-width:0
  }
- #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit-spacer{display:block;height:20px}
+
  #tab-input #form-iuran.f4-book-iuran-grid #btn-simpan{
   min-width:0;width:100%;min-height:var(--book-control);height:var(--book-control);
   padding:9px 14px;box-sizing:border-box
@@ -283,8 +299,8 @@
  :is(.f4-book-warga,.f4-book-date-method,.f4-book-period,.f4-book-preview-column,.f4-book-money,.f4-book-submit,#save-status){
   grid-column:1/-1;grid-row:auto
  }
- #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control)}
- #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit-spacer{display:none}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control);padding-top:0}
+
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
 @media screen and (max-width:767px){
@@ -313,8 +329,8 @@
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-date-method{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control)}
- #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit-spacer{display:none}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control);padding-top:0}
+
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  /* Riwayat Iuran HP: kontrol menyatu, ringkasan datar, tetap satu workspace luar. */
  #tab-riwayat #history-iuran-panel .history-iuran-filter{

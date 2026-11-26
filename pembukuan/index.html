@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- v6.20.1 EDIT CLEANUP PREDEPLOY -->
-<html lang="id" data-f4-shell="book" data-f4-release="20261127-bank-admin-width-v59" data-f4-spa="1">
+<html lang="id" data-f4-shell="book" data-f4-release="20261127-book-grid-v60" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -161,8 +161,6 @@ html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#665
   #report-rt-panel th,#report-rt-panel td{padding:7px 8px;line-height:1.25}
   #report-rt-panel thead th{font-size:11.5px}
   #report-rt-panel tfoot td{font-size:12px}
-  #report-rt-panel .signature-area{margin-top:24px;gap:32px;font-size:12px}
-  #report-rt-panel .signature-space{height:48px}
 
   /* Print Kas Warga: 5 ringkasan dalam satu baris dan tabel tidak memaksa browser mengecilkan seluruh halaman */
   #report-kas-panel .grid.grid-cols-2.sm\:grid-cols-3.xl\:grid-cols-5{
@@ -1467,9 +1465,8 @@ main > section.card{overflow:visible}
  padding:10px 9px;white-space:nowrap
 }
 #report-kas-panel .kas-report-table tfoot.kas-period-total td:first-child{text-align:left;color:#334155}
-#report-kas-panel .kas-report-signature{width:224px;max-width:100%;margin:23px auto 0;text-align:center;font-size:12px;color:#334155;break-inside:avoid;page-break-inside:avoid}
-#report-kas-panel .kas-sign-space{height:38px}
-#report-kas-panel .kas-sign-line{border-top:1px solid #64748b;margin:0 auto 6px;width:100%}
+.f4-report-approval{margin:12px 0 0 auto;text-align:right;font-size:12px;line-height:1.45;font-weight:600;color:#334155;break-inside:avoid;page-break-inside:avoid}
+.f4-report-approval-inline{flex:0 0 auto;margin:0 0 0 auto}
 #report-kas-panel .kas-report-footer{margin-top:18px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:9.5px;color:#64748b}
 
 /* Setoran RT dibuat seperti tabel laporan utama: grid tegas, header abu-abu, rapi tanpa badge. */
@@ -1515,8 +1512,8 @@ main > section.card{overflow:visible}
   #report-kas-panel .kas-report-table tfoot.kas-period-total td{
     font-size:10.2px;padding:6px;break-inside:avoid
   }
-  #report-kas-panel .kas-report-signature{margin-top:20px;width:210px;font-size:10px}
-  #report-kas-panel .kas-sign-space{height:36px}
+  .f4-report-approval{margin-top:8px;font-size:10px;color:#111827}
+  .f4-report-approval-inline{margin-top:0}
   #report-kas-panel .kas-report-footer{margin-top:12px;font-size:8px}
   /* metadata saldo riil/teralokasi tetap internal, tidak memenuhi laporan cetak */
   #report-kas-panel #rep-kas-posisi{display:none}
@@ -1843,8 +1840,8 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 
 <link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261126-card-standard-admin-cash-v1">
 <script type="application/f4-source" data-f4-id="/portal-live/payment-monitor.js" data-f4-src="/portal-live/payment-monitor.js?v=20261127-svg-icons-v35" data-f4-defer></script>
-<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261126-card-standard-admin-cash-v1">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261127-book-grid-v60">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261127-book-grid-v60">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-picker-parity-v26"></script>
@@ -2004,6 +2001,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </div>
 
           <div class="f4-book-preview-column">
+            <div class="f4-book-preview-heading"><span>Rincian Pembayaran</span></div>
             <div class="f4-iuran-preview rounded-xl border border-violet-200 bg-violet-50/60 p-4">
             <div id="preview-empty" class="text-sm text-slate-500">Pilih warga untuk melihat rincian.</div>
             <div id="preview-detail" class="hidden">
@@ -2028,7 +2026,6 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </div>
           <div id="save-status" class="hidden rounded-xl border px-4 py-3 text-sm"></div>
           <div class="f4-book-submit">
-            <span class="f4-book-submit-spacer" aria-hidden="true"></span>
             <button id="btn-simpan" type="submit" class="w-full rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-black py-3.5 flex justify-center items-center gap-2"><i data-lucide="save" class="w-4 h-4"></i>Simpan Pembayaran</button>
           </div>
         </form>
@@ -2328,7 +2325,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="report-table-wrap kas-report-table-wrap overflow-x-auto">
               <table class="kas-report-table w-full"><thead><tr><th class="text-center">No</th><th class="text-center">Tanggal</th><th class="text-left">Keterangan</th><th class="text-right">Debit</th><th class="text-right">Kredit</th><th class="text-right">Saldo Berjalan</th></tr></thead><tbody id="report-kas-tbody"><tr><td colspan="6" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="kas-period-total"><tr><td colspan="3">Total Periode</td><td id="rep-kas-debit" class="text-right text-emerald-700">Rp 0</td><td id="rep-kas-kredit" class="text-right text-red-600">Rp 0</td><td class="text-right text-slate-400" aria-label="Saldo akhir ditampilkan pada ringkasan">—</td></tr></tfoot></table>
             </div>
-            <div class="kas-report-signature"><div>Mengetahui,</div><div>Humas Flamboyan 4</div><div class="kas-sign-space"></div><div class="kas-sign-line"></div><strong>Heri Juwandi</strong></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
             <div class="kas-report-footer">Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
             <div class="mt-6 no-print"><h3 class="font-black text-violet-950 mb-3">Rekap Pemasukan &amp; Pengeluaran Per Bulan</h3><div id="report-kas-tahunan" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"></div></div>
           </div>
@@ -2342,7 +2339,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             </div>
             <div class="mt-2 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
               <p id="report-rt-humas-note" class="min-w-0 flex-1 text-xs text-slate-600 print:text-black"></p>
-              <div class="shrink-0 text-right text-xs font-bold leading-snug text-slate-700 print:text-black">Humas Flamboyan 4<br>Heri Juwandi</div>
+              <div class="f4-report-approval f4-report-approval-inline"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
             </div>
           </div>
 
@@ -2351,6 +2348,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
           </div>
 
           <div id="report-denda-panel" class="hidden">
@@ -2358,6 +2356,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN DENDA GOROL</h2><p id="report-denda-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Denda</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th></tr></thead><tbody id="report-denda-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
           </div>
 
           <div id="report-pinjaman-panel" class="hidden">
@@ -2370,6 +2369,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
               <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa Pinjaman</div><div id="rep-pinjaman-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
             </div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal</th><th class="p-3 text-right">Pinjaman</th><th class="p-3 text-right">Dibayar</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Keterangan</th></tr></thead><tbody id="report-pinjaman-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
           </div>
 
           <div id="report-talangan-panel" class="hidden">
@@ -2384,6 +2384,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm">Detail nama hanya untuk administrasi internal. Saat dicetak, laporan Talangan menampilkan rekap tanpa nama warga.</div>
             <div class="no-print report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[1050px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Buku Kas</th><th class="p-3 text-left">Batas / Lunas</th></tr></thead><tbody id="report-talangan-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
             <div class="print-only hidden report-table-wrap rounded-2xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-left">Status</th><th class="p-3 text-center">Jumlah</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-right">Sisa</th></tr></thead><tbody id="report-talangan-print-tbody"></tbody></table></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
           </div>
 
           <div id="report-tahunan-panel" class="hidden">
@@ -2410,6 +2411,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div id="year-archive-detail" class="no-print hidden mb-4 year-archive-detail"></div>
             <div class="report-table-wrap overflow-x-auto rounded-xl border border-violet-100"><table class="w-full text-sm"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-2 text-left">Bulan</th><th class="p-2 text-right">Pemasukan</th><th class="p-2 text-right">Pengeluaran</th><th class="p-2 text-right">Saldo Periode</th><th class="p-2 text-right">Setoran RT</th><th class="p-2 text-right">Arisan</th><th class="p-2 text-right">Denda</th></tr></thead><tbody id="report-tahunan-tbody"></tbody></table></div>
             <div class="no-print mt-4 flex flex-wrap gap-2 justify-end"><button id="btn-tutup-buku" onclick="prosesTutupBuku()" class="hidden rounded-xl bg-violet-700 text-white px-5 py-3 font-black">Tutup Buku Tahun Ini</button></div>
+            <div class="f4-report-approval"><div>Mengetahui,</div><div>Humas Flamboyan 4</div></div>
           </div>
 
           </div>
@@ -2652,7 +2654,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
   </div>
 </div>
 
-<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-finance-inbox-v58"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-book-grid-v60"></script>
 
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-1" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
 

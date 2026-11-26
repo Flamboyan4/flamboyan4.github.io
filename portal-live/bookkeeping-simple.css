@@ -88,12 +88,10 @@ main > section.f4-book-workspace:not(:has(> .group-nav:not(.hidden))) > .tab-pan
 }
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-icon{
  display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:13px;
- background:#7342c3;color:#fff
+ background:var(--f4-nav,#7035c9);color:#fff
 }
 .f4-book-section-label{display:grid;gap:4px}
 .f4-book-section-label small{color:var(--f4-ui-muted);font-size:.8rem;line-height:1.4;font-weight:500}
-#group-nav-inputdata .f4-book-section-btn[data-book-input-section=kas] .f4-book-section-icon{background:#067e70;color:white}
-#group-nav-inputdata .f4-book-section-btn[data-book-input-section=lainnya] .f4-book-section-icon{background:#275da8;color:white}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-icon svg{width:25px;height:25px;stroke-width:2}
 #group-nav-inputdata.f4-book-tab-shell.f4-book-landing .f4-book-section-arrow{display:none}
 #group-nav-inputdata.f4-book-tab-shell:not(.f4-book-landing)>.f4-book-subnav:not(.hidden){
