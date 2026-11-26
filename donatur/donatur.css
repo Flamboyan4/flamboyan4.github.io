@@ -1,4 +1,4 @@
-:root{color-scheme:light;--ink:#17213a;--muted:#67738a;--purple:#5d50df;--line:#e0e5f0;--bg:#f7f8fd;--green:#088765;--red:#d43d59;--radius:17px}
+:root{color-scheme:light;--ink:#17213a;--muted:#67738a;--purple:#5d50df;--line:#e0e5f0;--bg:#f7f8fd;--green:#088765;--red:#d43d59;--radius:12px}
 *{box-sizing:border-box}
 [hidden][hidden]{display:none}
 html{scroll-behavior:smooth}
@@ -33,7 +33,7 @@ p{color:var(--muted)}
 .sign-in-intro h1{font-size:clamp(27px,3.5vw,43px)}
 .sign-in-intro p{font-size:15px;max-width:580px}
 .feature{display:flex;align-items:center;gap:10px;margin-top:23px;font-weight:700;color:#196c5a}
-.login-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;box-shadow:0 12px 40px #3224770c}
+.login-card{background:#fff;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:26px;box-shadow:0 12px 40px #3224770c}
 .login-card h2{margin-bottom:6px}
 .login-card p{font-size:12px}
 .login-card label{display:block;font-size:12px;font-weight:750;margin:15px 0 5px}
@@ -101,7 +101,7 @@ p{color:var(--muted)}
 .report-totals span{display:block;color:#6e7386;font-size:11px}
 .report-totals strong{font-size:16px}
 .muted{color:#8993a6;font-size:11px}
-.account-panel{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 16px}
+.account-panel{margin-top:25px;background:#fff;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:13px 16px}
 .account-panel>summary{cursor:pointer;font-weight:750;color:#4d43bd}
 .account-panel form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:16px}
 .account-panel label{display:grid;gap:5px;font-size:11px;color:#5b6780;font-weight:750}
@@ -126,7 +126,7 @@ p{color:var(--muted)}
  .transaction-table{background:transparent;border:0;border-radius:0;overflow:visible}
  .transaction-table table,.transaction-table tbody{display:block}
  .transaction-table thead{display:none}
- .transaction-table tr{display:grid;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;padding:10px;grid-template-columns:1fr auto;gap:4px}
+ .transaction-table tr{display:grid;background:#fff;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);margin-bottom:9px;padding:10px;grid-template-columns:1fr auto;gap:4px}
  .transaction-table td{border:0;padding:0;font-size:12px}
  .transaction-table td:nth-child(1){grid-column:1;grid-row:1}
  .transaction-table td:nth-child(2){grid-column:1;grid-row:2}

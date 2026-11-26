@@ -196,7 +196,7 @@
   display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:var(--book-tight);align-items:center
  }
  /* Ringkasan keuangan: 8 kartu mengikuti empat kolom PC, dua kolom HP. */
- #tab-riwayat #iuran-quick-summary{width:100%;max-width:100%;padding:13px 14px 10px;border-radius:14px;border:1px solid #e8e1f6;background:#fff}
+ #tab-riwayat #iuran-quick-summary{width:100%;max-width:100%;padding:13px 14px 10px;border-radius:var(--f4-panel-radius,12px);border:1px solid #e8e1f6;background:#fff}
  #tab-riwayat #iuran-quick-summary .iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:var(--book-tight);margin-bottom:10px}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
  #tab-riwayat #iuran-quick-summary .iuran-summary-tile{min-width:0;max-width:100%;min-height:58px;padding:9px 10px;border:0;border-radius:0;background:transparent;overflow:hidden}
@@ -324,7 +324,7 @@
  #tab-riwayat #history-iuran-panel .history-period-box .upr-range{
   display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);
   align-items:center;width:100%;min-width:0;gap:2px;padding:3px 6px;
-  border:1px solid #e7e0f3;border-radius:11px;background:#fbfaff
+  border:1px solid #e7e0f3;border-radius:var(--f4-panel-radius,12px);background:#fbfaff
  }
  #tab-riwayat #history-iuran-panel .history-period-box .upr-control{min-width:0;width:100%}
  #tab-riwayat #history-iuran-panel .history-period-box .upr-field{
@@ -342,11 +342,11 @@
  #tab-riwayat #history-iuran-panel .history-iuran-search{
   display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.82fr);
   gap:0;align-items:center;min-width:0;width:100%;
-  border:1px solid #e7e0f3;border-radius:11px;background:#fff
+  border:1px solid #e7e0f3;border-radius:var(--f4-panel-radius,12px);background:#fff
  }
  #tab-riwayat #history-iuran-panel .history-iuran-search #cari-riwayat{
   height:40px;min-height:40px;min-width:0;padding:6px 9px;font-size:13px;
-  border:0;border-radius:10px;background:transparent;box-shadow:none
+  border:0;border-radius:var(--f4-panel-radius,12px);background:transparent;box-shadow:none
  }
  #tab-riwayat #history-iuran-panel .history-iuran-search #cari-riwayat:focus-visible{
   outline:2px solid #8b5cf6;outline-offset:-2px
@@ -572,7 +572,7 @@
  #tab-riwayat #history-kasumum-panel #history-kas-period .upr-range{
   display:grid;grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr);
   align-items:center;gap:1px;min-width:0;width:100%;
-  border:1px solid #e7e0f3;border-radius:11px;background:#fbfaff;padding:2px 4px
+  border:1px solid #e7e0f3;border-radius:var(--f4-panel-radius,12px);background:#fbfaff;padding:2px 4px
  }
  #tab-riwayat #history-kasumum-panel #history-kas-period .upr-control{
   width:100%;min-width:0

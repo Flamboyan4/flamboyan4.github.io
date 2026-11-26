@@ -269,7 +269,7 @@
     main{padding-top:1.15rem} main>section.mb-5{margin-bottom:.8rem}.group-nav{padding:.65rem .75rem}
     #tab-pinjaman .max-w-5xl,#tab-denda .max-w-6xl{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
     #tab-pinjaman .max-w-5xl>.grid.grid-cols-2,#tab-denda .max-w-6xl>.grid.grid-cols-2{grid-column:1/-1;margin-bottom:0;gap:8px}
-    #loan-form-buat,#loan-form-bayar,#denda-panel-catat,#denda-panel-bayar{display:block;grid-column:auto;padding:14px;border-radius:14px;transition:opacity .16s,filter .16s,box-shadow .16s}
+    #loan-form-buat,#loan-form-bayar,#denda-panel-catat,#denda-panel-bayar{display:block;grid-column:auto;padding:14px;border-radius:var(--f4-panel-radius,12px);transition:opacity .16s,filter .16s,box-shadow .16s}
     #loan-form-buat.mode-inactive,#loan-form-bayar.mode-inactive,#denda-panel-catat.mode-inactive,#denda-panel-bayar.mode-inactive,#loan-form-buat.hidden,#loan-form-bayar.hidden,#denda-panel-catat.hidden,#denda-panel-bayar.hidden{opacity:.38;filter:saturate(.55);pointer-events:none;background:#fafafa}
     #loan-form-buat:not(.mode-inactive),#loan-form-bayar:not(.mode-inactive),#denda-panel-catat:not(.mode-inactive),#denda-panel-bayar:not(.mode-inactive){box-shadow:0 8px 22px rgba(91,33,182,.06)}
     #loan-form-buat form,#loan-form-bayar form,#denda-panel-catat form,#denda-panel-bayar form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
@@ -1325,13 +1325,13 @@ main > section.card{overflow:visible}
 
 /* CSS owner consolidated from #v6231-iuran-quick-summary; prior cascade position preserved */
 
-.iuran-quick-summary{border:1px solid #ede9fe;background:linear-gradient(180deg,#fcfbff 0%,#fff 100%);border-radius:16px;padding:12px}
+.iuran-quick-summary{border:1px solid #ede9fe;background:linear-gradient(180deg,#fcfbff 0%,#fff 100%);border-radius:var(--f4-panel-radius,12px);padding:12px}
 .iuran-quick-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
 .iuran-quick-title{font-size:14px;line-height:1.15;font-weight:900;color:#2e1065}
 .iuran-quick-period{font-size:11px;line-height:1.15;color:#7c3aed;font-weight:700;margin-top:2px}
 .iuran-quick-note{font-size:10px;line-height:1.1;color:#94a3b8;white-space:nowrap}
 .iuran-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px)}
-.iuran-summary-tile{min-width:0;border:1px solid #eee9fb;background:#fff;border-radius:11px;padding:8px 9px;display:flex;flex-direction:column;justify-content:center;min-height:58px}
+.iuran-summary-tile{min-width:0;border:1px solid #eee9fb;background:#fff;border-radius:var(--f4-panel-radius,12px);padding:8px 9px;display:flex;flex-direction:column;justify-content:center;min-height:58px}
 .iuran-summary-tile span{font-size:10px;line-height:1.05;color:#64748b;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .iuran-summary-tile strong{font-size:14px;line-height:1.12;color:#1e293b;font-weight:900;margin-top:4px;white-space:nowrap;letter-spacing:-.2px}
 .iuran-summary-tile.is-main{background:#f5f3ff;border-color:#ddd6fe}.iuran-summary-tile.is-main strong{color:#5b21b6}
@@ -1426,7 +1426,7 @@ main > section.card{overflow:visible}
 #report-kas-panel .kas-report-badge{flex:none;border:1px solid #ddd6fe;background:#f5f3ff;color:#5b21b6;border-radius:999px;padding:7px 11px;font-size:10px;font-weight:900}
 #report-kas-panel .kas-report-rule{height:3px;background:#1e293b;margin:14px 0 15px}
 #report-kas-panel .kas-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--f4-grid-gap-compact,10px);margin-bottom:15px}
-#report-kas-panel .kas-summary-card{border:1px solid #dbe1ea;border-radius:10px;padding:12px 13px;background:#fff}
+#report-kas-panel .kas-summary-card{border:1px solid #dbe1ea;border-radius:var(--f4-panel-radius,12px);padding:12px 13px;background:#fff}
 #report-kas-panel .kas-summary-label{font-size:10px;font-weight:900;color:#64748b;text-transform:uppercase}
 #report-kas-panel .kas-summary-value{font-size:19px;line-height:1.2;font-weight:900;margin-top:7px}
 #report-kas-panel .kas-detail-title{font-size:15px;font-weight:900;color:#334155;margin:0 0 8px}
@@ -1737,7 +1737,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
  #report-arisan-panel .report-card{border-color:#d3dfed;border-radius:5px}
  #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums}
 }
-</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-stable-shell-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 
 <style id="f4-bookkeeping-mobile-density-20261027">
 /* Compact forms only on mobile; no changes to input IDs, calculations or reports. */
@@ -1819,10 +1819,10 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 }
 </style>
 
-<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261122-resident-v5">
+<link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261126-card-standard-admin-cash-v1">
 <script defer src="/portal-live/payment-monitor.js?v=20261122-resident-v5"></script>
-<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261122-portal-grid-v1">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261122-portal-grid-v1">
+<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261126-card-standard-admin-cash-v1">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261126-card-standard-admin-cash-v1">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261110-compositor-v11"></script>
@@ -1875,7 +1875,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
   <div id="status-box" class="mb-5 hidden rounded-xl border px-4 py-3 text-sm"></div>
 
 
-  <section class="card f4-book-workspace bg-white rounded-2xl border border-violet-100 overflow-hidden">
+  <section class="card f4-book-workspace bg-white rounded-xl border border-violet-100 overflow-hidden">
     <div id="group-nav-inputdata" class="group-nav f4-book-tab-shell f4-book-landing">
       <nav class="f4-book-sections" aria-label="Pilih jenis pencatatan">
         <button type="button" data-book-input-section="input" class="f4-book-section-btn" onclick="pilihMenu('input')">
@@ -1953,11 +1953,11 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
     <div id="tab-dashboard" class="tab-panel hidden p-4 sm:p-5">
 
   <section class="grid f4-grid mb-6" data-cols="5">
-    <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Unit</div><div id="sum-unit" class="text-2xl font-black mt-2">0</div></div>
-    <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Dihuni</div><div id="sum-dihuni" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
-    <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Rumah Kosong</div><div id="sum-kosong" class="text-2xl font-black text-amber-600 mt-2">0</div></div>
-    <div class="card bg-white rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Warga Aktif</div><div id="sum-warga" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
-    <div class="card bg-white rounded-2xl border border-violet-100 p-4 col-span-2 lg:col-span-1"><div class="text-[11px] font-bold uppercase text-slate-400">Kontrak Aktif</div><div id="sum-kontrak" class="text-2xl font-black text-fuchsia-700 mt-2">0</div></div>
+    <div class="card bg-white rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Unit</div><div id="sum-unit" class="text-2xl font-black mt-2">0</div></div>
+    <div class="card bg-white rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Dihuni</div><div id="sum-dihuni" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
+    <div class="card bg-white rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Rumah Kosong</div><div id="sum-kosong" class="text-2xl font-black text-amber-600 mt-2">0</div></div>
+    <div class="card bg-white rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Warga Aktif</div><div id="sum-warga" class="text-2xl font-black text-violet-700 mt-2">0</div></div>
+    <div class="card bg-white rounded-xl border border-violet-100 p-4 col-span-2 lg:col-span-1"><div class="text-[11px] font-bold uppercase text-slate-400">Kontrak Aktif</div><div id="sum-kontrak" class="text-2xl font-black text-fuchsia-700 mt-2">0</div></div>
   </section>
       <div class="grid lg:grid-cols-2 gap-4">
         <div class="rounded-2xl border border-violet-100 p-4"><div class="flex justify-between mb-3"><h2 class="font-black">Ringkasan Hunian</h2><i data-lucide="house" class="w-5 h-5 text-violet-600"></i></div><div id="ringkasan-hunian" class="space-y-2 text-sm text-slate-600">Memuat...</div></div>
@@ -1981,7 +1981,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </div>
 
           <div class="f4-book-preview-column">
-            <div class="f4-iuran-preview rounded-2xl border border-violet-200 bg-violet-50/60 p-4">
+            <div class="f4-iuran-preview rounded-xl border border-violet-200 bg-violet-50/60 p-4">
             <div id="preview-empty" class="text-sm text-slate-500">Pilih warga untuk melihat rincian.</div>
             <div id="preview-detail" class="hidden">
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
@@ -2082,7 +2082,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </div>
         </div>
 
-        <div class="kas-batch-card rounded-2xl border border-violet-100 bg-violet-50/45 p-4 h-fit">
+        <div class="kas-batch-card rounded-xl border border-violet-100 bg-violet-50/45 p-4 h-fit">
           <div class="font-black text-violet-950 mb-4">Buat Batch Pembukuan</div>
           <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-white rounded-xl border border-violet-100 p-3"><div class="text-[10px] font-bold text-slate-400">TERPILIH</div><div id="kas-terpilih-count" class="text-lg font-black mt-1">0</div></div>
@@ -2159,7 +2159,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </div>
           <div class="talangan-right">
             <div class="tal-date-source grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tgl Talangan</label><input id="tal-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Sumber Dana</label><input value="Cash (Kas Warga)" class="field mt-1 bg-slate-50" readonly></div></div>
-            <div class="tal-preview-box rounded-2xl border border-violet-200 bg-violet-50/60 p-4"><div class="font-black text-violet-950 mb-3">Rincian Talangan</div><div id="tal-preview" class="text-sm text-slate-500">Pilih warga untuk melihat nominal.</div></div>
+            <div class="tal-preview-box rounded-xl border border-violet-200 bg-violet-50/60 p-4"><div class="font-black text-violet-950 mb-3">Rincian Talangan</div><div id="tal-preview" class="text-sm text-slate-500">Pilih warga untuk melihat nominal.</div></div>
           </div>
         </form>
       </div>
@@ -2173,7 +2173,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           <button id="btn-denda-bayar" onclick="setModeDenda('bayar')" class="denda-mode-btn rounded-xl border border-violet-100 bg-white text-slate-600 font-black py-3">Bayar</button>
         </div>
 
-        <div id="denda-panel-catat" class="rounded-2xl border border-violet-100 p-4 sm:p-5">
+        <div id="denda-panel-catat" class="rounded-xl border border-violet-100 p-4 sm:p-5">
           <form id="form-denda-catat" onsubmit="simpanDenda(event)" class="space-y-4">
             <div><label class="text-sm font-bold">Nama Warga</label><select id="denda-warga" class="field mt-1" required><option value="">Pilih warga...</option></select></div>
             <div class="grid sm:grid-cols-2 gap-4"><div><label class="text-sm font-bold">Tgl Kegiatan</label><input id="denda-tanggal" type="date" class="field mt-1" required></div><div><label class="text-sm font-bold">Kegiatan</label><input id="denda-kegiatan" class="field mt-1" value="Gorol / Kerja Bakti" required></div></div>
@@ -2184,7 +2184,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           </form>
         </div>
 
-        <div id="denda-panel-bayar" class="hidden rounded-2xl border border-violet-100 p-4 sm:p-5">
+        <div id="denda-panel-bayar" class="hidden rounded-xl border border-violet-100 p-4 sm:p-5">
           <form id="form-denda-bayar" onsubmit="bayarDenda(event)" class="space-y-4">
             <div><label class="text-sm font-bold">Denda Belum Dibayar</label><select id="bayar-denda-id" class="field mt-1" onchange="previewBayarDenda()"><option value="">Pilih denda...</option></select></div>
             <div id="bayar-denda-preview" class="rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-sm text-slate-500">Pilih denda untuk melihat detail.</div>
@@ -2204,7 +2204,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           <div><h2 class="font-black text-xl text-violet-950">Import Bulk Migrasi</h2><p class="text-sm text-slate-500 mt-1">Upload CSV Iuran dan Kas. Sistem memeriksa dulu sebelum menyimpan dan tidak membuat data identik menjadi dobel.</p></div>
           <div class="px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-700">Bulk = sumber data utama migrasi</div>
         </div>
-        <div class="bulk-note rounded-2xl border border-violet-100 bg-violet-50/40 p-4 mb-4 text-sm text-slate-600">
+        <div class="bulk-note rounded-xl border border-violet-100 bg-violet-50/40 p-4 mb-4 text-sm text-slate-600">
           <b class="text-violet-900">Untuk migrasi ini upload kedua file sekaligus.</b> Kas CSV menjadi ledger historis, sedangkan porsi Kas Lorong dari Iuran ditandai sudah dibukukan agar tidak masuk dua kali.
         </div>
         <div class="grid md:grid-cols-2 gap-4 mb-4">
@@ -2326,14 +2326,14 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           <div id="report-arisan-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN ARISAN WARGA</h2><p id="report-arisan-period" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Peserta</div><div id="rep-arisan-peserta" class="text-xl font-black mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-arisan-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-arisan-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Terkumpul</div><div id="rep-arisan-total" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[820px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center w-14">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Metode</th></tr></thead><tbody id="report-arisan-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody><tfoot class="bg-violet-50 font-black"><tr><td colspan="4" class="p-3 text-right">TOTAL TERKUMPUL</td><td id="report-arisan-foot-total" class="p-3 text-right">Rp 0</td><td colspan="2"></td></tr></tfoot></table></div>
           </div>
 
           <div id="report-denda-panel" class="hidden">
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN DENDA GOROL</h2><p id="report-denda-period" class="text-sm text-slate-500 mt-1"></p></div>
-            <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
+            <div class="grid f4-grid mb-5" data-cols="4"><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Belum Bayar</div><div id="rep-denda-belum" class="text-xl font-black text-red-600 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Nominal Belum</div><div id="rep-denda-nominal-belum" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Bayar</div><div id="rep-denda-lunas" class="text-xl font-black text-emerald-700 mt-2">0</div></div><div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pemasukan Denda</div><div id="rep-denda-nominal-lunas" class="text-xl font-black text-violet-700 mt-2">Rp 0</div></div></div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Nama</th><th class="p-3 text-left">Rumah</th><th class="p-3 text-left">Kegiatan</th><th class="p-3 text-right">Denda</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Pembayaran</th></tr></thead><tbody id="report-denda-tbody" class="divide-y divide-violet-50"><tr><td colspan="7" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
           </div>
 
@@ -2341,10 +2341,10 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">LAPORAN PINJAMAN WARGA</h2><p id="report-pinjaman-period" class="text-sm text-slate-500 mt-1">Posisi pinjaman terkini</p></div>
             <div class="grid f4-grid mb-5" data-cols="4">
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pinjaman Aktif</div><div id="rep-pinjaman-aktif" class="text-xl font-black text-amber-700 mt-2">0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Pinjaman</div><div id="rep-pinjaman-total" class="text-xl font-black mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Dibayar</div><div id="rep-pinjaman-dibayar" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa Pinjaman</div><div id="rep-pinjaman-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Pinjaman Aktif</div><div id="rep-pinjaman-aktif" class="text-xl font-black text-amber-700 mt-2">0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Pinjaman</div><div id="rep-pinjaman-total" class="text-xl font-black mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Dibayar</div><div id="rep-pinjaman-dibayar" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa Pinjaman</div><div id="rep-pinjaman-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
             </div>
             <div class="report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[980px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-left">Tanggal</th><th class="p-3 text-right">Pinjaman</th><th class="p-3 text-right">Dibayar</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-left">Keterangan</th></tr></thead><tbody id="report-pinjaman-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
           </div>
@@ -2353,10 +2353,10 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
             <div class="report-letterhead"><img src="https://flamboyan4.web.id/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo Flamboyan 4"><div class="kop-text"><div class="kop-name">FLAMBOYAN 4 <span class="kop-unit">(HUMAS 3)</span></div><div class="kop-sub">RT 001 RW 026 • Pesona Kahuripan 2</div></div></div>
             <div class="mb-5 text-center"><h2 class="font-black text-2xl text-violet-950">REKAP TALANGAN IURAN</h2><p id="report-talangan-period" class="text-sm text-slate-500 mt-1"></p></div>
             <div class="grid f4-grid mb-5" data-cols="4">
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Jumlah Talangan</div><div id="rep-talangan-jumlah" class="text-xl font-black mt-2">0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Talangan</div><div id="rep-talangan-total" class="text-xl font-black mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Diganti</div><div id="rep-talangan-diganti" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
-              <div class="report-card rounded-2xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa</div><div id="rep-talangan-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Jumlah Talangan</div><div id="rep-talangan-jumlah" class="text-xl font-black mt-2">0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Total Talangan</div><div id="rep-talangan-total" class="text-xl font-black mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sudah Diganti</div><div id="rep-talangan-diganti" class="text-xl font-black text-emerald-700 mt-2">Rp 0</div></div>
+              <div class="report-card rounded-xl border border-violet-100 p-4"><div class="text-[11px] font-bold uppercase text-slate-400">Sisa</div><div id="rep-talangan-sisa" class="text-xl font-black text-red-600 mt-2">Rp 0</div></div>
             </div>
             <div class="no-print mb-3 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 px-4 py-3 text-sm">Detail nama hanya untuk administrasi internal. Saat dicetak, laporan Talangan menampilkan rekap tanpa nama warga.</div>
             <div class="no-print report-table-wrap overflow-x-auto rounded-2xl border border-violet-100"><table class="w-full text-sm min-w-[1050px]"><thead class="bg-violet-50 text-violet-950"><tr><th class="p-3 text-center">No</th><th class="p-3 text-left">Warga</th><th class="p-3 text-right">Talangan</th><th class="p-3 text-right">Diganti</th><th class="p-3 text-right">Sisa</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Buku Kas</th><th class="p-3 text-left">Batas / Lunas</th></tr></thead><tbody id="report-talangan-tbody" class="divide-y divide-violet-50"><tr><td colspan="8" class="p-6 text-center text-slate-400">Belum dimuat.</td></tr></tbody></table></div>
@@ -2600,7 +2600,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 
 <div id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="f4-book-edit-title" class="hidden fixed inset-0 bg-slate-950/35 backdrop-blur-[1px] overflow-y-auto">
   <div class="f4-book-edit-center min-h-full flex items-center justify-center">
-    <div class="f4-book-edit-card w-full max-w-2xl bg-white rounded-2xl border border-violet-100 shadow-2xl overflow-hidden">
+    <div class="f4-book-edit-card w-full max-w-2xl bg-white rounded-xl border border-violet-100 shadow-2xl overflow-hidden">
       <div class="f4-book-edit-head px-5 py-4 border-b border-violet-100 flex items-center justify-between">
         <div><div id="f4-book-edit-title" class="font-black text-lg text-violet-950">Edit Pembayaran</div><div id="edit-id-label" class="text-xs text-slate-400 mt-0.5"></div></div>
         <button onclick="tutupEdit()" class="w-9 h-9 rounded-xl hover:bg-violet-50 text-slate-500 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -5134,7 +5134,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
   #report-talangan-panel .report-table-wrap{
     width:100%;max-width:100%;min-width:0;
     overflow-x:auto;-webkit-overflow-scrolling:touch;
-    border-radius:14px;
+    border-radius:var(--f4-panel-radius,12px);
   }
   #report-talangan-panel .report-table-wrap table{
     width:max-content;min-width:720px;table-layout:auto;
@@ -5346,7 +5346,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 .year-archive-btn:hover{background:#f5f3ff}
 .year-archive-detail{border:1px solid #ddd6fe;border-radius:16px;background:#faf9ff;padding:14px}
 .year-archive-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.year-archive-card{border:1px solid #ede9fe;background:white;border-radius:12px;padding:10px}
+.year-archive-card{border:1px solid #ede9fe;background:white;border-radius:var(--f4-panel-radius,12px);padding:10px}
 .year-archive-card .k{font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase}
 .year-archive-card .v{margin-top:3px;font-size:14px;font-weight:900;color:#2e1065}
 .year-lock-warning{margin:10px 0 0;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:700}
@@ -5451,7 +5451,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 
 <!-- Popup koreksi tanggal migrasi: berada di DOM utama, bukan dokumen print -->
 <div id="modal-koreksi-migrasi" class="fixed inset-0 z-[160] bg-slate-950/50 p-4 items-center justify-center" style="display:none">
- <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 space-y-4">
+ <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4">
   <div><h3 class="text-lg font-black text-violet-950">Koreksi Tanggal Migrasi</h3><p class="text-sm text-slate-500 mt-1" id="km-desc"></p></div>
   <div><label class="text-sm font-bold text-slate-700" for="km-date">Tanggal pembayaran yang benar</label><input id="km-date" type="date" class="field mt-2 w-full"></div>
   <p class="text-xs text-amber-800 bg-amber-50 rounded-lg p-3">Hanya tanggal bayar Iuran yang diperbaiki. Periode Iuran, nominal, dan transaksi Kas gabungan tidak bergeser.</p>
@@ -5855,7 +5855,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
 /* CSS owner consolidated from #f4-book-annual-table-unified-20261024; prior cascade position preserved */
 
 /* Rekap 12 bulan: gaya tabel sama dengan laporan lainnya; tidak mengubah data. */
-#tab-laporan #report-tahunan-panel .report-table-wrap{width:100%;max-width:100%;border:1px solid #d9e1ed;border-radius:12px;overflow-x:auto}
+#tab-laporan #report-tahunan-panel .report-table-wrap{width:100%;max-width:100%;border:1px solid #d9e1ed;border-radius:var(--f4-panel-radius,12px);overflow-x:auto}
 #tab-laporan #report-tahunan-panel .report-table-wrap>table{width:100%;min-width:0;max-width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;line-height:1.35;font-variant-numeric:tabular-nums}
 #tab-laporan #report-tahunan-panel .report-table-wrap>table th{background:#f0f3f8;color:#213451;font-weight:800;line-height:1.2;white-space:normal}
 #tab-laporan #report-tahunan-panel .report-table-wrap>table :is(th,td){border:1px solid #d9e1ed;padding:7px 8px;vertical-align:middle}
@@ -6133,7 +6133,7 @@ async function bulkImportAll(){if(!BULK.ready||BULK.busy)return;if(!confirm(`Imp
     width:var(--f4-popup-width);min-width:0;
     max-width:calc(100vw - 20px);
     height:auto;max-height:var(--f4-popup-height);
-    z-index:9500;border-radius:14px;
+    z-index:9500;border-radius:var(--f4-panel-radius,12px);
     overflow-x:hidden;overflow-y:auto;
     overscroll-behavior:contain;
     -webkit-overflow-scrolling:touch;

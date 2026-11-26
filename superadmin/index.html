@@ -31,12 +31,12 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 #f4-account-page>main p{margin:5px 0 16px;color:var(--muted)}
 .f4-work-heading{border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:18px}
 .f4-work-heading h2{font-size:24px}
-.f4-work-section,.f4-admin-controls,.sa-card{background:white;border:1px solid var(--edge);border-radius:14px;padding:17px}
+.f4-work-section,.f4-admin-controls,.sa-card{background:white;border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);padding:17px}
 .sa-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--f4-grid-gap,16px);margin:16px 0}
 .sa-card small{display:block;color:var(--muted);font-size:11px}.sa-card strong{display:block;font-size:22px;color:var(--navy);margin-top:6px}.sa-card span{display:block;color:var(--muted);font-size:11px}
-.sa-section{border:1px solid var(--edge);border-radius:14px;background:#fff;padding:17px;margin:12px 0}
+.sa-section{border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);background:#fff;padding:17px;margin:12px 0}
 .sa-section h3{margin:0 0 9px;font-size:16px;color:var(--navy)}
-.sa-list{display:grid;gap:9px}.sa-item{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--edge);border-radius:11px;background:#fff}
+.sa-list{display:grid;gap:9px}.sa-item{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px;border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);background:#fff}
 .sa-item strong{display:block;font-size:13px}.sa-item small{display:block;color:var(--muted);font-size:11px}.sa-chip{background:var(--tint);border-radius:20px;color:var(--blue);padding:5px 9px;font-size:10px;font-weight:800}
 .sa-controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--f4-control-gap,10px);margin:12px 0}
 .sa-controls input,.sa-controls select{height:var(--f4-control-height,42px);padding:0 12px;border:1px solid var(--edge);border-radius:9px;min-width:190px;flex:1}
@@ -199,7 +199,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .sa-account-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sa-action-primary{background:var(--blue);color:white;border-color:var(--blue)}
 .sa-account-note{background:var(--tint);color:var(--navy);border-radius:11px;padding:13px;margin:0 0 14px;line-height:1.55;font-size:12px}
-.sa-account-table{background:#fbfaff;border:1px solid var(--edge);border-radius:13px;overflow:hidden}
+.sa-account-table{background:#fbfaff;border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);overflow:hidden}
 .sa-account-filters{padding:14px;display:flex;gap:var(--f4-control-gap,10px);align-items:center;flex-wrap:wrap}
 .sa-account-filters input,.sa-account-filters select{height:var(--f4-control-height,42px);padding:0 12px;background:#fff;border:1px solid var(--edge);border-radius:10px;font-size:12px;line-height:1.3;box-sizing:border-box}
 .sa-account-filters input{flex:1 1 270px;max-width:500px}
@@ -229,7 +229,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
  .sa-account-filters select{max-width:100%;flex:1 1 135px}
 }
 /* Master warga: tabel horizontal ringkas; tetap bisa digeser di HP. */
-.sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--edge);border-radius:13px;background:white}
+.sa-resident-scroll{width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);background:white}
 .sa-resident-grid{border-collapse:collapse;width:100%;min-width:850px;font-size:12px}
 .sa-resident-grid th{background:#f7f5ff;color:var(--blue);font-weight:750;text-align:left;padding:11px 12px;white-space:nowrap;border-bottom:1px solid var(--edge)}
 .sa-resident-grid td{padding:10px 12px;border-bottom:1px solid var(--edge);color:var(--navy);vertical-align:middle}
@@ -283,7 +283,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
 #f4-superadmin-confirm{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;
  background:rgba(18,29,45,.68);padding:18px;font-family:system-ui,-apple-system,sans-serif}
 #f4-superadmin-confirm .f4-sa-confirm-panel{width:min(100%,440px);background:#fff;color:var(--navy);
- border:1px solid var(--edge);border-radius:16px;padding:24px;box-shadow:0 24px 65px rgba(0,0,0,.27)}
+ border:1px solid var(--edge);border-radius:var(--f4-panel-radius,12px);padding:24px;box-shadow:0 24px 65px rgba(0,0,0,.27)}
 #f4-superadmin-confirm h2{font:800 20px/1.3 system-ui;margin:0 0 11px;color:var(--navy)}
 #f4-superadmin-confirm p{margin:0 0 22px;white-space:pre-line;overflow-wrap:anywhere;
  font:400 14px/1.65 system-ui;color:var(--muted)}
@@ -316,8 +316,8 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-stable-shell-v4"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261122-workspaces-v2"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261117-report-flat-v5">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261126-card-standard-admin-cash-v1">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
