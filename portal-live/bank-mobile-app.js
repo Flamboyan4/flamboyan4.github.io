@@ -1839,7 +1839,7 @@ function ensureDesktopAdminSidebar(){
   svg.setAttribute("viewBox","0 0 24 24");
   svg.setAttribute("aria-hidden","true");
   svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
-  button.append(svg,el("span","",name));
+  button.append(svg,el("span","f4-bank-nav-label",name));
   button.onclick=()=>navigate(route);
   const selected=route===screen;
   button.classList.toggle("active",selected);

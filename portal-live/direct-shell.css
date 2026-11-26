@@ -406,13 +406,14 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-direct-superadmin #f4-account-page > aside :is(button,.sa-donor-link){
   white-space:nowrap;overflow:hidden
  }
- body.f4-direct-bank #v11Public #v18PublicSide:not(:hover):not(:has(:focus-visible)) button{font-size:0;gap:0;justify-content:center;padding-inline:0}
- body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) #v16NavList>.v16-item,
+ body.f4-direct-bank :is(#v18PublicSide,#sideNav.side):not(:hover):not(:has(:focus-visible)){
+  --f4-bank-nav-align:center;--f4-bank-nav-gap:0px;--f4-bank-nav-padding:0px;--f4-bank-nav-caption:transparent;--f4-bank-nav-icon:22px
+ }
+ body.f4-direct-bank :is(#v18PublicSide,#sideNav.side):not(:hover):not(:has(:focus-visible)) .f4-bank-nav-label{display:none}
  body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item,
  body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link){
   justify-content:center;gap:0;padding-inline:0
  }
- body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) #v16NavList>.v16-item>span,
  body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item>span,
  body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link)>span{
   width:0;min-width:0;overflow:hidden;opacity:0
@@ -425,8 +426,6 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) .v16-brand :is(strong,small),
  body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .f4-book-brand-copy,
  body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-brand>span{opacity:0;pointer-events:none}
- body.f4-direct-bank #v11Public #v18PublicSide:not(:hover):not(:has(:focus-visible)) .f4-bank-public-nav-caption,
- body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) :is(.v16-nav-caption,.f4-bank-nav-divider),
  body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) :is(.f4-book-menu-label,.f4-book-menu-other),
  body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-label{color:transparent;white-space:nowrap;overflow:hidden}
  body.f4-direct-superadmin #f4-account-page > aside{position:fixed;top:0;left:0;bottom:0;width:var(--f4-side-width)}
