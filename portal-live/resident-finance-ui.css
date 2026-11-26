@@ -640,3 +640,30 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
 @media(prefers-reduced-motion:reduce){
   #keuangan .f4-resident-sheet-panel {animation:none}
 }
+
+/* Personal finance dashboard, scoped to the resident's own ledger. */
+#keuangan .f4-personal-overview{display:grid;gap:14px;margin:0 0 18px;min-width:0}
+#keuangan .f4-personal-bank{background:#079669;color:#fff;border-radius:var(--f4-portal-card-radius,12px);padding:18px;min-width:0}
+#keuangan .f4-personal-bank-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#keuangan .f4-personal-bank h3{font-size:15px;font-weight:750;margin:0;color:#fff}
+#keuangan .f4-personal-eye{display:grid;place-items:center;background:transparent;color:#fff;border:0;padding:5px;cursor:pointer}
+#keuangan .f4-personal-bank p{font-size:12px;color:#fff;margin:12px 0 3px}
+#keuangan .f4-personal-bank [data-savings-total]{font-size:clamp(22px,5vw,30px);line-height:1.25;overflow-wrap:anywhere}
+#keuangan .f4-personal-bank-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;border-top:1px solid #ffffff55;margin-top:14px;padding-top:12px}
+#keuangan .f4-personal-bank-split span{display:block;font-size:11px;line-height:1.4;color:#fff}
+#keuangan .f4-personal-bank-split b{display:block;font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+#keuangan .f4-personal-bank a{display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:13px;font-weight:650;margin-top:14px}
+#keuangan .f4-personal-reminders{display:grid;gap:8px}
+#keuangan .f4-personal-reminders[hidden]{display:none}
+#keuangan .f4-personal-reminders h3{font-size:15px;font-weight:750;color:#26344f}
+#keuangan .f4-personal-reminder{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:13px;border:1px solid #f3d39b;border-radius:var(--f4-portal-card-radius,12px);background:#fff8e9;color:#94520b;font-size:13px}
+#keuangan .f4-personal-reminder-note{color:#68758a;font-size:12px}
+#keuangan .f4-personal-due-label{display:grid;gap:3px;min-width:0}
+#keuangan .f4-personal-due-label small{font-size:11px;color:#a35b10}
+#keuangan .f4-personal-due-label small.is-paid{color:#087b50}
+@media(min-width:768px){#keuangan .f4-personal-overview:has(.f4-personal-reminders:not([hidden])){grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);align-items:start}}
+@media(max-width:767px){
+ #keuangan .f4-user-finance[data-f4-dedicated] .f4-resident-layout{display:grid;gap:12px}
+ #keuangan .f4-user-finance[data-f4-dedicated] .f4-resident-layout>.f4-resident-dues{display:flex}
+ #keuangan .f4-user-finance[data-f4-dedicated] [data-resident-open="dues"]{display:none}
+}
