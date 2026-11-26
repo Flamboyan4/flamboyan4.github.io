@@ -178,6 +178,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
   if(key==='book'&&typeof window.pilihMenu==='function'&&(!route||['monitor','inputdata','input','transaksi','kas','pinjaman','importbulk','talangan','denda','laporan','riwayat','dashboard','rumah','warga','config'].includes(route))){window.pilihMenu(route||'inputdata');return true}
   if(key==='superadmin'&&!route)return true;
+  if(key==='dokumentasi'&&route==='profil'&&role==='warga'&&typeof window.f4ShowResidentProfile==='function'){window.f4ShowResidentProfile(true);dock?.refresh?.();return true;}
  }
  const current=mountedContent,next=contentAdapters.get(key);
  // Existing pages stay operational until their own lifecycle is migrated.
@@ -283,8 +284,8 @@ function dockAction(key){
   if(portal==='portal'&&typeof window.f4PortalSelectPanel==='function'){window.f4PortalSelectPanel('beranda');dock?.refresh?.();return;}
   void navigatePortal(paths.portal);return;
  }
- if(role==='warga'&&['finance','agenda','docs'].includes(key)){
-  if(key==='docs'){void navigatePortal(paths.dokumentasi);return;}
+ if(role==='warga'&&['finance','agenda','profile'].includes(key)){
+  if(key==='profile'){void navigatePortal(paths.dokumentasi+'?halaman=profil');return;}
   const panel=key==='finance'?'keuangan':'kalender';
   void navigatePortal(paths.portal+'?halaman='+panel);return;
  }
@@ -338,7 +339,7 @@ async function api(path,options){
 }
 function notifyRole(){
  syncPageMenu();
- if(portal==='bank'||portal==='portal'){
+ if(portal==='bank'||portal==='portal'||activePortalKey==='dokumentasi'){
   const member=session?.member||{};
   window.postMessage({type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
  }

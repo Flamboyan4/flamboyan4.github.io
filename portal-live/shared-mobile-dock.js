@@ -20,7 +20,7 @@ const dockIcon=key=>dockPaths[key]?'<svg viewBox="0 0 24 24" width="26" height="
 const dockItems={
  superadmin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['input','Input','add'],['book','Pembukuan','book'],['superadmin','Superadmin','superadmin']],
  admin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['deposit','Input','add'],['sale','Penjualan','sale'],['report','Laporan','report']],
- warga:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['finance','Keuangan','cash'],['agenda','Agenda','calendar'],['docs','Dokumentasi','image']]
+ warga:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['finance','Keuangan','cash'],['agenda','Agenda','calendar'],['profile','Profil','user']]
 };
 
 let dockRole='',dockMenu=null,dockTrigger=null,bankRoute='',bookRoute='',handler=null,pending=null;
@@ -60,7 +60,7 @@ function markSharedDock(){
  }
  if(shownRole==='warga'){
   if(portal==='portal')active=({keuangan:'finance',arisan:'agenda',kalender:'agenda'})[new URLSearchParams(location.search).get('halaman')]||'home';
-  else if(portal==='simple'&&location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')==='/dokumentasi/')active='docs';
+  else if(portal==='simple'&&location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')==='/dokumentasi/')active=new URLSearchParams(location.search).get('halaman')==='profil'?'profile':'home';
  }
  for(const b of sharedDock.querySelectorAll('[data-dock-key]')){
   if(b.dataset.dockKey===active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');

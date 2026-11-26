@@ -31,10 +31,12 @@ function reportVisible(panel){
  (__f4.window.parent!==window?__f4.window.parent:window).postMessage({type:'f4:portal-visible-panel',panel},__f4.globals.location.origin);
 }
 function visiblePanel(){
+ if(isMember(current.role)&&['keuangan','kalender'].includes(current.panel)){reportVisible(current.panel);return;}
  if(scrollScheduled)return;
  scrollScheduled=true;
  (0,__f4.globals.requestAnimationFrame)(()=>{
   scrollScheduled=false;
+  if(isMember(current.role)&&['keuangan','kalender'].includes(current.panel))return;
   // Scrollspy: the last section reaching the reading line is the active menu.
   const landmarks=[
    ['beranda',sectionTargets.beranda],
@@ -61,11 +63,13 @@ function showPanel(panel,recordHistory=true){
  if(panel==='inventaris'){__f4.globals.location.assign('/dokumentasi/?halaman=inventaris');return;}
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
+ const isolated=isMember(current.role)&&['keuangan','kalender'].includes(panel);
+ if(isolated)__f4.globals.document.body.dataset.f4ResidentView=panel;else delete __f4.globals.document.body.dataset.f4ResidentView;
  if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
  const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
- __f4.window.scrollTo({top,behavior:prefersReduced()?'auto':'smooth'});
+ __f4.window.scrollTo({top:isolated?0:top,behavior:isolated||prefersReduced()?'auto':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel);
  if(recordHistory){
@@ -389,7 +393,8 @@ __f4.window.addEventListener('message',event=>{
   __f4.globals.document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
    node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
   });
-  if(!authenticated&&current.panel==='keuangan')showPanel('beranda');
+  if(!authenticated&&['keuangan','kalender'].includes(current.panel))showPanel('beranda');
+  if(!isMember(current.role))delete __f4.globals.document.body.dataset.f4ResidentView;
   __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.

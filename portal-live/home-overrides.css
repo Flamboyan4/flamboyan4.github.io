@@ -164,3 +164,8 @@
  #calendar-days-grid>div{min-width:0;padding-left:2px;padding-right:2px}
 }
 
+
+/* Dedicated resident views reuse the existing finance and agenda sections, without copying their DOM. */
+body[data-f4-resident-view] > section,body[data-f4-resident-view] > #pembayaran{display:none}
+body[data-f4-resident-view="keuangan"] #f4-portal-home-main > section:not(#keuangan):not(#arisan),body[data-f4-resident-view="kalender"] #f4-portal-home-main > section:not(#rencana){display:none}
+body[data-f4-resident-view="kalender"] #rencana #calendar-wrapper{display:block}

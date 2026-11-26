@@ -3056,6 +3056,45 @@ async function f4GalleryApi(req,env,who,url){
  }
  if(!who||!["anggota","admin","superadmin"].includes(who.role))return err("Silakan masuk sebagai warga.",401);
  // Private photo-tag inbox: the member ID comes only from the authenticated session.
+ if(path==="/api/v2/gallery/my-profile"&&method==="GET"){
+  if(!who?.id||!who.member_id)return err("Silakan login sebagai warga.",401);
+  const db=env.DB;
+  const [own,tagged,bankTags]=await Promise.all([
+   list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date FROM f4_gallery_photos p WHERE p.uploader_id=? AND p.status IN ('baru','ditinjau') ORDER BY p.created_at DESC LIMIT 500",[who.id]),
+   list(db,`SELECT t.target_id AS id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,
+    COALESCE((SELECT s.album_ref FROM f4_gallery_share_links s WHERE s.photo_ref=t.target_id LIMIT 1),'') AS archiveAlbum
+    FROM f4_gallery_tags t LEFT JOIN f4_gallery_photos p ON p.id=t.target_id AND p.status IN ('baru','ditinjau')
+    WHERE t.member_id=? AND t.target_type='photo' AND (p.id IS NOT NULL OR t.target_id LIKE 'gdrive:%')
+    AND NOT EXISTS (SELECT 1 FROM f4_gallery_photos hidden WHERE hidden.status NOT IN ('baru','ditinjau') AND (hidden.id=t.target_id OR 'gdrive:'||hidden.drive_file_id=t.target_id))
+    ORDER BY COALESCE(p.created_at,'') DESC,t.target_id LIMIT 500`,[who.member_id]),
+   list(db,`SELECT m.id,m.album_id AS albumId,m.external_url AS externalUrl,m.caption,a.event_on AS date,
+    CASE WHEN m.storage_key IS NULL THEN 0 ELSE 1 END AS stored,a.title
+    FROM f4_gallery_tags t JOIN album_media m ON m.id=t.target_id JOIN albums a ON a.id=m.album_id
+    WHERE t.member_id=? AND t.target_type='photo' AND m.media_type='foto' AND m.status='aktif'
+    AND a.visibility='publik' AND a.status='aktif'
+    AND (a.id LIKE 'album:api:%' OR a.id LIKE 'album:bank:%' OR LOWER(a.category) LIKE 'bank sampah:%' OR LOWER(a.category) LIKE 'bank_sampah:%'
+    OR (LOWER(TRIM(a.title))='gorol membersihkan drop point' AND LOWER(TRIM(a.category))='kerja bakti'))
+    ORDER BY a.event_on DESC,m.id LIMIT 500`,[who.member_id])
+  ]);
+  const albums=new Map();
+  async function media(row){
+   const ref=row.albumId||row.archiveAlbum||"";
+   if(ref&&!albums.has(ref))albums.set(ref,await f4GalleryAlbum(db,ref));
+   const album=albums.get(ref);
+   if(row.albumId&&!album)return null;
+   if(!row.albumId&&!/^gdrive:[A-Za-z0-9_-]{12,100}$/.test(row.id))return null;
+   const driveId=row.driveId||row.id.slice(7);
+   return {id:row.id,albumId:album?.id||"",title:album?.title||"Dokumentasi Warga",caption:row.caption||"",date:row.date||"",url:f4GalleryImageUrl(driveId),driveId};
+  }
+  const uploads=(await Promise.all(own.map(media))).filter(Boolean);
+  const tags=(await Promise.all(tagged.map(media))).filter(Boolean);
+  for(const row of bankTags){
+   const photoUrl=row.stored?"https://api.flamboyan4.web.id/api/v2/public/bank/media/"+encodeURIComponent(row.id):urlSafe(row.externalUrl);
+   if(photoUrl)tags.push({id:row.id,albumId:row.albumId,title:row.title,caption:row.caption||"",date:row.date||"",url:photoUrl});
+  }
+  const unique=rows=>[...new Map(rows.map(x=>[x.id,x])).values()].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  return json({ok:true,uploads:unique(uploads),tagged:unique(tags)},200,{"cache-control":"no-store"});
+ }
  if(path==="/api/v2/gallery/tag-notifications"&&method==="GET"){
   if(!who.member_id)return ok({items:[],unread:0});
   const tags=await list(env.DB,`SELECT t.target_id AS id,CASE WHEN r.target_id IS NULL THEN 0 ELSE 1 END AS isRead,
