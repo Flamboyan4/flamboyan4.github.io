@@ -13,7 +13,7 @@ const permanentBody=n=>n.nodeType===1&&(n.hasAttribute('data-f4-persistent')||n.
 const permanentStyle=n=>n.hasAttribute('data-f4-persistent')||n.matches('#f4-search-reload-layout')||/\/(?:direct-shell|unified-account|gallery-tag-notifications)\.css(?:\?|$)/.test(n.getAttribute('href')||'');
 const abortError=()=>new DOMException('Konten portal telah ditutup.','AbortError');
 window.addEventListener('unhandledrejection',e=>{if(e.reason?.name==='AbortError'&&e.reason?.message==='Konten portal telah ditutup.')e.preventDefault()});
-let active=null,booted=false;
+let active=null,booted=false,headStylesEnd=null;
 const nativeFetch=window.fetch.bind(window);
 const sharedLibraries=new Map();
 const nativeAdd=EventTarget.prototype.addEventListener,nativeRemove=EventTarget.prototype.removeEventListener;
@@ -182,6 +182,17 @@ function copyAttributes(from,to,keep=[]){
  const protectedAttrs=new Set(keep);for(const name of to.getAttributeNames())if(!protectedAttrs.has(name))to.removeAttribute(name);
  for(const name of from.getAttributeNames())if(!protectedAttrs.has(name))to.setAttribute(name,from.getAttribute(name));
 }
+const isShellStylesheet=n=>n.id==='f4-shell-canonical-style'||/\/direct-shell\.css(?:\?|$)/.test(n.getAttribute('href')||'');
+function pinHeadStyleOrder(){
+ // HTML declares some styles before the shared navbar stylesheet and some after.
+ // Keep that cascade boundary on every SPA navigation, including the initial mount.
+ const sheets=[...document.head.querySelectorAll('style,link[rel="stylesheet"]')];
+ const shell=sheets.find(isShellStylesheet);
+ if(!shell)throw Error('Stylesheet navigasi tidak ditemukan.');
+ const dynamic=sheets.slice(sheets.indexOf(shell)+1).find(n=>permanentStyle(n));
+ headStylesEnd=document.createComment('f4: end of declared head styles');
+ document.head.insertBefore(headStylesEnd,dynamic||null);
+}
 function pinShellStyles(){
  const link=[...document.head.querySelectorAll('link[rel="stylesheet"]')].find(n=>/\/direct-shell\.css(?:\?|$)/.test(n.getAttribute('href')||''));
  if(!link||document.getElementById('f4-shell-canonical-style'))return;
@@ -196,7 +207,7 @@ function pinShellStyles(){
 }
 function markPermanent(){
  for(const n of document.body.children)if(permanentBody(n))n.dataset.f4Persistent='shell';
- for(const n of document.head.querySelectorAll('style,link[rel="stylesheet"]'))if(permanentStyle(n))n.dataset.f4Persistent='shell';
+ for(const n of document.head.querySelectorAll('style,link[rel="stylesheet"]'))if(permanentStyle(n)&&!n.hasAttribute('data-f4-persistent'))n.dataset.f4Persistent='shell';
 }
 function makeMounted(key,scope){
  return {canLeave:()=>scope.canLeave(),async dispose(){if(!scope.pause())throw Error('Transaksi masih diproses.');scope.dispose();removeContent();if(active===scope)active=null}};
@@ -208,18 +219,22 @@ async function prepare(key,target){
  if(parsed.documentElement.dataset.f4Release!==release||parsed.documentElement.dataset.f4Spa!=='1')throw Error('Versi portal belum sama.');
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
  const preparedStyles=[];
- // Keep shared navigation styles attached. Stage the incoming head sheets
- // ahead of shared links and Bank's trailing sheets after them.
- const sharedAnchor=[...document.head.querySelectorAll('style,link[rel="stylesheet"]')].find(n=>n.id==='f4-shell-canonical-style'||(n.tagName==='LINK'&&permanentStyle(n)))||null;
- const bodyStyles=key==='bank'?[...parsed.body.children].filter(n=>n.matches('style,link[rel="stylesheet"]')&&!permanentStyle(n)):[];
- const bodyStyleSet=new Set(bodyStyles);
+ // Preserve the destination's actual HTML cascade, not the origin portal's order.
+ const sharedAnchor=[...document.head.querySelectorAll('style,link[rel="stylesheet"]')].find(isShellStylesheet);
+ if(!sharedAnchor||!headStylesEnd?.isConnected)throw Error('Batas stylesheet navigasi tidak tersedia.');
+ const headStyles=[...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript,template'));
+ const shellIndex=headStyles.findIndex(isShellStylesheet);
+ if(shellIndex<0)throw Error('Stylesheet navigasi tujuan tidak tersedia.');
+ const bodyStyles=[...parsed.body.children].filter(n=>n.matches('style,link[rel="stylesheet"]')&&!permanentStyle(n));
+ const preparedBody=new Map();
  const prepareStyles=()=>Promise.all([
-  ...[...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript,template')&&!permanentStyle(n)).map(n=>[n,false]),
-  ...bodyStyles.map(n=>[n,true])
- ].map(([n,inBody])=>new Promise((resolve,reject)=>{
+  ...headStyles.map((n,i)=>[n,i<shellIndex?'before':'after']).filter(([n])=>!permanentStyle(n)),
+  ...bodyStyles.map(n=>[n,'body'])
+ ].map(([n,position])=>new Promise((resolve,reject)=>{
   const link=document.importNode(n,true),media=link.media;
-  link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});
-  const insert=()=>document.head.insertBefore(link,inBody?null:sharedAnchor);
+  link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media,position});
+  if(position==='body')preparedBody.set(n,link);
+  const insert=()=>document.head.insertBefore(link,position==='before'?sharedAnchor:position==='after'?headStylesEnd:null);
   if(link.tagName==='STYLE'){insert();resolve();return;}
   link.href=new URL(n.getAttribute('href'),u.href).href;
   const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);
@@ -244,11 +259,25 @@ async function prepare(key,target){
   document.body.className=[...nextClasses].join(' ');
   document.title=parsed.title;
   for(const n of parsed.head.querySelectorAll('base'))if(!n.closest('noscript')&&!permanentStyle(n))document.head.append(document.importNode(n,true));
-  for(const {link,media} of preparedStyles){delete link.dataset.f4Persistent;link.media=media;}
-  // Shared sheets stay attached; enable only the prepared page sheets.
+  // Enable head sheets in their original before/after-shell groups. Move the
+  // preloaded body sheets back to their exact declaration positions, as on reload.
+  for(const {link,media,position} of preparedStyles)if(position!=='body'){delete link.dataset.f4Persistent;link.media=media;}
   const fragment=document.createDocumentFragment();
-  for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script,noscript'))&&!permanentBody(n)&&!bodyStyleSet.has(n))fragment.append(document.importNode(n,true));
+  for(const n of parsed.body.childNodes){
+   if(n.nodeType===1&&n.matches('script,noscript')||permanentBody(n))continue;
+   const prepared=preparedBody.get(n);
+   fragment.append(prepared||document.importNode(n,true));
+  }
   document.body.append(fragment);
+  const bodyReady=preparedStyles.filter(x=>x.position==='body').map(({link,media})=>new Promise((resolve,reject)=>{
+   const finish=()=>{clearTimeout(timer);link.removeEventListener('load',finish);link.removeEventListener('error',fail);resolve()};
+   const fail=()=>{clearTimeout(timer);link.removeEventListener('load',finish);link.removeEventListener('error',fail);reject(Error('CSS konten gagal dimuat: '+link.href))};
+   const timer=setTimeout(fail,15000);
+   link.addEventListener('load',finish);link.addEventListener('error',fail);
+   delete link.dataset.f4Persistent;link.media=media;
+   if(link.tagName==='STYLE'||link.sheet)finish();
+  }));
+  await Promise.all(bodyReady);
   window.F4PortalNavigation.activate(key);
   scope=scopeFor(key);active=scope;mounted=makeMounted(key,scope);
   await runScripts(specs,scope);
@@ -259,7 +288,7 @@ async function boot(){
  if(booted)return;booted=true;
  const key=keyOf(location.pathname);if(!key)return;
  const nav=window.F4PortalNavigation;if(!nav){window.F4Startup?.fail();throw Error('Kerangka aplikasi tidak ditemukan.');}
- pinShellStyles();markPermanent();
+ pinShellStyles();pinHeadStyleOrder();markPermanent();
  const specs=scriptSpecs(document),scope=scopeFor(key);active=scope;
  const contentError=document.createElement('p');contentError.hidden=true;contentError.setAttribute('role','alert');contentError.dataset.f4Persistent='boot-error';document.body.append(contentError);
  for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);
