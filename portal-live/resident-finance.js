@@ -39,20 +39,27 @@ async function load(){
  toggle.onclick=()=>{shown=!shown;paint()};paint();
  const dues=el('section','rp-card'),top=el('div','rp-between'),period=el('input','rp-month');period.type='month';period.value=today().slice(0,7);period.setAttribute('aria-label','Periode kewajiban');top.append(el('h2','','Kewajiban bulanan'),period);dues.append(top);const dueBody=el('div');dues.append(dueBody);root.append(dues);
  let dueSeq=0;
- async function loadDues(){const request=++dueSeq;dueBody.replaceChildren(el('p','rp-empty','Memuat kewajiban…'));try{const data=await read('/api/member/dues?month='+encodeURIComponent(period.value));if(seq!==serial||request!==dueSeq)return;dueBody.replaceChildren();if(!data.linked||!data.configured){dueBody.append(el('p','rp-empty','Kewajiban belum tersedia untuk periode ini.'));return}
+ async function loadDues(){const request=++dueSeq;dueBody.replaceChildren(el('p','rp-empty','Memuat kewajiban…'));try{const data=await read('/api/member/dues?month='+encodeURIComponent(period.value));if(seq!==serial||request!==dueSeq)return;dueBody.replaceChildren();if(!data.linked||!data.configured||!Array.isArray(data.components)){dueBody.append(el('p','rp-empty','Kewajiban belum tersedia untuk periode ini.'));return}
+ const totalDue=data.totalWajibRp,totalPaid=data.totalTerbayarRp,remaining=data.totalSisaRp;
+ const hasTotals=[totalDue,totalPaid,remaining].every(x=>typeof x==='number'&&Number.isFinite(x)&&x>=0);
+ const state=hasTotals?(totalDue===0?'Tidak ada kewajiban':remaining===0?'Lunas':totalPaid>0?'Kurang bayar':'Belum bayar'):'Belum tersedia';
+ const summary=el('section','rp-payment-status');
+ const label=el('div','rp-payment-heading');label.append(el('span','','Status pembayaran'),el('strong','rp-payment-badge '+(hasTotals&&totalDue>0&&remaining===0?'paid':hasTotals&&remaining>0?'unpaid':'neutral'),state));summary.append(label);
+ if(hasTotals){const amounts=el('div','rp-payment-amounts');for(const [title,value] of [['Total kewajiban',totalDue],['Sudah dibayar',totalPaid]]){const cell=el('div');cell.append(el('small','',title),el('b','',money(value)));amounts.append(cell)}summary.append(amounts)}
+ dueBody.append(summary);
  for(const item of data.components||[]){const due=Number(item.wajibRp),paid=Number(item.terbayarRp);if(!Number.isFinite(due)||!Number.isFinite(paid)||due<=0)continue;const row=el('div','rp-line');const info=el('div');info.append(el('strong','',names[item.jenis]||item.jenis),el('small','rp-state '+(paid>=due?'paid':'unpaid'),status(due,paid)));row.append(info,el('b','',money(due)));dueBody.append(row)}
- const total=el('div','rp-total');total.append(el('span','','Sisa kewajiban'),el('strong','',money(data.totalSisaRp)));dueBody.append(total);
+ const total=el('div','rp-total');total.append(el('span','','Sisa kewajiban'),el('strong','',hasTotals?money(remaining):'—'));dueBody.append(total);
  }catch(e){if(seq===serial&&request===dueSeq)dueBody.replaceChildren(el('p','rp-empty','Kewajiban belum dapat dimuat.'),btn('Coba lagi',loadDues,'rp-small'))}}
  period.onchange=loadDues;void loadDues();
  const reminders=el('section','rp-reminders');reminders.hidden=true;root.append(reminders);
  const history=el('section','rp-card');history.append(el('h2','','Riwayat pembayaran'));
- const controls=el('div','rp-tabs');const historyBody=el('div');history.append(controls,historyBody);root.append(history);
+ const controls=el('div','rp-tabs rp-history-tabs');const historyBody=el('div');history.append(controls,historyBody);root.append(history);
  const types=[['payments','Iuran'],['arisan','Arisan'],['fines','Denda'],['loans','Pinjaman']];
  let selected='payments';const cache={};
  async function showHistory(kind){selected=kind;const req=++historySeq;for(const b of controls.children)b.setAttribute('aria-pressed',String(b.dataset.kind===kind));historyBody.replaceChildren(el('p','rp-empty','Memuat riwayat…'));
  try{const data=cache[kind]||await read('/api/member/'+kind);if(seq!==serial||req!==historySeq)return;cache[kind]=data;historyBody.replaceChildren();const rows=Array.isArray(data.rows)?data.rows:[];if(!rows.length){historyBody.append(el('p','rp-empty',data.linked===false?'Akun belum terhubung ke pembukuan.':'Belum ada catatan.'));return}
  const ordered=rows.slice().sort((a,b)=>String(b.tanggal||'').localeCompare(String(a.tanggal||'')));let limit=5;
- function paintHistory(){historyBody.replaceChildren();for(const row of ordered.slice(0,limit)){const line=el('div','rp-line');const info=el('div');info.append(el('strong','',names[row.jenis]||row.jenis||types.find(x=>x[0]===kind)?.[1]||'Transaksi'),el('small','', [row.periode,dateLabel(row.tanggal),row.status].filter(Boolean).join(' · ')));line.append(info,el('b','',Number.isFinite(Number(row.nominalRp))?money(row.nominalRp):'—'));historyBody.append(line)}if(ordered.length>limit)historyBody.append(btn('Tampilkan lainnya',()=>{limit+=10;paintHistory()},'rp-small'))}
+ function paintHistory(){historyBody.replaceChildren();for(const row of ordered.slice(0,limit)){const line=el('div','rp-line');const info=el('div');info.append(el('strong','',names[row.jenis]||row.jenis||types.find(x=>x[0]===kind)?.[1]||'Transaksi'),el('small','', [row.periode,dateLabel(row.tanggal),row.status].filter(Boolean).join(' · ')));line.append(info,el('b','',Number.isFinite(Number(row.nominalRp))?money(row.nominalRp):'—'));historyBody.append(line)}if(ordered.length>limit)historyBody.append(btn('Tampilkan lainnya',()=>{limit+=10;paintHistory()},'rp-small rp-history-more'))}
  paintHistory();
  }catch(e){if(seq===serial&&req===historySeq)historyBody.replaceChildren(el('p','rp-empty','Riwayat belum dapat dimuat.'),btn('Coba lagi',()=>showHistory(kind),'rp-small'))}}
  for(const [kind,label] of types){const b=btn(label,()=>showHistory(kind),'rp-tab');b.dataset.kind=kind;controls.append(b)}void showHistory(selected);

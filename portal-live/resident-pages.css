@@ -34,6 +34,21 @@
 .rp-tabs{display:flex;gap:6px;overflow-x:auto;margin:10px 0;scrollbar-width:none}
 .rp-tab{flex:0 0 auto;font-size:13px;white-space:nowrap}
 .rp-tab[aria-pressed=true]{background:var(--rp-primary);color:#fff;border-color:var(--rp-primary)}
+/* History tabs are equal-width and snap at each complete button. */
+.rp-history-tabs{scroll-snap-type:x mandatory;scroll-padding-inline:0}
+#f4-resident-content .rp-history-tabs .rp-tab{flex:0 0 calc((100% - 18px)/4);min-width:0;padding:8px 4px;font-size:12px;scroll-snap-align:start;scroll-snap-stop:always}
+@media(max-width:480px){#f4-resident-content .rp-history-tabs .rp-tab{flex-basis:calc((100% - 12px)/3)}}
+.rp-history-more{margin-top:12px}
+.rp-payment-status{background:#f7f6ff;border:1px solid #e4e0fa;border-radius:10px;padding:12px;margin:0 0 7px}
+.rp-payment-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;font-weight:650}
+.rp-payment-badge{border-radius:7px;padding:4px 9px;font-size:12px;text-align:center;white-space:nowrap}
+.rp-payment-badge.paid{color:#08764b;background:#dcf6e7}
+.rp-payment-badge.unpaid{color:#96520b;background:#ffebc7}
+.rp-payment-badge.neutral{color:#536075;background:#e9eaf1}
+.rp-payment-amounts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.rp-payment-amounts small,.rp-payment-amounts b{display:block}
+.rp-payment-amounts small{font-size:11px;color:var(--rp-muted)}
+.rp-payment-amounts b{font-size:16px;overflow-wrap:anywhere}
 .rp-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:14px 0}
 .rp-weekday{text-align:center;font-size:11px;font-weight:650;color:var(--rp-muted)}
 .rp-day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;height:44px;border:1px solid transparent;border-radius:8px;background:#fff;color:#27334d}
