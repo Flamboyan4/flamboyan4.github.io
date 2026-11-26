@@ -14,12 +14,12 @@ body{--work-bg:#fff;--work-accent:var(--blue);--work-tint:var(--tint);--work-lin
 button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 [hidden]{display:none}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
 #f4-account-page:not([hidden]){display:grid;grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
-#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;border-right:1px solid var(--edge);padding:16px 12px;display:flex;flex-direction:column;gap:0}
+#f4-account-page>aside{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:0}
 #f4-account-page>main{max-width:none;width:100%;padding:calc(56px + var(--f4-panel-pad)) var(--f4-panel-pad) 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
-.f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;border-bottom:1px solid var(--edge);margin-bottom:11px}
+.f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;margin-bottom:11px}
 @media(min-width:1024px){
  #f4-account-page>aside{padding-top:0}
- #f4-account-page>aside .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;border-bottom-color:var(--f4-nav-line,var(--edge))}
+ #f4-account-page>aside .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;}
 }
 .f4-sa-logo{height:42px;width:42px;object-fit:contain;flex:none}.f4-sa-brand strong{display:block;font-size:13px;font-weight:800;line-height:1.2;color:var(--blue)}.f4-sa-brand small{display:block;margin-top:3px;font-size:10px;font-weight:500;line-height:1.2;color:var(--muted)}
 .f4-sa-label{display:block;font:800 10px/1.2 system-ui;color:#8290a7;text-transform:uppercase;letter-spacing:.055em;padding:10px 12px 5px}
@@ -112,7 +112,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
  }
  html body #f4-account-page>aside .f4-sa-brand{
   min-width:0;display:flex;flex-direction:row;
-  margin-bottom:11px;border-bottom:1px solid var(--edge);padding:12px 8px 15px
+  margin-bottom:11px;padding:12px 8px 15px
  }
  html body #f4-account-page>aside .f4-sa-brand small,
  html body #f4-account-page>aside .f4-sa-label{display:block}
@@ -316,7 +316,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261126-borderless-shell-v1"><link rel="stylesheet" href="/portal-live/unified-account.css?v=20261111-svg-return-v1"><style>html.f4-auth-pending body{visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261126-card-standard-admin-cash-v1"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261126-card-standard-admin-cash-v1">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.

@@ -202,13 +202,13 @@ body.f4-account-open #f4-direct-bar{z-index:500}
  body.f4-direct-bank #v11Public.v18-public-shell{grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr)}
  body.f4-direct-bank #v18PublicContent{grid-column:2;min-width:0}
  body.f4-direct-book #side-drawer{top:0}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{box-sizing:border-box;height:56px;min-height:56px;margin:0 -10px 12px;padding:0 14px;border-bottom:1px solid var(--f4-nav-line)}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{box-sizing:border-box;height:56px;min-height:56px;margin:0 -10px 12px;padding:0 14px;}
 }
-#f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;backdrop-filter:blur(14px);border-bottom:1px solid var(--f4-nav-line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45;
+#f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45;
 isolation:isolate;
-background:rgba(255,255,255,.76);border-bottom-color:var(--f4-nav-line);transition:background .18s ease,box-shadow .18s ease}
+background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s ease}
 #f4-direct-bar.f4-scrolled{background:rgba(255,255,255,.98);box-shadow:0 2px 11px rgba(15,24,45,.045)}
-#f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;border-bottom:1px solid var(--f4-nav-line)}
+#f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;}
 #f4-direct-sidebar .f4-direct-brand img{width:42px;height:43px;object-fit:contain;flex:none}
 #f4-direct-sidebar .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800}
 #f4-direct-sidebar .f4-direct-brand small{display:block;color:#8793a7;font-size:10px;line-height:1.2}
@@ -292,7 +292,7 @@ body.f4-direct-portal:has(
 ) #f4-direct-sideback{display:none}
 /* Keep sidebar internally scrollable on short displays, without the
    intrusive independent scrollbar next to the page. */
-#f4-direct-sidebar{position:fixed;left:0;top:56px;bottom:0;width:var(--f4-portal-rail,226px);overflow-y:auto;background:#fff;z-index:110;border-right:1px solid var(--f4-nav-line);padding:14px 10px;font:600 13px system-ui;
+#f4-direct-sidebar{position:fixed;left:0;top:56px;bottom:0;width:var(--f4-portal-rail,226px);overflow-y:auto;background:#fff;z-index:110;padding:14px 10px;font:600 13px system-ui;
 scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 #f4-direct-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
 
