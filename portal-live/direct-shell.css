@@ -64,7 +64,7 @@
 #f4-direct-bar .f4-direct-identity strong{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#20232d;font-size:16px;line-height:1.2;font-weight:800}
 body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 #f4-direct-bar #f4-direct-avatar{width:40px;height:40px;border-radius:50%;overflow:hidden;border:1px solid var(--f4-nav-line);background:var(--f4-nav-tint)}
-#f4-direct-avatar img{height:100%;width:100%;object-fit:cover}
+#f4-direct-avatar img{display:block;height:100%;width:100%;max-width:40px;max-height:40px;object-fit:cover;border-radius:50%}
 #f4-direct-bar .f4-direct-login{width:auto;min-width:64px;padding:0 11px;background:var(--f4-nav-tint)}
 #f4-direct-account-menu{position:absolute;top:55px;right:10px;width:min(245px,92vw);border:1px solid var(--f4-nav-line);border-radius:13px;padding:9px;background:white;box-shadow:0 14px 45px #14243625}
 #f4-direct-account-menu[hidden],#f4-direct-dialog[hidden],#f4-direct-gate[hidden],#f4-direct-sidebar[hidden],#f4-direct-sideback[hidden]{display:none}
@@ -222,9 +222,9 @@ isolation:isolate;
 background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s ease}
 #f4-direct-bar.f4-scrolled{background:#fff}
 /* Loading covers only content, leaving the shared navigation available. */
-#f4-route-loading{position:fixed;inset:56px 0 0;z-index:50;display:grid;place-items:center;background:#fff;color:var(--f4-nav);font:600 13px/1.4 system-ui,-apple-system,sans-serif}
+#f4-route-loading{position:fixed;inset:56px 0 0;z-index:190;display:grid;place-items:center;background:#fff;color:var(--f4-nav);font:600 13px/1.4 system-ui,-apple-system,sans-serif}
 #f4-route-loading[hidden]{display:none}
-.f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .16s .12s both}
+.f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .12s both}
 .f4-route-spinner{width:30px;height:30px;border:3px solid var(--f4-nav-tint);border-top-color:var(--f4-nav);border-radius:50%;animation:f4-route-spin .7s linear infinite}
 @keyframes f4-route-spin{to{transform:rotate(360deg)}}
 @keyframes f4-route-reveal{from{opacity:0}to{opacity:1}}

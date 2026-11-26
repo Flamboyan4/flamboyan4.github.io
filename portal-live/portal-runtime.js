@@ -196,7 +196,25 @@ async function prepare(key,target){
  if(parsed.documentElement.dataset.f4Release!==release||parsed.documentElement.dataset.f4Spa!=='1')throw Error('Versi portal belum sama.');
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
  const preparedStyles=[];
- const prepareStyles=()=>Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript')&&!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})));
+ // Keep shared navigation styles attached. Stage the incoming head sheets
+ // ahead of shared links and Bank's trailing sheets after them.
+ const sharedAnchor=[...document.head.querySelectorAll('link[rel="stylesheet"]')].find(permanentStyle)||null;
+ const bodyStyles=key==='bank'?[...parsed.body.children].filter(n=>n.matches('style,link[rel="stylesheet"]')&&!permanentStyle(n)):[];
+ const bodyStyleSet=new Set(bodyStyles);
+ const prepareStyles=()=>Promise.all([
+  ...[...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!n.closest('noscript,template')&&!permanentStyle(n)).map(n=>[n,false]),
+  ...bodyStyles.map(n=>[n,true])
+ ].map(([n,inBody])=>new Promise((resolve,reject)=>{
+  const link=document.importNode(n,true),media=link.media;
+  link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});
+  const insert=()=>document.head.insertBefore(link,inBody?null:sharedAnchor);
+  if(link.tagName==='STYLE'){insert();resolve();return;}
+  link.href=new URL(n.getAttribute('href'),u.href).href;
+  const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);
+  link.onload=()=>{clearTimeout(t);resolve()};
+  link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};
+  insert();
+ })));
  try{
   if(key==='portal'){
    // Independent local factories and CSS download concurrently. Script execution
@@ -213,10 +231,9 @@ async function prepare(key,target){
   document.title=parsed.title;
   for(const n of parsed.head.querySelectorAll('base'))if(!n.closest('noscript')&&!permanentStyle(n))document.head.append(document.importNode(n,true));
   for(const {link,media} of preparedStyles){delete link.dataset.f4Persistent;link.media=media;}
-  // Shared styles retain their original cascade position after the page-specific styles.
-  for(const link of [...document.head.querySelectorAll('link[rel="stylesheet"]')].filter(permanentStyle))document.head.append(link);
+  // Shared sheets stay attached; enable only the prepared page sheets.
   const fragment=document.createDocumentFragment();
-  for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script,noscript'))&&!permanentBody(n))fragment.append(document.importNode(n,true));
+  for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script,noscript'))&&!permanentBody(n)&&!bodyStyleSet.has(n))fragment.append(document.importNode(n,true));
   document.body.append(fragment);
   window.F4PortalNavigation.activate(key);
   scope=scopeFor(key);active=scope;mounted=makeMounted(key,scope);

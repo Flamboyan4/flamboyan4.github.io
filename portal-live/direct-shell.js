@@ -130,10 +130,17 @@ function beginView(){
  if(navigationPending)return null;
  const token=++viewSequence;routeLoading.hidden=false;return token;
 }
+function afterPaint(){
+ if(document.hidden)return Promise.resolve();
+ return new Promise(resolve=>{
+  const timer=setTimeout(resolve,120);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(timer);resolve()}));
+ });
+}
 function endView(token){
  if(token===null||token!==viewSequence)return;
  const ready=window.F4PortalRuntime?.waitForView?.()||Promise.resolve();
- Promise.resolve(ready).catch(()=>{}).finally(()=>{if(token===viewSequence)routeLoading.hidden=true});
+ Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence)routeLoading.hidden=true});
 }
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
@@ -188,6 +195,10 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
   if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   closeSide();closeDockMenu();menu.hidden=true;cancelBankNavigation();
+  // Ensure the persistent loading surface has painted before disposing content.
+  await afterPaint();
+  if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
+  if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   await current.dispose();mountedContent=null;detached=true;
   if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
@@ -358,7 +369,7 @@ window.addEventListener('f4-account-profile-updated',event=>{
 });
 window.f4RefreshDirectAvatar=()=>avatarLoad();
 function avatarLoad(){
- const img=el('img');img.alt='Foto profil';img.src=API+'/api/member/avatar?v='+Date.now();
+ const img=el('img');img.alt='Foto profil';img.width=40;img.height=40;img.src=API+'/api/member/avatar?v='+Date.now();
  img.onerror=()=>{avatar.innerHTML=svg('user')};avatar.replaceChildren(img);
 }
 async function refreshSession(){
