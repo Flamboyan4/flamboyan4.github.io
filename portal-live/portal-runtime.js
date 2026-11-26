@@ -12,6 +12,7 @@ const release=document.documentElement.dataset.f4Release;
 const permanentBody=n=>n.nodeType===1&&(n.hasAttribute('data-f4-persistent')||n.matches('#f4-direct-bar,#f4-direct-dock,#f4-direct-dialog,#f4-direct-gate,#f4-session-notice,#f4-unified-account,.f4-tag-inbox'));
 const permanentStyle=n=>n.hasAttribute('data-f4-persistent')||n.matches('#f4-search-reload-layout')||/\/(?:direct-shell|unified-account|gallery-tag-notifications)\.css(?:\?|$)/.test(n.getAttribute('href')||'');
 const abortError=()=>new DOMException('Konten portal telah ditutup.','AbortError');
+window.addEventListener('unhandledrejection',e=>{if(e.reason?.name==='AbortError'&&e.reason?.message==='Konten portal telah ditutup.')e.preventDefault()});
 let active=null,booted=false;
 const nativeFetch=window.fetch.bind(window);
 const sharedLibraries=new Map();
@@ -26,7 +27,7 @@ function scopeFor(key){
   if(!ready&&((target===document&&type==='DOMContentLoaded')||(target===window&&type==='load'))){readyEvents.push({target,type,fn,options});return;}
   const capture=typeof options==='boolean'?options:!!options?.capture;
   if(listeners.some(x=>x.target===target&&x.type===type&&x.fn===fn&&x.capture===capture))return;
-  const wrapped=function(event){if(!alive)return;if(type==='popstate'&&keyOf(location.pathname)!==key)return;if(typeof fn==='function')return fn.call(target,event);return fn.handleEvent?.(event);};
+  const wrapped=function(event){if(!alive)return;if(type==='popstate'&&keyOf(location.pathname)!==key)return;if(options?.once){const i=listeners.findIndex(x=>x.wrapped===wrapped);if(i>=0)listeners.splice(i,1)}if(typeof fn==='function')return fn.call(target,event);return fn.handleEvent?.(event);};
   listeners.push({target,type,fn,wrapped,capture});nativeAdd.call(target,type,wrapped,options);
  };
  const untrack=(target,type,fn,options)=>{
@@ -43,9 +44,14 @@ function scopeFor(key){
   if(write&&leaving)throw Error('Perpindahan portal sedang berlangsung.');
   const c=new AbortController(),signal=init.signal||(input instanceof Request?input.signal:null),abort=()=>c.abort(signal?.reason);
   if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});
-  controllers.add({controller:c,write});if(write)writes++;
-  try{return await nativeFetch(input,{...init,signal:c.signal})}
-  finally{if(write)writes--;for(const item of controllers)if(item.controller===c)controllers.delete(item);signal?.removeEventListener('abort',abort)}
+  const entry={controller:c,write};controllers.add(entry);if(write)writes++;
+  let finished=false,grace=null;
+  const finish=()=>{if(finished)return;finished=true;if(grace)window.clearTimeout(grace);if(write)writes--;controllers.delete(entry);signal?.removeEventListener('abort',abort)};
+  try{
+   const response=await nativeFetch(input,{...init,signal:c.signal});
+   grace=window.setTimeout(finish,write?30000:60000);
+   return new Proxy(response,{get(t,p){const v=Reflect.get(t,p,t);if(typeof v!=='function')return v;if(['json','text','blob','arrayBuffer','formData','bytes'].includes(p))return async(...a)=>{try{return await v.apply(t,a)}finally{finish()}};return v.bind(t)}});
+  }catch(e){finish();throw e}
  };
  const makeObserver=Native=>Native?class extends Native{constructor(fn){assert();super((...args)=>{if(alive)fn(...args)});observers.add(this)}}:undefined;
  const scopedLocation=new Proxy(Object.create(null),{get(_,p){const t=location;if(p==='assign'||p==='replace')return value=>{assert();const u=new URL(value,location.href);if(u.origin===location.origin&&keyOf(u.pathname)&&keyOf(u.pathname)!==key)return window.F4PortalNavigation.go(u.href,{replace:p==='replace'});return t[p](value)};if(p==='reload')return()=>{assert();t.reload()};const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v},set(_,p,v){const t=location;assert();if(p==='href'){const u=new URL(v,location.href);if(u.origin===location.origin&&keyOf(u.pathname)&&keyOf(u.pathname)!==key){void window.F4PortalNavigation.go(u.href);return true}}return Reflect.set(t,p,v,t)}});
@@ -63,6 +69,7 @@ function scopeFor(key){
   requestAnimationFrame:frame,cancelAnimationFrame:cancelFrame,MutationObserver:makeObserver(window.MutationObserver),
   ResizeObserver:makeObserver(window.ResizeObserver),IntersectionObserver:makeObserver(window.IntersectionObserver)
  };
+ builtins.matchMedia=query=>{assert();const m=window.matchMedia(query);return new Proxy(m,{get(t,p){if(p==='addEventListener')return(...a)=>track(t,...a);if(p==='removeEventListener')return(...a)=>untrack(t,...a);if(p==='addListener')return fn=>track(t,'change',fn);if(p==='removeListener')return fn=>untrack(t,'change',fn);const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v}})};
  const nativeBound=new Set(['alert','confirm','prompt','scrollTo','scrollBy','getComputedStyle','matchMedia','getSelection','open','postMessage','dispatchEvent','print','focus','blur','atob','btoa']);
  const reserved=new Set(['F4PortalRuntime','F4PortalNavigation','F4MobileDock','F4MobileSheets','F4Loading','f4ShowLogin','f4RefreshDirectAvatar','f4OpenUnifiedAccount','f4CloseUnifiedAccount']);
  function installGlobal(name){
@@ -97,6 +104,7 @@ function scopeFor(key){
   for(const item of readyEvents.splice(0).sort((a,b)=>(a.type==='load')-(b.type==='load'))){if(!alive)break;const event=new Event(item.type);try{typeof item.fn==='function'?item.fn.call(item.target,event):item.fn.handleEvent?.(event)}catch(e){console.error('Inisialisasi '+key,e);}}
  };
  api.cleanup=fn=>{assert();if(typeof fn==='function')cleanups.add(fn)};
+ api.ready=()=>ready&&alive;
  api.canLeave=()=>ready&&!writes;
  api.pause=()=>{if(!ready||writes)return false;leaving=true;return true};
  api.resume=()=>{leaving=false};
@@ -157,15 +165,17 @@ async function prepare(key,target){
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
  await prepareScripts(specs);
  const preparedStyles=[];
- try{await Promise.all([...parsed.head.querySelectorAll('link[rel="stylesheet"]')].filter(n=>!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.href=new URL(n.getAttribute('href'),u.href).href;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})))}catch(e){for(const {link} of preparedStyles)link.remove();throw e}
+ try{await Promise.all([...parsed.head.querySelectorAll('style,link[rel="stylesheet"]')].filter(n=>!permanentStyle(n)).map(n=>new Promise((resolve,reject)=>{const link=document.importNode(n,true),media=link.media;link.media='not all';link.dataset.f4Persistent='preparing';preparedStyles.push({link,media});if(link.tagName==='STYLE'){document.head.append(link);resolve();return}link.href=new URL(n.getAttribute('href'),u.href).href;const t=setTimeout(()=>reject(Error('CSS tidak merespons: '+link.href)),15000);link.onload=()=>{clearTimeout(t);resolve()};link.onerror=()=>{clearTimeout(t);reject(Error('CSS gagal dimuat: '+link.href))};document.head.append(link)})))}catch(e){for(const {link} of preparedStyles)link.remove();throw e}
  let scope=null,mounted=null;
  return {async mount(){
   markPermanent();
   copyAttributes(parsed.documentElement,document.documentElement,['data-f4-release','data-f4-spa']);
   copyAttributes(parsed.body,document.body);
   document.title=parsed.title;
-  for(const n of parsed.head.querySelectorAll('style,base'))if(!permanentStyle(n))document.head.append(document.importNode(n,true));
+  for(const n of parsed.head.querySelectorAll('base'))if(!permanentStyle(n))document.head.append(document.importNode(n,true));
   for(const {link,media} of preparedStyles){delete link.dataset.f4Persistent;link.media=media;}
+  // Shared styles retain their original cascade position after the page-specific styles.
+  for(const link of [...document.head.querySelectorAll('link[rel="stylesheet"]')].filter(permanentStyle))document.head.append(link);
   const fragment=document.createDocumentFragment();
   for(const n of parsed.body.childNodes)if(!(n.nodeType===1&&n.matches('script'))&&!permanentBody(n))fragment.append(document.importNode(n,true));
   document.body.append(fragment);
@@ -185,6 +195,6 @@ async function boot(){
  for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);
  try{await prepareScripts(specs);await runScripts(specs,scope);nav.contentReady();contentError.remove()}catch(e){contentError.hidden=false;contentError.textContent='Konten portal tidak dapat dimuat. Muat ulang halaman. '+e.message;throw e}
 }
-window.F4PortalRuntime={define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
+window.F4PortalRuntime={ready:()=>!!active?.ready(),define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>console.error('Portal:',e)),{once:true});else boot().catch(e=>console.error('Portal:',e));
 })();
