@@ -205,7 +205,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   await current.dispose();mountedContent=null;detached=true;
   if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',target.pathname+target.search+target.hash);
-  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo(0,0);return true;
+  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);
@@ -341,7 +341,9 @@ function notifyRole(){
  syncPageMenu();
  if(portal==='bank'||portal==='portal'||activePortalKey==='dokumentasi'){
   const member=session?.member||{};
-  window.postMessage({type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}},location.origin);
+  const data={type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}};
+  if(portal==='portal'||activePortalKey==='dokumentasi')window.dispatchEvent(new MessageEvent('message',{data,origin:location.origin,source:window}));
+  else window.postMessage(data,location.origin);
  }
 }
 function displayAccountName(){return String(session?.account?.displayName||session?.member?.nama||session?.account?.username||'Pengguna')}
