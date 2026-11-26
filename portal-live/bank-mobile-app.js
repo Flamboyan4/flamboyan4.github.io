@@ -1575,58 +1575,50 @@ function adminShortcut([name,route,iconName]){
 const adminQuickRoutes=["rekonsiliasi","bank-admin-cash","master","tabungan"];
 const adminDrawerRoutes=["bank-admin-history","bank-payout-admin","admin","laporan","bank-admin-docs"];
 const adminRoutesInOrder=routes=>routes.map(route=>adminShortcuts.find(item=>item[1]===route)).filter(Boolean);
-let adminSheetFocus=null;
-function ensureAdminMenuSheet(){
+let adminDrawerFocus=null;
+function getAdminDrawer(){return __f4.globals.document.querySelector("#f4-direct-sidebar[data-bank-admin-drawer]");}
+function isAdminDrawerOpen(){return !!getAdminDrawer()?.classList.contains("f4-open");}
+function ensureAdminDrawer(){
  if(role!=="admin")return null;
- let dialog=$("f4BankAdminMenuSheet");if(dialog)return dialog;
- dialog=el("dialog","f4-bank-sheet-modal f4-bank-admin-menu-sheet");
- dialog.id="f4BankAdminMenuSheet";
- dialog.setAttribute("aria-labelledby","f4BankAdminMenuTitle");
- const head=el("div","f4-bank-modal-heading");
- const title=el("h2","", "Menu Pengelolaan");title.id="f4BankAdminMenuTitle";
- const close=el("button","f4-bank-modal-close");close.type="button";
- close.setAttribute("aria-label","Tutup menu pengelolaan");close.append(bankUiSvg("x"));
- close.onclick=()=>closeAdminMenuSheet();
- head.append(title,close);
- const grid=el("div","f4-bank-admin-menu-grid");
- grid.append(...adminRoutesInOrder(adminDrawerRoutes).map(item=>{
-  const button=adminShortcut(item);
-  button.onclick=()=>closeAdminMenuSheet(item[1]);
-  return button;
- }));
- dialog.append(head,grid);
- dialog.addEventListener("close",()=>{const menu=$("f4-mobile-menu");if(menu)menu.setAttribute("aria-expanded","false");});
- dialog.addEventListener("click",event=>{if(event.target===dialog)closeAdminMenuSheet();});
- dialog.addEventListener("cancel",event=>{event.preventDefault();closeAdminMenuSheet();});
- __f4.globals.document.body.append(dialog);
- 
- return dialog;
-}
-function openAdminMenuSheet(){
- if(role!=="admin"||roleType()!=="admin"||__f4.window.matchMedia("(min-width:1024px)").matches)return;
- const dialog=ensureAdminMenuSheet();
- if(!dialog||dialog.open)return;
- adminSheetFocus=__f4.globals.document.activeElement;
- for(const button of dialog.querySelectorAll("[data-bank-app-route]")){
-  const active=button.dataset.bankAppRoute===screen;
-  button.classList.toggle("active",active);
-  if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current");
+ let side=getAdminDrawer();if(side)return side;
+ side=el("aside");side.id="f4-direct-sidebar";side.dataset.bankAdminDrawer="1";
+ side.setAttribute("aria-label","Navigasi Bank Sampah");side.setAttribute("aria-hidden","true");side.inert=true;
+ const brand=el("div","f4-direct-brand"),logo=el("img"),brandName=el("div");
+ logo.src="/assets/logo-flamboyan.svg?v=official-20261027-v2";logo.alt="Logo Flamboyan 4";
+ brandName.append(el("h2","","Bank Sampah"),el("small","","Flamboyan 4"));
+ brand.append(logo,brandName);side.append(brand,el("div","f4-direct-group-label","MENU"));
+ for(const [name,route,iconName] of adminRoutesInOrder(adminDrawerRoutes)){
+  const button=el("button");button.type="button";button.dataset.bankAppRoute=route;button.setAttribute("aria-label",name);
+  const svg=__f4.globals.document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("aria-hidden","true");
+  svg.innerHTML=adminShortcutPaths[iconName]||adminShortcutPaths.wallet;
+  button.append(svg,el("span","f4-direct-menu-label",name));button.onclick=()=>closeAdminDrawer(route);side.append(button);
  }
- dialog.showModal();
- $("f4-mobile-menu")?.setAttribute("aria-expanded","true");
- __f4.window.F4BankModalHistory?.registerOpen?.(dialog);
-}
-function closeAdminMenuSheet(destination=null){
- const dialog=$("f4BankAdminMenuSheet"),focus=adminSheetFocus;
- adminSheetFocus=null;
- const after=()=>{
-  if(destination)navigate(destination);
-  else if(focus?.isConnected)focus.focus({preventScroll:true});
+ const backdrop=el("button");backdrop.id="f4-direct-sideback";backdrop.type="button";backdrop.hidden=true;backdrop.setAttribute("aria-label","Tutup menu");backdrop.onclick=()=>closeAdminDrawer();
+ side.f4Close=()=>{
+  side.classList.remove("f4-open");side.inert=true;side.setAttribute("aria-hidden","true");backdrop.hidden=true;
+  $("f4-mobile-menu")?.setAttribute("aria-expanded","false");
+  const focus=adminDrawerFocus;adminDrawerFocus=null;if(focus?.isConnected)focus.focus({preventScroll:true});
  };
- if(!dialog?.open){after();return;}
- if(__f4.window.F4BankModalHistory?.closeAndThen)
-  __f4.window.F4BankModalHistory.closeAndThen(dialog,after);
- else{dialog.close();after();}
+ __f4.globals.document.body.append(side,backdrop);
+ return side;
+}
+function openAdminDrawer(){
+ if(role!=="admin"||roleType()!=="admin"||__f4.window.matchMedia("(min-width:1024px)").matches)return;
+ const side=ensureAdminDrawer();if(!side)return;
+ if(isAdminDrawerOpen()){closeAdminDrawer();return;}
+ adminDrawerFocus=__f4.globals.document.activeElement;
+ for(const button of side.querySelectorAll("[data-bank-app-route]"))button.setAttribute("aria-current",button.dataset.bankAppRoute===screen?"page":"false");
+ side.inert=false;side.setAttribute("aria-hidden","false");side.classList.add("f4-open");$("f4-direct-sideback").hidden=false;
+ const menu=$("f4-mobile-menu");menu?.setAttribute("aria-controls",side.id);menu?.setAttribute("aria-expanded","true");
+ __f4.window.F4BankModalHistory?.registerOpen?.(side);
+}
+function closeAdminDrawer(destination=null){
+ const side=getAdminDrawer();
+ const after=()=>{if(destination&&roleType()==="admin")navigate(destination);};
+ if(!isAdminDrawerOpen()){after();return;}
+ if(__f4.window.F4BankModalHistory?.closeAndThen)__f4.window.F4BankModalHistory.closeAndThen(side,after);
+ else{side.f4Close();after();}
 }
 /* The legacy v16BuildNav() recreates nav children during page transitions.
    Observe only that list, and restore secondary routes idempotently. */
@@ -1962,7 +1954,7 @@ function ensureAdminHome(){
   shortcuts.append(grid);
   $("f4BankAdminOperations")?.after(shortcuts);
  }
- ensureAdminMenuSheet();
+ ensureAdminDrawer();
  adminInsightMount(home);
  
  
@@ -2768,7 +2760,7 @@ function hideCustom(){
  for(const id of [...custom,...featureRoutes])$(id)?.classList.add("hidden");
 }
 function navigate(route){
- if(route==="menu"){if(roleType()==="admin")openAdminMenuSheet();return;}
+ if(route==="menu"){if(roleType()==="admin")openAdminDrawer();return;}
  if(route==="bank-deposit"){
   __f4.window.goPage("dashboard");
   const flow=$("f4MemberFlow");if(flow){flow.open=true;flow.scrollIntoView({behavior:"smooth",block:"start"});}
@@ -2889,8 +2881,9 @@ function handleRoute(route,old,args){
 function resetRoleSurface(){
  resetMemberAward();
  adminNavObserver?.disconnect();adminNavObserver=null;adminNavList=null;
- if($("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
- $("f4BankAdminMenuSheet")?.remove();
+ if(isAdminDrawerOpen())closeAdminDrawer();
+ getAdminDrawer()?.remove();
+ $("f4-direct-sideback")?.remove();
  resetMemberPublicMini();memberBalancePrivacy.hidden=true;
  adminInsightVersion++;adminInsightPending=null;adminInsightReport=null;
  adminInsightPublic=null;adminInsightSchedule=null;adminInsightLoadedAt=0;
@@ -3144,7 +3137,7 @@ function init(){
   const nextDesktop=__f4.window.matchMedia("(min-width:1024px)").matches;
   if(nextDesktop===desktopLayout)return;
   desktopLayout=nextDesktop;
-  if(nextDesktop&&$("f4BankAdminMenuSheet")?.open)closeAdminMenuSheet();
+  if(nextDesktop&&isAdminDrawerOpen())closeAdminDrawer();
   syncAdminPageFrames();
   if(role==="admin"){ensureHome();ensureAdminHome();}
   if(role==="member"){memberSide(true);loadMemberPublicMini();}
@@ -3153,7 +3146,7 @@ function init(){
   const type=roleType();
   if(type!=="member"&&type!=="admin")return;
   event.preventDefault();event.stopImmediatePropagation();
-  if(type==="admin"){openAdminMenuSheet();return;}
+  if(type==="admin"){openAdminDrawer();return;}
   if(screen!=="dashboard")previousBankPage();
  },true);
 

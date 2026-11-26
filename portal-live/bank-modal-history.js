@@ -10,7 +10,7 @@ window.F4PortalRuntime.define("/portal-live/bank-modal-history.js",function(__f4
  if(__f4.window.F4BankModalHistory)return;
  const rootSelectors=[
   '#f4-tx-receipt-dialog','#bank-prices','#f4BankWeighingDialog',
-  '#f4BankAdminMenuSheet','.f4-warga-picker-pop',
+  '#f4-direct-sidebar[data-bank-admin-drawer]','.f4-warga-picker-pop',
   '#v21Lightbox','#v21GalleryModal','#v24ProgressOverlay',
   '#credentialModal','.f4-activity-dialog','.f4-ui-dialog',
   '#f4-direct-dialog'
@@ -24,6 +24,7 @@ window.F4PortalRuntime.define("/portal-live/bank-modal-history.js",function(__f4
  function isVisible(node){
   if(!node||!node.isConnected||node.hidden||node.classList.contains('hidden'))return false;
   if(node.matches('dialog')&&!node.open)return false;
+  if(node.matches('[data-bank-admin-drawer]')&&!node.classList.contains('f4-open'))return false;
   if(node.closest('[inert]'))return false;
   const style=(0,__f4.globals.getComputedStyle)(node);
   return style.display!=='none'&&style.visibility!=='hidden'&&node.getClientRects().length>0;
@@ -43,7 +44,7 @@ window.F4PortalRuntime.define("/portal-live/bank-modal-history.js",function(__f4
  }
  function close(root){
   if(!isVisible(root))return;
-  if(root.matches('.f4-warga-picker-pop')){root.f4Close?.();return;}
+  if(root.matches('.f4-warga-picker-pop,[data-bank-admin-drawer]')){root.f4Close?.();return;}
   if(root.matches('dialog')){root.close();return;}
   if(root.id==='f4-tx-receipt-dialog'){
    __f4.window.F4TransactionReceipt?.close?.();return;

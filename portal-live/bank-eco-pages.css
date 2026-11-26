@@ -2479,15 +2479,15 @@ body.f4-bank-app-admin #f4BankAppHome>.f4-bank-admin-shortcuts{
  transition:transform .18s ease,color .18s ease
 }
 /* Warna per fungsi agar mudah dibedakan tanpa mengubah susunan navigasi. */
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#43a047;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:var(--f4-bank-primary,#087c6c);--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#5969da;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#8bc24a;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#eb6a48;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#d94880;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#b452ba;--bank-shortcut-ink:#fff}
-:is(.f4-bank-admin-shortcut-grid,.f4-bank-admin-menu-grid)>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(1){--bank-shortcut-accent:#43a047;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(2){--bank-shortcut-accent:var(--f4-bank-primary,#087c6c);--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(3){--bank-shortcut-accent:#5969da;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(4){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(5){--bank-shortcut-accent:#8bc24a;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(6){--bank-shortcut-accent:#eb6a48;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(7){--bank-shortcut-accent:#d94880;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(8){--bank-shortcut-accent:#b452ba;--bank-shortcut-ink:#fff}
+.f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:nth-child(9){--bank-shortcut-accent:#fdc010;--bank-shortcut-ink:#174b36}
 .f4-bank-admin-shortcut-grid>.f4-bank-admin-shortcut:hover{
  color:var(--bank-shortcut-accent,#087b54);transform:translateY(-2px)
 }
@@ -4326,33 +4326,14 @@ dialog.f4-bank-sheet-modal::backdrop{background:#152b2673;backdrop-filter:blur(2
  .f4-bank-prices-screen .f4-bank-price-category-title{font-size:12px}
 }
 
-/* Drawer kiri pengelola: menggunakan dialog dan riwayat modal yang sudah ada. */
-dialog.f4-bank-sheet-modal.f4-bank-admin-menu-sheet{
- position:fixed;inset:0 auto 0 0;box-sizing:border-box;
- width:min(288px,84vw);max-width:84vw;height:100dvh;max-height:100dvh;
- margin:0;padding:16px 12px calc(16px + env(safe-area-inset-bottom,0px));
- overflow-y:auto;overscroll-behavior:contain;
- border:0;border-radius:0;background:#fff;
- box-shadow:12px 0 28px #102e2230;color:#193b2c
+/* Bank admin mobile drawer uses the canonical direct-shell sidebar and backdrop. */
+@media(max-width:1023px){
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer]{width:min(var(--f4-rail-open,226px),84vw);height:calc(100dvh - 56px);visibility:hidden;pointer-events:none}
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer].f4-open{visibility:visible;pointer-events:auto}
 }
-dialog.f4-bank-admin-menu-sheet[open]{animation:f4-bank-admin-drawer-in .22s ease-out}
-@keyframes f4-bank-admin-drawer-in{from{transform:translateX(-100%)}to{transform:translateX(0)}}
-dialog.f4-bank-admin-menu-sheet::backdrop{background:#142b2266;backdrop-filter:none}
-.f4-bank-admin-menu-sheet .f4-bank-modal-heading{margin:0 0 12px;padding:0 4px 13px}
-.f4-bank-admin-menu-sheet .f4-bank-modal-heading h2{font-size:15px}
-.f4-bank-admin-menu-sheet .f4-bank-admin-menu-grid{display:flex;flex-direction:column;gap:2px}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut{
- display:flex;align-items:center;gap:10px;width:100%;min-height:43px;margin:0;padding:10px 12px;
- border:0;border-radius:10px;background:transparent;color:#294e3b;
- font:650 13px/1.25 system-ui,-apple-system,sans-serif;cursor:pointer;text-align:left
+@media(min-width:1024px){
+ body.f4-direct-bank #f4-direct-sidebar[data-bank-admin-drawer],body.f4-direct-bank #f4-direct-sideback{display:none}
 }
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:is(:hover,.active){background:#e3f6f1;color:#087c6c}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon{flex:none;width:20px;height:20px;border-radius:0;background:transparent;color:currentColor}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut-icon svg{width:19px;height:19px}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut>span:last-child{display:block;overflow-wrap:break-word}
-.f4-bank-admin-menu-grid .f4-bank-admin-shortcut:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:1px}
-@media(prefers-reduced-motion:reduce){dialog.f4-bank-admin-menu-sheet[open]{animation:none}}
-
 /* Analisis setoran admin: satu pemilik gaya di bank-eco-pages.css (2026-11-22).
    Semua aturan hanya berlaku pada halaman laporan pengelola. */
 @media(min-width:1024px){#pageLaporan.f4-analisis-page-active{box-sizing:border-box;max-width:900px;margin-left:auto;margin-right:auto}}
