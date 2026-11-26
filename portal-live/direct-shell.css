@@ -83,6 +83,8 @@ body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 
 #f4-direct-sidebar h2{margin:8px 12px 16px;font-size:15px;color:var(--f4-nav);font-weight:800}
 #f4-direct-sidebar button,#f4-direct-sidebar a{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;padding:10px 12px;margin:2px 0;background:transparent;border:0;border-radius:10px;color:#333b54;text-align:left;text-decoration:none;font:650 13px system-ui;cursor:pointer}
+#f4-direct-sidebar [data-f4-resident-side][hidden]{display:none}
+@media(max-width:1023px){#f4-direct-sidebar [data-f4-resident-side]{display:none}}
 #f4-direct-sidebar button[aria-current=page],#f4-direct-sidebar button:hover,#f4-direct-sidebar a:hover{color:var(--f4-nav);background:var(--f4-nav-tint)}
 #f4-direct-sideback{position:fixed;inset:56px 0 0;z-index:109;background:#0e19276b;border:0;width:100%;padding:0}
 body.f4-direct-portal{padding-top:56px;padding-left:var(--f4-portal-rail,226px);min-height:100dvh}

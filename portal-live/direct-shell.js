@@ -504,6 +504,7 @@ async function api(path,options){
 }
 function notifyRole(){
  syncPageMenu();
+ syncResidentSide();
  if(portal==='bank'||portal==='portal'||activePortalKey==='dokumentasi'||residentKeys.includes(activePortalKey)){
   const member=session?.member||{};
   const data={type:'f4:demo-role',role,identity:{accountId:session?.account?.id||'',nama:session?.account?.displayName||member.nama||session?.account?.username||'',rumah:member.rumah||'',wargaId:member.id||''}};
@@ -733,21 +734,25 @@ function makePortalSide(){
  const sub=el('small');sub.textContent='Flamboyan 4';brandName.append(h,sub);brand.append(logo,brandName);side.append(brand);
  const groupHead=el('div','f4-direct-group-label');groupHead.textContent='MENU';side.append(groupHead);
  // Dokumentasi and Inventaris are two tabs of the same page.
- // Payments remain in the shortcut/footer; Rapat belongs to the shared navbar.
+ // Payments remain in the shortcut; Rapat belongs to the shared navbar.
  const items=[
   ['beranda','Beranda','home'],['keuangan','Kas Warga','cash'],['projek','Projek','project'],
   ['kalender','Kalender','calendar'],['komentar','Obrolan','message'],
-  ['dokumentasi','Dokumentasi','image'],['inventaris','Inventaris','inventory']
+  ['dokumentasi','Dokumentasi','image'],['inventaris','Inventaris','inventory'],
+  ['finance','Keuangan Saya','pay'],['agenda','Agenda','clock'],['profile','Profil Saya','user']
  ];
  for(const [key,label,iconName] of items){
   if(key==='dokumentasi'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='LAINNYA';side.append(group);}
+  if(key==='finance'){const group=el('div','f4-direct-group-label f4-direct-other-pages');group.textContent='AKUN WARGA';group.dataset.f4ResidentSide='';group.hidden=true;side.append(group);}
   const b=el('button');b.type='button';b.dataset.f4Panel=key;
+  if(residentKeys.includes(key)){b.dataset.f4ResidentSide='';b.hidden=true;}
   if(key==='keuangan'){b.hidden=true;b.classList.add('hidden');}
   b.innerHTML=svg(iconName);
   b.setAttribute('aria-label',label);
   const labelEl=el('span','f4-direct-menu-label');labelEl.textContent=label;b.append(labelEl);
   b.addEventListener('click',()=>{
    closeSide();
+   if(residentKeys.includes(key)){if(canAccessPortal(key))void navigatePortal(paths[key]);return;}
    if(key==='dokumentasi'||key==='inventaris'){
     const inv=key==='inventaris';
     if(activePortalKey==='dokumentasi'){
@@ -765,7 +770,12 @@ function makePortalSide(){
  document.body.append(side);
  const backdrop=el('button');backdrop.id='f4-direct-sideback';backdrop.type='button';backdrop.hidden=true;
  backdrop.setAttribute('aria-label','Tutup menu');backdrop.onclick=closeSide;document.body.append(backdrop);
- highlight(activePortalKey==='dokumentasi'?(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi'):portal==='portal'?'beranda':'');
+ syncResidentSide();
+ highlight(residentKeys.includes(activePortalKey)?activePortalKey:activePortalKey==='dokumentasi'?(new URLSearchParams(location.search).get('halaman')==='inventaris'?'inventaris':'dokumentasi'):portal==='portal'?'beranda':'');
+}
+function syncResidentSide(){
+ const allowed=sessionCheckCompleted&&!!session?.account&&role==='warga';
+ document.querySelectorAll('#f4-direct-sidebar [data-f4-resident-side]').forEach(node=>{node.hidden=!allowed});
 }
 function highlight(key){document.querySelectorAll('#f4-direct-sidebar [data-f4-panel]').forEach(x=>x.setAttribute('aria-current',x.dataset.f4Panel===key?'page':'false'))}
  document.addEventListener('f4:documentation-tab',event=>{if(activePortalKey==='dokumentasi')highlight(event.detail==='inventaris'?'inventaris':'dokumentasi')});
