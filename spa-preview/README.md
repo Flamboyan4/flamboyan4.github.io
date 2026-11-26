@@ -23,3 +23,9 @@ Setoran, penjualan dan pengajuan pencairan menggunakan adapter asli melalui tran
 
 ## Pengujian browser
 Di folder spa-preview: `npm install --no-package-lock`, `npx playwright install chromium firefox`, `npm run test:browser`. Tes server lokal memblokir akses eksternal dan menyimulasikan respons API. Memeriksa identitas node navbar, form, history dan nol POST eksternal. Belum merupakan uji sesi atau data produksi.
+
+
+## Tahap 5 — Pengesahan dan pengelolaan pencairan
+- Pengesahan: pratinjau dari endpoint POST /api/admin/reconciliation/preview yang pada sumber Worker hanya membaca dan menghitung; endpoint confirm tetap tidak dikirim ke server. Alokasi, selisih timbang, metode dan saldo hak warga memakai hasil server, validasi konfirmasi diuji melalui transport lokal.
+- Pencairan pengelola: uji setujui/tolak/dibayar memakai status dan adapter asli; tidak mengubah status produksi. Form warga memperhitungkan pengajuan aktif dan menolak estimasi saldo jika daftar mencapai batas 100.
+- Belum produksi: penyimpanan transaksi, cetak, CRUD dan UI asli tetap pada portal lama. Preview POST hanya boleh ke endpoint baca pengesahan; tidak boleh mengirim POST mutasi.

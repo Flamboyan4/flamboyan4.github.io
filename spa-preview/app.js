@@ -9,6 +9,12 @@ const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!=null)n.te
 async function get(path,signal,privateRead=false){
  const r=await fetch(API+path,{credentials:privateRead?'include':'omit',mode:'cors',cache:'no-store',signal});const d=await r.json();if(!r.ok||d?.ok===false)throw Error('Layanan belum tersedia ('+r.status+')');return d;
 }
+// The Worker preview handler only SELECTs/reconciles. The confirm endpoint is never called here.
+async function previewRequest(batchId,signal){
+ if(!session?.account?.id||!['admin','superadmin'].includes(role)||typeof batchId!=='string'||!batchId||batchId.length>120)throw Error('Akses pratinjau ditolak.');
+ const r=await fetch(API+'/api/admin/reconciliation/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({batchId}),credentials:'include',mode:'cors',cache:'no-store',signal});
+ const d=await r.json();if(!r.ok||d?.ok===false)throw Error(d?.error||d?.message||'Pratinjau ditolak ('+r.status+')');return d;
+}
 const count=v=>v!=null&&Number.isFinite(Number(v))?new Intl.NumberFormat('id-ID').format(Number(v)):'—';
 const rows=d=>Array.isArray(d)?d:Array.isArray(d?.rows)?d.rows:Array.isArray(d?.data)?d.data:Array.isArray(d?.items)?d.items:null;
 function title(s){const n=el('section');n.append(el('h1',s));return n}
@@ -18,7 +24,7 @@ function metric(root,a,b){const n=el('div',null,'metric');n.append(el('small',a)
 function links(root,items){const n=el('div',null,'links');for(const [label,url] of items){const a=el('a',label);a.href=url;n.append(a)}root.append(n)}
 const has=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
 const allowed=key=>has(communityRoutes,key)||(has(bankRoutes,key)&&bankRoutes[key].includes(role))||(role==='superadmin'&&(has(bookRoutes,key)||has(adminRoutes,key)));
-const deps=()=>({get,role,accountKey:session?.account?.id,go:key=>router.go(key),el,panel,row,metric,links});
+const deps=()=>({get,role,accountKey:session?.account?.id,previewRequest,go:key=>router.go(key),el,panel,row,metric,links});
 const loaders=(map,create)=>Object.fromEntries(Object.keys(map).map(key=>[key,async()=>create(deps())]));
 const routeLoaders={...loaders(communityRoutes,createCommunityModule),...loaders(bankRoutes,createBankModule),...loaders(bookRoutes,createBookModule),...loaders(adminRoutes,createCommunityModule)};
 Object.assign(labels,communityRoutes,bookRoutes,adminRoutes,{'bank-home':'Bank Sampah','bank-history':'Riwayat','bank-report':'Laporan','bank-payout':'Pencairan','bank-deposit':'Input','bank-sale':'Penjualan','bank-savings':'Tabungan','bank-cash':'Debit/Kredit','bank-prices':'Harga Barang'});

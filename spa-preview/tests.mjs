@@ -1,3 +1,4 @@
+import {simulateApproval,simulatePayoutDecision,validateAllocation} from './bank-approval.js';
 import {webcrypto} from 'node:crypto';
 import {createPortalRouter} from './router.js';
 import {createTransactionService} from './transactions.js';
@@ -84,3 +85,18 @@ const sale=validateSale({batch:'batch1',date:'2026-11-26',buyer:'Lapak uji',rece
 const saleReq=await simulateBankOperation({role:'admin',kind:'sale',payload:sale});assert(saleReq[0].body.lines[0].grams===1250,'Simulated sale');
 const payoutReq=await simulateBankOperation({role:'warga',kind:'payout',payload:{requestKey:'test',amountRp:500,balanceRp:500,note:'uji'}});assert(payoutReq[0].body.amountRp===500,'Simulated payout');
 console.log('PASS: isolated Bank Sampah forms payloads');
+
+const reconciled={ok:true,batchId:'batch-test',saleId:'sale-test',receivedRp:10000,grossRp:10000,citizenRightsRp:5000,environmentRp:5000,wargaPercent:50,weightDifferenceGrams:100,hasWeightDifference:true};
+const allocation={confirmation:'batch-test',allSold:true,reserve:'1000',neighborhood:'2000',operation:'2000',note:'Selisih timbang'};
+const approved=await simulateApproval({role:'admin',preview:reconciled,form:allocation});
+assert(approved.reserveRp===1000&&approved.neighborhoodRp===2000&&approved.operationRp===2000&&approved.expectedWargaPercent===50,'Approval allocation payload');
+for(const patch of [{reserve:'1001'},{confirmation:'other'},{note:''},{allSold:false}]){
+ let failed=false;try{validateAllocation(reconciled,{...allocation,...patch})}catch{failed=true}assert(failed,'Invalid approval accepted');
+}
+const request={id:'request:bank:00000000-0000-4000-8000-000000000001',status:'diajukan',amount_rp:500,balance_rp:1000};
+const review=await simulatePayoutDecision({role:'admin',item:request,action:'setujui'});
+assert(review.action==='setujui','Payout review');
+const paid=await simulatePayoutDecision({role:'superadmin',item:{...request,status:'disetujui'},action:'dibayar',paidOn:'2026-11-27'});
+assert(paid.paidOn==='2026-11-27','Payout paid payload');
+let invalid=false;try{await simulatePayoutDecision({role:'admin',item:request,action:'dibayar',paidOn:'2026-11-27'})}catch{invalid=true}assert(invalid,'Cannot pay unapproved request');
+console.log('PASS: approval and payout management simulation');
