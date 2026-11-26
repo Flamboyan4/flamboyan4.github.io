@@ -38,17 +38,6 @@ async function api(path,payload){
   if(!response.ok||body.ok===false)throw Error(body.error||"Layanan belum tersedia ("+response.status+").");
   return body;
 }
-const memberDock=[
- ["Beranda","dashboard","home.svg"],["Tabungan","pribadi","cash.svg"],
- ["Pencairan","bank-payout","pay.svg"],["Riwayat","bank-history","clock.svg"],
- ["Laporan","bank-report","book.svg"]
-];
-// Pengurus memakai dock sendiri. Rute tetap memakai goPage yang sudah menangani akses dan API.
-const adminDock=[
- ["Beranda","dashboard","home.svg"],["Penjualan","penjualan","shopping-cart"],
- ["Setoran","setoran","bank.svg"],["Saldo","tabungan","pay.svg"],
- ["Laporan","laporan","book.svg"]
-];
 let role=null,screen="dashboard",historyMonth="latest",reportMonth="",reportRange=null,activePage=null;
 const routeHistory=[];let returningFromBack=false;
 let homeSource=null,summaryExtra=null,memberSource=null,managerQueue=null;
@@ -78,48 +67,9 @@ function bankSaleCartIcon(){
  svg.innerHTML='<circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/><path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/>';
  return svg;
 }
-function action([title,route,asset],dock=false){
- const b=el("button",dock?"f4-bank-app-dock-action":"f4-bank-app-action");
- b.type="button";b.dataset.bankAppRoute=route;b.setAttribute("aria-label",title);
- const isMemberPayout=dock&&route==="bank-payout";
- const isAdminDeposit=dock&&roleType()==="admin"&&route==="setoran";
- if(isMemberPayout||isAdminDeposit)b.classList.add("is-primary");
- const symbol=el("span","f4-bank-app-action-icon");
- if(isMemberPayout){
-  // Match the original yellow payout badge: the white "Rp" is a crisp SVG wordmark.
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("viewBox","0 0 72 72");
-  svg.setAttribute("aria-hidden","true");
-  svg.classList.add("f4-bank-payout-rp-icon");
-  svg.innerHTML='<text x="36" y="45" text-anchor="middle">Rp</text>';
-  symbol.append(svg);
- }else if(dock&&route==="penjualan"){
-  symbol.append(bankSaleCartIcon());
- }else symbol.append(image(asset));
- b.append(symbol);
- if(!b.classList.contains("is-primary"))b.append(el("span","f4-bank-app-action-name",title));
- b.onclick=()=>navigate(route);return b;
-}
-function dock(){
- let nav=$("f4BankAppDock");
- if(!nav){
-  nav=el("nav","f4-bank-app-dock");
-  nav.id="f4BankAppDock";
-  nav.setAttribute("aria-label","Menu bawah Bank Sampah");
- }
- // Satu host untuk warga dan pengelola. Chrome menangani posisi fixed
- // terhadap viewport secara native, tanpa kompensasi scroll JavaScript.
- if(nav.parentNode!==document.body)document.body.append(nav);
- return nav;
-}
 // One native fixed dock; no JS writes to its position during browser scroll.
 function markDock(){
- const nav=dock();
- for(const b of nav.querySelectorAll("[data-bank-app-route]")){
-  const selected=b.dataset.bankAppRoute===screen;
-  b.classList.toggle("is-active",selected);
-  if(selected)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
- }
+ window.dispatchEvent(new CustomEvent("f4-shared-bank-route",{detail:screen}));
  for(const b of document.querySelectorAll("#v16NavList .f4-bank-desktop-nav-link")){
   const selected=b.dataset.bankAppRoute===screen;
   b.classList.toggle("active",selected);
@@ -2990,7 +2940,7 @@ function resetRoleSurface(){
 window.f4BankResetForAccountSwitch=()=>{
  resetRoleSurface();
  role=null;memberStatement=null;adminOverview=null;adminOverviewError='';
- dock().replaceChildren();
+ window.dispatchEvent(new CustomEvent('f4-shared-bank-route',{detail:'dashboard'}));
  document.body.classList.remove("f4-bank-app-private","f4-bank-app-admin","f4-bank-app-member","f4-bank-member-secondary");
 
  memberSide(false);syncAdminPageFrames();
@@ -3001,7 +2951,7 @@ function sync(){
  document.body.classList.toggle("f4-bank-app-private",isPrivate);
  document.body.classList.toggle("f4-bank-app-member",isPrivate&&next==="member");
  document.body.classList.toggle("f4-bank-app-admin",isPrivate&&next==="admin");
- dock().hidden=!isPrivate;
+ 
  if(!isPrivate){
   if(role!==null)resetRoleSurface();
   memberSide(false);
@@ -3014,7 +2964,7 @@ function sync(){
  if(next!==role){
   resetRoleSurface();
   role=next;screen="dashboard";
-  dock().replaceChildren(...(role==="member"?memberDock:adminDock).map(x=>action(x,true)));
+  
   if(role==="member")requestNonce="";
   memberStatement=null;adminOverview=null;adminOverviewError='';
   if(role==="admin")$("f4BankProfileDetail")?.remove();
