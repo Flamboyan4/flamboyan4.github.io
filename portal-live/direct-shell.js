@@ -172,7 +172,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  const route=target.searchParams.get('halaman');
  const here=activePortalKey===key;
  if(here&&!target.hash){
-  if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
+  if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
    window.f4PortalSelectPanel(route||'beranda',!pop);dock?.refresh?.();return true;
   }
   if(key==='bank'&&session?.account&&['dashboard','setoran','penjualan','bank-payout','bank-history','bank-report','laporan'].includes(route||'dashboard')){openBankRoute(route||'dashboard');return true}
@@ -585,14 +585,14 @@ function makePortalSide(){
   b.addEventListener('click',()=>{
    closeSide();
    if(key==='rapat'||key==='dokumentasi'){void navigatePortal(paths[key]);return}
-   if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key));return}
+   if(portal==='simple'){void navigatePortal('/?halaman='+encodeURIComponent(key==='keuangan'?'kas-warga':key));return}
    if(key==='inventaris'){
     const target=document.getElementById('kegiatan');
     if(target)window.scrollTo({top:Math.max(0,window.scrollY+target.getBoundingClientRect().top-74),behavior:'smooth'});
     else void navigatePortal('/dokumentasi/?halaman=inventaris');
     highlight(key);return;
    }
-   try{window.f4PortalSelectPanel?.(key)}catch(err){console.warn('Panel:',err)}
+   try{window.f4PortalSelectPanel?.(key==='keuangan'?'kas-warga':key)}catch(err){console.warn('Panel:',err)}
    highlight(key);
   });
   side.append(b);
@@ -664,7 +664,7 @@ if(portal==='portal'&&legacy){
   location.replace(shellUrl(docId?destination+'?doc='+encodeURIComponent(docId):destination));
   return;
  }
- if(['beranda','keuangan','projek','kalender','arisan','pembayaran','komentar'].includes(key)){
+ if(['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(key)){
   window.addEventListener('load',()=>window.f4PortalSelectPanel?.(key,false),{once:true});
  }
 }
