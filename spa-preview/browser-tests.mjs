@@ -17,6 +17,9 @@ const server=createServer(async(req,res)=>{
 await new Promise((done,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',done)});
 const origin='http://127.0.0.1:'+server.address().port;
 const fixtures={
+ '/api/v2/gallery/tag-notifications':{items:[{id:'photo-test',title:'Foto uji',read:false}]},
+ '/api/admin/bank/action-counts':{unsoldDeposits:1,pendingApprovals:2,pendingPayouts:1},
+ '/api/v2/admin/treasury':{pendingCount:0,needsOpening:false,warningCount:0},
  '/api/v2/public/portal':{agenda:[],documentation:[],inventory:[],meetings:[],arisan:[]},
  '/api/v2/public/bank':{overview:{activeMembers:1,recordedWeightKg:1.25,recordedDeposits:1,activeItems:1},catalog:[{id:'waste:1',name:'Kertas',category:'Kertas',priceRpPerKg:1000,active:1}],progress:[]},
  '/api/v2/public/bank/report':{summary:{beratKg:1.25,hasilPenjualan:1000,hakWarga:500,pendingWeightKg:0},monthly:[]},
@@ -63,6 +66,9 @@ async function run(browser,role){
   await page.evaluate(()=>{window.testShell={header:document.getElementById('app-header'),dock:document.getElementById('app-dock'),items:[...document.querySelectorAll('#app-dock>button')]};});
   const identity=async()=>assert(await page.evaluate(()=>{const s=window.testShell;return s.header===document.getElementById('app-header')&&s.dock===document.getElementById('app-dock')&&s.items.every((n,i)=>n===document.querySelectorAll('#app-dock>button')[i]);}),'Header/dock node changed: '+role);
   await click('bank');await heading('Bank Sampah');await routeIs('bank-home');await identity();
+  if(role!=='public'){
+   await page.locator('#app-inbox-button').click();await page.getByRole('button',{name:'Foto uji',exact:true}).waitFor();await page.getByRole('button',{name:'Tutup notifikasi',exact:true}).click();await identity();
+  }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Horizontal overflow: '+role);
   if(role==='admin'||role==='superadmin'){
    await click('input');await heading('Catat setoran');await routeIs('bank-deposit');await identity();

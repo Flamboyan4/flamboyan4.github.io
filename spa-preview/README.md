@@ -33,3 +33,7 @@ Di folder spa-preview: `npm install --no-package-lock`, `npx playwright install 
 
 ## Tahap 6 — Sesi bersama
 Sesi, login/logout, pembaruan token dan sinkronisasi lintas tab kini menggunakan satu lifecycle. Pergantian portal tidak memanggil login ulang atau membuat ulang dock; perubahan hak akses boleh membangun kembali tombol sesuai peran. Logout/pergantian akun mengosongkan outlet, membatalkan request lama dan memverifikasi sesi sebelum membaca konten baru. Tidak menyimpan password atau token pada browser storage. Belum teruji pada API produksi; pengujian autentikasi memakai mock.
+
+
+## Notifikasi bersama
+Satu tombol permanen membaca tag dokumentasi, tugas Bank Sampah dan (khusus superadmin) ringkasan tugas Pusat Keuangan. Data dibatalkan dan dibersihkan saat sesi berubah. Untuk sementara membuka daftar dokumentasi, bukan viewer foto bertag spesifik, dan tugas treasury masih menggunakan portal asli. Belum mengubah status baca.

@@ -1,3 +1,4 @@
+import {createInbox} from './inbox.js';
 import {createPortalRouter} from './router.js';
 import {createBankModule,bankRoutes} from './bank.js';
 import {createBookModule,bookRoutes} from './book.js';
@@ -66,6 +67,8 @@ function mountDock(){
 const loginButton=document.getElementById('app-login'),logoutButton=document.getElementById('app-logout'),loginDialog=document.getElementById('app-login-dialog'),loginForm=document.getElementById('app-login-form'),sessionStatus=document.getElementById('session-status');
 const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('f4-session'):null;
 let mountedRole=null,lastVerified=0,renewing=false;
+const inbox=createInbox({button:document.getElementById('app-inbox-button'),dialog:document.getElementById('app-inbox'),list:document.getElementById('app-inbox-list'),badge:document.getElementById('app-inbox-badge'),get,navigate:key=>router.go(key),el});
+document.getElementById('app-close-inbox').onclick=()=>document.getElementById('app-inbox').close();
 const normalizeRole=s=>{
  const r=String(s?.account?.role||'public').toLowerCase(),normalized=r==='anggota'?'warga':r;
  return s?.account?.id&&['warga','admin','superadmin'].includes(normalized)?normalized:'public';
@@ -80,13 +83,13 @@ function controls(){
  loginButton.disabled=logoutButton.disabled=sessionBusy||!sessionReady;
 }
 function clearPrivate(){
- sessionReady=false;session=null;role='public';router.reset();dock.hidden=true;document.getElementById('greeting').textContent='Flamboyan 4';document.getElementById('identity').textContent='Memeriksa sesi…';controls();
+ sessionReady=false;session=null;role='public';inbox.reset();router.reset();dock.hidden=true;document.getElementById('greeting').textContent='Flamboyan 4';document.getElementById('identity').textContent='Memeriksa sesi…';controls();
 }
 function paintSession(next){
  const previousId=session?.account?.id||'',nextId=next?.account?.id||'',nextRole=normalizeRole(next);
  const changed=!sessionReady||previousId!==nextId||role!==nextRole;
  if(changed)router.reset();
- session=next;role=nextRole;sessionReady=true;lastVerified=Date.now();sessionStatus.textContent='';
+ session=next;role=nextRole;sessionReady=true;lastVerified=Date.now();sessionStatus.textContent='';inbox.setAccount(next?.account?.id,role);
  document.getElementById('greeting').textContent=session?.account?'Halo, '+String(session.account.displayName||session.member?.nama||session.account.username||'Pengguna'):'Flamboyan 4';
  document.getElementById('identity').textContent=role==='public'?'Publik':role==='warga'?[session?.member?.rumah,'Anggota'].filter(Boolean).join(' · '):role==='admin'?'Pengelola':'Superadmin';
  if(mountedRole!==role){mountDock();mountedRole=role}else dock.hidden=false;
