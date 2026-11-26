@@ -57,18 +57,19 @@ async function saveProgress(_token,p){
 }
 
 
-let bankMediaNonce='MED'+crypto.randomUUID().replace(/-/g,'');
+let bankMediaNonce='';
 async function saveMediaLink(_token,p){
  const type=String(p.jenis||'').trim().toLowerCase();
  if(!['foto','video'].includes(type))throw Error('Jenis media harus Foto atau Video.');
+ if(!bankMediaNonce)bankMediaNonce='MED'+crypto.randomUUID().replace(/-/g,'');
  const req={requestKey:bankMediaNonce,albumId:String(p.albumId||''),
   mediaType:type,url:String(p.url||'').trim(),caption:String(p.caption||'')};
  const r=await api('/api/v2/admin/bank/media-link',req);
- bankMediaNonce='MED'+crypto.randomUUID().replace(/-/g,'');
+ bankMediaNonce='';
  return {id:r.id,duplicate:!!r.duplicate};
 }
 
-let inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
+let inventoryNonce='';
 async function saveExpense(_token,p) {
  const positions={'operasional':'operasional','kas lorong':'kas_lorong','cadangan':'cadangan'};
  const kind=String(p.jenis||'').toLowerCase();
@@ -91,11 +92,12 @@ async function saveInventory(_token,p){
  const match=text.match(/^(\d+(?:[.,]\d{1,3})?)\s*(.{0,40})$/);
  if(!match)throw Error('Jumlah inventaris harus seperti "2 unit" atau "1,5 kg".');
  const quantity=Number(match[1].replace(',','.'));
+ if(!inventoryNonce)inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
  const payload={requestKey:inventoryNonce,name:String(p.nama||'').trim(),quantity,
   unit:String(match[2]||'unit').trim()||'unit',subcategory:String(p.kategori||'').trim(),
   location:String(p.lokasi||'').trim(),photoUrl:String(p.foto||'').trim()};
  const r=await api('/api/v2/admin/bank/inventory',payload);
- inventoryNonce='INV'+crypto.randomUUID().replace(/-/g,'');
+ inventoryNonce='';
  return {id:r.id,duplicate:!!r.duplicate};
 }
 
