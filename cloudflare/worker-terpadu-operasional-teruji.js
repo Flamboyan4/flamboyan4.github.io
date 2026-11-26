@@ -2483,7 +2483,7 @@ async function f4GalleryCheckTarget(db,type,id){
 __name(f4GalleryCheckTarget,"f4GalleryCheckTarget");
 async function f4GalleryPublic(db,env){
  const [albums,photos,suppressed]=await Promise.all([
-  list(db,"SELECT id,title,description,drive_folder_id AS folder,created_at AS date FROM f4_gallery_albums WHERE status='aktif' ORDER BY created_at DESC LIMIT 150"),
+  list(db,"SELECT id,title,description,CASE WHEN id LIKE 'galbum:resident:%' THEN '' ELSE drive_folder_id END AS folder,created_at AS date FROM f4_gallery_albums WHERE status='aktif' ORDER BY created_at DESC LIMIT 150"),
   list(db,"SELECT p.id,p.album_ref AS albumId,p.drive_file_id AS driveId,p.caption,p.created_at AS date,p.status,COALESCE(pro.display_name,m.display_name,a.username,'Warga') AS uploader FROM f4_gallery_photos p LEFT JOIN accounts a ON a.id=p.uploader_id LEFT JOIN members m ON m.id=a.member_id LEFT JOIN member_account_profiles pro ON pro.account_id=a.id WHERE p.status IN ('baru','ditinjau') ORDER BY p.created_at DESC LIMIT 500"),
   list(db,"SELECT drive_file_id AS id FROM f4_gallery_photos WHERE status NOT IN ('baru','ditinjau') LIMIT 3000")
  ]);
@@ -2575,12 +2575,65 @@ async function f4GallerySocial(db,who,url){
  return ok({likes:Number(likes?.n||0),liked:Boolean(liked),comments});
 }
 __name(f4GallerySocial,"f4GallerySocial");
+// One resident album, keyed by the authenticated member, not by a changeable display name.
+async function f4GalleryPersonalAlbum(env,who){
+ const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
+ if(!who.member_id)return err("Akun belum terhubung ke data warga.",403);
+ if(!f4GalleryDriveReady(env))return err("Google Drive belum terhubung.",503);
+ const db=env.DB,member=await one(db,"SELECT id,display_name FROM members WHERE id=? AND status='aktif'",[who.member_id]);
+ if(!member)return err("Data warga tidak ditemukan.",403);
+ const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(member.id)));
+ const id="galbum:resident:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+ const title=String(member.display_name||"Warga").trim().replace(/[<>\\/\u0000-\u001f]/g,"_").slice(0,100)||"Warga";
+ await db.prepare("INSERT OR IGNORE INTO f4_gallery_albums(id,title,created_by) VALUES(?,?,?)").bind(id,title,who.id).run();
+ let row=await one(db,"SELECT id,title,status,drive_folder_id FROM f4_gallery_albums WHERE id=?",[id]);
+ if(!row||row.status!=="aktif")return err("Album warga tidak aktif. Hubungi pengelola.",403);
+ try{
+  const token=await f4GalleryDriveToken(env),parent=f4GalleryUploadFolder(env);
+  // Reserve a Drive-generated ID in D1 before creation. Concurrent requests
+  // use the same ID, so a retry or two devices cannot create duplicate folders.
+  if(!row.drive_folder_id){
+   const generated=await f4GalleryDriveRequest(token,"files/generateIds?count=1&space=drive&type=files");
+   const candidate=generated.ids?.[0];
+   if(!candidate)throw Error("ID folder Google Drive belum tersedia.");
+   await db.prepare("UPDATE f4_gallery_albums SET drive_folder_id=? WHERE id=? AND (drive_folder_id IS NULL OR drive_folder_id='')").bind(candidate,id).run();
+   row=await one(db,"SELECT id,title,status,drive_folder_id FROM f4_gallery_albums WHERE id=?",[id]);
+  }
+  const folderId=row.drive_folder_id;
+  const infoPath="files/"+encodeURIComponent(folderId)+"?fields=id,mimeType,parents,trashed,capabilities(canAddChildren)&supportsAllDrives=true";
+  let folder;
+  try{folder=await f4GalleryDriveRequest(token,infoPath)}
+  catch(e){
+   if(!String(e.message).includes("(404)"))throw e;
+   try{
+    await f4GalleryDriveRequest(token,"files?fields=id&supportsAllDrives=true",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({id:folderId,name:row.title,mimeType:"application/vnd.google-apps.folder",parents:[parent]})});
+   }catch(createError){
+    // A competing request may already have created the reserved ID.
+    try{folder=await f4GalleryDriveRequest(token,infoPath)}catch{throw createError}
+   }
+   if(!folder)folder=await f4GalleryDriveRequest(token,infoPath);
+  }
+  if(folder.trashed||folder.mimeType!=="application/vnd.google-apps.folder"||!folder.parents?.includes(parent)||folder.capabilities?.canAddChildren!==true)throw Error("Folder warga tidak tersedia di dalam Upload Warga.");
+  return ok({id,title:row.title,created:true});
+ }catch(e){return err(String(e?.message||"Album warga belum dapat dibuat.").slice(0,240),502)}
+}
 async function f4GalleryUpload(req,env,who,url){
  const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
  if(!f4GalleryDriveReady(env))return err("Upload Google Drive belum diaktifkan. Pengelola perlu menghubungkan akun penyimpanan.",503);
  const albumId=String(url.searchParams.get("album")||"");
  const album=await f4GalleryAlbum(env.DB,albumId);
  if(!album)return err("Album tidak ditemukan. Muat ulang daftar album.",404);
+ const personal=albumId.startsWith("galbum:resident:");
+ if(personal){
+  if(!who.member_id)return err("Akun belum terhubung ke data warga.",403);
+  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(who.member_id)));
+  const ownId="galbum:resident:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
+  if(albumId!==ownId)return err("Album otomatis hanya dapat diisi pemiliknya.",403);
+  if(!album.folder)return err("Folder album warga belum siap.",409);
+ }
+ const photoCategory=personal?String(url.searchParams.get("photoCategory")||""):"";
+ if(!["","bank_sampah","kerja_bakti","rapat","kegiatan"].includes(photoCategory))return err("Kategori tidak tersedia.",400);
+ const targetFolder=personal?album.folder:f4GalleryUploadFolder(env);
  const name=String(url.searchParams.get("name")||"Foto warga").trim().slice(0,120).replace(/[<>\/\\]/g,"_");
  const caption=String(url.searchParams.get("caption")||"").trim().slice(0,350);
  if(!name||/[^\S\r\n]*[\r\n]/.test(name)||/[\u0000-\u001f]/.test(caption))return err("Nama atau keterangan foto tidak valid.",400);
@@ -2599,12 +2652,12 @@ async function f4GalleryUpload(req,env,who,url){
  let token;
  try{
   token=await f4GalleryDriveToken(env);
-  const folder=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(f4GalleryUploadFolder(env))+"?fields=id,mimeType,capabilities(canAddChildren)&supportsAllDrives=true");
+  const folder=await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(targetFolder)+"?fields=id,mimeType,parents,trashed,capabilities(canAddChildren)&supportsAllDrives=true");
+  if(folder.trashed||(personal&&!folder.parents?.includes(f4GalleryUploadFolder(env))))return err("Folder warga tidak berada di dalam Upload Warga.",409);
   if(folder.mimeType!=="application/vnd.google-apps.folder")return err("Tujuan unggah bukan folder Google Drive.",502);
   if(folder.capabilities?.canAddChildren!==true)return err("Akun Google tidak punya izin menambahkan foto ke folder Upload Warga.",403);
  }catch(e){return err(String(e?.message||"Koneksi Google Drive gagal.").slice(0,240),502);}
  const boundary="f4_gallery_"+crypto.randomUUID().replace(/-/g,"");
- const targetFolder=f4GalleryUploadFolder(env);
  const metadata={name,parents:[targetFolder],mimeType:mime,description:caption.slice(0,300)};
  const multipart=new Blob([
   "--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n",JSON.stringify(metadata),"\r\n",
@@ -2632,8 +2685,9 @@ async function f4GalleryUpload(req,env,who,url){
    method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({type:"anyone",role:"reader"})
   });
   const id="f4photo:"+crypto.randomUUID();
-  await env.DB.prepare("INSERT INTO f4_gallery_photos(id,album_ref,drive_file_id,drive_folder_id,uploader_id,filename,caption) VALUES(?,?,?,?,?,?,?)")
-   .bind(id,albumId,uploaded.id,targetFolder,who.id,name,caption).run();
+  const insert=env.DB.prepare("INSERT INTO f4_gallery_photos(id,album_ref,drive_file_id,drive_folder_id,uploader_id,filename,caption) VALUES(?,?,?,?,?,?,?)").bind(id,albumId,uploaded.id,targetFolder,who.id,name,caption);
+  if(photoCategory)await env.DB.batch([insert,env.DB.prepare("INSERT INTO f4_gallery_photo_categories(photo_ref,category,updated_by) VALUES(?,?,?)").bind(id,photoCategory,who.id)]);
+  else await insert.run();
   return ok({id,albumId,url:f4GalleryImageUrl(uploaded.id),created:true},201);
  }catch(e){
   await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(uploaded.id)+"?fields=id",{
@@ -2933,6 +2987,8 @@ const F4_PUBLIC_LEGACY_DOCUMENTATION_FOLDERS=new Set([
  "1vdFbmk-GtKvMgbFII0ZWyX-Z43FQXN2K","1ywp2v8rUH-oAGcM91PQyVrO7Wx9iLdCA"
 ]);
 async function f4GalleryPublishedFolder(db,ref){
+ // Resident uploads are published via their canonical D1 photo IDs only.
+ if(String(ref).startsWith('galbum:resident:'))return null;
  const album=await f4GalleryAlbum(db,ref);
  if(album&&/^[A-Za-z0-9_-]{12,110}$/.test(album.folder||""))return album;
  const match=/^gfolder:([A-Za-z0-9_-]{12,110})$/.exec(ref);
@@ -3182,6 +3238,7 @@ async function f4GalleryApi(req,env,who,url){
   return ok({saved:true,category});
  }
 
+ if(path==="/api/v2/gallery/personal-album"&&method==="POST")return f4GalleryPersonalAlbum(env,who);
  if(path==="/api/v2/gallery/upload"&&method==="POST")return f4GalleryUpload(req,env,who,url);
  if(path==="/api/v2/gallery/album"&&method==="POST"){
   let p;try{p=await body(req)}catch{return err("Format album tidak valid.",400)}

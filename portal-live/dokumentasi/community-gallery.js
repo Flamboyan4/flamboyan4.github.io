@@ -521,9 +521,8 @@ async function uploadDialog(onUploaded){
   }catch(e){if(dlg.panel.isConnected)message(dlg.body,'Album arsip belum dapat dimuat. Album unggahan warga tetap tersedia.',true)}
  }
  if(!dlg.panel.isConnected)return;
- album.append(makeOption('','Pilih album…'));
- for(const [id,title] of options)album.append(makeOption(id,title));
- album.append(makeOption('__new','+ Buat album baru'));
+ album.append(makeOption('__new','+ Buat album baru'),makeOption('','Album saya (otomatis)'));
+ for(const [id,title] of options)if(!String(id).startsWith('galbum:resident:'))album.append(makeOption(id,title));
  album.value='';
  const newWrap=elem('div','f4g-field');newWrap.hidden=true;newWrap.append(elem('label','','Nama album baru'));
  const newTitle=elem('input');newTitle.placeholder='Contoh: Arisan November 2026';newTitle.maxLength=100;newWrap.append(newTitle);
@@ -563,23 +562,24 @@ async function uploadDialog(onUploaded){
    const arrow=elem('span','f4g-upload-choice-arrow');
    arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>';
    trigger.append(label,arrow);
-   // Options live in a separate layer over the ENTIRE upload modal, not the scrolling form.
-   // This keeps the list above the fixed upload footer on Chrome/Firefox Android.
-   const overlay=elem('div','f4g-upload-picker-overlay');overlay.hidden=true;
-   const sheet=elem('section','f4g-upload-picker-sheet');
-   const head=elem('div','f4g-upload-picker-head'),title=elem('strong','',placeholder);
-   const dismiss=button(null,'close',null,'f4g-upload-picker-close');
-   dismiss.setAttribute('aria-label','Tutup pilihan');
-   head.append(title,dismiss);
-   const list=elem('div','f4g-upload-choice-list');
-   list.setAttribute('role','listbox');list.setAttribute('aria-label',placeholder);
-   list.tabIndex=0;
-   sheet.append(head,list);overlay.append(sheet);
-   dlg.panel.append(overlay);
-   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||placeholder};
+   const list=elem('div','f4g-upload-choice-list');list.hidden=true;
+   list.setAttribute('role','listbox');list.setAttribute('aria-label',placeholder);list.tabIndex=0;
+   dlg.panel.append(list);
+   const position=()=>{
+    if(list.hidden)return;
+    const anchor=trigger.getBoundingClientRect(),panel=dlg.panel.getBoundingClientRect(),body=dlg.body.getBoundingClientRect();
+    if(anchor.bottom<=body.top||anchor.top>=body.bottom){close();return}
+    const below=panel.bottom-anchor.bottom-10,above=anchor.top-panel.top-10;
+    const up=below<180&&above>below,space=up?above:below;
+    list.style.left=(anchor.left-panel.left)+'px';list.style.width=anchor.width+'px';
+    list.style.maxHeight=Math.max(60,Math.min(220,space))+'px';
+    list.style.top=up?'auto':(anchor.bottom-panel.top+5)+'px';
+    list.style.bottom=up?(panel.bottom-anchor.top+5)+'px':'auto';
+   };
+   const sync=()=>{label.textContent=select.selectedOptions[0]?.textContent||placeholder;trigger.disabled=select.disabled};
    const close=(returnFocus=false)=>{
-    const wasOpen=!overlay.hidden;
-    overlay.hidden=true;trigger.setAttribute('aria-expanded','false');
+    const wasOpen=!list.hidden;
+    list.hidden=true;trigger.setAttribute('aria-expanded','false');
     if(returnFocus&&wasOpen&&trigger.isConnected)trigger.focus({preventScroll:true});
    };
    const paint=()=>{
@@ -597,21 +597,22 @@ async function uploadDialog(onUploaded){
     }
    };
    trigger.onclick=()=>{
-    if(trigger.disabled)return;
-    const open=overlay.hidden;
-    dlg.panel.querySelectorAll('.f4g-upload-picker-overlay').forEach(el=>el.hidden=true);
+    if(select.disabled)return;
+    const open=list.hidden;
+    if(!open){close();return}
+    dlg.panel.querySelectorAll('.f4g-upload-choice-list').forEach(el=>el.hidden=true);
     dlg.panel.querySelectorAll('.f4g-upload-choice-button').forEach(el=>el.setAttribute('aria-expanded','false'));
-    if(open){paint();overlay.hidden=false;trigger.setAttribute('aria-expanded','true');list.scrollTop=0}
+    paint();list.hidden=false;trigger.setAttribute('aria-expanded','true');position();list.scrollTop=0;
    };
-   overlay.addEventListener('pointerdown',event=>{if(event.target===overlay)close(true)});
-   dismiss.onclick=()=>close(true);
+   const outside=event=>{if(!list.hidden&&!root.contains(event.target)&&!list.contains(event.target))close()};
    const onEscape=event=>{
-    if(event.key==='Escape'&&!overlay.hidden){
-     event.preventDefault();event.stopImmediatePropagation();close(true);
-    }
+    if(event.key==='Escape'&&!list.hidden){event.preventDefault();event.stopImmediatePropagation();close(true)}
    };
+   __f4.globals.document.addEventListener('pointerdown',outside,true);
    __f4.globals.document.addEventListener('keydown',onEscape,true);
-   dlg.onClose(()=>__f4.globals.document.removeEventListener('keydown',onEscape,true));
+   dlg.body.addEventListener('scroll',position,{passive:true});
+   __f4.window.addEventListener('resize',position);
+   dlg.onClose(()=>{__f4.globals.document.removeEventListener('pointerdown',outside,true);__f4.globals.document.removeEventListener('keydown',onEscape,true);dlg.body.removeEventListener('scroll',position);__f4.window.removeEventListener('resize',position)});
    select.addEventListener('change',sync);
    select.classList.add('f4g-upload-source-select');
    select.after(root);root.append(trigger);sync();
@@ -652,21 +653,25 @@ async function uploadDialog(onUploaded){
  send.addEventListener('click',async()=>{
   if(!enabled){message(dlg.body,'Google Drive belum terhubung. Foto belum dikirim.',true);return}
   if(!files.length||completedFiles.size===files.length)return;
-  if(!album.value){message(dlg.body,'Silakan pilih album tujuan.',true);return}
-  send.disabled=true;picker.disabled=true;album.disabled=true;
+  const personal=!album.value;
+  send.disabled=true;picker.disabled=true;album.disabled=true;category.disabled=true;albumChoice.refresh();categoryChoice.refresh();
   let albumId=album.value,done=0,errors=[];
   try{
    await signedIn();
-   if(albumId==='__new'){
+   if(personal){
+    const created=await post('/personal-album',{});
+    if(!created.id||!String(created.id).startsWith('galbum:resident:'))throw Error('Album pribadi belum dapat disiapkan.');
+    albumId=created.id;
+   }else if(albumId==='__new'){
     const created=await post('/album',{title:newTitle.value.trim()});
     albumId=created.id;
     // Jangan membuat album duplikat jika foto pertama gagal diunggah.
     const saved=makeOption(created.id,created.title||newTitle.value.trim());
-    album.insertBefore(saved,album.querySelector('option[value="__new"]'));
+    album.append(saved);
     album.value=created.id;newWrap.hidden=true;albumChoice.refresh();
    }
    const currentCategory=cachedCategories.get(albumId)||'';
-    if(category.value!==currentCategory){
+    if(!personal&&category.value!==currentCategory){
      try{
       await post('/category',{albumId,category:category.value});
       cachedCategories.set(albumId,category.value);
@@ -682,6 +687,7 @@ async function uploadDialog(onUploaded){
     try{
      const blob=await imageBlob(file);
      const params=new __f4.globals.URLSearchParams({album:albumId,name:file.name.replace(/\.[^.]+$/,'')+'.jpg',caption:caption.value.trim()});
+     if(personal&&category.value)params.set('photoCategory',category.value);
      const response=await (0,__f4.globals.fetch)(endpoint('/upload?'+params),{
       method:'POST',body:blob,headers:{'content-type':'image/jpeg'},credentials:'include',cache:'no-store'
      });
@@ -702,7 +708,7 @@ async function uploadDialog(onUploaded){
    }else{
     send.disabled=!enabled||remaining===0;
     send.querySelector('span:last-child').textContent=completedFiles.size?'Coba lagi '+remaining+' Foto':'Unggah '+remaining+' Foto';
-    picker.disabled=false;album.disabled=false;
+    picker.disabled=false;album.disabled=false;category.disabled=false;albumChoice.refresh();categoryChoice.refresh();
    }
   }
  });

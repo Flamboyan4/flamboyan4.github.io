@@ -472,9 +472,9 @@
 .f4g-upload-modal .f4g-upload-choice-arrow{display:grid;place-items:center;color:#7048ad}
 .f4g-upload-modal .f4g-upload-choice-arrow svg{width:17px;height:17px}
 .f4g-upload-modal .f4g-upload-choice-value{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.f4g-upload-modal .f4g-upload-choice-list{position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:90;display:grid;gap:3px;max-height:215px;overflow-y:auto;overscroll-behavior:contain;padding:5px;border:1px solid #e8e0f2;border-radius:12px;background:#fff;box-shadow:0 12px 30px #25164027}
+.f4g-upload-modal .f4g-upload-choice-list{position:absolute;z-index:180;box-sizing:border-box;display:flex;flex-direction:column;gap:3px;max-height:220px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:5px;border:1px solid #e8e0f2;border-radius:10px;background:#fff;box-shadow:0 8px 24px #25164027}
 .f4g-upload-modal .f4g-upload-choice-list[hidden]{display:none}
-.f4g-upload-modal .f4g-upload-choice-option{display:block;width:100%;padding:10px 11px;border:0;border-radius:9px;background:transparent;color:#514563;text-align:left;font:600 12px system-ui;cursor:pointer}
+.f4g-upload-modal .f4g-upload-choice-option{display:block;flex:0 0 auto;min-height:36px;width:100%;padding:8px 10px;border:0;border-radius:9px;background:transparent;color:#514563;text-align:left;font:600 12px system-ui;cursor:pointer}
 .f4g-upload-modal .f4g-upload-choice-option.selected{background:var(--f4-portal-soft,#eef2ff);color:#5e39af}
 .f4g-upload-modal .f4g-upload-choice-option.selected::after{content:"";display:inline-block;width:16px;height:16px;flex:none;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m5 12 4 4L19 6%22/%3E%3C/svg%3E") center/contain no-repeat;float:right}
 .f4g-upload-modal .f4g-upload-choice-option:hover{background:#f6f2fb}
@@ -501,53 +501,7 @@
 }
 
 
-/* Fixed-in-modal choice sheet: category and album options must never be clipped by
-   the scrolling form or pinned upload button. Scroll only the options list. */
 .f4g-upload-modal.f4g-panel{position:relative}
-.f4g-upload-modal .f4g-upload-picker-overlay{
- position:absolute;inset:0;z-index:180;box-sizing:border-box;
- display:flex;align-items:flex-end;justify-content:center;
- padding:12px;background:#18132691;border-radius:inherit;overflow:hidden
-}
-.f4g-upload-modal .f4g-upload-picker-overlay[hidden]{display:none}
-.f4g-upload-modal .f4g-upload-picker-sheet{
- box-sizing:border-box;display:flex;flex-direction:column;min-height:0;
- width:100%;max-width:470px;height:min(380px,72%);
- border-radius:17px;background:#fff;box-shadow:0 16px 45px #1a123c38;overflow:hidden
-}
-.f4g-upload-modal .f4g-upload-picker-head{
- display:flex;align-items:center;justify-content:space-between;
- flex:0 0 auto;gap:10px;padding:13px 15px;border-bottom:1px solid #efebf5
-}
-.f4g-upload-modal .f4g-upload-picker-head strong{
- color:#27213a;font:750 14px system-ui
-}
-.f4g-upload-modal .f4g-upload-picker-close.f4g-btn{
- flex:0 0 31px;min-width:31px;width:31px;height:31px;min-height:31px;
- display:grid;place-items:center;padding:6px;border:0;border-radius:9px;
- background:#f4f0fa;color:#5f4695
-}
-.f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-list{
- position:relative;inset:auto;top:auto;left:auto;right:auto;z-index:auto;
- box-sizing:border-box;display:flex;flex:1 1 0;flex-direction:column;
- min-height:0;height:auto;max-height:none;overflow-x:hidden;overflow-y:auto;
- -webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;
- gap:2px;padding:6px 9px 12px;border:0;border-radius:0;box-shadow:none
-}
-.f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-option{
- flex:0 0 auto;min-height:44px;padding:12px;text-align:left;border-radius:10px
-}
-@media(max-width:720px){
- .f4g-upload-modal .f4g-upload-picker-overlay{padding:0;align-items:flex-end}
- .f4g-upload-modal .f4g-upload-picker-sheet{
-  max-width:none;width:100%;height:min(430px,74%);
-  border-radius:20px 20px 0 0
- }
- .f4g-upload-modal .f4g-upload-picker-head{padding:15px 17px}
- .f4g-upload-modal .f4g-upload-picker-overlay .f4g-upload-choice-list{
-  padding:8px 12px max(18px,env(safe-area-inset-bottom,0px))
- }
-}
 
 /* Resident profile is a view of the existing gallery, not another gallery. */
 .f4-resident-profile-view #page-start>:not(#f4-resident-profile){display:none}

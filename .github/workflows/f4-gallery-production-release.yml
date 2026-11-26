@@ -1,5 +1,5 @@
 name: F4 Gallery Production Worker Release
-# Gallery release 2026-11-24: private photo tag inbox, preserving shared social IDs and bindings.
+# Gallery release 2026-11-27: resident upload folders, preserving shared social IDs and bindings.
 run-name: "Gallery API release ${{ github.sha }}"
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
           source=Path("cloudflare/worker-terpadu-operasional-teruji.js").read_text()
           for path in ('/api/v2/gallery/tags','/api/v2/gallery/category','/api/v2/gallery/people',
                        '/api/v2/gallery/folder','/api/v2/gallery/image/','/api/v2/gallery/public-video/',
-                       '/api/v2/gallery/tag-notifications','/api/v2/gallery/tag-notifications/read','/api/v2/gallery/my-profile'):
+                       '/api/v2/gallery/tag-notifications','/api/v2/gallery/tag-notifications/read','/api/v2/gallery/my-profile','/api/v2/gallery/personal-album'):
               if path not in source:
                   raise RuntimeError("Missing gallery API route: "+path)
           if 'CREATE TABLE IF NOT EXISTS f4_gallery_tags' not in source:
