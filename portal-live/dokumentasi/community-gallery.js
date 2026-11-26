@@ -513,14 +513,6 @@ async function uploadDialog(onUploaded){
  const makeOption=(value,label)=>{const o=elem('option','',label);o.value=value;return o};
  const knownAlbums=__f4.window.f4GalleryAlbums?.();
  const options=new __f4.globals.Map((knownAlbums||__f4.window.f4GalleryCommunity.albums||[]).filter(a=>a.id&&a.title&&!a.id.startsWith('gfolder:')).map(a=>[a.id,a.title]));
- if(fromProfile&&!knownAlbums){
-  try{
-   const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
-   if(!response.ok)throw Error('HTTP '+response.status);
-   const data=await response.json();
-   for(const a of data.documentation||[]){const scope=String(a.portal||a.portal_scope||a.source_portal||a.scope||'').toLowerCase();const category=String(a.category||a.kategori||'');const title=a.title||a.judul;if(a.id&&title&&!String(a.id).startsWith('gfolder:')&&(!scope||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(scope))&&!/^Bank Sampah\s*[:/]/i.test(category))options.set(a.id,title);}
-  }catch(e){if(dlg.panel.isConnected)message(dlg.body,'Album arsip belum dapat dimuat. Album unggahan warga tetap tersedia.',true)}
- }
  if(!dlg.panel.isConnected)return;
  album.append(makeOption('__new','+ Buat album baru'),makeOption('','Album saya (otomatis)'));
  for(const [id,title] of options)if(!String(id).startsWith('galbum:resident:'))album.append(makeOption(id,title));
@@ -651,6 +643,14 @@ async function uploadDialog(onUploaded){
  };
  next.onclick=()=>{if(files.length)showStage(2)};
  showStage(1);
+ if(fromProfile&&!knownAlbums)void (async()=>{
+  try{
+   const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal',{cache:'no-store'});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const data=await response.json();if(!dlg.panel.isConnected)return;
+   for(const a of data.documentation||[]){const scope=String(a.portal||a.portal_scope||a.source_portal||a.scope||'').toLowerCase();const category=String(a.category||a.kategori||'');const title=a.title||a.judul;if(a.id&&title&&!String(a.id).startsWith('gfolder:')&&(!scope||['portal','utama','portal-utama','flamboyan4','warga','community'].includes(scope))&&!/^Bank Sampah\s*[:/]/i.test(category)){if(!options.has(a.id)&&!String(a.id).startsWith('galbum:resident:'))album.append(makeOption(a.id,title));options.set(a.id,title);}}
+  }catch(e){if(dlg.panel.isConnected)message(dlg.body,'Album arsip belum dapat dimuat. Album unggahan warga tetap tersedia.',true)}
+ })();
  const update=()=>{
   urls.forEach(x=>__f4.globals.URL.revokeObjectURL(x));urls=[];
   preview.replaceChildren();files=__f4.globals.Array.from(picker.files||[]).slice(0,12);
