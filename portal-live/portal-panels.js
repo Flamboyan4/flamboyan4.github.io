@@ -64,12 +64,17 @@ function showPanel(panel,recordHistory=true){
  if(!__f4.globals.Object.hasOwn(sectionTargets,panel)||(panel==='keuangan'&&current.role==='public'))panel='beranda';
  current.panel=panel;
  const isolated=isMember(current.role)&&['keuangan','kalender'].includes(panel);
+ const wasIsolated=!!__f4.globals.document.body.dataset.f4ResidentView;
  if(isolated)__f4.globals.document.body.dataset.f4ResidentView=panel;else delete __f4.globals.document.body.dataset.f4ResidentView;
- if(panel==='keuangan'&&isMember(current.role))createFinanceTabs();
+ if(isMember(current.role)){
+  createFinanceTabs();
+  if(panel==='keuangan'){setFinanceMode(true);finBlock.dataset.f4Dedicated='1';}
+  else if(finBlock?.dataset.f4Dedicated){delete finBlock.dataset.f4Dedicated;setFinanceMode(false);}
+ }
  const element=sectionTargets[panel]||sectionTargets.beranda;
  if(!element)return;
  const top=__f4.globals.Math.max(0,__f4.window.scrollY+element.getBoundingClientRect().top-73);
- __f4.window.scrollTo({top:isolated?0:top,behavior:isolated||prefersReduced()?'auto':'smooth'});
+ __f4.window.scrollTo({top:isolated||wasIsolated||panel==='beranda'?0:top,behavior:isolated||wasIsolated||panel==='beranda'||prefersReduced()?'instant':'smooth'});
  // Highlight immediately; scroll listener keeps it accurate as the view moves.
  reportVisible(panel);
  if(recordHistory){
@@ -338,6 +343,11 @@ css.textContent+="\n/* Keuangan Saya — putih, ringkas, mobile-first, tanpa ang
 "#keuangan .f4-user-empty strong{font-size:14px}#keuangan .f4-user-empty p{color:#8290a3;font-size:12px;margin:7px auto 0;max-width:350px}\n"+
 "@media(max-width:760px){#keuangan .f4-user-finance-controls>button{font-size:12px;padding:9px 5px}#keuangan .f4-user-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#keuangan .f4-user-metric{padding:12px}#keuangan .f4-user-metric-primary{grid-column:1/-1}#keuangan .f4-user-metric strong{font-size:16px}#keuangan .f4-user-finance-intro h3{font-size:16px}#keuangan .f4-user-row{padding:12px 11px}#keuangan .f4-user-amount{font-size:12px}}\n";
 css.textContent+=[
+ '#keuangan .f4-user-finance[data-f4-dedicated]>.f4-user-finance-controls,#keuangan .f4-user-finance[data-f4-dedicated]>.f4-user-finance-heading{display:none}',
+ 'body[data-f4-resident-view="keuangan"] #f4-portal-home-main > section:not(#keuangan),body[data-f4-resident-view="kalender"] #f4-portal-home-main > section:not(#rencana){display:none}',
+ 'body[data-f4-resident-view="kalender"] #rencana #calendar-wrapper{display:block}',
+ 'body[data-f4-resident-view="kalender"] #rencana #container-rencana{display:block;max-height:none;overflow:visible}',
+ 'body[data-f4-resident-view="kalender"] #rencana #f4-upcoming-agenda,body[data-f4-resident-view="kalender"] #rencana #f4-agenda-pagination{display:none}',
  '#keuangan .f4-user-category-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:7px 0 6px}',
  '#keuangan .f4-user-year-filter{display:flex;align-items:center;gap:8px;margin-left:auto;color:#6f7b8f;font-size:11px;font-weight:700}',
  '#keuangan .f4-user-year-picker{position:relative;min-width:110px;z-index:12;color:var(--f4-portal-primary-ink,#3730a3)}',
@@ -394,13 +404,14 @@ __f4.window.addEventListener('message',event=>{
    node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
   });
   if(!authenticated&&['keuangan','kalender'].includes(current.panel))showPanel('beranda');
-  if(!isMember(current.role))delete __f4.globals.document.body.dataset.f4ResidentView;
+  if(!isMember(current.role)){delete __f4.globals.document.body.dataset.f4ResidentView;if(finBlock)delete finBlock.dataset.f4Dedicated;}
   __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:cash-access-change',{detail:{authenticated}}));
   // Only members can select a personal ledger; Admin/Superadmin see
   // Laporan Lingkungan without duplicate controls.
   personalRequestSerial++;
   if(isMember(current.role)){
-   createFinanceTabs();finBlock.hidden=false;setFinanceMode(false);
+   createFinanceTabs();finBlock.hidden=false;
+   if(priorRole!==current.role){const requested=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman');if(requested==='keuangan'||requested==='kalender')showPanel(requested,false);else setFinanceMode(false);}
   }else{
    setFinanceMode(false);
    finance?.classList.remove('f4-finance-personal-active');
@@ -411,7 +422,7 @@ __f4.window.addEventListener('message',event=>{
    }
   }
   // The verified role must reveal the finance section before selecting it after SPA mounting.
-  if(authenticated&&priorRole==='public'){
+  if(authenticated&&priorRole==='public'&&!__f4.globals.document.body.dataset.f4ResidentView){
    const requested=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('halaman');
    if(requested&&__f4.globals.Object.hasOwn(sectionTargets,requested))showPanel(requested,false);
   }
