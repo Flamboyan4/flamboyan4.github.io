@@ -486,6 +486,7 @@ async function loadRiwayat(silent=false){
     __f4.window.F4BookExtras?.reset();
     renderRiwayat();
     loadIuranQuickSummary();
+    void refreshIuranPosition();
     if(!silent)riwayatMsg('Riwayat diperbarui.','success')
   }catch(e){riwayatMsg(e.message||(0,__f4.globals.String)(e),'error')}
 }
@@ -617,6 +618,32 @@ function f4IuranPeriodDisplay(label){
  return short(start.date)+' – '+short(end.date);
 }
 let IURAN_QUICK_DATA=null,IURAN_QUICK_REQ=0;
+let iuranPositionLoading=false;
+async function refreshIuranPosition(){
+  const box=__f4.globals.document.getElementById('iq-current-position');
+  if(!box?.open||iuranPositionLoading)return;
+  const status=box.querySelector('#iq-current-status');
+  const fields=[...box.querySelectorAll('[data-location]')];
+  iuranPositionLoading=true;
+  fields.forEach(x=>x.textContent='—');
+  status.textContent='Memuat saldo Pusat Keuangan…';
+  try{
+    const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/admin/treasury',{credentials:'include',cache:'no-store'});
+    const data=await response.json();
+    if(!response.ok||data.ok===false||!Array.isArray(data.balances))throw Error('Saldo tidak tersedia.');
+    if(!data.confirmed){status.textContent='Saldo awal belum disahkan.';return;}
+    const positions={'cash:kas_rt':0,qris:0,mandiri:0,total:0};
+    for(const row of data.balances.filter(x=>x.fund_id==='kas_rt')){
+      const amount=Number(row.amount_rp);
+      if(!['cash:kas_rt','qris','mandiri'].includes(row.location_id)||!Number.isSafeInteger(amount))throw Error('Data saldo tidak valid.');
+      positions[row.location_id]+=amount;
+      positions.total+=amount;
+    }
+    fields.forEach(x=>x.textContent=rupiah(positions[x.dataset.location]));
+    status.textContent='Saldo Kas Lorong terkini yang sudah disahkan di Pusat Keuangan. Tidak termasuk transaksi menunggu pengesahan.';
+  }catch(e){status.textContent='Posisi uang belum dapat dimuat. Buka kembali untuk mencoba.';}
+  finally{iuranPositionLoading=false;}
+}
 function iqCountHtml(c){
   c=c||{};const l=(0,__f4.globals.Number)(c.lunas||0),s=(0,__f4.globals.Number)(c.sebagian||0),b=(0,__f4.globals.Number)(c.belum||0);
   const paid=s>0?`${l} lunas${s?` · ${s} sebagian`:''}`:`${l} bayar`;
@@ -674,7 +701,7 @@ function renderIuranQuickSummary(data){
     ['total','rt','kas','arisan'].forEach(k=>{const e=__f4.globals.document.getElementById('iq-count-'+k);if(e)e.innerHTML=iqCountHtml(c[k])});
     const p=__f4.globals.document.getElementById('iuran-quick-period');if(p)p.textContent=f4IuranPeriodDisplay(d.labelPeriode||iuranQuickPeriodLabel());
     const sc=__f4.globals.document.getElementById('iq-selisih-card');if(sc)sc.classList.toggle('has-diff',__f4.globals.Math.abs((0,__f4.globals.Number)(t.selisih||0))>.5);
-    const more=box.querySelector('.iuran-quick-more');if(more&&__f4.globals.Math.abs((0,__f4.globals.Number)(t.selisih||0))>.5)more.open=true;
+    const more=box.querySelector('#iq-original-methods');if(more&&__f4.globals.Math.abs((0,__f4.globals.Number)(t.selisih||0))>.5)more.open=true;
     try{__f4.globals.lucide.createIcons()}catch(_e){}
     return;
   }
@@ -1968,6 +1995,7 @@ __f4.window.addEventListener('popstate',()=>{const target=new __f4.globals.URLSe
 __f4.globals.document.addEventListener('DOMContentLoaded',()=>{
   __f4.globals.lucide.createIcons();
   initKasUi();initTransaksiKasUi();initHistoryBatchFilters();initRiwayatPeriodFilter();
+  __f4.globals.document.getElementById('iq-current-position')?.addEventListener('toggle',()=>{void refreshIuranPosition()});
   const routeParams=new __f4.globals.URLSearchParams(__f4.globals.location.search);
   pilihMenu(routeParams.get('halaman')||'inputdata',{month:routeParams.get('bulan'),year:routeParams.get('tahun')});
   muatUlang();

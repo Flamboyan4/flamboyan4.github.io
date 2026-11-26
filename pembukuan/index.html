@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- v6.20.1 EDIT CLEANUP PREDEPLOY -->
-<html lang="id" data-f4-shell="book" data-f4-release="20261127-book-grid-v60" data-f4-spa="1">
+<html lang="id" data-f4-shell="book" data-f4-release="20261127-treasury-position-v61" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -1840,8 +1840,8 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 
 <link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261126-card-standard-admin-cash-v1">
 <script type="application/f4-source" data-f4-id="/portal-live/payment-monitor.js" data-f4-src="/portal-live/payment-monitor.js?v=20261127-svg-icons-v35" data-f4-defer></script>
-<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261127-book-grid-v60">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261127-book-grid-v60">
+<link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261127-treasury-position-v61">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261127-treasury-position-v61">
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261110-compositor-v11">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-picker-parity-v26"></script>
@@ -2488,13 +2488,23 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
           <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Kas Lorong</span><strong id="iq-kas">Rp0</strong></div><div id="iq-count-kas" class="iq-counts"></div></div>
           <div class="iuran-summary-tile has-meta"><div class="iq-main"><span>Arisan</span><strong id="iq-arisan">Rp0</strong></div><div id="iq-count-arisan" class="iq-counts"></div></div>
         </div>
-        <details class="iuran-quick-more">
-          <summary>Posisi uang <span class="iuran-more-arrow" aria-hidden="true"></span></summary>
+        <details class="iuran-quick-more" id="iq-current-position">
+          <summary>Posisi uang Kas Lorong <span class="iuran-more-arrow" aria-hidden="true"></span></summary>
+          <div class="iuran-quick-money-grid">
+            <div class="iuran-summary-tile money"><span>Cash</span><strong data-location="cash:kas_rt">—</strong></div>
+            <div class="iuran-summary-tile money"><span>QRIS</span><strong data-location="qris">—</strong></div>
+            <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong data-location="mandiri">—</strong></div>
+            <div class="iuran-summary-tile money"><span>Total saldo</span><strong data-location="total">—</strong></div>
+          </div>
+          <p id="iq-current-status" class="text-xs text-slate-500 px-2 py-1" role="status">Saldo terkini dari Pusat Keuangan, bukan penerimaan per periode.</p>
+        </details>
+        <details class="iuran-quick-more" id="iq-original-methods">
+          <summary>Metode pembayaran awal · periode terpilih <span class="iuran-more-arrow" aria-hidden="true"></span></summary>
           <div class="iuran-quick-money-grid">
             <div class="iuran-summary-tile money"><span>Cash</span><strong id="iq-cash">Rp0</strong></div>
             <div class="iuran-summary-tile money"><span>QRIS</span><strong id="iq-qris">Rp0</strong></div>
             <div class="iuran-summary-tile money"><span>Rek. Mandiri</span><strong id="iq-mandiri">Rp0</strong></div>
-            <div id="iq-selisih-card" class="iuran-summary-tile check"><span>Selisih</span><strong id="iq-selisih">Rp0</strong></div>
+            <div id="iq-selisih-card" class="iuran-summary-tile check"><span>Selisih alokasi</span><strong id="iq-selisih">Rp0</strong></div>
           </div>
         </details>
       </section>
@@ -2654,7 +2664,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
   </div>
 </div>
 
-<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-book-grid-v60"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-treasury-position-v61"></script>
 
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-1" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
 
