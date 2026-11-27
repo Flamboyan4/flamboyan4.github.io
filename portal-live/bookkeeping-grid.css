@@ -319,6 +319,25 @@
  #tab-transaksi #form-transaksi-kas.trx-layout .trx-save{grid-column:7/13;grid-row:3;align-self:end;min-height:var(--book-control)}
  #tab-transaksi #form-transaksi-kas.trx-layout .trx-status{grid-column:1/-1;grid-row:4}
 }
+/* Desktop: compact input rows only when the payment pane can fit every control. */
+@media screen and (min-width:1024px){
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-payment-column{container:iuran-payment / inline-size}
+ @container iuran-payment (min-width:600px){
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-input-column{
+   display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row;
+   align-items:start;gap:12px
+  }
+  #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-date-method,.f4-book-period,.f4-book-money){display:contents}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-warga{grid-column:1/6;grid-row:1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>div:has(>#inp-tanggal){grid-column:6/9;grid-row:1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>div:has(>#inp-metode){grid-column:9/13;grid-row:1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-bulan){grid-column:1/4;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-tahun){grid-column:4/6;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-jumlah){grid-column:6/9;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>div:has(>#inp-nominal-dibayar){grid-column:9/13;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>div:has(>#inp-catatan){grid-column:1/-1}
+ }
+}
 @media screen and (max-width:1023px){
  #tab-transaksi #form-transaksi-kas.trx-layout{
   grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap);align-items:start
