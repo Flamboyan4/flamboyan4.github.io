@@ -612,7 +612,9 @@ function compactAccountAction(control,kind){
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','16');svg.setAttribute('height','16');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
  const path=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[kind]);svg.append(path);
  control.setAttribute('aria-label',label);if(!control.title)control.title=label;
- control.classList.add('sa-account-icon-action');control.replaceChildren(svg,el('span',label,'sa-account-action-label'));return control;
+ // This action already owns its SVG. Opt out of the global table icon rewriter.
+ control.setAttribute('data-f4-keep-label','');
+ control.classList.add('sa-account-icon-action');control.replaceChildren(svg);return control;
 }
 function paintAccounts(){
  const tbody=__f4.globals.document.getElementById('sa-accounts');
