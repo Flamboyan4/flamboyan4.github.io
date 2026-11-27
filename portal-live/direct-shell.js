@@ -105,9 +105,30 @@ document.addEventListener('scroll',event=>{
 // Persistent loading surface; navbar and dock are never replaced.
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
-routeLoading.setAttribute('aria-label','Memuat halaman');routeLoading.innerHTML='<img class="f4-route-flower" src="/portal-live/flamboyan-loader.svg?v=20261127-centered-flower-v94" width="72" height="72" alt="" aria-hidden="true">';
+routeLoading.setAttribute('aria-label','Memuat halaman');
+const flowerUrl='/portal-live/flamboyan-loader.svg?v=20261127-flower-restart-actions-v95';
+let flowerTemplate=null;
+// Reuse the canonical artwork, but create fresh animation nodes per navigation.
+// The inline copy's classes and keyframes are namespaced so page CSS cannot
+// alter its animation (and its own style cannot affect page content).
+const flowerReady=fetch(flowerUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Flower asset');return r.text()}).then(markup=>{
+ const names=['stem','leaf','petal','core','p1','p2','p3','p4'];
+ const ns=markup.replace(new RegExp('\\b(?:'+names.join('|')+')\\b','g'),n=>'f4-bloom-'+n);
+ const doc=new DOMParser().parseFromString(ns,'image/svg+xml');
+ if(doc.documentElement.localName!=='svg'||doc.querySelector('parsererror'))return;
+ const svg=document.importNode(doc.documentElement,true);svg.setAttribute('class','f4-route-flower');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
+ flowerTemplate=svg;
+}).catch(()=>{});
+function freshFlower(){
+ if(flowerTemplate)return flowerTemplate.cloneNode(true);
+ const image=el('img','f4-route-flower');image.src=flowerUrl;image.width=72;image.height=72;image.alt='';image.setAttribute('aria-hidden','true');return image;
+}
+function restartLoadingFlower(token){
+ routeLoading.replaceChildren(freshFlower());swapFallback.replaceChildren(freshFlower());
+ if(!flowerTemplate)void flowerReady.then(()=>{if(flowerTemplate&&token===viewSequence&&!routeLoading.hidden){routeLoading.replaceChildren(freshFlower());swapFallback.replaceChildren(freshFlower())}});
+}
 document.body.append(routeLoading);
-const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.innerHTML='<img class="f4-route-flower" src="/portal-live/flamboyan-loader.svg?v=20261127-centered-flower-v94" width="72" height="72" alt="" aria-hidden="true">';document.body.append(swapFallback);
+const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.replaceChildren(freshFlower());document.body.append(swapFallback);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
 const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-finance-inbox-v58';document.head.append(notificationScript);
@@ -172,8 +193,8 @@ const residentTools=(()=>{
  };
  const glyph=name=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icons[name]+'</svg>';
  const root=el('div');root.id='f4-resident-tools';root.dataset.f4Persistent='shell';root.hidden=true;
- root.setAttribute('aria-label','Akses cepat warga');
- root.innerHTML='<button type="button" id="f4-resident-top" aria-label="Kembali ke atas" hidden>'+glyph('up')+'</button><div id="f4-resident-edge"><button type="button" class="f4-resident-edge-btn" data-action="feedback" data-expanded="false" aria-label="Tampilkan tombol kirim masukan" aria-expanded="false">'+glyph('feedback')+'<span>Masukan</span></button><button type="button" class="f4-resident-edge-btn" data-action="payment" data-expanded="false" aria-label="Tampilkan tombol pembayaran" aria-expanded="false">'+glyph('wallet')+'<span>Pembayaran</span></button></div><section id="f4-resident-pay-panel" aria-label="Metode pembayaran" hidden><div class="f4-resident-pay-head"><strong>Pembayaran</strong><button type="button" data-close-payment aria-label="Tutup pembayaran">'+glyph('close')+'</button></div><a class="f4-resident-qr" href="'+qris+'" download="QRIS_Flamboyan4.jpg">'+glyph('qr')+'Unduh QRIS</a><div class="f4-resident-pay-accounts"></div><p class="f4-resident-pay-status" role="status" aria-live="polite"></p></section>';
+ root.setAttribute('aria-label','Akses cepat');
+ root.innerHTML='<button type="button" id="f4-resident-top" aria-label="Kembali ke atas" hidden>'+glyph('up')+'</button><div id="f4-resident-edge"><button type="button" class="f4-resident-edge-btn" data-action="payment" data-expanded="false" aria-label="Tampilkan tombol pembayaran" aria-expanded="false">'+glyph('wallet')+'<span>Pembayaran</span></button><button type="button" class="f4-resident-edge-btn" data-action="feedback" data-expanded="false" aria-label="Tampilkan tombol kirim masukan" aria-expanded="false">'+glyph('feedback')+'<span>Masukan</span></button></div><section id="f4-resident-pay-panel" aria-label="Metode pembayaran" hidden><div class="f4-resident-pay-head"><strong>Pembayaran</strong><button type="button" data-close-payment aria-label="Tutup pembayaran">'+glyph('close')+'</button></div><a class="f4-resident-qr" href="'+qris+'" download="QRIS_Flamboyan4.jpg">'+glyph('qr')+'Unduh QRIS</a><div class="f4-resident-pay-accounts"></div><p class="f4-resident-pay-status" role="status" aria-live="polite"></p></section>';
  document.body.append(root);
  const edge=root.querySelector('#f4-resident-edge'),top=root.querySelector('#f4-resident-top'),pay=root.querySelector('#f4-resident-pay-panel'),payStatus=pay.querySelector('.f4-resident-pay-status');
  const paymentButton=edge.querySelector('[data-action="payment"]'),feedbackButton=edge.querySelector('[data-action="feedback"]');
@@ -188,9 +209,9 @@ const residentTools=(()=>{
  suggestion.innerHTML='<div class="f4-resident-feedback-head"><h2 id="f4-resident-feedback-title">Kotak Saran</h2><button type="button" data-close-feedback aria-label="Tutup">'+glyph('close')+'</button></div><form><p>Saran dikirim ke pengurus. Tak perlu nama atau data pribadi.</p><textarea name="pesan" rows="5" minlength="5" maxlength="2000" required placeholder="Tulis saran atau keluhan..."></textarea><div class="f4-resident-feedback-trap" aria-hidden="true"><label>Website (kosongkan)<input name="website" tabindex="-1" autocomplete="off"></label></div><button type="submit">'+glyph('send')+'Kirim Saran</button><p class="f4-resident-feedback-status" role="status" aria-live="polite"></p></form>';
  document.body.append(suggestion);
  const form=suggestion.querySelector('form'),send=form.querySelector('[type="submit"]'),feedbackStatus=form.querySelector('.f4-resident-feedback-status');
- let enabled=false,lastY=0,wasBottom=false,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false,scrollFrame=0;
+ let enabled=false,toolsIdentity='',lastY=0,wasBottom=false,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false,scrollFrame=0;
  function closePayment(){pay.hidden=true;paymentButton.setAttribute('aria-expanded','false');payStatus.textContent=''}
- const edgeButtons=[feedbackButton,paymentButton];
+ const edgeButtons=[paymentButton,feedbackButton];
  const isExpanded=button=>button.dataset.expanded==='true';
  function setExpanded(value,only=null){
   for(const button of edgeButtons){
@@ -240,12 +261,16 @@ const residentTools=(()=>{
   scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;syncScroll()});
  }
  function syncRole(next){
-  const allowed=!!session?.account&&((next==='warga'&&['portal','bank','finance','agenda','profile','dokumentasi','rapat'].includes(activePortalKey))||(['admin','superadmin'].includes(next)&&activePortalKey==='portal'));
+  // The same public payment/feedback actions apply on every accessible page.
+  // This does not grant access to protected portals or private account data.
+  const allowed=canAccessPortal(activePortalKey);
+  const identity=String(session?.account?.id||'public')+':'+String(next||'public');
   document.body.classList.toggle('f4-resident-tools-active',allowed);
   root.hidden=!allowed;
-  if(enabled===allowed)return;
-  enabled=allowed;setExpanded(false);lastRoute='';drag=null;
-  if(!enabled){top.hidden=true;if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent=''}
+  if(enabled===allowed&&toolsIdentity===identity)return;
+  toolsIdentity=identity;enabled=allowed;setExpanded(false);lastRoute='';drag=null;
+  if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent='';
+  if(!enabled){top.hidden=true}
   else {syncScroll(true);scheduleScroll();}
  }
  top.addEventListener('click',()=>shellScroll.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
@@ -336,7 +361,7 @@ const contentAdapters=new Map();
 let mountedContent=null,navigationPending=false,viewSequence=0;
 function beginView(){
  if(navigationPending)return null;
- const token=++viewSequence;routeLoading.hidden=false;return token;
+ const token=++viewSequence;restartLoadingFlower(token);routeLoading.hidden=false;return token;
 }
 function afterPaint(){
  if(document.hidden)return Promise.resolve();
