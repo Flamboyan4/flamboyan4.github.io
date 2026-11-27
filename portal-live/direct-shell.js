@@ -209,7 +209,7 @@ const residentTools=(()=>{
  suggestion.innerHTML='<div class="f4-resident-feedback-head"><h2 id="f4-resident-feedback-title">Kotak Saran</h2><button type="button" data-close-feedback aria-label="Tutup">'+glyph('close')+'</button></div><form><p>Saran dikirim ke pengurus. Tak perlu nama atau data pribadi.</p><textarea name="pesan" rows="5" minlength="5" maxlength="2000" required placeholder="Tulis saran atau keluhan..."></textarea><div class="f4-resident-feedback-trap" aria-hidden="true"><label>Website (kosongkan)<input name="website" tabindex="-1" autocomplete="off"></label></div><button type="submit">'+glyph('send')+'Kirim Saran</button><p class="f4-resident-feedback-status" role="status" aria-live="polite"></p></form>';
  document.body.append(suggestion);
  const form=suggestion.querySelector('form'),send=form.querySelector('[type="submit"]'),feedbackStatus=form.querySelector('.f4-resident-feedback-status');
- let enabled=false,toolsIdentity='',lastY=0,wasBottom=false,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false,scrollFrame=0;
+ let enabled=false,toolsIdentity='',lastY=0,wasBottom=false,lastRoute='',drag=null,suppressClickUntil=0,lastSuggestionAt=0,sending=false,scrollFrame=0,topIdleTimer=0,topScrollY=0,topScrollRoot=null;
  function closePayment(){pay.hidden=true;paymentButton.setAttribute('aria-expanded','false');payStatus.textContent=''}
  const edgeButtons=[paymentButton,feedbackButton];
  const isExpanded=button=>button.dataset.expanded==='true';
@@ -238,6 +238,17 @@ const residentTools=(()=>{
   const input=el('textarea');input.value=value;input.readOnly=true;input.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.append(input);input.select();
   let ok=false;try{ok=document.execCommand('copy')}catch{}input.remove();return ok;
  }
+ function hideTop(){
+  clearTimeout(topIdleTimer);topIdleTimer=0;top.hidden=true;
+ }
+ function syncTop(scroller,y,reset){
+  if(reset||scroller!==topScrollRoot){topScrollRoot=scroller;topScrollY=y;hideTop();return;}
+  const moved=y!==topScrollY;topScrollY=y;
+  if(y<=0){hideTop();return;}
+  if(!moved)return;
+  top.hidden=false;clearTimeout(topIdleTimer);
+  topIdleTimer=setTimeout(()=>{topIdleTimer=0;top.hidden=true},2000);
+ }
  function syncScroll(reset=false){
   if(!enabled)return;
   const scroller=shellScroll.element();
@@ -248,7 +259,7 @@ const residentTools=(()=>{
   const dockHeight=dock&&!dock.hidden?dock.getBoundingClientRect().height:0;
   // The final readable content is above the dock and its reserved bottom padding.
   const bottom=max-y<=Math.max(24,dockHeight+28);
-  top.hidden=y<=120;
+  syncTop(scroller,y,reset);
   if(reset){lastY=y;wasBottom=false;setExpanded(false);return}
   if(drag||suggestion.open){lastY=y;return}
   if(y<lastY-2){if(!bottom||wasBottom)setExpanded(false)}
@@ -270,7 +281,7 @@ const residentTools=(()=>{
   if(enabled===allowed&&toolsIdentity===identity)return;
   toolsIdentity=identity;enabled=allowed;setExpanded(false);lastRoute='';drag=null;
   if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent='';
-  if(!enabled){top.hidden=true}
+  if(!enabled){hideTop();topScrollRoot=null;topScrollY=0}
   else {syncScroll(true);scheduleScroll();}
  }
  top.addEventListener('click',()=>shellScroll.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
