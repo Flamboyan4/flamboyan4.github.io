@@ -4,6 +4,7 @@ body .f4-control-trigger{box-sizing:border-box;display:flex;align-items:center;j
 body .f4-control-trigger[hidden]{display:none}
 body .f4-control-trigger:disabled{opacity:.55;cursor:not-allowed}
 .f4-control-value{min-width:0;overflow-wrap:anywhere;white-space:normal}
+body .f4-control-trigger[data-f4-placeholder] .f4-control-value{color:#8995a5;font-weight:400}
 .f4-control-icon{display:grid;place-items:center;flex:none;color:var(--f4-nav,#5145cd)}
 body .f4-control-overlay{position:fixed;inset:0;z-index:2147483500;display:block;padding:0;background:transparent;box-sizing:border-box}
 .f4-control-overlay *{box-sizing:border-box}

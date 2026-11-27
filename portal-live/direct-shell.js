@@ -1048,4 +1048,69 @@ window.F4PortalNavigation.initialSession=refreshSession().then(()=>{
  }).observe(document.body,{childList:true,subtree:true});
 })();
 
+
+/* Shared placeholder-only field labels. Preserve native values, constraints,
+   accessible names and form listeners; never replace a form control. */
+(()=>{
+ const controls='input:not([type]),input[type=text],input[type=number],input[type=email],input[type=tel],input[type=url],input[type=password],input[type=search],input[type=date],input[type=month],textarea,select';
+ const scope='form,.f4-field-stack,.f4g-field,.f4-pm-field,.sa-weighing-field,.sa-account-modal,.f4-ui-dialog-panel,.edit-modal-card,.kas-batch-card,.tc-field,#f4-account-page';
+ const excluded='.f4-control-overlay,.f4-resident-feedback-trap,[aria-hidden=true],[data-f4-keep-label],.f4-admin-controls,.sa-controls,.sa-resident-controls,.sa-account-filters,.filter-bar,.search-toolbar,.toolbar,#tab-laporan';
+ let seq=0,queued=false;
+ function candidate(label){
+  if(label.closest(excluded)||!label.closest(scope))return null;
+  const nested=[...label.querySelectorAll(controls)];
+  if(nested.length>1)return null;
+  if(nested.length===1)return nested[0];
+  if(label.control)return label.control.matches(controls)?label.control:null;
+  const next=label.nextElementSibling;
+  if(!next)return null;
+  if(next.matches(controls))return next;
+  const list=[...next.querySelectorAll(controls)];
+  return list.length===1?list[0]:null;
+ }
+ function caption(label,field){
+  const copy=label.cloneNode(true);
+  copy.querySelectorAll('input,textarea,select,button,svg,i,.f4-control-trigger,[aria-hidden=true]').forEach(n=>n.remove());
+  return copy.textContent.replace(/\s+/g,' ').trim();
+ }
+ function enhance(label){
+  const field=candidate(label);
+  if(!field||field.closest(excluded)||field.multiple||field.readOnly||field.type==='search')return;
+  const name=caption(label,field);
+  if(!name||name.length>100||/\b(?:bulan|tahun|tanggal|periode)\s+(?:awal|akhir|dari|sampai|mulai|hingga)\b/i.test(name)&&field.id!=='inp-bulan')return;
+  // Custom/native date controls must have a visible placeholder-capable trigger.
+  const picker=field.matches('select,input[type=date],input[type=month]');
+  if(picker&&field.dataset.f4ModernPicker!=='1')return;
+  if(!picker&&!('placeholder' in field))return;
+  if(label.dataset.f4CompactLabel==='1'&&field.dataset.f4FieldLabel===name)return;
+  if(!field.id){let id;do{id='f4-field-label-'+(++seq)}while(document.getElementById(id));field.id=id;}
+  if(!label.contains(field)&&!label.htmlFor)label.htmlFor=field.id;
+  if(!field.hasAttribute('aria-label')&&!field.hasAttribute('aria-labelledby'))field.setAttribute('aria-label',name);
+  if(!picker){
+   if(field.placeholder&&field.placeholder!==name&&!field.title)field.title=field.placeholder;
+   field.placeholder=name;
+  }
+  field.dataset.f4FieldLabel=name;
+  if(label.contains(field)){
+   // Keep the enclosing label in the layout; clip only its caption.
+   for(const node of [...label.childNodes]){
+    if(node.nodeType===3&&node.textContent.trim()){
+     const span=document.createElement('span');span.textContent=node.textContent;span.dataset.f4CompactCaption='1';node.replaceWith(span);
+    }else if(node.nodeType===1&&!node.contains(field)&&!node.matches('input,textarea,select,button,.f4-control-trigger,.custom-select-wrap,.mdc-wrap,svg,i')){
+     node.dataset.f4CompactCaption='1';
+    }
+   }
+  }else label.dataset.f4CompactCaption='1';
+  label.dataset.f4CompactLabel='1';
+ }
+ function scan(){queued=false;document.querySelectorAll('label').forEach(enhance);}
+ function schedule(){if(!queued){queued=true;requestAnimationFrame(scan)}}
+ const observer=new MutationObserver(records=>{
+  if(records.some(r=>r.type==='attributes'||[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('label,input,select,textarea,.f4-control-trigger')||n.querySelector?.('label,input,select,textarea,.f4-control-trigger')))))schedule();
+ });
+ observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['data-f4-modern-picker']});
+ document.addEventListener('f4:portal-changed',schedule);
+ schedule();
+})();
+
 })();

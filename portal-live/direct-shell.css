@@ -678,3 +678,13 @@ body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden])
 }
 @media(prefers-reduced-motion:reduce){#f4-resident-edge .f4-resident-edge-btn,#f4-resident-edge .f4-resident-edge-btn svg{transition:none}}
 @media print{#f4-resident-tools,#f4-resident-feedback{display:none}}
+
+/* Placeholder-only form labels: visually hidden, still accessible. */
+@media screen{
+ html[data-f4-shell] body [data-f4-compact-caption="1"]{
+  position:absolute;inline-size:1px;block-size:1px;min-width:0;min-height:0;max-width:1px;max-height:1px;
+  padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;clip-path:inset(50%);pointer-events:none
+ }
+ html[data-f4-shell] body :is(input,textarea)[data-f4-field-label]::placeholder{color:#8995a5;opacity:1;font-weight:400}
+ html[data-f4-shell] body label[data-f4-compact-label="1"]:has(>input,>select,>textarea,>.f4-control-trigger,>.custom-select-wrap){gap:0}
+}

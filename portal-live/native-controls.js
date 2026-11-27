@@ -261,14 +261,19 @@ function enhance(field){
   const hidden=field.hidden||field.classList.contains('hidden')||field.style.display==='none';if(button.disabled!==field.disabled)button.disabled=field.disabled;if(button.hidden!==hidden)button.hidden=hidden;
   const option=field.selectedOptions?.[0];
   const meta=option?.value&&isResident(field)?residentMeta(field,option):null;
-  const value=meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
-  if(label.textContent!==value)label.textContent=value;if(button.title!==value)button.title=value;
+  const empty=field.value==='';
+  const caption=field.dataset.f4FieldLabel||'';
+  const value=empty&&caption?caption:meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
+  if(label.textContent!==value)label.textContent=value;
+  button.toggleAttribute('data-f4-placeholder',empty&&!!caption);
+  if(caption)button.setAttribute('aria-label',empty?caption:caption+': '+value);
+  if(button.title!==value)button.title=value;
  }
  button.onclick=()=>{sync();if(field.disabled)return;field.matches('select')?selectPicker(field,button):calendar(field,button)};
  button.addEventListener('focus',sync);
  field.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();button.click()},true);
  field.addEventListener('change',sync);field.addEventListener('input',sync);
- const m=new __f4.globals.MutationObserver(sync);m.observe(field,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','selected','class','hidden','style','value']});
+ const m=new __f4.globals.MutationObserver(sync);m.observe(field,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','selected','class','hidden','style','value','data-f4-field-label']});
  if(__f4.globals.document.body.classList.contains('f4-direct-book')&&field.matches('select.field')){
   const wrap=__f4.globals.document.createElement('div');wrap.className='custom-select-wrap';field.before(wrap);wrap.append(field,button);
  }else{field.insertAdjacentElement('afterend',button)}
