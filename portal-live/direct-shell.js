@@ -135,7 +135,7 @@ dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});
 window.f4ShowLogin=openLogin;
 let session=null,role='public';
 
-/* Verified residents: one permanent action rail for all mounted portal pages. */
+/* One permanent action rail: residents across their portals, staff on Portal Utama. */
 const residentTools=(()=>{
  const accounts=Object.freeze([
   Object.freeze({key:'mandiri',bank:'Mandiri',number:'1330022606479',owner:'ROSALINDA'}),
@@ -221,7 +221,7 @@ const residentTools=(()=>{
   scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;syncScroll()});
  }
  function syncRole(next){
-  const allowed=next==='warga'&&!!session?.account&&['portal','bank','finance','agenda','profile','dokumentasi','rapat'].includes(activePortalKey);
+  const allowed=!!session?.account&&((next==='warga'&&['portal','bank','finance','agenda','profile','dokumentasi','rapat'].includes(activePortalKey))||(['admin','superadmin'].includes(next)&&activePortalKey==='portal'));
   document.body.classList.toggle('f4-resident-tools-active',allowed);
   root.hidden=!allowed;
   if(enabled===allowed)return;
@@ -281,7 +281,7 @@ const residentTools=(()=>{
  if(window.ResizeObserver){const observer=new ResizeObserver(scheduleScroll);observer.observe(document.body);observer.observe(document.documentElement)}
  document.addEventListener('f4:portal-changed',()=>{lastRoute='';if(suggestion.open)suggestion.close();syncScroll(true);scheduleScroll()});
  window.addEventListener('f4-shared-bank-route',e=>{if(lastRoute===e.detail)return;lastRoute=e.detail;syncScroll(true);scheduleScroll()});
- return {syncRole,openPayment,copyNumber,accounts,qris,refresh:()=>syncScroll()};
+ return {syncRole,openPayment,copyNumber,accounts,qris,isBusy:()=>sending,refresh:()=>syncScroll()};
 })();
 window.F4ResidentTools=residentTools;
 
@@ -349,7 +349,7 @@ function updatePortalChrome(key){
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();
  document.dispatchEvent(new CustomEvent('f4:portal-changed',{detail:{key,portal}}));
 }
-async function navigatePortal(path,{replace=false,pop=false}={}){
+async function navigatePortal(path,{replace=false,pop=false,refresh=false}={}){
  let target=new URL(path,location.origin);
  if(target.origin===location.origin&&portalKey(target.pathname)==='dokumentasi'&&target.searchParams.get('halaman')==='profil')target=new URL(paths.profile,location.origin);
  if(target.origin===location.origin&&portalKey(target.pathname)==='bank'&&target.searchParams.get('halaman')==='profile')target=new URL(paths.profile+'?halaman=edit',location.origin);
@@ -364,7 +364,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  }
  const route=target.searchParams.get('halaman');
  const here=activePortalKey===key;
- if(here&&!target.hash){
+ if(here&&!target.hash&&!refresh){
   if(key==='profile'){
    if(mountedContent?.canLeave&&!mountedContent.canLeave()){if(pop)history.replaceState(history.state,'',lastActiveUrl);return false;}
    const edit=route==='edit'||role!=='warga',dest=paths.profile+(edit?'?halaman=edit':'');
@@ -382,6 +382,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  const current=mountedContent,next=contentAdapters.get(key);
  // Existing pages stay operational until their own lifecycle is migrated.
  if(!current||!next){
+  if(refresh)return false;
   const url=shellUrl(target.href);
   if(replace||pop)location.replace(url);else location.assign(url);return true;
  }
@@ -392,7 +393,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  let prepared=null,detached=false;
  try{
   if(current.canLeave&&!(await current.canLeave())){if(pop)restoreActiveUrl();showSessionNotice('Konten atau transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
-  prepared=await next.prepare(target);
+  prepared=await next.prepare(target,{refresh});
   if(!prepared||typeof prepared.mount!=='function'||typeof prepared.dispose!=='function')throw Error('Lifecycle konten tidak lengkap.');
   if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
   if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
@@ -408,7 +409,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);
-  if(!detached){if(pop)restoreActiveUrl();showSessionNotice('Portal belum dapat dimuat.','Coba Lagi',()=>{void navigatePortal(target.href,{replace})});return false;}
+  if(!detached){if(pop)restoreActiveUrl();showSessionNotice('Portal belum dapat dimuat.','Coba Lagi',()=>{void navigatePortal(target.href,{replace,refresh})});return false;}
   // A hard reload is only an error recovery after the old content has been disposed.
   location.replace(shellUrl(canAccessPortal(key)?target.href:'/'));return false;
  }finally{navigationPending=false;endView(viewToken)}
@@ -429,6 +430,77 @@ window.F4PortalNavigation={
   contentAdapters.set(key,factory);if(mounted)mountedContent=mounted;
  }
 };
+
+/* One pull-to-refresh controller for the active mobile content root.
+   Never move the frame or intercept ordinary horizontal/vertical scrolling. */
+(()=>{
+ const indicator=el('div');indicator.id='f4-pull-refresh';indicator.dataset.f4Persistent='shell';indicator.hidden=true;
+ indicator.setAttribute('aria-hidden','true');
+ indicator.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7"/></svg><span>Tarik untuk memuat ulang</span>';
+ document.body.append(indicator);
+ const label=indicator.querySelector('span'),dirty=new WeakSet(),threshold=72;
+ let gesture=null,refreshing=false;
+ const overlay='dialog[open],#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-direct-account-menu:not([hidden]),#f4-resident-pay-panel:not([hidden]),#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden])';
+ const editing='input,textarea,select,[contenteditable]:not([contenteditable="false"])';
+ function blocked(){
+  return !mobileFrame.matches||refreshing||navigationPending||!routeLoading.hidden||
+   !mountedContent||!sessionCheckCompleted||residentTools.isBusy()||
+   document.documentElement.matches('[data-f4-starting],[data-f4-swapping],.f4p-overlay-active')||
+   document.body.matches('.f4-denied,.f4-account-open')||
+   Array.from(document.querySelectorAll(overlay)).some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');
+ }
+ function reset(){gesture=null;indicator.hidden=true;indicator.removeAttribute('data-armed');}
+ function nestedScroller(node,root){
+  for(let n=node;n&&n!==root;n=n.parentElement){
+   if(n.scrollHeight>n.clientHeight+2&&/^(auto|scroll)$/.test(getComputedStyle(n).overflowY))return true;
+  }
+  return false;
+ }
+ function markDirty(e){
+  const node=e.target;
+  if(!e.isTrusted||!node?.matches?.(editing)||node.matches('input[type="search"],input[type="button"],input[type="submit"],input[type="reset"]')||!node.closest('form'))return;
+  const root=shellScroll.element();if(root.contains(node))dirty.add(root);
+ }
+ document.addEventListener('input',markDirty,true);
+ document.addEventListener('change',markDirty,true);
+ document.addEventListener('touchstart',e=>{
+  reset();
+  if(e.touches.length!==1||blocked())return;
+  const root=shellScroll.element(),node=e.target?.nodeType===1?e.target:e.target?.parentElement;
+  if(root===document.scrollingElement||root===document.documentElement||root.scrollTop>1||
+    !/^(auto|scroll)$/.test(getComputedStyle(root).overflowY)||!node||!root.contains(node)||
+    node.closest(editing)||nestedScroller(node,root))return;
+  const t=e.touches[0];gesture={root,id:t.identifier,x:t.clientX,y:t.clientY,vertical:false,distance:0};
+ },{capture:true,passive:true});
+ document.addEventListener('touchmove',e=>{
+  if(!gesture)return;
+  const g=gesture;
+  if(e.touches.length!==1||blocked()||g.root!==shellScroll.element()||g.root.scrollTop>1){reset();return}
+  const t=e.touches[0];if(t.identifier!==g.id){reset();return}
+  const dx=t.clientX-g.x,dy=t.clientY-g.y;
+  if(!g.vertical){
+   if(Math.max(Math.abs(dx),Math.abs(dy))<8)return;
+   if(dy<=0||Math.abs(dx)>dy*.75){reset();return}
+   g.vertical=true;
+  }
+  if(dy<=0||!e.cancelable){reset();return}
+  e.preventDefault();g.distance=dy;
+  indicator.hidden=false;indicator.dataset.armed=String(dy>=threshold);
+  label.textContent=dy>=threshold?'Lepas untuk memuat ulang':'Tarik untuk memuat ulang';
+ },{capture:true,passive:false});
+ document.addEventListener('touchend',e=>{
+  const g=gesture;reset();
+  if(!g?.vertical||g.distance<threshold||e.touches.length||!Array.from(e.changedTouches).some(t=>t.identifier===g.id)||
+    blocked()||g.root!==shellScroll.element()||g.root.scrollTop>1)return;
+  if(dirty.has(g.root)&&!window.confirm('Muat ulang halaman? Isian formulir yang belum disimpan dapat hilang.'))return;
+  refreshing=true;
+  void navigatePortal(location.href,{replace:true,refresh:true}).finally(()=>{refreshing=false});
+ },{capture:true,passive:true});
+ document.addEventListener('touchcancel',reset,{capture:true,passive:true});
+ document.addEventListener('f4:portal-changed',reset);
+ mobileFrame.addEventListener('change',reset);
+})();
+
 window.addEventListener('popstate',()=>{
  const key=portalKey(location.pathname);
  if(key&&(key!==activePortalKey||key==='profile'))void navigatePortal(location.href,{pop:true});

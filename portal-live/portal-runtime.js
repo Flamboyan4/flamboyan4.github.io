@@ -220,9 +220,9 @@ function markPermanent(){
 function makeMounted(key,scope){
  return {canLeave:()=>scope.canLeave(),async dispose(){if(!scope.pause())throw Error('Transaksi masih diproses.');scope.dispose();removeContent();if(active===scope)active=null}};
 }
-async function prepare(key,target){
+async function prepare(key,target,{refresh=false}={}){
  const u=new URL(target.href);u.searchParams.set('f4ui',release);
- const response=await nativeFetch(u.href,{credentials:'same-origin',cache:'default'});if(!response.ok)throw Error('Portal tidak dapat dimuat.');
+ const response=await nativeFetch(u.href,{credentials:'same-origin',cache:refresh?'reload':'default'});if(!response.ok)throw Error('Portal tidak dapat dimuat.');
  const parsed=new DOMParser().parseFromString(await response.text(),'text/html');
  if(parsed.documentElement.dataset.f4Release!==release||parsed.documentElement.dataset.f4Spa!=='1')throw Error('Versi portal belum sama.');
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
@@ -299,7 +299,7 @@ async function boot(){
  pinShellStyles();pinHeadStyleOrder();markPermanent();
  const specs=scriptSpecs(document),scope=scopeFor(key);active=scope;
  const contentError=document.createElement('p');contentError.hidden=true;contentError.setAttribute('role','alert');contentError.dataset.f4Persistent='boot-error';document.body.append(contentError);
- for(const k of Object.values(routes))nav.register(k,{prepare:target=>prepare(k,target)},k===key?{mounted:makeMounted(key,scope)}:undefined);
+ for(const k of Object.values(routes))nav.register(k,{prepare:(target,options)=>prepare(k,target,options)},k===key?{mounted:makeMounted(key,scope)}:undefined);
  try{
   await prepareScripts(specs);await runScripts(specs,scope);nav.contentReady();contentError.remove();
   // The first paint is held until all original factories and styles are installed.
