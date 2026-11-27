@@ -2520,7 +2520,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       tile.append(make('f4-agenda-tile-month',format({month:'short'})),make('f4-agenda-tile-day',date?(0,__f4.globals.String)(date.getUTCDate()).padStart(2,'0'):'—'),make('f4-agenda-tile-year',format({year:'numeric'})));
       const copy=make('f4-agenda-preview-copy');
       const category=item.isBank?'Bank Sampah':item.isGorol?'Kerja Bakti':/arisan/i.test(item.judul||'')?'Arisan':'Kegiatan warga';
-      copy.append(make('f4-agenda-preview-category',category),make('f4-agenda-preview-title',item.judul),make('f4-agenda-preview-weekday',format({weekday:'long',day:'numeric',month:'long'})));
+      copy.append(make('f4-agenda-preview-category',category),make('f4-agenda-preview-title',item.judul),make('f4-agenda-preview-weekday',format({weekday:'long'})));
       const arrow=make('f4-agenda-chevron');arrow.setAttribute('aria-hidden','true');
       arrow.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
       card.append(tile,copy,arrow);
