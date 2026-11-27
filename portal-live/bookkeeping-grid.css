@@ -328,7 +328,7 @@
  }
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-date-method{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{grid-template-columns:minmax(0,1fr);gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control);padding-top:0}
 
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}

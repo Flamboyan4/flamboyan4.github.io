@@ -71,8 +71,36 @@ const meeting=el('a');meeting.id='f4-direct-meeting';meeting.href=shellUrl(paths
  bar.append(hamburger,identity,links,login,meeting,avatar,menu);
  const barHost=el('div');barHost.id='f4-shell-top';barHost.dataset.f4Persistent='shell';
  barHost.append(bar);document.body.prepend(barHost);
-// The persistent shell is anchored by CSS from first paint. No viewport
-// offset calculations, resize-driven repositioning or route-specific layout.
+// One scroll API for original page scripts and the persistent shell.
+const mobileFrame=matchMedia('(max-width:1023px)');
+function pageScrollElement(){
+ if(mobileFrame.matches&&!document.body.classList.contains('f4-denied')){
+  const root=document.querySelector('body.f4-direct-bank>.shell,body.f4-direct-superadmin>#f4-account-page:not([hidden]),body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-book)>main');
+  if(root&&root.getClientRects().length)return root;
+ }
+ return document.scrollingElement||document.documentElement;
+}
+function scrollPage(method,...args){
+ const root=pageScrollElement();
+ if(root===document.scrollingElement||root===document.documentElement)window[method](...args);
+ else root[method](...args);
+}
+const shellScroll={
+ element:pageScrollElement,
+ get y(){return pageScrollElement().scrollTop||0},
+ get x(){return pageScrollElement().scrollLeft||0},
+ scrollTo:(...args)=>scrollPage('scrollTo',...args),
+ scrollBy:(...args)=>scrollPage('scrollBy',...args)
+};
+window.F4ShellScroll=shellScroll;
+// Native element scroll events do not bubble to window. Forward only the
+// active page root's scroll, once per frame, for existing scroll observers.
+let scrollNotification=0;
+document.addEventListener('scroll',event=>{
+ if(event.target!==pageScrollElement()||event.target===document.scrollingElement||scrollNotification)return;
+ scrollNotification=requestAnimationFrame(()=>{scrollNotification=0;window.dispatchEvent(new Event('scroll'))});
+},{capture:true,passive:true});
+
 // Persistent loading surface; navbar and dock are never replaced.
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
@@ -172,9 +200,9 @@ const residentTools=(()=>{
  }
  function syncScroll(reset=false){
   if(!enabled)return;
-  const scroller=document.scrollingElement||document.documentElement;
-  const y=Math.max(0,window.scrollY||scroller.scrollTop||0),height=Math.max(scroller.clientHeight,window.innerHeight||0);
-  const total=Math.max(scroller.scrollHeight,document.body.scrollHeight,document.documentElement.scrollHeight);
+  const scroller=shellScroll.element();
+  const y=Math.max(0,shellScroll.y),height=scroller.clientHeight;
+  const total=scroller.scrollHeight;
   const max=Math.max(0,total-height);
   const dock=document.getElementById('f4-direct-dock');
   const dockHeight=dock&&!dock.hidden?dock.getBoundingClientRect().height:0;
@@ -201,7 +229,7 @@ const residentTools=(()=>{
   if(!enabled){top.hidden=true;if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent=''}
   else {syncScroll(true);scheduleScroll();}
  }
- top.addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
+ top.addEventListener('click',()=>shellScroll.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}));
  for(const button of edge.querySelectorAll('button')){
   button.addEventListener('pointerdown',e=>{
    if(e.button!==0||!e.isPrimary)return;
@@ -341,7 +369,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
    if(mountedContent?.canLeave&&!mountedContent.canLeave()){if(pop)history.replaceState(history.state,'',lastActiveUrl);return false;}
    const edit=route==='edit'||role!=='warga',dest=paths.profile+(edit?'?halaman=edit':'');
    if(dest!==location.pathname+location.search)history[replace||pop?'replaceState':'pushState']({f4PortalKey:key},'',dest);
-   window.f4ProfileSetMode?.(edit?'edit':'social');rememberActiveUrl();dock?.refresh?.();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
+   window.f4ProfileSetMode?.(edit?'edit':'social');rememberActiveUrl();dock?.refresh?.();shellScroll.scrollTo({top:0,left:0,behavior:'instant'});return true;
   }
   if(residentKeys.includes(key)){dock?.refresh?.();return true;}
   if(key==='portal'&&typeof window.f4PortalSelectPanel==='function'&&(!route||['beranda','keuangan','kas-warga','projek','kalender','arisan','pembayaran','komentar'].includes(route))){
@@ -376,7 +404,7 @@ async function navigatePortal(path,{replace=false,pop=false}={}){
   await current.dispose();mountedContent=null;detached=true;
   if(!stillAllowed()){await prepared.dispose();location.replace(shellUrl('/'));return false;}
   history[replace||pop?'replaceState':'pushState'](pop?{...history.state,f4PortalKey:key}:{f4PortalKey:key},'',target.pathname+target.search+target.hash);
-  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();window.scrollTo({top:0,left:0,behavior:'instant'});return true;
+  await prepared.mount();mountedContent=prepared;if(!stillAllowed()){location.replace(shellUrl('/'));return false;}rememberActiveUrl();shellScroll.scrollTo({top:0,left:0,behavior:'instant'});return true;
  }catch(error){
   try{await prepared?.dispose?.()}catch{}
   console.error('Navigasi portal:',error);
@@ -768,7 +796,7 @@ function makePortalSide(){
     const inv=key==='inventaris';
     if(activePortalKey==='dokumentasi'){
      const tab=document.getElementById(inv?'media-tab-inventory':'media-tab-albums');
-     if(tab){tab.click();highlight(key);window.scrollTo({top:0,behavior:'instant'});return}
+     if(tab){tab.click();highlight(key);shellScroll.scrollTo({top:0,behavior:'instant'});return}
     }
     void navigatePortal(paths.dokumentasi+(inv?'?halaman=inventaris':''));return;
    }
@@ -815,7 +843,7 @@ if(portal==='portal'){
 }
 // Utility bar is transparent at the top and becomes solid when scrolling.
 // Bank memakai header solid, tanpa render ulang untuk setiap scroll.
-const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',portal!=='bank'&&window.scrollY>12);
+const syncBarScroll=()=>bar.classList.toggle('f4-scrolled',portal!=='bank'&&shellScroll.y>12);
 window.addEventListener('scroll',syncBarScroll,{passive:true});
 document.addEventListener('f4:portal-changed',syncBarScroll);
 syncBarScroll();

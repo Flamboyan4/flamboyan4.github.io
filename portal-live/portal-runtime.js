@@ -67,6 +67,7 @@ function scopeFor(key){
  const scopedHistory=new Proxy(Object.create(null),{get(_,p){const t=history;const v=Reflect.get(t,p,t);return typeof v==='function'?(...a)=>{assert();const result=v.apply(t,a);if(p==='pushState'||p==='replaceState')window.F4PortalNavigation?.recordUrl();return result}:v},set(_,p,v){assert();return Reflect.set(history,p,v,history)}});
  const guardedDocument=new Proxy(document,{get(t,p){
   if(p==='readyState')return ready?document.readyState:'loading';
+  if(p==='scrollingElement')return window.F4ShellScroll?.element()||document.scrollingElement;
   if(p==='addEventListener')return(...a)=>track(document,...a);
   if(p==='removeEventListener')return(...a)=>untrack(document,...a);
   assert();const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v;
@@ -81,7 +82,7 @@ function scopeFor(key){
  builtins.matchMedia=query=>{assert();const m=window.matchMedia(query);return new Proxy(m,{get(t,p){if(p==='addEventListener')return(...a)=>track(t,...a);if(p==='removeEventListener')return(...a)=>untrack(t,...a);if(p==='addListener')return fn=>track(t,'change',fn);if(p==='removeListener')return fn=>untrack(t,'change',fn);const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v}})};
  if(window.visualViewport)builtins.visualViewport=new Proxy(window.visualViewport,{get(t,p){if(p==='addEventListener')return(...a)=>track(t,...a);if(p==='removeEventListener')return(...a)=>untrack(t,...a);const v=Reflect.get(t,p,t);return typeof v==='function'?v.bind(t):v}});
  const nativeBound=new Set(['alert','confirm','prompt','scrollTo','scrollBy','getComputedStyle','matchMedia','getSelection','open','postMessage','dispatchEvent','print','focus','blur','atob','btoa']);
- const reserved=new Set(['F4PortalRuntime','F4PortalNavigation','F4MobileDock','F4MobileSheets','F4Loading','f4ShowLogin','f4RefreshDirectAvatar','f4OpenUnifiedAccount','f4CloseUnifiedAccount']);
+ const reserved=new Set(['F4PortalRuntime','F4PortalNavigation','F4ShellScroll','F4MobileDock','F4MobileSheets','F4Loading','f4ShowLogin','f4RefreshDirectAvatar','f4OpenUnifiedAccount','f4CloseUnifiedAccount']);
  function installGlobal(name){
   if(originals.has(name)||reserved.has(name))return;
   const d=Object.getOwnPropertyDescriptor(window,name);if(d&&!d.configurable)return;
@@ -91,6 +92,13 @@ function scopeFor(key){
  function get(name){
   assert();if(typeof name==='symbol')return undefined;
   if(name==='window'||name==='self'||name==='globalThis')return window;
+  const scrolling=window.F4ShellScroll;
+  if(scrolling){
+   if(name==='scrollY'||name==='pageYOffset')return scrolling.y;
+   if(name==='scrollX'||name==='pageXOffset')return scrolling.x;
+   if(name==='scroll'||name==='scrollTo')return scrolling.scrollTo;
+   if(name==='scrollBy')return scrolling.scrollBy;
+  }
   if(Object.hasOwn(builtins,name))return builtins[name];
   if(names.has(name))return names.get(name).get();
   if(own.has(name))return own.get(name);
