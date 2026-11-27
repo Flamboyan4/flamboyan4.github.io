@@ -455,11 +455,11 @@ window.F4PortalNavigation={
 (()=>{
  const indicator=el('div');indicator.id='f4-pull-refresh';indicator.dataset.f4Persistent='shell';indicator.hidden=true;
  indicator.setAttribute('aria-hidden','true');
- indicator.innerHTML='<svg viewBox="0 0 32 32" width="30" height="30" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="12" stroke="#e2e8f0" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+ indicator.innerHTML='<img src="/portal-live/flamboyan-loader.svg?v=20261127-flamboyan-loader-v93" width="34" height="34" alt="" aria-hidden="true">';
  barHost.append(indicator);
  const dirty=new WeakSet(),threshold=72;
  let gesture=null,refreshing=false;
- const overlay='dialog[open],#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-direct-account-menu:not([hidden]),#f4-resident-pay-panel:not([hidden]),#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden])';
+ const overlay='dialog[open],#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-direct-account-menu:not([hidden]),#f4-resident-pay-panel:not([hidden]),#f4-resident-sheet:not([hidden]),#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden])';
  const editing='input,textarea,select,[contenteditable]:not([contenteditable="false"])';
  function blocked(){
   return refreshing||unavailable();
@@ -472,7 +472,7 @@ window.F4PortalNavigation={
    Array.from(document.querySelectorAll(overlay)).some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');
  }
  function hideIndicator(){
-  indicator.hidden=true;indicator.removeAttribute('data-loading');indicator.style.removeProperty('--f4-pull-angle');
+  indicator.hidden=true;indicator.removeAttribute('data-loading');indicator.style.removeProperty('--f4-pull-progress');
  }
  function reset(){gesture=null;if(!refreshing)hideIndicator();}
  function cancelReload(){refreshing=false;reset();}
@@ -483,7 +483,7 @@ window.F4PortalNavigation={
   if(dirty.has(root)&&!window.confirm('Muat ulang halaman? Isian formulir yang belum disimpan dapat hilang.')){reset();return;}
   const url=location.href;
   refreshing=true;gesture=null;indicator.hidden=false;indicator.setAttribute('data-loading','');
-  // Give the spinner a visible paint before initiating a native document reload.
+  // Paint the refresh flower before initiating the existing native document reload.
   await Promise.all([afterPaint(),new Promise(resolve=>setTimeout(resolve,260))]);
   if(!refreshing||unavailable()||root!==shellScroll.element()||url!==location.href){cancelReload();return;}
   if(!canReload()){cancelReload();noticeBusy();return;}
@@ -528,7 +528,7 @@ window.F4PortalNavigation={
   }
   if(dy<=0||!e.cancelable){reset();return}
   e.preventDefault();g.distance=dy;
-  indicator.hidden=false;indicator.style.setProperty('--f4-pull-angle',Math.min(1,dy/threshold)*360+'deg');
+  indicator.hidden=false;indicator.style.setProperty('--f4-pull-progress',String(Math.min(1,dy/threshold)));
  },{capture:true,passive:false});
  document.addEventListener('touchend',e=>{
   const g=gesture;gesture=null;

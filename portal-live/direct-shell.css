@@ -241,11 +241,11 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 /* Pull indicator is a child of the permanent mobile header, above page content. */
 #f4-pull-refresh{display:none}
 @media(max-width:1023px){
- #f4-shell-top>#f4-pull-refresh:not([hidden]){box-sizing:border-box;position:absolute;top:calc(100% + 12px);left:calc(50% - 15px);width:30px;height:30px;display:grid;place-items:center;z-index:5;color:var(--f4-nav,#5145cd);pointer-events:none}
- #f4-pull-refresh>svg{display:block;width:30px;height:30px;max-width:none;transform:rotate(var(--f4-pull-angle,0deg))}
- #f4-pull-refresh[data-loading]>svg{animation:f4-route-spin .7s linear infinite}
+ #f4-shell-top>#f4-pull-refresh:not([hidden]){box-sizing:border-box;position:absolute;top:calc(100% + 12px);left:calc(50% - 17px);width:34px;height:34px;display:grid;place-items:center;z-index:5;pointer-events:none}
+ #f4-pull-refresh>img{display:block;width:34px;height:34px;max-width:none;opacity:calc(.4 + .6 * var(--f4-pull-progress,0));transform:scale(calc(.75 + .25 * var(--f4-pull-progress,0)))}
+ #f4-pull-refresh[data-loading]>img{opacity:1;transform:none}
 }
-@media(prefers-reduced-motion:reduce){#f4-pull-refresh[data-loading]>svg{animation:none}}
+@media(prefers-reduced-motion:reduce){#f4-pull-refresh>img{transform:none}}
 .f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .12s both}
 .f4-route-spinner{width:30px;height:30px;border:3px solid var(--f4-nav-tint);border-top-color:var(--f4-nav);border-radius:50%;animation:f4-route-spin .7s linear infinite}
 @keyframes f4-route-spin{to{transform:rotate(360deg)}}
