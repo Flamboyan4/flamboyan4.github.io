@@ -125,21 +125,19 @@
  #tab-dashboard .f4-grid>.card,#tab-kas .kas-summary.f4-grid>div{min-width:0;max-width:100%}
  /* Grid Input Iuran: same two columns and same label/control baselines. */
  #tab-input #form-iuran.f4-book-iuran-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  grid-auto-flow:row;column-gap:var(--book-gap);row-gap:12px;
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:12px var(--book-gap);
   align-items:start;width:100%;min-width:0;margin:0;
  }
  #tab-input #form-iuran.f4-book-iuran-grid>*{min-width:0;max-width:100%;margin:0}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-warga{grid-column:1;grid-row:1}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-date-method{grid-column:1;grid-row:2}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-period{grid-column:1;grid-row:3}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-preview-column{grid-column:2;grid-row:1/4;align-self:start}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-money{grid-column:1;grid-row:4}
- #tab-input #form-iuran.f4-book-iuran-grid>#save-status{grid-column:1/-1;grid-row:5}
- #tab-input #form-iuran.f4-book-iuran-grid>.f4-book-submit{grid-column:2;grid-row:4;align-self:start}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-date-method{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--book-gap)}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-input #form-iuran.f4-book-iuran-grid>:is(.f4-book-input-column,.f4-book-result-column){
+  display:flex;flex-direction:column;gap:12px;min-width:0;align-self:start
+ }
+ #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-input-column,.f4-book-result-column)>*{min-width:0;margin:0}
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status{grid-column:1/-1}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--book-gap)}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-gap)}
  #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-date-method,.f4-book-period,.f4-book-money)>div{
   display:flex;flex-direction:column;align-items:stretch;justify-content:start;min-width:0;max-width:100%
  }
@@ -172,10 +170,17 @@
   line-height:18px;margin:0
  }
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail{width:100%;min-width:0}
- #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--book-tight)
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown{display:grid;gap:5px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown-item{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:2px 12px;min-width:0
  }
- #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid>div{min-width:0;overflow-wrap:anywhere}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown-label{font-size:12px;font-weight:550;line-height:1.4;color:#64748b}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown-value{font-size:14px;font-weight:750;line-height:1.4;color:#1e293b;text-align:right;font-variant-numeric:tabular-nums}
+ #tab-input #form-iuran.f4-book-iuran-grid #pv-kebersihan-x{grid-column:1/-1;text-align:right}
+ #tab-input #form-iuran.f4-book-iuran-grid #pv-kebersihan-x:empty{display:none}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-total{display:flex;justify-content:space-between;align-items:end;gap:8px;border-top:1px solid #ddd6fe;margin-top:9px;padding-top:9px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-amount{text-align:right;min-width:0}
+ #tab-input #form-iuran.f4-book-iuran-grid #pv-total{font-size:clamp(19px,2vw,24px);line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{
   display:grid;grid-template-rows:var(--book-control);padding-top:0;min-width:0
  }
@@ -306,13 +311,19 @@
  #tab-riwayat #history-iuran-panel .history-iuran-filter{grid-template-columns:1fr}
  #tab-riwayat #iuran-quick-summary .iuran-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:minmax(0,1fr)}
- #tab-input #form-iuran.f4-book-iuran-grid>
- :is(.f4-book-warga,.f4-book-date-method,.f4-book-period,.f4-book-preview-column,.f4-book-money,.f4-book-submit,#save-status){
-  grid-column:1/-1;grid-row:auto
- }
+ #tab-input #form-iuran.f4-book-iuran-grid>:is(.f4-book-input-column,.f4-book-result-column){display:contents}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-warga{order:1}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method{order:2}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period{order:3}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-column{order:4}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money{order:5}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{order:7}
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status{order:6}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control);padding-top:0}
 
- #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown-item{grid-template-columns:minmax(0,1fr)}
+ #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-breakdown-value,#pv-kebersihan-x){text-align:left}
 }
 @media screen and (max-width:767px){
  :root{--book-gap:10px;--book-tight:8px}
@@ -337,16 +348,23 @@
  #tab-kas .kas-summary.f4-grid>div{padding:10px 11px;min-height:72px}
  #tab-kas .kas-summary.f4-grid>div>div:last-child{font-size:clamp(16px,4.8vw,21px);line-height:1.2}
  #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:minmax(0,1fr);gap:12px}
- #tab-input #form-iuran.f4-book-iuran-grid>
- :is(.f4-book-warga,.f4-book-date-method,.f4-book-period,.f4-book-preview-column,.f4-book-money,.f4-book-submit,#save-status){
-  grid-column:1/-1;grid-row:auto
- }
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-date-method{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-period{grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
- #tab-input #form-iuran.f4-book-iuran-grid>div.f4-book-money{grid-template-columns:minmax(0,1fr);gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid>:is(.f4-book-input-column,.f4-book-result-column){display:contents}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-warga{order:1}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method{order:2}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period{order:3}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-preview-column{order:4}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money{order:5}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{order:7}
+ #tab-input #form-iuran.f4-book-iuran-grid>#save-status{order:6}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period{grid-template-columns:minmax(0,1.15fr) minmax(0,.78fr) minmax(0,1fr);gap:6px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money{grid-template-columns:minmax(0,1fr);gap:8px}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{grid-template-rows:var(--book-control);padding-top:0}
 
- #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-book-breakdown-item{grid-template-columns:minmax(0,1fr)}
+ #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-breakdown-value,#pv-kebersihan-x){text-align:left}
+ #tab-input #form-iuran.f4-book-iuran-grid .f4-iuran-preview{padding:10px 12px}
  /* Riwayat Iuran HP: kontrol menyatu, ringkasan datar, tetap satu workspace luar. */
  #tab-riwayat #history-iuran-panel .history-iuran-filter{
   grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:9px
