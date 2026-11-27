@@ -181,7 +181,7 @@ body:has(#f4-account-page){
 .tc-bulk-intro small{font-size:11px;line-height:1.4;color:var(--tc-muted)}
 .tc-bulk-intro .tc-source-warning{margin-top:3px}
 .tc-bulk-actions{display:flex;align-items:center;gap:8px;flex:1 1 285px;justify-content:flex-end}
-.tc-bulk-actions select{flex:1 1 auto;min-width:130px;min-height:39px;max-width:235px;border:1px solid var(--tc-line);border-radius:9px;padding:7px 9px;background:#fff;color:var(--tc-ink);font:500 12px system-ui}
+.tc-bulk-actions select{flex:1 1 auto;min-width:130px;min-height:39px;max-width:235px;border:1px solid var(--tc-line);border-radius:9px;padding:7px 9px;background:#fff;color:var(--tc-ink);font:500 var(--f4-input-font,14px) system-ui}
 .tc-bulk-actions .tc-primary{min-height:39px;white-space:nowrap;font-size:12px}
 
 .tc-review-meta{display:grid;gap:3px;min-width:0}
@@ -190,7 +190,7 @@ body:has(#f4-account-page){
 .tc-review-meta small{display:inline-block;width:max-content;max-width:100%;font-size:10px;font-weight:700;color:#65518f}
 .tc-review-meta .tc-same-day{width:auto;color:#98531a}
 .tc-review-meta .tc-source-date{font-size:10px;color:#526b83}
-.tc-review-row select{width:100%;min-width:0;min-height:37px;border:1px solid #cadce8;border-radius:8px;font:500 12px system-ui;background:#fff;color:#284b63;padding:7px}
+.tc-review-row select{width:100%;min-width:0;min-height:37px;border:1px solid #cadce8;border-radius:8px;font:500 var(--f4-input-font,14px) system-ui;background:#fff;color:#284b63;padding:7px}
 .tc-review-row button{white-space:nowrap;margin:0}
 .tc-review-row .tc-skip{background:#f5f6f8;color:#597080}
 .tc-bank-reconcile{border:0;background:var(--tc-soft);border-radius:9px;padding:8px 12px;margin:6px 0}
@@ -201,7 +201,7 @@ body:has(#f4-account-page){
 .tc-bank-info{display:grid;gap:3px;min-width:0}
 .tc-bank-info strong{color:#294e64;font-size:12px}
 .tc-bank-info span{color:#687d8c;font-size:11px;font-variant-numeric:tabular-nums}
-.tc-bank-row select{min-width:0;width:100%;min-height:35px;border:1px solid #d1dfe8;border-radius:8px;background:white;color:#294a5c;font:500 12px system-ui;padding:6px}
+.tc-bank-row select{min-width:0;width:100%;min-height:35px;border:1px solid #d1dfe8;border-radius:8px;background:white;color:#294a5c;font:500 var(--f4-input-font,14px) system-ui;padding:6px}
 .tc-bank-row .tc-primary{min-height:35px;white-space:nowrap;font-size:11px;padding:7px 12px}
 .tc-bank-status{font-size:11px;font-weight:700;color:#2a7857;justify-self:end}
 .tc-excluded{margin-top:11px;border-top:1px solid var(--tc-line);padding-top:9px}

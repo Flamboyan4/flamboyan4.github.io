@@ -474,7 +474,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  html[data-f4-shell] body{
   --f4-sheet-safe-bottom: var(--f4-shell-footer,0px);
   --f4-sheet-end-space:24px;
-  --f4-sheet-available-height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
  }
  html[data-f4-shell] body :is(#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
@@ -491,7 +491,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  html[data-f4-shell] body :is(#modal-edit>.f4-book-edit-center:has(.f4-book-edit-card.f4-sheet-expanded),
   #modal-edit>.f4-book-edit-center:has(.f4-sheet-dragging)){
   max-height:var(--f4-sheet-available-height);
-  height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px)
+  height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px)
  }
  html[data-f4-shell] body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
   bottom:var(--f4-sheet-safe-bottom);
@@ -501,6 +501,6 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  html[data-f4-shell] body .f4g-comment-overlay>.f4g-panel.f4-sheet-draggable{
   position:relative;padding-top:30px;
   max-height:var(--f4-sheet-available-height);
-  height:min(76dvh,calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px),660px)
+  height:min(76dvh,calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px),660px)
  }
 }

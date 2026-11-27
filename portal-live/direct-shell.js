@@ -131,10 +131,21 @@ function openLogin(){dialog.hidden=false;menu.hidden=true;updateLoginViewport();
 function closeLogin(){dialog.hidden=true;dialog.style.removeProperty('--f4-login-visible-height');dialog.style.removeProperty('--f4-login-visible-top');}
 function updateLoginViewport(){if(dialog.hidden)return;const v=window.visualViewport;if(!v||v.scale!==1)return;dialog.style.setProperty('--f4-login-visible-height',Math.round(v.height)+'px');dialog.style.setProperty('--f4-login-visible-top',Math.round(v.offsetTop)+'px');}
 window.visualViewport?.addEventListener('resize',updateLoginViewport,{passive:true});window.visualViewport?.addEventListener('scroll',updateLoginViewport,{passive:true});
-// Firefox Android: adapt browser toolbar geometry, not keyboard or zoom.
-if(/Firefox\//.test(navigator.userAgent)&&/Android/.test(navigator.userAgent)){
- const updateShell=()=>{const v=window.visualViewport;if(!v||v.scale!==1||!matchMedia('(max-width:1023px)').matches)return;const a=document.activeElement;if(a?.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable=true]'))return;if(window.innerHeight-v.height>160)return;document.documentElement.style.setProperty('--f4-shell-viewport',Math.round(v.height)+'px')};
- window.visualViewport?.addEventListener('resize',updateShell,{passive:true});window.addEventListener('resize',updateShell,{passive:true});document.addEventListener('focusout',()=>requestAnimationFrame(updateShell));updateShell();
+// Permanent shell viewport rule survives SPA attribute replacement.
+if(/Firefox\//i.test(navigator.userAgent)&&/Android/i.test(navigator.userAgent)){
+ const viewportStyle=document.createElement('style');viewportStyle.dataset.f4Persistent='shell';viewportStyle.id='f4-gecko-viewport';document.head.append(viewportStyle);
+ const mobile=matchMedia('(max-width:1023px)');let frame=0,lastHeight=0;
+ function updateShell(){
+  frame=0;const v=window.visualViewport;
+  if(!mobile.matches){lastHeight=0;viewportStyle.textContent='';return}
+  if(!v||Math.abs(v.scale-1)>.01)return;
+  const editing=document.activeElement?.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable=true]');
+  if(window.innerHeight-v.height>160||(editing&&lastHeight&&lastHeight-v.height>160))return;
+  const h=Math.round(v.height);if(h<200||h===lastHeight)return;lastHeight=h;
+  viewportStyle.textContent='html[data-f4-shell]{--f4-shell-viewport:'+h+'px}';
+ }
+ const queue=()=>{if(!frame)frame=requestAnimationFrame(updateShell)};
+ window.visualViewport?.addEventListener('resize',queue,{passive:true});window.visualViewport?.addEventListener('scroll',queue,{passive:true});window.addEventListener('resize',queue,{passive:true});document.addEventListener('focusout',queue);document.addEventListener('f4:portal-changed',queue);queue();
 }
 login.addEventListener('click',openLogin);
 dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLogin);
@@ -1110,7 +1121,12 @@ window.F4PortalNavigation.initialSession=refreshSession().then(()=>{
   }else label.dataset.f4CompactCaption='1';
   label.dataset.f4CompactLabel='1';
  }
- function scan(){queued=false;document.querySelectorAll('label').forEach(enhance);}
+ function scan(){
+  queued=false;document.querySelectorAll('label').forEach(enhance);
+  document.querySelectorAll(controls+',.f4-control-trigger,.custom-select-btn,.mdc-btn,.tc-date-trigger,.f4-warga-picker-open').forEach(node=>{
+   if(node.closest(scope)&&!node.closest(excluded)&&!node.matches('.f4-modern-native-hidden,[type=hidden],[type=file]')&&!node.hasAttribute('data-f4-form-control'))node.setAttribute('data-f4-form-control','');
+  });
+ }
  function schedule(){if(!queued){queued=true;requestAnimationFrame(scan)}}
  const observer=new MutationObserver(records=>{
   if(records.some(r=>r.type==='attributes'||[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('label,input,select,textarea,.f4-control-trigger')||n.querySelector?.('label,input,select,textarea,.f4-control-trigger')))))schedule();

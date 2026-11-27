@@ -1175,7 +1175,7 @@ body.f4-bank-app-admin #dashboardView .f4-bank-admin-insight-chart .f4-bank-admi
  #dashboardView #bank-payout-admin #v9Form>.f4-payout-submit{
   grid-column:1;grid-row:auto
  }
- #dashboardView #bank-payout-admin #v9Form :is(input,select){font-size:16px}
+ #dashboardView #bank-payout-admin #v9Form :is(input,select,.f4-control-trigger){font-size:var(--f4-input-font,14px)}
  #dashboardView #bank-payout-admin #v9Form>.f4-payout-submit{width:100%;justify-self:stretch}
  #dashboardView #bank-payout-admin .f4-bank-payout-ledger{padding:15px 14px;border-radius:16px}
 }
@@ -3441,8 +3441,8 @@ body.f4-bank-app-admin #dashboardView #pageLaporan .f4-bank-report-progress-link
  }
  body.f4-bank-app-private #sideNav.side{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
  /* Field focusing must not trigger browser zoom/pan while weighing or selling. */
- body.f4-bank-app-private #dashboardView :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
-  font-size:16px
+ body.f4-bank-app-private #dashboardView :is(input:not([type=checkbox]):not([type=radio]),select,textarea,.f4-control-trigger){
+  font-size:var(--f4-input-font,14px)
  }
 }
 /* Bank Sampah member dashboard: premium eco-banking composition.

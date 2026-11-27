@@ -601,7 +601,7 @@
   outline:2px solid #8b5cf6;outline-offset:0
  }
  #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field-text{
-  font-size:13px;font-weight:700;min-width:0
+  font-size:var(--f4-input-font,14px);font-weight:700;min-width:0
  }
  #tab-riwayat #history-kasumum-panel #history-kas-period .upr-field svg{
   width:16px;height:16px;max-width:16px;max-height:16px
@@ -618,7 +618,7 @@
  }
  #tab-riwayat #history-kasumum-panel :is(#cari-trx-kas,#filter-trx-kas){
   width:100%;min-width:0;min-height:40px;height:40px;box-shadow:none;
-  background:transparent;border:0;border-radius:0;padding:6px 9px;font-size:13px
+  background:transparent;border:0;border-radius:0;padding:6px 9px;font-size:var(--f4-input-font,14px)
  }
  #tab-riwayat #history-kasumum-panel #cari-trx-kas:focus-visible{
   outline:2px solid #8b5cf6;outline-offset:-2px;border-radius:9px
@@ -628,7 +628,7 @@
  }
  #tab-riwayat #history-kasumum-panel #filter-trx-kas+.custom-select-wrap .custom-select-btn,
  #tab-riwayat #history-kasumum-panel .custom-select-wrap:has(>#filter-trx-kas) .custom-select-btn{
-  min-height:40px;height:40px;padding:6px 8px;font-size:13px;border:0;background:transparent;
+  min-height:40px;height:40px;padding:6px 8px;font-size:var(--f4-input-font,14px);border:0;background:transparent;
   box-shadow:none;border-radius:0
  }
  /* Daftar kas menyatu dengan frame halaman: hanya garis pemisah antartransaksi. */
