@@ -49,9 +49,23 @@
   '.f4p-album-overlay','#modal-gateway','.f4g-comment-overlay'
  ].join(',');
  const savedHeights=new WeakMap(), originalStyles=new WeakMap(), timers=new WeakMap();
- const watched=new WeakSet();
+ const watched=new WeakSet(),handles=new WeakMap();
  let active=null, drag=null, animating=null, refreshFrame=0, lastDragAt=-1000;
- let grip;
+ let grip=null;
+ const pickerSelector='.f4-control-overlay:not([hidden]):not(.hidden)';
+ function pickerOpen(){return [...document.querySelectorAll(pickerSelector)].some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden')}
+ function closed(panel){return !panel?.isConnected||!!panel.closest('[hidden],.hidden,[inert]')||panel.matches('dialog:not([open])')||getComputedStyle(panel).display==='none'||getComputedStyle(panel).visibility==='hidden'}
+ function alignHandle(panel,handle){const top=Math.max(0,panel.scrollTop||0)+'px';if(handle.style.top!==top)handle.style.top=top;}
+ function ensureHandle(panel){
+  let handle=handles.get(panel);
+  if(!handle){
+   handle=document.createElement('div');handle.className='f4-sheet-handle';handle.setAttribute('role','button');handle.setAttribute('tabindex','-1');handle.setAttribute('aria-label',labels(false));handle.setAttribute('aria-expanded','false');handles.set(panel,handle);
+   handle.addEventListener('click',event=>{if(event.detail!==0||active!==panel||pickerOpen()||!visible(panel)||performance.now()-lastDragAt<350)return;event.preventDefault();const expanded=panel.classList.contains('f4-sheet-expanded');settle(panel,!expanded,savedHeights.get(panel)||panel.getBoundingClientRect().height)});
+   handle.addEventListener('keydown',event=>{if(active!==panel||pickerOpen()||!media.matches)return;const key=event.key;if(key==='Escape'){event.preventDefault();event.stopPropagation();exitDown(panel)}else if(key==='ArrowDown'){event.preventDefault();event.stopPropagation();if(panel.classList.contains('f4-sheet-expanded'))settle(panel,false,savedHeights.get(panel));else exitDown(panel)}else if(['ArrowUp','Enter',' '].includes(key)){event.preventDefault();event.stopPropagation();settle(panel,true,savedHeights.get(panel)||panel.getBoundingClientRect().height)}});
+  }
+  if(handle.parentNode!==panel)panel.append(handle);
+  alignHandle(panel,handle);return handle;
+ }
  const labels=expanded=>expanded
   ? 'Geser ke bawah untuk mengecilkan atau menutup panel'
   : 'Geser ke atas untuk memperbesar atau ke bawah untuk menutup panel';
@@ -79,53 +93,38 @@
  }
  function refresh(){
   refreshFrame=0;
-  if(!grip||!media.matches){if(grip)grip.hidden=true;return;}
-  // The picker and year menu are nested controls, never draggable sheets.
-  if([...document.querySelectorAll('.f4-control-overlay:not([hidden])')].some(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden')&&!document.body.classList.contains('f4-direct-bank')){grip.hidden=true;return;}
-  // Never read panel geometry or overwrite the grip while a gesture is in flight.
-  if(drag?.panel?.isConnected&&visible(drag.panel)||animating?.panel?.isConnected&&visible(animating.panel))return;
-  if(drag){if(drag.frame)cancelAnimationFrame(drag.frame);drag=null;grip.classList.remove('f4-sheet-handle-dragging');}
-  if(animating){clearTimer(animating.panel);}
-  if(!grip.isConnected)document.body.append(grip);
-  // Native Portal Utama and Bank Sampah lightboxes are never bottom sheets.
-  // A gallery sheet may remain mounted behind the fullscreen viewer.
-  const lightbox=document.querySelector(
-   '#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])'
-  );
-  if(lightbox&&lightbox.getClientRects().length&&!document.querySelector('.f4g-comment-overlay:not([hidden])')){active=null;grip.hidden=true;return;}
-  // Choose the uppermost currently visible sheet. A newer date picker/dialog
-  // must not inherit the handle of a still-open sheet underneath it.
-  let latest=null,front=null;
+  if(!media.matches){active=null;grip=null;return;}
+  if(drag?.panel?.isConnected&&!closed(drag.panel)||animating?.panel?.isConnected&&!closed(animating.panel))return;
+  if(drag){if(drag.frame)cancelAnimationFrame(drag.frame);drag.handle?.classList.remove('f4-sheet-handle-dragging');drag=null;}
+  if(animating)clearTimer(animating.panel);
+  const previous=active,picking=pickerOpen();
+  const lightbox=document.querySelector('#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])');
+  const viewing=lightbox&&lightbox.getClientRects().length&&!document.querySelector('.f4g-comment-overlay:not([hidden])');
+  let latest=null,front=null;const open=[];
   for(const panel of document.querySelectorAll(selector)){
    if(!expandable(panel))continue;
-   attach(panel); // Reconcile after a SPA mount, not only after DOM insertion.
+   attach(panel);
+   if(closed(panel))continue;
+   const handle=ensureHandle(panel);
+   open.push({panel,handle});
    if(!visible(panel))continue;
    latest=panel;
-   const r=panel.getBoundingClientRect();
-   const x=Math.max(0,Math.min(window.innerWidth-1,r.left+r.width/2));
-   const y=Math.max(0,Math.min(window.innerHeight-1,r.top+Math.min(40,r.height/2)));
+   if(picking||viewing)continue;
+   const r=panel.getBoundingClientRect(),x=Math.max(0,Math.min(window.innerWidth-1,r.left+r.width/2)),y=Math.max(0,Math.min(window.innerHeight-1,r.top+Math.min(20,r.height/2)));
    const hit=document.elementFromPoint(x,y);
-   if(hit&&(panel.contains(hit)||hit===grip&&active===panel))front=panel;
+   if(hit&&panel.contains(hit))front=panel;
   }
-  active=front||latest;
-  if(!active||!visible(active)){
-   if(grip.parentNode!==document.body)document.body.append(grip);
-   grip.hidden=true;return;
+  // An anchored picker must not replace or hide the underlying sheet handle.
+  // Retain the current sheet through temporary focus/viewport changes.
+  active=viewing?null:(picking&&previous&&!closed(previous)?previous:front||(previous&&!closed(previous)?previous:latest));
+  grip=active?handles.get(active)||null:null;
+  for(const {panel,handle} of open){
+   const isActive=panel===active&&!picking&&!viewing;
+   const tab=isActive?'0':'-1';if(handle.getAttribute('tabindex')!==tab)handle.setAttribute('tabindex',tab);
+   // The handle stays visible; only its hit target is suspended while a picker is open.
+   const disabled=String(!isActive);if(handle.getAttribute('aria-disabled')!==disabled)handle.setAttribute('aria-disabled',disabled);
   }
-  // Native dialogs and the resident sheet carry their handle in their own layer.
-  const embedded=active.matches('dialog.f4-bank-sheet-modal,.f4-control-panel,.f4-resident-sheet-panel');
-  const host=embedded?active:document.body;
-  if(grip.parentNode!==host)host.append(grip);
-  const r=active.getBoundingClientRect();
-  if(!embedded&&r.top>=window.innerHeight){grip.hidden=true;return;}
-  grip.style.left=embedded?'0px':Math.max(0,r.left)+'px';
-  grip.style.top=embedded?'0px':Math.max(0,r.top)+'px';
-  grip.style.width=embedded?'100%':r.width+'px';
-  grip.hidden=false;
-  updateLabel(active);
-  // Keep the grip aligned while the sheet entrance animation is moving.
-  // Once the CSS animation ends there are no extra animation frames.
-  if((active.getAnimations?.({subtree:false})||[]).some(animation=>animation.playState==='running'))requestRefresh();
+  if(grip)updateLabel(active);
  }
  function requestRefresh(){
   if(!refreshFrame)refreshFrame=requestAnimationFrame(refresh);
@@ -135,10 +134,7 @@
    if(animating.frame)cancelAnimationFrame(animating.frame);
    animating=null;
   }
-  if(grip){
-   grip.classList.remove('f4-sheet-handle-settling');
-   grip.style.removeProperty('transition');
-  }
+  const handle=handles.get(panel);if(handle){handle.classList.remove('f4-sheet-handle-settling');handle.style.removeProperty('transition');}
  }
  function clearTimer(panel){
   if(timers.has(panel)){clearTimeout(timers.get(panel));timers.delete(panel);}
@@ -160,10 +156,10 @@
   savedHeights.delete(panel);
  }
  function resetIfClosed(panel){
-  if(!visible(panel)){
+  if(closed(panel)){
    clearPanel(panel);
-   if(active===panel)active=null;
-  }else active=panel;
+   if(active===panel){active=null;grip=null;}
+  }
   requestRefresh();
  }
  function rootOf(panel){return panel.closest(rootSelector)||panel;}
@@ -175,7 +171,7 @@
  }
  function attach(panel){
   if(!expandable(panel))return;
-  if(panel.dataset.f4SheetGesture==='1')return;
+  if(panel.dataset.f4SheetGesture==='1'){if(!closed(panel)&&media.matches)ensureHandle(panel);return;}
   panel.dataset.f4SheetGesture='1';
   panel.classList.add('f4-sheet-draggable');
   const root=rootOf(panel);
@@ -194,7 +190,7 @@
    if(drag?.panel===panel||animating?.panel===panel)return;
    requestRefresh();
   });
-  if(visible(panel))active=panel;
+  if(visible(panel)&&media.matches)ensureHandle(panel);
   const details=panel.closest('details');
   if(details)observe(details,()=>resetIfClosed(panel));
   requestRefresh();
@@ -237,7 +233,8 @@
  // Measure the resting sheet once. During the gesture the visible height itself
  // changes, so its scroll viewport always ends at the dock, not behind it.
  function prepare(panel){
-  if(!panel?.isConnected||!visible(panel))return null;
+  if(!panel?.isConnected||!visible(panel)||pickerOpen())return null;
+  grip=ensureHandle(panel);
   for(const a of panel.getAnimations?.({subtree:false})||[]){if(a.playState==='running'&&a.animationName){try{a.finish()}catch{}}}
   const rect=panel.getBoundingClientRect();
   const wasExpanded=panel.classList.contains('f4-sheet-expanded');
@@ -254,14 +251,12 @@
   panel.style.minHeight='0px';
   panel.style.flexShrink='0';
   panel.style.willChange='height,transform';
-  const embedded=grip.parentNode===panel;
-  const pose={panel,expanded:wasExpanded,height,initial,collapsed,embedded,bottom:rect.bottom,shown:initial,shift:0,rawDelta:0,frame:0};
+  const pose={panel,handle:grip,expanded:wasExpanded,height,initial,collapsed,bottom:rect.bottom,shown:initial,shift:0,rawDelta:0,frame:0};
   grip.classList.remove('f4-sheet-handle-settling');
   grip.style.transition='none';
-  grip.style.left=embedded?'0px':Math.max(0,rect.left)+'px';
-  grip.style.width=embedded?'100%':rect.width+'px';
-  grip.style.transform='none';
-  grip.hidden=false;
+  grip.style.removeProperty('left');
+  grip.style.removeProperty('width');
+  grip.style.removeProperty('transform');
   active=panel;
   paintPose(pose,initial,0);
   return pose;
@@ -271,10 +266,7 @@
   panel.style.height=shown+'px';
   panel.style.maxHeight=shown+'px';
   panel.style.transform=shift?'translate3d(0,'+shift+'px,0)':'none';
-  if(!pose.embedded){
-   grip.style.top=Math.max(0,pose.bottom-shown)+'px';
-   grip.style.transform=shift?'translate3d(0,'+shift+'px,0)':'none';
-  }else grip.style.top='0px';
+  alignHandle(panel,pose.handle);
  }
  function animatePose(pose,target){
   if(!pose?.panel?.isConnected)return;
@@ -288,9 +280,9 @@
   panel.classList.remove('f4-sheet-dragging');
   panel.classList.add(dismissing?'f4-sheet-dismissing':'f4-sheet-settling');
   panel.style.transition=duration?'height '+duration+'ms '+ease+',max-height '+duration+'ms '+ease+',transform '+duration+'ms '+ease:'none';
-  grip.classList.remove('f4-sheet-handle-dragging');
-  grip.classList.add('f4-sheet-handle-settling');
-  grip.style.transition=duration?'top '+duration+'ms '+ease+',transform '+duration+'ms '+ease:'none';
+  const handle=pose.handle;
+  handle.classList.remove('f4-sheet-handle-dragging');
+  handle.classList.add('f4-sheet-handle-settling');
   const job={panel,frame:0};animating=job;
   job.frame=requestAnimationFrame(()=>{
    job.frame=0;
@@ -311,9 +303,9 @@
     panel.classList.remove('f4-sheet-settling','f4-sheet-dismissing');
     panel.style.removeProperty('will-change');
    }
-   grip.style.removeProperty('transition');
-   grip.style.removeProperty('transform');
-   grip.classList.remove('f4-sheet-handle-settling');
+   handle.style.removeProperty('transition');
+   handle.style.removeProperty('transform');
+   handle.classList.remove('f4-sheet-handle-settling');
    requestRefresh();
   },duration+34));
  }
@@ -330,7 +322,7 @@
  }
  const headerSelector='.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header';
  function begin(event){
-  if(!media.matches||drag||!active||!visible(active))return;
+  if(!media.matches||drag||!active||!grip||!visible(active)||pickerOpen())return;
   if(event.pointerType==='mouse'&&event.button!==0)return;
   const target=event.target;
   const onGrip=grip.contains(target);
@@ -363,8 +355,8 @@
   if(d.frame)cancelAnimationFrame(d.frame);
   if(!cancelled&&Number.isFinite(event.clientY))positionAt(d,event.clientY);
   paintPose(d,d.shown,d.shift);
-  grip.classList.remove('f4-sheet-handle-dragging');
-  try{if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId)}catch{}
+  d.handle.classList.remove('f4-sheet-handle-dragging');
+  try{if(d.handle.hasPointerCapture?.(event.pointerId))d.handle.releasePointerCapture(event.pointerId)}catch{}
   const dy=d.rawDelta,velocity=dy/Math.max(1,performance.now()-d.startAt);
   lastDragAt=performance.now();
   if(cancelled){settle(d.panel,d.expanded,d.collapsed,d);return}
@@ -378,48 +370,19 @@
  }
  function start(){
   if(!document.body)return;
-  grip=document.createElement('div');
-  grip.className='f4-sheet-handle';
-  grip.dataset.f4Persistent='shell';
-  grip.hidden=true;
-  grip.setAttribute('role','button');
-  grip.setAttribute('tabindex','0');
-  grip.setAttribute('aria-expanded','false');
-  grip.setAttribute('aria-label',labels(false));
-  document.body.appendChild(grip);
   document.addEventListener('pointerdown',begin,{capture:true,passive:false});
   // Document capture also works when a browser drops pointer capture or the
   // handle is reparented into a sheet's own stacking context.
   document.addEventListener('pointermove',move,{capture:true,passive:false});
   document.addEventListener('pointerup',event=>finish(event,false),true);
   document.addEventListener('pointercancel',event=>finish(event,true),true);
-  grip.addEventListener('click',event=>{
-   event.preventDefault();
-   if(event.detail!==0||!active||!visible(active)||performance.now()-lastDragAt<350)return;
-   const wasExpanded=active.classList.contains('f4-sheet-expanded');
-   const h=savedHeights.get(active)||active.getBoundingClientRect().height;
-   if(!wasExpanded)savedHeights.set(active,h);
-   settle(active,!wasExpanded,h);
-  });
-  grip.addEventListener('keydown',event=>{
-   if(!active||!media.matches)return;
-   const key=event.key;
-   if(key==='Escape'){event.preventDefault();exitDown(active);return;}
-   if(key==='ArrowDown'){event.preventDefault();
-    if(active.classList.contains('f4-sheet-expanded'))settle(active,false,savedHeights.get(active));
-    else exitDown(active);
-   }else if(key==='ArrowUp'||key==='Enter'||key===' '){
-    event.preventDefault();
-    settle(active,true,savedHeights.get(active)||active.getBoundingClientRect().height);
-   }
-  });
   inspect(document.body);
   const observer=new MutationObserver(records=>{
    let added=false;
    for(const record of records){
     if(record.removedNodes.length)added=true;
     for(const node of record.addedNodes){
-     if(node===grip)continue;
+     if(node.nodeType===1&&node.classList.contains('f4-sheet-handle'))continue;
      inspect(node);added=true;
     }
    }
@@ -427,7 +390,10 @@
   });
   observer.observe(document.body,{subtree:true,childList:true});
   function resizeSheet(){
-   if(active?.isConnected&&!drag&&!animating&&active.classList.contains('f4-sheet-expanded')){
+   // Focus and the keyboard may change visualViewport without changing the user's chosen sheet size.
+   const editing=document.activeElement?.matches('input,textarea,select,[contenteditable=true]');
+   const keyboard=!!window.visualViewport&&window.innerHeight-window.visualViewport.height>120;
+   if(!editing&&!keyboard&&!pickerOpen()&&active?.isConnected&&!drag&&!animating&&active.classList.contains('f4-sheet-expanded')){
     const h=fullHeight(active.getBoundingClientRect());
     if(h>0&&Math.abs(active.getBoundingClientRect().height-h)>1){active.style.height=h+'px';active.style.maxHeight=h+'px';}
    }
@@ -435,16 +401,16 @@
   }
   document.addEventListener('f4:portal-changed',requestRefresh);
   window.addEventListener('resize',resizeSheet,{passive:true});
-  window.addEventListener('scroll',()=>{if(active?.isConnected&&!grip?.hidden)requestRefresh()},{passive:true,capture:true});
+  document.addEventListener('scroll',event=>{const handle=handles.get(event.target);if(handle)alignHandle(event.target,handle);},{passive:true,capture:true});
   window.visualViewport?.addEventListener('resize',resizeSheet,{passive:true});
   media.addEventListener?.('change',()=>{
    if(!media.matches){
     if(drag){
      if(drag.frame)cancelAnimationFrame(drag.frame);
-     drag=null;grip.classList.remove('f4-sheet-handle-dragging');
+     drag.handle?.classList.remove('f4-sheet-handle-dragging');drag=null;
     }
     document.querySelectorAll(selector).forEach(clearPanel);
-    grip.style.removeProperty('transform');
+    grip?.style.removeProperty('transform');
    }
    requestRefresh();
   });
@@ -452,5 +418,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261127-sheet-touch-v92',refresh:requestRefresh};
+ window.F4MobileSheets={version:'20261127-stable-form-sheet-v99',refresh:requestRefresh};
 })();
