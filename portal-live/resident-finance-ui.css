@@ -33,10 +33,12 @@
   margin-left:auto;gap:8px;
 }
 #keuangan .f4-cash-mobile-actions{display:flex;align-items:center;gap:5px;flex:none}
-#keuangan .f4-cash-mobile-actions button{display:grid;place-items:center;width:32px;height:32px;flex:none;padding:0;border:1px solid #ffffff55;border-radius:9px;background:#ffffff20;color:#fff;cursor:pointer}
+#keuangan .f4-cash-mobile-actions button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:34px;flex:none;padding:0 7px;border:1px solid #ffffff55;border-radius:9px;background:#ffffff20;color:#fff;font:600 11px/1.2 system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 #keuangan .f4-cash-mobile-actions button:hover{background:#ffffff35}
-#keuangan .f4-cash-mobile-actions svg{width:17px;height:17px;display:block}
-#keuangan .f4-cash-balance-tools{display:flex;align-items:center;gap:7px;flex:none}
+#keuangan .f4-cash-mobile-actions svg{width:15px;height:15px;display:block;flex:none}
+#keuangan .f4-cash-balance-tools{display:flex;align-items:center;gap:5px;flex:none}
+#keuangan .f4-cash-balance-tools .f4-cash-active{white-space:nowrap}
+@media(max-width:360px){#keuangan .f4-cash-mobile-actions button{padding-inline:5px;gap:3px}}
 body:not([data-preview-role]) #keuangan .f4-cash-mobile-actions,body[data-preview-role="public"] #keuangan .f4-cash-mobile-actions{display:none}
 #keuangan .f4-cash-overview {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.95fr);
