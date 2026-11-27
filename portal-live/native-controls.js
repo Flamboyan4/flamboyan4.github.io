@@ -74,7 +74,8 @@ function start(trigger,title,dropdown=false,options={}){
    // narrow as its date input when the input occupies half a form row.
    panel.style.width=width+'px';panel.style.maxHeight='none';
    const natural=__f4.globals.Math.max(90,panel.scrollHeight);
-   const desired=__f4.globals.Math.min(natural,options.kind==='calendar'?350:280);
+   const desktopResident=options.resident&&__f4.globals.innerWidth>=1024;
+   const desired=__f4.globals.Math.min(natural,options.kind==='calendar'?350:desktopResident?560:280);
    const below=__f4.globals.Math.max(0,top+vh-r.bottom-10);
    const above=__f4.globals.Math.max(0,r.top-top-10);
    const up=below<desired&&above>below;
@@ -116,7 +117,7 @@ function selectPicker(field,trigger){
  const dropdown=true;
  const goods=!!field.closest('#saleItems,#setBarang,#f4BankOwnLines');
  const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',
-  dropdown,{kind:'select',minWidth:resident?220:0});
+  dropdown,{kind:'select',minWidth:resident?220:0,resident});
  if(resident||options.length>10){
   const searchRow=__f4.globals.document.createElement('div');searchRow.className='f4-bank-picker-search-row';
   const input=__f4.globals.document.createElement('input');input.type='search';input.className='f4-control-search';
