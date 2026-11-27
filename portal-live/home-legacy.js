@@ -1962,7 +1962,15 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const following=nextArisanIdxGlobal>=0?globalArisanData[nextArisanIdxGlobal]:null;
       const get=(id)=>__f4.globals.document.getElementById(id);
       const values=row=>__f4.globals.Object.values(row||{});
-      get('arisan-bulan-ini-nama').textContent=current?(0,__f4.globals.String)(values(current)[1]||'-'):'Belum dijadwalkan';
+      const host=(prefix,row)=>{
+        const raw=(0,__f4.globals.String)(values(row)[1]||'').trim();
+        const match=raw.match(/(?:\s|^)(?:blok\s+)?([A-Za-z]\s*\d+\s*[/.-]\s*\d+[A-Za-z]?)\s*$/i);
+        const name=get(prefix+'-nama'),address=get(prefix+'-alamat');
+        name.textContent=raw?(match?raw.slice(0,match.index).trim():raw)||raw:'Belum dijadwalkan';
+        address.textContent=match?match[1].replace(/\s+/g,'').toUpperCase():'';
+        address.hidden=!match;
+      };
+      host('arisan-bulan-ini',current);
       const periodLabel=(raw)=>{
         const period=(0,__f4.globals.String)(raw||'').trim();
         const short=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -1970,7 +1978,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         return 'Arisan '+compact;
       };
       get('arisan-bulan-ini-tgl').textContent=periodLabel(current?values(current)[0]:f4ArisanMonthNames[now.month-1]+' '+now.year);
-      get('arisan-selanjutnya-nama').textContent=following?(0,__f4.globals.String)(values(following)[1]||'-'):'Belum dijadwalkan';
+      host('arisan-selanjutnya',following);
       get('arisan-selanjutnya-tgl').textContent=following?
         periodLabel(values(following)[0]):'Arisan berikutnya';
       const icon=get('arisan-bulan-ini-icon-bg');
@@ -1979,9 +1987,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         const done=/sudah|selesai|lunas/.test(status);
         icon.className=done?'shrink-0 text-emerald-100':
           'shrink-0 text-white';
-        icon.innerHTML=done?
-          '<i data-lucide="check-circle-2" class="w-6 h-6"></i>':
-          '<i data-lucide="home" class="w-6 h-6"></i>';
+        icon.innerHTML='<i data-lucide="home" class="w-6 h-6"></i>';
+        icon.title=done?'Arisan selesai':'';
         __f4.window.lucide?.createIcons();
       }
       filterArisanModal();
@@ -3319,30 +3326,39 @@ async function loadProgresBankSampahIndex(){
  const set=(id,value)=>{const el=__f4.globals.document.getElementById(id);if(el)el.textContent=(0,__f4.globals.String)(value||'—')};
  const fallback=message=>{set('bs-step-tag','Bank Sampah');set('bs-step-title',message);set('bs-info-1','—');set('bs-info-2','—');f4SetBankProjectPhoto(null);};
  try{
-  const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
-  if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
-  const payload=await response.json();
+  let payload=null,lastError=null;
+  for(let attempt=0;attempt<2;attempt++){
+   try{
+    const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
+    if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
+    payload=await response.json();
+    if(payload.ok===false||!__f4.globals.Array.isArray(payload.progress))throw (0,__f4.globals.Error)(payload.error||'Data perkembangan tidak tersedia');
+    break;
+   }catch(e){lastError=e;payload=null}
+  }
+  if(!payload)throw lastError;
   if(payload.ok===false||!__f4.globals.Array.isArray(payload.progress))throw (0,__f4.globals.Error)(payload.error||'Data perkembangan tidak tersedia');
   const items=payload.progress.map(row=>({
    title:(0,__f4.globals.String)(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
    stage:(0,__f4.globals.String)(row.stage||row.langkah||''),
+   description:(0,__f4.globals.String)(row.description||row.deskripsi||''),
    status:(0,__f4.globals.String)(row.status||''),
    date:(0,__f4.globals.String)(row.happened_on||row.tanggal||row.date||''),
    next:(0,__f4.globals.String)(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
    photo:(0,__f4.globals.String)(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
   })).sort((a,b)=>b.date.localeCompare(a.date));
   __f4.globals.document.getElementById('bs-project-timeline')?.remove();
-  if(!items.length){fallback('Belum ada perkembangan');return;}
+  if(!items.length){fallback('Belum ada perkembangan yang dipublikasikan');return;}
   const active=items[0];
   set('bs-step-tag','Terbaru');
   set('bs-step-title',active.title);
-  set('bs-info-1',active.stage?'Tahap: '+active.stage.replace(/^Tahap:\s*/i,''):'—');
+  set('bs-info-1',active.stage?'Tahap: '+active.stage.replace(/^Tahap:\s*/i,''):active.description||'Perkembangan tercatat');
   set('bs-info-2',active.next?'Agenda: '+active.next.replace(/^Agenda:\s*/i,''):'Status: '+(active.status||'Dicatat'));
   f4SetBankProjectPhoto(active);
   if(active.status)set('bs-status-badge',active.status);
  }catch(error){
   __f4.globals.console.error('Progres Bank Sampah tidak dapat dimuat:',error);
-  fallback('Perkembangan belum tersedia');
+  fallback('Perkembangan gagal dimuat');
  }
 }
 __f4.globals.document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);

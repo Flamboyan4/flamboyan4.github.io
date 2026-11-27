@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-f4-shell="portal" data-f4-release="20261127-titleless-home-v115" data-f4-spa="1">
+<html lang="id" data-f4-shell="portal" data-f4-release="20261127-refine-home-cards-v116" data-f4-spa="1">
 <head>
   <meta charset="UTF-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -74,15 +74,15 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-content-scroll-v71"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-sheet-anchor-motion-v113"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261127-history-spacing-v39">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-titleless-home-v115">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-refine-home-cards-v116">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-sheet-anchor-motion-v113">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-sheet-anchor-motion-v113"></script>
-<link rel="stylesheet" href="/portal-live/community-home.css?v=20261127-titleless-home-v115">
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261127-refine-home-cards-v116">
 <link rel="stylesheet" href="/portal-live/dokumentasi/media-theme.css?v=20261127-single-photo-v49">
 <link rel="stylesheet" href="/portal-live/dokumentasi/community-gallery.css?v=20261127-iuran-resident-panel-v102">
 
-<link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261127-iuran-resident-panel-v102">
+<link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261127-refine-home-cards-v116">
 
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-compact-treasury-filters-v106"></head>
@@ -195,7 +195,10 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
         <div class="bg-indigo-600 p-5 border border-indigo-600 text-white relative overflow-hidden">
           <div class="f4-cash-card-heading flex items-center justify-between mb-1">
             <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
-            <span class="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">Aktif</span>
+            <div class="f4-cash-balance-tools"><span class="bg-emerald-500/20 text-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">Aktif</span><div class="f4-cash-mobile-actions" role="group" aria-label="Laporan Kas Warga">
+              <button type="button" class="f4-cash-mobile-detail" onclick="openModalKeuangan()" aria-label="Rincian kas" title="Rincian kas"><i data-lucide="list-filter" aria-hidden="true"></i></button>
+              <button type="button" class="f4-cash-mobile-print" onclick="openModalCetakKas()" aria-label="Unduh PDF" title="Unduh PDF"><i data-lucide="download" aria-hidden="true"></i></button>
+            </div></div>
           </div>
           <p id="sisa-saldo" class="f4-cash-card-value text-2xl md:text-3xl font-black tracking-tight text-white mt-1">—</p>
 
@@ -274,14 +277,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
         </div>
         <div class="f4-home-slide-nav" data-slide-nav="f4-cash-summary-slides" role="group" aria-label="Pilih ringkasan kas"></div>
 
-      <div class="f4-cash-mobile-actions" role="group" aria-label="Laporan Kas Warga">
-        <button type="button" class="f4-cash-mobile-detail" onclick="openModalKeuangan()">
-          <i data-lucide="list-filter" aria-hidden="true"></i><span>Rincian</span>
-        </button>
-        <button type="button" class="f4-cash-mobile-print" onclick="openModalCetakKas()">
-          <i data-lucide="download" aria-hidden="true"></i><span>PDF</span>
-        </button>
-      </div>
+
       <div id="f4-private-transactions" class="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="f4-cash-table-toolbar">
           <span id="label-update-kas" class="f4-cash-last-update">Data Kas</span>
@@ -337,11 +333,9 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
       <div id="f4-arisan-slides" class="grid f4-grid w-full" data-cols="2" role="group" aria-label="Arisan bulan ini dan berikutnya">
         <div onclick="openModalArisan('current')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-card flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
-            <span class="text-xs font-semibold text-indigo-200 uppercase tracking-wider flex items-center space-x-1">
-              <span>Bulan Ini</span>
-            </span>
-            <h4 id="arisan-bulan-ini-nama" class="text-lg md:text-xl font-bold mt-1">Memuat data...</h4>
-            <p id="arisan-bulan-ini-tgl" class="text-xs text-indigo-200 mt-0.5">-</p>
+            <p id="arisan-bulan-ini-tgl" class="f4-arisan-period text-indigo-200">Arisan</p>
+            <h4 id="arisan-bulan-ini-nama" class="text-white">Memuat data...</h4>
+            <p id="arisan-bulan-ini-alamat" class="f4-arisan-address text-indigo-200" hidden></p>
           </div>
           <div id="arisan-bulan-ini-icon-bg" class="shrink-0 text-white">
             <i id="arisan-bulan-ini-icon" data-lucide="home" class="w-6 h-6 text-white"></i>
@@ -350,12 +344,9 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
         <div onclick="openModalArisan('next')" class="bg-white hover:bg-indigo-50 p-5 rounded-card border border-slate-200 hover:border-indigo-300 flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
           <div>
-            <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider flex items-center space-x-1">
-              <span class="w-2 h-2 rounded-full bg-[#FFBA26] shrink-0" aria-hidden="true"></span>
-              <span>Bulan Depan</span>
-            </span>
-            <h4 id="arisan-selanjutnya-nama" class="text-lg md:text-xl font-bold text-slate-800 mt-1">-</h4>
-            <p id="arisan-selanjutnya-tgl" class="text-xs text-slate-500 mt-0.5">-</p>
+            <p id="arisan-selanjutnya-tgl" class="f4-arisan-period text-slate-500">Arisan berikutnya</p>
+            <h4 id="arisan-selanjutnya-nama" class="text-slate-800">-</h4>
+            <p id="arisan-selanjutnya-alamat" class="f4-arisan-address text-slate-500" hidden></p>
           </div>
           <div class="shrink-0 text-indigo-600">
             <i data-lucide="calendar" class="w-6 h-6"></i>
@@ -562,6 +553,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
     <!-- Cerita Warga: dari unggahan galeri D1, hanya muncul bila ada foto warga. -->
     <section id="cerita-warga" class="f4g-home w-full" aria-label="Dokumentasi warga" hidden>
+      <header class="f4g-home-heading"><span class="f4g-home-mark"><i data-lucide="images" aria-hidden="true"></i></span><div><h3>Cerita Warga</h3><p>Momen dan kegiatan di lingkungan kita</p></div></header>
       <div class="f4g-home-options" role="group" aria-label="Tampilan cerita warga">
         <button type="button" id="f4g-home-latest" aria-pressed="true">Foto terbaru</button>
         <button type="button" id="f4g-home-popular" aria-pressed="false">Populer</button>
@@ -573,15 +565,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
     <section id="komentar-warga" class="scroll-mt-20 w-full" aria-label="Obrolan Warga" data-compose-open="false">
       <div class="f4-chat-layout bg-white rounded-card shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        <div class="f4-chat-actions lg:col-span-12 flex items-center justify-end gap-2">
-          <div class="f4-chat-online flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
-          </div>
-          <button id="f4-chat-toggle" class="f4-home-mobile-action" type="button" aria-expanded="false" aria-controls="f4-chat-compose">
-            <i data-lucide="send" aria-hidden="true"></i><span>Tulis pesan</span>
-          </button>
-        </div>
+
         <!-- FORM KIRIM KOMENTAR -->
         <div id="f4-chat-compose" class="lg:col-span-5 bg-slate-50 p-4 rounded-card border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
@@ -626,15 +610,19 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
         <!-- LIST KOMENTAR WARGA -->
         <div class="lg:col-span-7 space-y-2 w-full">
-          <div class="flex items-center justify-between mb-2 border-b border-slate-100 pb-2">
-            <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
-              <i data-lucide="message-circle" class="w-4 h-4 text-indigo-600"></i>
-              <span>Pesan Terbaru</span>
-            </h4>
-            <div class="flex items-center space-x-2">
-              <span id="total-komentar-badge" class="text-[11px] text-slate-500 font-mono">0 Pesan</span>
-            </div>
+          <div class="f4-chat-list-heading flex items-center justify-between gap-2 mb-2 border-b border-slate-100 pb-2">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5"><i data-lucide="message-circle" class="w-4 h-4 text-indigo-600"></i><span>Obrolan Terbaru</span></h4>
+        <div class="f4-chat-actions flex items-center justify-end gap-2">
+          <div class="f4-chat-online flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
           </div>
+          <button id="f4-chat-toggle" class="f4-home-mobile-action" type="button" aria-expanded="false" aria-controls="f4-chat-compose">
+            <i data-lucide="send" aria-hidden="true"></i><span>Tulis pesan</span>
+          </button>
+        </div>
+          </div>
+          <span id="total-komentar-badge" class="text-[11px] text-slate-500">0 Pesan</span>
 
           <div id="container-komentar-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-1.5 custom-scroll">
             <p class="text-slate-400 text-xs italic text-center py-8">Memuat obrolan warga...</p>
@@ -1008,7 +996,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-titleless-home-v115"></script>
+  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-refine-home-cards-v116"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-desktop-payment-v54" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-iuran-resident-panel-v102"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-stable-mobile-drawer-v109"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>

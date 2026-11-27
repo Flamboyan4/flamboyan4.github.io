@@ -32,7 +32,12 @@
 #keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar .f4-controls {
   margin-left:auto;gap:8px;
 }
-#keuangan .f4-cash-mobile-actions {display:none}
+#keuangan .f4-cash-mobile-actions{display:flex;align-items:center;gap:5px;flex:none}
+#keuangan .f4-cash-mobile-actions button{display:grid;place-items:center;width:32px;height:32px;flex:none;padding:0;border:1px solid #ffffff55;border-radius:9px;background:#ffffff20;color:#fff;cursor:pointer}
+#keuangan .f4-cash-mobile-actions button:hover{background:#ffffff35}
+#keuangan .f4-cash-mobile-actions svg{width:17px;height:17px;display:block}
+#keuangan .f4-cash-balance-tools{display:flex;align-items:center;gap:7px;flex:none}
+body:not([data-preview-role]) #keuangan .f4-cash-mobile-actions,body[data-preview-role="public"] #keuangan .f4-cash-mobile-actions{display:none}
 #keuangan .f4-cash-overview {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.95fr);
   align-items:stretch;gap:14px;min-width:0;height:476px;
@@ -48,7 +53,7 @@
   box-shadow:0 5px 16px rgba(34,39,91,.035);
 }
 #keuangan .f4-cash-summary>div:first-child {
-  justify-content:center;gap:7px;
+  justify-content:center;gap:7px;background:linear-gradient(125deg,#4338ca 0%,#6550dd 55%,#794ce5 100%);border-color:#5145cd;
 }
 #keuangan .f4-cash-summary .mt-4 {margin-top:8px}
 #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions,
@@ -305,27 +310,6 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-cash-overview #f4-private-transactions,
   body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {
     display:none;
-  }
-  #keuangan .f4-cash-mobile-actions {
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:center;
-    gap:8px;min-width:0;width:100%;grid-column:1/-1;
-  }
-  /* Public visitors do not receive inactive private finance actions. */
-  body:not([data-preview-role]) #keuangan .f4-cash-mobile-actions,
-  body[data-preview-role="public"] #keuangan .f4-cash-mobile-actions {
-    display:none;
-  }
-  #keuangan .f4-cash-mobile-actions button {
-    display:flex;align-items:center;justify-content:center;gap:5px;
-    min-width:0;width:100%;min-height:36px;padding:7px 10px;
-    border:1px solid var(--f4-portal-line,#dcd8f5);border-radius:9px;
-    background:var(--f4-portal-soft,#edebfa);color:var(--f4-portal-primary-ink,#393099);
-    font-size:12px;font-weight:650;line-height:1.2;
-    cursor:pointer;
-  }
-  #keuangan .f4-cash-mobile-actions button:hover {background:var(--f4-portal-soft-hover,#dcd8f5)}
-  #keuangan .f4-cash-mobile-actions svg {
-    display:block;width:16px;height:16px;flex:none;
   }
   /* Rincian opens the existing searchable modal, formatted as compact rows. */
   #modal-keuangan .overflow-x-auto.overflow-y-auto {

@@ -2,6 +2,11 @@
 /* Beranda · Cerita Warga. Gaya tunggal, tanpa . */
 .f4g-home{scroll-margin-top:84px}
 .f4g-home[hidden]{display:none}
+.f4g-home-heading{display:flex;align-items:center;gap:10px;padding:4px 0 10px}
+.f4g-home-heading .f4g-home-mark{display:grid;place-items:center;width:36px;height:36px;flex:none;border-radius:11px;background:#5145cd;color:#fff}
+.f4g-home-mark svg{width:20px;height:20px}
+.f4g-home-heading h3{margin:0;color:#242a45;font-size:17px;font-weight:750;line-height:1.2;letter-spacing:-.02em}
+.f4g-home-heading p{margin:2px 0 0;color:#68758a;font-size:12px;line-height:1.35}
 .f4g-home-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-bottom:1px solid #e3e5ef;margin-bottom:12px}
 .f4g-home-options> :is(button,a){position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;border:0;border-radius:0;background:transparent;font:650 13px/1.25 system-ui;color:#697589;padding:9px 5px;cursor:pointer;text-align:center;text-decoration:none}
 .f4g-home-options button[aria-pressed="true"]{color:var(--f4-portal-primary,#4f46e5)}
