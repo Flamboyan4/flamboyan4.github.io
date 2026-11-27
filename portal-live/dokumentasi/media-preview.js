@@ -342,7 +342,7 @@ function drawFilters(){
  const box=$('media-category-filters');box.replaceChildren();
  // PC retains filter buttons; mobile uses a custom panel rather than Android's native picker.
  for(const kind of types){
-  const btn=el('button','btn'+(active===kind?'':' outline'),kind);
+  const btn=el('button','btn'+(active===kind?'':' f4-media-btn-outline'),kind);
   btn.type='button';btn.setAttribute('aria-pressed',(0,__f4.globals.String)(active===kind));
   btn.onclick=()=>{active=kind;drawFilters();drawAlbums()};box.append(btn);
  }
@@ -431,7 +431,7 @@ function tab(value,writeHash){
  $('media-albums-section').hidden=inv;$('media-inventory-section').hidden=!inv;
  for(const [name,is] of [['albums',!inv],['inventory',inv]]){
   const btn=$('media-tab-'+name);
-  btn.className='btn'+(is?'':' outline');btn.setAttribute('aria-selected',(0,__f4.globals.String)(is));
+  btn.setAttribute('aria-selected',(0,__f4.globals.String)(is));
  }
  if(writeHash){const url=new __f4.globals.URL(__f4.globals.location.href);if(inv)url.searchParams.set('halaman','inventaris');else url.searchParams.delete('halaman');url.hash='';if(url.href!==__f4.globals.location.href)__f4.globals.history.pushState(__f4.globals.history.state,'',url.pathname+url.search)}
  __f4.globals.document.dispatchEvent(new __f4.globals.CustomEvent('f4:documentation-tab',{detail:inv?'inventaris':'dokumentasi'}));
