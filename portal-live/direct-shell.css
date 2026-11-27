@@ -287,7 +287,8 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
  html[data-f4-shell] body.f4-direct-superadmin #f4-account-page>main{padding-top:var(--f4-panel-pad);min-width:0;overflow:visible}
  html[data-f4-shell] body.f4-direct-bank>.shell>.content{min-width:0;max-width:100%}
  html[data-f4-shell] body:where([style*="overflow: hidden"],[style*="overflow: clip"],.f4-account-open,.f4-resident-sheet-open)>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
- html[data-f4-shell].f4p-overlay-active body>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
+ html[data-f4-shell].f4p-overlay-active body>:is(main,.shell,#f4-account-page):not([hidden]),
+ html[data-f4-shell] body.f4-direct-superadmin>#f4-account-page.f4-sa-drawer-open:not([hidden]){overflow-y:hidden}
  /* Form width is constrained at the actual scroll root, not at the navbar. */
  html[data-f4-shell] body>:is(main,.shell,#f4-account-page) :where(form,fieldset,.field,.f4-field-stack,.f4-controls){box-sizing:border-box;min-width:0;max-width:100%}
  html[data-f4-shell] body>:is(main,.shell,#f4-account-page) :where(form input,form select,form textarea,.f4-control-trigger){box-sizing:border-box;min-width:0;max-width:100%}
@@ -673,7 +674,7 @@ body.f4-resident-tools-active #f4-portal-float-actions{display:none}
 #f4-resident-feedback .f4-resident-feedback-trap{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 #f4-resident-feedback .f4-resident-feedback-status:empty{display:none}
 html[data-f4-starting] #f4-resident-tools,html[data-f4-swapping] #f4-resident-tools,html.f4p-overlay-active #f4-resident-tools,
-body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-resident-feedback[open],#modal-saran:not(.hidden),#f4-chat-sheet:not([hidden]),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden]),dialog[open]) #f4-resident-tools{visibility:hidden;pointer-events:none}
+body.f4-account-open #f4-resident-tools,body:has(#f4-account-page.f4-sa-drawer-open,#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-resident-feedback[open],#modal-saran:not(.hidden),#f4-chat-sheet:not([hidden]),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden]),dialog[open]) #f4-resident-tools{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
  #f4-resident-tools:not([hidden]){bottom:calc(12px + env(safe-area-inset-bottom,0px))}
  body.f4-shared-dock:has(#f4-direct-dock:not([hidden])) #f4-resident-tools:not([hidden]){bottom:calc(12px + var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}

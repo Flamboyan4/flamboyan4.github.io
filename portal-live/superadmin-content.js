@@ -17,12 +17,15 @@ if(!saEmbedded){__f4.globals.document.body.append(standaloneButton);standaloneBu
 function saMenuOpened(){return root.classList.contains('f4-sa-drawer-open')}
 function saNotifyMenu(open){
  if(saEmbedded)__f4.window.parent.postMessage({type:'f4:sidebar-state',portal:'superadmin',open},__f4.globals.location.origin);
- standaloneButton.setAttribute('aria-expanded',(0,__f4.globals.String)(open));
+ const expanded=(0,__f4.globals.String)(open);
+ standaloneButton.setAttribute('aria-expanded',expanded);
+ __f4.globals.document.getElementById('f4-mobile-menu')?.setAttribute('aria-expanded',expanded);
 }
 function saCloseDrawer(fromHistory=false){
  if(!saMenuOpened())return;
  if(!fromHistory&&__f4.globals.history.state?.f4SaDrawer){__f4.globals.history.back();return}
  root.classList.remove('f4-sa-drawer-open');
+ main.inert=false;
  __f4.globals.document.documentElement.classList.remove('f4-sa-drawer-lock');
  saNotifyMenu(false);
 }
@@ -31,9 +34,11 @@ __f4.window.f4ToggleSuperadminMenu=()=>{
  if((0,__f4.globals.matchMedia)('(min-width:1024px)').matches)return;
  __f4.globals.history.pushState({...__f4.globals.history.state,f4SaDrawer:true},'',__f4.globals.location.href);
  root.classList.add('f4-sa-drawer-open');
+ main.inert=true;
  __f4.globals.document.documentElement.classList.add('f4-sa-drawer-lock');
  saNotifyMenu(true);
 };
+__f4.cleanup(()=>saCloseDrawer(true));
 saBackdrop.addEventListener('click',()=>saCloseDrawer());
 __f4.window.addEventListener('popstate',()=>{if(!__f4.globals.history.state?.f4SaDrawer)saCloseDrawer(true)});
 __f4.globals.document.addEventListener('keydown',e=>{if(e.key==='Escape'&&saMenuOpened()){e.preventDefault();saCloseDrawer()}});
