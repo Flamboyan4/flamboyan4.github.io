@@ -102,12 +102,12 @@
    if(grip.parentNode!==document.body)document.body.append(grip);
    grip.hidden=true;return;
   }
-  // Native dialog is in the browser top layer: the handle must be its child.
-  const embedded=active.matches('dialog.f4-bank-sheet-modal,.f4-control-panel');
+  // Native dialogs and the resident sheet carry their handle in their own layer.
+  const embedded=active.matches('dialog.f4-bank-sheet-modal,.f4-control-panel,.f4-resident-sheet-panel');
   const host=embedded?active:document.body;
   if(grip.parentNode!==host)host.append(grip);
   const r=active.getBoundingClientRect();
-  if(r.top>=window.innerHeight){grip.hidden=true;return;}
+  if(!embedded&&r.top>=window.innerHeight){grip.hidden=true;return;}
   grip.style.left=embedded?'0px':Math.max(0,r.left)+'px';
   grip.style.top=embedded?'0px':Math.max(0,r.top)+'px';
   grip.style.width=embedded?'100%':r.width+'px';

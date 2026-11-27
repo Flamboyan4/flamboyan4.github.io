@@ -597,13 +597,15 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-resident-sheet-opener svg:last-child {width:13px;height:13px;margin-left:auto}
   #keuangan .f4-resident-sheet-opener span {line-height:1.25;min-width:0}
   body.f4-resident-sheet-open {overflow:hidden}
+  /* Only this sheet raises the existing dock's stacking order, never its geometry. */
+  body.f4-resident-sheet-open #f4-shell-bottom {z-index:26001}
   #keuangan .f4-resident-sheet-overlay {
-    /* Use the same measured viewport and dock reservation as the persistent shell.
-       Both the backdrop and the sheet end at the upper edge of the dock. */
+    /* Full travel area behind the persistent dock; reserve the dock only
+       for the final resting position of the panel. */
     position:fixed;inset:0 0 auto;z-index:26000;display:flex;
-    box-sizing:border-box;
-    height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-footer,0px));
-    align-items:flex-end;justify-content:center;padding:0;
+    box-sizing:border-box;overflow:hidden;
+    height:var(--f4-shell-viewport,100dvh);
+    align-items:flex-end;justify-content:center;padding:0 0 var(--f4-shell-footer,0px);
     background:rgba(21,27,49,.48);
   }
   #keuangan .f4-resident-sheet-panel {
@@ -612,8 +614,14 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
     border-radius:20px 20px 0 0;background:#fff;
     box-shadow:0 -15px 40px rgba(27,30,61,.24);
     padding:32px 15px calc(17px + env(safe-area-inset-bottom,0px));
-    animation:f4-sheet-up .23s ease-out;
+    animation:f4-resident-rise .32s cubic-bezier(.22,.72,.27,1) both;
   }
+  @keyframes f4-resident-rise {
+    from {transform:translate3d(0,calc(100% + var(--f4-shell-footer,0px)),0)}
+    to {transform:translate3d(0,0,0)}
+  }
+  #keuangan .f4-resident-sheet-panel.f4-sheet-gesture-ready {animation:none}
+  #keuangan .f4-resident-sheet-panel>.f4-sheet-handle[hidden] {display:none}
   #keuangan .f4-resident-sheet-overlay[data-kind="dues"] .f4-resident-sheet-panel {
     height:auto;max-height:min(85dvh,var(--f4-sheet-available-height,85dvh));
   }
