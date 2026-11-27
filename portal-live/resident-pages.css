@@ -40,12 +40,40 @@
 .rp-tabs{display:flex;gap:6px;overflow-x:auto;margin:10px 0;scrollbar-width:none}
 .rp-tab{flex:0 0 auto;font-size:13px;white-space:nowrap}
 .rp-tab[aria-pressed=true]{background:var(--rp-primary);color:#fff;border-color:var(--rp-primary)}
-/* Finance page: four complete, readable history tabs; no clipping frame. */
-.rp-history-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;overflow:visible;margin:12px 0 10px}
-#f4-resident-content .rp-history-tabs .rp-tab{width:100%;min-width:0;min-height:44px;padding:8px 3px;font-size:15px;font-weight:600;line-height:1.3;border-radius:9px}
-.rp-history-more{margin-top:12px}
-@media(max-width:480px){.rp-history-card{padding:12px}.rp-history-tabs{gap:5px}}
-@media(max-width:340px){.rp-history-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Finance history: the cards retain their existing layout. */
+.rp-bank-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.rp-bank-actions .rp-bank-link{margin:0;font-size:13px}
+#f4-resident-content .rp-history-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 12px;font-size:13px;font-weight:650;border:1px solid var(--rp-line);border-radius:10px;color:var(--rp-primary);background:#fff}
+#f4-resident-content .rp-bank .rp-history-action{color:#fff;background:transparent;border-color:#ffffff70}
+#f4-resident-content .rp-receipt>.rp-history-action{display:flex;width:calc(100% - 32px);margin:0 16px 15px}
+body[data-resident-page=finance] #f4-resident-sheet{--rp-primary:var(--f4-portal-primary,#5145cd);--rp-line:#e5e7ef;--rp-muted:#697589;position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:26000;box-sizing:border-box;padding:16px;overflow:hidden;background:#151b317a}
+body[data-resident-page=finance] #f4-resident-sheet[hidden]{display:none}
+body[data-resident-page=finance].f4-resident-sheet-open{overflow:hidden}
+#f4-resident-sheet .rp-history-panel{box-sizing:border-box;position:relative;display:flex;flex-direction:column;width:min(100%,560px);min-width:0;max-height:min(80dvh,680px);overflow:hidden;background:#fff;color:#26344f;border-radius:16px;padding:18px;box-shadow:0 10px 35px #151b3126}
+.rp-history-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;margin-bottom:12px}
+.rp-history-head h2{font-size:17px;line-height:1.3;margin:0;font-weight:750}
+.rp-history-close{display:grid;place-items:center;width:36px;height:36px;flex:none;border:0;border-radius:9px;background:#f1f3f9;color:#65718c;cursor:pointer}
+.rp-history-body{display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.rp-history-filters{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:8px;flex:none}
+.rp-history-filter{box-sizing:border-box;width:100%;min-width:0;height:44px;padding:0 8px;border:1px solid var(--rp-line);border-radius:10px;background:#fff;color:#26344f;font:inherit}
+.rp-history-note{font-size:12px;color:var(--rp-muted);margin:0}
+.rp-history-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--rp-line)}
+.rp-history-detail{min-width:0}
+.rp-history-detail strong,.rp-history-detail small{display:block;overflow-wrap:anywhere}
+.rp-history-detail strong{font-size:13px;font-weight:650}
+.rp-history-detail small{font-size:11px;color:var(--rp-muted);margin-top:3px}
+.rp-history-amount{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rp-history-amount.is-in{color:#087850}.rp-history-amount.is-out{color:#b42332}.rp-history-amount.is-canceled{text-decoration:line-through;color:#8792a2}
+.rp-history-more:empty{display:none}.rp-history-more>.rp-button{width:100%}
+@media(max-width:1023px){
+ body[data-resident-page=finance].f4-resident-sheet-open #f4-shell-bottom{z-index:26001}
+ body[data-resident-page=finance] #f4-resident-sheet{inset:0 0 auto;height:var(--f4-shell-viewport,100dvh);align-items:flex-end;padding:0 0 var(--f4-shell-footer,0px)}
+ #f4-resident-sheet .rp-history-panel{width:100%;height:min(76dvh,600px);max-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-footer,0px) - var(--f4-shell-header,56px) - 10px);border-radius:20px 20px 0 0;padding:32px 15px 20px;animation:rp-history-rise .32s cubic-bezier(.22,.72,.27,1) both}
+ #f4-resident-sheet .rp-history-panel.f4-sheet-gesture-ready{animation:none}
+ #f4-resident-sheet .rp-history-panel>.f4-sheet-handle[hidden]{display:none}
+ @keyframes rp-history-rise{from{transform:translate3d(0,calc(100% + var(--f4-shell-footer,0px)),0)}to{transform:translate3d(0,0,0)}}
+}
+@media(prefers-reduced-motion:reduce){#f4-resident-sheet .rp-history-panel{animation:none}}
 /* Independent finance layout, matching the original Kas Saya receipt. */
 .rp-dues-rows{display:grid;gap:12px;padding:7px 0 15px}
 .rp-dues-row,.rp-dues-total{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;line-height:1.35;color:#49556e}
