@@ -1,23 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+<title>Flamboyan 4</title>
 <style>
-.stem{stroke-dasharray:60;stroke-dashoffset:60;animation:stem 2.8s ease-in-out infinite}
-.leaf,.petal,.core{transform-box:view-box;transform-origin:48px 42px;opacity:0;animation-duration:2.8s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
-.leaf{transform-origin:47px 72px;animation-name:leaf}
-.p1{animation-name:p1}.p2{animation-name:p2}.p3{animation-name:p3}.p4{animation-name:p4}.core{animation-name:core}
-@keyframes stem{0%{stroke-dashoffset:60;opacity:0}5%{opacity:1}24%,82%{stroke-dashoffset:0;opacity:1}96%,100%{stroke-dashoffset:0;opacity:0}}
-@keyframes leaf{0%,12%{opacity:0;transform:scale(.1)}30%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@keyframes p1{0%,22%{opacity:0;transform:scale(.05)}36%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@keyframes p2{0%,31%{opacity:0;transform:scale(.05)}45%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@keyframes p3{0%,40%{opacity:0;transform:scale(.05)}54%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@keyframes p4{0%,49%{opacity:0;transform:scale(.05)}63%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@keyframes core{0%,28%{opacity:0;transform:scale(.1)}43%,82%{opacity:1;transform:scale(1)}96%,100%{opacity:0;transform:scale(.85)}}
-@media(prefers-reduced-motion:reduce){.stem,.leaf,.petal,.core{animation:none;opacity:1;transform:none;stroke-dashoffset:0}}
+.f4-flower-gentle{display:none}
+@media(prefers-reduced-motion:reduce){.f4-flower-motion{display:none}.f4-flower-gentle{display:inline}}
 </style>
-<path class="stem" d="M48 89Q43 67 48 42" fill="none" stroke="#278c45" stroke-width="4" stroke-linecap="round"/>
-<g class="leaf" fill="#43a047"><path d="M46 72Q26 74 23 56Q40 55 46 72Z"/><path d="M47 79Q62 59 76 63Q69 79 47 79Z"/></g>
-<path class="petal p1" fill="#ed4336" d="M48 42C33 35 27 17 39 9C55 0 65 18 48 42Z"/>
-<path class="petal p2" fill="#f96c32" d="M48 42C55 21 76 16 84 29C92 44 69 54 48 42Z"/>
-<path class="petal p3" fill="#e73c30" d="M48 42C69 44 77 63 64 70C51 78 42 62 48 42Z"/>
-<path class="petal p4" fill="#ff6034" d="M48 42C41 63 20 65 13 52C5 37 30 28 48 42Z"/>
-<circle class="core" cx="48" cy="42" r="4.8" fill="#ffc328"/>
+<path stroke-dasharray="60" stroke-dashoffset="60" opacity="0" d="M48 89Q43 67 48 42" fill="none" stroke="#278c45" stroke-width="4" stroke-linecap="round"><animate attributeName="stroke-dashoffset" values="60;0;0;0" keyTimes="0;0.24;0.82;1" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.05;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/></path>
+<g class="f4-flower-motion">
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.3;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(47 72)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.12;0.3;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-47 -72)"><g fill="#43a047"><path d="M46 72Q26 74 23 56Q40 55 46 72Z"/><path d="M47 79Q62 59 76 63Q69 79 47 79Z"/></g></g></g></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.36;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(48 42)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.22;0.36;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-48 -42)"><path fill="#ed4336" d="M48 42C33 35 27 17 39 9C55 0 65 18 48 42Z"/></g></g></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.45;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(48 42)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.31;0.45;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-48 -42)"><path fill="#f96c32" d="M48 42C55 21 76 16 84 29C92 44 69 54 48 42Z"/></g></g></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.4;0.54;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(48 42)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.4;0.54;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-48 -42)"><path fill="#e73c30" d="M48 42C69 44 77 63 64 70C51 78 42 62 48 42Z"/></g></g></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.49;0.63;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(48 42)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.49;0.63;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-48 -42)"><path fill="#ff6034" d="M48 42C41 63 20 65 13 52C5 37 30 28 48 42Z"/></g></g></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.43;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(48 42)"><g><animateTransform attributeName="transform" type="scale" values=".05;.05;1;1;.85;.85" keyTimes="0;0.28;0.43;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g transform="translate(-48 -42)"><circle cx="48" cy="42" r="4.8" fill="#ffc328"/></g></g></g></g>
+</g>
+<g class="f4-flower-gentle">
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.12;0.3;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><g fill="#43a047"><path d="M46 72Q26 74 23 56Q40 55 46 72Z"/><path d="M47 79Q62 59 76 63Q69 79 47 79Z"/></g></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.22;0.36;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><path fill="#ed4336" d="M48 42C33 35 27 17 39 9C55 0 65 18 48 42Z"/></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.31;0.45;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><path fill="#f96c32" d="M48 42C55 21 76 16 84 29C92 44 69 54 48 42Z"/></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.4;0.54;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><path fill="#e73c30" d="M48 42C69 44 77 63 64 70C51 78 42 62 48 42Z"/></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.49;0.63;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><path fill="#ff6034" d="M48 42C41 63 20 65 13 52C5 37 30 28 48 42Z"/></g>
+<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.28;0.43;0.82;0.96;1" dur="2.8s" repeatCount="indefinite"/><circle cx="48" cy="42" r="4.8" fill="#ffc328"/></g>
+</g>
 </svg>

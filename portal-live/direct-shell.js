@@ -106,15 +106,11 @@ document.addEventListener('scroll',event=>{
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
 routeLoading.setAttribute('aria-label','Memuat halaman');
-const flowerUrl='/portal-live/flamboyan-loader.svg?v=20261127-flower-restart-actions-v95';
+const flowerUrl='/portal-live/flamboyan-loader.svg?v=20261127-cross-browser-bloom-v97';
 let flowerTemplate=null;
-// Reuse the canonical artwork, but create fresh animation nodes per navigation.
-// The inline copy's classes and keyframes are namespaced so page CSS cannot
-// alter its animation (and its own style cannot affect page content).
+// SVG-native animation shares a canonical asset across browsers.
 const flowerReady=fetch(flowerUrl,{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('Flower asset');return r.text()}).then(markup=>{
- const names=['stem','leaf','petal','core','p1','p2','p3','p4'];
- const ns=markup.replace(new RegExp('\\b(?:'+names.join('|')+')\\b','g'),n=>'f4-bloom-'+n);
- const doc=new DOMParser().parseFromString(ns,'image/svg+xml');
+ const doc=new DOMParser().parseFromString(markup,'image/svg+xml');
  if(doc.documentElement.localName!=='svg'||doc.querySelector('parsererror'))return;
  const svg=document.importNode(doc.documentElement,true);svg.setAttribute('class','f4-route-flower');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
  flowerTemplate=svg;
@@ -123,9 +119,13 @@ function freshFlower(){
  if(flowerTemplate)return flowerTemplate.cloneNode(true);
  const image=el('img','f4-route-flower');image.src=flowerUrl;image.width=72;image.height=72;image.alt='';image.setAttribute('aria-hidden','true');return image;
 }
+function mountFlower(surface){
+ const flower=freshFlower();surface.replaceChildren(flower);
+ if(flower.localName==='svg'){flower.setCurrentTime?.(0);flower.unpauseAnimations?.()}
+}
 function restartLoadingFlower(token){
- routeLoading.replaceChildren(freshFlower());swapFallback.replaceChildren(freshFlower());
- if(!flowerTemplate)void flowerReady.then(()=>{if(flowerTemplate&&token===viewSequence&&!routeLoading.hidden){routeLoading.replaceChildren(freshFlower());swapFallback.replaceChildren(freshFlower())}});
+ mountFlower(routeLoading);mountFlower(swapFallback);
+ if(!flowerTemplate)void flowerReady.then(()=>{if(flowerTemplate&&token===viewSequence&&!routeLoading.hidden){mountFlower(routeLoading);mountFlower(swapFallback)}});
 }
 document.body.append(routeLoading);
 const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.replaceChildren(freshFlower());document.body.append(swapFallback);
@@ -372,7 +372,7 @@ const contentAdapters=new Map();
 let mountedContent=null,navigationPending=false,viewSequence=0;
 function beginView(){
  if(navigationPending)return null;
- const token=++viewSequence;restartLoadingFlower(token);routeLoading.hidden=false;return token;
+ const token=++viewSequence;routeLoading.hidden=false;restartLoadingFlower(token);return token;
 }
 function afterPaint(){
  if(document.hidden)return Promise.resolve();
