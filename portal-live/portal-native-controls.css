@@ -42,3 +42,24 @@ body .f4-control-overlay[hidden]{display:none}
 .f4-control-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
 .f4-control-levels button{min-height:36px;padding:6px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:8px;background:#fff;color:var(--f4-nav,#5145cd);font-weight:650}
 .f4-control-levels button[aria-pressed=true]{background:var(--f4-nav,#5145cd);color:white}
+
+/* Desktop pointer preview is independent of the committed selection.
+   Do not simulate hover on touch-only devices. */
+@media (hover:hover) and (pointer:fine){
+ body .f4-control-choice:not(:disabled):not([aria-selected=true]):hover,
+ body .f4-control-day:not(:disabled):not(.selected):hover,
+ body .f4-control-levels button:not(:disabled):not([aria-pressed=true]):hover{
+  background:var(--f4-nav-tint,#edebfa);color:var(--f4-nav,#5145cd)
+ }
+ body .f4-control-trigger:not(:disabled):hover{
+  border-color:var(--f4-nav,#5145cd);background:var(--f4-nav-tint,#edebfa)
+ }
+ body .f4-control-calendar-nav button:not(:disabled):hover,
+ body .f4-control-footer button:not(:disabled):not(:last-child):hover{
+  background:var(--f4-nav-tint,#edebfa);color:var(--f4-nav,#5145cd)
+ }
+ body .f4-control-footer button:last-child:not(:disabled):hover{filter:brightness(.93)}
+}
+body :is(.f4-control-choice,.f4-control-day,.f4-control-trigger,.f4-control-calendar-nav button,.f4-control-levels button,.f4-control-footer button):not(:disabled):focus-visible{
+ outline:2px solid var(--f4-nav,#5145cd);outline-offset:-2px
+}
