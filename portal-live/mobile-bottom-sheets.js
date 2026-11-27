@@ -93,7 +93,7 @@
  }
  function refresh(){
   refreshFrame=0;
-  if(!media.matches){active=null;grip=null;return;}
+  if(!media.matches){active=null;grip=null;document.body.classList.remove('f4-sheet-dock-visible');return;}
   if(drag?.panel?.isConnected&&!closed(drag.panel)||animating?.panel?.isConnected&&!closed(animating.panel))return;
   if(drag){if(drag.frame)cancelAnimationFrame(drag.frame);drag.handle?.classList.remove('f4-sheet-handle-dragging');drag=null;}
   if(animating)clearTimer(animating.panel);
@@ -118,6 +118,9 @@
   // Retain the current sheet through temporary focus/viewport changes.
   active=viewing?null:(picking&&previous&&!closed(previous)?previous:front||(previous&&!closed(previous)?previous:latest));
   grip=active?handles.get(active)||null:null;
+  const dock=document.getElementById('f4-direct-dock');
+  const reserve=!!active&&!lightbox&&!!dock&&!dock.hidden&&document.body.classList.contains('f4-shared-dock')&&!document.body.classList.contains('f4-account-open');
+  document.body.classList.toggle('f4-sheet-dock-visible',reserve);
   for(const {panel,handle} of open){
    const isActive=panel===active&&!picking&&!viewing;
    const tab=isActive?'0':'-1';if(handle.getAttribute('tabindex')!==tab)handle.setAttribute('tabindex',tab);
@@ -320,7 +323,7 @@
  function exitDown(panel,pose){
   const p=pose||prepare(panel);if(p)animatePose(p,'dismiss');
  }
- const headerSelector='.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header';
+ const headerSelector='.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header';
  function begin(event){
   if(!media.matches||drag||!active||!grip||!visible(active)||pickerOpen())return;
   if(event.pointerType==='mouse'&&event.button!==0)return;
@@ -418,5 +421,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261127-stable-form-sheet-v99',refresh:requestRefresh};
+ window.F4MobileSheets={version:'20261127-sheet-anchor-motion-v113',refresh:requestRefresh,sync(panel){if(!media.matches)return;if(panel)attach(panel);if(refreshFrame)cancelAnimationFrame(refreshFrame);refresh();}};
 })();

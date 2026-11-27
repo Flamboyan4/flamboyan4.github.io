@@ -177,7 +177,7 @@
     tingginya mengikuti jumlah media; penampil foto tetap fullscreen. */
  .f4p-album-overlay:not([hidden]){
   display:flex;align-items:flex-end;justify-content:stretch;
-  padding:0;width:100%;overscroll-behavior:contain
+  padding:0;width:100%;height:var(--f4-shell-viewport,100dvh);overscroll-behavior:contain
  }
  .f4p-album-overlay>.f4p-album-card{
   flex:0 1 auto;width:100%;max-width:none;min-width:0;min-height:0;
@@ -191,7 +191,7 @@
   border-radius:10px;background:#ded8eb;margin:10px auto 0
  }
  .f4p-album-overlay .f4p-album-grid{
-  flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
   padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))
  }
 
@@ -247,7 +247,7 @@
  }
 
 }
-@keyframes f4-sheet-up{from{opacity:.75;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+@keyframes f4-sheet-up{from{transform:translateY(calc(100% + var(--f4-sheet-safe-bottom,0px)))}to{transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){
  #f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
  body .v21-modal:not(.v21-lightbox)>.v21-modal-card,
@@ -300,7 +300,7 @@
   touch-action:none;user-select:none;-webkit-user-select:none;
   cursor:grab;z-index:8;box-sizing:border-box
  }
- .f4-sheet-draggable :is(.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header){touch-action:none;cursor:grab}
+ .f4-sheet-draggable :is(.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header){touch-action:none;cursor:grab}
  .f4-sheet-draggable>.f4-sheet-handle::before{
   content:"";display:block;width:42px;height:5px;
   border-radius:99px;background:#c5cbd2;
@@ -441,12 +441,12 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
    Modal backdrop remains full viewport; only the panel's bottom anchor moves. */
 @media(max-width:1023px){
  html[data-f4-shell] body{
-  --f4-sheet-safe-bottom: var(--f4-shell-footer,0px);
+  --f4-sheet-safe-bottom:0px;
   --f4-sheet-end-space:24px;
   --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - 8px);
   --f4-sheet-collapsed-height:calc(var(--f4-sheet-available-height) * .72);
  }
- html[data-f4-shell] body.f4-shared-dock:has(#f4-direct-dock:not([hidden])){--f4-sheet-end-space:0px}
+ html[data-f4-shell] body.f4-sheet-dock-visible{--f4-sheet-safe-bottom:var(--f4-shell-footer,0px);--f4-sheet-end-space:0px}
  html[data-f4-shell] body :is(#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
   .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,

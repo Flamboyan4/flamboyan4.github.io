@@ -612,7 +612,9 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   background:#fff;color:var(--f4-nav);font:600 13px/1.2 system-ui,sans-serif;text-align:left;cursor:pointer
  }
  @media (hover:hover) and (pointer:fine){#f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}}
- body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
+ body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock:not(.f4-sheet-dock-visible) #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
+ body.f4-sheet-dock-visible #f4-shell-bottom{z-index:1000}
+ body.f4-shared-dock.f4-sheet-dock-visible #f4-direct-dock:not([hidden]){pointer-events:none}
  html.f4-bank-auth-pending body.f4-shared-dock #f4-bank-startup{bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
 }
 @media print{#f4-direct-dock{display:none}}

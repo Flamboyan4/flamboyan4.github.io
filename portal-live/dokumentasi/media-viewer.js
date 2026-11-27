@@ -153,6 +153,7 @@ const show=(el,on)=>{
  const active=isOpen(album)||isOpen(photo);
  __f4.globals.document.documentElement.classList.toggle('f4p-overlay-active',active);
  __f4.globals.document.body.classList.toggle('f4p-overlay-active',active);
+ __f4.globals.F4MobileSheets?.sync?.(isOpen(album)&&!isOpen(photo)?album.querySelector('.f4p-album-card'):null);
  if(__f4.window.parent!==window)__f4.window.parent.postMessage({type:'f4:overlay-state',portal:'dokumentasi',open:active},__f4.globals.location.origin);
 };
 function ensure(){
