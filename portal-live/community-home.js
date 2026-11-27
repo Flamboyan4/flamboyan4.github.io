@@ -25,7 +25,9 @@ const pathFor=x=>{const u=new __f4.globals.URL('/dokumentasi/',__f4.globals.loca
  if(x.albumId)u.searchParams.set('album',x.albumId);
  if(x.id)u.searchParams.set('foto',x.id);
  return u.href};
-let newest=[],popularRows=[],mode='terbaru';
+let newest=[],popularRows=[],mode='terbaru',rankingAvailable=false,rankingPending=false;
+const hasInteraction=photo=>(0,__f4.globals.Number)(photo.likes||0)>0||(0,__f4.globals.Number)(photo.commentCount||0)>0;
+const sortPopular=(a,b)=>(0,__f4.globals.Number)(b.likes||0)-(0,__f4.globals.Number)(a.likes||0)||(0,__f4.globals.Number)(b.commenterCount||0)-(0,__f4.globals.Number)(a.commenterCount||0)||(0,__f4.globals.Number)(b.commentCount||0)-(0,__f4.globals.Number)(a.commentCount||0)||(0,__f4.globals.String)(b.date||'').localeCompare((0,__f4.globals.String)(a.date||''));
 function card(item){
  const block=el('article','f4g-home-card');
  const href=pathFor(item),photo=el('a','f4g-home-photo');photo.href=href;photo.title='Buka foto';
@@ -60,8 +62,9 @@ function card(item){
 }
 function empty(){
  const node=el('div','f4g-home-empty');
- node.append(el('strong','','Belum ada foto yang dapat ditampilkan.'),
-  el('span','','Lihat album kegiatan yang sudah tersedia di Dokumentasi.'));
+ if(mode==='populer'){
+  node.append(el('strong','',rankingPending?'Memuat peringkat foto…':rankingAvailable?'Belum ada foto populer.':'Peringkat belum dapat dimuat.'),el('span','',rankingPending?'':rankingAvailable?'Foto akan muncul setelah mendapat suka atau komentar.':'Coba buka tab Populer kembali.'));
+ }else node.append(el('strong','','Belum ada foto yang dapat ditampilkan.'),el('span','','Lihat album kegiatan yang sudah tersedia di Dokumentasi.'));
  const link=el('a','','Buka Dokumentasi');link.href='/dokumentasi/';node.append(link);
  return node;
 }
@@ -69,17 +72,9 @@ function render(){
  const candidates=mode==='populer'?popularRows:newest;
  const unique=[],seen=new __f4.globals.Set();
  for(const photo of candidates){
-  // Terbaru: satu per album. Populer: foto dari album sama boleh bersaing.
-  const key=mode==='populer'?photo?.id:photo?.albumId;
-  if(!photo?.url||!photo?.albumId||!key||seen.has(key))continue;
+  const key=photo?.id;
+  if(!photo?.url||!photo?.albumId||!key||seen.has(key)||mode==='populer'&&!hasInteraction(photo))continue;
   seen.add(key);unique.push(photo);if(unique.length>=6)break;
- }
- // If fewer than six albums are available, fill with distinct photos, never duplicates.
- const photoIds=new __f4.globals.Set(unique.map(photo=>photo.id));
- for(const photo of candidates){
-  if(unique.length>=6)break;
-  if(!photo?.url||!photo?.albumId||!photo?.id||photoIds.has(photo.id))continue;
-  photoIds.add(photo.id);unique.push(photo);
  }
  grid.replaceChildren(...(unique.length?unique.map(card):[empty()]));
  section.hidden=false;
@@ -87,7 +82,7 @@ function render(){
  popular.setAttribute('aria-pressed',(0,__f4.globals.String)(mode==='populer'));
 }
 latest.addEventListener('click',()=>{mode='terbaru';render()});
-popular.addEventListener('click',()=>{mode='populer';render()});
+popular.addEventListener('click',()=>{mode='populer';render();void refreshRanking()});
 async function json(url,timeout=7000){
  const controller=new __f4.globals.AbortController(),timer=(0,__f4.globals.setTimeout)(()=>controller.abort(),timeout);
  try{const response=await (0,__f4.globals.fetch)(url,{cache:'no-store',signal:controller.signal});
@@ -99,6 +94,25 @@ function fromNew(photo,titles){
  return {...photo,title:titles.get(photo.albumId)||photo.caption||'Dokumentasi Warga',
   id:photo.id||'',
   comments:photo.comments||[],likes:(0,__f4.globals.Number)(photo.likes||0),commentCount:(0,__f4.globals.Number)(photo.commentCount??photo.comments?.length??0)}
+}
+async function refreshRanking(){
+ if(rankingPending)return;
+ rankingPending=true;if(mode==='populer'&&!popularRows.length)render();
+ try{
+  const data=await json(API+'/api/v2/gallery/popular',8500);
+  if(data.ok===false||!__f4.globals.Array.isArray(data.popular))throw (0,__f4.globals.Error)('Peringkat tidak tersedia');
+  const known=new __f4.globals.Map(newest.map(x=>[x.id,x]));
+  const titles=new __f4.globals.Map(newest.map(x=>[x.albumId,x.title]));
+  const refreshed=data.popular.map(x=>{
+   const base=known.get(x.id),item=fromNew(x,titles);
+   return {...base,...item,comments:item.comments.length?item.comments:base?.comments||[]};
+  });
+  const fresh=new __f4.globals.Map(refreshed.map(x=>[x.id,x]));
+  newest=newest.map(x=>fresh.get(x.id)||x);
+  popularRows=refreshed.filter(hasInteraction).sort(sortPopular);
+  rankingAvailable=true;
+ }catch(e){__f4.globals.console.warn('Peringkat foto:',e.message)}
+ finally{rankingPending=false;if(mode==='populer')render()}
 }
 // Sumber yang sama dengan halaman Dokumentasi; hanya album publik yang terdaftar.
 async function publicPhotoIndex(){
@@ -146,7 +160,7 @@ async function fromLegacy(doc,index){
   ]);
   if(g.status==='fulfilled')gallery=g.value;
   if(p.status==='fulfilled')portal=p.value;
-  if(r.status==='fulfilled'&&__f4.globals.Array.isArray(r.value.popular))ranking=r.value;
+  if(r.status==='fulfilled'&&r.value.ok!==false&&__f4.globals.Array.isArray(r.value.popular)){ranking=r.value;rankingAvailable=true;}
   const index=archived.status==='fulfilled'?archived.value:{folders:{},albums:[]};
   const titles=new __f4.globals.Map((gallery.albums||[]).map(x=>[x.id,x.title]));
   const docs=(portal.documentation||[]).filter(x=>(0,__f4.globals.String)(x.title||'').trim())
@@ -189,12 +203,8 @@ async function fromLegacy(doc,index){
   }
   const candidates=[...all.values()];
   newest=candidates.slice().sort((a,b)=>(0,__f4.globals.String)(b.date||'').localeCompare((0,__f4.globals.String)(a.date||'')));
-  // Populer tidak boleh berhenti pada satu foto dari API ranking.
-  // Lengkapi dengan foto publik lain; urutkan berdasarkan interaksi asli.
-  popularRows=candidates.slice().sort((a,b)=>(0,__f4.globals.Number)(b.likes||0)-(0,__f4.globals.Number)(a.likes||0)||
-   (0,__f4.globals.Number)(b.commenterCount||0)-(0,__f4.globals.Number)(a.commenterCount||0)||
-   (0,__f4.globals.Number)(b.commentCount||0)-(0,__f4.globals.Number)(a.commentCount||0)||
-   (0,__f4.globals.String)(b.date||'').localeCompare((0,__f4.globals.String)(a.date||'')));
+  // No zero-interaction filler; real engagement only.
+  popularRows=candidates.filter(hasInteraction).sort(sortPopular);
   render();
  }catch(e){__f4.globals.console.warn('Cerita Warga:',e.message);render()}
 })();

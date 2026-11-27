@@ -3217,8 +3217,8 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         for(const row of rows){
           const key=(0,__f4.globals.String)(row.linked_key||'').trim();
           const title=f4ProjectType(row.title);
-          let special=key==='bank-sampah'?'bank-sampah':key==='jersey'?'jersey':
-            title==='banksampahlorong'?'bank-sampah':title==='gapura'?'gapura':
+          let special=f4ProjectType(key)==='banksampah'?'bank-sampah':key==='jersey'?'jersey':
+            ['banksampah','banksampahlorong','banksampahflamboyan4','banksampahlorongflamboyan4'].includes(title)?'bank-sampah':title==='gapura'?'gapura':
             ['pemesananjersey','jersey'].includes(title)?'jersey':'';
           // Tipe Pemesanan Barang lainnya tidak boleh menumpang tabel Jersey lama.
           if(row.project_kind==='pesanan'&&key!=='jersey'&&!['pemesananjersey','jersey'].includes(title))special='';
@@ -3325,30 +3325,30 @@ async function loadProgresBankSampahIndex(){
  const target=__f4.globals.document.getElementById('bs-step-title');if(!target)return;
  const set=(id,value)=>{const el=__f4.globals.document.getElementById(id);if(el)el.textContent=(0,__f4.globals.String)(value||'—')};
  const fallback=message=>{set('bs-step-tag','Bank Sampah');set('bs-step-title',message);set('bs-info-1','—');set('bs-info-2','—');f4SetBankProjectPhoto(null);};
- try{
-  let payload=null,lastError=null;
-  for(let attempt=0;attempt<2;attempt++){
-   try{
-    const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/bank',{mode:'cors',credentials:'omit',cache:'no-store'});
-    if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
-    payload=await response.json();
-    if(payload.ok===false||!__f4.globals.Array.isArray(payload.progress))throw (0,__f4.globals.Error)(payload.error||'Data perkembangan tidak tersedia');
-    break;
-   }catch(e){lastError=e;payload=null}
-  }
-  if(!payload)throw lastError;
-  if(payload.ok===false||!__f4.globals.Array.isArray(payload.progress))throw (0,__f4.globals.Error)(payload.error||'Data perkembangan tidak tersedia');
-  const items=payload.progress.map(row=>({
+ const read=async(path,key,timeout)=>{
+  const controller=new __f4.globals.AbortController();
+  const timer=(0,__f4.globals.setTimeout)(()=>controller.abort(),timeout);
+  try{
+   const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id'+path,{mode:'cors',credentials:'omit',cache:'no-store',signal:controller.signal});
+   if(!response.ok)throw (0,__f4.globals.Error)('HTTP '+response.status);
+   const data=await response.json();
+   if(data.ok===false||!__f4.globals.Array.isArray(data[key]))throw (0,__f4.globals.Error)(data.error||'Data perkembangan tidak tersedia');
+   return data[key];
+  }finally{(0,__f4.globals.clearTimeout)(timer)}
+ };
+ const normalize=row=>({
    title:(0,__f4.globals.String)(row.title||row.judul||row.name||'Perkembangan Bank Sampah'),
-   stage:(0,__f4.globals.String)(row.stage||row.langkah||''),
-   description:(0,__f4.globals.String)(row.description||row.deskripsi||''),
+   stage:(0,__f4.globals.String)(row.stage||row.langkah||row.tahap||''),
+   description:(0,__f4.globals.String)(row.description||row.deskripsi||row.keterangan||''),
    status:(0,__f4.globals.String)(row.status||''),
    date:(0,__f4.globals.String)(row.happened_on||row.tanggal||row.date||''),
-   next:(0,__f4.globals.String)(row.next_step||row.nextStep||row.agenda||row.nextAgenda||''),
+   next:(0,__f4.globals.String)(row.next_step||row.nextStep||row.agenda||row.nextAgenda||row.berikutnya||''),
    photo:(0,__f4.globals.String)(row.photo_url||row.photoUrl||row.foto||row.imageUrl||'')
-  })).sort((a,b)=>b.date.localeCompare(a.date));
-  __f4.globals.document.getElementById('bs-project-timeline')?.remove();
-  if(!items.length){fallback('Belum ada perkembangan yang dipublikasikan');return;}
+ });
+ const paint=rows=>{
+  if(!target.isConnected)return false;
+  const items=rows.filter(row=>row&&typeof row==='object').map(normalize).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length)return false;
   const active=items[0];
   set('bs-step-tag','Terbaru');
   set('bs-step-title',active.title);
@@ -3356,10 +3356,20 @@ async function loadProgresBankSampahIndex(){
   set('bs-info-2',active.next?'Agenda: '+active.next.replace(/^Agenda:\s*/i,''):'Status: '+(active.status||'Dicatat'));
   f4SetBankProjectPhoto(active);
   if(active.status)set('bs-status-badge',active.status);
- }catch(error){
-  __f4.globals.console.error('Progres Bank Sampah tidak dapat dimuat:',error);
-  fallback('Perkembangan gagal dimuat');
- }
+  return true;
+ };
+ // Both endpoints read the same public_visible progress_entries records.
+ // Render the lightweight response immediately; enrich with the full bank data/photo.
+ let displayed=false,success=false;
+ const basic=read('/api/public/progress','perkembangan',6500).then(rows=>{
+  success=true;if(!displayed)displayed=paint(rows);
+ }).catch(error=>__f4.globals.console.warn('Progres publik:',error.message));
+ const full=read('/api/v2/public/bank','progress',9500).then(rows=>{
+  success=true;if(paint(rows))displayed=true;
+ }).catch(error=>__f4.globals.console.warn('Progres bank:',error.message));
+ await __f4.globals.Promise.all([basic,full]);
+ if(!target.isConnected||displayed)return;
+ fallback(success?'Belum ada perkembangan yang dipublikasikan':'Perkembangan gagal dimuat');
 }
 __f4.globals.document.addEventListener('DOMContentLoaded', loadProgresBankSampahIndex);
     
