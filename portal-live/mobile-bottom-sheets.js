@@ -30,7 +30,8 @@
   '#modal-rekening > .f4-account-dialog',
   '#modal-edit .f4-book-edit-card','.edit-modal .edit-modal-card',
   '#modal-koreksi-migrasi > div','#modal-doc-rapat > div',
-  '.f4p-album-overlay > .f4p-album-card','#modal-gateway > div'
+  '.f4p-album-overlay > .f4p-album-card','#modal-gateway > div',
+  '.f4g-comment-overlay > .f4g-panel'
  ];
  const selector=panelSelectors.join(',');
  const rootSelector=[
@@ -45,9 +46,9 @@
   '#modal-keuangan','#modal-jersey','#modal-dokumentasi',
   '#modal-gallery-grid','#modal-saran','#modal-rekening','#modal-edit',
   '.edit-modal','#modal-koreksi-migrasi','#modal-doc-rapat',
-  '.f4p-album-overlay','#modal-gateway'
+  '.f4p-album-overlay','#modal-gateway','.f4g-comment-overlay'
  ].join(',');
- const savedHeights=new WeakMap(), timers=new WeakMap();
+ const savedHeights=new WeakMap(), originalStyles=new WeakMap(), timers=new WeakMap();
  const watched=new WeakSet();
  let active=null, drag=null, animating=null, refreshFrame=0, lastDragAt=-1000;
  let grip;
@@ -60,9 +61,15 @@
   return r.width>0&&r.height>0&&
    getComputedStyle(el).visibility!=='hidden'&&!el.closest('[inert]');
  }
- function fullHeight(){
-  return Math.max(220,Math.floor(window.visualViewport?.height||window.innerHeight)-10);
+ // Use the panel's actual bottom after the dock reservation. A short
+ // visual viewport (e.g. keyboard) must never force an oversized sheet.
+ function fullHeight(rect){
+  const viewport=window.visualViewport;
+  const top=Math.max(viewport?.offsetTop||0,document.getElementById('f4-shell-top')?.getBoundingClientRect().bottom||0)+10;
+  const bottom=Math.min(rect.bottom,(viewport?.offsetTop||0)+(viewport?.height||window.innerHeight));
+  return Math.max(0,Math.floor(bottom-top));
  }
+ function expandable(panel){return !panel.matches('.f4-control-panel')&&!panel.closest('.f4-bank-select-dropdown');}
  function updateLabel(panel){
   if(!grip)return;
   const expanded=!!panel?.classList.contains('f4-sheet-expanded');
@@ -82,12 +89,12 @@
   const lightbox=document.querySelector(
    '#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])'
   );
-  if(lightbox&&lightbox.getClientRects().length){active=null;grip.hidden=true;return;}
+  if(lightbox&&lightbox.getClientRects().length&&!document.querySelector('.f4g-comment-overlay:not([hidden])')){active=null;grip.hidden=true;return;}
   // Choose the uppermost currently visible sheet. A newer date picker/dialog
   // must not inherit the handle of a still-open sheet underneath it.
   let latest=null;
   for(const panel of document.querySelectorAll(selector)){
-   if(panel.closest('.f4-bank-select-dropdown'))continue;
+   if(!expandable(panel))continue;
    if(visible(panel))latest=panel;
   }
   active=latest;
@@ -134,14 +141,13 @@
    panel.classList.contains('f4-sheet-dragging')||
    panel.classList.contains('f4-sheet-settling')||
    panel.classList.contains('f4-sheet-dismissing')||
-   panel.classList.contains('f4-sheet-expanded')||
-   ['transform','transition','height','max-height'].some(k=>panel.style.getPropertyValue(k));
+   panel.classList.contains('f4-sheet-expanded')||originalStyles.has(panel);
   if(!dirty)return;
   clearTimer(panel);
   panel.classList.remove('f4-sheet-dragging','f4-sheet-settling','f4-sheet-dismissing','f4-sheet-expanded','f4-sheet-gesture-ready');
-  for(const k of ['transform','transition','height','max-height']){
-   if(panel.style.getPropertyValue(k))panel.style.removeProperty(k);
-  }
+  const original=originalStyles.get(panel);
+  if(original){for(const [k,value,priority] of original){if(value)panel.style.setProperty(k,value,priority);else panel.style.removeProperty(k);}originalStyles.delete(panel);}
+  savedHeights.delete(panel);
  }
  function resetIfClosed(panel){
   if(!visible(panel)){
@@ -158,11 +164,13 @@
   observer.observe(el,{attributes:true,attributeFilter:['class','hidden','style','open']});
  }
  function attach(panel){
-  if(panel.closest('.f4-bank-select-dropdown'))return;
+  if(!expandable(panel))return;
   if(panel.dataset.f4SheetGesture==='1')return;
   panel.dataset.f4SheetGesture='1';
   panel.classList.add('f4-sheet-draggable');
   const root=rootOf(panel);
+  // Root remains the modal backdrop; only its usable flex area reserves the dock.
+  if(root!==panel)root.classList.add('f4-sheet-overlay-root');
   observe(root,records=>{
    // Some pickers are both the overlay and panel. Their transform writes
    // are not open/close state changes and must not force a layout read.
@@ -220,9 +228,10 @@
  function prepare(panel){
   if(!panel?.isConnected)return null;
   clearTimer(panel);
+  if(!originalStyles.has(panel))originalStyles.set(panel,['transform','transition','height','max-height','will-change'].map(k=>[k,panel.style.getPropertyValue(k),panel.style.getPropertyPriority(k)]));
   const rect=panel.getBoundingClientRect();
   const wasExpanded=panel.classList.contains('f4-sheet-expanded');
-  const height=Math.max(rect.height,fullHeight());
+  const height=Math.max(rect.height,fullHeight(rect));
   if(!wasExpanded)savedHeights.set(panel,rect.height);
   const collapsed=Math.max(90,savedHeights.get(panel)||rect.height);
   const base=wasExpanded?0:height-rect.height;
@@ -243,7 +252,7 @@
   grip.hidden=false;
   active=panel;
   return {panel,expanded:wasExpanded,height,base,collapsed,embedded,
-   top:rect.top,bottom:rect.bottom,delta:0,frame:0};
+   top:rect.top,bottom:rect.bottom,delta:0,rawDelta:0,frame:0};
  }
  function animatePose(pose,target){
   if(!pose?.panel?.isConnected)return;
@@ -292,8 +301,8 @@
    // Exchange the translated full-height sheet for its final size
    // in one frame. The visible top stays in the exact same place.
    panel.style.transition='none';
-   panel.style.height=expanded?'calc(100dvh - 10px)':pose.collapsed+'px';
-   panel.style.maxHeight=expanded?'calc(100dvh - 10px)':pose.collapsed+'px';
+   panel.style.height=finalHeight+'px';
+   panel.style.maxHeight=finalHeight+'px';
    panel.style.transform='none';
    panel.classList.toggle('f4-sheet-expanded',expanded);
    panel.classList.remove('f4-sheet-settling','f4-sheet-dismissing');
@@ -335,9 +344,12 @@
   if(!drag||event.pointerId!==drag.id)return;
   const d=drag;
   const raw=event.clientY-d.startY;
-  const dy=Math.max(-d.base-15,Math.min(d.height+50-d.base,raw));
+  // Decide the gesture from the actual finger movement, not the clamped
+  // transform. Near-full sheets otherwise never reach the expand threshold.
+  d.rawDelta=raw;
+  const dy=Math.max(-d.base,Math.min(d.height+50-d.base,raw));
   d.delta=dy;
-  if(Math.abs(dy)>6)d.moved=true;
+  if(Math.abs(raw)>6)d.moved=true;
   d.pending=d.base+dy;
   if(!d.frame){
    d.frame=requestAnimationFrame(()=>{
@@ -357,7 +369,7 @@
   if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
   grip.classList.remove('f4-sheet-handle-dragging');
   if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId);
-  const dy=d.delta,elapsed=Math.max(1,performance.now()-d.startAt);
+  const dy=d.rawDelta,elapsed=Math.max(1,performance.now()-d.startAt);
   const velocity=dy/elapsed;
   if(d.moved)lastDragAt=performance.now();
   if(cancelled){settle(d.panel,d.expanded,d.collapsed,d);return;}
@@ -374,6 +386,7 @@
   if(!document.body)return;
   grip=document.createElement('div');
   grip.className='f4-sheet-handle';
+  grip.dataset.f4Persistent='shell';
   grip.hidden=true;
   grip.setAttribute('role','button');
   grip.setAttribute('tabindex','0');
@@ -416,9 +429,16 @@
    if(added)requestRefresh();
   });
   observer.observe(document.body,{subtree:true,childList:true});
-  window.addEventListener('resize',requestRefresh,{passive:true});
+  function resizeSheet(){
+   if(active?.isConnected&&!drag&&!animating&&active.classList.contains('f4-sheet-expanded')){
+    const h=fullHeight(active.getBoundingClientRect());
+    if(h>0&&Math.abs(active.getBoundingClientRect().height-h)>1){active.style.height=h+'px';active.style.maxHeight=h+'px';}
+   }
+   requestRefresh();
+  }
+  window.addEventListener('resize',resizeSheet,{passive:true});
   window.addEventListener('scroll',()=>{if(active?.isConnected&&!grip?.hidden)requestRefresh()},{passive:true,capture:true});
-  window.visualViewport?.addEventListener('resize',requestRefresh,{passive:true});
+  window.visualViewport?.addEventListener('resize',resizeSheet,{passive:true});
   media.addEventListener?.('change',()=>{
    if(!media.matches){
     if(drag){
@@ -434,5 +454,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261110-compositor-v11',refresh:requestRefresh};
+ window.F4MobileSheets={version:'20261127-sheet-safe-v78',refresh:requestRefresh};
 })();

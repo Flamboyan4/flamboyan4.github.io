@@ -354,7 +354,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
 @media (max-width:767px) {
  
  /* Fullscreen photo viewers must completely cover the sheet underneath. */
- body:has(#lightbox-modal:not(.hidden),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])) > .f4-sheet-handle {display:none}
+ body:has(#lightbox-modal:not(.hidden),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])):not(:has(.f4g-comment-overlay:not([hidden]))) > .f4-sheet-handle {display:none}
  body > .f4-sheet-handle[hidden] {display:none}
  body > .f4-sheet-handle::before {
   content:"";display:block;width:44px;height:5px;
@@ -466,4 +466,40 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  body.f4-direct-bank .f4-control-panel.f4-sheet-draggable::before,
  body.f4-direct-bank dialog.f4-bank-sheet-modal.f4-sheet-draggable::before{display:none}
  body.f4-direct-bank .f4-bank-admin-menu-sheet.f4-sheet-draggable>.f4-bank-admin-menu-handle{display:none}
+}
+
+/* Shared safe area: the dock stays put and no sheet content can sit behind it.
+   Modal backdrop remains full viewport; only the panel's bottom anchor moves. */
+@media(max-width:767px){
+ html[data-f4-shell] body{
+  --f4-sheet-safe-bottom: max(var(--f4-shell-footer,0px),env(safe-area-inset-bottom,0px));
+  --f4-sheet-end-space:24px;
+ }
+ html[data-f4-shell] body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
+  .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
+  .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,.f4-resident-sheet-overlay,#modal-event-detail,#modal-arisan,
+  #modal-cetak-kas,#modal-keuangan,#modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran,
+  #modal-rekening,#modal-edit,.edit-modal,#modal-koreksi-migrasi,#modal-doc-rapat,.f4p-album-overlay,
+  #modal-gateway,.f4g-comment-overlay).f4-sheet-overlay-root{
+  box-sizing:border-box;padding-bottom:var(--f4-sheet-safe-bottom);
+ }
+ html[data-f4-shell] body :is(#f4-direct-dialog>section,#f4-superadmin-confirm .f4-sa-confirm-panel,#credentialModal>.f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,#modal-doc-rapat>div,#modal-gateway>div,#modal-event-detail>div,#modal-arisan>div,#modal-cetak-kas>div,#modal-keuangan>div,#modal-jersey>div,#modal-dokumentasi>div,#modal-gallery-grid>div,#modal-saran>div,#modal-rekening>.f4-account-dialog,#modal-koreksi-migrasi>div,.f4-sheet-draggable):not(dialog).f4-sheet-draggable{
+  max-height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  padding-bottom:var(--f4-sheet-end-space);
+ }
+ html[data-f4-shell] body :is(#modal-edit>.f4-book-edit-center:has(.f4-book-edit-card.f4-sheet-expanded),
+  #modal-edit>.f4-book-edit-center:has(.f4-sheet-dragging)){
+  max-height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px)
+ }
+ html[data-f4-shell] body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
+  bottom:var(--f4-sheet-safe-bottom);
+  max-height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  padding-bottom:var(--f4-sheet-end-space)
+ }
+ html[data-f4-shell] body .f4g-comment-overlay>.f4g-panel.f4-sheet-draggable{
+  position:relative;padding-top:30px;
+  max-height:calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  height:min(76dvh,calc(100dvh - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px),660px)
+ }
 }
