@@ -574,7 +574,7 @@ __f4.expose("v33SetupReportControls",()=>v33SetupReportControls,value=>v33SetupR
     type.add(new __f4.globals.Option('Pilih jenis',''));
     setCatalog.forEach(item=>{const opt=new __f4.globals.Option(item.nama+(item.tarif>0?'':' · tarif belum ada'),item.kode);opt.disabled=!(item.tarif>0);type.add(opt)});
     const weight=__f4.globals.document.createElement('input');weight.type='number';weight.min='0.001';weight.step='0.001';weight.max='10000';
-    weight.placeholder='Berat (kg)';weight.setAttribute('aria-label','Berat sampah (kg)');
+    weight.placeholder='Kg';weight.setAttribute('aria-label','Berat sampah (kg)');
     const remove=__f4.globals.document.createElement('button');remove.type='button';remove.className='f4-compact-remove';
     remove.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>';remove.title='Hapus jenis';remove.setAttribute('aria-label','Hapus jenis sampah');
     type.onchange=()=>{weight.value='';weight.setAttribute('aria-label','Berat '+(setCatalog.find(x=>x.kode===type.value)?.nama||'sampah')+' (kg)');previewSetoran()};

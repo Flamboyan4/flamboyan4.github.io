@@ -2036,7 +2036,7 @@ function addOwnItemRow(){
  select.add(new __f4.globals.Option("Pilih jenis",""));
  for(const item of ownCatalog||[])select.add(new __f4.globals.Option(item.name,item.id));
   const weight=el("input");weight.type="number";weight.step="0.001";weight.min="0.001";
- weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Berat (kg)";
+ weight.max="10000";weight.required=true;weight.dataset.ownWeight="1";weight.placeholder="Kg";
  weight.setAttribute("aria-label","Berat sampah kilogram");
  weight.addEventListener("input",refreshOwnWeightTotal);
  const del=el("button","f4-compact-remove");del.type="button";
@@ -2082,7 +2082,7 @@ async function submitOwnDeposit(event){
    note:$("f4BankOwnNote")?.value.trim()||""
   });
   status.textContent=res.duplicate?"Setoran sudah tercatat.":"Setoran Bank tercatat sebagai stok, belum menambah kas.";
-  ownRequestKey="";form.reset();$("f4BankOwnDate").value=today();
+  ownRequestKey="";form.reset();const dateInput=$("f4BankOwnDate");dateInput.value=today();dateInput.dispatchEvent(new __f4.globals.Event("change",{bubbles:true}));
   $("f4BankOwnLines")?.replaceChildren();addOwnItemRow();
   adminOverview=null;updateDashboard();
  }catch(error){status.textContent=error.message||"Setoran gagal disimpan.";}

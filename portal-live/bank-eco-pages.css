@@ -2087,7 +2087,7 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
 /* One owner for Setoran Warga metadata proportions. Keep stacked small phones. */
 @media(min-width:601px){
  body.f4-bank-app-admin #dashboardView .section #pageSetoran #setoranForm .f4-entry-top-fields{
-  grid-template-columns:minmax(0,7fr) minmax(0,5fr)
+  grid-template-columns:minmax(0,1fr) minmax(138px,.85fr)
  }
  body.f4-bank-app-admin #dashboardView .section #pageSetoran #setoranForm .f4-entry-top-fields>.field{
   grid-column:auto
@@ -3203,7 +3203,7 @@ body.f4-bank-app-admin #dashboardView #pageSetoran :is(
  gap:6px;min-width:0;font-size:12px;font-weight:750;color:#295f42
 }
 .f4-bank-own-field :is(input:not(.f4-modern-native-hidden),.f4-control-trigger){
- box-sizing:border-box;display:block;width:100%;min-width:0;
+ box-sizing:border-box;width:100%;min-width:0;
  height:44px;min-height:44px;max-height:44px;
  padding-block:0;align-self:start
 }

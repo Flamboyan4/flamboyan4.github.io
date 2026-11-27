@@ -22,7 +22,7 @@ let overlay=null,historyToken=0,closingPicker=false;
 const monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 const fmtDate=value=>{
  const m=(0,__f4.globals.String)(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
- return m?(0,__f4.globals.Number)(m[3])+' '+monthNames[(0,__f4.globals.Number)(m[2])-1]+' '+m[1]:'Pilih tanggal';
+ return m?(0,__f4.globals.Number)(m[3])+' '+monthNames[(0,__f4.globals.Number)(m[2])-1].slice(0,3)+' '+m[1]:'Pilih tanggal';
 };
 function close(fromBack=false){
  if(!overlay)return;
@@ -155,10 +155,6 @@ function formatValue(field){
   const m=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})$/);
   return m?(field.dataset.f4CompactMonth==='1'?monthNames[Number(m[2])-1].slice(0,3):monthNames[Number(m[2])-1])+' '+m[1]:'Pilih bulan';
  }
- if(field.type==='date'&&/^f4BankReport(?:From|To)$/.test(field.id)){
-  const m=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return m?(0,__f4.globals.Number)(m[3])+' '+monthNames[(0,__f4.globals.Number)(m[2])-1].slice(0,3)+' '+m[1]:'Pilih tanggal';
- }
  return fmtDate(field.value);
 }
 function calendar(field,trigger,settings={}){
@@ -252,7 +248,7 @@ function enhance(field){
  if(field.matches('select')){if(field.multiple||field.size>1)return}
  else if(!field.matches('input[type=date],input[type=month]'))return;
  field.dataset.f4ModernPicker='1';
- const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';
+ const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';if(field.type==='date')button.dataset.f4DateTrigger='1';
  const label=__f4.globals.document.createElement('span');label.className='f4-control-value';
  const icon=__f4.globals.document.createElement('span');icon.className='f4-control-icon';icon.innerHTML=field.matches('select')?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>';
  button.append(label,icon);button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',field.getAttribute('aria-label')||field.labels?.[0]?.textContent?.trim()||'Pilih');
@@ -284,6 +280,7 @@ let pending=false;function schedule(){
  if(pending)return;pending=true;(0,__f4.globals.requestAnimationFrame)(()=>{pending=false;scan()});
 }
 if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+__f4.globals.document.addEventListener('reset',schedule,true);
 new __f4.globals.MutationObserver(ms=>{
  if(ms.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select,input,form')||n.querySelector?.('select,input[type=date],input[type=month]')))))schedule();
 }).observe(__f4.globals.document.documentElement,{childList:true,subtree:true});
