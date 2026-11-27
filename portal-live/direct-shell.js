@@ -105,9 +105,9 @@ document.addEventListener('scroll',event=>{
 // Persistent loading surface; navbar and dock are never replaced.
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');
-routeLoading.innerHTML='<span class="f4-route-loading-indicator"><span class="f4-route-spinner" aria-hidden="true"></span><span>Memuat halaman…</span></span>';
+routeLoading.setAttribute('aria-label','Memuat halaman');routeLoading.innerHTML='<img class="f4-route-flower" src="/portal-live/flamboyan-loader.svg?v=20261127-centered-flower-v94" width="72" height="72" alt="" aria-hidden="true">';
 document.body.append(routeLoading);
-const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.textContent='Memuat halaman…';document.body.append(swapFallback);
+const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dataset.f4Persistent='shell';swapFallback.setAttribute('aria-hidden','true');swapFallback.innerHTML='<img class="f4-route-flower" src="/portal-live/flamboyan-loader.svg?v=20261127-centered-flower-v94" width="72" height="72" alt="" aria-hidden="true">';document.body.append(swapFallback);
 // Shared resident notification component for all native portals.
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
 const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-finance-inbox-v58';document.head.append(notificationScript);
@@ -455,7 +455,7 @@ window.F4PortalNavigation={
 (()=>{
  const indicator=el('div');indicator.id='f4-pull-refresh';indicator.dataset.f4Persistent='shell';indicator.hidden=true;
  indicator.setAttribute('aria-hidden','true');
- indicator.innerHTML='<img src="/portal-live/flamboyan-loader.svg?v=20261127-flamboyan-loader-v93" width="34" height="34" alt="" aria-hidden="true">';
+ indicator.innerHTML='<svg viewBox="0 0 32 32" width="30" height="30" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="12" stroke="#e2e8f0" stroke-width="3"/><path d="M16 4a12 12 0 0 1 12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
  barHost.append(indicator);
  const dirty=new WeakSet(),threshold=72;
  let gesture=null,refreshing=false;
@@ -472,7 +472,7 @@ window.F4PortalNavigation={
    Array.from(document.querySelectorAll(overlay)).some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');
  }
  function hideIndicator(){
-  indicator.hidden=true;indicator.removeAttribute('data-loading');indicator.style.removeProperty('--f4-pull-progress');
+  indicator.hidden=true;indicator.removeAttribute('data-loading');indicator.style.removeProperty('--f4-pull-angle');
  }
  function reset(){gesture=null;if(!refreshing)hideIndicator();}
  function cancelReload(){refreshing=false;reset();}
@@ -483,7 +483,7 @@ window.F4PortalNavigation={
   if(dirty.has(root)&&!window.confirm('Muat ulang halaman? Isian formulir yang belum disimpan dapat hilang.')){reset();return;}
   const url=location.href;
   refreshing=true;gesture=null;indicator.hidden=false;indicator.setAttribute('data-loading','');
-  // Paint the refresh flower before initiating the existing native document reload.
+  // Give the spinner a visible paint before initiating a native document reload.
   await Promise.all([afterPaint(),new Promise(resolve=>setTimeout(resolve,260))]);
   if(!refreshing||unavailable()||root!==shellScroll.element()||url!==location.href){cancelReload();return;}
   if(!canReload()){cancelReload();noticeBusy();return;}
@@ -528,7 +528,7 @@ window.F4PortalNavigation={
   }
   if(dy<=0||!e.cancelable){reset();return}
   e.preventDefault();g.distance=dy;
-  indicator.hidden=false;indicator.style.setProperty('--f4-pull-progress',String(Math.min(1,dy/threshold)));
+  indicator.hidden=false;indicator.style.setProperty('--f4-pull-angle',Math.min(1,dy/threshold)*360+'deg');
  },{capture:true,passive:false});
  document.addEventListener('touchend',e=>{
   const g=gesture;gesture=null;
