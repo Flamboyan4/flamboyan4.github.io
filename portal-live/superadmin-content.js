@@ -524,6 +524,7 @@ async function accountSingleAction(a,operation,control){
 }
 function accountsPage(){
  title('Akun & Hak Akses','Kelola identitas dan hak akses akun Flamboyan 4.');
+ const pageHeading=main.querySelector('.f4-work-heading');if(pageHeading){pageHeading.classList.replace('f4-work-heading','sa-accounts-page-heading');}
  const panel=el('section',__f4.globals.undefined,'sa-accounts-shell');
  const heading=el('div',__f4.globals.undefined,'sa-account-head'),head=el('div');
  head.append(el('h3','Daftar Akun'));
@@ -542,12 +543,12 @@ function accountsPage(){
  },'sa-action sa-action-primary');
  prepare.disabled=true;prepare.title='Memeriksa akun yang belum aktif';
  actions.append(prepare);
- heading.append(head,actions);panel.append(heading);
- const noticeBox=el('p','Aktivasi dan reset password akun anggota tersedia di sini. Hak akses Admin/Superadmin dikelola secara terpisah.','sa-account-note');
+ heading.append(head);panel.append(heading);
+ const noticeBox=el('p','Aktivasi dan reset akun anggota. Hak akses pengurus dikelola terpisah.','sa-account-note');
  panel.append(noticeBox);
  const listWrap=el('div',__f4.globals.undefined,'sa-account-table');
- const filters=el('div',__f4.globals.undefined,'sa-account-filters f4-controls');
- const input=el('input');input.placeholder='Cari nama, rumah atau username (contoh: A5/41)';
+ const filters=el('div',__f4.globals.undefined,'sa-account-filters');
+ const input=el('input');input.placeholder='Cari nama, rumah atau username…';
  input.setAttribute('aria-label','Cari akun warga');input.value=accountSearch;
  input.oninput=()=>{accountSearch=input.value;paintAccounts()};
  const filter=el('select');filter.id='sa-role-filter';filter.setAttribute('aria-label','Filter peran akun');
@@ -556,15 +557,19 @@ function accountsPage(){
  filter.value=accountRoleFilter;
  filter.onchange=()=>{accountRoleFilter=filter.value;paintAccounts()};
  const accountReload=button('Muat ulang',()=>accountsPage(),'sa-action');accountReload.title='Muat ulang daftar akun';accountReload.setAttribute('aria-label','Muat ulang');
- filters.append(input,accountReload,filter);
- const stats=el('p','', 'sa-account-count');stats.id='sa-account-count';stats.dataset.f4Count='accounts';filters.append(stats);
+ const searchRow=el('div',__f4.globals.undefined,'sa-account-search-row');
+ searchRow.append(input,accountReload);
+ const filterRow=el('div',__f4.globals.undefined,'sa-account-filter-row');
+ const roleSlot=el('div',__f4.globals.undefined,'sa-account-filter-slot');roleSlot.append(filter);
+ const statusSlot=el('div',__f4.globals.undefined,'sa-account-filter-slot');
+ const stats=el('p','', 'sa-account-count');stats.id='sa-account-count';stats.dataset.f4Count='accounts';
  const statusFilter=el('select');statusFilter.id='sa-status-filter';statusFilter.setAttribute('aria-label','Filter status akun');
  for(const [key,label] of [['','Semua status'],['Aktif','Aktif'],['Belum aktif','Belum aktif'],['Nonaktif','Nonaktif'],['—','Status belum tercatat']]){
   statusFilter.add(new __f4.globals.Option(label,key));
  }
  statusFilter.value=accountStatusFilter;
  statusFilter.onchange=()=>{accountStatusFilter=statusFilter.value;paintAccounts()};
- filters.insertBefore(statusFilter,stats);
+ statusSlot.append(statusFilter);filterRow.append(roleSlot,statusSlot,actions,stats);filters.append(searchRow,filterRow);
  const loadState=el('p',__f4.globals.undefined,'f4-admin-note');panel.append(loadState);
  const loadToken=__f4.globals.F4Loading.begin(loadState,'Memuat daftar akun…');
  listWrap.append(filters);
@@ -600,6 +605,15 @@ function accountsPage(){
   const cell=el('td','Sambungan akun perlu diperiksa.');cell.colSpan=6;tbody.lastChild.append(cell);
  });
 }
+function compactAccountAction(control,kind){
+ const paths={activate:'M20 6 9 17l-5-5',reset:'M15.5 7.5a5.5 5.5 0 1 0-4.2 9.2L15 20h3v-3h3v-3l-4.3-4.3M8 8h.01',edit:'m13.5 6.5 4 4M4 20l4.5-1 12-12-4-4-12 12L4 20',deactivate:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM8 8l8 8',handover:'M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4'};
+ const label=control.textContent;
+ const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','16');svg.setAttribute('height','16');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+ const path=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[kind]);svg.append(path);
+ control.setAttribute('aria-label',label);if(!control.title)control.title=label;
+ control.classList.add('sa-account-icon-action');control.replaceChildren(svg,el('span',label,'sa-account-action-label'));return control;
+}
 function paintAccounts(){
  const tbody=__f4.globals.document.getElementById('sa-accounts');
  const count=__f4.globals.document.getElementById('sa-account-count');
@@ -633,12 +647,12 @@ function paintAccounts(){
    const operation=canActivate?'activate':'reset';
    const control=button(canActivate?'Aktifkan':'Reset password',()=>accountSingleAction(a,operation,control),'sa-account-reset');
    control.title=canActivate?'Aktifkan akun anggota':'Reset password anggota ke 1234 dan putuskan sesi lama';
-   action.append(control);
+   action.append(compactAccountAction(control,operation));
   }
   if(member&&accountStatus(a)==='Aktif'){
-   action.append(button('Edit',()=>manageAccount(a,'edit'),'sa-account-manage'));
-   action.append(button('Nonaktifkan',()=>manageAccount(a,'deactivate'),'sa-account-manage sa-account-warning'));
-   action.append(button('Ganti penghuni',()=>manageAccount(a,'handover'),'sa-account-manage'));
+   action.append(compactAccountAction(button('Edit',()=>manageAccount(a,'edit'),'sa-account-manage'),'edit'));
+   action.append(compactAccountAction(button('Nonaktifkan',()=>manageAccount(a,'deactivate'),'sa-account-manage sa-account-warning'),'deactivate'));
+   action.append(compactAccountAction(button('Ganti penghuni',()=>manageAccount(a,'handover'),'sa-account-manage'),'handover'));
   }
   if(!action.children.length)action.append(el('span','—'));
   tr.append(name,house,user,role,status,action);
