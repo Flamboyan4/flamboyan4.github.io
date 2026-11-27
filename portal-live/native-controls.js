@@ -276,11 +276,11 @@ function enhance(field){
  }else{field.insertAdjacentElement('afterend',button)}
  field.classList.add('f4-modern-native-hidden');field.tabIndex=-1;fields.set(field,sync);sync();
 }
-function scan(){__f4.globals.document.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance)}
+function scan(root=__f4.globals.document){root.querySelectorAll('select,input[type=date],input[type=month]').forEach(enhance)}
 let pending=false;function schedule(){
  if(pending)return;pending=true;(0,__f4.globals.requestAnimationFrame)(()=>{pending=false;scan()});
 }
-if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
+if(__f4.globals.document.readyState==='loading')__f4.globals.document.addEventListener('DOMContentLoaded',()=>scan(),{once:true});else scan();
 __f4.globals.document.addEventListener('reset',schedule,true);
 new __f4.globals.MutationObserver(ms=>{
  if(ms.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('select,input,form')||n.querySelector?.('select,input[type=date],input[type=month]')))))schedule();

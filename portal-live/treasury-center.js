@@ -85,8 +85,14 @@ function select(options,cls=""){
  options.forEach(o=>{const opt=el("option",o.name);opt.value=o.id;if(o.fullName)opt.title=o.fullName;s.append(opt)});
  return s;
 }
-function field(label,node,cls=""){
- const w=el("label",__f4.globals.undefined,"tc-field "+cls);w.append(el("span",label),node);return w;
+function field(label,node,cls="",compact=false){
+ const w=el("label",__f4.globals.undefined,"tc-field "+cls),caption=el("span",label);
+ if(compact){
+  w.dataset.f4CompactLabel="1";caption.dataset.f4CompactCaption="1";
+  node.dataset.f4FieldLabel=label;node.dataset.f4FormControl="1";node.setAttribute("aria-label",label);
+  if(node.matches("select")&&node.options[0]?.value==="")node.options[0].label=label;
+ }
+ w.append(caption,node);return w;
 }
 // Standalone themed calendar for Treasury forms (desktop and phone).
 // The submitted value stays ISO YYYY-MM-DD; no native date dialog is shown.
@@ -402,7 +408,7 @@ function buildReportOptions(target,data){
  const kind=select([{id:"",name:"Semua jenis"},...Object.entries(kindLabels).filter(([id])=>id!=="opening").map(([id,name])=>({id,name:shortKinds[id]||name,fullName:name}))]);kind.value=reportOptions.kind;
  fund.dataset.f4PickerMinWidth=kind.dataset.f4PickerMinWidth="180";
  const from=el("input"),to=el("input");from.type=to.type="date";from.value=reportOptions.from;to.value=reportOptions.to;
- grid.append(field("Pos dana",fund),field("Jenis",kind),field("Dari",from),field("Sampai",to));
+ grid.append(field("Pos dana",fund,"",true),field("Jenis",kind,"",true),field("Dari",from,"",true),field("Sampai",to,"",true));
  from.title=to.title="Filter tanggal hanya berlaku untuk riwayat transaksi.";
  top.append(checks);
  const actions=el("div",__f4.globals.undefined,"tc-report-actions"),msg=el("p","","tc-status");msg.setAttribute("role","status");
@@ -421,6 +427,7 @@ function buildReportOptions(target,data){
  excel.onclick=async()=>{sync();if(excel.disabled)return;excel.disabled=true;try{await exportTreasuryExcel(data,readOptions())}catch(e){showMessage(e.message||"Excel gagal dibuat.")}finally{sync()}};
  const footer=el("div",__f4.globals.undefined,"tc-report-footer");
  footer.append(msg,actions);head.append(top,grid,footer);target.append(head);sync();
+ __f4.window.f4ModernControls?.scan?.(grid);
 }
 
 function buildForm(target,data,refresh){
