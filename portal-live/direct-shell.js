@@ -45,7 +45,8 @@ const hamburger=el('button');hamburger.id='f4-mobile-menu';hamburger.type='butto
 const links=el('nav','f4-nav-links');links.setAttribute('aria-label','Pindah portal');
 function navButton(key,url,label){
  const a=el('a');a.dataset.f4PortalTarget=key==='home'?'portal':key;a.href=shellUrl(url);a.title=label;a.setAttribute('aria-label',label);a.innerHTML=svg(key);
- if((portal==='portal'&&key==='home')||(portal==='bank'&&key==='bank')||(portal==='book'&&key==='book')||(portal==='superadmin'&&key==='superadmin'))a.classList.add('f4-selected');
+ const selected=(key==='home'?'portal':key)===(['dokumentasi',...residentKeys].includes(initialKey)?'portal':initialKey);
+ a.classList.toggle('f4-selected',selected);if(selected)a.setAttribute('aria-current','page');
  links.append(a);return a;
 }
 const portalMainLink=navButton('home',paths.portal,'Portal Utama');
@@ -68,7 +69,7 @@ const identityName=el('strong');identity.append(identityName);
 const meeting=el('a');meeting.id='f4-direct-meeting';meeting.href=shellUrl(paths.rapat);meeting.title='Rapat';meeting.setAttribute('aria-label','Rapat');
  meeting.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 12h8M8 16h8"/></svg>';
  meeting.setAttribute('aria-current',initialKey==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',initialKey==='rapat');
- bar.append(hamburger,identity,links,login,meeting,avatar,menu);
+ bar.append(hamburger,identity,links,meeting,login,avatar,menu);
  const barHost=el('div');barHost.id='f4-shell-top';barHost.dataset.f4Persistent='shell';
  barHost.append(bar);document.body.prepend(barHost);
 // One scroll API for original page scripts and the persistent shell.
@@ -361,7 +362,8 @@ function updatePortalChrome(key){
  portal=['rapat','dokumentasi',...residentKeys].includes(key)?'simple':key;
  document.documentElement.dataset.f4Shell=portal;
  applyPortalTheme(portal);hamburger.removeAttribute('aria-controls');hamburger.setAttribute('aria-expanded','false');syncPageMenu();dock?.setPortal(residentKeys.includes(key)?key:portal);updateSharedDock();if(sessionCheckCompleted)document.documentElement.classList.remove('f4-auth-pending');
- for(const a of links.querySelectorAll('[data-f4-portal-target]'))a.classList.toggle('f4-selected',a.dataset.f4PortalTarget===(portal==='simple'?'portal':key));
+ const selectedPortal=['dokumentasi',...residentKeys].includes(key)?'portal':key;
+ for(const a of links.querySelectorAll('[data-f4-portal-target]')){const selected=a.dataset.f4PortalTarget===selectedPortal;a.classList.toggle('f4-selected',selected);if(selected)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');}
  meeting.setAttribute('aria-current',key==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',key==='rapat');
  syncAccountMenu();
  document.getElementById('f4-direct-sidebar')?.remove();document.getElementById('f4-direct-sideback')?.remove();makePortalSide();

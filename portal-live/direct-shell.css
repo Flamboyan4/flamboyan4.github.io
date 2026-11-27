@@ -289,7 +289,7 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
  html[data-f4-shell] body.f4-direct-book>main{padding:12px 12px 20px}
  html[data-f4-shell] body.f4-direct-superadmin #f4-account-page>main{padding-top:var(--f4-panel-pad);min-width:0;overflow:visible}
  html[data-f4-shell] body.f4-direct-bank>.shell>.content{min-width:0;max-width:100%}
- html[data-f4-shell] body:where([style*="overflow: hidden"],[style*="overflow: clip"],.f4-account-open)>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
+ html[data-f4-shell] body:where([style*="overflow: hidden"],[style*="overflow: clip"],.f4-account-open,.f4-resident-sheet-open)>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
  html[data-f4-shell].f4p-overlay-active body>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
  /* Form width is constrained at the actual scroll root, not at the navbar. */
  html[data-f4-shell] body>:is(main,.shell,#f4-account-page) :where(form,fieldset,.field,.f4-field-stack,.f4-controls){box-sizing:border-box;min-width:0;max-width:100%}

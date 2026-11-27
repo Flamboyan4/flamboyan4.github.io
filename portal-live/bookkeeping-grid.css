@@ -111,6 +111,17 @@
  #tab-laporan .report-universal-filter .upr-range{max-width:100%;min-width:0}
  #tab-dashboard .f4-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--book-gap)}
  #tab-kas .kas-summary.f4-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--book-gap)}
+ /* Kas: four real controls, equal baseline before and after custom select enhancement. */
+ #tab-kas .kas-period-controls{display:grid;grid-template-columns:minmax(124px,1fr) minmax(118px,1fr) 92px minmax(72px,auto);align-items:center;gap:var(--book-tight);min-width:0;max-width:100%}
+ #tab-kas .kas-period-controls>:is(.field,.custom-select-wrap,button){min-width:0;width:100%;max-width:100%;margin:0;box-sizing:border-box}
+ #tab-kas .kas-period-controls :is(.field:not(.f4-modern-native-hidden):not(.select-enhanced),.custom-select-btn,.f4-control-trigger),#tab-kas .kas-period-controls>button{height:var(--book-control);min-height:var(--book-control);max-height:var(--book-control);font-size:var(--f4-input-font);line-height:var(--f4-control-line);padding-block:0;border-radius:var(--f4-control-radius);box-sizing:border-box}
+ #tab-kas .kas-period-controls .f4-control-value{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+ #tab-kas .kas-period-controls .custom-select-wrap{flex:none}
+ #tab-kas .kas-scroll .kas-pending-table:has(tbody>tr:only-child>td[colspan="4"]){width:100%;min-width:0;table-layout:fixed}
+ #tab-kas .kas-pending-table:has(tbody>tr:only-child>td[colspan="4"]) thead{display:none}
+ #tab-kas .kas-pending-table tbody>tr:only-child>td[colspan="4"]{white-space:normal;overflow-wrap:break-word;text-align:center;padding:18px 12px}
+ #tab-kas .kas-summary.f4-grid>div{display:flex;flex-direction:column;justify-content:space-between}
+ #tab-kas .kas-summary.f4-grid>div>div:last-child{font-variant-numeric:tabular-nums;overflow-wrap:normal;word-break:normal}
  #tab-dashboard .f4-grid>.card,#tab-kas .kas-summary.f4-grid>div{min-width:0;max-width:100%}
  /* Grid Input Iuran: same two columns and same label/control baselines. */
  #tab-input #form-iuran.f4-book-iuran-grid{
@@ -321,6 +332,10 @@
  #tab-dashboard .f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  #tab-dashboard .f4-grid>.card:last-child:nth-child(odd){grid-column:1/-1}
  #tab-kas .kas-summary.f4-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #tab-kas .kas-period-controls{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px}
+ #tab-kas .kas-period-controls>button{grid-column:auto}
+ #tab-kas .kas-summary.f4-grid>div{padding:10px 11px;min-height:72px}
+ #tab-kas .kas-summary.f4-grid>div>div:last-child{font-size:clamp(16px,4.8vw,21px);line-height:1.2}
  #tab-input #form-iuran.f4-book-iuran-grid{grid-template-columns:minmax(0,1fr);gap:12px}
  #tab-input #form-iuran.f4-book-iuran-grid>
  :is(.f4-book-warga,.f4-book-date-method,.f4-book-period,.f4-book-preview-column,.f4-book-money,.f4-book-submit,#save-status){
