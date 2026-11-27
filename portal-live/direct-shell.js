@@ -69,6 +69,39 @@ const meeting=el('a');meeting.id='f4-direct-meeting';meeting.href=shellUrl(paths
  meeting.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 12h8M8 16h8"/></svg>';
  meeting.setAttribute('aria-current',initialKey==='rapat'?'page':'false');meeting.classList.toggle('f4-selected',initialKey==='rapat');
  bar.append(hamburger,identity,links,login,meeting,avatar,menu);document.body.prepend(bar);
+/* Persistent mobile shell geometry. Portal forms never own the navigation
+   viewport, and Android browser chrome/keyboard resizes do not remount it. */
+const shellMobile=matchMedia('(max-width:1023px)');
+let shellFrame=0;
+function syncShellViewport(){
+ shellFrame=0;
+ const dockNode=document.getElementById('f4-direct-dock'),nodes=[bar,dockNode].filter(Boolean);
+ const root=document.documentElement,v=window.visualViewport;
+ if(!shellMobile.matches||!v||Math.abs(v.scale-1)>.025){
+  for(const node of nodes)for(const key of ['left','right','top','bottom'])node.style.removeProperty('--f4-visible-'+key);
+  return;
+ }
+ // Layout viewport dimensions are the reference for fixed CSS coordinates.
+ // Respect pinch zoom rather than cancelling it. At normal scale, fit the
+ // actual visible viewport even when browser chrome changes during scrolling.
+ const left=Math.max(0,v.offsetLeft),top=Math.max(0,v.offsetTop);
+ const right=Math.max(0,root.clientWidth-left-v.width);
+ const bottom=Math.max(0,root.clientHeight-top-v.height);
+ for(const node of nodes)for(const [key,value] of Object.entries({left,right,top,bottom})){
+  const px=Math.round(value)+'px',prop='--f4-visible-'+key;
+  if(node.style.getPropertyValue(prop)!==px)node.style.setProperty(prop,px);
+ }
+}
+function scheduleShellViewport(){if(!shellFrame)shellFrame=requestAnimationFrame(syncShellViewport)}
+window.visualViewport?.addEventListener('resize',scheduleShellViewport,{passive:true});
+window.visualViewport?.addEventListener('scroll',scheduleShellViewport,{passive:true});
+window.addEventListener('resize',scheduleShellViewport,{passive:true});
+window.addEventListener('orientationchange',scheduleShellViewport,{passive:true});
+shellMobile.addEventListener('change',scheduleShellViewport);
+document.addEventListener('f4:portal-changed',scheduleShellViewport);
+window.addEventListener('f4-shared-bank-route',scheduleShellViewport);
+window.addEventListener('f4-shared-book-route',scheduleShellViewport);
+scheduleShellViewport();
 // Persistent loading surface; navbar and dock are never replaced.
 const routeLoading=el('div');routeLoading.id='f4-route-loading';routeLoading.dataset.f4Persistent='shell';routeLoading.hidden=true;
 routeLoading.setAttribute('role','status');routeLoading.setAttribute('aria-live','polite');

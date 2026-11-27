@@ -251,7 +251,17 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 @media(max-width:1023px){
  body.f4-direct-bank #f4-direct-bar{background:#fff;backdrop-filter:none;transition:none}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:56px;bottom:0;height:calc(100dvh - 56px)}
- body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar,body.f4-direct-bank #f4-direct-bar,body.f4-direct-book #f4-direct-bar,body.f4-direct-superadmin #f4-direct-bar{left:0}
+ /* Keep the document from acquiring a horizontal scroll range from a form.
+    Wide data tables retain their own scroll containers. */
+ html[data-f4-shell],html[data-f4-shell] body{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-x:clip}
+ html[data-f4-shell] body>main{box-sizing:border-box;min-width:0;max-width:100%}
+ html[data-f4-shell] #f4-direct-bar{
+  top:var(--f4-visible-top,0px);left:var(--f4-visible-left,0px);right:var(--f4-visible-right,0px);
+  width:auto;min-width:0;max-width:none;height:56px;box-sizing:border-box;margin:0;
+  gap:4px;padding-inline:8px;
+ }
+ #f4-direct-bar .f4-direct-identity{overflow:hidden;flex:1 1 0;min-width:0}
+ #f4-direct-bar .f4-direct-identity strong{max-width:100%}
 }
 @media print{#f4-direct-bar,#f4-direct-sidebar{display:none}}
 
@@ -527,21 +537,20 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 /* Shared mobile dock: compact, one visual owner across all native portals. */
 #f4-direct-dock,#f4-direct-dock[hidden],#f4-direct-dock .f4-direct-dock-menu[hidden]{display:none}
 @media(max-width:1023px){
- body.f4-shared-dock{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-max-inset-bottom,env(safe-area-inset-bottom,0px))}
- @supports (-moz-appearance:none){@media(pointer:coarse){body.f4-shared-dock{--f4-dock-safe:0px}}}
+ body.f4-shared-dock{--f4-dock-height:60px;--f4-dock-safe:env(safe-area-inset-bottom,0px)}
  body.f4-shared-dock #f4-direct-bar .f4-nav-links{display:none}
  body.f4-shared-dock:not(.f4-direct-bank){padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock.f4-direct-bank:not(.f4-bank-app-private) #v11Public{padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;inset:auto 0 0;z-index:55;display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;gap:2px;
-  width:100%;max-width:100%;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
+  box-sizing:border-box;position:fixed;inset:auto var(--f4-visible-right,0px) var(--f4-visible-bottom,0px) var(--f4-visible-left,0px);z-index:55;display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:center;gap:2px;
+  width:auto;min-width:0;max-width:none;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
   border-top:1px solid #e8eceb;box-shadow:none;transform:none;visibility:visible;
  }
  #f4-direct-dock .f4-direct-dock-item{
   box-sizing:border-box;display:grid;grid-template-rows:32px 13px;align-content:center;justify-items:center;gap:2px;
-  min-width:0;width:100%;height:100%;margin:0;padding:0 1px;background:transparent;border:0;border-radius:9px;
+  min-width:0;min-height:0;width:100%;height:100%;margin:0;padding:0 1px;background:transparent;border:0;border-radius:9px;
   color:#65716e;font:550 clamp(10px,2.8vw,11px)/1.15 system-ui,-apple-system,sans-serif;cursor:pointer;touch-action:manipulation;
  }
  #f4-direct-dock .f4-direct-dock-icon{display:grid;place-items:center;width:42px;height:32px;border-radius:9px;color:#536461}
