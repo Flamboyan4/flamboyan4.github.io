@@ -2110,7 +2110,7 @@ body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-e
  margin:0;font-size:15px;line-height:1.3
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack{
- display:grid;grid-auto-rows:auto;
+ display:grid;grid-template-rows:none;grid-auto-rows:auto;
  align-content:start;gap:6px;min-width:0;margin:0
 }
 body.f4-bank-app-admin #dashboardView .section :is(#setoranForm,#saleForm) .f4-entry-top-fields>.field.f4-field-stack>label{
@@ -2143,10 +2143,10 @@ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields
  column-gap:16px;row-gap:var(--bank-form-gap);align-items:start;min-width:0
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields>.field{
- display:grid;grid-auto-rows:auto;
+ display:grid;grid-template-rows:none;grid-auto-rows:auto;
  gap:6px;align-content:start;min-width:0;margin:0
 }
-body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields>.field>:is(input:not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden)){
+body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-payment-fields>.field>:is(input:not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden),.f4-control-trigger){
  box-sizing:border-box;width:100%;height:var(--bank-input-h);
  min-height:var(--bank-input-h);max-height:var(--bank-input-h);padding-block:0
 }
@@ -2159,7 +2159,7 @@ body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields>.f
  grid-column:1/-1
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields>.field{
- display:grid;grid-auto-rows:auto;
+ display:grid;grid-template-rows:none;grid-auto-rows:auto;
  align-content:start;gap:6px;min-width:0;margin:0
 }
 body.f4-bank-app-admin #dashboardView .section #saleForm .f4-sale-note-fields>.field>label{
@@ -2275,7 +2275,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   grid-column:1/-1;grid-row:auto;order:2
  }
  /* HP Penjualan: kartu ringkas dan ritme grid yang sama untuk semua bagian. */
- body.f4-bank-app-admin #dashboardView #pagePenjualan{--bank-input-h:46px;--bank-form-gap:10px}
+ body.f4-bank-app-admin #dashboardView #pagePenjualan{--bank-input-h:44px;--bank-form-gap:10px}
  body.f4-bank-app-admin #dashboardView #pagePenjualan>h2{
   margin:0 0 11px;font-size:22px;line-height:1.2;letter-spacing:-.025em
  }
@@ -2306,7 +2306,7 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  }
  /* Mobile Setoran reference: existing live form, four cards and one CTA. */
  body.f4-bank-app-admin #dashboardView #pageSetoran{
-  --bank-input-h:50px;--bank-form-gap:12px
+  --bank-input-h:44px;--bank-form-gap:10px
  }
  body.f4-bank-app-admin #dashboardView #pageSetoran>h2{
   margin:2px 0 4px;font-size:20px;line-height:1.2;letter-spacing:-.025em
@@ -2324,8 +2324,8 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
  body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-top-fields>.field.f4-field-stack>label{
   font-size:12px;font-weight:750;color:#627a6e
  }
- body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-top-fields>.field.f4-field-stack>:is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden)){
-  padding-inline:13px;border:1px solid #edf2f3;border-radius:14px;background:#f8fafc;
+ body.f4-bank-app-admin #dashboardView #pageSetoran #setoranForm .f4-entry-top-fields>.field.f4-field-stack>:is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden),.f4-control-trigger){
+  padding-inline:11px;border:1px solid #d6e4da;border-radius:var(--f4-control-radius,10px);background:#fff;
   color:#263d34;font-size:var(--bank-control-font);font-weight:700
  }
  /* Satu sistem rincian sampah pada Warga, Bank dan Penjualan (HP). */
@@ -2360,21 +2360,6 @@ body.f4-bank-app-admin #dashboardView .section :is(.f4-bank-admin-cash-table,.ta
   box-sizing:border-box;order:2;justify-self:stretch;width:100%;min-height:48px;
   margin:0;padding:11px 12px;border:2px dashed #00968866;border-radius:13px;
   background:#0096880a;color:#007c70;font-size:13px;font-weight:850
- }
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines) .f4-compact-row{
-  grid-template-columns:minmax(0,1fr) minmax(0,clamp(88px,30vw,118px));gap:8px
- }
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines) .f4-compact-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:1}
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines) .f4-compact-row>.f4-compact-entry-group{grid-column:2}
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-entry-group{
-  grid-template-columns:minmax(0,1fr) 42px;gap:7px
- }
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-row :is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden),.f4-control-trigger){
-  min-height:47px;padding:8px 9px;border:1px solid #edf2f3;
-  border-radius:12px;background:#f8fafc;color:#284237;font-size:var(--bank-control-font)
- }
- body.f4-bank-app-admin #dashboardView :is(#setBarang,#f4BankOwnLines,#saleItems) .f4-compact-remove{
-  min-height:47px;border:0;border-radius:var(--f4-panel-radius,12px);background:#fff0ef;color:#dc6057
  }
  /* Form bank sendiri: tanggal → rincian → catatan → simpan, tidak dibalik. */
  body.f4-bank-app-admin #dashboardView #pageSetoran #f4BankOwnDepositForm>.f4-bank-own-side{
@@ -3163,77 +3148,63 @@ body.f4-bank-app-admin #dashboardView #pageSetoran :is(
  margin:0;padding:9px 12px;border:1px dashed #00968880;border-radius:12px;
  background:#0096880a;color:#007c70;font-size:13px;font-weight:800
 }
-/* Canonical Setoran/Penjualan item rows share the form's 12-track boundaries. */
+/* Single row geometry: use the visible picker in the same grid slot as its native select.
+   Sale price and remove remain separate grid cells on every screen. */
 .f4-compact-rows{display:grid;gap:9px;min-width:0}
 .f4-compact-row{
- display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
- align-items:stretch;gap:var(--bank-form-gap,12px);min-width:0
+ --f4-item-height:44px;
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.7fr);
+ align-items:start;gap:8px;min-width:0
 }
-.f4-compact-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:span 6}
-.f4-compact-row>.f4-compact-entry-group{grid-column:span 6}
-.f4-compact-sale-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:span 5}
-.f4-compact-sale-row>input{grid-column:span 3}
-.f4-compact-sale-row>.f4-compact-entry-group{grid-column:span 4}
-.f4-compact-entry-group{
- display:grid;grid-template-columns:minmax(0,1fr) 38px;
- gap:8px;min-width:0
+.f4-compact-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:1;grid-row:1}
+.f4-compact-row>.f4-compact-entry-group{grid-column:2;grid-row:1}
+.f4-compact-entry-group{display:grid;grid-template-columns:minmax(0,1fr) 38px;gap:6px;min-width:0}
+#saleItems .f4-compact-sale-row{
+ grid-template-columns:minmax(0,1fr) minmax(42px,.4fr) minmax(60px,.58fr) 38px;
+ gap:6px;align-items:start
 }
+#saleItems .f4-compact-sale-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:1;grid-row:1}
+#saleItems .f4-compact-sale-row>input{grid-column:2;grid-row:1}
+#saleItems .f4-compact-sale-row>.f4-compact-entry-group{display:contents}
+#saleItems .f4-compact-sale-row>.f4-compact-entry-group>input{grid-column:3;grid-row:1}
+#saleItems .f4-compact-sale-row>.f4-compact-entry-group>.f4-compact-remove{grid-column:4;grid-row:1}
 .f4-compact-row>.f4-control-trigger .f4-control-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.f4-compact-row :is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden),.f4-control-trigger){
- box-sizing:border-box;width:100%;min-width:0;min-height:42px;margin:0;
- padding:8px 10px;border:1px solid #d6e4da;border-radius:10px;background:#fff;
- color:#174831;font-size:13px
+.f4-compact-row>:is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden),.f4-control-trigger),
+.f4-compact-entry-group>input{
+ box-sizing:border-box;width:100%;min-width:0;height:var(--f4-item-height);min-height:var(--f4-item-height);
+ margin:0;padding:0 9px;border:1px solid #d6e4da;border-radius:var(--f4-control-radius,10px);
+ background:#fff;color:#174831;font:500 13px/1.3 system-ui,sans-serif
 }
+.f4-compact-row>.f4-control-trigger{gap:4px}
+.f4-compact-row>.f4-control-trigger .f4-control-icon svg{width:16px;height:16px}
 .f4-compact-row.f4-entry-filled :is(select:not(.f4-modern-native-hidden),input:not(.f4-modern-native-hidden),.f4-control-trigger){border-color:#a8d2b6}
 .f4-compact-row .f4-compact-remove{
- display:grid;place-items:center;min-width:0;padding:0;border:1px solid #e0e5df;
- border-radius:10px;background:#fff;color:#93552e;font-size:21px;cursor:pointer
+ display:grid;place-items:center;box-sizing:border-box;width:100%;height:var(--f4-item-height);min-height:var(--f4-item-height);
+ min-width:0;margin:0;padding:0;border:1px solid #f0d8d5;
+ border-radius:var(--f4-control-radius,10px);background:#fff0ef;color:#dc6057;cursor:pointer
 }
+.f4-compact-remove svg{width:18px;height:18px}
 .f4-bank-admin-cash-tabs{margin-bottom:2px}
-@media(max-width:520px){
- .f4-compact-row{grid-template-columns:minmax(0,1fr) minmax(0,140px);gap:8px}
- .f4-compact-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){grid-column:1}
- .f4-compact-row>.f4-compact-entry-group{grid-column:2}
- /* Penjualan di HP: empat kontrol nyata dalam satu baris, tanpa kolom kedua. */
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row{
-  grid-template-columns:minmax(0,1fr) minmax(0,43px) minmax(0,72px) minmax(0,40px);
-  gap:6px;align-items:center;min-width:0;max-width:100%
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>:is(select:not(.f4-modern-native-hidden),.f4-control-trigger){
-  grid-column:1;min-width:0;white-space:nowrap;text-overflow:ellipsis;
-  padding-inline:6px;font-size:12px
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>input{
-  grid-column:2;min-width:0;padding-inline:2px;text-align:center;font-size:12px
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group{
-  display:contents
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>input{
-  grid-column:3;min-width:0;padding-inline:5px;font-size:12px
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>.f4-compact-remove{
-  grid-column:4;width:40px;min-height:47px
- }
- .f4-compact-entry-group{grid-template-columns:minmax(0,1fr) 34px;gap:7px}
+@media(max-width:1023px){
+ #saleItems .f4-compact-sale-row{grid-template-columns:minmax(0,1fr) minmax(42px,.4fr) minmax(62px,.6fr) 36px;gap:5px}
+ #saleItems .f4-compact-sale-row>:is(input,.f4-control-trigger),#saleItems .f4-compact-entry-group>input{padding-inline:5px;font-size:12px}
+ #saleItems .f4-compact-sale-row>.f4-control-trigger{gap:3px}
+ .f4-compact-entry-group{grid-template-columns:minmax(0,1fr) 36px;gap:6px}
 }
 @media(max-width:370px){
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row{
-  grid-template-columns:minmax(0,1fr) 36px 58px 36px;gap:4px
- }
- body.f4-bank-app-admin #dashboardView #saleItems .f4-compact-sale-row>.f4-compact-entry-group>.f4-compact-remove{width:36px}
+ #saleItems .f4-compact-sale-row{grid-template-columns:minmax(0,1fr) 36px 56px 32px;gap:4px}
 }
 .f4-bank-own-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
  align-items:start;gap:var(--bank-form-gap,12px)
 }
 .f4-bank-own-field{
- display:grid;grid-auto-rows:auto;align-content:start;
+ display:grid;grid-template-rows:none;grid-auto-rows:auto;align-content:start;
  gap:6px;min-width:0;font-size:12px;font-weight:750;color:#295f42
 }
-.f4-bank-own-field input{
+.f4-bank-own-field :is(input:not(.f4-modern-native-hidden),.f4-control-trigger){
  box-sizing:border-box;display:block;width:100%;min-width:0;
- height:42px;min-height:42px;max-height:42px;
+ height:44px;min-height:44px;max-height:44px;
  padding-block:0;align-self:start
 }
 .f4-bank-own-detail{
@@ -3859,7 +3830,7 @@ body.f4-bank-app-member #dashboardView>.grid>.section{
  /* PC forms: only Penjualan uses full-width metadata.
     Setoran Warga keeps member/date together inside the RIGHT column. */
  body.f4-bank-app-admin #dashboardView{
-  --bank-input-h:48px;--bank-form-gap:14px
+  --bank-input-h:44px;--bank-form-gap:12px
  }
  body.f4-bank-app-admin #dashboardView .section :is(#saleForm,#setoranForm){
   grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);

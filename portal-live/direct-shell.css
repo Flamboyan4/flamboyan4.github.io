@@ -1,7 +1,7 @@
 /* Flamboyan 4 — shared navigation for native (non-iframe) portal pages. */
 :root{--f4-shell-fallback-display:none;--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
 --f4-ui-ink:#23293c;--f4-ui-muted:#586477;--f4-ui-border:#dde3ea;--f4-heading:clamp(1.4rem,1.25rem + .7vw,1.85rem);
---f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-control-height:42px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
+--f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-control-height:44px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
 
 
 
@@ -17,10 +17,10 @@
 .f4-controls :is(select,button,input){vertical-align:middle;box-sizing:border-box}
 .f4-controls>:is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select:not([multiple])){width:auto;flex:1 1 145px;max-width:100%;min-width:0}
 .f4-controls>button:not([data-icon-only]){flex:0 0 auto}
-.f4-field-stack{display:grid;grid-template-rows:auto minmax(var(--f4-control-height),auto);align-content:start;gap:6px;min-width:0}
+.f4-field-stack{display:grid;grid-auto-rows:auto;align-content:start;gap:6px;min-width:0}
 .f4-field-stack>label:first-child{display:block;margin:0;line-height:16px;min-height:16px}
-.f4-field-stack>:is(input:not([type=checkbox]):not([type=radio]),select,.custom-select-wrap){width:100%;min-width:0;min-height:var(--f4-control-height);margin:0;align-self:end}
-.f4-field-stack>:is(input:not([type=checkbox]):not([type=radio]),select){height:var(--f4-control-height);padding-block:0;line-height:var(--f4-control-line)}
+.f4-field-stack>:is(input:not([type=checkbox]):not([type=radio]):not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden),.custom-select-wrap,.f4-control-trigger){width:100%;min-width:0;min-height:var(--f4-control-height);margin:0;align-self:end}
+.f4-field-stack>:is(input:not([type=checkbox]):not([type=radio]):not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden),.f4-control-trigger){height:var(--f4-control-height);padding-block:0;line-height:var(--f4-control-line)}
 .f4-control-actions{display:flex;align-items:center;justify-content:flex-end;gap:var(--f4-control-gap);flex-wrap:wrap;min-width:0}
 .f4-control-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:var(--f4-control-height);margin:0;line-height:var(--f4-control-line)}
 .f4-control-actions>button svg{flex:none}

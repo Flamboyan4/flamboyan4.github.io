@@ -1221,7 +1221,7 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 
 /* Jersey order form: one grid and spacing owner for PC, HP, and optional payment fields. */
 #f4-account-page .f4-jersey-order-form{
- --f4-jersey-control-height:42px;
+ --f4-jersey-control-height:44px;
  max-width:1040px;
  padding:16px 18px;
 }
@@ -1231,13 +1231,13 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 }
 #f4-account-page .f4-jersey-order-form .f4-admin-fields>label,
 #f4-account-page .f4-jersey-order-form .f4-jersey-split-fields>label{
- display:grid;grid-template-rows:18px var(--f4-jersey-control-height);
+ display:grid;grid-auto-rows:auto;
  row-gap:5px;min-width:0;margin:0;
 }
 #f4-account-page .f4-jersey-order-form .f4-admin-fields label>span{
  line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-#f4-account-page .f4-jersey-order-form .f4-admin-fields :is(input,select){
+#f4-account-page .f4-jersey-order-form .f4-admin-fields :is(input:not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden),.f4-control-trigger){
  box-sizing:border-box;width:100%;min-width:0;
  height:var(--f4-jersey-control-height);min-height:var(--f4-jersey-control-height);
  padding:0 12px;font-size:14px;font-weight:400;

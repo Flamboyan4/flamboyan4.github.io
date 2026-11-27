@@ -55,7 +55,7 @@
  :where(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan,#tab-dashboard,#tab-rumah,#tab-warga)
  :where(.field,input,select,textarea){min-width:0;max-width:100%;box-sizing:border-box}
  :where(#tab-input,#tab-transaksi,#tab-talangan,#tab-denda,#tab-pinjaman,#tab-riwayat,#tab-laporan)
- .f4-field-stack{display:grid;grid-template-rows:auto minmax(0,1fr);gap:5px;min-width:0}
+ .f4-field-stack{display:grid;grid-auto-rows:auto;gap:5px;min-width:0}
  /* Satu grid Debit/Kredit menggantikan tiga aturan lama yang saling menimpa. */
  #tab-transaksi #form-transaksi-kas.trx-layout{
   display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
@@ -166,7 +166,7 @@
  }
  #tab-input #form-iuran.f4-book-iuran-grid #preview-detail>.grid>div{min-width:0;overflow-wrap:anywhere}
  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-submit{
-  display:grid;grid-template-rows:var(--book-control);padding-top:22px;min-width:0
+  display:grid;grid-template-rows:var(--book-control);padding-top:0;min-width:0
  }
 
  #tab-input #form-iuran.f4-book-iuran-grid #btn-simpan{

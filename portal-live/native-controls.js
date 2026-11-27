@@ -265,7 +265,7 @@ function enhance(field){
   const caption=field.dataset.f4FieldLabel||'';
   const value=empty&&caption?caption:meta?[meta.name,meta.house].filter(Boolean).join(' · '):field.matches('select')?(option?.textContent||'Pilih'):formatValue(field);
   if(label.textContent!==value)label.textContent=value;
-  button.toggleAttribute('data-f4-placeholder',empty&&!!caption);
+  button.toggleAttribute('data-f4-placeholder',empty);
   if(caption)button.setAttribute('aria-label',empty?caption:caption+': '+value);
   if(button.title!==value)button.title=value;
  }
