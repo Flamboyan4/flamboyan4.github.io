@@ -315,9 +315,12 @@ function rememberActiveUrl(){if(portalKey(location.pathname)===activePortalKey)l
 function restoreActiveUrl(){if(portalKey(location.pathname)!==activePortalKey)history.replaceState({f4PortalKey:activePortalKey},'',lastActiveUrl);}
 const contentAdapters=new Map();
 let mountedContent=null,navigationPending=false,viewSequence=0;
-function beginView(){
+function beginView(refresh=false){
  if(navigationPending)return null;
- const token=++viewSequence;routeLoading.hidden=false;return token;
+ const token=++viewSequence;
+ routeLoading.toggleAttribute('data-pull-refresh',refresh===true);
+ if(refresh===true)routeLoading.setAttribute('aria-label','Memuat ulang halaman');else routeLoading.removeAttribute('aria-label');
+ routeLoading.hidden=false;return token;
 }
 function afterPaint(){
  if(document.hidden)return Promise.resolve();
@@ -329,7 +332,7 @@ function afterPaint(){
 function endView(token){
  if(token===null||token!==viewSequence)return;
  const ready=window.F4PortalRuntime?.waitForView?.()||Promise.resolve();
- Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence){document.documentElement.removeAttribute('data-f4-swapping');routeLoading.hidden=true;residentTools.refresh()}});
+ Promise.resolve(ready).catch(()=>{}).then(afterPaint).finally(()=>{if(token===viewSequence){document.documentElement.removeAttribute('data-f4-swapping');routeLoading.hidden=true;routeLoading.removeAttribute('data-pull-refresh');routeLoading.removeAttribute('aria-label');residentTools.refresh()}});
 }
 function canAccessPortal(key){
  if(key==='book'||key==='superadmin')return sessionCheckCompleted&&!!session?.account&&role==='superadmin';
@@ -386,8 +389,8 @@ async function navigatePortal(path,{replace=false,pop=false,refresh=false}={}){
   const url=shellUrl(target.href);
   if(replace||pop)location.replace(url);else location.assign(url);return true;
  }
- const viewToken=beginView();navigationPending=true;
- document.documentElement.setAttribute('data-f4-swapping','');
+ const viewToken=beginView(refresh);navigationPending=true;
+ if(!refresh)document.documentElement.setAttribute('data-f4-swapping','');
  const accountId=session?.account?.id||null,requestedRole=role;
  const stillAllowed=()=>accountId===(session?.account?.id||null)&&requestedRole===role&&canAccessPortal(key);
  let prepared=null,detached=false;
@@ -398,7 +401,8 @@ async function navigatePortal(path,{replace=false,pop=false,refresh=false}={}){
   if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
   if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
   closeSide();closeDockMenu();menu.hidden=true;cancelBankNavigation();
-  // Ensure the persistent loading surface has painted before disposing content.
+  // Keep current content visible during pull-refresh preparation; guard only the actual swap.
+  document.documentElement.setAttribute('data-f4-swapping','');
   await afterPaint();
   if(!stillAllowed()){await prepared.dispose();if(pop)restoreActiveUrl();return false}
   if(current.canLeave&&!(await current.canLeave())){await prepared.dispose();if(pop)restoreActiveUrl();showSessionNotice('Transaksi masih diproses.','Tutup',()=>{sessionNotice.hidden=true});return false;}
@@ -436,9 +440,9 @@ window.F4PortalNavigation={
 (()=>{
  const indicator=el('div');indicator.id='f4-pull-refresh';indicator.dataset.f4Persistent='shell';indicator.hidden=true;
  indicator.setAttribute('aria-hidden','true');
- indicator.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7"/></svg><span>Tarik untuk memuat ulang</span>';
+ indicator.innerHTML='<span class="f4-pull-ring"></span>';
  document.body.append(indicator);
- const label=indicator.querySelector('span'),dirty=new WeakSet(),threshold=72;
+ const dirty=new WeakSet(),threshold=72;
  let gesture=null,refreshing=false;
  const overlay='dialog[open],#f4-direct-dialog:not([hidden]),#f4-direct-sideback:not([hidden]),#f4-direct-account-menu:not([hidden]),#f4-resident-pay-panel:not([hidden]),#modal-saran:not(.hidden),#modal-event-detail:not(.hidden),#modal-keuangan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-arisan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),.v21-modal:not(.hidden),.f4g-overlay:not([hidden])';
  const editing='input,textarea,select,[contenteditable]:not([contenteditable="false"])';
@@ -449,7 +453,7 @@ window.F4PortalNavigation={
    document.body.matches('.f4-denied,.f4-account-open')||
    Array.from(document.querySelectorAll(overlay)).some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');
  }
- function reset(){gesture=null;indicator.hidden=true;indicator.removeAttribute('data-armed');}
+ function reset(){gesture=null;indicator.hidden=true;indicator.style.removeProperty('--f4-pull-angle');}
  function nestedScroller(node,root){
   for(let n=node;n&&n!==root;n=n.parentElement){
    if(n.scrollHeight>n.clientHeight+2&&/^(auto|scroll)$/.test(getComputedStyle(n).overflowY))return true;
@@ -485,8 +489,7 @@ window.F4PortalNavigation={
   }
   if(dy<=0||!e.cancelable){reset();return}
   e.preventDefault();g.distance=dy;
-  indicator.hidden=false;indicator.dataset.armed=String(dy>=threshold);
-  label.textContent=dy>=threshold?'Lepas untuk memuat ulang':'Tarik untuk memuat ulang';
+  indicator.hidden=false;indicator.style.setProperty('--f4-pull-angle',Math.min(1,dy/threshold)*360+'deg');
  },{capture:true,passive:false});
  document.addEventListener('touchend',e=>{
   const g=gesture;reset();

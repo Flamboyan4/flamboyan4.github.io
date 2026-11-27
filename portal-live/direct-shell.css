@@ -231,14 +231,16 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 /* Loading covers only content, leaving the shared navigation available. */
 #f4-route-loading{position:fixed;inset:56px 0 0;z-index:190;display:grid;place-items:center;background:#fff;color:var(--f4-nav);font:600 13px/1.4 system-ui,-apple-system,sans-serif}
 #f4-route-loading[hidden]{display:none}
-/* Pull feedback belongs to the persistent frame, never the scrolling content. */
+/* Native-style pull refresh: one small circular spinner, no panel or visible text. */
 #f4-pull-refresh{display:none}
 @media(max-width:1023px){
- #f4-pull-refresh:not([hidden]){position:absolute;top:calc(var(--f4-shell-header,56px) + 10px);left:50%;transform:translateX(-50%);z-index:180;display:flex;align-items:center;gap:7px;max-width:calc(100% - 24px);padding:9px 13px;border:1px solid #e2e8f0;border-radius:24px;background:#fff;color:var(--f4-nav,#5145cd);box-shadow:0 3px 12px #17263b19;font:600 12px/1.4 system-ui,sans-serif;white-space:nowrap;pointer-events:none}
- #f4-pull-refresh svg{width:19px;height:19px;flex:none;transition:transform .15s ease}
- #f4-pull-refresh[data-armed="true"] svg{transform:rotate(180deg)}
+ #f4-pull-refresh:not([hidden]){position:absolute;top:calc(var(--f4-shell-header,56px) + 12px);left:50%;transform:translateX(-50%);z-index:190;display:grid;place-items:center;pointer-events:none}
+ #f4-pull-refresh .f4-pull-ring,#f4-route-loading[data-pull-refresh] .f4-route-spinner{box-sizing:border-box;width:24px;height:24px;border:3px solid var(--f4-nav-tint,#e5e7eb);border-top-color:var(--f4-nav,#5145cd);border-radius:50%}
+ #f4-pull-refresh .f4-pull-ring{transform:rotate(var(--f4-pull-angle,0deg))}
+ #f4-route-loading[data-pull-refresh]{background:transparent;align-items:start;justify-items:center;padding-top:12px}
+ #f4-route-loading[data-pull-refresh] .f4-route-loading-indicator{animation:none}
+ #f4-route-loading[data-pull-refresh] .f4-route-loading-indicator>span:last-child{display:none}
 }
-@media(prefers-reduced-motion:reduce){#f4-pull-refresh svg{transition:none}}
 .f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .12s both}
 .f4-route-spinner{width:30px;height:30px;border:3px solid var(--f4-nav-tint);border-top-color:var(--f4-nav);border-radius:50%;animation:f4-route-spin .7s linear infinite}
 @keyframes f4-route-spin{to{transform:rotate(360deg)}}
