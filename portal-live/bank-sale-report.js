@@ -39,7 +39,7 @@ function documentHtml(sale,lines){
  .foot{font-size:8pt;color:#4d6156;margin-top:10px}
  .bar{text-align:right;margin-bottom:12px}.bar button{padding:8px 12px;color:#fff;background:#176542;border:0;border-radius:7px;cursor:pointer}
  @media print{.bar{display:none}thead{display:table-header-group}tr{break-inside:avoid}}
- </style></head><body><div class="bar"><button onclick="window.print()">Cetak / Simpan PDF</button></div>
+ </style></head><body>
  <header><img src="/assets/logo-flamboyan.svg" alt=""><div><strong>Bank Sampah Flamboyan 4</strong><small>flamboyan4.web.id</small></div>
  <h1>LAPORAN<br>TRANSAKSI PENJUALAN</h1></header>
  <div class="meta"><div><small>Nomor transaksi</small><b>${esc(number)}</b></div>
@@ -58,24 +58,14 @@ function documentHtml(sale,lines){
 }
 __f4.window.F4SaleReport=function(id){
  id=(0,__f4.globals.String)(id||"").trim();if(!id)return;
- const popup=__f4.window.open("","_blank");
- if(!popup){__f4.window.f4UiDialog?.alert?.("Izinkan popup browser untuk mencetak laporan transaksi.");return;}
- popup.document.write("<title>Memuat laporan transaksi...</title><p>Mengambil data penjualan...</p>");
+
  (async()=>{
   const response=await (0,__f4.globals.fetch)(URL+(0,__f4.globals.encodeURIComponent)(id),{credentials:"include",cache:"no-store",headers:{Accept:"application/json"}});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||data.ok===false||(0,__f4.globals.String)(data.sale?.id)!==id)throw (0,__f4.globals.Error)(data.error||"Gagal memuat transaksi yang sesuai.");
   const html=documentHtml(data.sale,data.lines);
-  if(popup.closed)return;
-  popup.document.open();popup.document.write(html);popup.document.close();
-  popup.focus();
-  let printed=false;
-  const printOnce=()=>{if(printed||popup.closed)return;printed=true;popup.focus();popup.print();};
-  popup.addEventListener("load",printOnce,{once:true});
-  if(popup.document.readyState==="complete")printOnce();
- })().catch(error=>{
-  if(popup.closed)return;
-  popup.document.open();popup.document.write("<title>Laporan gagal</title><p>"+esc(error.message)+"</p><p>Data tidak diubah.</p>");popup.document.close();
+  await __f4.globals.F4Pdf.openHTML(html);
+ })().catch(error=>{__f4.window.f4UiDialog?.alert?.('Laporan belum dapat dibuat: '+error.message);
  });
 };
 })();

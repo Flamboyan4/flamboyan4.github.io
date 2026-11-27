@@ -164,11 +164,12 @@ window.F4PortalRuntime.define("/portal-live/bookkeeping-extras.js",function(__f4
    '<div class="f4-book-receipt-head"><h2 id="f4-book-receipt-title">Resi Pembayaran</h2>'+
    '<button type="button" class="f4-book-receipt-close" aria-label="Tutup resi" title="Tutup"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>'+
    '<div class="f4-book-receipt-preview"><img id="f4-book-receipt-image" alt="Pratinjau resi pembayaran warga"></div>'+
-   '<div class="f4-book-receipt-actions"><button type="button" id="f4-book-receipt-download" class="primary">Simpan JPG</button>'+
+   '<div class="f4-book-receipt-actions"><button type="button" id="f4-book-receipt-pdf">PDF</button><button type="button" id="f4-book-receipt-download" class="primary">Simpan JPG</button>'+
    '<button type="button" id="f4-book-receipt-share">Bagikan</button></div></section>';
   root.addEventListener('click',e=>{if(e.target===root)closeReceipt();});
   root.querySelector('.f4-book-receipt-close').addEventListener('click',closeReceipt);
   root.querySelector('#f4-book-receipt-download').addEventListener('click',download);
+  root.querySelector('#f4-book-receipt-pdf').addEventListener('click',()=>{if(receiptBlob)__f4.globals.F4Pdf.openImage(receiptBlob,receiptName)});
   root.querySelector('#f4-book-receipt-share').addEventListener('click',share);
   __f4.globals.document.body.appendChild(root);
  }

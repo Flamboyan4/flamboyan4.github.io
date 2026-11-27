@@ -139,7 +139,7 @@ async function refresh(){
   status(data.depositCount+" setoran · "+kg(data.totalGrams)+" kg · "+(data.status==="siap"?"Siap dibawa ke lapak":"Belum disiapkan"));
   if(print){
    print.disabled=!(__f4.globals.Array.isArray(data.lines)&&data.lines.length>0);
-   print.textContent=data.status==="siap"?"Cetak ulang nota":"Cetak nota";
+   print.textContent=data.status==="siap"?"Unduh ulang nota":"Unduh nota";
   }
   if(reopen)reopen.hidden=data.status!=="siap";
   fill(data);
@@ -149,7 +149,7 @@ function sheetHtml(data){
  const rows=data.lines.map((x,i)=>"<tr><td>"+(i+1)+"</td><td>"+esc(x.name)+"</td><td class='num'>"+kg(x.grams)+"</td><td></td><td></td><td></td></tr>").join("");
  return '<!doctype html><html lang="id"><head><meta charset="utf-8"><title>'+esc(data.saleNumber)+'</title>'+
  '<style>@page{size:A5 landscape;margin:9mm}*{box-sizing:border-box}body{margin:0;color:#213b2b;font:10pt Arial,sans-serif}.head{display:flex;align-items:center;gap:9px;border-bottom:2px solid #1c6844;padding-bottom:9px}.head img{width:38px;height:38px}.head strong{display:block;color:#175c3b;font-size:13pt}.title{text-align:right;margin-left:auto;font-weight:800}.meta{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;margin:12px 0;border:1px solid #bbb;padding:8px}.meta small{display:block;color:#637469}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #000;padding:6px;text-align:left;font-size:9pt;height:24px}th{background:#e8f4ec}td.num{text-align:right}.sign{display:grid;grid-template-columns:1fr 1fr;gap:20px;text-align:center;margin:20px 20px 0}.sign span{display:block;margin-top:33px}.foot{font-size:8pt;margin-top:12px;color:#5a6c61}.bar{margin:12px 0;text-align:right}.bar button{padding:9px 15px;background:#17643e;color:#fff;border:0;border-radius:7px;font-weight:bold}@media print{.bar{display:none}}</style></head><body>'+
- '<div class="bar"><button onclick="window.print()">Cetak / Simpan PDF</button></div><header class="head"><img src="/assets/logo-flamboyan.svg" alt=""><div><strong>BANK SAMPAH FLAMBOYAN 4</strong><small>flamboyan4.web.id</small></div><div class="title">LEMBAR TIMBANG & JUAL<br><small>Bukti transaksi setelah ditandatangani</small></div></header>'+
+ '<header class="head"><img src="/assets/logo-flamboyan.svg" alt=""><div><strong>BANK SAMPAH FLAMBOYAN 4</strong><small>flamboyan4.web.id</small></div><div class="title">LEMBAR TIMBANG & JUAL<br><small>Bukti transaksi setelah ditandatangani</small></div></header>'+
  '<section class="meta"><div><small>No. Penjualan</small><b>'+esc(data.saleNumber)+'</b></div><div><small>Tanggal disiapkan</small><b>'+now()+'</b></div><div><small>Lapak / pengepul</small>_________________</div></section>'+
  '<table><colgroup><col width="7%"><col width="29%"><col width="16%"><col width="16%"><col width="16%"><col width="16%"></colgroup><thead><tr><th>No.</th><th>Jenis sampah</th><th>Stok awal (kg)</th><th>Hasil lapak (kg)</th><th>Harga/kg</th><th>Jumlah</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '<p><b>Total jual: Rp __________________ &nbsp; &nbsp; Uang diterima: Rp __________________</b></p>'+
@@ -166,11 +166,7 @@ async function prepareAndPrint(){
   status("Rekap belum siap. Pilih kembali kelompok setoran.",true);
   picker.focus();return;
  }
- // Jendela dibuka dalam klik pengguna supaya browser tidak memblokirnya.
- const popup=__f4.window.open("","_blank");
- if(!popup){status("Izinkan popup untuk mencetak lembar timbang.",true);return}
  const print=$("f4SaleSheetPrint");print.disabled=true;
- popup.document.write("<title>Menyiapkan lembar penjualan</title><p>Memeriksa rekap setoran...</p>");
  try{
   // Cetak ulang kelompok yang sudah dikunci cukup membaca data, tanpa
   // mempersiapkan stok atau menggandakan transaksi lagi.
@@ -179,14 +175,8 @@ async function prepareAndPrint(){
   $("f4SaleSheetNumber").textContent=data.saleNumber;
   $("f4SaleSheetReopen").hidden=false;
   status("Nota siap. Isi hasil dari lapak setelah ditandatangani.");
-  popup.document.open();popup.document.write(sheetHtml(data));popup.document.close();
-  popup.focus();
-  // Print sekali saja: Firefox dapat memicu load setelah readyState complete.
-  let printed=false;
-  const printOnce=()=>{if(printed||popup.closed)return;printed=true;popup.print();};
-  popup.addEventListener("load",printOnce,{once:true});
-  if(popup.document.readyState==="complete")printOnce();
- }catch(e){popup.close();status(e.message||(0,__f4.globals.String)(e),true)}
+  await __f4.globals.F4Pdf.openHTML(sheetHtml(data));
+ }catch(e){status(e.message||(0,__f4.globals.String)(e),true)}
  finally{
   print.disabled=false;
   print.textContent=current?.status==="siap"?"Cetak ulang nota":"Cetak nota";

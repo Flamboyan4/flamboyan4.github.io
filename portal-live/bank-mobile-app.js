@@ -748,7 +748,7 @@ function showReport(){
 
   const summary=el("div","f4-bank-report-summary");summary.id="f4BankReportSummary";
   const actions=el("div","f4-bank-report-actions");
-  const pdf=el("button","f4-bank-gold-action","Cetak PDF");pdf.type="button";
+  const pdf=el("button","f4-bank-gold-action","Unduh PDF");pdf.type="button";
   pdf.id="f4BankMemberPrintAction";
   pdf.onclick=()=>{
    if(typeof __f4.window.f4BankMemberPrintReady==="function"&&!__f4.window.f4BankMemberPrintReady())return;

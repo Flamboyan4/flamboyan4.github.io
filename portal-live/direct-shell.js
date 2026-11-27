@@ -21,6 +21,19 @@ if(window.matchMedia('(pointer:coarse)').matches){
  },true);
 }
 const API='https://api.flamboyan4.web.id';
+// Single lazy PDF preview service. Capture report content before any portal
+// mutation, then load the renderer only when a user requests an export.
+let pdfLoad=null,pdfRequest=0;
+function loadPdf(){if(window.F4PdfEngine)return Promise.resolve(window.F4PdfEngine);if(!pdfLoad)pdfLoad=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/portal-live/pdf-export.js?v=20261127-direct-pdf-v98';script.onload=()=>window.F4PdfEngine?resolve(window.F4PdfEngine):reject(Error('Pustaka PDF tidak tersedia.'));script.onerror=()=>reject(Error('Pustaka PDF belum dapat dimuat.'));document.head.append(script)}).catch(e=>{pdfLoad=null;throw e});return pdfLoad}
+function pdfRun(method,args){const token=++pdfRequest;return loadPdf().then(engine=>{if(token===pdfRequest)return engine[method](...args)}).catch(e=>{if(token===pdfRequest){if(window.f4UiDialog?.alert)window.f4UiDialog.alert(e.message);else alert(e.message)}})}
+const pdfEsc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+window.F4Pdf={
+ openHTML:(html,options)=>pdfRun('openHTML',[String(html),options]),
+ openImage:(blob,filename)=>pdfRun('openImage',[blob,filename]),
+ openElement(node,options={}){if(!node){alert('Data laporan belum tersedia.');return Promise.resolve()}const css=[];for(const sheet of document.styleSheets){try{for(const r of sheet.cssRules)css.push(r.cssText)}catch{}}const clone=node.cloneNode(true);const originals=[...node.querySelectorAll('canvas')];[...clone.querySelectorAll('canvas')].forEach((canvas,i)=>{const original=originals[i],image=document.createElement('img');image.src=original.toDataURL('image/png');image.width=original.width;image.height=original.height;image.className=canvas.className;image.style.cssText=canvas.style.cssText;canvas.replaceWith(image)});clone.hidden=false;clone.classList.remove('hidden');clone.style.removeProperty('display');return pdfRun('openHTML',['<!doctype html><html><head><title>'+pdfEsc(options.title||document.title)+'</title><style>'+css.join('\n')+'</style></head><body class="'+pdfEsc(document.body.className)+'">'+clone.outerHTML+'</body></html>',options])},
+ close(){pdfRequest++;window.F4PdfEngine?.close()}
+};
+document.addEventListener('f4:portal-changed',()=>window.F4Pdf.close());
 const paths={portal:'/',bank:'/bank-sampah/',book:'/pembukuan/',superadmin:'/superadmin/',donor:'/donatur/',rapat:'/rapat/',dokumentasi:'/dokumentasi/',finance:'/keuangan/',agenda:'/agenda/',profile:'/profil/'};
 const residentKeys=['finance','agenda','profile'];
 const pathname=location.pathname;
@@ -279,7 +292,7 @@ const residentTools=(()=>{
   document.body.classList.toggle('f4-resident-tools-active',allowed);
   root.hidden=!allowed;
   if(enabled===allowed&&toolsIdentity===identity)return;
-  toolsIdentity=identity;enabled=allowed;setExpanded(false);lastRoute='';drag=null;
+  window.F4Pdf.close();toolsIdentity=identity;enabled=allowed;setExpanded(false);lastRoute='';drag=null;
   if(suggestion.open)suggestion.close();form.reset();feedbackStatus.textContent='';
   if(!enabled){hideTop();topScrollRoot=null;topScrollY=0}
   else {syncScroll(true);scheduleScroll();}

@@ -673,7 +673,7 @@ function printJerseyReport(includeFunds=null,designPhotos=[]){
   includeAppendix.onchange=()=>{photoInput.hidden=!includeAppendix.checked;photoHint.hidden=!includeAppendix.checked};
   photoInput.onchange=()=>{if(photoInput.files?.length)includeAppendix.checked=true};
   const actions=node('div',__f4.globals.undefined,'f4-jersey-print-actions');
-  actions.append(btn('Batal',()=>veil.remove(),'f4-jersey-print-cancel'),btn('Cetak / Simpan PDF',async()=>{
+  actions.append(btn('Batal',()=>veil.remove(),'f4-jersey-print-cancel'),btn('Pratinjau PDF',async()=>{
    const choice=choices.querySelector('input:checked')?.value;
    let photos=[];
    if(includeAppendix.checked){
@@ -783,10 +783,8 @@ function printJerseyReport(includeFunds=null,designPhotos=[]){
  '<div class="approval">Mengetahui, Humas Flamboyan 4<strong>Heri Juwandi</strong></div>'+
  '<p class="foot">Sumber: data pesanan Jersey pada flamboyan4.web.id</p>'+
  appendixPages.join('')+
- '<script>window.onload=function(){var imgs=Array.from(document.images);Promise.all(imgs.map(function(im){return im.complete?Promise.resolve():new Promise(function(done){im.addEventListener("load",done,{once:true});im.addEventListener("error",done,{once:true})})})).then(function(){setTimeout(function(){window.print()},300)})}<\/script></body></html>';
- const w=__f4.window.open('','_blank');
- if(!w){__f4.window.f4UiDialog.alert('Izinkan pop-up laporan untuk mencetak atau menyimpan PDF.');return}
- w.document.write(html);w.document.close();
+ '</body></html>';
+ __f4.globals.F4Pdf.openHTML(html);
 }
 // One layout and destination selector for both content collections.
 // A destination change uses the audited atomic transfer API; no local copying.

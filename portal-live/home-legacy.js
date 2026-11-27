@@ -1727,9 +1727,7 @@ function salinLinkAgenda(url) {
 
       const tanggalCetak = new __f4.globals.Date().toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'});
 
-      const w=__f4.window.open('', '_blank');
-      if (!w) return (0,__f4.globals.alert)('Pop-up diblokir. Izinkan pop-up lalu coba kembali.');
-      w.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Keuangan Kas - ${escapeCetakKas(periode)}</title>
+      __f4.globals.F4Pdf.openHTML(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Keuangan Kas - ${escapeCetakKas(periode)}</title>
 <style>
 @page{size:A4 portrait;margin:11mm 12mm 12mm}
 *{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#1e293b;font-size:10.5px;line-height:1.42;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -1746,8 +1744,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
 
 <section class="approval"><div><div class="sign-title">Mengetahui,<br>Humas Flamboyan 4</div><div class="sign-line">Heri Juwandi</div></div></section>
 <div class="note">Dicetak pada ${escapeCetakKas(tanggalCetak)} • Flamboyan 4 • Data bersumber dari pembukuan kas pada flamboyan4.web.id</div>
-<script>window.onload=()=>{setTimeout(()=>window.print(),350)}<\/script></body></html>`);
-      w.document.close();
+</body></html>`);
       closeModalCetakKas();
     }
 

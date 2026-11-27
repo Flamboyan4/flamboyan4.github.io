@@ -346,43 +346,7 @@ function printTreasury(data,options){
  <section class="approval">Mengetahui,<br>Humas Flamboyan 4</section>
  <div class="footer">Dicetak pada ${safeHTML(dated)} • Flamboyan 4 • Cash disimpan terpisah; QRIS dan Mandiri digunakan bersama sesuai pos masing-masing.</div>
  </body></html>`;
- // Gunakan jendela cetak berukuran nyata seperti laporan Pembukuan.
- // iframe lama berukuran 0×0 membuat preview Firefox menjadi halaman kosong.
- const printWindow=__f4.window.open("","_blank");
- if(!printWindow){
-  showMessage("Jendela cetak diblokir browser. Izinkan pop-up untuk laporan, lalu coba lagi.");
-  return;
- }
- let started=false;
- const startPrint=()=>{
-  if(started||printWindow.closed)return;
-  started=true;
-  try{printWindow.focus();printWindow.print()}
-  catch(e){showMessage("Gagal membuka dialog cetak. Gunakan menu Cetak pada jendela laporan.")}
- };
- const afterReady=()=>{
-  const image=printWindow.document.querySelector(".logo");
-  const schedule=()=>{
-   __f4.globals.Promise.resolve(printWindow.document.fonts?.ready).catch(()=>{}).then(()=>{
-    if(printWindow.closed)return;
-    printWindow.requestAnimationFrame(()=>printWindow.requestAnimationFrame(()=>(0,__f4.globals.setTimeout)(startPrint,250)));
-   });
-  };
-  if(!image||image.complete)schedule();
-  else{
-   image.addEventListener("load",schedule,{once:true});
-   image.addEventListener("error",schedule,{once:true});
-  }
- };
- printWindow.document.open();
- printWindow.document.write(html);
- printWindow.addEventListener("load",afterReady,{once:true});
- printWindow.document.close();
- // Fallback jika browser tidak memancarkan event load pada about:blank hasil document.write.
- (0,__f4.globals.setTimeout)(()=>{
-  if(!started&&!printWindow.closed&&printWindow.document.querySelector("table"))
-   startPrint();
- },1800);
+ __f4.globals.F4Pdf.openHTML(html);
 }
 
 async function exportTreasuryExcel(data,options){
@@ -434,7 +398,7 @@ function buildReportOptions(target,data){
  from.title=to.title="Filter tanggal hanya berlaku untuk riwayat transaksi.";
  top.append(checks);
  const actions=el("div",__f4.globals.undefined,"tc-report-actions"),msg=el("p","","tc-status");msg.setAttribute("role","status");
- const print=el("button","Cetak Laporan","tc-primary"),excel=el("button","Unduh Excel (.xlsx)","tc-secondary");
+ const print=el("button","Unduh PDF","tc-primary"),excel=el("button","Unduh Excel (.xlsx)","tc-secondary");
  print.type=excel.type="button";actions.append(excel,print);
  function readOptions(){return {balance:toggles.balance.checked,opening:toggles.opening.checked,history:toggles.history.checked,fund:fund.value,kind:kind.value,from:from.value,to:to.value}}
  function sync(){

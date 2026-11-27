@@ -53,11 +53,12 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
   dialog.innerHTML='<section class="f4-tx-card"><div class="f4-tx-top"><strong id="f4-tx-receipt-heading">Bukti transaksi</strong>'+
    '<button class="f4-tx-close" type="button" aria-label="Tutup" title="Tutup">'+svgIcon('x')+'</button></div>'+
    '<div class="f4-tx-image-wrap"><img id="f4-tx-receipt-preview" alt="Pratinjau bukti transaksi dalam format JPG"></div>'+
-   '<div class="f4-tx-actions"><button class="f4-tx-download" type="button">'+svgIcon('download')+' Simpan JPG</button>'+
+   '<div class="f4-tx-actions"><button class="f4-tx-pdf" type="button">PDF</button><button class="f4-tx-download" type="button">'+svgIcon('download')+' Simpan JPG</button>'+
    '<button class="f4-tx-share f4-tx-primary" type="button">'+svgIcon('share')+' Bagikan</button></div></section>';
   dialog.addEventListener('click',e=>{if(e.target===dialog)close()});
   dialog.querySelector('.f4-tx-close').onclick=close;
   dialog.querySelector('.f4-tx-download').onclick=download;
+  dialog.querySelector('.f4-tx-pdf').onclick=()=>{if(blob)__f4.globals.F4Pdf.openImage(blob,filename)};
   dialog.querySelector('.f4-tx-share').onclick=share;
   __f4.globals.document.body.appendChild(dialog);
  }

@@ -664,7 +664,7 @@ __f4.expose("v33SetupReportControls",()=>v33SetupReportControls,value=>v33SetupR
       if(type==='penjualan'){
         const print=__f4.globals.document.createElement('button');print.type='button';
         print.className='secondary f4-bank-sale-receipt-action';
-        print.textContent='Cetak Laporan Transaksi';
+        print.textContent='Unduh PDF Transaksi';
         print.onclick=()=>__f4.window.F4SaleReport?.(id);
         container.appendChild(print);
       }
@@ -4877,13 +4877,9 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       }
       // Data URI holds all PNG pixels inside the print sheet, no HTTP/SVG race on HP.
       root.querySelectorAll('.v29-kop-logo').forEach(img=>{img.src=png;img.loading='eager';});
-      try{__f4.window.print();}
-      catch(error){
-        cleanup();
-        __f4.window.f4UiDialog?.alert?.('Tidak dapat membuka dialog cetak: '+(error?.message||error));
-      }
+      try{__f4.globals.F4Pdf.openElement(root,{title:root.querySelector('h1,h2')?.textContent||'Laporan Bank Sampah Flamboyan 4',size:'A4',orientation,margins:pageMargins});}
+      finally{cleanup();}
     };
-    __f4.window.addEventListener('afterprint',cleanup,{once:true});
     if(v36PrintLogoPng)printWithLogo(v36PrintLogoPng);
     else v36PreparePrintLogo().then(printWithLogo).catch(error=>{
       cleanup();
@@ -5073,7 +5069,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     }catch(error){
       note('v10ReportNotice','Gagal mencetak setoran warga: '+(error.message||error),true);
     }finally{
-      button.disabled=!select?.value;button.textContent='Cetak + Grafik';
+      button.disabled=!select?.value;button.textContent='PDF + Grafik';
     }
   }
   function v33SetupReportControls(){
@@ -5163,7 +5159,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     const loadButton=actions.querySelector('button[onclick*="v10LoadReport"]');
     const printButton=actions.querySelector('button[onclick*="v10PrintReport"]');
     if(loadButton)loadButton.textContent='Muat Laporan';
-    if(printButton)printButton.textContent='Cetak PDF';
+    if(printButton)printButton.textContent='Unduh PDF';
     // Cetak dan ekspor berada di atas posisi dana, grafik, dan rincian.
     const heading=report.querySelector(':scope > h2');
     if(heading){heading.textContent='Laporan Bank Sampah';report.prepend(heading);heading.after(form);}
@@ -5181,14 +5177,14 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     // Feedback for load/print errors stays visible beside the report actions.
     // Independent print tool; it never narrows the normal admin report tables.
     const individual=__f4.globals.document.createElement('section');individual.className='f4-single-member-control';
-    const memberHeading=__f4.globals.document.createElement('strong');memberHeading.textContent='Cetak setoran per warga';
+    const memberHeading=__f4.globals.document.createElement('strong');memberHeading.textContent='PDF setoran per warga';
     const memberInfo=__f4.globals.document.createElement('small');memberInfo.textContent='Seluruh riwayat + grafik per penimbangan';
     const memberFields=__f4.globals.document.createElement('div');memberFields.className='f4-single-member-fields';
     const memberSelect=__f4.globals.document.createElement('select');memberSelect.id='v37MemberSelect';
     memberSelect.setAttribute('aria-label','Pilih warga untuk laporan setoran');
     memberSelect.append(new __f4.globals.Option('Pilih warga',''));
     const memberPrint=__f4.globals.document.createElement('button');memberPrint.type='button';
-    memberPrint.id='v37MemberPrint';memberPrint.textContent='Cetak + Grafik';memberPrint.disabled=true;
+    memberPrint.id='v37MemberPrint';memberPrint.textContent='PDF + Grafik';memberPrint.disabled=true;
     memberSelect.addEventListener('change',()=>{memberPrint.disabled=!memberSelect.value;});
     memberSelect.addEventListener('focus',()=>v37FillMemberChoices().catch(error=>
       note('v10ReportNotice','Gagal memuat warga: '+(error.message||error),true)));
