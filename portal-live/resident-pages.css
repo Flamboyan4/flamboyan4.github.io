@@ -145,6 +145,6 @@ body[data-resident-page=profile] .rp-photos{margin-top:-16px}
 .rp-settings-detail>summary::-webkit-details-marker{display:none}.rp-settings-detail>summary::after{content:'';width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:3px}
 .rp-settings-detail[open]>summary::after{transform:rotate(225deg)}
 .rp-settings-form{display:grid;gap:10px;padding:12px;min-width:0}.rp-settings-form label{display:grid;gap:5px;font-weight:600}
-.rp-settings-input{box-sizing:border-box;min-width:0;width:100%;min-height:44px;border:1px solid #dcd8f5;border-radius:9px;padding:9px 10px;background:#fff;color:#26344f;font-size:16px}
+.rp-settings-input{box-sizing:border-box;min-width:0;width:100%;min-height:44px;border:1px solid #dcd8f5;border-radius:9px;padding:9px 10px;background:#fff;color:#26344f;font-size:var(--f4-input-font,14px)}
 .rp-settings-actions{display:flex;justify-content:flex-end;gap:8px}.rp-primary-action{border:1px solid var(--rp-primary);border-radius:9px;background:var(--rp-primary);color:white;padding:10px 14px;font-weight:700;min-height:42px}
 .rp-settings-status{color:#5d6478;font-size:13px}.rp-settings-status:empty{display:none}.rp-muted{color:var(--rp-muted)}

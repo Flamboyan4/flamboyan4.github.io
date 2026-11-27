@@ -1,6 +1,6 @@
 /* Shared custom selectors and Sunday-first date/month/year pickers. */
 body .f4-modern-native-hidden{position:absolute;width:1px;height:1px;min-width:1px;min-height:1px;margin:0;padding:0;border:0;opacity:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);pointer-events:none}
-body .f4-control-trigger{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;max-width:100%;min-height:var(--f4-control-height,44px);padding:8px 11px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:var(--f4-control-radius,10px);background:#fff;color:#26344f;font:500 14px/1.35 system-ui,sans-serif;text-align:left;cursor:pointer}
+body .f4-control-trigger{box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;max-width:100%;min-height:var(--f4-control-height,44px);padding:8px 11px;border:1px solid var(--f4-nav-line,#dcd8f5);border-radius:var(--f4-control-radius,10px);background:#fff;color:#26344f;font:500 var(--f4-input-font,14px)/1.35 system-ui,sans-serif;text-align:left;cursor:pointer}
 body .f4-control-trigger[hidden]{display:none}
 body .f4-control-trigger:disabled{opacity:.55;cursor:not-allowed}
 .f4-control-value{min-width:0;overflow-wrap:anywhere;white-space:normal}

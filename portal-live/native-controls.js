@@ -248,7 +248,7 @@ function enhance(field){
  if(field.matches('select')){if(field.multiple||field.size>1)return}
  else if(!field.matches('input[type=date],input[type=month]'))return;
  field.dataset.f4ModernPicker='1';
- const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';if(field.type==='date')button.dataset.f4DateTrigger='1';
+ const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';if(field.closest('form,.f4g-field,.f4-pm-field,.f4-admin-fields,.sa-weighing-field,.tc-field,.kas-batch-card'))button.dataset.f4FormControl='1';if(field.type==='date')button.dataset.f4DateTrigger='1';
  const label=__f4.globals.document.createElement('span');label.className='f4-control-value';
  const icon=__f4.globals.document.createElement('span');icon.className='f4-control-icon';icon.innerHTML=field.matches('select')?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>';
  button.append(label,icon);button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',field.getAttribute('aria-label')||field.labels?.[0]?.textContent?.trim()||'Pilih');

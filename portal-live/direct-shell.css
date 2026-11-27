@@ -1,7 +1,7 @@
 /* Flamboyan 4 — shared navigation for native (non-iframe) portal pages. */
 :root{--f4-shell-fallback-display:none;--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
 --f4-ui-ink:#23293c;--f4-ui-muted:#586477;--f4-ui-border:#dde3ea;--f4-heading:clamp(1.4rem,1.25rem + .7vw,1.85rem);
---f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-control-height:44px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
+--f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-input-font:14px;--f4-control-height:44px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
 
 
 
@@ -80,8 +80,13 @@ body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 #f4-direct-dialog section{width:min(430px,100%);background:white;border-radius:16px;padding:23px;color:#223b37}
 #f4-direct-dialog h2{margin:0 0 13px;font-size:22px;font-weight:800;color:var(--f4-nav)}
 #f4-direct-dialog label{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
-#f4-direct-dialog input{display:block;width:100%;padding:12px;border:1px solid var(--f4-nav-line);border-radius:10px;font:14px system-ui;color:#26373d;background:#fff}
-#f4-direct-dialog .f4-login-actions{display:flex;gap:9px;margin-top:18px}
+#f4-direct-dialog input{display:block;width:100%;min-height:var(--f4-control-height);padding:10px 12px;border:1px solid var(--f4-nav-line);border-radius:var(--f4-control-radius);font:400 var(--f4-input-font)/1.35 system-ui,sans-serif;color:#26373d;background:#fff}
+#f4-direct-login-form{display:grid;gap:10px;min-width:0}
+#f4-direct-dialog .f4-login-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:4px}
+#f4-direct-dialog .f4-login-actions>button{display:flex;align-items:center;justify-content:center;min-width:0;min-height:44px;font-size:var(--f4-input-font);line-height:1.35}
+#f4-direct-dialog .f4-login-actions>button>span{display:block;color:inherit;font:inherit;visibility:visible;opacity:1}
+#f4-direct-dialog .f4-login-error:empty{display:none}
+#f4-direct-dialog input:focus{outline:2px solid var(--f4-nav);outline-offset:0;border-color:var(--f4-nav)}
 #f4-direct-dialog button,#f4-direct-gate button{border-radius:10px;padding:11px 16px;border:1px solid var(--f4-nav-line);background:var(--f4-nav-tint);color:var(--f4-nav);font:700 13px system-ui;cursor:pointer}
 #f4-direct-dialog button[type=submit]{background:var(--f4-nav);color:white}
 #f4-direct-dialog .f4-login-error{color:#a23838;font-size:12px}
@@ -267,8 +272,8 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
     No visualViewport offsets, fixed-to-scrolling-document geometry or reflow loop. */
  html[data-f4-shell]{box-sizing:border-box;width:100%;height:100%;min-height:0;max-width:100%;overflow:hidden;overscroll-behavior:none}
  html[data-f4-shell] body:not(.f4-denied){
-  --f4-shell-header:56px;--f4-dock-height:60px;--f4-dock-safe:env(safe-area-inset-bottom,0px);--f4-shell-footer:0px;
-  box-sizing:border-box;position:relative;display:block;width:100%;height:100%;height:100dvh;min-width:0;min-height:0;max-width:100%;max-height:100dvh;
+  --f4-shell-header:56px;--f4-dock-height:60px;--f4-dock-safe:0px;--f4-shell-footer:0px;
+  box-sizing:border-box;position:relative;display:block;width:100%;height:100%;height:var(--f4-shell-viewport,100dvh);min-width:0;min-height:0;max-width:100%;max-height:var(--f4-shell-viewport,100dvh);
   margin:0;padding:0;overflow:hidden;overscroll-behavior:none
  }
  html[data-f4-shell] body.f4-shared-dock:has(#f4-direct-dock:not([hidden])){--f4-shell-footer:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
@@ -685,6 +690,11 @@ body.f4-account-open #f4-resident-tools,body:has(#f4-direct-dialog:not([hidden])
   position:absolute;inline-size:1px;block-size:1px;min-width:0;min-height:0;max-width:1px;max-height:1px;
   padding:0;margin:0;border:0;overflow:hidden;white-space:nowrap;clip-path:inset(50%);pointer-events:none
  }
- html[data-f4-shell] body :is(input,textarea)[data-f4-field-label]::placeholder{color:#8995a5;opacity:1;font-weight:400}
+ html[data-f4-shell] body :is(input,textarea)[data-f4-field-label]::placeholder{color:#8995a5;opacity:1;font-weight:400;font-size:inherit}
+ html[data-f4-shell] body :is(input,textarea,select)[data-f4-field-label]:not(.f4-modern-native-hidden){font-size:var(--f4-input-font);line-height:1.35}
+ html[data-f4-shell] body .f4-control-trigger[data-f4-form-control]{font-size:var(--f4-input-font);line-height:1.35}
  html[data-f4-shell] body label[data-f4-compact-label="1"]:has(>input,>select,>textarea,>.f4-control-trigger,>.custom-select-wrap){gap:0}
 }
+
+/* Browser viewport already excludes its navigation inset. */
+@media(max-width:1023px) and (display-mode:standalone){html[data-f4-shell] body:not(.f4-denied){--f4-dock-safe:env(safe-area-inset-bottom,0px)}}

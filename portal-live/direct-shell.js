@@ -111,7 +111,7 @@ const swapFallback=el('div');swapFallback.id='f4-swap-fallback';swapFallback.dat
 const notificationStyle=el('link');notificationStyle.dataset.f4Persistent='shell';notificationStyle.rel='stylesheet';notificationStyle.href='/portal-live/gallery-tag-notifications.css?v=20261126-single-notification-v1';document.head.append(notificationStyle);
 const notificationScript=el('script');notificationScript.src='/portal-live/gallery-tag-notifications.js?v=20261127-finance-inbox-v58';document.head.append(notificationScript);
 const dialog=el('div');dialog.id='f4-direct-dialog';dialog.hidden=true;
-dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login">Batal</button><button type="submit">Masuk</button></div></form></section>';
+dialog.innerHTML='<section role="dialog" aria-modal="true" aria-label="Login Flamboyan 4"><h2>Login Flamboyan 4</h2><form id="f4-direct-login-form"><label for="f4-direct-username">Username</label><input id="f4-direct-username" required autocomplete="username"><label for="f4-direct-password">Password</label><div class="f4-direct-password-field"><input id="f4-direct-password" type="password" required autocomplete="current-password"><button type="button" id="f4-direct-show-password" aria-label="Tampilkan password" title="Tampilkan password" aria-pressed="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="f4-login-error" id="f4-direct-login-error" role="status"></p><div class="f4-login-actions"><button type="button" id="f4-direct-close-login"><span>Batal</span></button><button type="submit"><span>Masuk</span></button></div></form></section>';
 document.body.append(dialog);
 const password=dialog.querySelector('#f4-direct-password');
 const showPassword=dialog.querySelector('#f4-direct-show-password');
@@ -127,8 +127,15 @@ showPassword.addEventListener('click',()=>{
  password.focus({preventScroll:true});
 });
 const gate=el('div');gate.id='f4-direct-gate';gate.hidden=true;document.body.append(gate);
-function openLogin(){dialog.hidden=false;menu.hidden=true;dialog.querySelector('#f4-direct-username').focus();}
-function closeLogin(){dialog.hidden=true;}
+function openLogin(){dialog.hidden=false;menu.hidden=true;updateLoginViewport();dialog.querySelector('#f4-direct-username').focus({preventScroll:true});}
+function closeLogin(){dialog.hidden=true;dialog.style.removeProperty('--f4-login-visible-height');dialog.style.removeProperty('--f4-login-visible-top');}
+function updateLoginViewport(){if(dialog.hidden)return;const v=window.visualViewport;if(!v||v.scale!==1)return;dialog.style.setProperty('--f4-login-visible-height',Math.round(v.height)+'px');dialog.style.setProperty('--f4-login-visible-top',Math.round(v.offsetTop)+'px');}
+window.visualViewport?.addEventListener('resize',updateLoginViewport,{passive:true});window.visualViewport?.addEventListener('scroll',updateLoginViewport,{passive:true});
+// Firefox Android: adapt browser toolbar geometry, not keyboard or zoom.
+if(/Firefox\//.test(navigator.userAgent)&&/Android/.test(navigator.userAgent)){
+ const updateShell=()=>{const v=window.visualViewport;if(!v||v.scale!==1||!matchMedia('(max-width:1023px)').matches)return;const a=document.activeElement;if(a?.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable=true]'))return;if(window.innerHeight-v.height>160)return;document.documentElement.style.setProperty('--f4-shell-viewport',Math.round(v.height)+'px')};
+ window.visualViewport?.addEventListener('resize',updateShell,{passive:true});window.addEventListener('resize',updateShell,{passive:true});document.addEventListener('focusout',()=>requestAnimationFrame(updateShell));updateShell();
+}
 login.addEventListener('click',openLogin);
 dialog.querySelector('#f4-direct-close-login').addEventListener('click',closeLogin);
 dialog.addEventListener('click',e=>{if(e.target===dialog)closeLogin()});

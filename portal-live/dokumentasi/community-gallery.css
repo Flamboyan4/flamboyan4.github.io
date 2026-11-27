@@ -25,7 +25,7 @@
 .f4g-field:not([hidden]){display:grid;gap:5px}
 .f4g-field[hidden]{display:none}
 .f4g-field label{color:#393753;font:650 12px system-ui}
-.f4g-field input,.f4g-field textarea,.f4g-field select{box-sizing:border-box;width:100%;min-height:42px;padding:10px 12px;border:1px solid #dcdce9;border-radius:9px;background:#fff;color:#23233a;font:13px system-ui}
+.f4g-field input,.f4g-field textarea,.f4g-field select{box-sizing:border-box;width:100%;min-height:42px;padding:10px 12px;border:1px solid #dcdce9;border-radius:9px;background:#fff;color:#23233a;font:var(--f4-input-font,14px) system-ui}
 .f4g-field textarea{resize:vertical;min-height:72px}
 .f4g-drop{padding:21px 15px;border:1.5px dashed #bdb0e6;border-radius:12px;background:#f8f5ff;display:grid;justify-items:center;gap:9px;text-align:center}
 .f4g-drop input{width:100%;max-width:260px;min-height:0}
@@ -45,7 +45,7 @@
 .f4g-comment-main b{display:block;font-size:12px;color:#373151}
 .f4g-comment-main p{margin:3px 0 0;color:#3d4455;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 system-ui}
 .f4g-comment-form{display:flex;gap:9px;align-items:center;min-width:0}
-.f4g-comment-form textarea{box-sizing:border-box;display:block;flex:1 1 auto;min-width:0;width:100%;height:46px;border:1px solid #ddd7e9;border-radius:24px;padding:11px 15px;font:14px/1.4 system-ui;min-height:46px;max-height:100px;resize:none;outline-offset:2px}
+.f4g-comment-form textarea{box-sizing:border-box;display:block;flex:1 1 auto;min-width:0;width:100%;height:46px;border:1px solid #ddd7e9;border-radius:24px;padding:11px 15px;font:var(--f4-input-font,14px)/1.4 system-ui;min-height:46px;max-height:100px;resize:none;outline-offset:2px}
 .f4g-comment-form textarea:focus{border-color:var(--f4-portal-primary,#4f46e5);outline:2px solid var(--f4-portal-soft-hover,#e0e7ff)}
 .f4g-comment-send.f4g-btn{display:grid;place-items:center;flex:0 0 46px;width:46px;min-width:46px;height:46px;min-height:46px;padding:0;border-radius:50%;box-sizing:border-box}
 .f4g-comment-send.f4g-btn svg{width:19px;height:19px}
@@ -239,7 +239,7 @@
 .f4g-photo-no-comments{margin:0;font:12px/1.5 system-ui;color:#858091}
 .f4g-photo-all{width:max-content;min-height:29px;padding:5px 0;border:0;background:transparent;color:var(--f4-portal-primary-ink,#3730a3);font-size:11px}
 .f4g-photo-quick-form{display:flex;flex-wrap:nowrap;gap:9px;align-items:flex-end;min-width:0;margin-top:auto;padding-top:11px;border-top:1px solid #eeeaf5}
-.f4g-photo-quick-form textarea{box-sizing:border-box;display:block;flex:1 1 0;min-width:0;width:auto;height:46px;min-height:46px;max-height:144px;overflow-y:auto;resize:none;border:1px solid #e1dbea;border-radius:10px;padding:11px 12px;font:12px/1.5 system-ui;color:#28243a}
+.f4g-photo-quick-form textarea{box-sizing:border-box;display:block;flex:1 1 0;min-width:0;width:auto;height:46px;min-height:46px;max-height:144px;overflow-y:auto;resize:none;border:1px solid #e1dbea;border-radius:10px;padding:11px 12px;font:var(--f4-input-font,14px)/1.5 system-ui;color:#28243a}
 .f4g-photo-quick-form .f4g-btn{flex:0 0 46px;width:46px;min-width:46px;height:46px;min-height:46px;margin:0;align-self:flex-end}
 /* Hanya panel komentar yang menjadi bottom sheet pada layar kecil. */
 .f4g-comment-overlay .f4g-head{position:relative;justify-content:center;touch-action:pan-y}
@@ -387,7 +387,7 @@
 .f4g-manage-action.danger.f4g-btn{color:#b34b5f;background:#fff8fa;border-color:#f4e3e9}
 .f4g-manage-action.danger.f4g-btn:hover{background:#ffeef3}
 .f4g-manage-picker{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.f4g-manage-picker select{box-sizing:border-box;min-width:140px;max-width:280px;min-height:34px;padding:6px 8px;border:1px solid #ddd5ea;border-radius:8px;background:#fff;color:#3e3253;font:12px system-ui}
+.f4g-manage-picker select{box-sizing:border-box;min-width:140px;max-width:280px;min-height:34px;padding:6px 8px;border:1px solid #ddd5ea;border-radius:8px;background:#fff;color:#3e3253;font:var(--f4-input-font,14px) system-ui}
 .f4g-manage-empty{margin:22px auto;color:#948a9d;text-align:center;font:12px/1.5 system-ui}
 .f4g-manage-report{display:grid;gap:5px;padding:13px 3px;border-bottom:1px solid #eeeaf5}
 .f4g-manage-report strong{font-size:13px;color:#28243b}
@@ -505,7 +505,7 @@
 .f4g-upload-modal .f4g-upload-choice-option.selected{background:var(--f4-portal-soft,#eef2ff);color:#5e39af}
 .f4g-upload-modal .f4g-upload-choice-option.selected::after{content:"";display:inline-block;width:16px;height:16px;flex:none;background:currentColor;mask:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22black%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22m5 12 4 4L19 6%22/%3E%3C/svg%3E") center/contain no-repeat;float:right}
 .f4g-upload-modal .f4g-upload-choice-option:hover{background:#f6f2fb}
-.f4g-upload-modal .f4g-upload-caption textarea{min-height:96px;resize:vertical;font-size:16px}
+.f4g-upload-modal .f4g-upload-caption textarea{min-height:96px;resize:vertical;font-size:var(--f4-input-font,14px)}
 .f4g-upload-modal .f4g-upload-footer{flex:0 0 auto;box-sizing:border-box;width:min(100%,680px);margin-inline:auto;padding:12px 18px max(12px,env(safe-area-inset-bottom,0px));border-top:1px solid #eee9f6;background:#fff}
 .f4g-upload-modal .f4g-upload-footer .f4g-status{margin:0 0 8px}
 .f4g-upload-modal .f4g-upload-footer>.f4g-btn.primary:not([hidden]){display:flex;justify-content:center;width:100%;min-height:46px;border-radius:11px}

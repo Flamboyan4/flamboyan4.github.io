@@ -37,7 +37,7 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 #f4-account-page .f4-admin-primary{background:var(--blue);border-color:var(--blue);color:white;min-height:42px}
 #f4-account-page .f4-admin-controls>.f4-admin-btn:nth-child(2){background:var(--blue);color:#fff;border-color:var(--blue)}
 #f4-account-page .f4-admin-fields label{font-size:13px;color:var(--modern-ink)}
-#f4-account-page .f4-admin-fields input,#f4-account-page .f4-admin-fields select,#f4-account-page .f4-admin-fields textarea{border-color:#dce3e9;border-radius:10px;min-height:var(--f4-control-height,42px);font-size:14px}
+#f4-account-page .f4-admin-fields input,#f4-account-page .f4-admin-fields select,#f4-account-page .f4-admin-fields textarea{border-color:#dce3e9;border-radius:10px;min-height:var(--f4-control-height,42px);font-size:var(--f4-input-font,14px)}
 #f4-account-page .f4-admin-fields :is(input,select,textarea):focus{outline:2px solid var(--blue);outline-offset:2px}
 #f4-account-page .f4-content-destination select:disabled{opacity:1;color:var(--blue);background:var(--tint);border:0;font-weight:700}
 .f4-transfer-options{border:1px dashed var(--edge);border-radius:10px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:var(--muted)}
@@ -82,7 +82,7 @@ body:has(#f4-account-page){--blue:#6650cc;--navy:#28334b;--tint:#f1edff;--edge:#
 
 
 #dashboardView .summary-box,#dashboardView .details-panel{background:#fff;border:1px solid #e2ebe6}
-#dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:14px;min-height:var(--f4-control-height,42px)}
+#dashboardView input,#dashboardView select,#dashboardView textarea{border-color:#d6e3dc;border-radius:10px;font-size:var(--f4-input-font,14px);min-height:var(--f4-control-height,42px)}
 #dashboardView button{min-height:40px}#dashboardView table th{background:#f8fbf9;color:#5d7367}
 @media(max-width:760px){
  #f4-account-page>main .f4-work-heading h2{font-size:23px}
@@ -1240,7 +1240,7 @@ body.f4-direct-bank #dashboardView .f4-bs-saldo-footer button{
 #f4-account-page .f4-jersey-order-form .f4-admin-fields :is(input:not(.f4-modern-native-hidden),select:not(.f4-modern-native-hidden),.f4-control-trigger){
  box-sizing:border-box;width:100%;min-width:0;
  height:var(--f4-jersey-control-height);min-height:var(--f4-jersey-control-height);
- padding:0 12px;font-size:14px;font-weight:400;
+ padding:0 12px;font-size:var(--f4-input-font,14px);font-weight:400;
 }
 #f4-account-page .f4-jersey-order-form .f4-jersey-method-details,
 #f4-account-page .f4-jersey-order-form .f4-jersey-split-fields{

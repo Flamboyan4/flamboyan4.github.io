@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id" data-f4-shell="superadmin" data-f4-release="20261127-short-fields-v84" data-f4-spa="1">
+<html lang="id" data-f4-shell="superadmin" data-f4-release="20261127-input-font-firefox-v85" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -80,8 +80,8 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 /* Compact master iuran form: genuine component styles, no cascade overlays. */
 .f4-obligation-form{padding:16px 18px;display:grid;gap:11px;max-width:1000px}
 .f4-obligation-identity{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--f4-grid-gap,16px)}
-.f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:12px;font-weight:700;color:var(--navy)}
-.f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
+.f4-obligation-field{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:var(--f4-input-font,14px);font-weight:700;color:var(--navy)}
+.f4-obligation-field :is(input,select){width:100%;height:42px;min-width:0;padding:8px 12px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 var(--f4-input-font,14px) system-ui}
 .f4-obligation-field :is(input,select):focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 .f4-obligation-section-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--navy);margin-top:2px}
 .f4-obligation-section-title span{font-size:11px;color:var(--muted)}
@@ -101,7 +101,7 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
 }
 
 .f4-admin-editor .f4-content-destination{display:flex;flex-direction:column;gap:6px;max-width:320px;margin:0 0 14px;font-size:12px;font-weight:700;color:var(--navy)}
-.f4-admin-editor .f4-content-destination select{width:100%;min-height:41px;padding:9px 11px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 13px system-ui}
+.f4-admin-editor .f4-content-destination select{width:100%;min-height:41px;padding:9px 11px;border:1px solid var(--edge);border-radius:9px;background:#fff;color:var(--navy);font:500 var(--f4-input-font,14px) system-ui}
 .f4-admin-editor .f4-content-destination select:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 @media(max-width:700px){.f4-admin-editor .f4-content-destination{max-width:100%}}
 .f4-warga-form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
@@ -345,7 +345,7 @@ html body #f4-account-page>aside{overflow-x:hidden}
 .sa-account-modal h3{margin:0 0 8px;font-size:20px}.sa-account-subtitle{font-weight:700;color:var(--navy)}
 .sa-account-info{padding:12px;background:var(--tint);border-radius:9px;font-size:13px}
 .sa-account-modal label{display:block;margin:14px 0;font-size:13px;font-weight:700}
-.sa-account-modal input{display:block;margin-top:5px;width:100%;padding:11px;border:1px solid var(--edge);border-radius:9px;box-sizing:border-box;font:14px system-ui}
+.sa-account-modal input{display:block;margin-top:5px;width:100%;padding:11px;border:1px solid var(--edge);border-radius:9px;box-sizing:border-box;font:var(--f4-input-font,14px) system-ui}
 .sa-account-feedback{font-size:12px;color:var(--blue)}.sa-account-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:15px}
 </style>
 <style id="f4-sa-standalone-nav-bridge">
@@ -358,8 +358,8 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-short-fields-v84"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
-<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261127-short-fields-v84"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261127-report-compact-v65">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-input-font-firefox-v85"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261127-input-font-firefox-v85"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261127-input-font-firefox-v85">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
    The native controls inherit 650 from their wrapping <label> otherwise. */
@@ -393,12 +393,12 @@ html.f4-sa-drawer-lock{overflow:hidden}
 
 </style>
 
-<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-short-fields-v84">
-<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-short-fields-v84"></script>
+<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-input-font-firefox-v85">
+<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-input-font-firefox-v85"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
-<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-short-fields-v84"></head>
+<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-input-font-firefox-v85"></head>
 <body class="f4-direct-superadmin">
-<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-short-fields-v84"></script>
+<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-input-font-firefox-v85"></script>
 <div id="guard" role="status"><h2>Memeriksa akses Superadmin…</h2><p>Portal ini hanya untuk akun dengan role Superadmin.</p></div>
 <div id="f4-account-page" hidden><aside aria-label="Navigasi Portal Superadmin"></aside><main><header class="f4-work-heading"><h2>Pusat Pengelolaan</h2><p>Memeriksa koneksi…</p></header></main></div>
 <div id="sa-toast" class="sa-toast" hidden></div>
@@ -410,5 +410,5 @@ html.f4-sa-drawer-lock{overflow:hidden}
 <script type="application/f4-source" data-f4-id="/portal-live/superadmin-editor.js" data-f4-src="/portal-live/superadmin-editor.js?v=20261127-first-paint-v5"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/project-modules.js" data-f4-src="/portal-live/project-modules.js?v=20261127-svg-icons-v35"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261127-short-fields-v84"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-short-fields-v84"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-short-fields-v84" data-f4-defer></script></body></html>
+<script src="/portal-live/direct-shell.js?v=20261127-input-font-firefox-v85"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script>
+<script src="/portal-live/portal-runtime.js?v=20261127-input-font-firefox-v85"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-input-font-firefox-v85" data-f4-defer></script></body></html>

@@ -160,7 +160,7 @@ body:has(#f4-account-page){
 .tc-form-grid[data-kind="move"]>.tc-destination-location{grid-column:1/-1}
 .tc-field{display:grid;gap:4px;min-width:0;font-size:12px;font-weight:750;color:var(--tc-muted)}
 .tc-field[hidden]{display:none}
-.tc-field input:not([type=hidden]),.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:var(--tc-ink);font:500 13px/1.3 system-ui;vertical-align:middle}
+.tc-field input:not([type=hidden]),.tc-field select{box-sizing:border-box;width:100%;min-width:0;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);background:#fff;border:1px solid #cddde7;border-radius:var(--f4-control-radius,10px);padding:0 10px;color:var(--tc-ink);font:500 var(--f4-input-font,14px)/1.3 system-ui;vertical-align:middle}
 .tc-field input:focus-visible,.tc-field select:focus-visible{outline:2px solid var(--tc-accent);outline-offset:1px}
 .tc-wide{grid-column:span 2}
 .tc-form-grid>.tc-primary{grid-column:1/-1;align-self:end;min-height:var(--f4-control-height,42px);margin:0}
@@ -229,7 +229,7 @@ body:has(#f4-account-page){
 .tc-custom-actions button{font-size:11px;min-height:32px;padding:6px 9px}
 .tc-custom-actions .tc-fund-remove{color:#995c56;background:#f8eded}
 .tc-custom-edit{grid-column:1/-1;display:grid;grid-template-columns:minmax(120px,1fr) minmax(100px,1fr) auto auto;gap:7px}
-.tc-custom-edit input{min-width:0;min-height:34px;padding:7px;border:1px solid #d1dfe8;border-radius:7px;font:500 12px system-ui}
+.tc-custom-edit input{min-width:0;min-height:34px;padding:7px;border:1px solid #d1dfe8;border-radius:7px;font:500 var(--f4-input-font,14px) system-ui}
 .tc-custom-edit .tc-status{grid-column:1/-1}
 .tc-new-source{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff5de;border:1px solid #ead39c;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:750;color:#8a6419}
 .tc-opening-panel{padding:12px}
@@ -245,7 +245,7 @@ body:has(#f4-account-page){
 .tc-opening-name{padding:7px 10px;font-size:12px;color:#294f67;overflow-wrap:anywhere}
 .tc-opening-cell{display:block;min-width:0;padding:5px 7px}
 .tc-opening-cell span{display:none}
-.tc-opening-cell input{display:block;width:100%;min-width:0;min-height:35px;padding:7px 8px;font:600 12px system-ui;color:#264b64;text-align:right;border:1px solid #d3e1eb;border-radius:7px;background:#fff}
+.tc-opening-cell input{display:block;width:100%;min-width:0;min-height:35px;padding:7px 8px;font:600 var(--f4-input-font,14px) system-ui;color:#264b64;text-align:right;border:1px solid #d3e1eb;border-radius:7px;background:#fff}
 .tc-opening-cell input:focus-visible{outline:2px solid #a2bce2;outline-offset:1px}
 .tc-opening-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:11px}
 .tc-opening-total{font-size:14px;color:#294f67;font-variant-numeric:tabular-nums}
@@ -253,7 +253,7 @@ body:has(#f4-account-page){
 .tc-opening-actions .tc-secondary{border:1px solid #bbd2e3}
 .tc-opening-notice{padding:9px 12px;border-radius:9px;background:var(--tc-soft);color:#415f75;font-size:11px}
 .tc-date-control{position:relative;width:100%;min-width:0}
-.tc-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);border:1px solid #cddde7;border-radius:8px;background:#fff;color:var(--tc-ink);font:500 12px system-ui;text-align:left;padding:8px 10px;cursor:pointer}
+.tc-date-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;height:var(--f4-control-height,42px);min-height:var(--f4-control-height,42px);border:1px solid #cddde7;border-radius:8px;background:#fff;color:var(--tc-ink);font:500 var(--f4-input-font,14px) system-ui;text-align:left;padding:8px 10px;cursor:pointer}
 .tc-date-trigger:disabled{background:#f5f7f9;cursor:default;color:#637180}
 .tc-date-trigger:focus-visible{outline:2px solid var(--tc-accent);outline-offset:2px}
 .tc-date-icon{width:17px;height:17px}
@@ -397,7 +397,7 @@ body:has(#f4-account-page){
  .tc-center #tc-view-transaksi .tc-field :is(input,select){
   width:100%;min-width:0;height:43px;min-height:43px;
   border:1px solid #e2dcea;border-radius:10px;background:#fff;
-  padding:0 10px;font-size:13px;font-weight:550;line-height:1.25;color:#332845
+  padding:0 10px;font-size:var(--f4-input-font,14px);font-weight:550;line-height:1.25;color:#332845
  }
  .tc-center #tc-view-transaksi .tc-field select{
   white-space:nowrap;text-overflow:ellipsis;overflow:hidden
@@ -406,7 +406,7 @@ body:has(#f4-account-page){
   display:flex;align-items:center;justify-content:space-between;
   width:100%;min-width:0;height:43px;min-height:43px;gap:5px;
   padding:0 9px;border:1px solid #e2dcea;border-radius:var(--f4-panel-radius,12px);
-  font-size:12px;font-weight:600;color:#332845;background:#fff
+  font-size:var(--f4-input-font,14px);font-weight:600;color:#332845;background:#fff
  }
  .tc-center #tc-view-transaksi .tc-date-trigger>span{
   display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
@@ -602,7 +602,7 @@ body:has(#f4-account-page){
  .tc-opening-name{grid-column:1/-1;padding:6px 6px 2px}
  .tc-opening-cell{padding:3px 4px 7px}
  .tc-opening-cell span{display:block;font-size:10px;color:#688091;margin:0 0 3px 2px}
- .tc-opening-cell input{text-align:right;font-size:12px;padding:7px 4px}
+ .tc-opening-cell input{text-align:right;font-size:var(--f4-input-font,14px);padding:7px 4px}
  .tc-opening-controls .tc-field{width:100%}
  .tc-opening-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
  .tc-opening-actions button{min-width:0;padding:9px 5px}
