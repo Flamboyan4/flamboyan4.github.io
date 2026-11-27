@@ -329,13 +329,14 @@
   }
   #tab-input #form-iuran.f4-book-iuran-grid :is(.f4-book-date-method,.f4-book-period,.f4-book-money){display:contents}
   #tab-input #form-iuran.f4-book-iuran-grid .f4-book-warga{grid-column:1/6;grid-row:1}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>div:has(>#inp-tanggal){grid-column:6/9;grid-row:1}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>div:has(>#inp-metode){grid-column:9/13;grid-row:1}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-bulan){grid-column:1/4;grid-row:2}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-tahun){grid-column:4/6;grid-row:2}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>div:has(>#inp-jumlah){grid-column:6/9;grid-row:2}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>div:has(>#inp-nominal-dibayar){grid-column:9/13;grid-row:2}
-  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>div:has(>#inp-catatan){grid-column:1/-1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>.f4-book-date{grid-column:6/9;grid-row:1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-date-method>.f4-book-method{grid-column:9/13;grid-row:1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>.f4-book-month{grid-column:1/4;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>.f4-book-year{grid-column:4/6;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period>.f4-book-duration{grid-column:6/9;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>.f4-book-nominal{grid-column:9/13;grid-row:2}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-money>.f4-book-note{grid-column:1/-1}
+  #tab-input #form-iuran.f4-book-iuran-grid .f4-book-period-status{grid-row:3}
  }
 }
 @media screen and (max-width:1023px){
