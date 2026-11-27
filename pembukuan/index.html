@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- v6.20.1 EDIT CLEANUP PREDEPLOY -->
-<html lang="id" data-f4-shell="book" data-f4-release="20261127-compact-iuran-v100" data-f4-spa="1">
+<html lang="id" data-f4-shell="book" data-f4-release="20261127-iuran-grid-fix-v101" data-f4-spa="1">
 <head>
 <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -204,15 +204,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
   /* v6.15 - optimasi desktop, tabel mobile, dan custom dropdown */
   @media (min-width:1024px){
-    #tab-input .desktop-compact-form>*,#tab-transaksi .desktop-compact-form>*,#tab-talangan .desktop-compact-form>*{min-width:0}
-    #tab-input .desktop-compact-form>div:nth-child(1){grid-column:span 6}
-    #tab-input .desktop-compact-form>div:nth-child(2){grid-column:span 6}
-    #tab-input .desktop-compact-form>div:nth-child(3){grid-column:span 6}
-    #tab-input .desktop-compact-form>div:nth-child(4){grid-column:7 / span 6;grid-row:1 / span 3}
-    #tab-input .desktop-compact-form>div:nth-child(5){grid-column:span 6}
-    #tab-input .desktop-compact-form>div:nth-child(6){grid-column:span 6}
-    #tab-input .desktop-compact-form>button{grid-column:span 6;align-self:end}
-    #tab-input #preview-detail .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #tab-transaksi .desktop-compact-form>*,#tab-talangan .desktop-compact-form>*{min-width:0}
 
     #tab-transaksi .desktop-compact-form>div:nth-child(1){grid-column:span 4}
     #tab-transaksi .desktop-compact-form>div:nth-child(2){grid-column:span 4}
@@ -1757,7 +1749,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
  #report-arisan-panel .report-card{border-color:#d3dfed;border-radius:5px}
  #report-arisan-panel td:nth-child(5){font-variant-numeric:tabular-nums}
 }
-</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-compact-iuran-v100"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-iuran-grid-fix-v101"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 
 <style id="f4-bookkeeping-mobile-density-20261027">
 /* Compact forms only on mobile; no changes to input IDs, calculations or reports. */
@@ -1839,17 +1831,17 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 <link rel="stylesheet" href="/portal-live/payment-monitor.css?v=20261126-card-standard-admin-cash-v1">
 <script type="application/f4-source" data-f4-id="/portal-live/payment-monitor.js" data-f4-src="/portal-live/payment-monitor.js?v=20261127-svg-icons-v35" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/bookkeeping-simple.css?v=20261127-treasury-position-v61">
-<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261127-compact-iuran-v100">
-<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-compact-iuran-v100">
+<link rel="stylesheet" href="/portal-live/bookkeeping-grid.css?v=20261127-iuran-grid-fix-v101">
+<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-iuran-grid-fix-v101">
 <link rel="stylesheet" href="/portal-live/bookkeeping-extras.css?v=20261116-riwayat-simple-v1">
-<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-compact-iuran-v100"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-compact-iuran-v100" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-extras.js" data-f4-src="/portal-live/bookkeeping-extras.js?v=20261127-compact-iuran-v100" data-f4-defer></script>
+<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-iuran-grid-fix-v101"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-iuran-grid-fix-v101" data-f4-defer></script>
+<script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-extras.js" data-f4-src="/portal-live/bookkeeping-extras.js?v=20261127-iuran-grid-fix-v101" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bookkeeping-kas-mobile.js" data-f4-src="/portal-live/bookkeeping-kas-mobile.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
-<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-compact-iuran-v100"></head>
+<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-iuran-grid-fix-v101"></head>
 <body class="f4-direct-book">
-<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><img class="f4-startup-spinner" src="/portal-live/flamboyan-loader.svg?v=20261127-compact-iuran-v100" width="72" height="72" alt="" aria-hidden="true"><span class="f4-startup-refresh" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-compact-iuran-v100"></script>
+<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><img class="f4-startup-spinner" src="/portal-live/flamboyan-loader.svg?v=20261127-iuran-grid-fix-v101" width="72" height="72" alt="" aria-hidden="true"><span class="f4-startup-refresh" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-iuran-grid-fix-v101"></script>
 <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-violet-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
@@ -1985,7 +1977,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
 
     <div id="tab-input" class="tab-panel hidden p-4 sm:p-5">
       <div class="max-w-6xl mx-auto">
-        <form id="form-iuran" onsubmit="simpanIuran(event)" class="f4-book-iuran-grid desktop-compact-form">
+        <form id="form-iuran" onsubmit="simpanIuran(event)" class="f4-book-iuran-grid">
           <div class="f4-book-input-column">
           <div class="f4-book-warga"><label class="text-sm font-semibold text-slate-600">Nama Warga</label><select id="inp-warga" class="field mt-1" onchange="pilihWargaIuran()"><option value="">Pilih warga...</option></select></div>
           <div class="f4-book-date-method grid sm:grid-cols-2 gap-4">
@@ -2666,7 +2658,7 @@ body>#side-drawer .f4-book-menu-other{margin:14px 0 3px;padding:16px 12px 5px;bo
   </div>
 </div>
 
-<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-compact-iuran-v100"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/book-content.js" data-f4-src="/portal-live/book-content.js?v=20261127-iuran-grid-fix-v101"></script>
 
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-1" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
 
@@ -3526,7 +3518,7 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 }
 </style>
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-12" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
-<script src="/portal-live/direct-shell.js?v=20261127-compact-iuran-v100"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><style id="f4-book-date-label-alignment-20261027">
+<script src="/portal-live/direct-shell.js?v=20261127-iuran-grid-fix-v101"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><style id="f4-book-date-label-alignment-20261027">
 /* Fix all mobile Pembukuan calendar widgets, not only the Iuran form. */
 @media screen and (max-width:767px){
   body .mdc-wrap{
@@ -3793,4 +3785,4 @@ main > section.card,#tab-riwayat,#tab-laporan,#history-iuran-panel,#tab-laporan 
 }
 </style>
 <script type="application/f4-source" data-f4-id="/pembukuan/index.html#inline-13" data-f4-src="/portal-live/book-inline.js?v=20261127-picker-parity-v26"></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-compact-iuran-v100"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-iuran-v100" data-f4-defer></script></body></html>
+<script src="/portal-live/portal-runtime.js?v=20261127-iuran-grid-fix-v101"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-iuran-grid-fix-v101" data-f4-defer></script></body></html>
