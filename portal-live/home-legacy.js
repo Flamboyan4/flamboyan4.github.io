@@ -1963,11 +1963,16 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
       const get=(id)=>__f4.globals.document.getElementById(id);
       const values=row=>__f4.globals.Object.values(row||{});
       get('arisan-bulan-ini-nama').textContent=current?(0,__f4.globals.String)(values(current)[1]||'-'):'Belum dijadwalkan';
-      get('arisan-bulan-ini-tgl').textContent=current?(0,__f4.globals.String)(values(current)[0]||'-'):
-        f4ArisanMonthNames[now.month-1]+' '+now.year;
+      const periodLabel=(raw)=>{
+        const period=(0,__f4.globals.String)(raw||'').trim();
+        const short=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        const compact=period.replace(/\b(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\b/gi,m=>short[f4ArisanMonthNames.indexOf(m.toLowerCase())]||m);
+        return 'Arisan '+compact;
+      };
+      get('arisan-bulan-ini-tgl').textContent=periodLabel(current?values(current)[0]:f4ArisanMonthNames[now.month-1]+' '+now.year);
       get('arisan-selanjutnya-nama').textContent=following?(0,__f4.globals.String)(values(following)[1]||'-'):'Belum dijadwalkan';
       get('arisan-selanjutnya-tgl').textContent=following?
-        (0,__f4.globals.String)(values(following)[0]||'-'):'Menunggu jadwal berikutnya';
+        periodLabel(values(following)[0]):'Arisan berikutnya';
       const icon=get('arisan-bulan-ini-icon-bg');
       if(icon){
         const status=(0,__f4.globals.String)(values(current)[2]||'').toLowerCase();

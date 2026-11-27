@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-f4-shell="portal" data-f4-release="20261127-home-agenda-arisan-v114" data-f4-spa="1">
+<html lang="id" data-f4-shell="portal" data-f4-release="20261127-titleless-home-v115" data-f4-spa="1">
 <head>
   <meta charset="UTF-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -74,11 +74,11 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   
   <link rel="stylesheet" href="/portal-live/home-base.css?v=20261127-content-scroll-v71"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-sheet-anchor-motion-v113"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261127-history-spacing-v39">
-<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-home-agenda-arisan-v114">
+<link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-titleless-home-v115">
 
 <link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-sheet-anchor-motion-v113">
 <script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-sheet-anchor-motion-v113"></script>
-<link rel="stylesheet" href="/portal-live/community-home.css?v=20261127-seamless-gallery-v33">
+<link rel="stylesheet" href="/portal-live/community-home.css?v=20261127-titleless-home-v115">
 <link rel="stylesheet" href="/portal-live/dokumentasi/media-theme.css?v=20261127-single-photo-v49">
 <link rel="stylesheet" href="/portal-live/dokumentasi/community-gallery.css?v=20261127-iuran-resident-panel-v102">
 
@@ -186,13 +186,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   </section>
     
     <!-- SECTION 1: LAPORAN KEUANGAN -->
-    <section id="keuangan" class="scroll-mt-20 w-full hidden" hidden>
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 md:mb-6">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="wallet" class="w-6 h-6 text-indigo-600 shrink-0" aria-hidden="true"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Keuangan Lingkungan</h3>
-        </div>
-      </div>
+    <section id="keuangan" class="scroll-mt-20 w-full hidden" aria-label="Keuangan Lingkungan" hidden>
 
 
       <div class="f4-cash-overview">
@@ -337,14 +331,8 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     </section>
 
     <!-- SECTION 2: JADWAL ARISAN -->
-    <section id="arisan" class="scroll-mt-20 w-full">
-      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 md:mb-6">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="users" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Jadwal Arisan</h3>
-        </div>
-        <span id="loading-status-arisan" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-3 py-1 rounded-full whitespace-nowrap">Memuat Jadwal...</span>
-      </div>
+    <section id="arisan" class="scroll-mt-20 w-full" aria-label="Jadwal Arisan">
+      <span id="loading-status-arisan" class="text-xs text-indigo-700" role="status">Memuat Jadwal...</span>
 
       <div id="f4-arisan-slides" class="grid f4-grid w-full" data-cols="2" role="group" aria-label="Arisan bulan ini dan berikutnya">
         <div onclick="openModalArisan('current')" class="bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-card flex items-center justify-between gap-4 cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 group">
@@ -377,13 +365,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     </section>
 
     <!-- SECTION 3: KALENDER KEGIATAN -->
-    <section id="rencana" class="scroll-mt-20 w-full space-y-6" data-calendar-open="false">
-      <div class="f4-calendar-heading flex items-center justify-between gap-2">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="calendar-check" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Kalender Kegiatan</h3>
-        </div>
-       </div>
+    <section id="rencana" class="scroll-mt-20 w-full" aria-label="Kalender Kegiatan" data-calendar-open="false">
 
       <div class="f4-calendar-layout grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div id="calendar-wrapper" class="lg:col-span-6 bg-white p-5 rounded-card shadow-sm border border-slate-200 select-none touch-pan-y h-full">
@@ -440,23 +422,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     </section>
 
     <!-- SECTION 4: SLIDER PROJEK WARGA -->
-    <section id="projek" class="scroll-mt-20 w-full space-y-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="folder-kanban" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Projek Warga</h3>
-        </div>
-
-        <div id="f4-project-nav" class="f4-project-nav" hidden>
-          <button disabled onclick="scrollProjek(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
-            <i data-lucide="chevron-left" class="w-4 h-4"></i>
-          </button>
-          <button disabled onclick="scrollProjek(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
-            <i data-lucide="chevron-right" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </div>
-
+    <section id="projek" class="scroll-mt-20 w-full" aria-label="Projek Warga">
       <div id="slider-projek" class="f4-project-track">
         
         <!-- CARD 1: JERSEY -->
@@ -584,15 +550,20 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
         </div>
 
       </div>
+        <div id="f4-project-nav" class="f4-project-nav" hidden>
+          <button disabled onclick="scrollProjek(-1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kiri">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i>
+          </button>
+          <button disabled onclick="scrollProjek(1)" class="p-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-full shadow-sm text-slate-600 transition active:scale-90" title="Geser Kanan">
+            <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
     </section>
 
     <!-- Cerita Warga: dari unggahan galeri D1, hanya muncul bila ada foto warga. -->
-    <section id="cerita-warga" class="f4g-home w-full" hidden>
-      <div class="f4g-home-heading">
-        <h3><i data-lucide="images" aria-hidden="true"></i>Cerita Warga</h3>
-      </div>
+    <section id="cerita-warga" class="f4g-home w-full" aria-label="Dokumentasi warga" hidden>
       <div class="f4g-home-options" role="group" aria-label="Tampilan cerita warga">
-        <button type="button" id="f4g-home-latest" aria-pressed="true">Terbaru</button>
+        <button type="button" id="f4g-home-latest" aria-pressed="true">Foto terbaru</button>
         <button type="button" id="f4g-home-popular" aria-pressed="false">Populer</button>
         <a class="f4g-home-link" href="/dokumentasi/">Lihat Semua Galeri</a>
       </div>
@@ -600,14 +571,9 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     </section>
 
     <!-- SECTION 6: INTERAKSI & OBROLAN WARGA -->
-    <section id="komentar-warga" class="scroll-mt-20 w-full space-y-4" data-compose-open="false">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="messages-square" class="w-6 h-6 text-indigo-600 shrink-0"></i>
-          <h3 class="text-xl md:text-2xl font-bold text-slate-900">Obrolan Warga</h3>
-        </div>
-        <!-- Status and mobile compose action -->
-        <div class="f4-chat-actions flex items-center gap-2">
+    <section id="komentar-warga" class="scroll-mt-20 w-full" aria-label="Obrolan Warga" data-compose-open="false">
+      <div class="f4-chat-layout bg-white rounded-card shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="f4-chat-actions lg:col-span-12 flex items-center justify-end gap-2">
           <div class="f4-chat-online flex items-center space-x-2">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-3 py-1 rounded-full">Online</span>
@@ -616,9 +582,6 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
             <i data-lucide="send" aria-hidden="true"></i><span>Tulis pesan</span>
           </button>
         </div>
-      </div>
-
-      <div class="f4-chat-layout bg-white rounded-card shadow-sm border border-slate-200 p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- FORM KIRIM KOMENTAR -->
         <div id="f4-chat-compose" class="lg:col-span-5 bg-slate-50 p-4 rounded-card border border-slate-200 space-y-3">
           <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-1.5">
@@ -1045,7 +1008,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-home-agenda-arisan-v114"></script>
+  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-titleless-home-v115"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-desktop-payment-v54" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-iuran-resident-panel-v102"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-stable-mobile-drawer-v109"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>
