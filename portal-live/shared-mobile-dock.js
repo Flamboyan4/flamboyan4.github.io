@@ -9,7 +9,8 @@ const svg=name=>'<span class="f4-svg-icon f4-svg-'+name+'" aria-hidden="true"></
 const residentPath={'/keuangan/':'finance','/agenda/':'agenda','/profil/':'profile'};
 let portal=residentPath[location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')]||document.documentElement.dataset.f4Shell||'portal';
 const sharedDock=el('nav');sharedDock.id='f4-direct-dock';sharedDock.dataset.f4Persistent='shell';sharedDock.hidden=true;
-sharedDock.setAttribute('aria-label','Navigasi utama');document.body.append(sharedDock);
+sharedDock.setAttribute('aria-label','Navigasi utama');
+const dockHost=el('div');dockHost.id='f4-shell-bottom';dockHost.dataset.f4Persistent='shell';dockHost.append(sharedDock);document.body.append(dockHost);
 const dockPaths={
  add:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/>',
  sale:'<path d="M2 3h2l2.5 11.1A2 2 0 0 0 8.5 16h9.4a2 2 0 0 0 2-1.6L22 7H5"/><circle cx="9" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/>',

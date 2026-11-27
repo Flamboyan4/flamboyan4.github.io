@@ -52,6 +52,9 @@
  .f4-grid[data-cols="2"],.f4-grid[data-cols="3"]{--f4-grid-cols:1}
  .f4-grid[data-cols="4"],.f4-grid[data-cols="5"]{--f4-grid-cols:2}
 }
+/* Persistent navigation hosts. Desktop retains the existing rail geometry;
+   mobile owns two separate fixed layers, outside the replaceable portal content. */
+#f4-shell-top,#f4-shell-bottom{display:contents}
 #f4-direct-bar,#f4-direct-bar *,#f4-direct-sidebar,#f4-direct-sidebar *,#f4-direct-dialog,#f4-direct-dialog *,#f4-direct-gate,#f4-direct-gate *{box-sizing:border-box}
 
 #f4-direct-bar [hidden]{display:none}
@@ -249,15 +252,24 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 #f4-direct-sidebar .f4-direct-other-pages{border-top:1px solid var(--f4-nav-line);margin-top:15px;padding-top:16px}
 #f4-direct-sidebar button{min-height:43px}
 @media(max-width:1023px){
- body.f4-direct-bank #f4-direct-bar{background:#fff;backdrop-filter:none;transition:none}
+ /* The navigation layers have fixed intrinsic heights, independent of form layout.
+    Fixed viewport edges are resolved by the browser, not by JS resize events. */
+ #f4-shell-top,#f4-shell-bottom{display:block;position:fixed;left:0;right:0;width:auto;min-width:0;max-width:100%;box-sizing:border-box;margin:0;padding:0;border:0;pointer-events:none;contain:layout style;transform:none}
+ #f4-shell-top{top:0;height:56px;z-index:200}
+ #f4-shell-bottom{bottom:0;height:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px));z-index:55}
+ body.f4-account-open #f4-shell-top{z-index:500}
+ #f4-shell-top>#f4-direct-bar{position:absolute;inset:0;width:100%;height:100%;background:#fff;backdrop-filter:none;transition:none;pointer-events:auto}
+ #f4-shell-top>#f4-direct-bar[hidden]{display:none}
+ body.f4-direct-portal:has(#modal-event-detail:not(.hidden),#modal-arisan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-keuangan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),#modal-saran:not(.hidden)) #f4-shell-top>#f4-direct-bar,
+ body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-shell-top>#f4-direct-bar,
+ html.f4p-overlay-active #f4-shell-top>#f4-direct-bar{pointer-events:none}
  body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:56px;bottom:0;height:calc(100dvh - 56px)}
  /* Keep the document from acquiring a horizontal scroll range from a form.
     Wide data tables retain their own scroll containers. */
  html[data-f4-shell],html[data-f4-shell] body{box-sizing:border-box;width:100%;max-width:100%;min-width:0;overflow-x:clip}
  html[data-f4-shell] body>main{box-sizing:border-box;min-width:0;max-width:100%}
  html[data-f4-shell] #f4-direct-bar{
-  top:var(--f4-visible-top,0px);left:var(--f4-visible-left,0px);right:var(--f4-visible-right,0px);
-  width:auto;min-width:0;max-width:none;height:56px;box-sizing:border-box;margin:0;
+  min-width:0;max-width:100%;box-sizing:border-box;margin:0;
   gap:4px;padding-inline:8px;
  }
  #f4-direct-bar .f4-direct-identity{overflow:hidden;flex:1 1 0;min-width:0}
@@ -542,9 +554,9 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-shared-dock:not(.f4-direct-bank){padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock.f4-direct-bank:not(.f4-bank-app-private) #v11Public{padding-bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe) + 12px)}
  body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
-  box-sizing:border-box;position:fixed;inset:auto var(--f4-visible-right,0px) var(--f4-visible-bottom,0px) var(--f4-visible-left,0px);z-index:55;display:grid;
+  box-sizing:border-box;position:absolute;inset:0;display:grid;pointer-events:auto;
   grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:center;gap:2px;
-  width:auto;min-width:0;max-width:none;height:calc(var(--f4-dock-height) + var(--f4-dock-safe));
+  width:100%;min-width:0;max-width:100%;height:100%;
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
   border-top:1px solid #e8eceb;box-shadow:none;transform:none;visibility:visible;
  }
@@ -580,8 +592,8 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 /* Keep the cached non-sensitive role navigation visible during native reload.
    The browser still owns page scrolling and refresh. */
 @media(max-width:1023px){
- html[data-f4-starting] body.f4-shared-dock:has(>#f4-direct-dock:not([hidden])) #f4-startup-screen{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
- html[data-f4-starting] body.f4-shared-dock:has(>#f4-direct-bar) #f4-startup-screen{top:56px}
+ html[data-f4-starting] body.f4-shared-dock:has(#f4-shell-bottom>#f4-direct-dock:not([hidden])) #f4-startup-screen{bottom:calc(var(--f4-dock-height,60px) + var(--f4-dock-safe,0px))}
+ html[data-f4-starting] body.f4-shared-dock:has(#f4-shell-top>#f4-direct-bar) #f4-startup-screen{top:56px}
 }
 
 /* Resident action rail — permanent SPA chrome, independent of page/footer layout. */

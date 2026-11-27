@@ -606,11 +606,17 @@ function accountsPage(){
  });
 }
 function compactAccountAction(control,kind){
- const paths={activate:'M20 6 9 17l-5-5',reset:'M15.5 7.5a5.5 5.5 0 1 0-4.2 9.2L15 20h3v-3h3v-3l-4.3-4.3M8 8h.01',edit:'m13.5 6.5 4 4M4 20l4.5-1 12-12-4-4-12 12L4 20',deactivate:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM8 8l8 8',handover:'M4 7h15m-4-4 4 4-4 4M20 17H5m4-4-4 4 4 4'};
+ const icons={
+  activate:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 10 2 2 4-4"/>',
+  reset:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7"/>',
+  edit:'<path d="m15.8 4.6 3.6 3.6"/><path d="M4 20l4.9-1.2L19.7 8a2.55 2.55 0 0 0-3.6-3.6L5.3 15.2 4 20Z"/>',
+  deactivate:'<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
+  handover:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>'
+ };
  const label=control.textContent;
  const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('width','16');svg.setAttribute('height','16');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.8');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
- const path=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[kind]);svg.append(path);
+ svg.innerHTML=icons[kind];
  control.setAttribute('aria-label',label);if(!control.title)control.title=label;
  // This action already owns its SVG. Opt out of the global table icon rewriter.
  control.setAttribute('data-f4-keep-label','');
