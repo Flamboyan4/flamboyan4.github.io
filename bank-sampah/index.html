@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-sheet-safe-v78" data-f4-spa="1">
+<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-touch-hover-v79" data-f4-spa="1">
 <head>
   <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -202,9 +202,9 @@ font-size:14px;
 margin-bottom:7px
 }
     .side button:not(.active),.nav-group button:not(.active){background:transparent;color:#486955;border-color:transparent;box-shadow:none}
-    .side button:not(.active):hover{box-shadow:0 2px 8px #2e624711;
+    @media (hover:hover) and (pointer:fine){.side button:not(.active):hover{box-shadow:0 2px 8px #2e624711;
 background:#eef4ec;color:#244b35
-}
+}}
     .side button.active,.nav-group button.active{background:#e3eee3;color:#21543a;box-shadow:none;border:0;font-weight:800}
     .nav-group{overflow:hidden;
 border:0;background:transparent;margin:2px 0;border-radius:10px
@@ -221,13 +221,13 @@ padding:0 0 3px 10px;border-left:1px solid #e2eae0;margin-left:13px
     .nav-group-items button{font-size:12.5px;margin:1px 0;padding:9px 10px}
     .side-footer{margin-top:auto;padding-top:12px;border-top:1px solid #e4ece2;display:flex;align-items:center;gap:6px;background:#fff}
     .side-footer .account-entry{display:flex;align-items:center;gap:9px;flex:1;min-width:0;padding:5px;text-align:left;border-radius:10px;background:transparent;color:#254c37}
-    .side-footer .account-entry:hover{background:#edf4eb}
+    @media (hover:hover) and (pointer:fine){.side-footer .account-entry:hover{background:#edf4eb}}
     .side-footer .account-avatar{width:37px;height:37px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:#e3eee1;color:#2b6945;font-weight:800;font-size:13px}
     .account-avatar img{width:100%;height:100%;object-fit:cover}
     .account-entry .account-name{font-size:12px;font-weight:800;color:#244c35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .account-entry .account-role{font-size:10px;color:#708476;margin-top:1px}
     .side-footer .account-exit{flex-shrink:0;width:37px;min-height:37px;padding:8px;font-size:17px;text-align:center;color:#526b59;border:1px solid transparent}
-    .side-footer .account-exit:hover{background:#fff0e5;color:#9b5b28}
+    @media (hover:hover) and (pointer:fine){.side-footer .account-exit:hover{background:#fff0e5;color:#9b5b28}}
     #v15PhotoPanel{display:flex;align-items:center;gap:13px;border:1px solid var(--line);border-radius:var(--f4-panel-radius,12px);padding:13px;margin:17px 0;background:#fff}
     #v15PhotoPreview{height:66px;width:66px;flex-shrink:0;border-radius:50%;object-fit:cover;background:#e7f0e6}
     #v15PhotoInput{max-width:340px;width:100%;font-size:12px;padding:9px}
@@ -264,7 +264,7 @@ padding:0;min-height:calc(100vh - 70px)
     .v16-tabs{display:flex;gap:7px;width:100%;max-width:100%;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);padding:0 0 11px;margin:0 0 20px}
     .v16-tabs::-webkit-scrollbar{display:none}
     .v16-tabs button{flex:0 0 auto;background:#fff;color:#557260;border:1px solid #dbe8da;border-radius:10px;min-height:41px;padding:9px 14px;font-size:12px;font-weight:700;box-shadow:none}
-    .v16-tabs button:hover{background:#f0f6ef}
+    @media (hover:hover) and (pointer:fine){.v16-tabs button:hover{background:#f0f6ef}}
     .v16-tabs.hidden{display:none}.v16-backdrop{display:none}
     #sideNav .side-footer{position:sticky;bottom:-16px;padding:10px 0 2px;margin-top:auto;background:#fff;box-shadow:0 -7px 14px #fff}
     #sideNav .account-entry{width:auto;min-height:44px}
@@ -417,7 +417,7 @@ padding:0
       #v18PublicSide .v17-public-logo{box-sizing:border-box;display:flex;align-items:center;height:56px;min-height:56px;margin:0 -12px 16px;padding:0 18px}
     }
     #v18PublicSide button{box-sizing:border-box;width:100%;min-height:43px;display:flex;align-items:center;justify-content:var(--f4-bank-nav-align,flex-start);gap:var(--f4-bank-nav-gap,10px);margin:2px 0;padding:10px var(--f4-bank-nav-padding,12px);border:0;border-radius:10px;background:transparent;color:#315347;text-align:left;font:650 13px/1.25 system-ui,sans-serif;cursor:pointer}
-    #v18PublicSide button:hover{background:#f2f9f0;color:#2c7047}
+    @media (hover:hover) and (pointer:fine){#v18PublicSide button:hover{background:#f2f9f0;color:#2c7047}}
     #v18PublicSide button svg{box-sizing:border-box;width:18px;height:18px;padding:0;background:transparent;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
     #v18PublicSide .f4-bank-public-nav-caption{margin:0;padding:10px 12px 5px;color:var(--f4-bank-nav-caption,#718578);font:800 10px/1.2 system-ui;letter-spacing:.055em}
     #v18PublicSide .f4-bank-public-nav-other{margin:14px 0 3px;padding-top:16px;border-top:1px solid #d6e6d9}
@@ -1284,7 +1284,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-sheet-safe-v78"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-touch-hover-v79"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261127-picker-parity-v26">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -2293,13 +2293,13 @@ body.f4-direct-bank #dashboardView #pageBiaya #v10Budget .metric strong{
 
 
 
-<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-sheet-safe-v78">
-<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-sheet-safe-v78"></script>
+<link rel="stylesheet" href="/portal-live/mobile-bottom-sheets.css?v=20261127-touch-hover-v79">
+<script defer src="/portal-live/mobile-bottom-sheets.js?v=20261127-touch-hover-v79"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-modal-history.js" data-f4-src="/portal-live/bank-modal-history.js?v=20261127-resident-navigation-v11"></script>
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
-<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-sheet-safe-v78"></head>
+<link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-touch-hover-v79"></head>
 <body class="f4-direct-bank">
-<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-sheet-safe-v78"></script>
+<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><span class="f4-startup-spinner" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-touch-hover-v79"></script>
 <div id="f4-bank-startup" role="status" aria-live="polite">Memuat Bank Sampah…</div>
 <div class="shell">
   <header class="top"><div class="brand"><div class="logo"><img src="/assets/logo-flamboyan.svg?v=official-20261027-v2" alt="Logo resmi Flamboyan 4" width="35" height="35" style="object-fit:contain"></div><div>Bank Sampah Flamboyan 4<div class="sub">Portal akun warga dan administrator</div></div></div></header>
@@ -2468,12 +2468,12 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-sale-sheet.js" data-f4-src="/portal-live/bank-sale-sheet.js?v=20261127-first-paint-v5"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-sale-report.js" data-f4-src="/portal-live/bank-sale-report.js?v=20261127-first-paint-v5"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-member-prices.js" data-f4-src="/portal-live/bank-member-prices.js?v=20261127-first-paint-v5"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261127-sheet-safe-v78"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-page-history.js" data-f4-src="/portal-live/bank-page-history.js?v=20261127-history-spacing-v39" data-f4-defer></script>
+<script src="/portal-live/direct-shell.js?v=20261127-touch-hover-v79"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-page-history.js" data-f4-src="/portal-live/bank-page-history.js?v=20261127-history-spacing-v39" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-policy-admin.js" data-f4-src="/portal-live/bank-policy-admin.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-mobile-app.js" data-f4-src="/portal-live/bank-mobile-app.js?v=20261127-history-spacing-v39" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261126-card-standard-admin-cash-v1">
 <script type="application/f4-source" data-f4-id="/portal-live/bank-impact-summary.js" data-f4-src="/portal-live/bank-impact-summary.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-admin-analytics.js" data-f4-src="/portal-live/bank-admin-analytics.js?v=20261127-first-paint-v5" data-f4-defer></script>
 
 <script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-5" data-f4-src="/portal-live/bank-inline.js?v=20261127-profile-general-v27"></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-sheet-safe-v78"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body>
+<script src="/portal-live/portal-runtime.js?v=20261127-touch-hover-v79"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body>
 </html>

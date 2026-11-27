@@ -59,7 +59,8 @@
 
 #f4-direct-bar [hidden]{display:none}
 #f4-direct-bar button,#f4-direct-bar a{display:grid;place-items:center;width:39px;height:39px;flex:none;border:0;border-radius:11px;background:transparent;color:var(--f4-nav);cursor:pointer;padding:0;text-decoration:none}
-#f4-direct-bar button:hover,#f4-direct-bar a:hover,#f4-direct-bar .f4-selected{background:var(--f4-nav-tint)}
+#f4-direct-bar .f4-selected{background:var(--f4-nav-tint)}
+@media (hover:hover) and (pointer:fine){#f4-direct-bar button:hover,#f4-direct-bar a:hover{background:var(--f4-nav-tint)}}
 #f4-direct-bar svg{width:21px;height:21px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #f4-direct-bar .f4-nav-links{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none}
 #f4-direct-bar .f4-direct-identity{display:flex;align-items:center;flex:1 1 auto;min-width:0;margin:0;font-family:system-ui,-apple-system,sans-serif}
@@ -90,7 +91,8 @@ body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 #f4-direct-sidebar button,#f4-direct-sidebar a{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;padding:10px 12px;margin:2px 0;background:transparent;border:0;border-radius:10px;color:#333b54;text-align:left;text-decoration:none;font:650 13px system-ui;cursor:pointer}
 #f4-direct-sidebar [data-f4-resident-side][hidden]{display:none}
 @media(max-width:1023px){#f4-direct-sidebar [data-f4-resident-side]{display:none}}
-#f4-direct-sidebar button[aria-current=page],#f4-direct-sidebar button:hover,#f4-direct-sidebar a:hover{color:var(--f4-nav);background:var(--f4-nav-tint)}
+#f4-direct-sidebar button[aria-current=page]{color:var(--f4-nav);background:var(--f4-nav-tint)}
+@media (hover:hover) and (pointer:fine){#f4-direct-sidebar button:hover,#f4-direct-sidebar a:hover{color:var(--f4-nav);background:var(--f4-nav-tint)}}
 #f4-direct-sideback{position:fixed;inset:56px 0 0;z-index:109;background:#0e19276b;border:0;width:100%;padding:0}
 body.f4-direct-portal{padding-top:56px;padding-left:var(--f4-portal-rail,226px);min-height:100dvh}
 body.f4-direct-portal>main{max-width:var(--f4-content-max);margin:0 auto}
@@ -394,10 +396,8 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  background:transparent;color:var(--f4-nav);box-shadow:none;
  cursor:pointer
 }
-#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:hover,
-#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:focus-visible{
- background:var(--f4-nav-tint)
-}
+#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:focus-visible{background:var(--f4-nav-tint)}
+@media (hover:hover) and (pointer:fine){#f4-direct-dialog .f4-direct-password-field button#f4-direct-show-password:hover{background:var(--f4-nav-tint)}}
 #f4-direct-show-password svg{display:block;width:20px;height:20px;flex:none}
 
 
@@ -608,7 +608,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   display:flex;align-items:center;gap:10px;min-height:44px;width:100%;padding:8px 10px;border:0;border-radius:8px;
   background:#fff;color:var(--f4-nav);font:600 13px/1.2 system-ui,sans-serif;text-align:left;cursor:pointer
  }
- #f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}
+ @media (hover:hover) and (pointer:fine){#f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}}
  body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
  html.f4-bank-auth-pending body.f4-shared-dock #f4-bank-startup{bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
 }
@@ -638,8 +638,10 @@ body.f4-resident-tools-active #f4-portal-float-actions{display:none}
 #f4-resident-edge .f4-resident-edge-btn :is(svg,span){visibility:hidden;opacity:0;transition:opacity .15s ease}
 #f4-resident-edge .f4-resident-edge-btn[data-expanded="true"] :is(svg,span){visibility:visible;opacity:1}
 #f4-resident-edge .f4-resident-edge-btn:focus-visible{outline:2px solid #26344f;outline-offset:-2px}
-#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="feedback"]:hover::before{background:#5145cd}
-#f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="payment"]:hover::before{background:#059669}
+@media (hover:hover) and (pointer:fine){
+ #f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="feedback"]:hover::before{background:#5145cd}
+ #f4-resident-edge .f4-resident-edge-btn[data-expanded="true"][data-action="payment"]:hover::before{background:#059669}
+}
 #f4-resident-pay-panel:not([hidden]){display:block;position:absolute;right:8px;bottom:calc(100% + 8px);width:min(290px,calc(100vw - 20px));max-height:min(330px,calc(100dvh - 230px));overflow:auto;overscroll-behavior:contain;padding:13px;border:1px solid #dce8df;border-radius:12px;background:#fff;box-shadow:0 8px 24px #172b2526;pointer-events:auto}
 #f4-resident-pay-panel .f4-resident-pay-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
 #f4-resident-pay-panel .f4-resident-pay-head button,#f4-resident-feedback [data-close-feedback]{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:8px;background:transparent;color:inherit}

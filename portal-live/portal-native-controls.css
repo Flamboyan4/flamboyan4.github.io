@@ -51,14 +51,6 @@ body .f4-control-overlay[hidden]{display:none}
  body .f4-control-levels button:not(:disabled):not([aria-pressed=true]):hover{
   background:var(--f4-nav-tint,#edebfa);color:var(--f4-nav,#5145cd)
  }
- body .f4-control-trigger:not(:disabled):hover{
-  border-color:var(--f4-nav,#5145cd);background:var(--f4-nav-tint,#edebfa)
- }
- body .f4-control-calendar-nav button:not(:disabled):hover,
- body .f4-control-footer button:not(:disabled):not(:last-child):hover{
-  background:var(--f4-nav-tint,#edebfa);color:var(--f4-nav,#5145cd)
- }
- body .f4-control-footer button:last-child:not(:disabled):hover{filter:brightness(.93)}
 }
 body :is(.f4-control-choice,.f4-control-day,.f4-control-trigger,.f4-control-calendar-nav button,.f4-control-levels button,.f4-control-footer button):not(:disabled):focus-visible{
  outline:2px solid var(--f4-nav,#5145cd);outline-offset:-2px
