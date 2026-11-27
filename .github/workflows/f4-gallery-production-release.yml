@@ -1,5 +1,5 @@
 name: F4 Gallery Production Worker Release
-# Gallery release 2026-11-27: token-independent R2 photo upload; preserve existing Drive archives and all bindings.
+# Gallery release 2026-11-27: restore Google Drive writes; retain read and management of any existing R2 photos.
 run-name: "Gallery API release ${{ github.sha }}"
 on:
   push:
@@ -163,7 +163,7 @@ jobs:
                   raise RuntimeError("Public video proxy did not return playable MP4 byte-range data")
               print("LIVE_PUBLIC_ARCHIVE_MP4_STREAM_OK status=206 bytes="+str(len(chunk)))
           assert isinstance(gallery.get("categories"),list),"New gallery API not active"
-          assert gallery.get("uploadEnabled") is True and gallery.get("uploadStorage")=="r2","R2 gallery upload not active"
+          assert gallery.get("uploadStorage")=="drive","Google Drive gallery route not active"
           items=gallery.get("albums") or []
           if items:
               album=str(items[0]["id"])
