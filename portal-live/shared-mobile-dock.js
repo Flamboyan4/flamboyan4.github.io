@@ -51,21 +51,22 @@ function closeDockMenu(focus=false){
 function allowed(role,key){return !!dockItems[role]?.some(x=>x[0]===key)||(role==='superadmin'&&['input-deposit','input-iuran'].includes(key))}
 function dockAction(key){if(!allowed(dockRole,key))return;if(handler)handler(key);else pending={key,role:dockRole}}
 function toggleMenu(){if(!dockMenu)return;dockMenu.hidden=!dockMenu.hidden;dockTrigger.setAttribute('aria-expanded',String(!dockMenu.hidden))}
+/* Portal identity and shortcut state are independent. The portal remains
+   selected even while an input or other operational shortcut is open. */
 function markSharedDock(){
- const shownRole=dockRole;
  const route=bankRoute||new URLSearchParams(location.search).get('halaman')||window.f4BankAppCurrentRoute?.()||'dashboard';
- let active=portal==='portal'||portal==='simple'?'home':portal==='book'?((bookRoute||new URLSearchParams(location.search).get('halaman'))==='input'?'input':'book'):portal==='superadmin'?'superadmin':'bank';
- if(portal==='bank'){
-  if(shownRole==='superadmin'&&route==='setoran')active='input';
-  if(shownRole==='admin')active=({setoran:'deposit',penjualan:'sale',laporan:'report'})[route]||'bank';
-  if(shownRole==='warga')active='bank';
- }
- if(shownRole==='warga'){
-  if(['finance','agenda','profile'].includes(portal))active=portal;
-  else if(portal==='portal'||portal==='simple')active='home';
+ const currentBookRoute=bookRoute||new URLSearchParams(location.search).get('halaman')||'';
+ let active=({portal:'home',simple:'home',book:'book',superadmin:'superadmin',bank:'bank',finance:'finance',agenda:'agenda',profile:'profile'})[portal]||'home';
+ if(!dockItems[dockRole]?.some(item=>item[0]===active))active='home';
+ let action='';
+ if(dockRole==='superadmin'){
+  if((portal==='bank'&&route==='setoran')||(portal==='book'&&currentBookRoute==='input'))action='input';
+ }else if(dockRole==='admin'&&portal==='bank'){
+  action=({setoran:'deposit',penjualan:'sale',laporan:'report'})[route]||'';
  }
  for(const b of sharedDock.querySelectorAll('[data-dock-key]')){
   if(b.dataset.dockKey===active){if(b.getAttribute('aria-current')!=='page')b.setAttribute('aria-current','page')}else if(b.hasAttribute('aria-current'))b.removeAttribute('aria-current');
+  b.toggleAttribute('data-current-action',!!action&&b.dataset.dockKey===action);
  }
 }
 function updateSharedDock(next=''){

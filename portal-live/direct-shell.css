@@ -596,7 +596,8 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  #f4-direct-dock .f4-direct-dock-item[aria-current="page"]{color:var(--f4-nav);font-weight:650}
  #f4-direct-dock .f4-direct-dock-item[aria-current="page"] .f4-direct-dock-icon{background:var(--f4-nav-tint);color:var(--f4-nav)}
  #f4-direct-dock .f4-direct-dock-item.is-primary .f4-direct-dock-icon{background:#fdc010;color:#283e2c}
- #f4-direct-dock .f4-direct-dock-item.is-primary[aria-current="page"] .f4-direct-dock-icon{box-shadow:inset 0 0 0 1px #b88900}
+ #f4-direct-dock .f4-direct-dock-item.is-primary[data-current-action] .f4-direct-dock-icon{box-shadow:inset 0 0 0 1px #b88900}
+ #f4-direct-dock .f4-direct-dock-item[data-current-action] .f4-direct-dock-label{font-weight:650;color:var(--f4-nav)}
  #f4-direct-dock button:focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
  #f4-direct-dock .f4-direct-dock-menu{
   position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);display:grid;gap:3px;
