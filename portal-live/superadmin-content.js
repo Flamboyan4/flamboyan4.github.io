@@ -25,6 +25,8 @@ function saCloseDrawer(fromHistory=false){
  if(!saMenuOpened())return;
  if(!fromHistory&&__f4.globals.history.state?.f4SaDrawer){__f4.globals.history.back();return}
  root.classList.remove('f4-sa-drawer-open');
+ side.classList.remove('f4-sa-open');saBackdrop.classList.remove('f4-sa-open');
+ root.prepend(side);root.append(saBackdrop);
  main.inert=false;
  __f4.globals.document.documentElement.classList.remove('f4-sa-drawer-lock');
  saNotifyMenu(false);
@@ -34,6 +36,9 @@ __f4.window.f4ToggleSuperadminMenu=()=>{
  if((0,__f4.globals.matchMedia)('(min-width:1024px)').matches)return;
  __f4.globals.history.pushState({...__f4.globals.history.state,f4SaDrawer:true},'',__f4.globals.location.href);
  root.classList.add('f4-sa-drawer-open');
+ // Mount the existing drawer above the persistent dock, outside the scroll root.
+ __f4.globals.document.body.append(saBackdrop,side);
+ side.classList.add('f4-sa-open');saBackdrop.classList.add('f4-sa-open');
  main.inert=true;
  __f4.globals.document.documentElement.classList.add('f4-sa-drawer-lock');
  saNotifyMenu(true);
