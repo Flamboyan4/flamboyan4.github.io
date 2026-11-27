@@ -2442,7 +2442,33 @@ async function f4GalleryDriveRequest(token,path,options={}){
  return data;
 }
 __name(f4GalleryDriveRequest,"f4GalleryDriveRequest");
-function f4GalleryImageUrl(id){return "https://lh3.googleusercontent.com/d/"+encodeURIComponent(id);}
+function f4GalleryR2Id(id){return /^r2:[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(String(id||""));}
+function f4GalleryR2Key(id){return "gallery/photos/"+String(id).slice(3);}
+function f4GalleryImageUrl(id){return f4GalleryR2Id(id)?"https://api.flamboyan4.web.id/api/v2/gallery/image/"+encodeURIComponent(id):"https://lh3.googleusercontent.com/d/"+encodeURIComponent(id);}
+async function f4GalleryR2Read(req,env,id){
+ if(!["GET","HEAD"].includes(req.method))return err("Metode tidak didukung.",405);
+ if(!env.PHOTOS)return err("Penyimpanan foto belum tersedia.",503);
+ if(!f4GalleryR2Id(id))return err("Foto tidak ditemukan.",404);
+ const photo=await one(env.DB,"SELECT album_ref FROM f4_gallery_photos WHERE drive_file_id=? AND status IN ('baru','ditinjau')",[id]);
+ if(!photo||!await f4GalleryAlbum(env.DB,photo.album_ref))return err("Foto tidak ditemukan.",404);
+ const key=f4GalleryR2Key(id);
+ const object=req.method==="HEAD"?await env.PHOTOS.head(key):await env.PHOTOS.get(key);
+ if(!object)return err("Foto tidak ditemukan.",404);
+ const type=object.httpMetadata?.contentType||"";
+ if(!/^image\/(jpeg|png|webp)$/.test(type))return err("Jenis foto tidak didukung.",415);
+ return new Response(req.method==="HEAD"?null:object.body,{headers:{"content-type":type,"content-length":String(object.size),"cache-control":"public, max-age=300","x-content-type-options":"nosniff","cross-origin-resource-policy":"cross-origin"}});
+}
+async function f4GalleryR2Upload(env,who,albumId,name,caption,photoCategory,raw,mime){
+ const storageId="r2:"+crypto.randomUUID(),id="f4photo:"+crypto.randomUUID(),key=f4GalleryR2Key(storageId);
+ try{await env.PHOTOS.put(key,raw,{httpMetadata:{contentType:mime}});}
+ catch{return err("Penyimpanan foto sedang tidak tersedia.",503)}
+ try{
+  const insert=env.DB.prepare("INSERT INTO f4_gallery_photos(id,album_ref,drive_file_id,drive_folder_id,uploader_id,filename,caption) VALUES(?,?,?,?,?,?,?)").bind(id,albumId,storageId,"r2",who.id,name,caption);
+  if(photoCategory)await env.DB.batch([insert,env.DB.prepare("INSERT INTO f4_gallery_photo_categories(photo_ref,category,updated_by) VALUES(?,?,?)").bind(id,photoCategory,who.id)]);
+  else await insert.run();
+ }catch(e){await env.PHOTOS.delete(key).catch(()=>{});return err("Foto tidak dapat disimpan pada database.",502)}
+ return ok({id,albumId,url:f4GalleryImageUrl(storageId),created:true},201);
+}
 __name(f4GalleryImageUrl,"f4GalleryImageUrl");
 function f4GalleryFolder(url){
  return String(url||"").match(/(?:\/folders\/|[?&]folderId=)([A-Za-z0-9_-]{12,})/)?.[1]||"";
@@ -2503,7 +2529,7 @@ async function f4GalleryPublic(db,env){
   popular.push({...p,likes:Number(row.likes||0),commentCount:Number(row.commentCount||0),comments});
  }
  const categories=await list(db,"SELECT album_ref AS albumId,category FROM f4_gallery_categories");
- return ok({albums,photos:data,highlights,popular,categories,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:f4GalleryDriveReady(env),maxFiles:12,maxFileMb:5});
+ return ok({albums,photos:data,highlights,popular,categories,suppressedDriveIds:suppressed.map(x=>x.id),uploadEnabled:Boolean(env.PHOTOS)||f4GalleryDriveReady(env),uploadStorage:env.PHOTOS?"r2":"drive",maxFiles:12,maxFileMb:5});
 }
 __name(f4GalleryPublic,"f4GalleryPublic");
 
@@ -2579,7 +2605,7 @@ __name(f4GallerySocial,"f4GallerySocial");
 async function f4GalleryPersonalAlbum(env,who){
  const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
  if(!who.member_id)return err("Akun belum terhubung ke data warga.",403);
- if(!f4GalleryDriveReady(env))return err("Google Drive belum terhubung.",503);
+ if(!env.PHOTOS&&!f4GalleryDriveReady(env))return err("Penyimpanan foto belum terhubung.",503);
  const db=env.DB,member=await one(db,"SELECT id,display_name FROM members WHERE id=? AND status='aktif'",[who.member_id]);
  if(!member)return err("Data warga tidak ditemukan.",403);
  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(member.id)));
@@ -2588,6 +2614,7 @@ async function f4GalleryPersonalAlbum(env,who){
  await db.prepare("INSERT OR IGNORE INTO f4_gallery_albums(id,title,created_by) VALUES(?,?,?)").bind(id,title,who.id).run();
  let row=await one(db,"SELECT id,title,status,drive_folder_id FROM f4_gallery_albums WHERE id=?",[id]);
  if(!row||row.status!=="aktif")return err("Album warga tidak aktif. Hubungi pengelola.",403);
+ if(env.PHOTOS)return ok({id,title:row.title,created:true});
  try{
   const token=await f4GalleryDriveToken(env),parent=f4GalleryUploadFolder(env);
   // Reserve a Drive-generated ID in D1 before creation. Concurrent requests
@@ -2619,7 +2646,7 @@ async function f4GalleryPersonalAlbum(env,who){
 }
 async function f4GalleryUpload(req,env,who,url){
  const denied=requireRole(who,["anggota","admin","superadmin"]);if(denied)return denied;
- if(!f4GalleryDriveReady(env))return err("Upload Google Drive belum diaktifkan. Pengelola perlu menghubungkan akun penyimpanan.",503);
+ if(!env.PHOTOS&&!f4GalleryDriveReady(env))return err("Penyimpanan foto belum diaktifkan.",503);
  const albumId=String(url.searchParams.get("album")||"");
  const album=await f4GalleryAlbum(env.DB,albumId);
  if(!album)return err("Album tidak ditemukan. Muat ulang daftar album.",404);
@@ -2629,7 +2656,7 @@ async function f4GalleryUpload(req,env,who,url){
   const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(who.member_id)));
   const ownId="galbum:resident:"+Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,"0")).join("");
   if(albumId!==ownId)return err("Album otomatis hanya dapat diisi pemiliknya.",403);
-  if(!album.folder)return err("Folder album warga belum siap.",409);
+  if(!env.PHOTOS&&!album.folder)return err("Folder album warga belum siap.",409);
  }
  const photoCategory=personal?String(url.searchParams.get("photoCategory")||""):"";
  if(!["","bank_sampah","kerja_bakti","rapat","kegiatan"].includes(photoCategory))return err("Kategori tidak tersedia.",400);
@@ -2649,6 +2676,7 @@ async function f4GalleryUpload(req,env,who,url){
  if(!mime)return err("Foto harus JPG, PNG, atau WebP.",415);
  const recent=await one(env.DB,"SELECT COUNT(*) AS n FROM f4_gallery_photos WHERE uploader_id=? AND created_at>=datetime('now','-1 hour')",[who.id]);
  if(Number(recent?.n||0)>=40)return err("Batas 40 unggahan per jam tercapai. Coba lagi nanti.",429);
+ if(env.PHOTOS)return f4GalleryR2Upload(env,who,albumId,name,caption,photoCategory,raw,mime);
  let token;
  try{
   token=await f4GalleryDriveToken(env);
@@ -2737,12 +2765,18 @@ async function f4GalleryAdmin(req,env,who){
  }
  const photo=await one(db,"SELECT * FROM f4_gallery_photos WHERE id=?",[photoId]);
  if(!photo)return err("Foto tidak ditemukan.",404);
- if(photo.status==="dihapus")return err("Foto sudah dihapus dari Drive dan tidak dapat ditampilkan kembali.",409);
+ if(photo.status==="dihapus")return err("Foto sudah dihapus dan tidak dapat ditampilkan kembali.",409);
  if(action==="hide_photo"||action==="review_photo"){
   await db.prepare("UPDATE f4_gallery_photos SET status=? WHERE id=?").bind(action==="hide_photo"?"disembunyikan":"ditinjau",photoId).run();
   return ok({updated:true});
  }
  if(action==="delete_photo"){
+  if(f4GalleryR2Id(photo.drive_file_id)){
+   if(!env.PHOTOS)return err("Penyimpanan foto belum tersedia.",503);
+   await env.PHOTOS.delete(f4GalleryR2Key(photo.drive_file_id));
+   await db.prepare("UPDATE f4_gallery_photos SET status='dihapus' WHERE id=?").bind(photoId).run();
+   return ok({updated:true});
+  }
   if(!f4GalleryDriveReady(env))return err("Google Drive belum terhubung; gunakan Sembunyikan untuk sementara.",503);
   const token=await f4GalleryDriveToken(env);
   await f4GalleryDriveRequest(token,"files/"+encodeURIComponent(photo.drive_file_id)+"?fields=id",
@@ -2753,6 +2787,10 @@ async function f4GalleryAdmin(req,env,who){
  if(action==="move_photo"){
   const album=await f4GalleryAlbum(db,String(p.albumId||""));
   if(!album)return err("Album tujuan tidak tersedia.",404);
+  if(f4GalleryR2Id(photo.drive_file_id)){
+   await db.prepare("UPDATE f4_gallery_photos SET album_ref=? WHERE id=?").bind(album.id,photoId).run();
+   return ok({updated:true});
+  }
   if(!f4GalleryDriveReady(env))return err("Google Drive perlu dihubungkan dahulu.",503);
   const token=await f4GalleryDriveToken(env);
   let target=album.folder||"";
@@ -2914,7 +2952,7 @@ async function f4ShareCreate(req,env){
   const photo=await one(env.DB,"SELECT drive_file_id AS driveId FROM f4_gallery_photos WHERE album_ref=? AND status IN ('baru','ditinjau') ORDER BY created_at DESC LIMIT 1",[albumId]);
   imageId=photo?.driveId||await f4ShareFolderCover(env,album.folder);
  }
- if(imageId&&!/^[A-Za-z0-9_-]{12,110}$/.test(imageId))imageId="";
+ if(imageId&&!f4GalleryR2Id(imageId)&&!/^[A-Za-z0-9_-]{12,110}$/.test(imageId))imageId="";
  let row=await one(env.DB,"SELECT code,image_drive_id AS imageId FROM f4_gallery_share_links WHERE album_ref=? AND photo_ref=?",[albumId,photoId]);
  for(let attempt=0;!row&&attempt<5;attempt++){
   await env.DB.prepare("INSERT OR IGNORE INTO f4_gallery_share_links(code,album_ref,photo_ref,image_drive_id) VALUES(?,?,?,?)")
@@ -2948,7 +2986,7 @@ async function f4SharePage(req,env,url){
    if(owned&&!["baru","ditinjau"].includes(owned.status))imageId="";
   }
   let picture;
-  if(imageId){try{picture=await fetch("https://lh3.googleusercontent.com/d/"+encodeURIComponent(imageId)+"=w720",{headers:{accept:"image/jpeg,image/png"}})}catch{}}
+  if(imageId){try{picture=f4GalleryR2Id(imageId)?await f4GalleryR2Read(new Request(req.url,{method:"GET"}),env,imageId):await fetch("https://lh3.googleusercontent.com/d/"+encodeURIComponent(imageId)+"=w720",{headers:{accept:"image/jpeg,image/png"}})}catch{}}
   const size=Number(picture?.headers.get("content-length")||0);
   if(!picture?.ok||!/^image\/(jpeg|png)/i.test(picture.headers.get("content-type")||"")||(size>600000)){
    try{picture=await fetch(defaultImage)}catch{picture=null}
@@ -3032,7 +3070,8 @@ async function f4GalleryPublicFolderMedia(req,env,url){
 }
 async function f4GalleryPublicImageStream(req,env,url){
  if(!["GET","HEAD"].includes(req.method))return err("Metode tidak didukung.",405);
- const fileId=url.pathname.split("/").at(-1)||"",albumRef=String(url.searchParams.get("album")||"");
+ const fileId=decodeURIComponent(url.pathname.split("/").at(-1)||""),albumRef=String(url.searchParams.get("album")||"");
+ if(f4GalleryR2Id(fileId))return f4GalleryR2Read(req,env,fileId);
  if(!/^[A-Za-z0-9_-]{12,110}$/.test(fileId)||!albumRef||albumRef.length>180)return err("Foto tidak ditemukan.",404);
  const album=await f4GalleryPublishedFolder(env.DB,albumRef);
  if(!album)return err("Foto bukan bagian dokumentasi publik.",404);
