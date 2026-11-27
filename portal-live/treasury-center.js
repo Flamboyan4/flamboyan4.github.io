@@ -381,14 +381,14 @@ async function exportTreasuryExcel(data,options){
 }
 let reportOptions={balance:true,opening:true,history:true,fund:"",from:"",to:"",kind:""};
 function buildReportOptions(target,data){
- const head=el("section",__f4.globals.undefined,"tc-panel tc-report-options");
+ const head=el("section",__f4.globals.undefined,"tc-report-options");
  const top=el("div",__f4.globals.undefined,"tc-report-options-head");
- top.append(el("h3","Pilihan Cetak & Excel"));
+ top.append(el("h3","Pilihan Unduh"));
  const checks=el("div",__f4.globals.undefined,"tc-report-checks");
  const toggles={};
- for(const [key,label] of [["balance","Saldo terkini"],["opening","Saldo awal"],["history","Riwayat transaksi"]]){
+ for(const [key,label,fullLabel] of [["balance","Saldo kini","Saldo terkini"],["opening","Saldo awal","Saldo awal"],["history","Riwayat","Riwayat transaksi"]]){
   const input=el("input");input.type="checkbox";input.disabled=key==="history"&&!data.riwayatLengkap;input.checked=!!reportOptions[key]&&!input.disabled;
-  const wrap=el("label");wrap.append(input,el("span",label));checks.append(wrap);toggles[key]=input;
+  const wrap=el("label");wrap.title=fullLabel;input.setAttribute("aria-label",fullLabel);wrap.append(input,el("span",label));checks.append(wrap);toggles[key]=input;
  }
  const grid=el("div",__f4.globals.undefined,"tc-report-filter");
  const shortFund=name=>{
