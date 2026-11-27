@@ -68,8 +68,9 @@ body[data-resident-page=finance].f4-resident-sheet-open{overflow:hidden}
 @media(max-width:1023px){
  body[data-resident-page=finance].f4-resident-sheet-open #f4-shell-bottom{z-index:26001}
  body[data-resident-page=finance] #f4-resident-sheet{inset:0 0 auto;height:var(--f4-shell-viewport,100dvh);align-items:flex-end;padding:0 0 var(--f4-shell-footer,0px)}
- #f4-resident-sheet .rp-history-panel{width:100%;height:min(76dvh,600px);max-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-footer,0px) - var(--f4-shell-header,56px) - 10px);border-radius:20px 20px 0 0;padding:32px 15px 20px;animation:rp-history-rise .32s cubic-bezier(.22,.72,.27,1) both}
+ #f4-resident-sheet .rp-history-panel{width:100%;height:min(var(--f4-sheet-collapsed-height,65dvh),600px);max-height:var(--f4-sheet-collapsed-height,65dvh);border-radius:20px 20px 0 0;padding:36px 15px 0;animation:rp-history-rise .32s cubic-bezier(.22,.72,.27,1) both}
  #f4-resident-sheet .rp-history-panel.f4-sheet-gesture-ready{animation:none}
+ #f4-resident-sheet .rp-history-body{padding-bottom:0}
  #f4-resident-sheet .rp-history-panel>.f4-sheet-handle[hidden]{display:none}
  @keyframes rp-history-rise{from{transform:translate3d(0,calc(100% + var(--f4-shell-footer,0px)),0)}to{transform:translate3d(0,0,0)}}
 }

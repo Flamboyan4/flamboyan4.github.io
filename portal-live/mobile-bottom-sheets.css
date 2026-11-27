@@ -294,12 +294,13 @@
   content:none;display:none
  }
  .f4-sheet-draggable>.f4-sheet-handle:not([hidden]){
-  position:absolute;inset:0 0 auto;width:100%;height:30px;
+  position:absolute;inset:0 0 auto;width:100%;height:40px;
   display:flex;align-items:center;justify-content:center;
   border:0;padding:0;margin:0;background:transparent;
   touch-action:none;user-select:none;-webkit-user-select:none;
   cursor:grab;z-index:8;box-sizing:border-box
  }
+ .f4-sheet-draggable :is(.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header){touch-action:none;cursor:grab}
  .f4-sheet-draggable>.f4-sheet-handle::before{
   content:"";display:block;width:42px;height:5px;
   border-radius:99px;background:#c5cbd2;
@@ -395,7 +396,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   animation:none;
  }
  body .f4-sheet-draggable:is(.f4-sheet-dragging,.f4-sheet-settling,.f4-sheet-dismissing) {
-  will-change:transform;
+  will-change:height,transform;
   backface-visibility:hidden;
  }
  body > .f4-sheet-handle:not([hidden]) {
@@ -403,7 +404,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   display:flex;
   align-items:center;
   justify-content:center;
-  left:0;top:0;width:100%;height:32px;
+  left:0;top:0;width:100%;height:40px;
   margin:0;padding:0;
   z-index:2147483000;
   background:transparent;
@@ -474,8 +475,10 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  html[data-f4-shell] body{
   --f4-sheet-safe-bottom: var(--f4-shell-footer,0px);
   --f4-sheet-end-space:24px;
-  --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
+  --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - 8px);
+  --f4-sheet-collapsed-height:calc(var(--f4-sheet-available-height) * .72);
  }
+ html[data-f4-shell] body.f4-shared-dock:has(#f4-direct-dock:not([hidden])){--f4-sheet-end-space:0px}
  html[data-f4-shell] body :is(#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
   .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
@@ -485,22 +488,22 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   box-sizing:border-box;padding-bottom:var(--f4-sheet-safe-bottom);
  }
  html[data-f4-shell] body :is(#f4-superadmin-confirm .f4-sa-confirm-panel,#credentialModal>.f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,#modal-doc-rapat>div,#modal-gateway>div,#modal-event-detail>div,#modal-arisan>div,#modal-cetak-kas>div,#modal-keuangan>div,#modal-jersey>div,#modal-dokumentasi>div,#modal-gallery-grid>div,#modal-saran>div,#modal-rekening>.f4-account-dialog,#modal-koreksi-migrasi>div,.f4-sheet-draggable):not(dialog).f4-sheet-draggable{
-  max-height:var(--f4-sheet-available-height);
+  max-height:var(--f4-sheet-collapsed-height);
   padding-bottom:var(--f4-sheet-end-space);
  }
  html[data-f4-shell] body :is(#modal-edit>.f4-book-edit-center:has(.f4-book-edit-card.f4-sheet-expanded),
   #modal-edit>.f4-book-edit-center:has(.f4-sheet-dragging)){
   max-height:var(--f4-sheet-available-height);
-  height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px)
+  height:var(--f4-sheet-available-height)
  }
  html[data-f4-shell] body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
   bottom:var(--f4-sheet-safe-bottom);
-  max-height:var(--f4-sheet-available-height);
+  max-height:var(--f4-sheet-collapsed-height);
   padding-bottom:var(--f4-sheet-end-space)
  }
  html[data-f4-shell] body .f4g-comment-overlay>.f4g-panel.f4-sheet-draggable{
   position:relative;padding-top:30px;
-  max-height:var(--f4-sheet-available-height);
-  height:min(76dvh,calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px),660px)
+  max-height:var(--f4-sheet-collapsed-height);
+  height:min(var(--f4-sheet-collapsed-height),660px)
  }
 }
