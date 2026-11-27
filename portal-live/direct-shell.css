@@ -231,16 +231,14 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 /* Loading covers only content, leaving the shared navigation available. */
 #f4-route-loading{position:fixed;inset:56px 0 0;z-index:190;display:grid;place-items:center;background:#fff;color:var(--f4-nav);font:600 13px/1.4 system-ui,-apple-system,sans-serif}
 #f4-route-loading[hidden]{display:none}
-/* Native-style pull refresh: one small circular spinner, no panel or visible text. */
+/* Pull indicator is a child of the permanent mobile header, above page content. */
 #f4-pull-refresh{display:none}
 @media(max-width:1023px){
- #f4-pull-refresh:not([hidden]){position:absolute;top:calc(var(--f4-shell-header,56px) + 12px);left:50%;transform:translateX(-50%);z-index:190;display:grid;place-items:center;pointer-events:none}
- #f4-pull-refresh .f4-pull-ring,#f4-route-loading[data-pull-refresh] .f4-route-spinner{box-sizing:border-box;width:24px;height:24px;border:3px solid var(--f4-nav-tint,#e5e7eb);border-top-color:var(--f4-nav,#5145cd);border-radius:50%}
- #f4-pull-refresh .f4-pull-ring{transform:rotate(var(--f4-pull-angle,0deg))}
- #f4-route-loading[data-pull-refresh]{background:transparent;align-items:start;justify-items:center;padding-top:12px}
- #f4-route-loading[data-pull-refresh] .f4-route-loading-indicator{animation:none}
- #f4-route-loading[data-pull-refresh] .f4-route-loading-indicator>span:last-child{display:none}
+ #f4-shell-top>#f4-pull-refresh:not([hidden]){box-sizing:border-box;position:absolute;top:calc(100% + 12px);left:calc(50% - 15px);width:30px;height:30px;display:grid;place-items:center;z-index:5;color:var(--f4-nav,#5145cd);pointer-events:none}
+ #f4-pull-refresh>svg{display:block;width:30px;height:30px;max-width:none;transform:rotate(var(--f4-pull-angle,0deg))}
+ #f4-pull-refresh[data-loading]>svg{animation:f4-route-spin .7s linear infinite}
 }
+@media(prefers-reduced-motion:reduce){#f4-pull-refresh[data-loading]>svg{animation:none}}
 .f4-route-loading-indicator{display:grid;justify-items:center;gap:12px;animation:f4-route-reveal .12s both}
 .f4-route-spinner{width:30px;height:30px;border:3px solid var(--f4-nav-tint);border-top-color:var(--f4-nav);border-radius:50%;animation:f4-route-spin .7s linear infinite}
 @keyframes f4-route-spin{to{transform:rotate(360deg)}}

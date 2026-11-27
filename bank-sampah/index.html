@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-spinner-v73" data-f4-spa="1">
+<html lang="id" class="f4-bank-auth-pending" data-f4-shell="bank" data-f4-release="20261127-native-reload-v74" data-f4-spa="1">
 <head>
   <meta charset="utf-8">
 <style id="f4-startup-critical" data-f4-persistent="shell">
@@ -17,12 +17,15 @@ html[data-f4-starting][data-f4-shell="book"] #f4-startup-screen{color:#7035c9}
 html[data-f4-starting][data-f4-shell="superadmin"] #f4-startup-screen{color:#6650cc}
 #f4-startup-screen .f4-startup-group{display:grid;justify-items:center;gap:14px;max-width:300px}
 #f4-startup-screen .f4-startup-spinner{width:30px;height:30px;border:3px solid #e5e7eb;border-top-color:currentColor;border-radius:50%;box-sizing:border-box;animation:f4-startup-spin .7s linear infinite}
+/* A deliberate pull reload continues with only the small spinner at the top. */
+html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-spinner{position:fixed;top:68px;left:calc(50% - 15px)}
+html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-message{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #f4-startup-screen [hidden]{display:none}
 #f4-startup-screen button{font:inherit;color:inherit;background:#fff;border:1px solid currentColor;border-radius:10px;padding:9px 16px;cursor:pointer}
 @keyframes f4-startup-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){#f4-startup-screen .f4-startup-spinner{animation:none}}
 </style>
-<script>(()=>{const root=document.documentElement;root.setAttribute('data-f4-starting','');let done=false;const fail=()=>{if(done)return;const screen=document.getElementById('f4-startup-screen');if(!screen)return;screen.querySelector('.f4-startup-spinner').hidden=true;screen.querySelector('.f4-startup-message').textContent='Halaman belum dapat dimuat. Periksa koneksi dan coba lagi.';screen.querySelector('button').hidden=false;};const timer=setTimeout(fail,60000);window.F4Startup={finish(){if(done)return;done=true;clearTimeout(timer);root.removeAttribute('data-f4-starting');document.getElementById('f4-startup-screen')?.remove();},fail};})();</script>
+<script>(()=>{const root=document.documentElement;root.setAttribute('data-f4-starting','');try{const raw=sessionStorage.getItem('f4-pull-reload');sessionStorage.removeItem('f4-pull-reload');const hint=JSON.parse(raw||'null');if(hint&&hint.url===location.pathname+location.search+location.hash&&Date.now()-hint.at>=0&&Date.now()-hint.at<30000&&matchMedia('(max-width:1023px)').matches)root.setAttribute('data-f4-pull-reloading','')}catch{}let done=false;const fail=()=>{if(done)return;root.removeAttribute('data-f4-pull-reloading');const screen=document.getElementById('f4-startup-screen');if(!screen)return;screen.querySelector('.f4-startup-spinner').hidden=true;screen.querySelector('.f4-startup-message').textContent='Halaman belum dapat dimuat. Periksa koneksi dan coba lagi.';screen.querySelector('button').hidden=false;};const timer=setTimeout(fail,60000);window.F4Startup={finish(){if(done)return;done=true;clearTimeout(timer);root.removeAttribute('data-f4-starting');root.removeAttribute('data-f4-pull-reloading');document.getElementById('f4-startup-screen')?.remove();},fail};})();</script>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=auto">
   <title>Bank Sampah Flamboyan 4</title>
@@ -1281,7 +1284,7 @@ html.f4-bank-gallery-open,body.f4-bank-gallery-open{overflow:hidden}
  body.v17-dashboard:not(.f4-bank-app-private) #dashboardView>.grid>.section{grid-column:2;min-width:0}
 }
 </style>
-<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-spinner-v73"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+<link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261127-native-reload-v74"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261127-picker-parity-v26">
 
 <style id="f4-bank-admin-report-compact-20261027">
@@ -2465,12 +2468,12 @@ body:has(#dashboardView) select:not([multiple]):not([size]){
 <script type="application/f4-source" data-f4-id="/portal-live/transaction-receipts.js" data-f4-src="/portal-live/transaction-receipts.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-sale-sheet.js" data-f4-src="/portal-live/bank-sale-sheet.js?v=20261127-first-paint-v5"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-sale-report.js" data-f4-src="/portal-live/bank-sale-report.js?v=20261127-first-paint-v5"></script><script type="application/f4-source" data-f4-id="/portal-live/bank-member-prices.js" data-f4-src="/portal-live/bank-member-prices.js?v=20261127-first-paint-v5"></script>
 
-<script src="/portal-live/direct-shell.js?v=20261127-spinner-v73"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-page-history.js" data-f4-src="/portal-live/bank-page-history.js?v=20261127-history-spacing-v39" data-f4-defer></script>
+<script src="/portal-live/direct-shell.js?v=20261127-native-reload-v74"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/portal-live/mobile-cards.js" data-f4-src="/portal-live/mobile-cards.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-page-history.js" data-f4-src="/portal-live/bank-page-history.js?v=20261127-history-spacing-v39" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-policy-admin.js" data-f4-src="/portal-live/bank-policy-admin.js?v=20261127-first-paint-v5" data-f4-defer></script><script type="application/f4-source" data-f4-id="/portal-live/bank-mobile-app.js" data-f4-src="/portal-live/bank-mobile-app.js?v=20261127-history-spacing-v39" data-f4-defer></script>
 <link rel="stylesheet" href="/portal-live/bank-impact-summary.css?v=20261126-card-standard-admin-cash-v1">
 <script type="application/f4-source" data-f4-id="/portal-live/bank-impact-summary.js" data-f4-src="/portal-live/bank-impact-summary.js?v=20261127-first-paint-v5" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/bank-admin-analytics.js" data-f4-src="/portal-live/bank-admin-analytics.js?v=20261127-first-paint-v5" data-f4-defer></script>
 
 <script type="application/f4-source" data-f4-id="/bank-sampah/index.html#inline-5" data-f4-src="/portal-live/bank-inline.js?v=20261127-profile-general-v27"></script>
-<script src="/portal-live/portal-runtime.js?v=20261127-spinner-v73"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body>
+<script src="/portal-live/portal-runtime.js?v=20261127-native-reload-v74"></script><script type="application/f4-source" data-f4-id="/portal-live/native-controls.js" data-f4-src="/portal-live/native-controls.js?v=20261127-compact-popups-sidebar-v29" data-f4-defer></script></body>
 </html>
