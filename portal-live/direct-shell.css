@@ -286,7 +286,7 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
  html[data-f4-shell] body.f4-direct-book>main{padding:12px 12px 20px}
  html[data-f4-shell] body.f4-direct-superadmin #f4-account-page>main{padding-top:var(--f4-panel-pad);min-width:0;overflow:visible}
  html[data-f4-shell] body.f4-direct-bank>.shell>.content{min-width:0;max-width:100%}
- html[data-f4-shell] body:where([style*="overflow: hidden"],[style*="overflow: clip"],.f4-account-open,.f4-resident-sheet-open)>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
+ html[data-f4-shell] body:where([style*="overflow: hidden"],[style*="overflow: clip"],.f4-account-open,.f4-resident-sheet-open,.f4-sheet-active)>:is(main,.shell,#f4-account-page):not([hidden]){overflow-y:hidden}
  html[data-f4-shell].f4p-overlay-active body>:is(main,.shell,#f4-account-page):not([hidden]),
  html[data-f4-shell] body.f4-direct-superadmin>#f4-account-page.f4-sa-drawer-open:not([hidden]){overflow-y:hidden}
  /* Form width is constrained at the actual scroll root, not at the navbar. */
@@ -613,7 +613,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  }
  @media (hover:hover) and (pointer:fine){#f4-direct-dock .f4-direct-dock-menu button:hover{background:var(--f4-nav-tint)}}
  body.f4-shared-dock.f4-account-open #f4-direct-dock:not([hidden]),html.f4p-overlay-active body.f4-shared-dock:not(.f4-sheet-dock-visible) #f4-direct-dock:not([hidden]){visibility:hidden;pointer-events:none}
- body.f4-sheet-dock-visible #f4-shell-bottom{z-index:1000}
+ body.f4-sheet-dock-visible #f4-shell-bottom{z-index:30000}
  body.f4-shared-dock.f4-sheet-dock-visible #f4-direct-dock:not([hidden]){pointer-events:none}
  html.f4-bank-auth-pending body.f4-shared-dock #f4-bank-startup{bottom:calc(var(--f4-dock-height) + var(--f4-dock-safe))}
 }

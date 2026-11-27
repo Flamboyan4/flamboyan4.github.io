@@ -8,7 +8,8 @@
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  const panelSelectors=[
   '#f4-direct-dialog > section',
-  '#f4-tx-receipt-dialog[data-scope="bank"] > .f4-tx-card',
+  '#f4-tx-receipt-dialog > .f4-tx-card',
+  '#f4-chat-sheet > .f4-chat-sheet-panel',
   '#f4-superadmin-confirm .f4-sa-confirm-panel',
   '.v21-modal:not(.v21-lightbox) > .v21-modal-card',
   '#credentialModal > .f4-bank-credential-panel',
@@ -36,7 +37,7 @@
  const selector=panelSelectors.join(',');
  const rootSelector=[
   '#f4-direct-dialog','#f4-superadmin-confirm','.v21-modal',
-  '#f4-tx-receipt-dialog',
+  '#f4-tx-receipt-dialog','#f4-chat-sheet',
   '#credentialModal','.v24-edit-overlay','.f4-activity-dialog',
   '.sa-account-shade','.f4-jersey-print-veil',
   '.tc-date-overlay','.f4-ui-dialog','#f4-work-notice',
@@ -49,12 +50,14 @@
   '.f4p-album-overlay','#modal-gateway','.f4g-comment-overlay'
  ].join(',');
  const savedHeights=new WeakMap(), originalStyles=new WeakMap(), timers=new WeakMap();
- const watched=new WeakSet(),handles=new WeakMap();
+ const watched=new WeakSet(),handles=new WeakMap(),opened=new WeakMap();
+ let openSequence=0;
  let active=null, drag=null, animating=null, refreshFrame=0, lastDragAt=-1000;
  let grip=null;
  const pickerSelector='.f4-control-overlay:not([hidden]):not(.hidden)';
  function pickerOpen(){return [...document.querySelectorAll(pickerSelector)].some(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden')}
- function closed(panel){return !panel?.isConnected||!!panel.closest('[hidden],.hidden,[inert]')||panel.matches('dialog:not([open])')||getComputedStyle(panel).display==='none'||getComputedStyle(panel).visibility==='hidden'}
+ function actuallyClosed(panel){return !panel?.isConnected||!!panel.closest('[hidden],.hidden')||panel.matches('dialog:not([open])')||getComputedStyle(panel).display==='none'}
+ function closed(panel){return actuallyClosed(panel)||!!panel.closest('[inert]')||getComputedStyle(panel).visibility==='hidden'}
  function alignHandle(panel,handle){const top=Math.max(0,panel.scrollTop||0)+'px';if(handle.style.top!==top)handle.style.top=top;}
  function ensureHandle(panel){
   let handle=handles.get(panel);
@@ -93,34 +96,39 @@
  }
  function refresh(){
   refreshFrame=0;
-  if(!media.matches){active=null;grip=null;document.body.classList.remove('f4-sheet-dock-visible');return;}
+  if(!media.matches){active=null;grip=null;document.body.classList.remove('f4-sheet-dock-visible','f4-sheet-active');return;}
   if(drag?.panel?.isConnected&&!closed(drag.panel)||animating?.panel?.isConnected&&!closed(animating.panel))return;
   if(drag){if(drag.frame)cancelAnimationFrame(drag.frame);drag.handle?.classList.remove('f4-sheet-handle-dragging');drag=null;}
   if(animating)clearTimer(animating.panel);
   const previous=active,picking=pickerOpen();
-  const lightbox=document.querySelector('#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])');
+  const lightbox=[...document.querySelectorAll('#lightbox-modal:not(.hidden):not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])')].find(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden');
   const viewing=lightbox&&lightbox.getClientRects().length&&!document.querySelector('.f4g-comment-overlay:not([hidden])');
-  let latest=null,front=null;const open=[];
+  let latest=null,front=null,frontRank=-Infinity,latestRank=-Infinity;const open=[];
+  const rank=panel=>{const root=rootOf(panel),z=Number.parseInt(getComputedStyle(root).zIndex,10)||0;return (root.matches('dialog[open]')?100000:z)*1000000+(opened.get(panel)||0)};
   for(const panel of document.querySelectorAll(selector)){
    if(!expandable(panel))continue;
    attach(panel);
-   if(closed(panel))continue;
+   if(closed(panel)){if(actuallyClosed(panel))opened.delete(panel);continue;}
+   if(!opened.has(panel))opened.set(panel,++openSequence);
    const handle=ensureHandle(panel);
    open.push({panel,handle});
    if(!visible(panel))continue;
-   latest=panel;
+   const priority=rank(panel);if(priority>=latestRank){latestRank=priority;latest=panel;}
    if(picking||viewing)continue;
    const r=panel.getBoundingClientRect(),x=Math.max(0,Math.min(window.innerWidth-1,r.left+r.width/2)),y=Math.max(0,Math.min(window.innerHeight-1,r.top+Math.min(20,r.height/2)));
    const hit=document.elementFromPoint(x,y);
-   if(hit&&panel.contains(hit))front=panel;
+   if(hit&&panel.contains(hit)&&priority>=frontRank){frontRank=priority;front=panel;}
   }
   // An anchored picker must not replace or hide the underlying sheet handle.
   // Retain the current sheet through temporary focus/viewport changes.
-  active=viewing?null:(picking&&previous&&!closed(previous)?previous:front||(previous&&!closed(previous)?previous:latest));
+  const entering=latest&&latest!==front&&(latest.getAnimations?.({subtree:false})||[]).some(a=>a.playState==='running'&&a.animationName);
+  active=viewing?null:(picking&&previous&&!closed(previous)?previous:entering?latest:front||latest);
   grip=active?handles.get(active)||null:null;
   const dock=document.getElementById('f4-direct-dock');
-  const reserve=!!active&&!lightbox&&!!dock&&!dock.hidden&&document.body.classList.contains('f4-shared-dock')&&!document.body.classList.contains('f4-account-open');
+  const keyboard=!!window.visualViewport&&window.innerHeight-window.visualViewport.height>120;
+  const reserve=!!active&&!lightbox&&!!dock&&!dock.hidden&&document.body.classList.contains('f4-shared-dock')&&!document.body.classList.contains('f4-account-open')&&!(active.matches('.f4-chat-sheet-panel')&&keyboard);
   document.body.classList.toggle('f4-sheet-dock-visible',reserve);
+  document.body.classList.toggle('f4-sheet-active',!!active);
   for(const {panel,handle} of open){
    const isActive=panel===active&&!picking&&!viewing;
    const tab=isActive?'0':'-1';if(handle.getAttribute('tabindex')!==tab)handle.setAttribute('tabindex',tab);
@@ -159,7 +167,8 @@
   savedHeights.delete(panel);
  }
  function resetIfClosed(panel){
-  if(closed(panel)){
+  if(actuallyClosed(panel)){
+   opened.delete(panel);
    clearPanel(panel);
    if(active===panel){active=null;grip=null;}
   }
@@ -193,6 +202,7 @@
    if(drag?.panel===panel||animating?.panel===panel)return;
    requestRefresh();
   });
+  panel.addEventListener('animationend',requestRefresh);
   if(visible(panel)&&media.matches)ensureHandle(panel);
   const details=panel.closest('details');
   if(details)observe(details,()=>resetIfClosed(panel));
@@ -214,6 +224,7 @@
    panel.matches('.f4-bank-credential-panel')?'[onclick*="closeCredential"]':
    panel.matches('.v21-modal-card')?'.v21-close':
    panel.matches('.f4-tx-card')?'.f4-tx-close':
+   panel.matches('.f4-chat-sheet-panel')?'.f4-chat-sheet-close':
    panel.matches('.v24-edit-card')?'#v24Close':
    panel.matches('.f4-activity-dialog-panel')?'.f4-activity-dialog-close':
    panel.matches('.f4-jersey-print-dialog')?'.f4-jersey-print-cancel':
@@ -305,6 +316,11 @@
     panel.classList.toggle('f4-sheet-expanded',expanded);
     panel.classList.remove('f4-sheet-settling','f4-sheet-dismissing');
     panel.style.removeProperty('will-change');
+    if(!expanded){
+     // Return to the natural collapsed layout so dynamic forms can grow/shrink.
+     for(const [k,value,priority] of originalStyles.get(panel)||[]){if(!['height','min-height','max-height','flex-shrink','transform'].includes(k))continue;if(value)panel.style.setProperty(k,value,priority);else panel.style.removeProperty(k);}
+     savedHeights.delete(panel);
+    }
    }
    handle.style.removeProperty('transition');
    handle.style.removeProperty('transform');
@@ -323,7 +339,7 @@
  function exitDown(panel,pose){
   const p=pose||prepare(panel);if(p)animatePose(p,'dismiss');
  }
- const headerSelector='.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header';
+ const headerSelector='.f4-tx-top,.f4-chat-sheet-head,.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header';
  function begin(event){
   if(!media.matches||drag||!active||!grip||!visible(active)||pickerOpen())return;
   if(event.pointerType==='mouse'&&event.button!==0)return;
@@ -421,5 +437,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261127-sheet-anchor-motion-v113',refresh:requestRefresh,sync(panel){if(!media.matches)return;if(panel)attach(panel);if(refreshFrame)cancelAnimationFrame(refreshFrame);refresh();}};
+ window.F4MobileSheets={version:'20261127-shared-sheet-lifecycle-v119',refresh:requestRefresh,sync(panel){if(!media.matches)return;if(panel)attach(panel);if(refreshFrame)cancelAnimationFrame(refreshFrame);refresh();}};
 })();

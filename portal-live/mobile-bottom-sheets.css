@@ -270,7 +270,7 @@
  }
  body .f4-sheet-draggable{box-sizing:border-box}
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
-  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
+  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
   .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,
@@ -282,7 +282,7 @@
   padding-top:32px
  }
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
-  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
+  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
   .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,
@@ -294,13 +294,13 @@
   content:none;display:none
  }
  .f4-sheet-draggable>.f4-sheet-handle:not([hidden]){
-  position:absolute;inset:0 0 auto;width:100%;height:40px;
+  position:absolute;inset:0 0 auto;width:100%;height:30px;
   display:flex;align-items:center;justify-content:center;
   border:0;padding:0;margin:0;background:transparent;
   touch-action:none;user-select:none;-webkit-user-select:none;
   cursor:grab;z-index:8;box-sizing:border-box
  }
- .f4-sheet-draggable :is(.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header){touch-action:none;cursor:grab}
+ .f4-sheet-draggable :is(.f4-tx-top,.f4-chat-sheet-head,.f4p-album-head,.rp-history-head,.f4-resident-sheet-top,.f4g-head,.f4-ui-dialog-header,.f4-activity-dialog-header,.v21-modal-header){touch-action:none;cursor:grab}
  .f4-sheet-draggable>.f4-sheet-handle::before{
   content:"";display:block;width:42px;height:5px;
   border-radius:99px;background:#c5cbd2;
@@ -319,7 +319,7 @@
   height:calc(100dvh - 10px)
  }
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
-  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
+  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
   .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,.f4-pm-dialog,
@@ -372,7 +372,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
    Gesture sizing is controlled by the shared panel controller. */
 @media (max-width:1023px) {
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
-  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
+  #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
   .f4-activity-dialog-panel,.sa-account-modal,
   .f4-jersey-print-dialog,.tc-date-dialog,.f4p-album-card,.f4-pm-dialog,
@@ -397,23 +397,30 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   content:"";display:block;width:42px;height:4px;margin:-10px auto 17px;
   border-radius:99px;background:#c9d8d0
  }
- body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"]{
-  align-items:flex-end;justify-content:center;padding:0
+ body #f4-tx-receipt-dialog:not([hidden]){
+  align-items:flex-end;justify-content:center;padding:0;overflow:hidden
  }
- body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card{
-  width:100%;max-width:100%;min-width:0;max-height:91dvh;
-  border-radius:22px 22px 0 0;overflow:hidden;animation:f4-sheet-up .23s ease-out
+ body #f4-tx-receipt-dialog>.f4-tx-card{
+  width:100%;max-width:100%;min-width:0;min-height:0;max-height:var(--f4-sheet-collapsed-height,72dvh);
+  border-radius:20px 20px 0 0;overflow:hidden;animation:f4-sheet-up .23s ease-out
  }
- body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"] .f4-tx-image-wrap{
-  min-height:0;overscroll-behavior:contain
- }
- body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"] .f4-tx-actions{
-  padding-bottom:calc(13px + env(safe-area-inset-bottom,0px))
- }
+ body #f4-tx-receipt-dialog>.f4-tx-card.f4-sheet-draggable{padding-top:24px}
+ body #f4-tx-receipt-dialog .f4-tx-top{padding:6px 12px 9px;flex:none}
+ body #f4-tx-receipt-dialog .f4-tx-top strong{font-size:15px;line-height:1.35;min-width:0}
+ body #f4-tx-receipt-dialog .f4-tx-top .f4-tx-close{width:32px;height:32px;min-height:0;padding:0;flex:none;border:0;background:transparent}
+ body #f4-tx-receipt-dialog .f4-tx-image-wrap{min-height:0;padding:8px;overscroll-behavior:contain;overflow-anchor:none}
+ body #f4-tx-receipt-dialog .f4-tx-actions{padding:8px 10px;gap:6px;flex:none}
+ body #f4-tx-receipt-dialog .f4-tx-actions button{min-width:0;min-height:40px;padding:6px 5px;gap:4px;font-size:12px;font-weight:600;white-space:nowrap;flex:1 1 0}
+ body #f4-tx-receipt-dialog .f4-tx-actions svg{width:16px;height:16px;flex:none}
+ body #f4-tx-receipt-dialog .f4-tx-admin-actions{flex:none;padding:8px 10px;gap:6px}
+ body #f4-chat-sheet>.f4-chat-sheet-panel.f4-sheet-draggable{position:relative;padding-top:24px}
+ body #f4-chat-sheet[data-keyboard="true"]{--f4-sheet-safe-bottom:0px;--f4-sheet-available-height:calc(var(--f4-chat-vv-height,100dvh) - 8px);--f4-sheet-collapsed-height:var(--f4-sheet-available-height)}
+ body #f4-chat-sheet .f4-chat-sheet-head{padding-top:4px}
+ body #f4-chat-sheet .f4-chat-sheet-grip{display:none}
 }
 @media(max-width:1023px) and (prefers-reduced-motion:reduce){
  body.f4-direct-bank dialog.f4-bank-sheet-modal[open],
- body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card{animation:none}
+ body #f4-tx-receipt-dialog>.f4-tx-card{animation:none}
 }
 
 /* Bank Sampah: allow the same shared drag control on its native dialogs. */
@@ -425,9 +432,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   padding:23px 18px calc(18px + env(safe-area-inset-bottom,0px));
   border:0;border-radius:22px 22px 0 0;
   box-shadow:0 -14px 40px rgba(14,42,32,.22);
-  animation:f4-sheet-up .23s ease-out
- ;
-
+  animation:f4-sheet-up .23s ease-out;
   max-height:calc(100dvh - 8px);min-width:0;overflow-x:hidden
  }
  body.f4-direct-bank .f4-control-panel.f4-sheet-draggable,
@@ -442,22 +447,21 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
 @media(max-width:1023px){
  html[data-f4-shell] body{
   --f4-sheet-safe-bottom:0px;
-  --f4-sheet-end-space:24px;
+  --f4-sheet-end-space:env(safe-area-inset-bottom,0px);
   --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - 8px);
   --f4-sheet-collapsed-height:calc(var(--f4-sheet-available-height) * .72);
  }
- html[data-f4-shell] body.f4-sheet-dock-visible{--f4-sheet-safe-bottom:var(--f4-shell-footer,0px);--f4-sheet-end-space:0px}
+ html[data-f4-shell] body.f4-shared-dock:not(.f4-account-open):has(#f4-direct-dock:not([hidden])):not(:has(.f4p-photo-overlay:not([hidden]),.v21-lightbox:not(.hidden):not([hidden]),#lightbox-modal:not(.hidden):not([hidden]))){--f4-sheet-safe-bottom:var(--f4-shell-footer,0px);--f4-sheet-end-space:0px}
  html[data-f4-shell] body :is(#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
   .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
   #modal-cetak-kas,#modal-keuangan,#modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran,
   #modal-rekening,#modal-edit,.edit-modal,#modal-koreksi-migrasi,#modal-doc-rapat,.f4p-album-overlay,
-  #modal-gateway,.f4g-comment-overlay).f4-sheet-overlay-root{
-  box-sizing:border-box;padding-bottom:var(--f4-sheet-safe-bottom);
+  #modal-gateway,.f4g-comment-overlay,#f4-chat-sheet,.f4-resident-sheet-overlay).f4-sheet-overlay-root{
+  box-sizing:border-box;padding-bottom:var(--f4-sheet-safe-bottom);overflow:hidden;
  }
  html[data-f4-shell] body :is(#f4-superadmin-confirm .f4-sa-confirm-panel,#credentialModal>.f4-bank-credential-panel,#f4-tx-receipt-dialog>.f4-tx-card,#modal-edit .f4-book-edit-card,#modal-doc-rapat>div,#modal-gateway>div,#modal-event-detail>div,#modal-arisan>div,#modal-cetak-kas>div,#modal-keuangan>div,#modal-jersey>div,#modal-dokumentasi>div,#modal-gallery-grid>div,#modal-saran>div,#modal-rekening>.f4-account-dialog,#modal-koreksi-migrasi>div,.f4-sheet-draggable):not(dialog).f4-sheet-draggable{
   max-height:var(--f4-sheet-collapsed-height);
-  padding-bottom:var(--f4-sheet-end-space);
  }
  html[data-f4-shell] body :is(#modal-edit>.f4-book-edit-center:has(.f4-book-edit-card.f4-sheet-expanded),
   #modal-edit>.f4-book-edit-center:has(.f4-sheet-dragging)){
@@ -467,11 +471,12 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
  html[data-f4-shell] body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
   bottom:var(--f4-sheet-safe-bottom);
   max-height:var(--f4-sheet-collapsed-height);
-  padding-bottom:var(--f4-sheet-end-space)
+  padding-bottom:calc(18px + var(--f4-sheet-end-space))
  }
  html[data-f4-shell] body .f4g-comment-overlay>.f4g-panel.f4-sheet-draggable{
-  position:relative;padding-top:30px;
+  position:relative;padding-top:24px;
   max-height:var(--f4-sheet-collapsed-height);
-  height:min(var(--f4-sheet-collapsed-height),660px)
+  height:min(var(--f4-sheet-collapsed-height),660px);
+  animation:f4-sheet-up .23s ease-out
  }
 }

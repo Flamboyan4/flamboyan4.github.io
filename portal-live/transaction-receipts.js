@@ -29,23 +29,18 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
    '#f4-tx-receipt-dialog[hidden]{display:none}' +
    '#f4-tx-receipt-dialog{position:fixed;inset:0;z-index:2300;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(17,24,39,.68)}' +
    '#f4-tx-receipt-dialog .f4-tx-card{width:min(100%,520px);max-height:min(92dvh,920px);display:flex;flex-direction:column;overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 20px 60px #1118;color:#1f2937}' +
-   '#f4-tx-receipt-dialog .f4-tx-top{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;gap:10px}' +
+   '#f4-tx-receipt-dialog .f4-tx-top{flex:none;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;gap:10px}' +
    '#f4-tx-receipt-dialog .f4-tx-top strong{font-size:16px}' +
    '#f4-tx-receipt-dialog button{font:inherit;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid #d1d5db;border-radius:11px;background:#fff;color:#334155;min-height:42px;padding:8px 12px;cursor:pointer}' +
-   '#f4-tx-receipt-dialog .f4-tx-image-wrap{overflow:auto;background:#f5f3ff;flex:1;min-height:0;padding:14px;text-align:center}' +
+   '#f4-tx-receipt-dialog .f4-tx-image-wrap{overflow:auto;background:#f5f3ff;flex:1 1 auto;min-height:0;overflow-anchor:none;padding:14px;text-align:center}' +
    '#f4-tx-receipt-dialog img{display:block;width:min(100%,410px);height:auto;margin:0 auto;border-radius:7px}' +
    '#f4-tx-receipt-dialog .f4-tx-admin-actions{display:flex;gap:8px;flex-wrap:wrap;padding:11px 16px;border-top:1px solid #e6ecdf;background:#f9fbf8}' +
    '#f4-tx-receipt-dialog .f4-tx-admin-actions button{flex:1 1 140px;min-height:40px;background:#fff7da;border-color:#e6dfb6;color:#174630;font-size:12px;font-weight:750}' +
-   '#f4-tx-receipt-dialog .f4-tx-actions{display:flex;gap:9px;padding:12px 16px;justify-content:flex-end;border-top:1px solid #e5e7eb}' +
+   '#f4-tx-receipt-dialog .f4-tx-actions{flex:none;display:flex;gap:9px;padding:12px 16px;justify-content:flex-end;border-top:1px solid #e5e7eb}' +
    '#f4-tx-receipt-dialog .f4-tx-actions button{flex:1}' +
    '#f4-tx-receipt-dialog .f4-tx-primary{background:#5b21b6;color:#fff;border-color:#5b21b6}' +
    '#f4-tx-receipt-dialog[data-scope=bank] .f4-tx-primary{background:#157347;border-color:#157347}' +
-   '#f4-tx-receipt-dialog button:focus-visible{outline:3px solid #a78bfa;outline-offset:2px}' +
-   '@media(max-width:640px){#f4-tx-receipt-dialog{align-items:flex-end;padding:0}' +
-   '#f4-tx-receipt-dialog .f4-tx-card{width:100%;max-height:94dvh;border-radius:20px 20px 0 0}' +
-   '#f4-tx-receipt-dialog .f4-tx-image-wrap{padding:8px;background:#fafafa}' +
-   '#f4-tx-receipt-dialog .f4-tx-top{padding-top:18px}' +
-   '#f4-tx-receipt-dialog .f4-tx-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}}';
+   '#f4-tx-receipt-dialog button:focus-visible{outline:3px solid #a78bfa;outline-offset:2px}';
   __f4.globals.document.head.appendChild(style);
   const dialog=__f4.globals.document.createElement('div');
   dialog.id='f4-tx-receipt-dialog';dialog.hidden=true;dialog.setAttribute('role','dialog');
@@ -53,7 +48,7 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
   dialog.innerHTML='<section class="f4-tx-card"><div class="f4-tx-top"><strong id="f4-tx-receipt-heading">Bukti transaksi</strong>'+
    '<button class="f4-tx-close" type="button" aria-label="Tutup" title="Tutup">'+svgIcon('x')+'</button></div>'+
    '<div class="f4-tx-image-wrap"><img id="f4-tx-receipt-preview" alt="Pratinjau bukti transaksi dalam format JPG"></div>'+
-   '<div class="f4-tx-actions"><button class="f4-tx-pdf" type="button">PDF</button><button class="f4-tx-download" type="button">'+svgIcon('download')+' Simpan JPG</button>'+
+   '<div class="f4-tx-actions"><button class="f4-tx-pdf" type="button">PDF</button><button class="f4-tx-download" type="button">'+svgIcon('download')+' JPG</button>'+
    '<button class="f4-tx-share f4-tx-primary" type="button">'+svgIcon('share')+' Bagikan</button></div></section>';
   dialog.addEventListener('click',e=>{if(e.target===dialog)close()});
   dialog.querySelector('.f4-tx-close').onclick=close;
@@ -64,11 +59,13 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
  }
  function close(){
   const d=__f4.globals.document.getElementById('f4-tx-receipt-dialog');
-  if(d){
+  if(d&&!d.hidden){
    d.hidden=true;
+   d.querySelector('.f4-tx-image-wrap').scrollTop=0;
+   __f4.globals.document.body.style.overflow=priorOverflow;
+   __f4.window.F4MobileSheets?.refresh?.();
    d.querySelector('.f4-tx-admin-actions')?.remove?.();
   }
-  __f4.globals.document.body.style.overflow=priorOverflow;
   if(url){__f4.globals.URL.revokeObjectURL(url);url='';}
   blob=null;
  }
@@ -325,7 +322,8 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
   priorOverflow=__f4.globals.document.body.style.overflow||'';
   dialog.dataset.scope=record.scope==='bank'?'bank':'book';
   dialog.querySelector('#f4-tx-receipt-heading').textContent=record.title||'Bukti Transaksi';
-  dialog.querySelector('#f4-tx-receipt-preview').src=url;
+  const preview=dialog.querySelector('#f4-tx-receipt-preview'),wrap=dialog.querySelector('.f4-tx-image-wrap');
+  preview.width=canvas.width;preview.height=canvas.height;wrap.scrollTop=0;preview.src=url;
   // Optional operator actions are controls alongside the preview, NEVER
   // printed into the JPG and NEVER persisted in the transaction itself.
   if(record.scope==='bank'&&__f4.globals.Array.isArray(record.adminActions)&&record.adminActions.length){
@@ -349,7 +347,8 @@ window.F4PortalRuntime.define("/portal-live/transaction-receipts.js",function(__
   }
   dialog.hidden=false;
   __f4.globals.document.body.style.overflow='hidden';
-  dialog.querySelector('.f4-tx-close').focus();
+  __f4.window.F4MobileSheets?.sync?.(dialog.querySelector('.f4-tx-card'));
+  wrap.scrollTop=0;dialog.querySelector('.f4-tx-close').focus({preventScroll:true});
  }
  __f4.globals.document.addEventListener('keydown',e=>{const modal=__f4.globals.document.getElementById('f4-tx-receipt-dialog');if(e.key==='Escape'&&modal&&!modal.hidden)close()});
  __f4.window.addEventListener('pagehide',close);

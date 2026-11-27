@@ -547,6 +547,7 @@ __f4.expose("loadProgresBankSampahIndex",()=>loadProgresBankSampahIndex,value=>l
       const viewport=__f4.window.visualViewport,offset=viewport?.offsetTop||0,height=viewport?.height||__f4.window.innerHeight;
       chatSheet.style.setProperty('--f4-chat-vv-top',offset+'px');
       chatSheet.style.setProperty('--f4-chat-vv-height',height+'px');
+      chatSheet.dataset.keyboard=(0,__f4.globals.String)(__f4.window.innerHeight-height>120);
       const active=chatDoc.activeElement;
       if(active&&chatContent.contains(active)){
         const r=active.getBoundingClientRect(),p=chatContent.getBoundingClientRect();
@@ -573,6 +574,7 @@ __f4.expose("loadProgresBankSampahIndex",()=>loadProgresBankSampahIndex,value=>l
       if(!chatSheet.hidden)return;
       chatPreviousOverflow=chatDoc.body.style.overflow;
       chatContent.append(chatCompose);chatSheet.hidden=false;
+      __f4.window.F4MobileSheets?.sync?.(chatPanel);
       chatSection.dataset.composeOpen='true';chatToggle.setAttribute('aria-expanded','true');
       chatToggle.querySelector('span').textContent='Tutup';
       chatDoc.body.style.overflow='hidden';
@@ -584,7 +586,7 @@ __f4.expose("loadProgresBankSampahIndex",()=>loadProgresBankSampahIndex,value=>l
         (name?.value.trim()?chatDoc.getElementById('komentar-pesan'):name)?.focus({preventScroll:true});
       }
     }
-    chatToggle?.addEventListener('click',()=>{if(chatSheet.hidden)f4SetChatCompose(true,true);else closeChatSheet()});
+    chatToggle?.addEventListener('click',()=>{if(chatSheet.hidden)f4SetChatCompose(true,false);else closeChatSheet()});
     chatSheet.querySelector('.f4-chat-sheet-close').onclick=()=>closeChatSheet();
     chatSheet.addEventListener('click',e=>{if(e.target===chatSheet)closeChatSheet()});
     chatDoc.addEventListener('keydown',e=>{if(chatSheet.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();closeChatSheet()}else if(e.key==='Tab'){const nodes=[...chatPanel.querySelectorAll('button:not([disabled]),input:not([tabindex="-1"]),textarea')].filter(el=>el.getClientRects().length);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&(chatDoc.activeElement===first||!chatPanel.contains(chatDoc.activeElement))){e.preventDefault();last?.focus()}else if(!e.shiftKey&&(chatDoc.activeElement===last||!chatPanel.contains(chatDoc.activeElement))){e.preventDefault();first?.focus()}}},true);
