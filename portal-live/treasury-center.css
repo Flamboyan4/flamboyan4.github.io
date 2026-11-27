@@ -96,6 +96,8 @@ body:has(#f4-account-page){
 .tc-report-checks label{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:650;cursor:pointer}
 .tc-report-checks input{accent-color:var(--tc-accent);width:15px;height:15px;margin:0;flex:none}
 .tc-report-filter{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.tc-report-filter .f4-control-trigger{height:var(--f4-control-height,44px);min-height:var(--f4-control-height,44px);padding-block:0}
+.tc-report-filter .f4-control-value{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
 .tc-report-footer{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
 .tc-report-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-left:auto}
 @media(max-width:760px){

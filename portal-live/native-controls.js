@@ -113,11 +113,11 @@ function action(field,value){
 }
 function selectPicker(field,trigger){
  const resident=isResident(field);
- const options=[...field.options].map(o=>({value:o.value,label:o.textContent,disabled:o.disabled||o.parentElement?.disabled,meta:resident&&o.value?residentMeta(field,o):null}));
+ const options=[...field.options].map(o=>({value:o.value,label:o.textContent,fullLabel:o.title,disabled:o.disabled||o.parentElement?.disabled,meta:resident&&o.value?residentMeta(field,o):null}));
  const dropdown=true;
  const goods=!!field.closest('#saleItems,#setBarang,#f4BankOwnLines');
  const panel=start(trigger,field.getAttribute('aria-label')||field.closest('label')?.querySelector('span')?.textContent||'Pilih pilihan',
-  dropdown,{kind:'select',minWidth:resident?220:0,resident});
+  dropdown,{kind:'select',minWidth:Math.max(resident?220:0,Number(field.dataset.f4PickerMinWidth)||0),resident});
  if(resident||options.length>10){
   const searchRow=__f4.globals.document.createElement('div');searchRow.className='f4-bank-picker-search-row';
   const input=__f4.globals.document.createElement('input');input.type='search';input.className='f4-control-search';
@@ -134,7 +134,7 @@ function selectPicker(field,trigger){
   for(const o of matching){
    const b=__f4.globals.document.createElement('button');b.type='button';b.className='f4-control-choice';
    b.setAttribute('role','option');b.setAttribute('aria-selected',(0,__f4.globals.String)(o.value===field.value));
-   b.disabled=o.disabled;
+   b.disabled=o.disabled;if(o.fullLabel){b.title=o.fullLabel;b.setAttribute('aria-label',o.fullLabel)}
    const label=__f4.globals.document.createElement('span');label.textContent=o.label||'—';
    const mark=__f4.globals.document.createElement('span');mark.className='f4-control-check';
    mark.innerHTML=o.value===field.value?'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>':'';
@@ -264,7 +264,7 @@ function enhance(field){
   if(label.textContent!==value)label.textContent=value;
   button.toggleAttribute('data-f4-placeholder',empty);
   if(caption)button.setAttribute('aria-label',empty?caption:caption+': '+value);
-  if(button.title!==value)button.title=value;
+  const fullValue=option?.title||value;if(button.title!==fullValue)button.title=fullValue;
  }
  button.onclick=()=>{sync();if(field.disabled)return;field.matches('select')?selectPicker(field,button):calendar(field,button)};
  button.addEventListener('focus',sync);

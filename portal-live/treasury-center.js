@@ -82,7 +82,7 @@ function fields(catalog,fundId){
 }
 function select(options,cls=""){
  const s=el("select",__f4.globals.undefined,cls);
- options.forEach(o=>{const opt=el("option",o.name);opt.value=o.id;s.append(opt)});
+ options.forEach(o=>{const opt=el("option",o.name);opt.value=o.id;if(o.fullName)opt.title=o.fullName;s.append(opt)});
  return s;
 }
 function field(label,node,cls=""){
@@ -391,10 +391,18 @@ function buildReportOptions(target,data){
   const wrap=el("label");wrap.append(input,el("span",label));checks.append(wrap);toggles[key]=input;
  }
  const grid=el("div",__f4.globals.undefined,"tc-report-filter");
- const fund=select([{id:"",name:"Semua pos dana"},...data.catalog.funds.map(f=>({id:f.id,name:f.name}))]);fund.value=reportOptions.fund;
- const kind=select([{id:"",name:"Semua transaksi"},...Object.entries(kindLabels).filter(([id])=>id!=="opening").map(([id,name])=>({id,name}))]);kind.value=reportOptions.kind;
+ const shortFund=name=>{
+  const suffix=name.match(/^Bank Sampah\s*[—–-]\s*(.+)$/i)?.[1];
+  if(!suffix)return name;
+  const names={"hak warga":"Warga","kas pengelola":"Pengelola","bagian kas lorong":"Lorong","cadangan":"Cadangan"};
+  return "BS "+(names[suffix.trim().toLowerCase()]||suffix);
+ };
+ const shortKinds={incoming:"Masuk",outgoing:"Keluar",move:"Pindah lokasi",allocation:"Pindah pos"};
+ const fund=select([{id:"",name:"Semua pos"},...data.catalog.funds.map(f=>({id:f.id,name:shortFund(f.name),fullName:f.name}))]);fund.value=reportOptions.fund;
+ const kind=select([{id:"",name:"Semua jenis"},...Object.entries(kindLabels).filter(([id])=>id!=="opening").map(([id,name])=>({id,name:shortKinds[id]||name,fullName:name}))]);kind.value=reportOptions.kind;
+ fund.dataset.f4PickerMinWidth=kind.dataset.f4PickerMinWidth="180";
  const from=el("input"),to=el("input");from.type=to.type="date";from.value=reportOptions.from;to.value=reportOptions.to;
- grid.append(field("Pos dana",fund),field("Jenis transaksi",kind),field("Transaksi dari",from),field("Transaksi sampai",to));
+ grid.append(field("Pos dana",fund),field("Jenis",kind),field("Dari",from),field("Sampai",to));
  from.title=to.title="Filter tanggal hanya berlaku untuk riwayat transaksi.";
  top.append(checks);
  const actions=el("div",__f4.globals.undefined,"tc-report-actions"),msg=el("p","","tc-status");msg.setAttribute("role","status");
