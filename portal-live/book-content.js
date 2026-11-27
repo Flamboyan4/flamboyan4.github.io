@@ -256,12 +256,66 @@ function f4IuranManualPeriod(){
  f4IuranPeriodNotice('');
  updatePreview();
 }
+// Desktop-only identity preview. Independent of payment calculation and writes.
+const f4IuranProfileMedia=__f4.globals.matchMedia('(min-width:1024px)');
+const f4IuranProfileURL=__f4.globals.URL;
+let f4IuranProfileSeq=0,f4IuranProfilePhoto='';
+function f4IuranClearProfilePhoto(){
+ if(f4IuranProfilePhoto){f4IuranProfileURL.revokeObjectURL(f4IuranProfilePhoto);f4IuranProfilePhoto=''}
+}
+__f4.cleanup(()=>{++f4IuranProfileSeq;f4IuranClearProfilePhoto()});
+async function f4IuranProfile(id){
+ const seq=++f4IuranProfileSeq,d=__f4.globals.document;
+ const field=name=>d.getElementById('iuran-profile-'+name);
+ const photo=field('photo');if(!photo)return;
+ photo.hidden=true;photo.removeAttribute('src');f4IuranClearProfilePhoto();
+ const w=f4IuranProfileMedia.matches?DATA.warga.find(x=>String(x.idWarga)===String(id)):null;
+ const show=(name,value)=>{field(name).textContent=value};
+ show('name',w?.nama||'Pilih warga');field('name').title=w?.nama||'';
+ show('house',w?[w.blok,w.noRumah].filter(Boolean).join('/')||'—':'Nomor rumah —');
+ show('stay',w?.statusTinggal||'—');show('phone',w?.noHP||'—');
+ for(const k of ['loan','fine']){show(k,w?'Memeriksa…':'—');field(k).dataset.due='false'}
+ show('note',w?'Memeriksa tanggungan…':'Pilih nama warga untuk memeriksa.');
+ if(!w)return;
+ const current=()=>seq===f4IuranProfileSeq&&photo.isConnected&&f4IuranProfileMedia.matches&&String(d.getElementById('inp-warga')?.value)===String(id);
+ const read=async path=>{
+  const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id'+path,{credentials:'include',cache:'no-store',mode:'cors'});
+  const data=await response.json();if(!response.ok||data.ok!==true)throw Error(data.error||'Data tidak tersedia.');return data;
+ };
+ // Photos use the existing authenticated, member-ID-bound avatar endpoint.
+ if(w.memberId){void (async()=>{try{
+  const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/admin/bank/member-avatar?memberId='+encodeURIComponent(w.memberId),{credentials:'include',cache:'no-store',mode:'cors'});
+  if(!response.ok)return;const blob=await response.blob();if(!current()||!blob.type.startsWith('image/'))return;
+  const url=f4IuranProfileURL.createObjectURL(blob);f4IuranProfilePhoto=url;photo.onload=()=>{if(current()&&photo.src===url)photo.hidden=false};photo.onerror=()=>{if(current())photo.hidden=true};photo.src=url;
+ }catch{}})()}
+ const today=new __f4.globals.Date(__f4.globals.Date.now()+7*60*60*1000).toISOString().slice(0,10);
+ const debts=await __f4.globals.Promise.allSettled([
+  read('/api/bookkeeping/pinjaman?limit=200').then(r=>{
+   if(!Array.isArray(r.data)||r.data.length>=200)throw Error('Daftar pinjaman belum lengkap.');
+   const rows=r.data.filter(x=>String(x.payerId)===String(id)&&!['batal','dibatalkan'].includes(String(x.status).toLowerCase()));
+   if(rows.some(x=>x.perluRekonsiliasi||!Number.isSafeInteger(x.sisaRp)||x.sisaRp<0))throw Error('Pinjaman perlu diperiksa.');
+   return rows.filter(x=>String(x.status).toLowerCase()==='aktif').reduce((n,x)=>n+x.sisaRp,0);
+  }),
+  read('/api/bookkeeping/iuran/fines?'+new __f4.globals.URLSearchParams({payerId:String(id),tanggal:today})).then(r=>{
+   if(!Number.isSafeInteger(r.totalDendaRp)||r.totalDendaRp<0)throw Error('Denda perlu diperiksa.');return r.totalDendaRp;
+  })
+ ]);
+ if(!current())return;
+ let failed=false,hasDue=false;
+ ['loan','fine'].forEach((k,i)=>{
+  const result=debts[i];if(result.status!=='fulfilled'){show(k,'Perlu cek');failed=true;return}
+  show(k,rupiah(result.value));field(k).dataset.due=String(result.value>0);if(result.value>0)hasDue=true;
+ });
+ show('note',failed?'Sebagian data belum dapat dipastikan.':hasDue?'Di luar tagihan iuran.':'Tidak ada tanggungan tercatat.');
+}
+f4IuranProfileMedia.addEventListener('change',()=>{void f4IuranProfile(__f4.globals.document.getElementById('inp-warga')?.value||'')});
 async function pilihWargaIuran(){
  const ticket=++F4_IURAN_SUGGEST_SEQ;
  ++F4_IURAN_PREVIEW_SEQUENCE;
  F4_IURAN_PREVIEW=null;
  const id=(0,__f4.globals.String)(__f4.globals.document.getElementById('inp-warga')?.value||'');
  const bulan=__f4.globals.document.getElementById('inp-bulan'),tahun=__f4.globals.document.getElementById('inp-tahun');
+ void f4IuranProfile(id);
  F4_IURAN_PERIOD_BLOCKED=!!id;
  if(!id){
    f4IuranPeriodNotice('');
@@ -437,6 +491,7 @@ function resetIuranFormAfterSave(){
   F4_IURAN_PERIOD_BLOCKED=false;
   const now=new __f4.globals.Date();
   const warga=__f4.globals.document.getElementById('inp-warga');if(warga)warga.value='';
+  void f4IuranProfile('');
   const tanggal=__f4.globals.document.getElementById('inp-tanggal');if(tanggal)tanggal.value=now.toISOString().slice(0,10);
   const metode=__f4.globals.document.getElementById('inp-metode');if(metode)metode.value='Cash';
   const bulan=__f4.globals.document.getElementById('inp-bulan');if(bulan)bulan.value=(0,__f4.globals.String)(now.getMonth()+1);

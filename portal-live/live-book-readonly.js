@@ -39,7 +39,7 @@ window.F4PortalRuntime.define("/portal-live/live-book-readonly.js",function(__f4
     const house=lookup.get(r.household_id)||{};
     const quantity=obligations.get((0,__f4.globals.String)(r.payer_id))||{};
     return {idWarga:(0,__f4.globals.String)(r.payer_id),idRumah:r.household_id,noUrutRumah:house.noUrut||0,
-      nama:r.nama||'',blok:house.blok||'',noRumah:house.noRumah||'',
+      nama:r.nama||'',memberId:r.member_id||'',blok:house.blok||'',noRumah:house.noRumah||'',
       statusTinggal:r.status_tinggal||'',statusAktif:r.active?'Ya':'Tidak',
       qtyIuranBulanan:n(quantity.qty_iuran_bulanan??r.qty_iuran_bulanan),
       qtyKebersihan:n(quantity.qty_kebersihan??r.qty_kebersihan),
