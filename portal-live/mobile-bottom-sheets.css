@@ -1,7 +1,7 @@
 /* Pola popup HP Flamboyan 4. PC tetap dialog tengah. Tanpa important. */
 #credentialModal{position:fixed;inset:0;z-index:650;display:grid;place-items:center;padding:18px;background:rgba(17,33,26,.74)}
 #credentialModal>.f4-bank-credential-panel{width:min(420px,100%);max-height:90dvh;overflow:auto;box-shadow:0 16px 48px #18271a55}
-@media(max-width:767px){
+@media(max-width:1023px){
  #f4-direct-dialog{inset:var(--f4-login-visible-top,0px) 0 auto;height:var(--f4-login-visible-height,100dvh);align-items:end;justify-items:stretch;padding:0;background:rgba(15,25,38,.54)}
  #f4-direct-dialog section{--f4-sheet-available-height:calc(var(--f4-login-visible-height,100dvh) - 10px);width:100%;max-height:var(--f4-sheet-available-height);overflow-y:auto;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -15px 40px #15233933;animation:f4-sheet-up .23s ease-out}
  #f4-direct-dialog section:before{content:"";display:block;margin:-12px auto 18px;width:42px;height:4px;border-radius:4px;background:#d5dbe3}
@@ -261,10 +261,10 @@
 }
 
 
-.f4-sheet-handle{display:none}
+.f4-sheet-handle,.f4-sheet-handle[hidden]{display:none}
 /* Pegangan interaktif untuk setiap bottom sheet. Hanya aktif di HP.
    Handle ditambahkan di akhir konten agar selector :first-child lama tidak berubah. */
-@media(max-width:767px){
+@media(max-width:1023px){
  body .f4-sheet-draggable:not(dialog):not(.f4-user-year-popover){
   position:relative
  }
@@ -293,7 +293,7 @@
   #modal-gallery-grid>div,#modal-saran>div).f4-sheet-draggable::before{
   content:none;display:none
  }
- .f4-sheet-draggable>.f4-sheet-handle{
+ .f4-sheet-draggable>.f4-sheet-handle:not([hidden]){
   position:absolute;inset:0 0 auto;width:100%;height:30px;
   display:flex;align-items:center;justify-content:center;
   border:0;padding:0;margin:0;background:transparent;
@@ -351,7 +351,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   display:none;
   pointer-events:none;
  }
-@media (max-width:767px) {
+@media (max-width:1023px) {
  
  /* Fullscreen photo viewers must completely cover the sheet underneath. */
  body:has(#lightbox-modal:not(.hidden),.v21-lightbox:not(.hidden):not([hidden]),.f4p-photo-overlay:not([hidden])):not(:has(.f4g-comment-overlay:not([hidden]))) > .f4-sheet-handle {display:none}
@@ -381,7 +381,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
 
 /* v10: after the first gesture the original entrance animation must not restart.
    During all gestures only transform is composited, never panel height. */
-@media (max-width:767px) {
+@media (max-width:1023px) {
  body :is(#f4-direct-dialog section,#f4-superadmin-confirm .f4-sa-confirm-panel,
   #credentialModal .f4-bank-credential-panel,#f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card,#modal-edit .f4-book-edit-card,
   #modal-doc-rapat>div,#modal-gateway>div,.v21-modal-card,.v24-edit-card,
@@ -398,7 +398,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   will-change:transform;
   backface-visibility:hidden;
  }
- body > .f4-sheet-handle {
+ body > .f4-sheet-handle:not([hidden]) {
   position:fixed;
   display:flex;
   align-items:center;
@@ -422,7 +422,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
 }
 
 /* Bank Sampah: native price/schedule dialog and receipt follow existing mobile sheets. */
-@media(max-width:767px){
+@media(max-width:1023px){
  
  body.f4-direct-bank dialog.f4-bank-sheet-modal[open]::before{
   content:"";display:block;width:42px;height:4px;margin:-10px auto 17px;
@@ -442,13 +442,13 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   padding-bottom:calc(13px + env(safe-area-inset-bottom,0px))
  }
 }
-@media(max-width:767px) and (prefers-reduced-motion:reduce){
+@media(max-width:1023px) and (prefers-reduced-motion:reduce){
  body.f4-direct-bank dialog.f4-bank-sheet-modal[open],
  body.f4-direct-bank #f4-tx-receipt-dialog[data-scope="bank"]>.f4-tx-card{animation:none}
 }
 
 /* Bank Sampah: allow the same shared drag control on its native dialogs. */
-@media(max-width:767px){
+@media(max-width:1023px){
  body.f4-direct-bank dialog.f4-bank-sheet-modal[open]{
   position:fixed;inset:auto 0 0;top:auto;left:0;right:0;bottom:0;
   box-sizing:border-box;display:block;width:100%;max-width:100%;
@@ -470,7 +470,7 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
 
 /* Shared safe area: the dock stays put and no sheet content can sit behind it.
    Modal backdrop remains full viewport; only the panel's bottom anchor moves. */
-@media(max-width:767px){
+@media(max-width:1023px){
  html[data-f4-shell] body{
   --f4-sheet-safe-bottom: var(--f4-shell-footer,0px);
   --f4-sheet-end-space:24px;

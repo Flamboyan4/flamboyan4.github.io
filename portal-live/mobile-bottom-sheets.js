@@ -4,7 +4,7 @@
 (()=>{
  'use strict';
  if(window.F4MobileSheets)return;
- const media=window.matchMedia('(max-width:767px)');
+ const media=window.matchMedia('(max-width:1023px)');
  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)');
  const panelSelectors=[
   '#f4-direct-dialog > section',
@@ -56,7 +56,7 @@
   ? 'Geser ke bawah untuk mengecilkan atau menutup panel'
   : 'Geser ke atas untuk memperbesar atau ke bawah untuk menutup panel';
  function visible(el){
-  if(!media.matches||!el||!el.isConnected)return false;
+  if(!media.matches||!el||!el.isConnected||el.closest('[hidden],.hidden,[inert]'))return false;
   const r=el.getBoundingClientRect();
   return r.width>0&&r.height>0&&
    getComputedStyle(el).visibility!=='hidden'&&!el.closest('[inert]');
@@ -81,9 +81,12 @@
   refreshFrame=0;
   if(!grip||!media.matches){if(grip)grip.hidden=true;return;}
   // The picker and year menu are nested controls, never draggable sheets.
-  if(document.querySelector('.f4-control-overlay')&&!document.body.classList.contains('f4-direct-bank')){grip.hidden=true;return;}
+  if([...document.querySelectorAll('.f4-control-overlay:not([hidden])')].some(el=>el.getClientRects().length&&getComputedStyle(el).visibility!=='hidden')&&!document.body.classList.contains('f4-direct-bank')){grip.hidden=true;return;}
   // Never read panel geometry or overwrite the grip while a gesture is in flight.
-  if(drag?.panel?.isConnected||animating?.panel?.isConnected)return;
+  if(drag?.panel?.isConnected&&visible(drag.panel)||animating?.panel?.isConnected&&visible(animating.panel))return;
+  if(drag){if(drag.frame)cancelAnimationFrame(drag.frame);drag=null;grip.classList.remove('f4-sheet-handle-dragging');}
+  if(animating){clearTimer(animating.panel);}
+  if(!grip.isConnected)document.body.append(grip);
   // Native Portal Utama and Bank Sampah lightboxes are never bottom sheets.
   // A gallery sheet may remain mounted behind the fullscreen viewer.
   const lightbox=document.querySelector(
@@ -92,12 +95,19 @@
   if(lightbox&&lightbox.getClientRects().length&&!document.querySelector('.f4g-comment-overlay:not([hidden])')){active=null;grip.hidden=true;return;}
   // Choose the uppermost currently visible sheet. A newer date picker/dialog
   // must not inherit the handle of a still-open sheet underneath it.
-  let latest=null;
+  let latest=null,front=null;
   for(const panel of document.querySelectorAll(selector)){
    if(!expandable(panel))continue;
-   if(visible(panel))latest=panel;
+   attach(panel); // Reconcile after a SPA mount, not only after DOM insertion.
+   if(!visible(panel))continue;
+   latest=panel;
+   const r=panel.getBoundingClientRect();
+   const x=Math.max(0,Math.min(window.innerWidth-1,r.left+r.width/2));
+   const y=Math.max(0,Math.min(window.innerHeight-1,r.top+Math.min(40,r.height/2)));
+   const hit=document.elementFromPoint(x,y);
+   if(hit&&(panel.contains(hit)||hit===grip&&active===panel))front=panel;
   }
-  active=latest;
+  active=front||latest;
   if(!active||!visible(active)){
    if(grip.parentNode!==document.body)document.body.append(grip);
    grip.hidden=true;return;
@@ -115,7 +125,7 @@
   updateLabel(active);
   // Keep the grip aligned while the sheet entrance animation is moving.
   // Once the CSS animation ends there are no extra animation frames.
-  if(active.getAnimations?.({subtree:false}).some(animation=>animation.playState==='running'))requestRefresh();
+  if((active.getAnimations?.({subtree:false})||[]).some(animation=>animation.playState==='running'))requestRefresh();
  }
  function requestRefresh(){
   if(!refreshFrame)refreshFrame=requestAnimationFrame(refresh);
@@ -226,7 +236,9 @@
  }
  // A single layout read at the start; all gesture frames use GPU transforms.
  function prepare(panel){
-  if(!panel?.isConnected)return null;
+  if(!panel?.isConnected||!visible(panel))return null;
+  // A gesture must begin from the resting geometry, not a half-finished entrance.
+  for(const animation of panel.getAnimations?.({subtree:false})||[]){if(animation.playState==='running'&&animation.animationName){try{animation.finish()}catch{}}}
   clearTimer(panel);
   if(!originalStyles.has(panel))originalStyles.set(panel,['transform','transition','height','max-height','will-change'].map(k=>[k,panel.style.getPropertyValue(k),panel.style.getPropertyPriority(k)]));
   const rect=panel.getBoundingClientRect();
@@ -262,7 +274,7 @@
   const expanded=target==='expanded';
   const finalHeight=expanded?pose.height:pose.collapsed;
   const finalTop=dismissing?window.innerHeight+48:pose.bottom-finalHeight;
-  const panelY=dismissing?pose.height+window.innerHeight+48:
+  const panelY=dismissing?pose.height+48:
    pose.height-finalHeight;
   const gripY=finalTop-pose.top;
   const duration=reduced.matches?0:(dismissing?190:225);
@@ -337,8 +349,8 @@
   drag={...p,id:event.pointerId,startY:event.clientY,
    startAt:performance.now(),moved:false,pending:p.base};
   grip.classList.add('f4-sheet-handle-dragging');
-  grip.setPointerCapture?.(event.pointerId);
   event.preventDefault();
+  try{grip.setPointerCapture?.(event.pointerId)}catch{}
  }
  function move(event){
   if(!drag||event.pointerId!==drag.id)return;
@@ -368,17 +380,15 @@
   d.panel.style.transform='translate3d(0,'+d.pending+'px,0)';
   if(!d.embedded)grip.style.transform='translate3d(0,'+d.delta+'px,0)';
   grip.classList.remove('f4-sheet-handle-dragging');
-  if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId);
+  try{if(grip.hasPointerCapture?.(event.pointerId))grip.releasePointerCapture(event.pointerId)}catch{}
   const dy=d.rawDelta,elapsed=Math.max(1,performance.now()-d.startAt);
   const velocity=dy/elapsed;
   if(d.moved)lastDragAt=performance.now();
   if(cancelled){settle(d.panel,d.expanded,d.collapsed,d);return;}
   if(dy< -55||(dy< -28&&velocity<-.48))settle(d.panel,true,d.collapsed,d);
-  else if(dy>85){
-   if(d.expanded)settle(d.panel,false,d.collapsed,d);
-   else if(dy>=150||(dy>135&&velocity>1.0))
-    exitDown(d.panel,d);
-   else settle(d.panel,false,d.collapsed,d);
+  else if(dy>65||(dy>28&&velocity>.48)){
+   if(d.expanded&&dy<Math.max(150,d.height*.35))settle(d.panel,false,d.collapsed,d);
+   else exitDown(d.panel,d);
   }else settle(d.panel,d.expanded,d.collapsed,d);
   if(d.moved)event.preventDefault();
  }
@@ -394,9 +404,11 @@
   grip.setAttribute('aria-label',labels(false));
   document.body.appendChild(grip);
   grip.addEventListener('pointerdown',begin);
-  grip.addEventListener('pointermove',move);
-  grip.addEventListener('pointerup',finish);
-  grip.addEventListener('pointercancel',event=>finish(event,true));
+  // Document capture also works when a browser drops pointer capture or the
+  // handle is reparented into a sheet's own stacking context.
+  document.addEventListener('pointermove',move,{capture:true,passive:false});
+  document.addEventListener('pointerup',event=>finish(event,false),true);
+  document.addEventListener('pointercancel',event=>finish(event,true),true);
   grip.addEventListener('click',event=>{
    event.preventDefault();
    if(!active||!visible(active)||performance.now()-lastDragAt<350)return;
@@ -421,6 +433,7 @@
   const observer=new MutationObserver(records=>{
    let added=false;
    for(const record of records){
+    if(record.removedNodes.length)added=true;
     for(const node of record.addedNodes){
      if(node===grip)continue;
      inspect(node);added=true;
@@ -436,6 +449,7 @@
    }
    requestRefresh();
   }
+  document.addEventListener('f4:portal-changed',requestRefresh);
   window.addEventListener('resize',resizeSheet,{passive:true});
   window.addEventListener('scroll',()=>{if(active?.isConnected&&!grip?.hidden)requestRefresh()},{passive:true,capture:true});
   window.visualViewport?.addEventListener('resize',resizeSheet,{passive:true});
@@ -454,5 +468,5 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
  else start();
- window.F4MobileSheets={version:'20261127-sheet-safe-v78',refresh:requestRefresh};
+ window.F4MobileSheets={version:'20261127-shared-gesture-v91',refresh:requestRefresh};
 })();
