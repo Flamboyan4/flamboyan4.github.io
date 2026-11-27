@@ -476,15 +476,9 @@ body :is(#f4-direct-dialog,#f4-superadmin-confirm,#credentialModal,
   --f4-sheet-end-space:24px;
   --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-sheet-safe-bottom) - var(--f4-shell-header,56px) - 10px);
  }
- /* Kas Saya is modal: cover the dock instead of leaving a dimmed gap below it. */
- html[data-f4-shell] body #f4-resident-sheet{
-  --f4-sheet-safe-bottom:0px;
-  --f4-sheet-available-height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-header,56px) - 10px);
-  --f4-sheet-end-space:calc(24px + env(safe-area-inset-bottom,0px));
- }
  html[data-f4-shell] body :is(#f4-superadmin-confirm,#credentialModal,#f4-tx-receipt-dialog,
   .v21-modal,.v24-edit-overlay,.f4-activity-dialog,.sa-account-shade,.f4-jersey-print-veil,.tc-date-overlay,
-  .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,.f4-resident-sheet-overlay,#modal-event-detail,#modal-arisan,
+  .f4-ui-dialog,#f4-work-notice,.f4-pm-shade,#modal-event-detail,#modal-arisan,
   #modal-cetak-kas,#modal-keuangan,#modal-jersey,#modal-dokumentasi,#modal-gallery-grid,#modal-saran,
   #modal-rekening,#modal-edit,.edit-modal,#modal-koreksi-migrasi,#modal-doc-rapat,.f4p-album-overlay,
   #modal-gateway,.f4g-comment-overlay).f4-sheet-overlay-root{

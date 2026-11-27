@@ -236,6 +236,10 @@ function closeSheet(){
  triggerOfSheet=null;
  __f4.window.F4MobileSheets?.refresh?.();
 }
+// A visible persistent dock remains usable; close the sheet before its normal navigation.
+__f4.globals.document.addEventListener('click',event=>{
+ if(activeSheet&&event.target?.closest?.('#f4-direct-dock'))closeSheet();
+},true);
 __f4.globals.document.addEventListener('keydown',event=>{
  if(event.key==='Escape'&&activeSheet){event.preventDefault();closeSheet()}
 });

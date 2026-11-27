@@ -598,20 +598,24 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan .f4-resident-sheet-opener span {line-height:1.25;min-width:0}
   body.f4-resident-sheet-open {overflow:hidden}
   #keuangan .f4-resident-sheet-overlay {
-    position:fixed;inset:0;z-index:26000;display:flex;
+    /* Use the same measured viewport and dock reservation as the persistent shell.
+       Both the backdrop and the sheet end at the upper edge of the dock. */
+    position:fixed;inset:0 0 auto;z-index:26000;display:flex;
+    box-sizing:border-box;
+    height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-footer,0px));
     align-items:flex-end;justify-content:center;padding:0;
     background:rgba(21,27,49,.48);
   }
   #keuangan .f4-resident-sheet-panel {
     display:flex;flex-direction:column;min-width:0;width:100%;
-    height:85dvh;max-height:calc(100dvh - 10px);overflow:hidden;
+    box-sizing:border-box;height:85dvh;max-height:var(--f4-sheet-available-height,calc(100dvh - 10px));overflow:hidden;
     border-radius:20px 20px 0 0;background:#fff;
     box-shadow:0 -15px 40px rgba(27,30,61,.24);
     padding:32px 15px calc(17px + env(safe-area-inset-bottom,0px));
     animation:f4-sheet-up .23s ease-out;
   }
   #keuangan .f4-resident-sheet-overlay[data-kind="dues"] .f4-resident-sheet-panel {
-    height:auto;max-height:85dvh;
+    height:auto;max-height:min(85dvh,var(--f4-sheet-available-height,85dvh));
   }
   #keuangan .f4-resident-sheet-panel .f4-resident-sheet-top {
     display:flex;align-items:center;justify-content:space-between;
