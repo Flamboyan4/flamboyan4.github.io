@@ -2609,8 +2609,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
             <div id="v17Albums" class="v17-photo-feed" aria-live="polite">Memuat foto terbaru...</div>
           </section>
         </section>
-        <section id="v17Informasi" class="f4-public-info" aria-labelledby="f4PublicInfoHeading">
-          <h2 id="f4PublicInfoHeading">Informasi lainnya</h2>
+        <section id="v17Informasi" class="f4-public-info" aria-label="Progres program dan inventaris">
             <div class="f4-public-more-content">
                     <section id="v17Perkembangan" class="v17-section f4-dev" aria-label="Tahapan kegiatan program">
           <div class="f4-dev-grid">
