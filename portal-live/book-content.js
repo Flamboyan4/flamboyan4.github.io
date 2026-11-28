@@ -972,7 +972,7 @@ async function batalkanBatchKas(id){if(!(0,__f4.globals.confirm)(`Batalkan batch
 
 
 const KATEGORI_PEMASUKAN=['Donasi','Dana Kebersihan RT','Lainnya'];
-const KATEGORI_PENGELUARAN=['Operasional','Kebersihan','Konsumsi','Kegiatan','Perbaikan / Fasilitas','Lainnya'];
+const KATEGORI_PENGELUARAN=['Operasional','Kebersihan','Konsumsi','Kegiatan','Perbaikan / Fasilitas','Sosial','Lainnya'];
 
 function initTransaksiKasUi(){
   const now=new __f4.globals.Date();
