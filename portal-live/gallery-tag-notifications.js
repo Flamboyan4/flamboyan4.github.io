@@ -13,7 +13,7 @@ const count=el('span','f4-tag-bell-count');count.hidden=true;bell.append(count);
 const dialog=el('dialog','f4-tag-inbox');dialog.setAttribute('aria-label','Notifikasi');
 const head=el('header','f4-tag-inbox-head'),title=el('h2','','Notifikasi'),close=el('button','f4-tag-inbox-close');close.type='button';close.setAttribute('aria-label','Kembali');close.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg>';head.append(close,title);
 const list=el('div','f4-tag-inbox-list');dialog.append(head,list);document.body.append(dialog);
-let items=[],busy=false,generation=0,archiveIndex=null,failed=false,lastCheck=0,accountKey='';
+let items=[],busy=false,generation=0,openingPhoto=false,failed=false,lastCheck=0,accountKey='';
 const currentPortal=()=>location.pathname.startsWith('/bank-sampah')?'bank':location.pathname.startsWith('/superadmin')?'superadmin':null;
 let portal=currentPortal();
 const workEligible=()=>eligible()&&(avatar.dataset.f4TagRole==='superadmin'||(portal==='bank'&&avatar.dataset.f4TagRole==='admin'&&document.body.classList.contains('f4-bank-app-admin')&&!document.getElementById('dashboardView')?.classList.contains('hidden')));
@@ -128,22 +128,36 @@ function paint(){
   button.append(symbol,copy,img);
   if(!item.read)button.classList.add('is-unread');
   button.onclick=async()=>{
-   if(!eligible())return;
-   const stamp=generation;button.disabled=true;
+   if(!eligible()||openingPhoto)return;
+   const stamp=generation,key=avatar.dataset.f4TagAccount;
+   openingPhoto=true;button.disabled=true;button.setAttribute('aria-busy','true');
+   const url=new URL('/dokumentasi/',location.origin);
+   if(item.albumId)url.searchParams.set('album',item.albumId);
+   url.searchParams.set('foto',item.id);url.searchParams.set('notifikasi','1');
+   const replaceEntry=history.state?.f4TagInbox===true;
    try{
-    let album=item.albumId;
-    if(!album&&item.id.startsWith('gdrive:')){
-     archiveIndex=archiveIndex||await fetch('/assets/data/portal-photo-index.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Indeks foto tidak tersedia.');return r.json()});
-     const folder=Object.entries(archiveIndex.folders||{}).find(([,media])=>media.some(x=>x.id===item.id.slice(7)))?.[0];
-     if(folder)album='gfolder:'+folder;
+    hideInbox(true);
+    const navigation=window.F4PortalNavigation
+     ?window.F4PortalNavigation.go(url.href,{replace:replaceEntry})
+     :(replaceEntry?location.replace(url.href):location.assign(url.href),true);
+    // Reading the notification must not block the photo navigation.
+    void request('/tag-notifications/read',{method:'POST',keepalive:true,headers:{'content-type':'application/json'},body:JSON.stringify({id:item.id})}).then(()=>{
+     if(stamp!==generation||key!==avatar.dataset.f4TagAccount)return;
+     const current=items.find(x=>x.id===item.id);if(current)current.read=true;
+     paint();
+    }).catch(error=>console.warn('Status baca notifikasi:',error));
+    if(await navigation===false&&stamp===generation&&eligible()){
+     openInbox(false);
+     list.prepend(el('p','f4-tag-inbox-empty','Foto belum dapat dibuka. Silakan coba lagi.'));
     }
-    if(!album)throw Error('Album foto ini belum ditemukan.');
-    if(stamp!==generation||!eligible())return;
-    await request('/tag-notifications/read',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:item.id})});
-    if(stamp!==generation||!eligible())return;
-    item.read=true;const url=new URL('/dokumentasi/',location.origin);url.searchParams.set('album',album);url.searchParams.set('foto',item.id);
-    if(history.state?.f4TagInbox===true){hideInbox(true);if(window.F4PortalNavigation)void window.F4PortalNavigation.go(url.href,{replace:true});else location.replace(url.href);}else{hideInbox(true);if(window.F4PortalNavigation)void window.F4PortalNavigation.go(url.href);else location.assign(url.href);}
-   }catch(e){if(stamp!==generation)return;button.disabled=false;copy.append(el('small','f4-tag-inbox-error',e.message||'Foto belum dapat dibuka.'));}
+   }catch(error){
+    if(stamp===generation&&eligible()){
+     openInbox(false);
+     list.prepend(el('p','f4-tag-inbox-empty','Foto belum dapat dibuka. Silakan coba lagi.'));
+    }
+   }finally{
+    openingPhoto=false;button.disabled=false;button.removeAttribute('aria-busy');
+   }
   };list.append(button);
   }
  }

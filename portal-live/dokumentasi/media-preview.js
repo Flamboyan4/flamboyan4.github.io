@@ -267,11 +267,7 @@ async function loadPortalArchive(){
  drawAlbums();
  __f4.globals.document.dispatchEvent(new __f4.globals.Event('f4:gallery:ready'));
  // Shared links are one-shot; refresh must not reopen an old media overlay.
- const targetAlbum=firstPageDeepLink?.album||'';
- if(targetAlbum){
-  const selected=docs.find(d=>d.id===targetAlbum||(targetAlbum.startsWith('gfolder:')&&folderId(d.folder)===targetAlbum.slice(8)));
-  if(selected)await openAlbum(selected,firstPageDeepLink.photo);
- }
+ await openIncomingMedia();
  await hydrateArchiveCovers();
  __f4.window.F4Loading?.success('feedback',indicator);
 }
@@ -294,6 +290,32 @@ const status=(message,type='loading',token)=>{
  if(!message)return loading.success('feedback',token);
  return loading.begin('feedback',message);
 };
+// Notification links open the exact photo, not an intermediate album overlay.
+async function openIncomingMedia(){
+ const target=firstPageDeepLink;
+ if(!target?.album&&!target?.photo)return;
+ const selected=target.album?docs.find(d=>d.id===target.album||(target.album.startsWith('gfolder:')&&folderId(d.folder)===target.album.slice(8))):null;
+ if(!target.notification){if(selected)await openAlbum(selected,target.photo);return;}
+ if(!target.photo)return;
+ let candidates=selected?[selected]:[];
+ if(target.photo.startsWith('gdrive:')){
+  const index=await publicPhotoIndex(),driveId=target.photo.slice(7);
+  const folder=__f4.globals.Object.entries(index.folders||{}).find(([,media])=>media.some(x=>x.id===driveId))?.[0];
+  const archive=folder?docs.find(d=>folderId(d.folder)===folder):null;
+  if(archive&&!candidates.includes(archive))candidates.push(archive);
+ }
+ const uploaded=docs.find(d=>d.communityPhotos?.some(p=>p.id===target.photo));
+ if(uploaded&&!candidates.includes(uploaded))candidates.push(uploaded);
+ for(const doc of candidates){
+  let media;try{media=await listMedia(doc)}catch{continue;}
+  const record=media.find(p=>mediaId(p)===target.photo);
+  if(record&&__f4.window.f4MediaGallery?.openStandalonePhoto({...record,id:target.photo,albumId:doc.id||(folderId(doc.folder)?'gfolder:'+folderId(doc.folder):''),title:doc.title})){
+   __f4.window.f4GallerySharedOpened=true;return;
+  }
+ }
+ const notice=el('p','feedback','Foto dari notifikasi tidak ditemukan atau sudah tidak tersedia.');
+ notice.setAttribute('role','status');$('media-albums-section').prepend(notice);
+}
 async function openAlbum(a,sharedPhoto=''){
  const token=status('Memuat foto dan video dari folder dokumentasi…');
  let media=[],failure=null;
@@ -445,13 +467,15 @@ $('media-search').oninput=drawAlbums;
 // parameters immediately so reload and browser restore don't resurrect an overlay.
 const navType=__f4.globals.performance.getEntriesByType?.('navigation')?.[0]?.type||'';
 const deepLinkURL=new __f4.globals.URL(__f4.globals.location.href);
-const firstPageDeepLink=navType==='reload'?null:{
+const firstPageDeepLink={
  album:deepLinkURL.searchParams.get('album')||'',
- photo:deepLinkURL.searchParams.get('foto')||''
+ photo:deepLinkURL.searchParams.get('foto')||'',
+ notification:deepLinkURL.searchParams.get('notifikasi')==='1'
 };
 if(deepLinkURL.searchParams.has('album')||deepLinkURL.searchParams.has('foto')){
  deepLinkURL.searchParams.delete('album');
  deepLinkURL.searchParams.delete('foto');
+ deepLinkURL.searchParams.delete('notifikasi');
  __f4.globals.history.replaceState({...__f4.globals.history.state,f4DocOverlay:null,f4DocSession:null},'',
   deepLinkURL.pathname+deepLinkURL.search+deepLinkURL.hash);
 }
@@ -463,6 +487,7 @@ loadPortalArchive().catch(async error=>{
  __f4.window.f4GalleryAlbums=()=>docs.filter(d=>d.id&&!d.id.startsWith('gfolder:')).map(d=>({id:d.id,title:d.title}));
  await hydrateArchiveCovers();
  __f4.globals.document.dispatchEvent(new __f4.globals.Event('f4:gallery:ready'));
+ await openIncomingMedia();
  status('Arsip online belum dapat diperbarui ('+(error.message||error)+'). Menampilkan arsip kegiatan asli yang sudah tersedia.','error');
 });
 
