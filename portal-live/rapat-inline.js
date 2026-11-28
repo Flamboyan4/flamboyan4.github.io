@@ -444,7 +444,8 @@ __f4.expose("rapatToken",()=>rapatToken,null);
       if (isModalOpenStack) {
         closeModalDocRapat(true);
       } else {
-        const doc=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('doc')||__f4.window.location.hash.slice(1);
+        const params=new __f4.globals.URLSearchParams(__f4.globals.location.search);
+        const doc=params.get('record')||params.get('doc')||__f4.window.location.hash.slice(1);
         if(doc)openModalDocRapat(doc,true);
       }
     });
@@ -455,7 +456,10 @@ __f4.expose("rapatToken",()=>rapatToken,null);
         const item=globalRapatData.find(x=>x.id===currentActiveRapatId);
         if(item?.recordId){try{
           const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(item.recordId)));
-          shareUrl='https://api.flamboyan4.web.id/s/r'+Array.from(bytes.slice(0,8),n=>n.toString(16).padStart(2,'0')).join('');
+          const candidate='https://api.flamboyan4.web.id/s/r'+Array.from(bytes.slice(0,8),n=>n.toString(16).padStart(2,'0')).join('');
+          shareUrl='https://flamboyan4.web.id/rapat/?record='+encodeURIComponent(item.recordId);
+          const check=await (0,__f4.globals.fetch)(candidate,{method:'HEAD',cache:'no-store',credentials:'omit'});
+          if(check.ok&&check.headers.get('content-type')?.startsWith('text/html'))shareUrl=candidate;
         }catch{}}
         if(__f4.globals.navigator.share){try{await __f4.globals.navigator.share({title:'Hasil Rapat Flamboyan 4',url:shareUrl});return}catch(e){if(e.name==='AbortError')return}}
         await __f4.globals.navigator.clipboard.writeText(shareUrl);
