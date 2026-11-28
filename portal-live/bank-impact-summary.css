@@ -375,31 +375,9 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
 #v11Public .f4-public-info>h2{
  margin:0 0 10px;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
 }
-#v11Public .f4-public-more{
- box-sizing:border-box;min-width:0;margin:0;padding:0;
- border:1px solid #deebe1;border-radius:16px;background:#fff;overflow:hidden
-}
-#v11Public .f4-public-more>summary{
- display:flex;justify-content:space-between;align-items:center;gap:12px;
- min-height:48px;padding:12px 14px;list-style:none;cursor:pointer
-}
-#v11Public .f4-public-more>summary::-webkit-details-marker{display:none}
-#v11Public .f4-public-more>summary::marker{content:""}
-#v11Public .f4-public-more>summary span{display:grid;gap:4px;min-width:0}
-#v11Public .f4-public-more>summary strong{
- color:#17452e;font:600 14px/1.35 system-ui,sans-serif
-}
-#v11Public .f4-public-more>summary small{
- color:#718677;font-size:11px;line-height:1.45
-}
-#v11Public .f4-public-more>summary svg{
- width:19px;height:19px;flex:none;color:#358565;transition:transform .18s
-}
-#v11Public .f4-public-more[open]>summary svg{transform:rotate(180deg)}
-#v11Public .f4-public-more>summary:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px}
 #v11Public .f4-public-more-content{
  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;min-width:0;padding:14px;
- border-top:1px solid #e6efe8
+ border:1px solid #dce5df;border-radius:16px;background:#fff
 }
 #v11Public .f4-public-more-content #v17Perkembangan{min-width:0;margin:0}
 #v11Public .f4-public-more-content #v17Inventaris{
