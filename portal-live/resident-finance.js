@@ -114,14 +114,18 @@ function cashRows(data){
  return list.slice().sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
 }
 function cashStats(rows,year,month){
+ const all=year==='all';
  const start=year+'-'+(month||'01'),end=year+'-'+(month||'12');
- const selected=rows.filter(r=>r.tanggal.slice(0,7)>=start&&r.tanggal.slice(0,7)<=end);
- const opening=rows.filter(r=>r.tanggal.slice(0,7)<start).reduce((s,r)=>s+netCash(r),0);
+ const selected=all?rows.slice():rows.filter(r=>r.tanggal.slice(0,7)>=start&&r.tanggal.slice(0,7)<=end);
+ const opening=all?0:rows.filter(r=>r.tanggal.slice(0,7)<start).reduce((s,r)=>s+netCash(r),0);
  const incoming=selected.reduce((s,r)=>s+r.debit,0),outgoing=selected.reduce((s,r)=>s+r.kredit,0);
  const closing=opening+incoming-outgoing;
- const buckets=Array.from({length:12},(_,i)=>({key:cashMonthKey(year,i),label:cashMonths[i],incoming:0,outgoing:0,closing:0}));
- let running=rows.filter(r=>r.tanggal<year+'-01-01').reduce((s,r)=>s+netCash(r),0);
- for(const r of rows){const b=buckets.find(x=>x.key===r.tanggal.slice(0,7));if(b){b.incoming+=r.debit;b.outgoing+=r.kredit}}
+ const years=[...new Set([today().slice(0,4),...rows.map(r=>r.tanggal.slice(0,4))])].sort();
+ const first=Number(years[0]),last=Number(years.at(-1));
+ const buckets=all?Array.from({length:last-first+1},(_,i)=>({key:String(first+i),label:String(first+i),incoming:0,outgoing:0,closing:0})):Array.from({length:12},(_,i)=>({key:cashMonthKey(year,i),label:cashMonths[i],incoming:0,outgoing:0,closing:0}));
+ let running=all?0:rows.filter(r=>r.tanggal<year+'-01-01').reduce((s,r)=>s+netCash(r),0);
+ const byKey=new Map(buckets.map(b=>[b.key,b]));
+ for(const r of rows){const b=byKey.get(r.tanggal.slice(0,all?4:7));if(b){b.incoming+=r.debit;b.outgoing+=r.kredit}}
  for(const b of buckets){running+=b.incoming-b.outgoing;b.closing=running}
  const categories=new Map();
  for(const r of selected){if(r.kredit){const k=String(r.kategori||'Tanpa kategori').trim()||'Tanpa kategori';categories.set(k,(categories.get(k)||0)+r.kredit)}}
@@ -141,7 +145,7 @@ function financeHeading(view){
  for(const [key,label] of [['environment','Lingkungan'],['personal','Pribadi']]){
   const b=btn(label,()=>{if(key!==view)void load(key)},'rp-tab');b.setAttribute('aria-pressed',String(key===view));tabs.append(b);
  }
- root.append(heading,tabs);
+ const header=el('div','rp-finance-header');header.append(heading,tabs);root.append(header);
 }
 function financeCard(title){
  const card=el('section','rp-card rp-finance-card');card.append(el('h2','',title));return card;
@@ -150,24 +154,28 @@ function cashMetric(label,value,cls=''){
  const item=el('div','rp-cash-metric '+cls);item.append(el('small','',label),el('strong','',money(value)));return item;
 }
 function cashChart(title,buckets,line,year,month){
- const card=financeCard(title);card.append(el('p','rp-finance-caption','Per bulan · '+year+(month?' · Bulan dipilih disorot':'')));
+ const annual=year==='all';
+ const range=annual?(buckets[0].label===buckets.at(-1).label?buckets[0].label:buckets[0].label+'–'+buckets.at(-1).label):year;
+ const card=financeCard(title);card.append(el('p','rp-finance-caption',(annual?'Per tahun · ':'Per bulan · ')+range+(month&&!annual?' · Bulan dipilih disorot':'')));
  const W=360,H=183,left=43,right=8,top=12,bottom=29,plotW=W-left-right,plotH=H-top-bottom;
- const actual=buckets.filter(b=>b.key<=today().slice(0,7));
+ const actual=annual?buckets:buckets.filter(b=>b.key<=today().slice(0,7));
  const values=line?actual.map(b=>b.closing):actual.flatMap(b=>[b.incoming,b.outgoing]);
  const min=Math.min(0,...values),max=Math.max(0,...values),span=max-min||1;
- const y=v=>top+(max-v)/span*plotH,x=i=>left+(i+.5)*plotW/12;
- const step=plotW/12,zero=y(0);
- let svg='<svg class="rp-finance-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+cashEsc(title+' '+year)+'" xmlns="http://www.w3.org/2000/svg">';
+ const step=plotW/Math.max(1,buckets.length);
+ const y=v=>top+(max-v)/span*plotH,x=i=>left+(i+.5)*step;
+ const zero=y(0),barWidth=Math.min(annual?24:8,step*.34),barOffset=barWidth*.62;
+ let svg='<svg class="rp-finance-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+cashEsc(title+' '+range)+'" xmlns="http://www.w3.org/2000/svg">';
  for(let i=0;i<=4;i++){const v=min+(max-min)*i/4,py=y(v);svg+='<path d="M'+left+' '+py+'H'+(W-right)+'" stroke="#e4e8f0" stroke-dasharray="3 3"/><text x="'+(left-5)+'" y="'+(py+3)+'" text-anchor="end" fill="#64748b" font-size="9">'+cashEsc(cashCompact(v))+'</text>'}
- if(month){const i=Number(month)-1;svg+='<rect x="'+(x(i)-step/2)+'" y="'+top+'" width="'+step+'" height="'+plotH+'" rx="3" fill="#eeebff"/>'}
+ if(month&&!annual){const i=Number(month)-1;svg+='<rect x="'+(x(i)-step/2)+'" y="'+top+'" width="'+step+'" height="'+plotH+'" rx="3" fill="#eeebff"/>'}
  if(line){
   const points=actual.map((b,i)=>x(i)+','+y(b.closing)).join(' ');
   svg+='<polyline points="'+points+'" fill="none" stroke="#6550dd" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
   actual.forEach((b,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(b.closing)+'" r="3" fill="#6550dd"><title>'+cashEsc(b.label+' '+money(b.closing))+'</title></circle>'});
  }else{
-  actual.forEach((b,i)=>{for(const [v,offset,color,label] of [[b.incoming,-5,'#169b62','Kas masuk'],[b.outgoing,5,'#e65462','Kas keluar']]){svg+='<rect x="'+(x(i)+offset-4)+'" y="'+Math.min(y(v),zero)+'" width="8" height="'+Math.abs(zero-y(v))+'" rx="1.5" fill="'+color+'"><title>'+cashEsc(b.label+' · '+label+' '+money(v))+'</title></rect>'}});
+  actual.forEach((b,i)=>{for(const [v,offset,color,label] of [[b.incoming,-barOffset,'#169b62','Kas masuk'],[b.outgoing,barOffset,'#e65462','Kas keluar']]){svg+='<rect x="'+(x(i)+offset-barWidth/2)+'" y="'+Math.min(y(v),zero)+'" width="'+barWidth+'" height="'+Math.abs(zero-y(v))+'" rx="1.5" fill="'+color+'"><title>'+cashEsc(b.label+' · '+label+' '+money(v))+'</title></rect>'}});
  }
- buckets.forEach((b,i)=>{svg+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#64748b" font-size="9">'+b.label+'</text>'});
+ const labelStep=annual?Math.max(1,Math.ceil(buckets.length/9)):1;
+ buckets.forEach((b,i)=>{if(i%labelStep===0||i===buckets.length-1&&i%labelStep>=labelStep/2)svg+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#64748b" font-size="9">'+b.label+'</text>'});
  const graph=el('div');graph.innerHTML=svg+'</svg>';card.append(graph);
  const legend=el('div','rp-finance-legend');
  for(const [label,cls] of line?[['Saldo akhir','is-balance']]:[['Kas masuk','is-in'],['Kas keluar','is-out']]){const node=el('span',cls,label);legend.append(node)}
@@ -259,21 +267,22 @@ async function loadEnvironment(seq){
    heading.append(el('h2','','Laporan Kas Lorong'),el('p','rp-finance-caption','Sumber: Pembukuan · '+(rows.length?'Transaksi terakhir '+shortDate(rows[0].tanggal):'Belum ada transaksi')));
    year.dataset.noCustom=month.dataset.noCustom='1';year.setAttribute('aria-label','Tahun laporan');month.setAttribute('aria-label','Bulan laporan');
    const option=(s,v,label)=>{const o=el('option','',label);o.value=v;s.append(o)};
-   const current=today().slice(0,4);for(const y of [...new Set([current,...rows.map(r=>r.tanggal.slice(0,4))])].sort().reverse())option(year,y,y);
+   const current=today().slice(0,4);option(year,'all','Semua tahun');for(const y of [...new Set([current,...rows.map(r=>r.tanggal.slice(0,4))])].sort().reverse())option(year,y,y);
    year.value=current;option(month,'','Setahun');cashMonths.forEach((_,i)=>option(month,String(i+1).padStart(2,'0'),new Date(Date.UTC(2000,i,1)).toLocaleDateString('id-ID',{month:'long',timeZone:'UTC'})));
    filters.append(month,year);toolbar.append(heading,filters);cash.append(toolbar);
    const report=el('div','rp-environment');cash.append(report);
    function render(){
-    const stats=cashStats(rows,year.value,month.value),period=month.value?month.options[month.selectedIndex].text+' '+year.value:'Tahun '+year.value;
+    const annual=year.value==='all';month.hidden=annual;month.disabled=annual;
+    const selectedMonth=annual?'':month.value,stats=cashStats(rows,year.value,selectedMonth),period=annual?'Semua tahun':selectedMonth?month.options[month.selectedIndex].text+' '+year.value:'Tahun '+year.value;
     report.replaceChildren();analysisStack.replaceChildren();ledgerSlot.replaceChildren();
     const summary=el('section','rp-cash-report-hero'),head=el('div','rp-between'),main=el('div','rp-cash-main-value');
     main.append(el('small','','Saldo akhir · '+period),el('strong','',money(stats.closing)));
     const pdf=btn('PDF',()=>cashExport(stats,period),'rp-cash-pdf');pdf.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>');pdf.setAttribute('aria-label','Unduh laporan kas PDF');
     head.append(main,pdf);summary.append(head);
     const metrics=el('div','rp-cash-metrics');metrics.append(cashMetric('Saldo sebelumnya',stats.opening),cashMetric('Kas masuk',stats.incoming),cashMetric('Kas keluar',stats.outgoing));summary.append(metrics);report.append(summary);
-    const graphs=el('div','rp-finance-graphs');graphs.append(cashChart('Kas Masuk & Keluar',stats.buckets,false,year.value,month.value),cashChart('Perkembangan Saldo',stats.buckets,true,year.value,month.value));report.append(graphs);
-    const monthly=el('details','rp-card rp-finance-monthly'),monthlyTitle=el('summary','','Rincian angka grafik per bulan');monthly.append(monthlyTitle);
-    const table=el('table'),thead=el('thead'),header=el('tr');for(const label of ['Bulan','Masuk','Keluar','Saldo akhir'])header.append(el('th','',label));thead.append(header);table.append(thead);const body=el('tbody');for(const b of stats.buckets.filter(b=>b.key<=today().slice(0,7))){const tr=el('tr');for(const value of [b.label,money(b.incoming),money(b.outgoing),money(b.closing)])tr.append(el('td','',value));body.append(tr)}table.append(body);monthly.append(table);
+    const graphs=el('div','rp-finance-graphs');graphs.append(cashChart('Kas Masuk & Keluar',stats.buckets,false,year.value,selectedMonth),cashChart('Perkembangan Saldo',stats.buckets,true,year.value,selectedMonth));report.append(graphs);
+    const monthly=el('details','rp-card rp-finance-monthly'),monthlyTitle=el('summary','',annual?'Rincian angka grafik per tahun':'Rincian angka grafik per bulan');monthly.append(monthlyTitle);
+    const table=el('table'),thead=el('thead'),header=el('tr');for(const label of [annual?'Tahun':'Bulan','Masuk','Keluar','Saldo akhir'])header.append(el('th','',label));thead.append(header);table.append(thead);const body=el('tbody');for(const b of stats.buckets.filter(b=>annual||b.key<=today().slice(0,7))){const tr=el('tr');for(const value of [b.label,money(b.incoming),money(b.outgoing),money(b.closing)])tr.append(el('td','',value));body.append(tr)}table.append(body);monthly.append(table);
     analysisStack.append(monthly,cashComposition(stats));
     const detail=financeCard('Rincian Transaksi'),controls=el('div','rp-finance-filters'),direction=el('select','rp-history-filter'),search=el('input','rp-history-filter');
     direction.dataset.noCustom='1';direction.setAttribute('aria-label','Jenis transaksi');option(direction,'all','Semua transaksi');option(direction,'in','Kas masuk');option(direction,'out','Kas keluar');

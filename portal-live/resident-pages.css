@@ -42,6 +42,7 @@
 .rp-tab[aria-pressed=true]{background:var(--rp-primary);color:#fff;border-color:var(--rp-primary)}
 
 /* Keuangan: one resident route, separate personal and environmental views. */
+.rp-finance-header{display:grid;gap:16px;min-width:0}
 .rp-finance-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border:1px solid var(--rp-line);border-radius:12px;background:#f3f4f9}
 #f4-resident-content .rp-finance-tabs .rp-tab{border:0;border-radius:8px;min-height:38px;font-size:14px;font-weight:750}
 .rp-environment{display:grid;gap:14px;min-width:0}
@@ -57,7 +58,9 @@
 .rp-personal-layout>.rp-reminders{order:4}
 @media(min-width:1024px){
  body[data-resident-page=finance] #f4-resident-content{max-width:1120px;gap:14px}
- #f4-resident-content .rp-finance-tabs{width:min(100%,400px)}
+ .rp-finance-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+ #f4-resident-content .rp-finance-tabs{width:260px;flex:0 0 auto}
+ #f4-resident-content .rp-finance-tabs .rp-tab{min-height:32px;padding:5px 12px;font-size:13px}
  .rp-personal-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
  .rp-personal-stack{display:grid;gap:14px;min-width:0;align-items:start;grid-column:1;grid-row:1}
  .rp-personal-layout>.rp-receipt{grid-column:2;grid-row:1}
