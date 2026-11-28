@@ -1,0 +1,75 @@
+name: F4 Public Photo Share Route
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/f4-photo-share-route.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: f4-worker-release
+  cancel-in-progress: false
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Attach only the public short-link path to the existing API Worker
+        run: |
+          python3 - <<'PY'
+          import os,json,re,urllib.request
+          from urllib.error import HTTPError
+          from html import unescape
+          token=os.environ["CF_TOKEN"]
+          account=os.environ["CF_ACCOUNT"]
+          if not token or not account:
+              raise RuntimeError("Cloudflare credentials unavailable")
+          def call(path, method="GET", payload=None):
+              headers={"Authorization":"Bearer "+token,"Accept":"application/json","Content-Type":"application/json"}
+              req=urllib.request.Request("https://api.cloudflare.com/client/v4"+path,headers=headers,method=method,data=json.dumps(payload).encode() if payload is not None else None)
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  data=json.load(response)
+              if data.get("success") is not True:
+                  raise RuntimeError("Cloudflare rejected route operation")
+              return data["result"]
+          domains=call("/accounts/"+account+"/workers/domains?hostname=api.flamboyan4.web.id")
+          matches=[d for d in domains if d.get("hostname")=="api.flamboyan4.web.id" and d.get("enabled") is True]
+          if len(matches)!=1 or matches[0].get("environment") not in (None,"","production"):
+              raise RuntimeError("Existing production API Worker not uniquely identified")
+          worker=matches[0].get("service","")
+          if not re.fullmatch(r"[A-Za-z0-9_-]{4,100}",worker):
+              raise RuntimeError("Unexpected Worker identifier")
+          zones=call("/zones?name=flamboyan4.web.id&status=active")
+          zones=[z for z in zones if z.get("name")=="flamboyan4.web.id" and z.get("account",{}).get("id")==account]
+          if len(zones)!=1:
+              raise RuntimeError("Production zone not uniquely identified")
+          zone=zones[0]["id"]
+          # Do not modify DNS or any existing unrelated route.
+          path="/zones/"+zone+"/workers/routes"
+          pattern="flamboyan4.web.id/s/*"
+          rows=call(path)
+          same=[r for r in rows if r.get("pattern") in (pattern,"https://"+pattern)]
+          if any(r.get("script")!=worker for r in same):
+              raise RuntimeError("Conflicting existing route; no changes made")
+          def read(host):
+              req=urllib.request.Request("https://"+host+"/s/vzud-FqI",headers={"User-Agent":"F4-Share-Route-Smoke/1.0","Cache-Control":"no-cache"})
+              with urllib.request.urlopen(req,timeout=20) as res:
+                  page=res.read(200000).decode("utf-8")
+              if 'property="og:title"' not in page or 'property="og:image"' not in page or '/dokumentasi/?' not in unescape(page):
+                  raise RuntimeError("Share metadata or photo destination missing on "+host)
+              return page
+          read("api.flamboyan4.web.id")
+          if not same:
+              # Require proxied apex DNS before adding a Worker route.
+              dns=call("/zones/"+zone+"/dns_records?name=flamboyan4.web.id")
+              if not any(d.get("name")=="flamboyan4.web.id" and d.get("proxied") is True for d in dns):
+                  raise RuntimeError("Apex DNS is not proxied; route not installed")
+              call(path,"POST",{"pattern":pattern,"script":worker})
+          read("flamboyan4.web.id")
+          print("Public share route verified; legacy API links retained.")
+          PY
