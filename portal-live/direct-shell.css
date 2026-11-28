@@ -452,7 +452,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 /* Portal Utama desktop: stable 72px icon rail; expand over content on hover
    or keyboard focus, never change the content coordinate system. */
 @media screen and (min-width:1024px) and (hover:hover) and (pointer:fine){
- html[data-f4-shell]{--f4-rail-width:72px}
+ html[data-f4-shell]{--f4-rail-width:72px;--f4-side-row-height:42px;--f4-side-row-margin:1px;--f4-side-icon-size:22px;--f4-side-row-radius:10px;--f4-side-row-inset:15px;--f4-side-row-gap:10px;--f4-side-group-height:24px;--f4-side-group-margin:6px;--f4-side-brand-gap:8px}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{
   overflow-x:hidden;transition:width .18s ease,box-shadow .18s ease;z-index:210
  }
@@ -460,13 +460,16 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   width:var(--f4-rail-open);box-shadow:8px 0 20px rgba(30,35,50,.08)
  }
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button{
-  gap:12px;padding-inline:15px;white-space:nowrap
+  box-sizing:border-box;height:var(--f4-side-row-height);min-height:var(--f4-side-row-height);margin:var(--f4-side-row-margin) 0;gap:var(--f4-side-row-gap);padding:0 var(--f4-side-row-inset);border-radius:var(--f4-side-row-radius);white-space:nowrap
  }
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button :is(.f4-svg-icon,svg){width:22px;height:22px}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{padding-inline:15px;white-space:nowrap}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button :is(.f4-svg-icon,svg){width:var(--f4-side-icon-size);height:var(--f4-side-icon-size)}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{margin-bottom:var(--f4-side-brand-gap);padding-inline:14px;white-space:nowrap}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar :is(.f4-direct-menu-label,.f4-direct-brand>div,.f4-direct-group-label){white-space:nowrap}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) :is(.f4-direct-menu-label,.f4-direct-brand>div){opacity:0;pointer-events:none}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-group-label{box-sizing:border-box;height:20px;padding:4px 12px;font:800 10px/12px system-ui;letter-spacing:.055em}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-other-pages{height:var(--f4-side-group-height);margin:var(--f4-side-group-margin) 0 0;padding:6px 12px 4px}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-group-label{color:transparent}
+ body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-other-pages{border-top-color:transparent;background:linear-gradient(var(--f4-nav-line),var(--f4-nav-line)) center/100% 1px no-repeat}
  body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button:focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
 
  /* The three operational portals share the same rail dimensions and overlay behavior. */

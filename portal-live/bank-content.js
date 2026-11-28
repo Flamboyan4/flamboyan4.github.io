@@ -2355,11 +2355,11 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     if(!/^(warga|anggota)$/i.test((0,__f4.globals.String)(account?.peran||'').trim()))return;
     const group=__f4.globals.document.createElement('div');
     group.className='f4-bank-nav-divider';group.textContent='AKUN WARGA';group.setAttribute('role','presentation');list.append(group);
-    for(const [label,path,icon] of [['Keuangan Saya','/keuangan/','wallet'],['Agenda','/agenda/','clock'],['Profil Saya','/profil/','user']]){
+    for(const [label,path,icon] of [['Keuangan Saya','/keuangan/','pay'],['Agenda','/agenda/','clock'],['Profil Saya','/profil/','user']]){
       const button=__f4.globals.document.createElement('button');button.type='button';button.className='v16-item';
       button.setAttribute('aria-label',label);button.dataset.residentPortal=path;
       const text=__f4.globals.document.createElement('span');text.className='f4-bank-nav-label';text.textContent=label;
-      button.append(v16Icon(icon),text);
+      const symbol=__f4.globals.document.createElement('span');symbol.className='f4-svg-icon f4-svg-'+icon;symbol.setAttribute('aria-hidden','true');button.append(symbol,text);
       button.onclick=()=>{v16CloseMenu();void __f4.globals.F4PortalNavigation?.go(path);};
       list.append(button);
     }
