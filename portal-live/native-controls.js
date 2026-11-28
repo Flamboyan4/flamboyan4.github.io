@@ -151,15 +151,16 @@ function selectPicker(field,trigger){
  if(current)list.scrollTop=__f4.globals.Math.max(0,current.offsetTop-list.offsetTop-8);
 
 }
+const isMonthField=field=>String(field.getAttribute('type')||field.type||'').toLowerCase()==='month';
 function formatValue(field){
- if(field.type==='month'){
+ if(isMonthField(field)){
   const m=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})-(\d{2})$/);
   return m?(field.dataset.f4CompactMonth==='1'?monthNames[Number(m[2])-1].slice(0,3):monthNames[Number(m[2])-1])+' '+m[1]:'Pilih bulan';
  }
  return fmtDate(field.value);
 }
 function calendar(field,trigger,settings={}){
- let kind=settings.kind|| (field.type==='month'?'month':'date');
+ let kind=settings.kind|| (isMonthField(field)?'month':'date');
  const choose=v=>{if(settings.onChoose){settings.onChoose(v,kind);close()}else action(field,v)};
  let y,m;
  const match=(0,__f4.globals.String)(field.value||'').match(/^(\d{4})(?:-(\d{2}))?/);
@@ -179,12 +180,12 @@ function calendar(field,trigger,settings={}){
  const grid=__f4.globals.document.createElement('div');grid.className='f4-control-calendar';
  panel.append(grid);
  const input=__f4.globals.document.createElement('input');input.type='text';input.className='f4-control-date-input';
- input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD';input.setAttribute('aria-label','Masukkan tanggal manual');
+ input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD';input.setAttribute('aria-label',kind==='month'?'Masukkan bulan dan tahun':kind==='year'?'Masukkan tahun':'Masukkan tanggal manual');
  input.value=field.value;panel.append(input);
  const footer=__f4.globals.document.createElement('div');footer.className='f4-control-footer';
  const cancel=__f4.globals.document.createElement('button');cancel.type='button';cancel.textContent='Batal';cancel.onclick=()=>close();
  const accept=__f4.globals.document.createElement('button');accept.type='button';accept.textContent='Terapkan';
- accept.onclick=()=>{const v=input.value.trim();if(valid(v)){choose(v)}else{input.setCustomValidity('Masukkan tanggal yang benar');input.reportValidity();input.setCustomValidity('')}};
+ accept.onclick=()=>{const v=input.value.trim();if(valid(v)){choose(v)}else{input.setCustomValidity(kind==='month'?'Masukkan bulan dan tahun yang benar':kind==='year'?'Masukkan tahun yang benar':'Masukkan tanggal yang benar');input.reportValidity();input.setCustomValidity('')}};
  if(settings.allowClear){const clear=__f4.globals.document.createElement('button');clear.type='button';clear.textContent='Semua tanggal';clear.onclick=()=>choose('');footer.append(clear)}
  footer.append(cancel,accept);panel.append(footer);
  function valid(v){
@@ -202,7 +203,7 @@ function calendar(field,trigger,settings={}){
   return true;
  }
  function render(){
-  if(settings.range){for(const btn of levelButtons.children)btn.setAttribute('aria-pressed',String(btn.dataset.kind===kind));input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD'}
+  if(settings.range){for(const btn of levelButtons.children)btn.setAttribute('aria-pressed',String(btn.dataset.kind===kind));input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD';input.setAttribute('aria-label',kind==='month'?'Masukkan bulan dan tahun':kind==='year'?'Masukkan tahun':'Masukkan tanggal manual')}
   panel.dataset.calendarMode=mode;
   grid.replaceChildren();
   heading.textContent=kind==='month'?(0,__f4.globals.String)(y):monthNames[m]+' '+y;
@@ -249,7 +250,7 @@ function enhance(field){
  if(field.matches('select')){if(field.multiple||field.size>1)return}
  else if(!field.matches('input[type=date],input[type=month]'))return;
  field.dataset.f4ModernPicker='1';
- const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';if(field.closest('form,.f4g-field,.f4-pm-field,.f4-admin-fields,.sa-weighing-field,.tc-field,.kas-batch-card'))button.dataset.f4FormControl='1';if(field.type==='date')button.dataset.f4DateTrigger='1';
+ const button=__f4.globals.document.createElement('button');button.type='button';button.className='f4-control-trigger';if(field.closest('form,.f4g-field,.f4-pm-field,.f4-admin-fields,.sa-weighing-field,.tc-field,.kas-batch-card'))button.dataset.f4FormControl='1';if(!isMonthField(field)&&field.matches('input[type=date]'))button.dataset.f4DateTrigger='1';
  const label=__f4.globals.document.createElement('span');label.className='f4-control-value';
  const icon=__f4.globals.document.createElement('span');icon.className='f4-control-icon';icon.innerHTML=field.matches('select')?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></svg>';
  button.append(label,icon);button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-label',field.getAttribute('aria-label')||field.labels?.[0]?.textContent?.trim()||'Pilih');
