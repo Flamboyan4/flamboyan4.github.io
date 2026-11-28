@@ -49,17 +49,15 @@ jobs:
           if len(zones)!=1:
               raise RuntimeError("Production zone not uniquely identified")
           zone=zones[0]["id"]
-          # Do not modify DNS or any existing unrelated route.
-          path="/zones/"+zone+"/workers/routes"
-          host="www.flamboyan4.web.id"
-          pattern=host+"/s/*"
-          rows=call(path)
-          same=[r for r in rows if r.get("pattern") in (pattern,"https://"+pattern)]
-          if any(r.get("script")!=worker for r in same):
-              raise RuntimeError("Conflicting existing route; no changes made")
+          # Bind only an unused dedicated hostname; preserve all existing portal DNS.
+          host="foto.flamboyan4.web.id"
+          domain_path="/accounts/"+account+"/workers/domains"
+          same=[d for d in call(domain_path+"?hostname="+host) if d.get("hostname")==host]
+          if any(d.get("service")!=worker or d.get("enabled") is not True for d in same):
+              raise RuntimeError("Existing dedicated domain conflicts; no changes")
           def read(host):
               req=urllib.request.Request("https://"+host+"/s/vzud-FqI",headers={"User-Agent":"F4-Share-Route-Smoke/1.0","Cache-Control":"no-cache"})
-              with urllib.request.urlopen(req,timeout=20) as res:
+              with urllib.request.urlopen(req,timeout=15) as res:
                   page=res.read(200000).decode("utf-8")
                   if res.geturl()!="https://"+host+"/s/vzud-FqI":
                       raise RuntimeError("Unexpected redirect on "+host)
@@ -68,25 +66,30 @@ jobs:
               return page
           read("api.flamboyan4.web.id")
           if not same:
-              # Reuse only the existing proxied www CNAME. Never change apex DNS.
               dns=call("/zones/"+zone+"/dns_records?name="+host)
-              if not any(d.get("name")==host and d.get("type")=="CNAME" and d.get("proxied") is True for d in dns):
-                  raise RuntimeError("WWW CNAME is not proxied; route not installed")
-              created=call(path,"POST",{"pattern":pattern,"script":worker})
+              if any(d.get("name")==host for d in dns):
+                  raise RuntimeError("Dedicated hostname already has a DNS record; no changes")
+              result=call(domain_path,"PUT",{"hostname":host,"service":worker,"zone_id":zone,"enabled":True,"previews_enabled":False})
+              if result.get("hostname")!=host or result.get("service")!=worker:
+                  raise RuntimeError("Unexpected custom domain result")
+              print("DEDICATED_DOMAIN_ATTACHED")
           else:
-              created=None
-          try:
-              page=read(host)
-              image_url=re.search(r'property="og:image" content="([^"]+)"',page).group(1)
-              if image_url!="https://"+host+"/s/vzud-FqI/image":
-                  raise RuntimeError("Expected photo-specific preview image URL")
-              req=urllib.request.Request(image_url,headers={"User-Agent":"F4-Share-Route-Smoke/1.0"})
-              with urllib.request.urlopen(req,timeout=20) as response:
-                  if not response.headers.get_content_type().startswith("image/") or not response.read(32):
-                      raise RuntimeError("Photo preview image unavailable")
-          except Exception:
-              if created and created.get("id"):
-                  call(path+"/"+created["id"],"DELETE")
-              raise
-          print("Public share route verified; legacy API links retained.")
+              print("DEDICATED_DOMAIN_ALREADY_ATTACHED")
+          import time
+          for attempt in range(5):
+              try:
+                  page=read(host)
+                  image_url=re.search(r'property="og:image" content="([^"]+)"',page).group(1)
+                  if image_url!="https://"+host+"/s/vzud-FqI/image":
+                      raise RuntimeError("Expected photo-specific preview image URL")
+                  req=urllib.request.Request(image_url,headers={"User-Agent":"F4-Share-Route-Smoke/1.0"})
+                  with urllib.request.urlopen(req,timeout=15) as response:
+                      if not response.headers.get_content_type().startswith("image/") or not response.read(32):
+                          raise RuntimeError("Photo preview image unavailable")
+                  print("DEDICATED_SHARE_METADATA_AND_IMAGE_OK")
+                  break
+              except Exception as e:
+                  if attempt==4:raise
+                  print("Awaiting dedicated DNS/TLS readiness: "+type(e).__name__)
+                  time.sleep(4)
           PY
