@@ -51,7 +51,8 @@ jobs:
           zone=zones[0]["id"]
           # Do not modify DNS or any existing unrelated route.
           path="/zones/"+zone+"/workers/routes"
-          pattern="flamboyan4.web.id/s/*"
+          host="www.flamboyan4.web.id"
+          pattern=host+"/s/*"
           rows=call(path)
           same=[r for r in rows if r.get("pattern") in (pattern,"https://"+pattern)]
           if any(r.get("script")!=worker for r in same):
@@ -60,16 +61,32 @@ jobs:
               req=urllib.request.Request("https://"+host+"/s/vzud-FqI",headers={"User-Agent":"F4-Share-Route-Smoke/1.0","Cache-Control":"no-cache"})
               with urllib.request.urlopen(req,timeout=20) as res:
                   page=res.read(200000).decode("utf-8")
+                  if res.geturl()!="https://"+host+"/s/vzud-FqI":
+                      raise RuntimeError("Unexpected redirect on "+host)
               if 'property="og:title"' not in page or 'property="og:image"' not in page or '/dokumentasi/?' not in unescape(page):
                   raise RuntimeError("Share metadata or photo destination missing on "+host)
               return page
           read("api.flamboyan4.web.id")
           if not same:
-              # Require proxied apex DNS before adding a Worker route.
-              dns=call("/zones/"+zone+"/dns_records?name=flamboyan4.web.id")
-              if not any(d.get("name")=="flamboyan4.web.id" and d.get("proxied") is True for d in dns):
-                  raise RuntimeError("Apex DNS is not proxied; route not installed")
-              call(path,"POST",{"pattern":pattern,"script":worker})
-          read("flamboyan4.web.id")
+              # Reuse only the existing proxied www CNAME. Never change apex DNS.
+              dns=call("/zones/"+zone+"/dns_records?name="+host)
+              if not any(d.get("name")==host and d.get("type")=="CNAME" and d.get("proxied") is True for d in dns):
+                  raise RuntimeError("WWW CNAME is not proxied; route not installed")
+              created=call(path,"POST",{"pattern":pattern,"script":worker})
+          else:
+              created=None
+          try:
+              page=read(host)
+              image_url=re.search(r'property="og:image" content="([^"]+)"',page).group(1)
+              if image_url!="https://"+host+"/s/vzud-FqI/image":
+                  raise RuntimeError("Expected photo-specific preview image URL")
+              req=urllib.request.Request(image_url,headers={"User-Agent":"F4-Share-Route-Smoke/1.0"})
+              with urllib.request.urlopen(req,timeout=20) as response:
+                  if not response.headers.get_content_type().startswith("image/") or not response.read(32):
+                      raise RuntimeError("Photo preview image unavailable")
+          except Exception:
+              if created and created.get("id"):
+                  call(path+"/"+created["id"],"DELETE")
+              raise
           print("Public share route verified; legacy API links retained.")
           PY
