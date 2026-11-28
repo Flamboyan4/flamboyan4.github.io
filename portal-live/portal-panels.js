@@ -21,7 +21,7 @@ function publicCashState(show){
 async function loadPublicCash(){
  if(!publicCash||publicCash.hidden)return;
  const generation=++publicCashGeneration,status=publicCash.querySelector('[data-public-cash-status]'),retry=publicCash.querySelector('[data-public-cash-retry]');
- status.textContent='Memuat ringkasan kas…';retry.hidden=true;
+ status.closest('.f4-public-cash-note').hidden=false;status.textContent='Memuat ringkasan kas…';retry.hidden=true;
  for(const node of publicCash.querySelectorAll('[data-public-cash-value]'))node.textContent='—';
  try{
   const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal/cash-summary',{credentials:'omit',cache:'no-store',headers:{Accept:'application/json'}});
@@ -30,7 +30,7 @@ async function loadPublicCash(){
   if(!response.ok||result?.ok!==true||!data||!['saldoRp','totalMasukRp','totalKeluarRp'].every(k=>__f4.globals.Number.isSafeInteger(data[k]))||data.totalMasukRp<0||data.totalKeluarRp<0||data.saldoRp!==data.totalMasukRp-data.totalKeluarRp)throw (0,__f4.globals.Error)('Ringkasan belum tersedia');
   const rupiah=new __f4.globals.Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0});
   for(const node of publicCash.querySelectorAll('[data-public-cash-value]'))node.textContent=rupiah.format(data[node.dataset.publicCashValue]);
-  status.textContent='Akumulasi sejak awal pencatatan · Laporan lengkap tersedia setelah login sebagai warga.';
+  status.textContent='';status.closest('.f4-public-cash-note').hidden=true;
  }catch(e){
   if(generation!==publicCashGeneration||publicCash.hidden)return;
   status.textContent='Ringkasan kas belum tersedia.';retry.hidden=false;
