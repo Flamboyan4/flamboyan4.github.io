@@ -32,7 +32,7 @@
 #keuangan:not(.f4-finance-personal-active) .f4-cash-toolbar .f4-controls {
   margin-left:auto;gap:8px;
 }
-#keuangan .f4-cash-mobile-actions{display:flex;align-items:center;gap:5px;flex:none}
+#keuangan .f4-cash-mobile-actions{display:none;align-items:center;gap:5px;flex:none}
 #keuangan .f4-cash-mobile-actions button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:34px;flex:none;padding:0 7px;border:1px solid #ffffff55;border-radius:9px;background:#ffffff20;color:#fff;font:600 11px/1.2 system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 #keuangan .f4-cash-mobile-actions button:hover{background:#ffffff35}
 #keuangan .f4-cash-mobile-actions svg{width:15px;height:15px;display:block;flex:none}
@@ -248,6 +248,7 @@ body[data-preview-role]:not([data-preview-role="public"]) #keuangan:not(.f4-fina
   #keuangan:not(.f4-finance-personal-active) .f4-cash-overview #f4-private-transactions {height:350px;max-height:350px}
 }
 @media (max-width:767px) {
+  body[data-preview-role]:not([data-preview-role="public"]) #keuangan .f4-cash-mobile-actions{display:flex}
   /* Mobile cash overview: balance and paired cash-flow slides. */
   #keuangan .f4-cash-overview {
     display:grid;grid-template-columns:minmax(0,1fr);
