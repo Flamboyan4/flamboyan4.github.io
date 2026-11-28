@@ -103,9 +103,189 @@ doc.addEventListener('keydown',e=>{if(e.key==='Escape'&&historySheet&&!historySh
 doc.addEventListener('click',e=>{if(historySheet&&!historySheet.hidden&&e.target?.closest?.('#f4-direct-dock'))closeHistory(false)},true);
 __f4.cleanup(()=>{closeHistory(false);historySheet?.remove();historySheet=null;win.F4MobileSheets?.refresh?.()});
 
-async function load(){
+
+/* Resident transparency: read-only projections of the same posted journal as the homepage. */
+const cashMonths=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const cashMonthKey=(year,index)=>year+'-'+String(index+1).padStart(2,'0');
+const netCash=r=>r.debit-r.kredit;
+function cashRows(data){
+ const list=data?.data?.rows;
+ if(!Array.isArray(list)||list.length!==data.data.jumlahTransaksi||list.some(r=>!r||!/^\d{4}-(0[1-9]|1[0-2])-\d{2}$/.test(r.tanggal)||![r.debit,r.kredit].every(n=>Number.isSafeInteger(n)&&n>=0)||((r.debit>0)===(r.kredit>0))))throw Error('Jurnal kas lengkap belum tersedia.');
+ return list.slice().sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+}
+function cashStats(rows,year,month){
+ const start=year+'-'+(month||'01'),end=year+'-'+(month||'12');
+ const selected=rows.filter(r=>r.tanggal.slice(0,7)>=start&&r.tanggal.slice(0,7)<=end);
+ const opening=rows.filter(r=>r.tanggal.slice(0,7)<start).reduce((s,r)=>s+netCash(r),0);
+ const incoming=selected.reduce((s,r)=>s+r.debit,0),outgoing=selected.reduce((s,r)=>s+r.kredit,0);
+ const closing=opening+incoming-outgoing;
+ const buckets=Array.from({length:12},(_,i)=>({key:cashMonthKey(year,i),label:cashMonths[i],incoming:0,outgoing:0,closing:0}));
+ let running=rows.filter(r=>r.tanggal<year+'-01-01').reduce((s,r)=>s+netCash(r),0);
+ for(const r of rows){const b=buckets.find(x=>x.key===r.tanggal.slice(0,7));if(b){b.incoming+=r.debit;b.outgoing+=r.kredit}}
+ for(const b of buckets){running+=b.incoming-b.outgoing;b.closing=running}
+ const categories=new Map();
+ for(const r of selected){if(r.kredit){const k=String(r.kategori||'Tanpa kategori').trim()||'Tanpa kategori';categories.set(k,(categories.get(k)||0)+r.kredit)}}
+ return {selected,opening,incoming,outgoing,closing,buckets,categories:[...categories.entries()].sort((a,b)=>b[1]-a[1])};
+}
+const cashCompact=n=>new Intl.NumberFormat('id-ID',{notation:'compact',maximumFractionDigits:1}).format(n);
+const cashEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cashNote=r=>{
+ const note=String(r.keterangan||r.kategori||'Transaksi kas').trim();
+ const fine=note.match(/^Denda Gorol\s+([A-Za-z]+)(?:\s+(20\d{2}))?/i),counts=[...note.matchAll(/\b(\d+)\s*(?:pembayaran|warga|orang)\b/gi)];
+ if(fine&&counts.length&&Number(counts.at(-1)[1])>0)return 'Denda Gorol '+fine[1]+' '+(fine[2]||r.tanggal.slice(0,4))+' • '+counts.at(-1)[1]+' warga';
+ return note.replace(/(\s*•\s*\d+\s+pembayaran)\1\s*$/i,'$1');
+};
+function financeHeading(view){
+ const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan'));
+ const tabs=el('div','rp-finance-tabs');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Jenis keuangan');
+ for(const [key,label] of [['environment','Lingkungan'],['personal','Pribadi']]){
+  const b=btn(label,()=>{if(key!==view)void load(key)},'rp-tab');b.setAttribute('aria-pressed',String(key===view));tabs.append(b);
+ }
+ root.append(heading,tabs);
+}
+function financeCard(title){
+ const card=el('section','rp-card rp-finance-card');card.append(el('h2','',title));return card;
+}
+function cashMetric(label,value,cls=''){
+ const item=el('div','rp-cash-metric '+cls);item.append(el('small','',label),el('strong','',money(value)));return item;
+}
+function cashChart(title,buckets,line,year,month){
+ const card=financeCard(title);card.append(el('p','rp-finance-caption','Per bulan · '+year+(month?' · Bulan dipilih disorot':'')));
+ const W=360,H=183,left=43,right=8,top=12,bottom=29,plotW=W-left-right,plotH=H-top-bottom;
+ const values=line?buckets.map(b=>b.closing):buckets.flatMap(b=>[b.incoming,b.outgoing]);
+ const min=Math.min(0,...values),max=Math.max(0,...values),span=max-min||1;
+ const y=v=>top+(max-v)/span*plotH,x=i=>left+(i+.5)*plotW/12;
+ const step=plotW/12,zero=y(0);
+ let svg='<svg class="rp-finance-chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+cashEsc(title+' '+year)+'" xmlns="http://www.w3.org/2000/svg">';
+ for(let i=0;i<=4;i++){const v=min+(max-min)*i/4,py=y(v);svg+='<path d="M'+left+' '+py+'H'+(W-right)+'" stroke="#e4e8f0" stroke-dasharray="3 3"/><text x="'+(left-5)+'" y="'+(py+3)+'" text-anchor="end" fill="#64748b" font-size="9">'+cashEsc(cashCompact(v))+'</text>'}
+ if(month){const i=Number(month)-1;svg+='<rect x="'+(x(i)-step/2)+'" y="'+top+'" width="'+step+'" height="'+plotH+'" rx="3" fill="#eeebff"/>'}
+ if(line){
+  const points=buckets.map((b,i)=>x(i)+','+y(b.closing)).join(' ');
+  svg+='<polyline points="'+points+'" fill="none" stroke="#6550dd" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
+  buckets.forEach((b,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(b.closing)+'" r="3" fill="#6550dd"><title>'+cashEsc(b.label+' '+money(b.closing))+'</title></circle>'});
+ }else{
+  buckets.forEach((b,i)=>{for(const [v,offset,color,label] of [[b.incoming,-5,'#169b62','Kas masuk'],[b.outgoing,5,'#e65462','Kas keluar']]){svg+='<rect x="'+(x(i)+offset-4)+'" y="'+Math.min(y(v),zero)+'" width="8" height="'+Math.abs(zero-y(v))+'" rx="1.5" fill="'+color+'"><title>'+cashEsc(b.label+' · '+label+' '+money(v))+'</title></rect>'}});
+ }
+ buckets.forEach((b,i)=>{svg+='<text x="'+x(i)+'" y="'+(H-10)+'" text-anchor="middle" fill="#64748b" font-size="9">'+b.label+'</text>'});
+ const graph=el('div');graph.innerHTML=svg+'</svg>';card.append(graph);
+ const legend=el('div','rp-finance-legend');
+ for(const [label,cls] of line?[['Saldo akhir','is-balance']]:[['Kas masuk','is-in'],['Kas keluar','is-out']]){const node=el('span',cls,label);legend.append(node)}
+ card.append(legend);return card;
+}
+function cashComposition(stats){
+ const card=financeCard('Komposisi Pengeluaran');
+ if(!stats.outgoing){card.append(el('p','rp-empty','Belum ada pengeluaran pada periode ini.'));return card}
+ const colors=['#6550dd','#16a36a','#09a6cf','#f4a622','#e65462','#3483dc','#8b56bb'];
+ const wrap=el('div','rp-finance-composition'),graph=el('div','rp-finance-donut'),legend=el('div','rp-finance-category-list');
+ const categories=stats.categories.length>6?[...stats.categories.slice(0,6),['Lainnya',stats.categories.slice(6).reduce((sum,c)=>sum+c[1],0)]]:stats.categories;
+ const C=2*Math.PI*43;let offset=0;
+ let svg='<svg viewBox="0 0 116 116" role="img" aria-label="Komposisi pengeluaran" xmlns="http://www.w3.org/2000/svg"><circle cx="58" cy="58" r="43" fill="none" stroke="#edf0f5" stroke-width="16"/>';
+ categories.forEach(([name,value],i)=>{const length=value/stats.outgoing*C;
+  svg+='<circle cx="58" cy="58" r="43" fill="none" stroke="'+colors[i]+'" stroke-width="16" stroke-dasharray="'+length+' '+(C-length)+'" stroke-dashoffset="'+(-offset)+'" transform="rotate(-90 58 58)"><title>'+cashEsc(name+' '+money(value))+'</title></circle>';offset+=length;
+  const row=el('div','rp-finance-category'),dot=el('span','rp-finance-dot'),info=el('div'),amount=el('strong','',money(value));dot.style.backgroundColor=colors[i];info.append(el('span','',name),el('small','',(100*value/stats.outgoing).toLocaleString('id-ID',{maximumFractionDigits:1})+'%'));row.append(dot,info,amount);legend.append(row);
+ });
+ graph.innerHTML=svg+'<text x="58" y="54" text-anchor="middle" fill="#64748b" font-size="9">Total keluar</text><text x="58" y="68" text-anchor="middle" fill="#27334d" font-size="12" font-weight="700">'+cashEsc(cashCompact(stats.outgoing))+'</text></svg>';
+ wrap.append(graph,legend);card.append(wrap);return card;
+}
+function cashExport(stats,period){
+ const title='Laporan Kas Lorong · '+period;
+ const rows=stats.selected.slice().reverse().map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+cashEsc(shortDate(r.tanggal))+'</td><td>'+cashEsc(cashNote(r))+'</td><td class="num">'+(r.debit?cashEsc(money(r.debit)):'—')+'</td><td class="num">'+(r.kredit?cashEsc(money(r.kredit)):'—')+'</td></tr>').join('')||'<tr><td colspan="5">Tidak ada transaksi.</td></tr>';
+ const summary=[['Saldo sebelum periode',stats.opening],['Kas masuk',stats.incoming],['Kas keluar',stats.outgoing],['Saldo akhir',stats.closing]].map(([label,v])=>'<div class="metric"><small>'+label+'</small><strong>'+cashEsc(money(v))+'</strong></div>').join('');
+ const html='<!doctype html><html><head><meta charset="utf-8"><title>'+cashEsc(title)+'</title><style>@page{size:A4 portrait;margin:12mm}body{font:12px/1.45 Arial,sans-serif;color:#27334d}h1{font-size:19px;margin:0;color:#5145cd}p{margin:4px 0 12px}.summary{display:flex;gap:6px;margin:12px 0}.metric{flex:1;border:1px solid #ddd;padding:8px}.metric small,.metric strong{display:block}.metric strong{font-size:13px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cbd5e1;padding:6px 5px;text-align:left}th{background:#ede9fe}.num{text-align:right;white-space:nowrap}small{color:#64748b}</style></head><body><h1>LAPORAN KEUANGAN KAS LORONG FLAMBOYAN 4</h1><p>RT 001 RW 026 · Pesona Kahuripan 2<br>'+cashEsc(period)+'</p><div class="summary">'+summary+'</div><h2>Rincian transaksi</h2><table><thead><tr><th>No</th><th>Tanggal</th><th>Keterangan</th><th>Masuk</th><th>Keluar</th></tr></thead><tbody>'+rows+'</tbody></table><p><small>Sumber: jurnal kas aktif Pembukuan Flamboyan 4. Saldo awal serah terima mengikuti pencatatan jurnal. Diunduh '+cashEsc(dateLabel(today()))+'.</small></p></body></html>';
+ if(win.F4Pdf?.openHTML)void win.F4Pdf.openHTML(html,{title,format:'a4',orientation:'portrait'});else win.alert('Fitur PDF belum siap. Muat ulang halaman.');
+}
+async function loadEnvironment(seq){
+ const cash=el('div','rp-environment'),bank=financeCard('Keuangan Bank Sampah'),projects=financeCard('Pendanaan Projek');
+ root.append(cash,bank,projects);
+ const active=()=>seq===serial&&!!account;
+ cash.append(el('p','rp-empty','Memuat jurnal kas lorong…'));bank.append(el('p','rp-empty','Memuat keuangan Bank Sampah…'));projects.append(el('p','rp-empty','Memuat pendanaan projek…'));
+ async function loadCash(){
+  cash.replaceChildren(el('p','rp-empty','Memuat jurnal kas lorong…'));
+  try{
+   const rows=cashRows(await read('/api/v2/public/portal/cash'));if(!active())return;
+   cash.replaceChildren();
+   const toolbar=el('div','rp-finance-toolbar'),heading=el('div'),filters=el('div','rp-finance-filters'),year=el('select','rp-history-filter'),month=el('select','rp-history-filter');
+   heading.append(el('h2','','Laporan Kas Lorong'),el('p','rp-finance-caption','Sumber: Pembukuan · '+(rows.length?'Transaksi terakhir '+shortDate(rows[0].tanggal):'Belum ada transaksi')));
+   year.dataset.noCustom=month.dataset.noCustom='1';year.setAttribute('aria-label','Tahun laporan');month.setAttribute('aria-label','Bulan laporan');
+   const option=(s,v,label)=>{const o=el('option','',label);o.value=v;s.append(o)};
+   const current=today().slice(0,4);for(const y of [...new Set([current,...rows.map(r=>r.tanggal.slice(0,4))])].sort().reverse())option(year,y,y);
+   year.value=current;option(month,'','Setahun');cashMonths.forEach((_,i)=>option(month,String(i+1).padStart(2,'0'),new Date(Date.UTC(2000,i,1)).toLocaleDateString('id-ID',{month:'long',timeZone:'UTC'})));
+   filters.append(month,year);toolbar.append(heading,filters);cash.append(toolbar);
+   const report=el('div','rp-environment');cash.append(report);
+   function render(){
+    const stats=cashStats(rows,year.value,month.value),period=month.value?month.options[month.selectedIndex].text+' '+year.value:'Tahun '+year.value;
+    report.replaceChildren();
+    const summary=el('section','rp-cash-report-hero'),head=el('div','rp-between'),main=el('div','rp-cash-main-value');
+    main.append(el('small','','Saldo akhir · '+period),el('strong','',money(stats.closing)));
+    const pdf=btn('PDF',()=>cashExport(stats,period),'rp-cash-pdf');pdf.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>');pdf.setAttribute('aria-label','Unduh laporan kas PDF');
+    head.append(main,pdf);summary.append(head);
+    const metrics=el('div','rp-cash-metrics');metrics.append(cashMetric('Saldo sebelumnya',stats.opening),cashMetric('Kas masuk',stats.incoming),cashMetric('Kas keluar',stats.outgoing));summary.append(metrics);report.append(summary);
+    const graphs=el('div','rp-finance-graphs');graphs.append(cashChart('Kas Masuk & Keluar',stats.buckets,false,year.value,month.value),cashChart('Perkembangan Saldo',stats.buckets,true,year.value,month.value));report.append(graphs,cashComposition(stats));
+    const detail=financeCard('Rincian Transaksi'),controls=el('div','rp-finance-filters'),direction=el('select','rp-history-filter'),search=el('input','rp-history-filter');
+    direction.dataset.noCustom='1';direction.setAttribute('aria-label','Jenis transaksi');option(direction,'all','Semua transaksi');option(direction,'in','Kas masuk');option(direction,'out','Kas keluar');
+    search.type='search';search.placeholder='Cari keterangan…';search.setAttribute('aria-label','Cari transaksi');
+    controls.append(search,direction);detail.append(el('p','rp-finance-caption',period+' · Pengelompokan iuran mengikuti jurnal asli.'),controls);
+    const list=el('div','rp-finance-ledger'),more=el('div','rp-history-more');detail.append(list,more);
+    let limit=25;
+    function paint(){
+     list.replaceChildren();more.replaceChildren();
+     const q=search.value.trim().toLowerCase(),matching=stats.selected.filter(r=>(direction.value==='all'||(direction.value==='in'?r.debit>0:r.kredit>0))&&(!q||(cashNote(r)+' '+r.kategori+' '+r.tanggal).toLowerCase().includes(q)));
+     if(!matching.length){list.append(el('p','rp-empty','Tidak ada transaksi pada pilihan ini.'));return}
+     matching.slice(0,limit).forEach(r=>{const row=el('div','rp-history-row'),text=el('div','rp-history-detail');text.append(el('strong','',cashNote(r)),el('small','',shortDate(r.tanggal)+(r.kategori?' · '+r.kategori:'')));row.append(text,el('strong','rp-history-amount '+(r.debit?'is-in':'is-out'),(r.debit?'+':'−')+money(r.debit||r.kredit)));list.append(row)});
+     if(matching.length>limit)more.append(btn('Tampilkan berikutnya ('+(matching.length-limit)+')',()=>{limit+=25;paint()}));
+    }
+    search.oninput=direction.onchange=()=>{limit=25;paint()};paint();report.append(detail);
+   }
+   year.onchange=month.onchange=render;render();
+  }catch(e){if(active())cash.replaceChildren(el('p','rp-empty',e.message||'Laporan kas belum dapat dimuat.'),btn('Coba lagi',loadCash,'rp-small'))}
+ }
+ void loadCash();
+ async function loadBank(){
+  bank.replaceChildren(el('h2','','Keuangan Bank Sampah'),el('p','rp-empty','Memuat keuangan Bank Sampah…'));
+  const results=await Promise.allSettled([read('/api/v2/bank/finance-summary'),read('/api/v2/public/bank/report')]);if(!active())return;
+  bank.replaceChildren(el('h2','','Keuangan Bank Sampah'));
+  const summary=results[0].status==='fulfilled'?results[0].value:null,report=results[1].status==='fulfilled'?results[1].value:null;
+  if(summary&&[summary.totalPenjualanRp,summary.totalTabunganWargaRp,summary.kasBankSampahRp].every(Number.isSafeInteger)){
+   bank.append(el('p','rp-finance-caption','Akumulasi keseluruhan · saldo tabungan terpisah dari kas bank'));
+   const metrics=el('div','rp-finance-program-metrics');metrics.append(cashMetric('Penjualan disahkan',summary.totalPenjualanRp),cashMetric('Saldo tabungan warga',summary.totalTabunganWargaRp),cashMetric('Kas Bank Sampah',summary.kasBankSampahRp));bank.append(metrics);
+  }else bank.append(el('p','rp-empty','Ringkasan saldo Bank Sampah belum tersedia.'));
+  if(report&&Array.isArray(report.bulanan)){
+   const filter=el('select','rp-history-filter');filter.dataset.noCustom='1';filter.setAttribute('aria-label','Periode laporan Bank Sampah');
+   const all=el('option','','Semua periode');all.value='';filter.append(all);
+   for(const m of report.bulanan){const o=el('option','',m.periode);o.value=m.periode;filter.append(o)}
+   const top=el('div','rp-finance-toolbar');top.append(el('h3','','Pembagian hasil penjualan'),filter);bank.append(top);
+   const detail=el('div','rp-finance-program-detail');bank.append(detail);
+   const fields=[['hasilPenjualan','Hasil penjualan'],['hakWarga','Hak warga'],['kasLorong','Bagian lingkungan'],['operasional','Operasional'],['cadangan','Cadangan'],['pengeluaran','Pengeluaran']];
+   function paint(){const rows=report.bulanan.filter(r=>!filter.value||r.periode===filter.value);detail.replaceChildren();for(const [key,label] of fields){const values=rows.map(r=>r[key]);const value=values.every(Number.isSafeInteger)?money(values.reduce((s,v)=>s+v,0)):'—';const row=el('div','rp-dues-row');row.append(el('span','',label),el('strong','',value));detail.append(row)}}
+   filter.onchange=paint;paint();
+  }else bank.append(el('p','rp-empty','Laporan pembagian hasil belum dapat dimuat.'));
+  if(!summary||!report)bank.append(btn('Muat ulang Bank Sampah',loadBank,'rp-small'));
+  bank.append(link('Buka Bank Sampah','/bank-sampah/','rp-small'));
+ }
+ void loadBank();
+ async function loadProjects(){
+  projects.replaceChildren(el('h2','','Pendanaan Projek'),el('p','rp-empty','Memuat pendanaan projek…'));
+  try{
+   const data=await read('/api/v2/public/portal');if(!active())return;if(!Array.isArray(data.projects))throw Error('Data projek belum tersedia.');
+   projects.replaceChildren(el('h2','','Pendanaan Projek'),el('p','rp-finance-caption','Dana setiap projek ditampilkan terpisah dan tidak dijumlahkan dengan saldo kas lorong.'));
+   const funded=data.projects.filter(p=>['pesanan','penggalangan','kas'].includes(p.project_kind)&&p.ringkasan);
+   if(!funded.length)projects.append(el('p','rp-empty','Belum ada projek dengan ringkasan pendanaan.'));
+   for(const p of funded){const r=p.ringkasan,item=el('div','rp-finance-project'),target=p.project_kind==='pesanan'?r.totalTagihanRp:p.fund_target_rp;
+    item.append(el('strong','',p.title||'Projek'));
+    const fields=[['Dana masuk',r.danaMasukRp],...(p.project_kind==='kas'&&p.fund_source?[['Pengeluaran tercatat',r.danaKeluarRp]]:[]),...(Number.isSafeInteger(target)&&target>0?[[p.project_kind==='pesanan'?'Total tagihan':'Target dana',target]]:[])];
+    for(const [label,v] of fields){const row=el('div','rp-dues-row');row.append(el('span','',label),el('strong','',Number.isSafeInteger(v)?money(v):'—'));item.append(row)}
+    if(p.project_kind==='kas'&&!p.fund_source)item.append(el('small','rp-finance-caption','Sumber dana belum dihubungkan.'));
+    projects.append(item);
+   }
+  }catch(e){if(active())projects.replaceChildren(el('h2','','Pendanaan Projek'),el('p','rp-empty',e.message||'Data projek belum dapat dimuat.'),btn('Coba lagi',loadProjects,'rp-small'))}
+ }
+ void loadProjects();
+}
+
+async function load(view='personal'){
  closeHistory(false);const seq=++serial;root.replaceChildren();busy=true;
- const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan Saya'),link('Kas Lingkungan','/?halaman=kas-warga','rp-small'));root.append(heading);
+ financeHeading(view);
+ if(view==='environment'){busy=false;void loadEnvironment(seq);return;}
  const bank=el('section','rp-bank');bank.innerHTML='<div class="rp-between"><h2>Tabungan Bank Sampah</h2><button type="button" class="rp-eye" aria-label="Tampilkan saldo" aria-pressed="false"></button></div><p>Total saldo belum dicairkan</p><strong class="rp-saldo" data-amount="total">Rp ••••••</strong><div class="rp-split"><div><small>Bisa dicairkan</small><b data-amount="available">Rp ••••</b></div><div><small>Menunggu penjualan</small><b data-amount="pending">Rp ••••</b></div></div>';
  const bankActions=el('div','rp-bank-actions');
  const savingsHistory=historyButton('Riwayat Tabungan',()=>showHistory('savings',savingsHistory,getSavings));
