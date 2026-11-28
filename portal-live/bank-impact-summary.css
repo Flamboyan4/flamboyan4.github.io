@@ -1,6 +1,6 @@
 /* Public Bank Sampah app — canonical hero, main canvas and metric components.
    Other application pages and the private finance block below are unaffected. */
-#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:var(--f4-bank-canvas,#f8faf9)}
+#v11Public #v18PublicContent{min-width:0;max-width:100%;width:100%;background:#fff}
 /* Public-only app bar; member and admin navigation remain untouched. */
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
  background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
@@ -18,70 +18,54 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  width:100%;max-width:980px;min-width:0;margin:0 auto;
  padding:22px 24px 54px;column-gap:16px;row-gap:17px
 }
+/* Public home: compact introduction, independent calendar and consistent type. */
 #v11Public .v17-public-main>.v17-public-banner{
- position:relative;isolation:isolate;box-sizing:border-box;
- grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(195px,.8fr);
- align-items:center;gap:18px;min-width:0;min-height:214px;
- width:100%;margin:0;padding:26px 29px;overflow:hidden;
- border:0;border-radius:25px;color:#fff;
- background:radial-gradient(circle at 96% 3%,#e6ff9b2a,transparent 39%),linear-gradient(123deg,#086754 0%,#07816b 52%,#0a8760 100%);
- box-shadow:0 12px 28px #08745425
-}
-.bank-public-links{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px}
-#v11Public .bank-public-links button{min-height:42px;margin:0;padding:8px 15px;border-radius:10px;font:700 14px/1.3 system-ui;cursor:pointer}
-.bank-public-links button:last-child{background:white;color:#15583c;border:0}
-.bank-public-schedule{position:relative;min-width:0;padding:18px;border-radius:14px;background:#fff;color:#17452e;border-left:5px solid #fdc010}
-.bank-public-schedule>div{display:flex;align-items:center;gap:9px}
-.bank-public-schedule img{width:23px;height:23px}
-#v11Public .bank-public-schedule h2{margin:0;font:650 14px/1.3 system-ui;color:#365b47}
-.bank-public-schedule strong,.bank-public-schedule span{display:block}
-.bank-public-schedule strong{margin:10px 0 2px;font-size:clamp(21px,2.5vw,32px);line-height:1.2}
-.bank-public-schedule span{font-weight:600;font-size:15px}
-#v11Public .v17-public-main>.v17-public-banner::before{
- content:"";position:absolute;z-index:-1;inset:auto -63px -127px auto;
- width:275px;height:275px;border:1px solid #ffffff1c;border-radius:50%;
- box-shadow:0 0 0 48px #ffffff07,0 0 0 98px #ffffff05;pointer-events:none
+ box-sizing:border-box;grid-column:1/9;display:flex;align-items:center;
+ min-width:0;width:100%;margin:0;padding:22px;border:0;border-radius:16px;
+ color:#fff;background:linear-gradient(125deg,#08765f,#078a69);box-shadow:none
 }
 #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-copy{
- min-width:0;display:flex;flex-direction:column;align-items:flex-start
+ display:grid;gap:8px;min-width:0;width:100%
 }
-
 #v11Public .v17-public-main>.v17-public-banner h1{
- max-width:535px;margin:15px 0 8px;
- color:#fff;font-size:clamp(26px,3vw,38px);
- line-height:1.14;font-weight:880;letter-spacing:-.035em;text-wrap:balance
+ margin:0;max-width:540px;color:#fff;font:700 22px/1.3 system-ui,sans-serif;
+ letter-spacing:-.02em;text-wrap:balance
 }
-#v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
- max-width:430px;margin:0;color:#d6f3e0;opacity:1;
- font-size:12px;line-height:1.55;font-weight:500
+#v11Public .v17-public-main>.v17-public-banner .f4-impact-intro{
+ margin:0;color:#e8fff4;font:400 14px/1.45 system-ui,sans-serif
 }
-#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
- display:inline-flex;align-items:center;justify-content:center;gap:8px;
- min-height:42px;margin:0;padding:8px 15px;
- border:0;border-radius:var(--f4-panel-radius,12px);background:#ffcc32;color:#184735;
- box-shadow:0 5px 14px #07563e22;font-size:11px;font-weight:820;line-height:1.2;
- white-space:nowrap;cursor:pointer
+#v11Public .bank-public-links{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;width:100%;max-width:360px;margin:6px 0 0
 }
-#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action svg{
- display:block;flex:none;width:15px;height:15px;stroke:currentColor
+#v11Public .bank-public-links button{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:44px;margin:0;padding:8px 6px;border:0;border-radius:9px;
+ background:#fff;color:#08765f;font:600 14px/1.3 system-ui,sans-serif;
+ text-align:center;white-space:normal;box-shadow:none;cursor:pointer
 }
-#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:hover{
- background:#ffe073;color:#164332
+#v11Public .bank-public-links .f4-public-hero-action{background:#fdc010;color:#263a2b}
+#v11Public .bank-public-links .f4-public-hero-action:hover{background:#ffd14a}
+#v11Public .bank-public-links button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#v11Public .v17-public-main>.bank-public-schedule{
+ box-sizing:border-box;grid-column:9/-1;display:grid;
+ grid-template-columns:52px minmax(0,1fr);align-items:center;gap:12px;
+ min-width:0;margin:0;padding:14px;border:1px solid #dce5df;border-radius:16px;
+ background:#fff;color:#17452e;box-shadow:none
 }
-#v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action:focus-visible{
- outline:2px solid #f7d362;outline-offset:3px
+#v11Public .bank-public-calendar{
+ box-sizing:border-box;display:grid;align-content:center;justify-items:center;
+ gap:2px;min-height:60px;border-radius:10px;background:#e8f5e9;color:#278347
 }
-
-/* Public information path: motivation → accepted items → participation → evidence → report.
-   These are the canonical rules for the newly introduced public components. */
-#v11Public .f4-public-hero-eyebrow{
- display:inline-flex;align-items:center;min-height:22px;padding:4px 9px;
- border:1px solid #ffffff55;border-radius:999px;background:#ffffff16;
- color:#e8fff2;font-size:10px;font-weight:800;line-height:1.3;letter-spacing:.06em
-}
-#v11Public .v17-public-main>.v17-public-banner h1{margin:11px 0 10px}
+#v11Public .bank-public-calendar span{font:600 11px/1.2 system-ui,sans-serif}
+#v11Public .bank-public-calendar strong{font:700 26px/1.1 system-ui,sans-serif}
+#v11Public .bank-public-schedule-copy{min-width:0}
+#v11Public .bank-public-schedule h2{margin:0 0 5px;color:#61736a;font:500 12px/1.4 system-ui,sans-serif}
+#v11Public .bank-public-schedule-copy p{margin:0;color:#17452e;font:600 14px/1.4 system-ui,sans-serif}
+#v11Public .bank-public-schedule-copy p strong{font:inherit}
+#v11Public .bank-public-calendar-icon{display:none;width:22px;height:22px}
 #v11Public .bank-public-schedule #bank-next-location{
- display:block;margin-top:9px;color:#577264;font-size:11.5px;line-height:1.45
+ display:block;margin-top:4px;color:#61736a;font:400 12px/1.4 system-ui,sans-serif
 }
 #v11Public .bank-public-schedule #bank-next-location[hidden]{display:none}
 #v11Public :is(.f4-public-stories,.f4-public-info,.f4-public-transparency){
@@ -469,140 +453,58 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 
 /* Three public outcomes are easier to scan than operational counters. */
+/* One neutral statistics panel, without separate colored cards. */
 #v11Public .v17-public-main>.v17-public-metrics{
  box-sizing:border-box;grid-column:1/-1;display:grid;
- grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;
- align-items:stretch;min-width:0;width:100%;margin:0;padding:0;
- border:0;border-radius:0;background:transparent;overflow:visible
+ grid-template-columns:minmax(0,1.5fr) repeat(2,minmax(0,1fr));gap:0;
+ align-items:center;min-width:0;width:100%;margin:0;padding:14px;
+ border:1px solid #dce5df;border-radius:16px;background:#fff;box-shadow:none;
+ color:#61736a;font:400 12px/1.4 system-ui,sans-serif
 }
+#v11Public .v17-public-main>.v17-public-metrics:not(:has(.v17-public-metric)){grid-template-columns:minmax(0,1fr)}
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
- box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);
- grid-template-rows:auto 1fr;align-items:center;column-gap:8px;row-gap:6px;
- min-width:0;min-height:106px;margin:0;padding:14px;
- border:1px solid #c0decf;border-radius:var(--f4-panel-radius,12px);background:#fff;
- box-shadow:0 8px 19px #0b785621
+ box-sizing:border-box;display:grid;gap:5px;align-content:center;
+ min-width:0;min-height:0;margin:0;padding:2px 14px;
+ border:0;border-radius:0;background:transparent;box-shadow:none
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
- content:"";box-sizing:border-box;grid-column:1;grid-row:1;
- display:grid;place-items:center;width:30px;height:30px;margin:0;
- border-radius:var(--f4-panel-radius,12px);background:#daf7e6
- url('/assets/icons/bank.svg?v=lucide-recycle-20261027') center/18px no-repeat
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]::before{
- background-color:#90deb1;background-image:url('/assets/icons/user.svg')
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]::before{
- background-color:#b4beff;background-image:url('/assets/icons/inventory.svg')
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]::before{
- background-color:#e6afe4;background-image:url('/assets/icons/calendar.svg')
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]::before{
- background-color:#ffdf7a;background-image:url('/assets/icons/bank.svg')
-}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric+.v17-public-metric{border-left:1px solid #e2e9e4}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{content:none;display:none}
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
- grid-column:2;grid-row:1;min-width:0;margin:0;color:#657b6c;
- font-size:10.5px;font-weight:690;line-height:1.3;overflow-wrap:anywhere
+ display:block;margin:0;color:#61736a;font:500 12px/1.4 system-ui,sans-serif
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
- grid-column:1/-1;grid-row:2;align-self:end;min-width:0;
- display:block;margin:0;color:#11654b;
- font-size:clamp(21px,2.1vw,29px);font-weight:880;line-height:1.1;
- letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums
+ display:block;min-width:0;margin:0;color:#167749;
+ font:700 22px/1.2 system-ui,sans-serif;font-variant-numeric:tabular-nums;overflow-wrap:anywhere
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
- grid-column:auto;min-height:106px;padding:14px;
- border-color:#b8e2cb;background:#fff;border-top:3px solid #43a047
+ display:flex;align-items:center;gap:8px;padding:2px 14px 2px 0
 }
 #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
- background-color:#79e0ac
+ content:"";display:block;flex:0 0 22px;width:22px;height:22px;
+ background:#278347;mask:url('/assets/icons/bank.svg') center/contain no-repeat
 }
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
- color:#295f3e
-}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
- color:#07583d
-}
-/* The KPI backgrounds communicate category without extra card-in-card frames. */
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=inventory]{background:#fff;border-color:#cbe6f7;border-top:3px solid #5969da}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=calendar]{background:#fff;border-color:#dad0fb;border-top:3px solid #b452ba}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=deposit]{background:#fff;border-color:#eedb9a;border-top:3px solid #fdc010}
-#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric[data-metric=user]:not(:first-child){background:#fff;border-color:#b7e5ce;border-top:3px solid #43a047}
-@media(max-width:1100px){
- #v11Public .v17-public-main>.v17-public-metrics{
-  grid-template-columns:repeat(3,minmax(0,1fr))
- }
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{flex:1;font-size:14px}
+#v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{font-size:26px;white-space:nowrap}
+@media(max-width:1050px){
+ #v11Public .v17-public-main>.v17-public-banner{grid-column:1/-1}
+ #v11Public .v17-public-main>.bank-public-schedule{grid-column:1/-1;grid-template-columns:52px minmax(0,1fr) 22px}
+ #v11Public .bank-public-calendar-icon{display:block}
 }
 @media(max-width:760px){
  #v11Public #v18PublicContent .v17-public-main{
-  width:100%;max-width:540px;min-width:0;padding:16px 18px 44px;
-  column-gap:11px;row-gap:14px
+  width:100%;max-width:540px;min-width:0;padding:14px 12px 44px;
+  column-gap:10px;row-gap:12px
  }
- #v11Public .v17-public-main>.v17-public-banner{
-  grid-template-columns:minmax(0,1fr);
-  gap:17px;min-height:0;padding:20px 16px;
-  border-radius:20px;box-shadow:0 6px 14px #1456381a
- }
- #v11Public .v17-public-main>.v17-public-banner::before{
-  right:-135px;bottom:-142px
- }
-
- #v11Public .v17-public-main>.v17-public-banner h1{
-  font-size:clamp(20px,5.6vw,25px);margin:12px 0 6px;
-  letter-spacing:-.035em;line-height:1.18
- }
- #v11Public .v17-public-main>.v17-public-banner :is(p,.f4-impact-intro){
-  font-size:10.5px;line-height:1.5
- }
- #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action{
-  min-height:42px;margin-top:0;padding:8px 12px;
-  font-size:10px;border-radius:9px
- }
- #v11Public .v17-public-main>.v17-public-banner .f4-public-hero-action svg{
-  width:13px;height:13px
- }
-
- #v11Public .v17-public-main>.v17-public-metrics{
-  grid-template-columns:repeat(2,minmax(0,1fr));gap:10px
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
-  grid-template-columns:27px minmax(0,1fr);column-gap:7px;row-gap:7px;
-  min-height:94px;padding:12px;border-radius:16px
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric::before{
-  width:27px;height:27px;border-radius:var(--f4-panel-radius,12px);background-size:16px
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric small{
-  font-size:10px;line-height:1.25
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric strong{
-  font-size:24px
- }
+ #v11Public .v17-public-main>.v17-public-banner{padding:18px 16px}
+ #v11Public .v17-public-main>.v17-public-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child{
-  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;
-  gap:12px;min-height:74px;padding:15px 16px;border-radius:18px
+  grid-column:1/-1;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid #e2e9e4
  }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child::before{
-  flex:0 0 32px;width:32px;height:32px;background-size:20px;border-radius:11px
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child small{
-  flex:1;min-width:0;font-size:12px;font-weight:750
- }
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{
-  flex:none;font-size:27px;white-space:nowrap
- }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:nth-child(2){border-left:0;padding-left:0}
 }
 @media(max-width:360px){
- #v11Public #v18PublicContent .v17-public-main{padding-inline:15px}
- #v11Public .v17-public-main>.v17-public-banner{
-  grid-template-columns:minmax(0,1fr);padding:16px 13px
- }
  #v11Public .v17-public-main>.v17-public-banner h1{font-size:20px}
-
- #v11Public .v17-public-main>.v17-public-metrics{gap:8px}
- #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric{
-  padding:10px
- }
+ #v11Public .v17-public-main>.v17-public-metrics>.v17-public-metric:first-child strong{font-size:23px}
 }
 /* Laporan keuangan anggota — gaya mobile banking, seirama dengan Beranda Pengelola.
    Satu hero, satu panel estimasi, kemudian kontrol dan rekap tanpa kartu bersarang. */
