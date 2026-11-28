@@ -707,7 +707,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
   
   // Gunakan Query Parameter ?event= agar aman dibuka dari WhatsApp/Browser
   const baseUrl = __f4.window.location.origin + __f4.window.location.pathname;
-  const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `${baseUrl}?event=${dateIso}` : baseUrl;
+  const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `https://api.flamboyan4.web.id/s/a${dateIso.replaceAll('-','')}` : baseUrl;
 
   let html = `
     <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
