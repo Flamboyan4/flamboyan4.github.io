@@ -372,9 +372,6 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
 }
 
 #v11Public .f4-public-info{margin:0;padding:0 0 10px}
-#v11Public .f4-public-info>h2{
- margin:0 0 10px;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
-}
 #v11Public .f4-public-more-content{
  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;min-width:0;padding:14px;
  border:1px solid #dce5df;border-radius:16px;background:#fff
