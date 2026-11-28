@@ -70,6 +70,7 @@
 .rp-finance-legend span::before{content:'';width:9px;height:9px;border-radius:3px;background:#6550dd}
 .rp-finance-legend .is-in::before{background:#169b62}.rp-finance-legend .is-out::before{background:#e65462}
 .rp-finance-composition{display:grid;grid-template-columns:minmax(100px,160px) minmax(0,1fr);align-items:center;gap:16px}
+@media(min-width:1024px){.rp-finance-composition{width:100%;max-width:510px;margin-inline:auto;grid-template-columns:160px minmax(0,1fr);gap:22px}}
 .rp-finance-donut svg{display:block;width:100%;height:auto;font-family:system-ui,sans-serif}
 .rp-finance-category-list{display:grid;gap:7px;min-width:0}
 .rp-finance-category{display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:7px;font-size:12px}
