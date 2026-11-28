@@ -2985,6 +2985,82 @@ async function f4ShareCreate(req,env){
  if(imageId&&imageId!==row.imageId)await env.DB.prepare("UPDATE f4_gallery_share_links SET image_drive_id=? WHERE code=?").bind(imageId,row.code).run();
  return ok({url:new URL("/s/"+row.code,req.url).href,short:true});
 }
+
+/* Public content share: separate namespace from the existing photo codes. */
+async function f4ContentCode(id){
+ const bytes=new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(id))));
+ return Array.from(bytes.slice(0,8),n=>n.toString(16).padStart(2,"0")).join("");
+}
+function f4ContentDate(s){
+ return /^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(Date.parse(s+"T00:00:00Z"))&&new Date(s+"T00:00:00Z").toISOString().slice(0,10)===s;
+}
+function f4ContentDateLabel(s){
+ return f4ContentDate(s)?new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(s+"T00:00:00Z")):"";
+}
+async function f4ContentShareData(env,kind,key){
+ const db=env.DB,base="https://flamboyan4.web.id";
+ if(kind==="r"){
+  const rows=await list(db,"SELECT id,title,meeting_on,summary FROM portal_meeting_records WHERE visibility='publik' ORDER BY meeting_on DESC LIMIT 50");
+  for(const row of rows)if(await f4ContentCode(row.id)===key){
+   const dest=new URL("/rapat/",base);dest.searchParams.set("record",row.id);
+   return {type:"HASIL RAPAT",title:String(row.title||"Hasil Rapat Warga"),date:String(row.meeting_on||"").slice(0,10),lines:[String(row.summary||"Buka dokumen hasil rapat di portal.")],dest:dest.href,green:false};
+  }
+  return null;
+ }
+ const date=key.slice(0,4)+"-"+key.slice(4,6)+"-"+key.slice(6,8);
+ if(!f4ContentDate(date))return null;
+ const rows=await list(db,"SELECT title,description,status,location FROM portal_agenda WHERE visibility='publik' AND substr(starts_on,1,10)=? ORDER BY sort_order,id LIMIT 10",[date]);
+ const rule=await readBankWeighingDay(db).catch(()=>null);
+ if(rule?.ok&&f4ContentDate(rule.nextOccurrence)&&date>=rule.nextOccurrence){
+  const first=new Date(rule.nextOccurrence+"T00:00:00Z"),target=new Date(date+"T00:00:00Z"),days=(target-first)/86400000;
+  const months=(target.getUTCFullYear()-first.getUTCFullYear())*12+target.getUTCMonth()-first.getUTCMonth();
+  const last=new Date(Date.UTC(target.getUTCFullYear(),target.getUTCMonth()+1,0)).getUTCDate();
+  const scheduled=months<=6&&(rule.frequency==="weekly"?days%7===0:rule.frequency==="biweekly"?days%14===0:rule.frequency==="monthly"&&target.getUTCDate()===Math.min(Number(rule.dayOfMonth)||1,last));
+  if(scheduled&&!rows.some(x=>/penimbangan|bank\s*sampah/i.test(x.title||"")))rows.push({title:"Penimbangan Bank Sampah",description:"Jadwal penimbangan rutin",location:rule.lokasi||rule.location||""});
+ }
+ if(!rows.length)return null;
+ const dest=new URL("/",base);dest.searchParams.set("event",date);
+ return {type:"AGENDA WARGA",title:rows.length===1?String(rows[0].title||"Agenda Warga"):"Agenda Kegiatan Warga",date,lines:rows.length===1?[rows[0].location,rows[0].description].filter(Boolean):rows.map(x=>x.title),dest:dest.href,green:rows.every(x=>/penimbangan|bank\s*sampah/i.test(x.title||""))};
+}
+const F4_SHARE_GLYPHS="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,:;!?-/()&";
+const F4_SHARE_BITS=[
+"0E11111F111111","1E11111E11111E","0F10101010100F","1E11111111111E","1F10101E10101F","1F10101E101010","0F10101711110F","1111111F111111","0E04040404040E","0702020202120C","11121418141211","1010101010101F","111B1515111111","11191915131311","0E11111111110E","1E11111E101010","0E11111115120D","1E11111E141211","0F10100E01011E","1F040404040404","1111111111110E","11111111110A04","11111115151B11","11110A040A1111","11110A04040404","1F01020408101F","0E11131519110E","040C040404040E","0E11010204081F","1E01010601011E","02060A121F0202","1F10101E01011E","0E10101E11110E","1F010204080808","0E11110E11110E","0E11110F01010E","00000000000000","00000000000C0C","00000000000C08","000C0C000C0C00","000C0C000C0800","04040404040004","0E110102040004","0000001F000000","01020404081010","02040808080402","08040202020408","0C12140C15120D"];
+async function f4ContentPng(data){
+ const W=720,H=405,pixels=new Uint8Array(W*H*3);
+ const bg=[250,251,253],accent=data.green?[40,139,65]:[84,77,184],ink=[36,44,69],muted=[83,96,117],white=[255,255,255];
+ function rect(x,y,w,h,c){for(let j=Math.max(0,y);j<Math.min(H,y+h);j++)for(let i=Math.max(0,x);i<Math.min(W,x+w);i++){const p=(j*W+i)*3;pixels[p]=c[0];pixels[p+1]=c[1];pixels[p+2]=c[2]}}
+ function clean(v){return String(v||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9 .,:;!?()&/-]/g," ").replace(/\s+/g," ").trim().slice(0,500)}
+ function draw(v,x,y,s,c){for(const ch of clean(v)){const bits=F4_SHARE_BITS[F4_SHARE_GLYPHS.indexOf(ch)]||F4_SHARE_BITS[36];for(let j=0;j<7;j++){const row=parseInt(bits.slice(j*2,j*2+2),16);for(let i=0;i<5;i++)if(row&(16>>i))rect(x+i*s,y+j*s,s,s,c)}x+=6*s}}
+ function wrap(v,max,limit){if(limit<1)return [];let rows=[],line="";for(let word of clean(v).split(" ")){while(word.length>max){if(line){rows.push(line);line=""}rows.push(word.slice(0,max));word=word.slice(max)}if(!word)continue;if(line&&line.length+1+word.length>max){rows.push(line);line=""}line+=(line?" ":"")+word}if(line)rows.push(line);if(rows.length>limit){rows=rows.slice(0,limit);rows[limit-1]=rows[limit-1].slice(0,max-3)+"..."}return rows}
+ rect(0,0,W,H,bg);rect(0,0,W,92,accent);rect(32,31,5,32,white);draw("FLAMBOYAN 4",50,24,3,white);draw(data.type,50,54,3,white);
+ rect(32,110,656,252,white);rect(32,110,6,252,accent);
+ draw(f4ContentDateLabel(data.date),54,130,3,accent);
+ const titles=wrap(data.title,25,2);titles.forEach((v,i)=>draw(v,54,166+i*32,4,ink));
+ let y=166+titles.length*32+12;
+ for(const line of wrap(data.lines.join(" / "),47,Math.min(4,Math.floor((345-y)/21)))){draw(line,54,y,2,muted);y+=21}
+ draw("FLAMBOYAN4.WEB.ID",36,376,2,accent);
+ const raw=new Uint8Array(H*(1+W*3));for(let j=0;j<H;j++)raw.set(pixels.subarray(j*W*3,(j+1)*W*3),j*(1+W*3)+1);
+ const compressed=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer());
+ function u32(n){return new Uint8Array([(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255])}
+ function chunk(type,bytes){const t=new TextEncoder().encode(type),out=new Uint8Array(12+bytes.length);out.set(u32(bytes.length));out.set(t,4);out.set(bytes,8);let crc=0xffffffff;for(const a of [t,bytes])for(const b of a){crc^=b;for(let k=0;k<8;k++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}out.set(u32((crc^0xffffffff)>>>0),8+bytes.length);return out}
+ const header=new Uint8Array(13);header.set(u32(W));header.set(u32(H),4);header[8]=8;header[9]=2;
+ return new Blob([new Uint8Array([137,80,78,71,13,10,26,10]),chunk("IHDR",header),chunk("IDAT",compressed),chunk("IEND",new Uint8Array())],{type:"image/png"});
+}
+async function f4ContentSharePage(req,env,url){
+ const m=/^\/s\/(r[0-9a-f]{16}|a[0-9]{8})(\/image)?\/?$/.exec(url.pathname);
+ if(!m)return new Response("Tautan tidak ditemukan.",{status:404});
+ if(!["GET","HEAD"].includes(req.method))return new Response("Metode tidak diizinkan.",{status:405});
+ const data=await f4ContentShareData(env,m[1][0],m[1].slice(1));
+ if(!data)return new Response("Konten tidak tersedia untuk publik.",{status:404,headers:{"cache-control":"no-store"}});
+ const headers={"cache-control":"no-store","x-content-type-options":"nosniff"};
+ if(m[2])return new Response(req.method==="HEAD"?null:await f4ContentPng(data),{headers:{...headers,"content-type":"image/png"}});
+ const shareUrl=new URL("/s/"+m[1],url.origin).href;
+ const title=data.title+" · Flamboyan 4",description=[f4ContentDateLabel(data.date),...data.lines].filter(Boolean).join(" · ").slice(0,250);
+ const meta=(name,value)=>'<meta property="'+name+'" content="'+f4ShareEscape(value)+'">';
+ const html='<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,follow"><title>'+f4ShareEscape(title)+'</title>'+meta("og:type","website")+meta("og:site_name","Flamboyan 4")+meta("og:title",title)+meta("og:description",description)+meta("og:url",shareUrl)+meta("og:image",shareUrl+"/image")+meta("og:image:type","image/png")+meta("og:image:width","720")+meta("og:image:height","405")+'<meta name="twitter:card" content="summary_large_image"></head><body><a href="'+f4ShareEscape(data.dest)+'">Buka konten Flamboyan 4</a><script>location.replace('+JSON.stringify(data.dest).replace(/</g,"\\u003c")+');<\/script></body></html>';
+ return new Response(req.method==="HEAD"?null:html,{headers:{...headers,"content-type":"text/html; charset=utf-8","referrer-policy":"no-referrer"}});
+}
+
 async function f4SharePage(req,env,url){
  const parts=/^\/s\/([A-Za-z0-9_-]{8})(\/image)?\/?$/.exec(url.pathname);
  if(!parts)return new Response("Tautan tidak ditemukan.",{status:404});
@@ -8132,6 +8208,7 @@ __name(donorAdminApi,"donorAdminApi");
 async function handle(request, env) {
   if (!env.DB) return safeError("Database belum dikonfigurasi.", 503);
   const url = new URL(request.url), path = url.pathname.replace(/\/+$/, "") || "/";
+  if(/^\/s\/(?:r[0-9a-f]{16}|a[0-9]{8})(?:\/image)?$/.test(path))return f4ContentSharePage(request,env,url);
   if(path.startsWith("/s/"))return f4SharePage(request,env,url);
   if (path === "/api/health" && request.method === "GET") return json({ ok: true, service: "flamboyan4-api", mode: "migration-preview" });
   if (path === "/api/public/bank-split" && request.method === "GET") {
