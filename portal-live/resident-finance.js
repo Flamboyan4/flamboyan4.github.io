@@ -243,7 +243,7 @@ function bankReportTotals(report,period=''){
 
 async function loadEnvironment(seq){
  const cash=el('div','rp-environment'),bank=financeCard('Keuangan Bank Sampah'),projects=financeCard('Pendanaan Projek');
- root.append(cash,bank,projects);
+ const programs=el('div','rp-finance-programs');programs.append(bank,projects);root.append(cash,programs);
  const active=()=>seq===serial&&!!account;
  cash.append(el('p','rp-empty','Memuat jurnal kas lorong…'));bank.append(el('p','rp-empty','Memuat keuangan Bank Sampah…'));projects.append(el('p','rp-empty','Memuat pendanaan projek…'));
  async function loadCash(){
@@ -269,7 +269,8 @@ async function loadEnvironment(seq){
     const metrics=el('div','rp-cash-metrics');metrics.append(cashMetric('Saldo sebelumnya',stats.opening),cashMetric('Kas masuk',stats.incoming),cashMetric('Kas keluar',stats.outgoing));summary.append(metrics);report.append(summary);
     const graphs=el('div','rp-finance-graphs');graphs.append(cashChart('Kas Masuk & Keluar',stats.buckets,false,year.value,month.value),cashChart('Perkembangan Saldo',stats.buckets,true,year.value,month.value));report.append(graphs);
     const monthly=el('details','rp-card rp-finance-monthly'),monthlyTitle=el('summary','','Rincian angka grafik per bulan');monthly.append(monthlyTitle);
-    const table=el('table'),thead=el('thead'),header=el('tr');for(const label of ['Bulan','Masuk','Keluar','Saldo akhir'])header.append(el('th','',label));thead.append(header);table.append(thead);const body=el('tbody');for(const b of stats.buckets.filter(b=>b.key<=today().slice(0,7))){const tr=el('tr');for(const value of [b.label,money(b.incoming),money(b.outgoing),money(b.closing)])tr.append(el('td','',value));body.append(tr)}table.append(body);monthly.append(table);report.append(monthly,cashComposition(stats));
+    const table=el('table'),thead=el('thead'),header=el('tr');for(const label of ['Bulan','Masuk','Keluar','Saldo akhir'])header.append(el('th','',label));thead.append(header);table.append(thead);const body=el('tbody');for(const b of stats.buckets.filter(b=>b.key<=today().slice(0,7))){const tr=el('tr');for(const value of [b.label,money(b.incoming),money(b.outgoing),money(b.closing)])tr.append(el('td','',value));body.append(tr)}table.append(body);monthly.append(table);
+    const analysis=el('div','rp-cash-analysis'),analysisStack=el('div','rp-cash-analysis-stack');analysisStack.append(monthly,cashComposition(stats));analysis.append(analysisStack);report.append(analysis);
     const detail=financeCard('Rincian Transaksi'),controls=el('div','rp-finance-filters'),direction=el('select','rp-history-filter'),search=el('input','rp-history-filter');
     direction.dataset.noCustom='1';direction.setAttribute('aria-label','Jenis transaksi');option(direction,'all','Semua transaksi');option(direction,'in','Kas masuk');option(direction,'out','Kas keluar');
     search.type='search';search.placeholder='Cari keterangan…';search.setAttribute('aria-label','Cari transaksi');
@@ -291,7 +292,7 @@ async function loadEnvironment(seq){
      if(!matching.length){list.append(el('p','rp-empty','Tidak ada transaksi pada pilihan ini.'));return}
      result.rows.forEach(r=>{const row=el('div','rp-history-row'),text=el('div','rp-history-detail');text.append(el('strong','',cashNote(r)),el('small','',shortDate(r.tanggal)+(r.kategori?' · '+r.kategori:'')));row.append(text,el('strong','rp-history-amount '+(r.debit?'is-in':'is-out'),(r.debit?'+':'−')+money(r.debit||r.kredit)));list.append(row)});
     }
-    search.oninput=direction.onchange=()=>{page=1;paint()};paint();report.append(detail);
+    search.oninput=direction.onchange=()=>{page=1;paint()};paint();analysis.append(detail);
    }
    year.onchange=month.onchange=render;render();
   }catch(e){if(active())cash.replaceChildren(el('p','rp-empty',e.message||'Laporan kas belum dapat dimuat.'),btn('Coba lagi',loadCash,'rp-small'))}
@@ -366,10 +367,11 @@ async function load(view='personal'){
  closeHistory(false);const seq=++serial;root.replaceChildren();busy=true;
  financeHeading(view);
  if(view==='environment'){busy=false;void loadEnvironment(seq);return;}
+ const personal=el('div','rp-personal-layout'),personalStack=el('div','rp-personal-stack');personal.append(personalStack);root.append(personal);
  const bank=el('section','rp-bank');bank.innerHTML='<div class="rp-between"><h2>Tabungan Bank Sampah</h2><button type="button" class="rp-eye" aria-label="Tampilkan saldo" aria-pressed="false"></button></div><p>Total saldo belum dicairkan</p><strong class="rp-saldo" data-amount="total">Rp ••••••</strong><div class="rp-split"><div><small>Bisa dicairkan</small><b data-amount="available">Rp ••••</b></div><div><small>Menunggu penjualan</small><b data-amount="pending">Rp ••••</b></div></div>';
  const bankActions=el('div','rp-bank-actions');
  const savingsHistory=historyButton('Riwayat Tabungan',()=>showHistory('savings',savingsHistory,getSavings));
- bankActions.append(link('Lihat tabungan','/bank-sampah/','rp-bank-link'),savingsHistory);bank.append(bankActions);root.append(bank);
+ bankActions.append(link('Lihat tabungan','/bank-sampah/','rp-bank-link'),savingsHistory);bank.append(bankActions);personalStack.append(bank);
  let shown=false,savings=null,savingsRequest=null;
  function getSavings(){if(savings)return Promise.resolve(savings);if(!savingsRequest)savingsRequest=read('/api/member/savings').then(b=>{if(seq===serial){savings=b;paint()}return b}).finally(()=>{savingsRequest=null});return savingsRequest}
  const toggle=bank.querySelector('.rp-eye');
@@ -381,7 +383,7 @@ async function load(view='personal'){
  const receiptHead=el('div','rp-receipt-head'),receiptTitle=el('div'),receiptPeriod=el('p'),receiptIcon=el('span','rp-receipt-icon');
  const receiptSvg=paid=>'<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paid?'<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>':'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>')+'</svg>';
  receiptIcon.innerHTML=receiptSvg(false);receiptTitle.append(el('span','rp-receipt-brand','FLAMBOYAN 4'),el('h2','','Status Pembayaran'),receiptPeriod);receiptHead.append(receiptTitle,receiptIcon);
- const receiptBody=el('div','rp-receipt-body'),band=el('div','rp-receipt-band'),badge=el('strong','','Memeriksa…');badge.setAttribute('role','status');band.append(el('span','','Status'),badge);receipt.append(receiptHead,receiptBody,band);const paymentHistory=historyButton('Riwayat Pembayaran',()=>showHistory('payments',paymentHistory));receipt.append(paymentHistory);root.append(receipt,dues);
+ const receiptBody=el('div','rp-receipt-body'),band=el('div','rp-receipt-band'),badge=el('strong','','Memeriksa…');badge.setAttribute('role','status');band.append(el('span','','Status'),badge);receipt.append(receiptHead,receiptBody,band);const paymentHistory=historyButton('Riwayat Pembayaran',()=>showHistory('payments',paymentHistory));receipt.append(paymentHistory);personalStack.append(dues);personal.append(receipt);
  function renderReceipt(data,state){
   const month=data?.period||period.value;
   receiptPeriod.textContent=/^\d{4}-\d{2}$/.test(month)?new Date(month+'-01T00:00:00Z').toLocaleDateString('id-ID',{month:'long',year:'numeric',timeZone:'UTC'}):'Bulan berjalan';
@@ -423,7 +425,7 @@ async function load(view='personal'){
   }catch(e){if(seq===serial&&request===dueSeq){dueBody.replaceChildren(el('p','rp-empty','Kewajiban belum dapat dimuat.'),btn('Coba lagi',loadDues,'rp-small'));renderReceipt(null,'Belum tersedia')}}
  }
  period.onchange=loadDues;void loadDues();
- const reminders=el('section','rp-reminders');reminders.hidden=true;root.append(reminders);
+ const reminders=el('section','rp-reminders');reminders.hidden=true;personal.append(reminders);
  getSavings().catch(()=>{if(seq===serial)paint()});
  for(const [kind,label] of [['fines','Denda'],['loans','Pinjaman']])read('/api/member/'+kind).then(data=>{if(seq!==serial)return;if(data.linked===false)throw Error('Akun belum terhubung');const total=(data.rows||[]).filter(r=>!['dibatalkan','batal','lunas'].includes(String(r.status||'').toLowerCase())).reduce((sum,r)=>sum+Math.max(0,(Number(r.nominalRp)||0)-(Number(r.dibayarRp)||0)),0);if(total>0){if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}const b=el('div','rp-warning');b.append(el('span','',label+' belum lunas'),el('strong','',money(total)));reminders.append(b)}}).catch(()=>{if(seq!==serial)return;if(reminders.hidden){reminders.hidden=false;reminders.append(el('h2','','Perlu perhatian'))}reminders.append(el('p','rp-empty','Status '+label.toLowerCase()+' belum dapat diperiksa.'))});
  busy=false;

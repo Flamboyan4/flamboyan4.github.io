@@ -45,6 +45,39 @@
 .rp-finance-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border:1px solid var(--rp-line);border-radius:12px;background:#f3f4f9}
 #f4-resident-content .rp-finance-tabs .rp-tab{border:0;border-radius:8px;min-height:38px;font-size:14px;font-weight:750}
 .rp-environment{display:grid;gap:14px;min-width:0}
+.rp-finance-programs,.rp-cash-analysis,.rp-cash-analysis-stack{display:grid;gap:14px;min-width:0;align-items:start}
+.rp-personal-layout{display:grid;gap:16px;min-width:0;align-items:start}
+.rp-personal-stack{display:contents}
+.rp-personal-layout>.rp-personal-stack>.rp-bank{order:1}
+.rp-personal-layout>.rp-receipt{order:2}
+.rp-personal-layout>.rp-personal-stack>.rp-dues-card{order:3}
+.rp-personal-layout>.rp-reminders{order:4}
+@media(min-width:1024px){
+ body[data-resident-page=finance] #f4-resident-content{max-width:1120px;gap:14px}
+ #f4-resident-content .rp-finance-tabs{width:min(100%,400px)}
+ .rp-personal-layout{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rp-personal-stack{display:grid;gap:14px;min-width:0;align-items:start;grid-column:1;grid-row:1}
+ .rp-personal-layout>.rp-receipt{grid-column:2;grid-row:1}
+ .rp-personal-layout>.rp-reminders{grid-column:1/-1}
+ .rp-cash-analysis{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+ .rp-finance-programs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rp-finance-programs>.rp-finance-card,.rp-cash-analysis>.rp-finance-card{align-content:start;align-self:start}
+ .rp-finance-programs .rp-cash-metric strong{font-size:16px}
+ .rp-finance-programs .rp-dues-row{font-size:13px}
+ .rp-finance-programs .rp-finance-program-detail,.rp-finance-programs .rp-finance-project{gap:8px}
+ .rp-personal-layout .rp-bank{padding:16px}
+ .rp-personal-layout .rp-split b{font-size:14px}
+ .rp-personal-layout .rp-bank-actions{gap:8px}
+ #f4-resident-content .rp-personal-layout .rp-history-action{font-size:12px;padding:8px 10px}
+}
+@media(min-width:1280px){
+ .rp-personal-layout{grid-template-columns:minmax(0,1fr) minmax(0,1.07fr) minmax(0,1fr)}
+ .rp-personal-stack{display:contents}
+ .rp-personal-layout>.rp-personal-stack>.rp-bank{grid-column:1;grid-row:1}
+ .rp-personal-layout>.rp-receipt{grid-column:2;grid-row:1}
+ .rp-personal-layout>.rp-personal-stack>.rp-dues-card{grid-column:3;grid-row:1}
+ .rp-personal-layout>.rp-reminders{grid-row:2}
+}
 .rp-finance-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;min-width:0}
 .rp-finance-toolbar h3{font-size:14px;font-weight:750;margin:0}
 #f4-resident-content .rp-finance-caption{font-size:12px;line-height:1.45;color:var(--rp-muted);margin:4px 0 8px}
@@ -70,7 +103,7 @@
 .rp-finance-legend span::before{content:'';width:9px;height:9px;border-radius:3px;background:#6550dd}
 .rp-finance-legend .is-in::before{background:#169b62}.rp-finance-legend .is-out::before{background:#e65462}
 .rp-finance-composition{display:grid;grid-template-columns:minmax(100px,160px) minmax(0,1fr);align-items:center;gap:16px}
-@media(min-width:1024px){.rp-finance-composition{width:100%;max-width:510px;margin-inline:auto;grid-template-columns:160px minmax(0,1fr);gap:22px}}
+@media(min-width:1024px){.rp-finance-composition{width:100%;max-width:510px;margin-inline:auto;grid-template-columns:minmax(90px,125px) minmax(0,1fr);gap:12px}.rp-finance-category{gap:5px}}
 .rp-finance-donut svg{display:block;width:100%;height:auto;font-family:system-ui,sans-serif}
 .rp-finance-category-list{display:grid;gap:7px;min-width:0}
 .rp-finance-category{display:grid;grid-template-columns:9px minmax(0,1fr) auto;align-items:center;gap:7px;font-size:12px}
