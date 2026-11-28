@@ -22,6 +22,8 @@ html.f4-tag-inbox-open,html.f4-tag-inbox-open body{overflow:hidden}
 .f4-tag-inbox-list::-webkit-scrollbar{display:none}
 .f4-tag-inbox-section{margin:18px 16px 8px;font-size:16px;line-height:1.4;font-weight:700;color:#20242d}
 .f4-tag-inbox-item{box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;min-height:76px;padding:12px 16px;border:0;background:#fff;text-align:left;color:#20242d;cursor:pointer}
+.f4-tag-inbox-item:hover{background:#f3f4f8}
+.f4-tag-inbox-item:active{opacity:.8}
 .f4-tag-inbox-item.is-unread{background:var(--f4-nav-tint,#eef2ff)}
 .f4-tag-inbox-item:focus-visible,.f4-tag-inbox-close:focus-visible{outline:2px solid var(--f4-nav,#4f46e5);outline-offset:-2px}
 .f4-tag-inbox-symbol{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;background:var(--f4-nav-tint,#eef2ff);color:var(--f4-nav,#4f46e5)}

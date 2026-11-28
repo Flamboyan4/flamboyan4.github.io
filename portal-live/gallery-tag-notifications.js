@@ -82,6 +82,7 @@ function openWork(item){
  }else{hideInbox(true);route();}
 }
 let pendingWorkRoute=null;
+let renderedSignature='',pointerActive=false,paintTimer=0;
 function paintWork(){
  if(!workEligible())return;
  list.append(el('h3','f4-tag-inbox-section','Tugas pengelola'));
@@ -110,7 +111,11 @@ function paint(){
  const total=unread+tasks;
  count.hidden=!total;count.textContent=total>99?'99+':String(total);
  bell.setAttribute('aria-label','Notifikasi'+(total?', '+total+' pemberitahuan':'')+(tasks?', '+tasks+' tugas menunggu':''));
- if(!dialog.open)return;
+ if(!dialog.open||pointerActive)return;
+ // Never replace an active click target just because shell/body classes changed.
+ const signature=JSON.stringify([accountKey,items,failed,!items.length&&busy,workEligible(),workItems,workFailed,!workChecked&&workBusy]);
+ if(signature===renderedSignature)return;
+ renderedSignature=signature;
  list.replaceChildren();
  paintWork();
  if(busy&&!items.length){list.append(el('p','f4-tag-inbox-empty','Memuat notifikasi…'));return;}
@@ -127,42 +132,82 @@ function paint(){
   const copy=el('span','f4-tag-inbox-copy');copy.append(el('span','f4-tag-inbox-message','Anda ditandai dalam sebuah foto'),el('strong','',item.title||'Dokumentasi Warga'));
   button.append(symbol,copy,img);
   if(!item.read)button.classList.add('is-unread');
-  button.onclick=async()=>{
-   if(!eligible()||openingPhoto)return;
-   const stamp=generation,key=avatar.dataset.f4TagAccount;
-   openingPhoto=true;button.disabled=true;button.setAttribute('aria-busy','true');
-   const url=new URL('/dokumentasi/',location.origin);
-   if(item.albumId)url.searchParams.set('album',item.albumId);
-   url.searchParams.set('foto',item.id);url.searchParams.set('notifikasi','1');
-   const replaceEntry=history.state?.f4TagInbox===true;
-   try{
-    hideInbox(true);
-    const navigation=window.F4PortalNavigation
-     ?window.F4PortalNavigation.go(url.href,{replace:replaceEntry})
-     :(replaceEntry?location.replace(url.href):location.assign(url.href),true);
-    // Reading the notification must not block the photo navigation.
-    void request('/tag-notifications/read',{method:'POST',keepalive:true,headers:{'content-type':'application/json'},body:JSON.stringify({id:item.id})}).then(()=>{
-     if(stamp!==generation||key!==avatar.dataset.f4TagAccount)return;
-     const current=items.find(x=>x.id===item.id);if(current)current.read=true;
-     paint();
-    }).catch(error=>console.warn('Status baca notifikasi:',error));
-    if(await navigation===false&&stamp===generation&&eligible()){
-     openInbox(false);
-     list.prepend(el('p','f4-tag-inbox-empty','Foto belum dapat dibuka. Silakan coba lagi.'));
-    }
-   }catch(error){
-    if(stamp===generation&&eligible()){
-     openInbox(false);
-     list.prepend(el('p','f4-tag-inbox-empty','Foto belum dapat dibuka. Silakan coba lagi.'));
-    }
-   }finally{
-    openingPhoto=false;button.disabled=false;button.removeAttribute('aria-busy');
-   }
-  };list.append(button);
+  button.dataset.photoNotification=item.id;
+  list.append(button);
+
   }
  }
 }
-function reset(){clearWork();pendingWorkRoute=null;generation++;items=[];busy=false;failed=false;lastCheck=0;accountKey='';bell.hidden=true;if(dialog.open)requestClose();paint();}
+// The inbox is a permanent shell component; one stable event listener serves every photo row.
+function markPhotoRead(item,stamp,key){
+ void request('/tag-notifications/read',{method:'POST',keepalive:true,headers:{'content-type':'application/json'},body:JSON.stringify({id:item.id})}).then(()=>{
+  if(stamp!==generation||key!==avatar.dataset.f4TagAccount)return;
+  const current=items.find(x=>x.id===item.id);if(current)current.read=true;
+  paint();
+ }).catch(error=>console.warn('Status baca notifikasi:',error));
+}
+async function activatePhoto(item,button){
+ if(!eligible()||openingPhoto||!item)return;
+ openingPhoto=true;button.disabled=true;button.setAttribute('aria-busy','true');
+ const stamp=generation,key=avatar.dataset.f4TagAccount;
+ const valid=()=>stamp===generation&&eligible()&&key===avatar.dataset.f4TagAccount;
+ const url=new URL('/dokumentasi/',location.origin);
+ if(item.albumId)url.searchParams.set('album',item.albumId);
+ url.searchParams.set('foto',item.id);url.searchParams.set('notifikasi','1');
+ const canViewHere=typeof window.f4MediaGallery?.openStandalonePhoto==='function';
+ const open=async()=>{
+  try{
+   if(!valid())return;
+   // Beranda and Dokumentasi already have the real full-size photo viewer.
+   // The signed-in notification API supplies the exact photo URL and ID.
+   if(canViewHere&&window.f4MediaGallery?.openStandalonePhoto({
+    id:item.id,albumId:item.albumId||'',url:item.photoUrl,title:item.title||'Dokumentasi Warga',type:'foto'
+   },bell)){
+    markPhotoRead(item,stamp,key);return;
+   }
+   // Other portals mount the existing gallery via the SPA route.
+   const navigation=window.F4PortalNavigation
+    ?window.F4PortalNavigation.go(url.href)
+    :(location.assign(url.href),true);
+   const opened=await navigation;
+   if(opened!==false){markPhotoRead(item,stamp,key);return;}
+   throw Error('Navigasi foto belum tersedia.');
+  }catch(error){
+   console.warn('Buka foto notifikasi:',error);
+   if(valid()){openInbox();list.prepend(el('p','f4-tag-inbox-empty','Foto belum dapat dibuka. Silakan coba lagi.'));}
+  }finally{openingPhoto=false;button.disabled=false;button.removeAttribute('aria-busy');}
+ };
+ // Consume the inbox history entry before opening another overlay.
+ if(history.state?.f4TagInbox===true){
+  const route=()=>{void open();};
+  pendingWorkRoute=route;
+  hideInbox(true);history.back();
+  // A missing popstate must not leave the row disabled forever.
+  setTimeout(()=>{
+   if(pendingWorkRoute!==route)return;
+   pendingWorkRoute=null;
+   if(history.state?.f4TagInbox===true){const state={...history.state};delete state.f4TagInbox;history.replaceState(state,'',location.href);}
+   route();
+  },450);
+ }else{hideInbox(true);void open();}
+}
+list.addEventListener('pointerdown',e=>{
+ if(!e.target.closest?.('.f4-tag-inbox-item'))return;
+ clearTimeout(paintTimer);pointerActive=true;
+},true);
+const releasePointer=()=>{
+ clearTimeout(paintTimer);paintTimer=setTimeout(()=>{pointerActive=false;paint();},0);
+};
+window.addEventListener('pointerup',releasePointer,true);
+window.addEventListener('pointercancel',releasePointer,true);
+list.addEventListener('click',e=>{
+ const button=e.target.closest?.('[data-photo-notification]');
+ if(!button||!list.contains(button))return;
+ e.preventDefault();e.stopPropagation();
+ const item=items.find(x=>x.id===button.dataset.photoNotification);
+ if(item)void activatePhoto(item,button);
+});
+function reset(){clearWork();pendingWorkRoute=null;openingPhoto=false;pointerActive=false;renderedSignature='';generation++;items=[];busy=false;failed=false;lastCheck=0;accountKey='';bell.hidden=true;if(dialog.open)requestClose();paint();}
 async function refresh(force=false){
  if(!eligible()){if(accountKey||!bell.hidden)reset();return;}
  const key=avatar.dataset.f4TagAccount;
@@ -199,7 +244,7 @@ function openInbox(record=true){
  if(!eligible()||dialog.open)return;
  if(record&&history.state?.f4TagInbox!==true)history.pushState({...history.state,f4TagInbox:true},'',location.href);
  document.documentElement.classList.add('f4-tag-inbox-open');
- dialog.showModal();bell.setAttribute('aria-expanded','true');paint();refresh(true);
+ renderedSignature='';pointerActive=false;dialog.showModal();bell.setAttribute('aria-expanded','true');paint();refresh(true);
 }
 function requestClose(){
  if(!dialog.open)return;
@@ -210,7 +255,7 @@ bell.onclick=()=>openInbox();
 close.onclick=requestClose;
 dialog.addEventListener('cancel',e=>{e.preventDefault();requestClose();});
 dialog.addEventListener('click',e=>{if(e.target===dialog){const b=dialog.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)requestClose();}});
-dialog.addEventListener('close',()=>{document.documentElement.classList.remove('f4-tag-inbox-open');bell.setAttribute('aria-expanded','false');if(!bell.hidden)bell.focus({preventScroll:true});});
+dialog.addEventListener('close',()=>{pointerActive=false;document.documentElement.classList.remove('f4-tag-inbox-open');bell.setAttribute('aria-expanded','false');if(!bell.hidden&&!openingPhoto)bell.focus({preventScroll:true});});
 window.addEventListener('popstate',e=>{
  if(history.state?.f4TagInbox===true&&eligible()){e.stopImmediatePropagation();openInbox(false);}
  else if(dialog.open||pendingWorkRoute){e.stopImmediatePropagation();if(pendingWorkRoute){const route=pendingWorkRoute;pendingWorkRoute=null;hideInbox(true);route();}else if(!closing)hideInbox();}
@@ -219,7 +264,7 @@ window.addEventListener('pagehide',()=>hideInbox(true));
 // Do not resurrect an inbox after reloading the underlying page.
 if(history.state?.f4TagInbox===true){const state={...history.state};delete state.f4TagInbox;history.replaceState(state,'',location.href);}
 new MutationObserver(()=>{if(!eligible()){if(accountKey||!bell.hidden)reset();}else refresh(true);}).observe(avatar,{attributes:true,attributeFilter:['hidden','data-f4-tag-account','data-f4-tag-role']});
-const syncWork=()=>{if(!workEligible()){if(workAccount)clearWork();paint();}else if(workAccount!==avatar.dataset.f4TagAccount)refreshWork(true);};
+const syncWork=()=>{if(!workEligible()){if(workAccount){clearWork();paint();}}else if(workAccount!==avatar.dataset.f4TagAccount)refreshWork(true);else paint();};
 new MutationObserver(syncWork).observe(document.body,{attributes:true,attributeFilter:['class']});
 let surfaceObserver=null;
 function bindWorkSurface(){surfaceObserver?.disconnect();surfaceObserver=null;const surface=portal?document.getElementById(portal==='bank'?'dashboardView':'f4-account-page'):null;if(surface){surfaceObserver=new MutationObserver(syncWork);surfaceObserver.observe(surface,{attributes:true,attributeFilter:['class','hidden']})}}
