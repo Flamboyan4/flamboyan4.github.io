@@ -243,11 +243,16 @@ function bankReportTotals(report,period=''){
 
 async function loadEnvironment(seq){
  const cash=el('div','rp-environment'),bank=financeCard('Keuangan Bank Sampah'),projects=financeCard('Pendanaan Projek');
- const programs=el('div','rp-finance-programs');programs.append(bank,projects);root.append(cash,programs);
+ // Two independent columns: no shared row heights between unrelated cards.
+ const columns=el('div','rp-finance-columns'),left=el('div','rp-finance-column'),right=el('div','rp-finance-column');
+ const analysisStack=el('div','rp-cash-analysis-stack'),ledgerSlot=el('div','rp-cash-ledger-slot');
+ bank.classList.add('rp-bank-report');projects.classList.add('rp-project-report');
+ left.append(analysisStack,bank);right.append(ledgerSlot,projects);columns.append(left,right);root.append(cash,columns);
  const active=()=>seq===serial&&!!account;
  cash.append(el('p','rp-empty','Memuat jurnal kas lorong…'));bank.append(el('p','rp-empty','Memuat keuangan Bank Sampah…'));projects.append(el('p','rp-empty','Memuat pendanaan projek…'));
  async function loadCash(){
   cash.replaceChildren(el('p','rp-empty','Memuat jurnal kas lorong…'));
+  analysisStack.replaceChildren();ledgerSlot.replaceChildren();
   try{
    const rows=cashRows(await read('/api/v2/public/portal/cash'));if(!active())return;
    cash.replaceChildren();
@@ -261,7 +266,7 @@ async function loadEnvironment(seq){
    const report=el('div','rp-environment');cash.append(report);
    function render(){
     const stats=cashStats(rows,year.value,month.value),period=month.value?month.options[month.selectedIndex].text+' '+year.value:'Tahun '+year.value;
-    report.replaceChildren();
+    report.replaceChildren();analysisStack.replaceChildren();ledgerSlot.replaceChildren();
     const summary=el('section','rp-cash-report-hero'),head=el('div','rp-between'),main=el('div','rp-cash-main-value');
     main.append(el('small','','Saldo akhir · '+period),el('strong','',money(stats.closing)));
     const pdf=btn('PDF',()=>cashExport(stats,period),'rp-cash-pdf');pdf.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>');pdf.setAttribute('aria-label','Unduh laporan kas PDF');
@@ -270,7 +275,7 @@ async function loadEnvironment(seq){
     const graphs=el('div','rp-finance-graphs');graphs.append(cashChart('Kas Masuk & Keluar',stats.buckets,false,year.value,month.value),cashChart('Perkembangan Saldo',stats.buckets,true,year.value,month.value));report.append(graphs);
     const monthly=el('details','rp-card rp-finance-monthly'),monthlyTitle=el('summary','','Rincian angka grafik per bulan');monthly.append(monthlyTitle);
     const table=el('table'),thead=el('thead'),header=el('tr');for(const label of ['Bulan','Masuk','Keluar','Saldo akhir'])header.append(el('th','',label));thead.append(header);table.append(thead);const body=el('tbody');for(const b of stats.buckets.filter(b=>b.key<=today().slice(0,7))){const tr=el('tr');for(const value of [b.label,money(b.incoming),money(b.outgoing),money(b.closing)])tr.append(el('td','',value));body.append(tr)}table.append(body);monthly.append(table);
-    const analysis=el('div','rp-cash-analysis'),analysisStack=el('div','rp-cash-analysis-stack');analysisStack.append(monthly,cashComposition(stats));analysis.append(analysisStack);report.append(analysis);
+    analysisStack.append(monthly,cashComposition(stats));
     const detail=financeCard('Rincian Transaksi'),controls=el('div','rp-finance-filters'),direction=el('select','rp-history-filter'),search=el('input','rp-history-filter');
     direction.dataset.noCustom='1';direction.setAttribute('aria-label','Jenis transaksi');option(direction,'all','Semua transaksi');option(direction,'in','Kas masuk');option(direction,'out','Kas keluar');
     search.type='search';search.placeholder='Cari keterangan…';search.setAttribute('aria-label','Cari transaksi');
@@ -292,10 +297,10 @@ async function loadEnvironment(seq){
      if(!matching.length){list.append(el('p','rp-empty','Tidak ada transaksi pada pilihan ini.'));return}
      result.rows.forEach(r=>{const row=el('div','rp-history-row'),text=el('div','rp-history-detail');text.append(el('strong','',cashNote(r)),el('small','',shortDate(r.tanggal)+(r.kategori?' · '+r.kategori:'')));row.append(text,el('strong','rp-history-amount '+(r.debit?'is-in':'is-out'),(r.debit?'+':'−')+money(r.debit||r.kredit)));list.append(row)});
     }
-    search.oninput=direction.onchange=()=>{page=1;paint()};paint();analysis.append(detail);
+    search.oninput=direction.onchange=()=>{page=1;paint()};paint();ledgerSlot.append(detail);
    }
    year.onchange=month.onchange=render;render();
-  }catch(e){if(active())cash.replaceChildren(el('p','rp-empty',e.message||'Laporan kas belum dapat dimuat.'),btn('Coba lagi',loadCash,'rp-small'))}
+  }catch(e){if(active()){analysisStack.replaceChildren();ledgerSlot.replaceChildren();cash.replaceChildren(el('p','rp-empty',e.message||'Laporan kas belum dapat dimuat.'),btn('Coba lagi',loadCash,'rp-small'))}}
  }
  void loadCash();
  async function loadBank(){
