@@ -2391,12 +2391,12 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       const label=__f4.globals.document.createElement('div');label.className='v16-nav-caption';label.textContent='MENU';
       const list=__f4.globals.document.createElement('div');list.id='v16NavList';list.className='v16-nav-list';nav.append(label,list);brand.after(nav);
     }
-    const list=$('v16NavList');list.replaceChildren();
+    const list=$('v16NavList'),items=__f4.globals.document.createDocumentFragment();
     v16Groups.filter(g=>/admin/i.test((0,__f4.globals.String)(profile?.peran||''))?(g.admin&&v16AdminSidebar.has(g.id)):g.member).forEach(g=>{
       if(!/admin/i.test((0,__f4.globals.String)(profile?.peran||''))&&g.id==='memberinfo'){
        const other=__f4.globals.document.createElement('div');
        other.className='f4-bank-nav-divider';other.textContent='LAINNYA';
-       other.setAttribute('role','presentation');list.appendChild(other);
+       other.setAttribute('role','presentation');items.appendChild(other);
       }
       const b=__f4.globals.document.createElement('button');b.type='button';b.className='v16-item';b.dataset.group=g.id;
       const symbol=v16Icon(g.icon);
@@ -2421,10 +2421,10 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
         v16CloseMenu();
        }
      };
-      list.appendChild(b);
+      items.appendChild(b);
     });
-    // Cross-portal resident routes belong to the existing desktop sidebar.
-    v16AppendResidentLinks(list,profile);
+    // Replace the sidebar once, including the account group, not in stages.
+    v16AppendResidentLinks(items,profile);list.replaceChildren(items);
     // Akses Cepat membuka fitur langsung; menu pengelola tidak berubah.
     if(!$('v16Tabs')){
       const tabs=__f4.globals.document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
@@ -3198,7 +3198,8 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       const text=__f4.globals.document.createElement('span');text.id='v18MobileTitle';text.textContent='Bank Sampah Flamboyan 4';
       mobile.append(button,text);
     }
-    v16BuildNav();
+    // showDashboard already built the complete desktop navigation.
+    if(!$('v16NavList')?.childElementCount)v16BuildNav();
   }
   function v18AddEyes(){
     __f4.globals.document.querySelectorAll('input[type="password"]').forEach(input=>{

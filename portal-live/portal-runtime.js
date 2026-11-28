@@ -9,6 +9,10 @@ const routes={'/':'portal','/bank-sampah/':'bank','/pembukuan/':'book','/superad
 const canonical=p=>p.replace(/index\.html$/i,'').replace(/\/?$/,'/');
 const keyOf=p=>routes[canonical(p)]||'';
 const release=document.documentElement.dataset.f4Release;
+ // Shell compatibility and content freshness are separate. Revalidate portal HTML
+ // on every cross-portal navigation; an old cached manifest must not select old JS.
+ const contentRevision='20261128-spa-content-v139';
+ const factoryKey=(id,src)=>new URL(src,location.origin).href+'\n'+id;
 const permanentBody=n=>n.nodeType===1&&(n.hasAttribute('data-f4-persistent')||n.matches('#f4-direct-bar,#f4-direct-dock,#f4-direct-dialog,#f4-direct-gate,#f4-session-notice,#f4-unified-account,.f4-tag-inbox'));
 const permanentStyle=n=>n.hasAttribute('data-f4-persistent')||n.matches('#f4-search-reload-layout')||/\/(?:direct-shell|unified-account|gallery-tag-notifications)\.css(?:\?|$)/.test(n.getAttribute('href')||'');
 const abortError=()=>new DOMException('Konten portal telah ditutup.','AbortError');
@@ -177,7 +181,7 @@ async function runScripts(specs,scope){
  for(const n of sharedLibraries.get('tailwind')||[])n.media=needsTailwind?'all':'not all';
  for(const spec of ordered(specs)){
   if(spec.external){await loadScript(spec.src);if(spec.src.includes('cdn.tailwindcss.com'))for(const n of sharedLibraries.get('tailwind')||[])n.media='all';continue}
-  const factory=factories.get(spec.id);if(typeof factory!=='function')throw Error('Factory konten tidak ditemukan: '+spec.id);
+  const factory=factories.get(factoryKey(spec.id,spec.src));if(typeof factory!=='function')throw Error('Factory konten tidak ditemukan: '+spec.id);
   factory.call(window,scope);
  }
  scope.finish();
@@ -221,8 +225,8 @@ function makeMounted(key,scope){
  return {canLeave:()=>scope.canLeave(),async dispose(){if(!scope.pause())throw Error('Transaksi masih diproses.');scope.dispose();removeContent();if(active===scope)active=null}};
 }
 async function prepare(key,target){
- const u=new URL(target.href);u.searchParams.set('f4ui',release);
- const response=await nativeFetch(u.href,{credentials:'same-origin',cache:'default'});if(!response.ok)throw Error('Portal tidak dapat dimuat.');
+ const u=new URL(target.href);u.searchParams.set('f4ui',release);u.searchParams.set('f4content',contentRevision);
+ const response=await nativeFetch(u.href,{credentials:'same-origin',cache:'no-cache'});if(!response.ok)throw Error('Portal tidak dapat dimuat.');
  const parsed=new DOMParser().parseFromString(await response.text(),'text/html');
  if(parsed.documentElement.dataset.f4Release!==release||parsed.documentElement.dataset.f4Spa!=='1')throw Error('Versi portal belum sama.');
  const specs=scriptSpecs(parsed);if(!specs.length)throw Error('Konten portal tidak tersedia.');
@@ -316,6 +320,6 @@ async function boot(){
   window.F4Startup?.fail();throw e;
  }
 }
-window.F4PortalRuntime={ready:()=>!!active?.ready(),waitForView:()=>active?.waitForView()||Promise.resolve(),define(id,factory){if(typeof id!=='string'||typeof factory!=='function')throw Error('Definisi portal tidak valid.');factories.set(id,factory)},boot};
+window.F4PortalRuntime={ready:()=>!!active?.ready(),waitForView:()=>active?.waitForView()||Promise.resolve(),define(id,factory){const source=document.currentScript?.src;if(typeof id!=='string'||typeof factory!=='function'||!source)throw Error('Definisi portal tidak valid.');factories.set(factoryKey(id,source),factory)},boot};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>console.error('Portal:',e)),{once:true});else boot().catch(e=>console.error('Portal:',e));
 })();
