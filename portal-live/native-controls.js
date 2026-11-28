@@ -169,7 +169,7 @@ function calendar(field,trigger,settings={}){
  const anchored=true;
  let mode=kind==='year'?'year':kind==='month'?'month':'day';
  const panel=start(trigger,kind==='month'?'Pilih bulan':kind==='year'?'Pilih tahun':'Pilih tanggal',anchored,
-  {kind:'calendar',minWidth:()=>settings.range?240:mode==='day'?254:174});
+  {kind:'calendar',minWidth:()=>settings.range?254:mode==='day'?254:mode==='month'?248:224});
  const levelButtons=__f4.globals.document.createElement('div');levelButtons.className='f4-control-levels';
  if(settings.range)panel.append(levelButtons);
  const nav=__f4.globals.document.createElement('div');nav.className='f4-control-calendar-nav';
@@ -179,15 +179,10 @@ function calendar(field,trigger,settings={}){
  nav.append(prev,heading,next);panel.append(nav);
  const grid=__f4.globals.document.createElement('div');grid.className='f4-control-calendar';
  panel.append(grid);
- const input=__f4.globals.document.createElement('input');input.type='text';input.className='f4-control-date-input';
- input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD';input.setAttribute('aria-label',kind==='month'?'Masukkan bulan dan tahun':kind==='year'?'Masukkan tahun':'Masukkan tanggal manual');
- input.value=field.value;panel.append(input);
- const footer=__f4.globals.document.createElement('div');footer.className='f4-control-footer';
- const cancel=__f4.globals.document.createElement('button');cancel.type='button';cancel.textContent='Batal';cancel.onclick=()=>close();
- const accept=__f4.globals.document.createElement('button');accept.type='button';accept.textContent='Terapkan';
- accept.onclick=()=>{const v=input.value.trim();if(valid(v)){choose(v)}else{input.setCustomValidity(kind==='month'?'Masukkan bulan dan tahun yang benar':kind==='year'?'Masukkan tahun yang benar':'Masukkan tanggal yang benar');input.reportValidity();input.setCustomValidity('')}};
- if(settings.allowClear){const clear=__f4.globals.document.createElement('button');clear.type='button';clear.textContent='Semua tanggal';clear.onclick=()=>choose('');footer.append(clear)}
- footer.append(cancel,accept);panel.append(footer);
+ // Each valid choice commits immediately. Only filter pickers need reset.
+ if(settings.allowClear){
+  const clear=__f4.globals.document.createElement('button');clear.type='button';clear.className='f4-control-calendar-clear';clear.textContent='Semua tanggal';clear.onclick=()=>choose('');panel.append(clear);
+ }
  function valid(v){
   if(kind==='year'){if(!/^\d{4}$/.test(v))return false}
   else if(kind==='month'){
@@ -203,24 +198,24 @@ function calendar(field,trigger,settings={}){
   return true;
  }
  function render(){
-  if(settings.range){for(const btn of levelButtons.children)btn.setAttribute('aria-pressed',String(btn.dataset.kind===kind));input.placeholder=kind==='year'?'YYYY':kind==='month'?'YYYY-MM':'YYYY-MM-DD';input.setAttribute('aria-label',kind==='month'?'Masukkan bulan dan tahun':kind==='year'?'Masukkan tahun':'Masukkan tanggal manual')}
+  if(settings.range){for(const btn of levelButtons.children)btn.setAttribute('aria-pressed',String(btn.dataset.kind===kind))}
   panel.dataset.calendarMode=mode;
   grid.replaceChildren();
   heading.textContent=kind==='month'?(0,__f4.globals.String)(y):monthNames[m]+' '+y;
   grid.classList.toggle('f4-month-choice',mode!=='day');
   if(mode==='year'){
    const startYear=Math.floor(y/12)*12;heading.textContent=startYear+' – '+(startYear+11);grid.classList.add('f4-month-choice');
-   for(let yr=startYear;yr<startYear+12;yr++){const b=__f4.globals.document.createElement('button');b.type='button';b.className='f4-control-day';b.textContent=String(yr);if(yr===y)b.classList.add('selected');b.onclick=()=>{if(kind==='year'){choose(String(yr));return}y=yr;mode='month';render()};grid.append(b)}
+   for(let yr=startYear;yr<startYear+12;yr++){const b=__f4.globals.document.createElement('button');b.type='button';b.className='f4-control-day';b.textContent=String(yr);b.disabled=kind==='year'&&!valid(String(yr));if(yr===y)b.classList.add('selected');b.onclick=()=>{if(kind==='year'){if(valid(String(yr)))choose(String(yr));return}y=yr;mode='month';render()};grid.append(b)}
    (0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());return;
   }
   if(mode==='month'){
    heading.textContent=String(y);grid.classList.add('f4-month-choice');
    monthNames.forEach((name,index)=>{
     const v=y+'-'+(0,__f4.globals.String)(index+1).padStart(2,'0');
-    const b=__f4.globals.document.createElement('button');b.type='button';b.textContent=name.slice(0,3);
+    const b=__f4.globals.document.createElement('button');b.type='button';b.textContent=name;b.setAttribute('aria-label',name+' '+y);
     b.className='f4-control-day';b.disabled=kind==='month'&&!valid(v);
     if(field.value===v)b.classList.add('selected');
-    b.onclick=()=>{if(kind==='month'){input.value=v;choose(v)}else{m=index;mode='day';render()}};grid.append(b);
+    b.onclick=()=>{if(kind==='month'){choose(v)}else{m=index;mode='day';render()}};grid.append(b);
    });
    if(anchored)(0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());
    return;
@@ -239,7 +234,7 @@ function calendar(field,trigger,settings={}){
   if(anchored)(0,__f4.globals.requestAnimationFrame)(()=>overlay?._reposition?.());
  }
  heading.onclick=()=>{mode=mode==='day'?'month':mode==='month'?'year':kind==='year'?'year':kind==='month'?'month':'day';render()};
- if(settings.range){for(const [level,label] of [['date','Tanggal'],['month','Bulan'],['year','Tahun']]){const btn=__f4.globals.document.createElement('button');btn.type='button';btn.dataset.kind=level;btn.textContent=label;btn.onclick=()=>{kind=level;mode=level==='date'?'day':level;input.value='';render()};levelButtons.append(btn)}}
+ if(settings.range){for(const [level,label] of [['date','Tanggal'],['month','Bulan'],['year','Tahun']]){const btn=__f4.globals.document.createElement('button');btn.type='button';btn.dataset.kind=level;btn.textContent=label;btn.onclick=()=>{kind=level;mode=level==='date'?'day':level;render()};levelButtons.append(btn)}}
  prev.onclick=()=>{if(mode==='year')y-=12;else if(mode==='month')y--;else{m--;if(m<0){m=11;y--}}render()};
  next.onclick=()=>{if(mode==='year')y+=12;else if(mode==='month')y++;else{m++;if(m>11){m=0;y++}}render()};
  render();
