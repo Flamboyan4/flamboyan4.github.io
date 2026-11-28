@@ -45,12 +45,9 @@
 .rp-finance-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border:1px solid var(--rp-line);border-radius:12px;background:#f3f4f9}
 #f4-resident-content .rp-finance-tabs .rp-tab{border:0;border-radius:8px;min-height:38px;font-size:14px;font-weight:750}
 .rp-environment{display:grid;gap:14px;min-width:0}
-.rp-finance-columns,.rp-cash-analysis-stack{display:grid;gap:14px;min-width:0;align-items:start}
-.rp-finance-column{display:contents}
-.rp-cash-analysis-stack{order:1}
-.rp-cash-ledger-slot{order:2;min-width:0}
-.rp-bank-report{order:3}
-.rp-project-report{order:4}
+.rp-cash-analysis,.rp-cash-analysis-stack,.rp-finance-programs{display:grid;gap:14px;min-width:0;align-items:start}
+.rp-cash-ledger-slot{min-width:0}
+.rp-cash-analysis:not(:has(.rp-cash-ledger-slot>*)){display:none}
 .rp-cash-analysis-stack:empty,.rp-cash-ledger-slot:empty{display:none}
 .rp-personal-layout{display:grid;gap:16px;min-width:0;align-items:start}
 .rp-personal-stack{display:contents}
@@ -65,13 +62,19 @@
  .rp-personal-stack{display:grid;gap:14px;min-width:0;align-items:start;grid-column:1;grid-row:1}
  .rp-personal-layout>.rp-receipt{grid-column:2;grid-row:1}
  .rp-personal-layout>.rp-reminders{grid-column:1/-1}
- .rp-finance-columns{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
- .rp-finance-column{display:flex;flex-direction:column;gap:14px;min-width:0}
- .rp-finance-column>*{order:0;min-width:0;width:100%}
- .rp-finance-columns .rp-finance-card{align-content:start}
- .rp-finance-columns .rp-cash-metric strong{font-size:16px}
- .rp-finance-columns .rp-dues-row{font-size:13px}
- .rp-finance-columns .rp-finance-program-detail,.rp-finance-columns .rp-finance-project{gap:8px}
+ .rp-cash-analysis,.rp-finance-programs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rp-cash-analysis>.rp-cash-ledger-slot{grid-column:1;grid-row:1;display:flex;min-width:0}
+ .rp-cash-analysis>.rp-cash-ledger-slot:empty{display:none}
+ .rp-cash-analysis>.rp-cash-analysis-stack{grid-column:2;grid-row:1}
+ .rp-cash-ledger-slot>.rp-finance-card{width:100%;align-content:start}
+ .rp-cash-analysis:has(.rp-finance-monthly[open]){align-items:stretch}
+ .rp-cash-analysis:has(.rp-finance-monthly[open])>.rp-cash-analysis-stack{grid-template-rows:minmax(100px,1fr) auto;align-items:stretch;min-height:0}
+ .rp-cash-analysis-stack>.rp-finance-monthly[open]{contain:size;min-height:100px;overflow:auto;overscroll-behavior:contain}
+ .rp-cash-analysis:has(.rp-finance-monthly[open]) .rp-cash-ledger-slot>.rp-finance-card{grid-template-rows:auto auto auto 1fr auto}
+ .rp-finance-programs>.rp-finance-card{align-content:start}
+ .rp-finance-programs .rp-cash-metric strong{font-size:16px}
+ .rp-finance-programs .rp-dues-row{font-size:13px}
+ .rp-finance-programs .rp-finance-program-detail,.rp-finance-programs .rp-finance-project{gap:8px}
  .rp-personal-layout .rp-bank{padding:16px}
  .rp-personal-layout .rp-split b{font-size:14px}
  .rp-personal-layout .rp-bank-actions{gap:8px}

@@ -243,11 +243,10 @@ function bankReportTotals(report,period=''){
 
 async function loadEnvironment(seq){
  const cash=el('div','rp-environment'),bank=financeCard('Keuangan Bank Sampah'),projects=financeCard('Pendanaan Projek');
- // Two independent columns: no shared row heights between unrelated cards.
- const columns=el('div','rp-finance-columns'),left=el('div','rp-finance-column'),right=el('div','rp-finance-column');
+ // Desktop: one aligned analysis row, followed by one aligned program row.
+ const analysis=el('div','rp-cash-analysis'),programs=el('div','rp-finance-programs');
  const analysisStack=el('div','rp-cash-analysis-stack'),ledgerSlot=el('div','rp-cash-ledger-slot');
- bank.classList.add('rp-bank-report');projects.classList.add('rp-project-report');
- left.append(analysisStack,bank);right.append(ledgerSlot,projects);columns.append(left,right);root.append(cash,columns);
+ analysis.append(analysisStack,ledgerSlot);programs.append(bank,projects);root.append(cash,analysis,programs);
  const active=()=>seq===serial&&!!account;
  cash.append(el('p','rp-empty','Memuat jurnal kas lorong…'));bank.append(el('p','rp-empty','Memuat keuangan Bank Sampah…'));projects.append(el('p','rp-empty','Memuat pendanaan projek…'));
  async function loadCash(){
