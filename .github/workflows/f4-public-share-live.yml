@@ -1,0 +1,65 @@
+name: F4 Public Content Share Live Verification
+on:
+  pull_request:
+    paths:
+      - .github/workflows/f4-public-share-live.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify published share links without modifying live data
+        run: |
+          python3 - <<'PY'
+          import urllib.request, json, re, hashlib, html, time, struct
+          api='https://api.flamboyan4.web.id'
+          home='https://flamboyan4.web.id'
+          def get(url):
+              req=urllib.request.Request(url,headers={'User-Agent':'F4-Public-Share-ReadOnly/1.0','Cache-Control':'no-cache'})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                  return r.headers.get_content_type(),r.read(650000)
+          def verify():
+              mime,body=get(api+'/api/v2/public/portal')
+              data=json.loads(body)
+              assert data.get('ok') is not False
+              meetings=data.get('meetings',[])
+              assert meetings,'No published meeting available'
+              key='r'+hashlib.sha256(str(meetings[0]['id']).encode()).hexdigest()[:16]
+              agenda=next((x for x in data.get('agenda',[]) if re.fullmatch(r'\d{4}-\d{2}-\d{2}',str(x.get('starts_on',''))[:10])),None)
+              assert agenda,'No published agenda available'
+              day=agenda['starts_on'][:10]
+              for code,dest in [(key,'/rapat/?record='),('a'+day.replace('-',''),'/?event='+day)]:
+                  url=api+'/s/'+code
+                  mime,raw=get(url)
+                  assert mime=='text/html'
+                  page=html.unescape(raw.decode())
+                  assert dest in page
+                  assert 'property="og:title"' in page and 'property="og:description"' in page
+                  assert 'property="og:image" content="'+url+'/image"' in page
+                  mime,png=get(url+'/image')
+                  assert mime=='image/png' and png[:8]==b'\x89PNG\r\n\x1a\n'
+                  assert struct.unpack('>II',png[16:24])==(720,405)
+                  assert len(png)<600000
+                  print('LIVE_PREVIEW_OK',code[0],len(png))
+              mime,photo=get('https://foto.flamboyan4.web.id/s/vzud-FqI')
+              assert mime=='text/html' and b'property="og:image"' in photo
+              mime,picture=get('https://foto.flamboyan4.web.id/s/vzud-FqI/image')
+              assert mime in ('image/png','image/jpeg') and picture
+              print('EXISTING_PHOTO_OK')
+              _,portal=get(home+'/')
+              _,rapat=get(home+'/rapat/')
+              assert b'home-legacy.js?v=20261128-content-share-v1' in portal
+              assert b'rapat-inline.js?v=20261128-content-share-v1' in rapat
+              print('PUBLIC_FRONTEND_ASSETS_OK')
+          for attempt in range(12):
+              try:
+                  verify()
+                  break
+              except Exception as exc:
+                  print('Verification attempt',attempt+1,type(exc).__name__,str(exc)[:160],flush=True)
+                  if attempt==11:raise
+                  time.sleep(20)
+          PY
