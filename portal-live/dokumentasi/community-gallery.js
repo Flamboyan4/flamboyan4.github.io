@@ -158,7 +158,20 @@ function prepareShare(target){
  const key=target.type+':'+target.albumId+':'+(target.type==='photo'?target.id:'');
  if(!shareLinks.has(key)){
   const ready=post('/share',{type:target.type,id:target.id,albumId:target.albumId})
-   .then(data=>data.url||original).catch(()=>original);
+   .then(async data=>{
+    // The API creates the code; share only the public website domain.
+    const short=new __f4.globals.URL(data.url||original);
+    if(!/^\/s\/[A-Za-z0-9_-]{8}\/?$/.test(short.pathname))return original;
+    const publicUrl=new __f4.globals.URL(short.pathname,'https://flamboyan4.web.id').href;
+    try{
+     const response=await (0,__f4.globals.fetch)(publicUrl,{credentials:'omit',cache:'no-cache',redirect:'error'});
+     if(!response.ok)return original;
+     const markup=await response.text();
+     // Never send an unverified short URL, e.g. a GitHub Pages 404.
+     if(!markup.includes('property="og:url" content="'+publicUrl+'"')||!markup.includes('property="og:image"'))return original;
+     return publicUrl;
+    }catch{return original}
+   }).catch(()=>original);
   shareLinks.set(key,ready);
  }
  return shareLinks.get(key);
