@@ -585,6 +585,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
 @media(max-width:1023px){
  body.f4-shared-dock #f4-direct-bar .f4-nav-links{display:none}
  body.f4-shared-dock #f4-direct-bar #f4-direct-meeting{margin-left:auto}
+ body.f4-shared-dock #f4-direct-bar:has(#f4-direct-login:not([hidden])){justify-content:flex-start}
  body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
   box-sizing:border-box;position:absolute;inset:0;display:grid;pointer-events:auto;
   grid-template-columns:repeat(var(--f4-dock-columns,5),minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:center;gap:2px;
