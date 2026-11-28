@@ -2335,6 +2335,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
     database:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 2 4 3 9 3s9-1 9-3V5M3 12c0 2 4 3 9 3s9-1 9-3"/>',
     globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/>',
     image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3 16 5-5 4 4 3-3 6 6"/>',
+    clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     user:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2c0-4 3.6-6 8-6s8 2 8 6v2"/>'
   };
   const v16LogoURL='/assets/logo-flamboyan.svg?v=official-20261027-v2';
@@ -2350,6 +2351,19 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
   };
   function v16CloseMenu(){if($('sideNav'))$('sideNav').classList.remove('open');if($('v16Backdrop'))$('v16Backdrop').classList.remove('open');__f4.globals.document.body.classList.remove('f4-bank-drawer-open');}
   function v16Icon(id){const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=v16SvgPaths[id]||v16SvgPaths.home;return svg;}
+  function v16AppendResidentLinks(list,account){
+    if(!/^(warga|anggota)$/i.test((0,__f4.globals.String)(account?.peran||'').trim()))return;
+    const group=__f4.globals.document.createElement('div');
+    group.className='f4-bank-nav-divider';group.textContent='AKUN WARGA';group.setAttribute('role','presentation');list.append(group);
+    for(const [label,path,icon] of [['Keuangan Saya','/keuangan/','wallet'],['Agenda','/agenda/','clock'],['Profil Saya','/profil/','user']]){
+      const button=__f4.globals.document.createElement('button');button.type='button';button.className='v16-item';
+      button.setAttribute('aria-label',label);button.dataset.residentPortal=path;
+      const text=__f4.globals.document.createElement('span');text.className='f4-bank-nav-label';text.textContent=label;
+      button.append(v16Icon(icon),text);
+      button.onclick=()=>{v16CloseMenu();void __f4.globals.F4PortalNavigation?.go(path);};
+      list.append(button);
+    }
+  }
   function v16BuildNav(){
     const side=$('sideNav');if(!side)return;
     const topLogo=__f4.globals.document.querySelector('.top .logo');
@@ -2409,8 +2423,9 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
      };
       list.appendChild(b);
     });
-    // Akses Cepat membuka fitur langsung: tidak menyalin Keuangan, Pengelolaan,
-    // Riwayat, dan Laporan ke sidebar pengelola. Navigasi warga tidak berubah.
+    // Cross-portal resident routes belong to the existing desktop sidebar.
+    v16AppendResidentLinks(list,profile);
+    // Akses Cepat membuka fitur langsung; menu pengelola tidak berubah.
     if(!$('v16Tabs')){
       const tabs=__f4.globals.document.createElement('div');tabs.id='v16Tabs';tabs.className='v16-tabs hidden';
       const section=$('dashboardView').querySelector('.section');section.querySelector(':scope > .toolbar').after(tabs);
