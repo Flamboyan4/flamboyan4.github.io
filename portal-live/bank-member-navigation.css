@@ -20,7 +20,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   border-radius:0;background:#fff;box-shadow:none;transform:none;visibility:visible
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16Brand.v16-brand{
-  box-sizing:border-box;display:flex;align-items:center;flex-shrink:0;gap:10px;
+  box-sizing:border-box;display:flex;align-items:center;flex-shrink:0;gap:9px;
   width:auto;height:56px;min-height:56px;margin:0 -10px var(--f4-side-brand-gap,8px);padding:0 14px;
   border:0;background:#fff
  }
@@ -28,11 +28,11 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
   display:block;flex:none;width:42px;height:42px;max-width:42px;object-fit:contain
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16Brand strong{
-  display:block;color:#21583b;font-size:14px;font-weight:800;
+  display:block;color:var(--f4-nav);font-size:14px;font-weight:800;
   line-height:1.2;margin:0 0 4px;letter-spacing:normal;white-space:nowrap;overflow-wrap:normal
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16Brand small{
-  display:block;color:#788d7f;font-size:10px;line-height:1.2;margin:0
+  display:block;color:#8793a7;font-size:10px;line-height:1.2;margin:0
  }
  body.f4-bank-app-member #dashboardView #sideNav .v16-nav-caption{
   box-sizing:border-box;display:block;height:20px;color:var(--f4-bank-nav-caption,#718578);
@@ -51,7 +51,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item{
   box-sizing:border-box;display:flex;align-items:center;justify-content:var(--f4-bank-nav-align,flex-start);gap:var(--f4-bank-nav-gap,var(--f4-side-row-gap,10px));
   height:var(--f4-side-row-height,42px);min-height:var(--f4-side-row-height,42px);margin:var(--f4-side-row-margin,1px) 0;padding:0 var(--f4-bank-nav-padding,var(--f4-side-row-inset,15px));border:0;border-radius:var(--f4-side-row-radius,10px);
-  background:transparent;color:#315347;
+  background:transparent;color:#333b54;
   font:650 13px/1.25 system-ui,-apple-system,sans-serif;
   box-shadow:none;text-align:left;cursor:pointer;--member-nav-accent:var(--f4-bank-primary,#087c6c)
  }
@@ -70,7 +70,7 @@ body.f4-bank-app-member :is(.f4-member-environment-preview,.f4-member-info-short
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item svg{
   box-sizing:border-box;display:block;flex:none;width:var(--f4-side-icon-size,22px);height:var(--f4-side-icon-size,22px);
   padding:0;border-radius:0;background:transparent;
-  color:var(--member-nav-accent,currentColor);stroke:currentColor;stroke-width:1.9;fill:none
+  color:inherit;stroke:currentColor;stroke-width:1.9;fill:none
  }
  body.f4-bank-app-member #dashboardView #sideNav #v16NavList>.v16-item .f4-svg-icon{width:var(--f4-side-icon-size,22px);height:var(--f4-side-icon-size,22px)}
  body.f4-bank-app-member #dashboardView #sideNav .side-footer{

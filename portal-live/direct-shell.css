@@ -1,5 +1,5 @@
 /* Flamboyan 4 — shared navigation for native (non-iframe) portal pages. */
-:root{--f4-shell-fallback-display:none;--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
+:root{--f4-shell-fallback-display:none;--f4-nav:var(--f4-portal-primary,#5145CD);--f4-nav-tint:var(--f4-portal-soft,#EDEBFA);--f4-nav-line:var(--f4-portal-line,#DCD8F5);--f4-rail-open:226px;--f4-side-mobile-width:min(var(--f4-rail-open),82vw);--f4-side-row-height:43px;--f4-side-row-margin:2px;--f4-side-icon-size:18px;--f4-side-row-radius:10px;--f4-side-row-inset:12px;--f4-side-row-gap:10px;--f4-side-group-height:24px;--f4-side-group-margin:6px;--f4-side-brand-gap:8px;--f4-side-overlay:#0e19276b;--f4-rail-width:var(--f4-rail-open);--f4-portal-rail:var(--f4-rail-width);--f4-panel-radius:12px;--f4-panel-pad:clamp(14px,1.8vw,22px);--f4-panel-shadow:0 3px 14px rgba(35,48,64,.055);
 --f4-ui-ink:#23293c;--f4-ui-muted:#586477;--f4-ui-border:#dde3ea;--f4-heading:clamp(1.4rem,1.25rem + .7vw,1.85rem);
 --f4-grid-gap:clamp(12px,1.5vw,20px);--f4-grid-gap-compact:10px;--f4-content-max:1180px;--f4-input-font:14px;--f4-control-height:44px;--f4-control-gap:10px;--f4-control-radius:10px;--f4-control-line:1.3}
 
@@ -92,13 +92,13 @@ body.f4-direct-bank #f4-direct-bar .f4-direct-identity strong{color:#153f2c}
 #f4-direct-dialog .f4-login-error{color:#a23838;font-size:12px}
 #f4-direct-gate{margin:120px auto 30px;padding:25px;max-width:500px;background:white;border:1px solid var(--f4-nav-line);border-radius:16px;color:#31475a;font:14px/1.6 system-ui}
 
-#f4-direct-sidebar h2{margin:8px 12px 16px;font-size:15px;color:var(--f4-nav);font-weight:800}
-#f4-direct-sidebar button,#f4-direct-sidebar a{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;padding:10px 12px;margin:2px 0;background:transparent;border:0;border-radius:10px;color:#333b54;text-align:left;text-decoration:none;font:650 13px system-ui;cursor:pointer}
+
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a){box-sizing:border-box;display:flex;align-items:center;flex:none;gap:var(--f4-side-row-gap);width:100%;min-height:var(--f4-side-row-height);padding:0 var(--f4-side-row-inset);margin:var(--f4-side-row-margin) 0;background:transparent;border:0;border-radius:var(--f4-side-row-radius);color:#333b54;text-align:left;text-decoration:none;font:650 13px/1.25 system-ui,sans-serif;cursor:pointer}
 #f4-direct-sidebar [data-f4-resident-side][hidden]{display:none}
 @media(max-width:1023px){#f4-direct-sidebar [data-f4-resident-side]{display:none}}
-#f4-direct-sidebar button[aria-current=page]{color:var(--f4-nav);background:var(--f4-nav-tint)}
-@media (hover:hover) and (pointer:fine){#f4-direct-sidebar button:hover,#f4-direct-sidebar a:hover{color:var(--f4-nav);background:var(--f4-nav-tint)}}
-#f4-direct-sideback{position:fixed;inset:56px 0 0;z-index:109;background:#0e19276b;border:0;width:100%;padding:0}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) button[aria-current=page]{color:var(--f4-nav);background:var(--f4-nav-tint)}
+@media (hover:hover) and (pointer:fine){ :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a):hover{color:var(--f4-nav);background:var(--f4-nav-tint)}}
+ :is(#f4-direct-sideback,body>.f4-sa-mobile-backdrop){box-sizing:border-box;position:fixed;inset:var(--f4-shell-header,56px) 0 0;z-index:109;background:var(--f4-side-overlay);border:0;border-radius:0;width:100%;padding:0;touch-action:none}
 body.f4-direct-portal{padding-top:56px;padding-left:var(--f4-portal-rail,226px);min-height:100dvh}
 body.f4-direct-portal>main{max-width:var(--f4-content-max);margin:0 auto}
 body.f4-direct-bank{--f4-nav:#087c6c;--f4-nav-tint:#e3f6f1;--f4-nav-line:#b9e7dc;
@@ -169,8 +169,8 @@ body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-direct-bar,
 html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 @media(max-width:1023px){
  #f4-direct-bar #f4-mobile-menu[data-f4-menu-mode="menu"]{display:grid}
- #f4-direct-sidebar{transform:translateX(-103%);transition:transform .2s;box-shadow:10px 0 25px #1c304016}
- #f4-direct-sidebar.f4-open{transform:translateX(0)}
+  :is(#f4-direct-sidebar,#f4-sa-sidebar){--f4-side-top:var(--f4-shell-header,56px);--f4-side-width:var(--f4-side-mobile-width);height:calc(var(--f4-shell-viewport,100dvh) - var(--f4-shell-header,56px));max-height:none;transform:translateX(-103%);visibility:hidden;pointer-events:none;transition:transform .2s,visibility .2s;box-shadow:10px 0 25px #1c304016}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar).f4-open{transform:translateX(0);visibility:visible;pointer-events:auto}
  body.f4-direct-portal,body.f4-direct-simple{padding-left:0}
  #f4-direct-bar{padding:0 10px}
  #f4-direct-bar .f4-nav-links{gap:3px}
@@ -196,7 +196,7 @@ html.f4p-overlay-active #f4-direct-bar{visibility:hidden;pointer-events:none}
 #f4-direct-bar .f4-nav-links a[hidden],
 #f4-direct-bar #f4-direct-login[hidden],
 #f4-direct-bar #f4-direct-avatar[hidden]{display:none}
-#f4-direct-sidebar button svg{display:block;flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a) svg{display:block;flex:none;width:var(--f4-side-icon-size);height:var(--f4-side-icon-size);color:inherit;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
 #f4-direct-sidebar button span{min-width:0}
 #f4-direct-bar:has(+ #f4-direct-account-menu){z-index:200}
 @media(max-width:1023px){
@@ -224,12 +224,12 @@ body.f4-account-open #f4-direct-bar{z-index:500}
  html[data-f4-shell]{--f4-content-max:1040px}
  body.f4-direct-portal #f4-direct-bar,body.f4-direct-simple #f4-direct-bar{left:var(--f4-portal-rail,226px)}
  body:is(.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin) #f4-direct-bar{left:var(--f4-rail-width,226px)}
- body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:0;bottom:0;height:100dvh;padding-top:0}
+ body :is(#f4-direct-sidebar,#f4-sa-sidebar){top:0;bottom:0;height:100dvh;padding-top:0}
  body.f4-direct-bank #v18PublicSide{position:fixed;top:0;left:0;bottom:0;width:var(--f4-side-width,var(--f4-rail-width,226px));height:100dvh;max-height:100dvh}
  body.f4-direct-bank #v11Public.v18-public-shell{grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr)}
  body.f4-direct-bank #v18PublicContent{grid-column:2;min-width:0}
  body.f4-direct-book #side-drawer{top:0}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{box-sizing:border-box;height:56px;min-height:56px;margin:0 -10px 12px;padding:0 14px;}
+ body :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand{box-sizing:border-box;height:56px;min-height:56px;margin:0 -10px var(--f4-side-brand-gap);padding:0 14px;}
 }
 #f4-direct-bar{position:fixed;top:0;left:0;right:0;height:56px;z-index:200;backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:space-between;padding:0 12px;gap:8px;font:600 14px/1.35 system-ui,-apple-system,sans-serif;color:#292b45;
 isolation:isolate;
@@ -256,13 +256,13 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
  body:is(.f4-direct-bank,.f4-direct-book,.f4-direct-superadmin) #f4-route-loading{left:var(--f4-rail-width,226px)}
 }
 @media print{#f4-route-loading{display:none}}
-#f4-direct-sidebar .f4-direct-brand{display:flex;align-items:center;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;}
-#f4-direct-sidebar .f4-direct-brand img{width:42px;height:43px;object-fit:contain;flex:none}
-#f4-direct-sidebar .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800}
-#f4-direct-sidebar .f4-direct-brand small{display:block;color:#8793a7;font-size:10px;line-height:1.2}
-#f4-direct-sidebar .f4-direct-group-label{padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
-#f4-direct-sidebar .f4-direct-other-pages{border-top:1px solid var(--f4-nav-line);margin-top:15px;padding-top:16px}
-#f4-direct-sidebar button{min-height:43px}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand{box-sizing:border-box;display:flex;align-items:center;flex:none;gap:9px;margin:1px 2px 13px;padding:8px 7px 16px;}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand img{width:42px;height:42px;object-fit:contain;flex:none}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand h2{font-size:14px;line-height:1.2;margin:0 0 4px;font-weight:800;color:var(--f4-nav)}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand small{display:block;color:#8793a7;font-size:10px;line-height:1.2}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-group-label{display:block;box-sizing:border-box;padding:10px 12px 5px;color:#8290a7;font:800 10px/1.2 system-ui;letter-spacing:.055em}
+ :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-other-pages{border-top:1px solid var(--f4-nav-line);margin-top:15px;padding-top:16px}
+
 @media(max-width:1023px){
  /* Mobile app frame: the document never scrolls. Three sibling regions own
     the top bar, the existing page content root, and the bottom navigation.
@@ -299,7 +299,7 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
  body.f4-direct-portal:has(#modal-event-detail:not(.hidden),#modal-arisan:not(.hidden),#modal-cetak-kas:not(.hidden),#modal-keuangan:not(.hidden),#modal-jersey:not(.hidden),#modal-dokumentasi:not(.hidden),#modal-gallery-grid:not(.hidden),#lightbox-modal:not(.hidden),#modal-saran:not(.hidden)) #f4-shell-top>#f4-direct-bar,
  body.f4-direct-bank:has(.v21-modal:not(.hidden)) #f4-shell-top>#f4-direct-bar,
  html.f4p-overlay-active #f4-shell-top>#f4-direct-bar{pointer-events:none}
- body.f4-direct-portal #f4-direct-sidebar,body.f4-direct-simple #f4-direct-sidebar{top:56px;bottom:0;height:calc(100dvh - 56px)}
+
  /* Wide data tables retain their own scroll containers. */
  html[data-f4-shell] #f4-direct-bar{
   min-width:0;max-width:100%;box-sizing:border-box;margin:0;
@@ -328,7 +328,7 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 .f4-svg-book{-webkit-mask-image:url('/assets/icons/book.svg');mask-image:url('/assets/icons/book.svg')}
 .f4-svg-superadmin{-webkit-mask-image:url('/assets/icons/superadmin.svg');mask-image:url('/assets/icons/superadmin.svg')}
 .f4-svg-user{-webkit-mask-image:url('/assets/icons/user.svg');mask-image:url('/assets/icons/user.svg')}
-#f4-direct-sidebar button .f4-svg-icon{width:18px;height:18px}
+#f4-direct-sidebar button .f4-svg-icon{width:var(--f4-side-icon-size);height:var(--f4-side-icon-size)}
 #f4-direct-bar #f4-direct-avatar .f4-svg-icon{width:23px;height:23px}
 /* Eliminate double top padding inherited from the old iframe wrapper. */
 
@@ -380,9 +380,9 @@ body.f4-direct-portal:has(
 ) #f4-direct-sideback{display:none}
 /* Keep sidebar internally scrollable on short displays, without the
    intrusive independent scrollbar next to the page. */
-#f4-direct-sidebar{position:fixed;left:0;top:56px;bottom:0;width:var(--f4-portal-rail,226px);overflow-y:auto;background:#fff;z-index:110;padding:14px 10px;font:600 13px system-ui;
+ :is(#f4-direct-sidebar,#f4-sa-sidebar){box-sizing:border-box;position:fixed;left:0;top:var(--f4-side-top,0px);bottom:0;width:var(--f4-side-width,var(--f4-portal-rail,226px));overflow-y:auto;overflow-x:hidden;background:#fff;border-radius:0;border:0;z-index:110;padding:14px 10px;font:600 13px system-ui;
 scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
-#f4-direct-sidebar::-webkit-scrollbar{display:none;width:0;height:0}
+:is(#f4-direct-sidebar,#f4-sa-sidebar)::-webkit-scrollbar{display:none;width:0;height:0}
 
 /* Single aligned password visibility control in the global sign-in dialog. */
 #f4-direct-dialog .f4-direct-password-field{position:relative;width:100%;display:block}
@@ -453,24 +453,24 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
    or keyboard focus, never change the content coordinate system. */
 @media screen and (min-width:1024px) and (hover:hover) and (pointer:fine){
  html[data-f4-shell]{--f4-rail-width:72px;--f4-side-row-height:42px;--f4-side-row-margin:1px;--f4-side-icon-size:22px;--f4-side-row-radius:10px;--f4-side-row-inset:15px;--f4-side-row-gap:10px;--f4-side-group-height:24px;--f4-side-group-margin:6px;--f4-side-brand-gap:8px}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar{
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar){
   overflow-x:hidden;transition:width .18s ease,box-shadow .18s ease;z-index:210
  }
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:is(:hover,:has(:focus-visible)){
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar):is(:hover,:has(:focus-visible)){
   width:var(--f4-rail-open);box-shadow:8px 0 20px rgba(30,35,50,.08)
  }
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button{
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a){
   box-sizing:border-box;height:var(--f4-side-row-height);min-height:var(--f4-side-row-height);margin:var(--f4-side-row-margin) 0;gap:var(--f4-side-row-gap);padding:0 var(--f4-side-row-inset);border-radius:var(--f4-side-row-radius);white-space:nowrap
  }
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button :is(.f4-svg-icon,svg){width:var(--f4-side-icon-size);height:var(--f4-side-icon-size)}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-brand{margin-bottom:var(--f4-side-brand-gap);padding-inline:14px;white-space:nowrap}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar :is(.f4-direct-menu-label,.f4-direct-brand>div,.f4-direct-group-label){white-space:nowrap}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) :is(.f4-direct-menu-label,.f4-direct-brand>div){opacity:0;pointer-events:none}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-group-label{box-sizing:border-box;height:20px;padding:4px 12px;font:800 10px/12px system-ui;letter-spacing:.055em}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar .f4-direct-other-pages{height:var(--f4-side-group-height);margin:var(--f4-side-group-margin) 0 0;padding:6px 12px 4px}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-group-label{color:transparent}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar:not(:hover):not(:has(:focus-visible)) .f4-direct-other-pages{border-top-color:transparent;background:linear-gradient(var(--f4-nav-line),var(--f4-nav-line)) center/100% 1px no-repeat}
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar button:focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a) :is(.f4-svg-icon,svg){width:var(--f4-side-icon-size);height:var(--f4-side-icon-size)}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-brand{margin-bottom:var(--f4-side-brand-gap);padding-inline:14px;white-space:nowrap}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(.f4-direct-menu-label,.f4-direct-brand>div,.f4-direct-group-label){white-space:nowrap}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar):not(:hover):not(:has(:focus-visible)) :is(.f4-direct-menu-label,.f4-direct-brand>div){opacity:0;pointer-events:none}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-group-label{box-sizing:border-box;height:20px;padding:4px 12px;font:800 10px/12px system-ui;letter-spacing:.055em}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) .f4-direct-other-pages{height:var(--f4-side-group-height);margin:var(--f4-side-group-margin) 0 0;padding:6px 12px 4px}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar):not(:hover):not(:has(:focus-visible)) .f4-direct-group-label{color:transparent}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar):not(:hover):not(:has(:focus-visible)) .f4-direct-other-pages{border-top-color:transparent;background:linear-gradient(var(--f4-nav-line),var(--f4-nav-line)) center calc(100% - 5px)/100% 1px no-repeat}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar) :is(button,a):focus-visible{outline:2px solid var(--f4-nav);outline-offset:-2px}
 
  /* The three operational portals share the same rail dimensions and overlay behavior. */
  body.f4-direct-bank #v11Public #v18PublicSide,
@@ -500,12 +500,10 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
   --f4-bank-nav-align:center;--f4-bank-nav-gap:0px;--f4-bank-nav-padding:0px;--f4-bank-nav-caption:transparent;--f4-bank-nav-icon:22px
  }
  body.f4-direct-bank :is(#v18PublicSide,#sideNav.side):not(:hover):not(:has(:focus-visible)) .f4-bank-nav-label{display:none}
- body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item,
- body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link){
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item{
   justify-content:center;gap:0;padding-inline:0
  }
- body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item>span,
- body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) :is(button,.sa-donor-link)>span{
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .drawer-item>span{
   width:0;min-width:0;overflow:hidden;opacity:0
  }
  body.f4-direct-bank #v11Public #v18PublicSide .v17-public-logo,
@@ -516,13 +514,15 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) .v16-brand :is(strong,small),
  body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .f4-book-brand-copy,
  body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-brand>span{opacity:0;pointer-events:none}
- body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) :is(.f4-book-menu-label,.f4-book-menu-other),
- body.f4-direct-superadmin #f4-account-page > aside:not(:hover):not(:has(:focus-visible)) .f4-sa-label{color:transparent;white-space:nowrap;overflow:hidden}
- body.f4-direct-superadmin #f4-account-page > aside{position:fixed;top:0;left:0;bottom:0;width:var(--f4-side-width)}
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) :is(.f4-book-menu-label,.f4-book-menu-other){color:transparent;white-space:nowrap;overflow:hidden}
+ body.f4-direct-book > #side-drawer:not(:hover):not(:has(:focus-visible)) .f4-book-menu-other,
+ body.f4-direct-bank #dashboardView #sideNav.side:not(:hover):not(:has(:focus-visible)) #v16NavList .f4-bank-nav-divider{border-top-color:transparent;background:linear-gradient(var(--f4-nav-line),var(--f4-nav-line)) center calc(100% - 5px)/100% 1px no-repeat}
+ body.f4-direct-superadmin #f4-account-page > aside{--f4-side-width:var(--f4-rail-width)}
+ body.f4-direct-superadmin #f4-account-page > aside:is(:hover,:has(:focus-visible)){--f4-side-width:var(--f4-rail-open)}
  body.f4-direct-superadmin #f4-account-page > main{grid-column:2}
 }
 @media (prefers-reduced-motion:reduce){
- body:is(.f4-direct-portal,.f4-direct-simple) #f4-direct-sidebar,body.f4-direct-bank :is(#v18PublicSide,#sideNav),body.f4-direct-book #side-drawer,body.f4-direct-superadmin #f4-account-page>aside{transition-duration:0s}
+ body:is(.f4-direct-portal,.f4-direct-simple,.f4-direct-superadmin) :is(#f4-direct-sidebar,#f4-sa-sidebar),body.f4-direct-bank :is(#v18PublicSide,#sideNav),body.f4-direct-book #side-drawer,body.f4-direct-superadmin #f4-account-page>aside{transition-duration:0s}
 }
 
 /* 2026-11-17: ONE shared touch-interaction owner for native Flamboyan portals.

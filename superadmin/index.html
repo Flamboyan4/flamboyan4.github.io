@@ -41,20 +41,7 @@ body{--work-bg:#fff;--work-accent:var(--blue);--work-tint:var(--tint);--work-lin
 button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 [hidden]{display:none}#guard{padding:28px;max-width:560px;margin:88px auto;background:#fff;border:1px solid var(--edge);border-radius:16px}
 #f4-account-page:not([hidden]){display:grid;grid-template-columns:var(--f4-rail-width,226px) minmax(0,1fr);min-height:100dvh;position:relative;inset:auto;background:#fff;color:inherit}
-#f4-sa-sidebar{position:sticky;top:0;align-self:start;height:100dvh;max-height:100dvh;overflow-x:hidden;overflow-y:auto;background:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:0}
 #f4-account-page>main{max-width:none;width:100%;padding:calc(56px + var(--f4-panel-pad)) var(--f4-panel-pad) 30px;overflow-y:auto;overflow-x:hidden;min-width:0}
-.f4-sa-brand{display:flex;gap:9px;align-items:center;padding:12px 8px 15px;margin-bottom:11px}
-@media(min-width:1024px){
- #f4-sa-sidebar{padding-top:0}
- #f4-sa-sidebar .f4-sa-brand{box-sizing:border-box;height:56px;min-height:56px;padding:0 14px;margin:0 -12px 11px;}
-}
-.f4-sa-logo{height:42px;width:42px;object-fit:contain;flex:none}.f4-sa-brand strong{display:block;font-size:13px;font-weight:800;line-height:1.2;color:var(--blue)}.f4-sa-brand small{display:block;margin-top:3px;font-size:10px;font-weight:500;line-height:1.2;color:var(--muted)}
-.f4-sa-label{display:block;font:800 10px/1.2 system-ui;color:#8290a7;text-transform:uppercase;letter-spacing:.055em;padding:10px 12px 5px}
-.f4-sa-label.f4-sa-other-pages{margin:15px 0 3px;padding:16px 12px 5px;border-top:1px solid var(--f4-nav-line,var(--edge))}
-#f4-sa-sidebar button{display:flex;align-items:center;gap:10px;width:100%;min-height:43px;margin:2px 0;padding:10px 12px;text-align:left;border:0;border-radius:10px;background:transparent;color:#333b54;font:650 13px/1.25 system-ui,sans-serif}
-#f4-sa-sidebar button.active{background:var(--tint);color:var(--blue)}
-@media (hover:hover) and (pointer:fine){#f4-sa-sidebar button:hover{background:var(--tint);color:var(--blue)}}
-#f4-sa-sidebar .f4-sa-subtitle{margin-top:13px;border-top:1px solid var(--edge)}
 #f4-account-page>main h2{font-size:25px;margin:0 0 5px;font-weight:850;color:var(--navy)}
 #f4-account-page>main p{margin:5px 0 16px;color:var(--muted)}
 .f4-work-heading{border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:18px}
@@ -125,37 +112,10 @@ button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var
  html body #f4-account-page:not([hidden]){
   display:block;grid-template-columns:1fr;max-width:100vw;overflow-x:clip
  }
- html body #f4-sa-sidebar{
-  position:absolute;top:var(--f4-shell-header,56px);left:0;bottom:0;
-  margin:0;width:min(var(--f4-rail-open,226px),82vw);height:auto;max-height:none;
-  z-index:110;transform:translate3d(-110%,0,0);visibility:hidden;
-  transition:transform .22s ease,visibility .22s ease;
-  overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-  display:flex;flex-direction:column;flex-wrap:nowrap;
-  align-items:stretch;padding:14px 10px;
-  box-shadow:10px 0 25px #1c304016
- }
- html body #f4-sa-sidebar.f4-sa-open{
-  transform:translate3d(0,0,0);visibility:visible
- }
- html body #f4-sa-sidebar .f4-sa-brand{
-  min-width:0;display:flex;flex-direction:row;
-  margin-bottom:11px;padding:12px 8px 15px
- }
- html body #f4-sa-sidebar .f4-sa-brand small,
- html body #f4-sa-sidebar .f4-sa-label{display:block}
- html body #f4-sa-sidebar button{
-  width:100%;min-width:0;flex:none;text-align:left;
-  min-height:43px;padding:10px 12px
- }
  html body #f4-account-page>main{
   padding:66px 12px 24px;overflow-y:auto;overflow-x:hidden;
   width:100%;min-width:0
  }
- body>.f4-sa-mobile-backdrop{
-  display:none;position:absolute;inset:var(--f4-shell-header,56px) 0 0;background:#0e19276b;z-index:109;touch-action:none
- }
- body>.f4-sa-mobile-backdrop.f4-sa-open{display:block}
  #f4-account-page .sa-tabbar{max-width:100%;overflow-x:auto}
  #f4-account-page .f4-obligation-scroll{max-width:100%;overflow-x:auto}
 }
@@ -352,7 +312,7 @@ html body #f4-sa-sidebar{overflow-x:hidden}
 .sa-account-feedback{font-size:12px;color:var(--blue)}.sa-account-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:15px}
 </style>
 <style id="f4-sa-standalone-nav-bridge">
-.f4-sa-mobile-backdrop{display:none}
+.f4-sa-mobile-backdrop[hidden]{display:none}
 html.f4-sa-drawer-lock{overflow:hidden}
 .f4-sa-standalone-menu{display:none;position:fixed;top:9px;left:9px;z-index:100;
  width:39px;height:39px;padding:0;border:0;border-radius:10px;background:var(--tint);
@@ -361,7 +321,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .f4-admin-icon-label{display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .f4-admin-icon-label svg{display:block;flex:none;width:17px;height:17px}
 @media(max-width:1023px){.f4-sa-standalone-menu{display:grid;place-items:center}}
-</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261128-desktop-rail-parity-v140"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+</style><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261128-shared-side-v141"><style>html.f4-auth-pending body>:not(#f4-shell-top):not(#f4-shell-bottom):not(#f4-direct-dialog):not(#f4-session-notice){visibility:hidden}</style><script>document.documentElement.classList.add("f4-auth-pending")</script><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/modern-portals.css?v=20261127-iuran-resident-panel-v102"><link rel="stylesheet" href="/portal-live/treasury-center.css?v=20261127-flat-treasury-report-v107">
 <style id="f4-superadmin-form-value-typography-20261028">
 /* Label is emphasized, but entered values must remain normal-weight.
@@ -390,8 +350,6 @@ html.f4-sa-drawer-lock{overflow:hidden}
 .sa-weighing-actions{grid-column:1/-1;display:flex;gap:10px}
 .sa-weighing-form button{min-height:42px}
 @media(max-width:640px){.sa-weighing-form{grid-template-columns:minmax(0,1fr)}}
-.sa-donor-link{box-sizing:border-box;display:flex;align-items:center;gap:10px;min-height:43px;padding:10px 12px;margin:2px 0;border-radius:10px;color:#333b54;font:650 13px/1.25 system-ui,sans-serif;text-decoration:none}
-.sa-donor-link:hover,.sa-donor-link:focus-visible{background:var(--tint);color:var(--blue);text-decoration:none}
 
 
 </style>
@@ -409,7 +367,7 @@ html.f4-sa-drawer-lock{overflow:hidden}
 <script src="/portal-live/loading-state.js?v=786606f"></script>
 <script type="application/f4-source" data-f4-external data-f4-src="/portal-live/vendor/jszip.min.js"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/treasury-center.js" data-f4-src="/portal-live/treasury-center.js?v=20261127-stable-treasury-labels-v108"></script>
-<script type="application/f4-source" data-f4-id="/portal-live/superadmin-content.js" data-f4-src="/portal-live/superadmin-content.js?v=20261127-full-height-sa-drawer-v110"></script>
+<script type="application/f4-source" data-f4-id="/portal-live/superadmin-content.js" data-f4-src="/portal-live/superadmin-content.js?v=20261128-shared-side-v141"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/superadmin-editor.js" data-f4-src="/portal-live/superadmin-editor.js?v=20261127-iuran-resident-panel-v102"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/project-modules.js" data-f4-src="/portal-live/project-modules.js?v=20261127-svg-icons-v35"></script>
 

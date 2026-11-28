@@ -7,7 +7,7 @@ window.F4PortalRuntime.define("/portal-live/superadmin-content.js",function(__f4
 'use strict';
 const API='https://api.flamboyan4.web.id',root=__f4.globals.document.getElementById('f4-account-page'),side=root.querySelector('aside'),main=root.querySelector('main'),guard=__f4.globals.document.getElementById('guard');
 const saBackdrop=__f4.globals.document.createElement('div');
-saBackdrop.className='f4-sa-mobile-backdrop';saBackdrop.setAttribute('aria-hidden','true');root.append(saBackdrop);
+saBackdrop.className='f4-sa-mobile-backdrop';saBackdrop.hidden=true;saBackdrop.setAttribute('aria-hidden','true');root.append(saBackdrop);
 const saEmbedded=__f4.window.parent!==window;
 const standaloneButton=__f4.globals.document.createElement('button');
 standaloneButton.type='button';standaloneButton.className='f4-sa-standalone-menu';
@@ -25,7 +25,7 @@ function saCloseDrawer(fromHistory=false){
  if(!saMenuOpened())return;
  if(!fromHistory&&__f4.globals.history.state?.f4SaDrawer){__f4.globals.history.back();return}
  root.classList.remove('f4-sa-drawer-open');
- side.classList.remove('f4-sa-open');saBackdrop.classList.remove('f4-sa-open');
+ side.classList.remove('f4-open');saBackdrop.hidden=true;
  root.prepend(side);root.append(saBackdrop);
  main.inert=false;
  __f4.globals.document.documentElement.classList.remove('f4-sa-drawer-lock');
@@ -38,7 +38,7 @@ __f4.window.f4ToggleSuperadminMenu=()=>{
  root.classList.add('f4-sa-drawer-open');
  // Mount the existing drawer above the persistent dock, outside the scroll root.
  __f4.globals.document.body.append(saBackdrop,side);
- side.classList.add('f4-sa-open');saBackdrop.classList.add('f4-sa-open');
+ side.classList.add('f4-open');saBackdrop.hidden=false;
  main.inert=true;
  __f4.globals.document.documentElement.classList.add('f4-sa-drawer-lock');
  saNotifyMenu(true);
@@ -87,12 +87,26 @@ const rows=(o)=>__f4.globals.Array.isArray(o)?o:__f4.globals.Array.isArray(o?.ro
 const notice=(text)=>{const n=el('p',text,'f4-admin-note');main.append(n);return n};
 const safe=(error)=>(0,__f4.globals.String)(error&&error.message||error);
 async function get(path){const res=await (0,__f4.globals.fetch)(API+path,{credentials:'include',cache:'no-store'});const d=await res.json().catch(()=>({}));if(!res.ok||d.ok===false)throw (0,__f4.globals.Error)(d.error||('HTTP '+res.status));return d}
+function saSidebarIcon(key){
+ const paths={
+ overview:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 10h18M10 10v11"/>',
+ treasury:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+ accounts:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+ content:'<path d="m3 10 9-7 9 7v11H3zM9 21v-8h6v8"/>',
+ bank:'<path d="m7 6 2-3 4 6M7 6l-3 5m9-2 4-1-2-5M19 12l2 4-5 0m3-4-3-4M16 16l-3 4 5 0M9 20H5l-2-4 3-5m-3 5h6"/>',
+ masters:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/>',
+ audit:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+ donor:'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18M12 10v5"/>'
+ };
+ const svg=__f4.globals.document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');svg.innerHTML=paths[key]||paths.overview;return svg;
+}
 function sidebar(g=group){
  group=g;
  // Keep the same sidebar nodes across route changes. Rebuilding them makes
  // the logo, icons and active state visibly jump while modules load.
  const existing=[...side.querySelectorAll('button[data-sa-group]')];
- if(existing.length===groups.length&&side.querySelector('.f4-sa-brand')&&side.querySelector('.sa-donor-link')){
+ if(existing.length===groups.length&&side.querySelector('.f4-direct-brand')&&side.querySelector('.sa-donor-link')){
   for(const b of existing){
    const selected=b.dataset.saGroup===g;
    b.classList.toggle('active',selected);
@@ -103,22 +117,20 @@ function sidebar(g=group){
   return;
  }
  side.replaceChildren();
- const brand=el('div',__f4.globals.undefined,'f4-sa-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
- const text=el('span');text.append(el('strong','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
- side.append(el('strong','MENU','f4-sa-label'));
+ const brand=el('div',__f4.globals.undefined,'f4-direct-brand');const img=el('img');img.src='/assets/logo-flamboyan.svg?v=official-20261027-v2';img.alt='Logo Flamboyan 4';img.className='f4-sa-logo';
+ const text=el('div');text.append(el('h2','Superadmin'),el('small','Flamboyan 4'));brand.append(img,text);side.append(brand);
+ side.append(el('div','MENU','f4-direct-group-label'));
  for(const [key,label] of groups){
   const b=button('',()=>open(key),g===key?'active':'');
   b.dataset.saGroup=key;
-  const icon=el('img',__f4.globals.undefined,'sa-nav-icon');
-  icon.src='/assets/icons/'+({overview:'superadmin',treasury:'cash',accounts:'user',content:'portal-superadmin',bank:'bank-superadmin',masters:'inventory',audit:'book'}[key])+'.svg';
-  icon.alt='';icon.setAttribute('aria-hidden','true');
-  b.append(icon,el('span',label));
+  const icon=saSidebarIcon(key);const caption=el('span',label,'f4-direct-menu-label');
+  b.setAttribute('aria-label',label);b.append(icon,caption);
   b.setAttribute('aria-current',g===key?'page':'false');side.append(b);
  }
- side.append(el('strong','LAINNYA','f4-sa-label f4-sa-other-pages'));
+ side.append(el('div','LAINNYA','f4-direct-group-label f4-direct-other-pages'));
  const donorLink=el('a',__f4.globals.undefined,'sa-donor-link');donorLink.href='/donatur/admin.html';
- const donorIcon=el('img',__f4.globals.undefined,'sa-nav-icon');donorIcon.src='/assets/icons/donor.svg';donorIcon.alt='';donorIcon.setAttribute('aria-hidden','true');
- donorLink.append(donorIcon,el('span','Donatur & Pendanaan'));side.append(donorLink);
+ const donorIcon=saSidebarIcon('donor');donorLink.setAttribute('aria-label','Donatur & Pendanaan');
+ donorLink.append(donorIcon,el('span','Donatur & Pendanaan','f4-direct-menu-label'));side.append(donorLink);
  __f4.globals.document.body.dataset.saArea=g;
  __f4.window.f4SuperadminArea=g;
 
