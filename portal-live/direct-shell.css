@@ -318,6 +318,7 @@ background:rgba(255,255,255,.76);transition:background .18s ease,box-shadow .18s
 .f4-svg-project{-webkit-mask-image:url('/assets/icons/project.svg');mask-image:url('/assets/icons/project.svg')}
 .f4-svg-donor{-webkit-mask-image:url('/assets/icons/donor.svg');mask-image:url('/assets/icons/donor.svg')}
 .f4-svg-calendar{-webkit-mask-image:url('/assets/icons/calendar.svg');mask-image:url('/assets/icons/calendar.svg')}
+.f4-svg-clock{-webkit-mask-image:url('/assets/icons/clock.svg');mask-image:url('/assets/icons/clock.svg')}
 .f4-svg-image{-webkit-mask-image:url('/assets/icons/image.svg');mask-image:url('/assets/icons/image.svg')}
 .f4-svg-inventory{-webkit-mask-image:url('/assets/icons/inventory.svg');mask-image:url('/assets/icons/inventory.svg')}
 .f4-svg-pay{-webkit-mask-image:url('/assets/icons/pay.svg');mask-image:url('/assets/icons/pay.svg')}

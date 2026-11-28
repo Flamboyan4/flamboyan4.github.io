@@ -173,6 +173,11 @@ function cashChart(title,buckets,line,year,month){
  for(const [label,cls] of line?[['Saldo akhir','is-balance']]:[['Kas masuk','is-in'],['Kas keluar','is-out']]){const node=el('span',cls,label);legend.append(node)}
  card.append(legend);return card;
 }
+function cashPage(rows,requested,size=8){
+ const pages=Math.max(1,Math.ceil(rows.length/size)),page=Math.min(pages,Math.max(1,requested));
+ const start=(page-1)*size,end=Math.min(start+size,rows.length);
+ return {page,pages,start,end,rows:rows.slice(start,end),total:rows.length};
+}
 function cashComposition(stats){
  const card=financeCard('Komposisi Pengeluaran');
  if(!stats.outgoing){card.append(el('p','rp-empty','Belum ada pengeluaran pada periode ini.'));return card}
@@ -228,16 +233,24 @@ async function loadEnvironment(seq){
     direction.dataset.noCustom='1';direction.setAttribute('aria-label','Jenis transaksi');option(direction,'all','Semua transaksi');option(direction,'in','Kas masuk');option(direction,'out','Kas keluar');
     search.type='search';search.placeholder='Cari keterangan…';search.setAttribute('aria-label','Cari transaksi');
     controls.append(search,direction);detail.append(el('p','rp-finance-caption',period+' · Pengelompokan iuran mengikuti jurnal asli.'),controls);
-    const list=el('div','rp-finance-ledger'),more=el('div','rp-history-more');detail.append(list,more);
-    let limit=25;
+    const list=el('div','rp-finance-ledger'),pager=el('nav','rp-finance-pager'),count=el('span','rp-finance-page-count'),buttons=el('div','rp-finance-page-buttons'),pageLabel=el('span','rp-finance-page-label');
+    pager.setAttribute('aria-label','Halaman transaksi');count.setAttribute('aria-live','polite');
+    let page=1;
+    const prev=btn('',()=>{page--;paint()},'rp-small'),next=btn('',()=>{page++;paint()},'rp-small');
+    prev.setAttribute('aria-label','Halaman sebelumnya');next.setAttribute('aria-label','Halaman berikutnya');
+    prev.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+    next.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>';
+    buttons.append(prev,pageLabel,next);pager.append(count,buttons);detail.append(list,pager);
     function paint(){
-     list.replaceChildren();more.replaceChildren();
+     list.replaceChildren();
      const q=search.value.trim().toLowerCase(),matching=stats.selected.filter(r=>(direction.value==='all'||(direction.value==='in'?r.debit>0:r.kredit>0))&&(!q||(cashNote(r)+' '+r.kategori+' '+r.tanggal).toLowerCase().includes(q)));
+     const result=cashPage(matching,page);page=result.page;
+     count.textContent=result.total?(result.start+1)+'–'+result.end+' dari '+result.total+' transaksi':'0 transaksi';
+     pageLabel.textContent=page+' / '+result.pages;prev.disabled=page<=1;next.disabled=page>=result.pages;
      if(!matching.length){list.append(el('p','rp-empty','Tidak ada transaksi pada pilihan ini.'));return}
-     matching.slice(0,limit).forEach(r=>{const row=el('div','rp-history-row'),text=el('div','rp-history-detail');text.append(el('strong','',cashNote(r)),el('small','',shortDate(r.tanggal)+(r.kategori?' · '+r.kategori:'')));row.append(text,el('strong','rp-history-amount '+(r.debit?'is-in':'is-out'),(r.debit?'+':'−')+money(r.debit||r.kredit)));list.append(row)});
-     if(matching.length>limit)more.append(btn('Tampilkan berikutnya ('+(matching.length-limit)+')',()=>{limit+=25;paint()}));
+     result.rows.forEach(r=>{const row=el('div','rp-history-row'),text=el('div','rp-history-detail');text.append(el('strong','',cashNote(r)),el('small','',shortDate(r.tanggal)+(r.kategori?' · '+r.kategori:'')));row.append(text,el('strong','rp-history-amount '+(r.debit?'is-in':'is-out'),(r.debit?'+':'−')+money(r.debit||r.kredit)));list.append(row)});
     }
-    search.oninput=direction.onchange=()=>{limit=25;paint()};paint();report.append(detail);
+    search.oninput=direction.onchange=()=>{page=1;paint()};paint();report.append(detail);
    }
    year.onchange=month.onchange=render;render();
   }catch(e){if(active())cash.replaceChildren(el('p','rp-empty',e.message||'Laporan kas belum dapat dimuat.'),btn('Coba lagi',loadCash,'rp-small'))}
