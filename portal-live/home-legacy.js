@@ -1312,12 +1312,12 @@ function salinLinkAgenda(url) {
       `;
     }
 
-    // Kas Warga: full scrollable PC journal, compact HP preview.
+    // Kas Warga: full scrollable PC journal, three recent rows on HP.
     // The same authenticated D1 rows feed the cards, archive and printed report.
     const f4CashDesktopMedia=__f4.window.matchMedia('(min-width:768px)');
     function renderKasWargaTransactions() {
       const body=__f4.globals.document.getElementById('tabel-transaksi');
-      if(!body)return;
+      if(!body||!f4CanReadKas())return;
       const calendar=__f4.globals.document.getElementById('f4-cash-date-filter');
       const selectedDate=(0,__f4.globals.String)(calendar?.value||'');
       const clear=__f4.globals.document.getElementById('f4-cash-date-clear');
@@ -1328,12 +1328,14 @@ function salinLinkAgenda(url) {
         return !!parsed&&[parsed.year,(0,__f4.globals.String)(parsed.month+1).padStart(2,'0'),(0,__f4.globals.String)(parsed.day).padStart(2,'0')].join('-')===selectedDate;
       });
       const isDesktop=f4CashDesktopMedia.matches;
-      const visible=isDesktop||selectedDate?matching:matching.slice(0,6);
+      const title=__f4.globals.document.getElementById('f4-cash-activity-title');
+      if(title)title.textContent=selectedDate?'Aktivitas Kas pada Tanggal Terpilih':'Aktivitas Kas Terbaru';
+      const visible=isDesktop||selectedDate?matching:matching.slice(0,3);
       body.innerHTML=visible.map((row,index)=>renderTableRow(row,index+1)).join('')||
         '<tr><td colspan="5" class="f4-cash-no-results">'+
         (selectedDate?'Tidak ada transaksi pada tanggal tersebut.':'Belum ada transaksi.')+'</td></tr>';
       const more=__f4.globals.document.getElementById('btn-container-keuangan-all');
-      if(more)more.classList.toggle('hidden',isDesktop||!!selectedDate||matching.length<=6);
+      if(more)more.classList.toggle('hidden',isDesktop||!!selectedDate||matching.length<=3);
     }
     function filterKasWargaByDate(){renderKasWargaTransactions()}
     function clearKasWargaDate(){
@@ -1890,7 +1892,7 @@ h2{font-size:12px;margin:10px 0 5px;color:#1e293b}table{width:100%;border-collap
         // Update mengikuti transaksi paling baru dari Buku Kas.
         if (globalKeuanganData.length > 0 && globalKeuanganData[0].Tanggal) {
           const updateEl = __f4.globals.document.getElementById('label-update-kas');
-          if (updateEl) updateEl.innerText = 'Update: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
+          if (updateEl) updateEl.innerText = 'Transaksi terakhir: ' + formatTanggalKeuanganDisplay(globalKeuanganData[0].Tanggal);
         }
 
         // Saldo total Pembukuan dipakai sebagai pembanding target Gapura,

@@ -82,7 +82,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 <link rel="stylesheet" href="/portal-live/dokumentasi/media-theme.css?v=20261127-single-photo-v49">
 <link rel="stylesheet" href="/portal-live/dokumentasi/community-gallery.css?v=20261127-shared-sheet-lifecycle-v119">
 
-<link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261127-shared-sheet-lifecycle-v119">
+<link rel="stylesheet" href="/portal-live/resident-finance-ui.css?v=20261128-finance-transparency-v120">
 
 <link rel="stylesheet" href="/portal-live/scrollbar-appearance.css?v=20261117-v1">
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261127-compact-treasury-filters-v106"></head>
@@ -187,14 +187,13 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full hidden" aria-label="Keuangan Lingkungan" hidden>
-
-
+      <h2 class="f4-cash-section-title">Keuangan Lingkungan</h2>
       <div class="f4-cash-overview">
         <div id="f4-cash-summary-slides" class="f4-cash-summary" role="group" aria-label="Ringkasan saldo, pemasukan dan pengeluaran">
           <!-- Sisa Saldo Kas Utama -->
         <div class="bg-indigo-600 p-5 border border-indigo-600 text-white relative overflow-hidden">
           <div class="f4-cash-card-heading flex items-center justify-between mb-1">
-            <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas</p>
+            <p class="text-xs md:text-sm font-semibold text-indigo-200 uppercase tracking-wider">Saldo Kas Lorong</p>
             <div class="f4-cash-balance-tools"><span class="f4-cash-active bg-emerald-500/20 text-emerald-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">Aktif</span><div class="f4-cash-mobile-actions" role="group" aria-label="Laporan Kas Warga">
               <button type="button" class="f4-cash-mobile-detail" onclick="openModalKeuangan()" aria-label="Rincian kas" title="Rincian kas"><i data-lucide="file-text" aria-hidden="true"></i><span>Rincian</span></button>
               <button type="button" class="f4-cash-mobile-print" onclick="openModalCetakKas()" aria-label="Unduh PDF" title="Unduh PDF"><i data-lucide="download" aria-hidden="true"></i><span>PDF</span></button>
@@ -280,7 +279,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
       <div id="f4-private-transactions" class="bg-white rounded-card shadow-sm border border-slate-200 overflow-hidden w-full">
         <div class="f4-cash-table-toolbar">
-          <span id="label-update-kas" class="f4-cash-last-update">Data Kas</span>
+          <div class="f4-cash-table-heading"><h3 id="f4-cash-activity-title">Aktivitas Kas Terbaru</h3><span id="label-update-kas" class="f4-cash-last-update">Data Kas</span></div>
           <div class="f4-cash-table-actions">
             <div class="f4-cash-date-control">
               <button type="button" id="f4-cash-date-trigger" class="f4-cash-date-trigger" aria-haspopup="dialog" aria-expanded="false" aria-controls="f4-cash-calendar" aria-label="Pilih tanggal transaksi">
@@ -318,7 +317,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 
         <div id="btn-container-keuangan-all" class="p-3 border-t border-slate-100 bg-slate-50 text-center hidden">
           <button onclick="openModalKeuangan()" class="text-xs md:text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition inline-flex items-center space-x-1">
-            <span>Lihat Semua</span>
+            <span>Lihat semua transaksi</span>
             <i data-lucide="chevron-right" class="w-4 h-4"></i>
           </button>
         </div>
@@ -995,7 +994,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   
 
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
-  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261127-shared-sheet-lifecycle-v119"></script>
+  <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261128-finance-transparency-v120"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-desktop-payment-v54" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-iuran-resident-panel-v102"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261127-stable-mobile-drawer-v109"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>

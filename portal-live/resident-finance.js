@@ -105,7 +105,7 @@ __f4.cleanup(()=>{closeHistory(false);historySheet?.remove();historySheet=null;w
 
 async function load(){
  closeHistory(false);const seq=++serial;root.replaceChildren();busy=true;
- const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan Saya'));root.append(heading);
+ const heading=el('div','rp-heading');heading.append(el('h1','','Keuangan Saya'),link('Kas Lingkungan','/?halaman=kas-warga','rp-small'));root.append(heading);
  const bank=el('section','rp-bank');bank.innerHTML='<div class="rp-between"><h2>Tabungan Bank Sampah</h2><button type="button" class="rp-eye" aria-label="Tampilkan saldo" aria-pressed="false"></button></div><p>Total saldo belum dicairkan</p><strong class="rp-saldo" data-amount="total">Rp ••••••</strong><div class="rp-split"><div><small>Bisa dicairkan</small><b data-amount="available">Rp ••••</b></div><div><small>Menunggu penjualan</small><b data-amount="pending">Rp ••••</b></div></div>';
  const bankActions=el('div','rp-bank-actions');
  const savingsHistory=historyButton('Riwayat Tabungan',()=>showHistory('savings',savingsHistory,getSavings));
