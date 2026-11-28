@@ -97,14 +97,20 @@ window.F4PortalRuntime.define("/bank-sampah/index.html#inline-2",function(__f4){
   };
   function syncReturnButton(){
     const list=__f4.globals.document.getElementById('v16NavList');
-    if(!list||currentRole==='public')return;
+    if(!list)return;
+    // Residents already have Profil Saya and the shared navbar account menu.
+    // Do not recreate a duplicate card/profile shortcut when rebuilding the sidebar.
+    if(currentRole==='warga'||currentRole==='public'){
+      list.querySelectorAll('.f4-back-management,.f4-back-account').forEach(button=>button.remove());
+      return;
+    }
     let back=list.querySelector('.f4-back-management,.f4-back-account');
     if(!back){
       back=__f4.globals.document.createElement('button');back.type='button';
       list.appendChild(back);
     }
     back.className='v16-item '+(currentRole==='superadmin'?'f4-back-management':'f4-back-account');
-    const label=currentRole==='superadmin'?'Menu Pengelolaan':currentRole==='warga'?'Kartu & Profil':'Profil pengurus';
+    const label=currentRole==='superadmin'?'Menu Pengelolaan':'Profil pengurus';
     const labelNode=__f4.globals.document.createElement('span');labelNode.className='f4-bank-nav-label';labelNode.textContent=label;
     back.setAttribute('aria-label',label);back.replaceChildren((0,__f4.globals.v16Icon)(currentRole==='superadmin'?'back':'user'),labelNode);
     back.onclick=()=>currentRole==='superadmin'
