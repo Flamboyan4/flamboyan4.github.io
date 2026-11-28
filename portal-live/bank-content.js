@@ -2611,8 +2611,6 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
         </section>
         <section id="v17Informasi" class="f4-public-info" aria-labelledby="f4PublicInfoHeading">
           <h2 id="f4PublicInfoHeading">Informasi lainnya</h2>
-          <details id="f4PublicMoreInfo" class="f4-public-more">
-            <summary><span><strong>Progres &amp; inventaris</strong></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
             <div class="f4-public-more-content">
                     <section id="v17Perkembangan" class="v17-section f4-dev" aria-label="Tahapan kegiatan program">
           <div class="f4-dev-grid">
@@ -2627,7 +2625,6 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
 
               <section id="v17Inventaris" class="v17-section"><h2>Inventaris kegiatan</h2><div id="v17Inventory" class="v17-inventory">Memuat inventaris...</div></section>
             </div>
-          </details>
         </section>
       </div>`;
     $('v17Logo').src=v17Logo;
@@ -3450,7 +3447,7 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       b.onclick=()=>{
         side.querySelectorAll('button').forEach(n=>n.classList.toggle('active',n===b));
         v18ClosePublic();
-        if(target){if(target==='v17Informasi')$('f4PublicMoreInfo').open=true;$(target)?.scrollIntoView({behavior:'smooth',block:'start'});}
+        if(target){$(target)?.scrollIntoView({behavior:'smooth',block:'start'});}
         else __f4.window.scrollTo({top:0,behavior:'smooth'});
       };side.appendChild(b);
     });
