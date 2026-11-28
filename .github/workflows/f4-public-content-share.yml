@@ -1,0 +1,61 @@
+name: F4 Public Content Share Checks
+on:
+  pull_request:
+    paths:
+      - cloudflare/worker-terpadu-operasional-teruji.js
+      - portal-live/rapat-*.js
+      - portal-live/home-legacy.js
+      - portal-live/resident-agenda.js
+      - .github/workflows/f4-public-content-share.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-share:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax and isolated public share behavior
+        run: |
+          node --check cloudflare/worker-terpadu-operasional-teruji.js
+          node --check portal-live/home-legacy.js
+          node --check portal-live/rapat-inline.js
+          node --check portal-live/rapat-d1-bridge.js
+          node --check portal-live/resident-agenda.js
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import {createHash} from 'node:crypto';
+          import {inflateSync} from 'node:zlib';
+          const src=fs.readFileSync('cloudflare/worker-terpadu-operasional-teruji.js','utf8');
+          const {default:worker}=await import('data:text/javascript;base64,'+Buffer.from(src).toString('base64'));
+          const meeting={id:'meeting:stable-01',title:'Rapat Warga & Lingkungan',meeting_on:'2026-11-07',summary:'Pembahasan kas dan kegiatan warga.'};
+          const hidden={id:'meeting:private',title:'SECRET_PRIVATE_MEETING'};
+          const code=id=>'r'+createHash('sha256').update(id).digest('hex').slice(0,16);
+          const env={DB:{prepare(sql){return {bind(...args){return {
+            async all(){
+              if(sql.includes('portal_meeting_records')){assert.match(sql,/visibility='publik'/);return {results:[meeting]}}
+              if(sql.includes('portal_agenda')){assert.match(sql,/visibility='publik'/);return {results:args[0]==='2026-11-29'?[{title:'Penimbangan Bank Sampah',description:'Jadwal warga',location:'A6',status:'Akan Datang'}]:[]}}
+              throw Error('unexpected query '+sql);
+            },async first(){if(sql.includes('app_settings'))return null;throw Error('unexpected query '+sql)}
+          }}}}},ALLOWED_ORIGINS:'https://flamboyan4.web.id'};
+          const fetchPath=(path,method='GET')=>worker.fetch(new Request('https://api.flamboyan4.web.id'+path,{method,headers:{Origin:'https://flamboyan4.web.id'}}),env);
+          for(const [key,destination] of [[code(meeting.id),'/rapat/?record=meeting%3Astable-01'],['a20261129','/?event=2026-11-29']]){
+            const url='/s/'+key;
+            const response=await fetchPath(url);assert.equal(response.status,200);
+            const html=await response.text();assert.match(html,/property="og:title"/);assert.match(html,/property="og:image"/);assert.ok(html.includes(destination));assert.ok(html.includes(url+'/image'));
+            const preview=await fetchPath(url+'/image');assert.equal(preview.status,200);assert.equal(preview.headers.get('content-type'),'image/png');
+            const png=Buffer.from(await preview.arrayBuffer());assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);assert.equal(png.readUInt32BE(16),720);assert.equal(png.readUInt32BE(20),405);assert.ok(png.length<600000);
+            const chunks=[];for(let i=8;i<png.length;){const size=png.readUInt32BE(i),type=png.toString('ascii',i+4,i+8);if(type==='IDAT')chunks.push(png.subarray(i+8,i+8+size));i+=size+12}
+            assert.equal(inflateSync(Buffer.concat(chunks)).length,405*(1+720*3));
+            const head=await fetchPath(url,'HEAD');assert.equal(head.status,200);assert.equal(await head.text(),'');
+            assert.equal((await fetchPath(url,'POST')).status,405);
+          }
+          assert.equal((await fetchPath('/s/'+code(hidden.id))).status,404);
+          assert.equal((await fetchPath('/s/a20261399')).status,404);
+          assert.equal((await fetchPath('/s/a20261399/image')).status,404);
+          console.log('Public-only share metadata, deep links and PNG decoding passed.');
+          JS
