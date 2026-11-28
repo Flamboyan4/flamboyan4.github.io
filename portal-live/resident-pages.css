@@ -69,9 +69,13 @@
  .rp-cash-ledger-slot>.rp-finance-card{width:100%;align-content:start}
  .rp-cash-analysis:has(.rp-finance-monthly[open]){align-items:stretch}
  .rp-cash-analysis:has(.rp-finance-monthly[open])>.rp-cash-analysis-stack{grid-template-rows:minmax(min-content,1fr) auto;align-items:stretch;min-height:0}
- .rp-cash-analysis-stack>.rp-finance-monthly[open]{overflow:visible}
- .rp-cash-analysis-stack>.rp-finance-monthly[open] table{margin-top:7px;font-size:12px;line-height:1.35;table-layout:fixed}
- .rp-cash-analysis-stack>.rp-finance-monthly[open] :is(th,td){padding:3px 3px;white-space:normal;overflow-wrap:anywhere}
+ .rp-cash-analysis-stack>.rp-finance-monthly[open]{display:grid;grid-template-rows:auto minmax(min-content,1fr);row-gap:8px;overflow:visible}
+ .rp-cash-analysis-stack>.rp-finance-monthly[open] summary{line-height:18px}
+ .rp-cash-analysis-stack>.rp-finance-monthly[open] table{height:100%;margin-top:0;font-size:12px;line-height:1.35;table-layout:fixed}
+ .rp-cash-analysis-stack>.rp-finance-monthly[open] :is(th,td){padding:3px 3px;vertical-align:middle;white-space:normal;overflow-wrap:anywhere}
+ @supports selector(details::details-content){
+  .rp-cash-analysis-stack>.rp-finance-monthly[open]::details-content{display:grid;grid-template-rows:minmax(min-content,1fr);min-height:0}
+ }
  .rp-cash-analysis-stack>.rp-finance-monthly[open] :is(th,td):first-child{width:15%}
  .rp-cash-analysis:has(.rp-finance-monthly[open]) .rp-cash-ledger-slot>.rp-finance-card{grid-template-rows:auto auto auto 1fr auto}
  .rp-finance-programs>.rp-finance-card{align-content:start}
