@@ -82,10 +82,10 @@ __f4.expose("rapatToken",()=>rapatToken,null);
     }
 
     function openModalDocRapat(rapatId, isFromHash = false) {
-      const rapatItem = globalRapatData.find(item => item.id === rapatId);
+      const rapatItem = globalRapatData.find(item => item.id === rapatId || item.recordId === rapatId);
       if (!rapatItem) return;
 
-      currentActiveRapatId = rapatId;
+      currentActiveRapatId = rapatItem.id;
       __f4.globals.document.getElementById('modal-rapat-tgl').innerText = rapatItem.tanggal;
       __f4.globals.document.getElementById('modal-rapat-judul').innerText = rapatItem.judul;
       rapatZoom=1; zoomRapat(0);
@@ -444,14 +444,23 @@ __f4.expose("rapatToken",()=>rapatToken,null);
       if (isModalOpenStack) {
         closeModalDocRapat(true);
       } else {
-        const doc=new __f4.globals.URLSearchParams(__f4.globals.location.search).get('doc')||__f4.window.location.hash.slice(1);
+        const params=new __f4.globals.URLSearchParams(__f4.globals.location.search);
+        const doc=params.get('record')||params.get('doc')||__f4.window.location.hash.slice(1);
         if(doc)openModalDocRapat(doc,true);
       }
     });
 
     function copyCurrentRapatLink() {
-      const shareUrl=__f4.window.location.origin+'/rapat/?doc='+(0,__f4.globals.encodeURIComponent)(currentActiveRapatId);
+      let shareUrl=__f4.window.location.origin+'/rapat/?doc='+(0,__f4.globals.encodeURIComponent)(currentActiveRapatId);
       const share=async()=>{
+        const item=globalRapatData.find(x=>x.id===currentActiveRapatId);
+        if(item?.recordId){try{
+          const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(item.recordId)));
+          const candidate='https://api.flamboyan4.web.id/s/r'+Array.from(bytes.slice(0,8),n=>n.toString(16).padStart(2,'0')).join('');
+          shareUrl='https://flamboyan4.web.id/rapat/?record='+encodeURIComponent(item.recordId);
+          const check=await (0,__f4.globals.fetch)(candidate,{method:'HEAD',cache:'no-store',credentials:'omit'});
+          if(check.ok&&check.headers.get('content-type')?.startsWith('text/html'))shareUrl=candidate;
+        }catch{}}
         if(__f4.globals.navigator.share){try{await __f4.globals.navigator.share({title:'Hasil Rapat Flamboyan 4',url:shareUrl});return}catch(e){if(e.name==='AbortError')return}}
         await __f4.globals.navigator.clipboard.writeText(shareUrl);
         const button=__f4.globals.document.querySelector('[onclick="copyCurrentRapatLink()"]');
@@ -558,7 +567,8 @@ __f4.expose("rapatToken",()=>rapatToken,null);
       });
       if (__f4.window.lucide && typeof __f4.globals.lucide.createIcons === 'function') __f4.globals.lucide.createIcons();
 
-      const targetId = new __f4.globals.URLSearchParams(__f4.globals.location.search).get('doc') || __f4.window.location.hash.slice(1);
+      const params=new __f4.globals.URLSearchParams(__f4.globals.location.search);
+      const targetId = params.get('record') || params.get('doc') || __f4.window.location.hash.slice(1);
       if (targetId) openModalDocRapat(targetId, true);
     }
 
@@ -584,7 +594,8 @@ __f4.expose("rapatToken",()=>rapatToken,null);
               judul: row[keys[1]] || 'Hasil Rapat Warga',
               deskripsi: row[keys[2]] || '',
               fotoPreview: row[keys[3]] || '',
-              docUrl: row[keys[4]] || ''
+              docUrl: row[keys[4]] || '',
+              recordId: row['Record ID'] || ''
             };
           });
 

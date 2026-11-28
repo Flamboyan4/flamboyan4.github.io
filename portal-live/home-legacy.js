@@ -707,7 +707,7 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
   
   // Gunakan Query Parameter ?event= agar aman dibuka dari WhatsApp/Browser
   const baseUrl = __f4.window.location.origin + __f4.window.location.pathname;
-  const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `${baseUrl}?event=${dateIso}` : baseUrl;
+  const shareUrl = /^\d{4}-\d{2}-\d{2}$/.test(dateIso||'') ? `https://api.flamboyan4.web.id/s/a${dateIso.replaceAll('-','')}` : baseUrl;
 
   let html = `
     <div class="mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
@@ -752,7 +752,14 @@ let currentKeuanganFilterType = 'all'; // 'all', 'pemasukan', 'pengeluaran'
   if (typeof __f4.globals.lucide !== 'undefined') __f4.globals.lucide.createIcons();
 }
 
-function salinLinkAgenda(url) {
+async function salinLinkAgenda(url) {
+  if(url.startsWith('https://api.flamboyan4.web.id/s/a')){
+    const raw=url.slice(-8),date=raw.slice(0,4)+'-'+raw.slice(4,6)+'-'+raw.slice(6,8);
+    try{
+      const res=await (0,__f4.globals.fetch)(url,{method:'HEAD',cache:'no-store',credentials:'omit'});
+      if(!res.ok||!res.headers.get('content-type')?.startsWith('text/html'))throw Error('Short link unavailable');
+    }catch{url='https://flamboyan4.web.id/?event='+date}
+  }
   __f4.globals.navigator.clipboard.writeText(url).then(() => {
     const txt = __f4.globals.document.getElementById('text-copy-agenda');
     if (txt) {
