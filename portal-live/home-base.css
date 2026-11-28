@@ -46,6 +46,11 @@ body>header, body>section:first-of-type { display:none; }
 body {background:#fff;color:var(--f4-portal-text)}
 #f4-portal-home-main {padding:10px 16px 24px;max-width:var(--f4-content-max,1040px)}
 #banner-slider-container {border-radius:var(--f4-portal-card-radius)}
+/* Compact public legal links; no separate footer block or fixed navigation. */
+#f4-portal-home-main>.f4-legal-links{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 8px;margin:4px 0 0;padding:0;background:transparent;border:0;color:#64748b;font:12px/1.4 system-ui,sans-serif}
+#f4-portal-home-main>.f4-legal-links a{display:inline-flex;align-items:center;min-height:24px;color:inherit;text-decoration:underline;text-underline-offset:2px}
+#f4-portal-home-main>.f4-legal-links a:hover{color:var(--f4-portal-primary)}
+#f4-portal-home-main>.f4-legal-links a:focus-visible{outline:2px solid var(--f4-portal-primary);outline-offset:2px;border-radius:2px}
 
 
 /* Former <style id="f4-public-kas-controls">; order preserved. */
