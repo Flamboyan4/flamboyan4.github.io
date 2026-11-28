@@ -18,21 +18,20 @@
  display:grid;grid-template-columns:minmax(0,1fr);
  align-items:stretch;gap:12px
 }
-#v17Perkembangan .f4-dev-chart-card,
-#v17Perkembangan .f4-dev-activity-card{
+#v17Perkembangan .f4-dev-chart-card{
  min-width:0;margin:0;padding:16px;
  border:1px solid #e1eee6;border-radius:var(--f4-panel-radius,12px);background:#fff;box-shadow:0 6px 18px #176d4b0c
 }
+#v17Perkembangan .f4-dev-activity-card{min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
 #v17Perkembangan .f4-dev-head{
  display:flex;align-items:center;justify-content:space-between;
  gap:9px;margin:0 0 11px
 }
 #v17Perkembangan .f4-dev-head h3{
- margin:0;color:#244c38;font-size:14px;font-weight:800;
- line-height:1.3;letter-spacing:-.015em
+ margin:0;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
 }
 #v17Perkembangan .f4-dev-head-note{
- color:#819487;font-size:10px;font-weight:650;white-space:nowrap
+ color:#61736a;font:500 12px/1.4 system-ui,sans-serif;white-space:nowrap
 }
 #v17Perkembangan .f4-dev-controls{
  display:flex;align-items:center;justify-content:space-between;
@@ -136,10 +135,10 @@
  font-size:10px;font-weight:650;white-space:nowrap;text-overflow:ellipsis
 }
 #v17Perkembangan .f4-dev-timeline-head{
- display:flex;align-items:center;justify-content:flex-end;
- gap:6px;min-height:0;margin:0 0 6px;padding:0;border:0
+ display:flex;align-items:center;justify-content:space-between;
+ gap:6px;min-height:0;margin:0;padding:0;border:0
 }
-#v17Perkembangan .f4-dev-timeline-head strong{display:none}
+#v17Perkembangan .f4-dev-timeline-head strong{font:600 12px/1.4 system-ui,sans-serif;color:#61736a}
 #v17Perkembangan .f4-dev-show-more{
  margin:0;padding:4px 1px;border:0;border-radius:4px;
  background:transparent;color:var(--f4-bank-primary,#087c6c);font-size:11px;font-weight:750;cursor:pointer
@@ -165,18 +164,18 @@
 #v17Perkembangan .f4-dev-activity-info{flex:1;min-width:0}
 #v17Perkembangan .f4-dev-activity-info strong{
  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
- font-size:12px;line-height:1.35;color:#214b36;font-weight:750
+ font:600 13px/1.4 system-ui,sans-serif;color:#17452e
 }
 #v17Perkembangan .f4-dev-activity-info small{
- display:block;margin:3px 0 0;color:#8c9b8e;font-size:10px
+ display:block;margin:3px 0 0;color:#61736a;font:400 12px/1.35 system-ui,sans-serif
 }
 #v17Perkembangan .f4-dev-activity-state{
  flex:none;align-self:center;max-width:78px;overflow:hidden;text-overflow:ellipsis;
- padding:4px 7px;border-radius:8px;background:#edf7ee;
- color:#357b50;font-size:10px;font-weight:700;white-space:nowrap
+ padding:2px 0;background:transparent;
+ color:#167749;font:500 11px/1.35 system-ui,sans-serif;white-space:nowrap
 }
-#v17Perkembangan .f4-dev-activity-state.is-plan{background:#e9ecff;color:#3e4cab}
-#v17Perkembangan .f4-dev-activity-state.is-active{background:#fff4df;color:#91722c}
+#v17Perkembangan .f4-dev-activity-state.is-plan{color:#546477}
+#v17Perkembangan .f4-dev-activity-state.is-active{color:#886312}
 #v17Perkembangan .f4-dev-empty-activity{padding:10px 0;color:#7b9181;font-size:12px}
 @media(max-width:900px){
  #v17Perkembangan .f4-dev-grid{grid-template-columns:minmax(0,1fr);gap:10px}
@@ -184,8 +183,7 @@
 @media(max-width:540px){
  #v17Perkembangan.f4-dev{margin-top:5px}
  #v17Perkembangan .f4-dev-intro{margin-bottom:9px}
- #v17Perkembangan .f4-dev-chart-card,
- #v17Perkembangan .f4-dev-activity-card{padding:13px;border-radius:15px}
+ #v17Perkembangan .f4-dev-chart-card{padding:13px;border-radius:15px}
  #v17Perkembangan .f4-dev-chart{height:136px;gap:3px}
  #v17Perkembangan .f4-dev-chart-summary{gap:7px}
  #v17Perkembangan .f4-dev-chart-summary strong{font-size:25px}
@@ -195,7 +193,7 @@
  #v17Perkembangan .f4-dev-step span{display:none}
  #v17Perkembangan .f4-dev-activity-img,
  #v17Perkembangan .f4-dev-activity-icon{flex-basis:39px;width:39px;height:39px}
- #v17Perkembangan .f4-dev-activity-state{font-size:9px}
+ #v17Perkembangan .f4-dev-activity-state{font-size:11px}
 }
 @media(prefers-reduced-motion:reduce){
  #v17Perkembangan .f4-dev-column-bar{transition:none}
