@@ -77,6 +77,12 @@
 .rp-finance-category small{display:block;color:var(--rp-muted);font-size:10px}
 .rp-finance-category strong{font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .rp-finance-dot{display:block;width:9px;height:9px;border-radius:3px}
+.rp-finance-monthly{min-width:0;overflow-x:auto}
+.rp-finance-monthly summary{font-size:13px;font-weight:700;cursor:pointer;color:#5145cd}
+.rp-finance-monthly table{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px;font-variant-numeric:tabular-nums}
+.rp-finance-monthly th,.rp-finance-monthly td{text-align:right;padding:7px 4px;border-bottom:1px solid var(--rp-line);white-space:nowrap}
+.rp-finance-monthly th:first-child,.rp-finance-monthly td:first-child{text-align:left}
+@media(max-width:400px){.rp-finance-monthly table{font-size:10px}.rp-finance-monthly th,.rp-finance-monthly td{padding:7px 2px}}
 .rp-finance-ledger{min-width:0}.rp-finance-ledger .rp-history-row:last-child{border-bottom:0}
 .rp-finance-program-metrics{border-top:0;margin:0;padding:12px;border-radius:10px;background:#e8f7ef;color:#16633e}
 .rp-finance-program-detail,.rp-finance-project{display:grid;gap:10px;padding:10px 0;border-top:1px solid var(--rp-line)}
