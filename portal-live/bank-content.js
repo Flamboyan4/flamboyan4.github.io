@@ -2546,20 +2546,19 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       <div class="v17-public-main">
         <div class="v17-public-banner">
           <div class="f4-public-hero-copy">
-            <span class="f4-public-hero-eyebrow">PROGRAM LINGKUNGAN WARGA</span>
             <h1>Sampah terpilah, jadi tabungan warga.</h1>
-            <p class="f4-impact-intro">Pilah sampah bernilai dari rumah, setorkan saat penimbangan, lalu pantau hasilnya bersama Bank Sampah Flamboyan 4.</p>
+            <p class="f4-impact-intro">Setorkan sampah, dapatkan manfaatnya bersama.</p>
             <div class="bank-public-links">
-              <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Cara ikut menyetor</button>
+              <button id="f4PublicSeeProgress" type="button" class="f4-public-hero-action">Cara menyetor</button>
               <button id="f4PublicSeeReport" type="button">Lihat laporan</button>
             </div>
           </div>
-          <section class="bank-public-schedule" aria-labelledby="bank-next-label">
-            <div><img src="/assets/icons/calendar.svg" alt=""><h2 id="bank-next-label">Penimbangan berikutnya</h2></div>
-            <strong id="bank-next-day">Memuat jadwal…</strong><span id="bank-next-date"></span>
-            <small id="bank-next-location" hidden></small>
-          </section>
         </div>
+        <section class="bank-public-schedule" aria-labelledby="bank-next-label">
+          <div class="bank-public-calendar" aria-hidden="true"><span id="bank-next-month">—</span><strong id="bank-next-number">—</strong></div>
+          <div class="bank-public-schedule-copy"><h2 id="bank-next-label">Penimbangan berikutnya</h2><p><strong id="bank-next-day">Memuat jadwal…</strong><span id="bank-next-date"></span></p><small id="bank-next-location" hidden></small></div>
+          <img class="bank-public-calendar-icon" src="/assets/icons/calendar.svg" alt="">
+        </section>
         <div id="v17PublicMetrics" class="v17-public-metrics" aria-label="Hasil bersama Bank Sampah">Memuat ringkasan...</div>
         <div class="f4-public-participation">
         <section id="v17WasteTypes" class="f4-public-waste" aria-labelledby="f4PublicWasteHeading">
@@ -3096,13 +3095,16 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       const rule=await response.json(),date=new __f4.globals.Date(rule.nextOccurrence+'T12:00:00+07:00');
       if(!rule.ok||!__f4.globals.Number.isFinite(date.getTime()))throw (0,__f4.globals.Error)();
       $('bank-next-day').textContent=date.toLocaleDateString('id-ID',{weekday:'long',timeZone:'Asia/Jakarta'});
-      $('bank-next-date').textContent=date.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric',timeZone:'Asia/Jakarta'});
+      $('bank-next-date').textContent=', '+date.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Jakarta'});
+      $('bank-next-month').textContent=date.toLocaleDateString('id-ID',{month:'short',timeZone:'Asia/Jakarta'}).toUpperCase();
+      $('bank-next-number').textContent=date.toLocaleDateString('id-ID',{day:'2-digit',timeZone:'Asia/Jakarta'});
       const location=$('bank-next-location');
       const place=(0,__f4.globals.String)(rule.lokasi||rule.location||'').trim();
       if(location){location.hidden=!place;location.textContent=place?'Lokasi: '+place:'';}
     }catch{
       $('bank-next-day').textContent='Jadwal belum tersedia';
       $('bank-next-date').textContent='';
+      $('bank-next-month').textContent='—';$('bank-next-number').textContent='—';
       const location=$('bank-next-location');if(location){location.textContent='';location.hidden=true;}
     }
   }
@@ -3118,11 +3120,11 @@ const inv=__f4.globals.document.createElement('div');inv.id='pageInventaris';inv
       const home=homeResult.value;
       f4PublicInsightHome=home;
       $('v17PublicMetrics').replaceChildren(
-        v17PublicStat('Berat Setoran',
+        v17PublicStat('Berat setoran',
           kg(home.beratSetoranTercatat??home.beratTerkonfirmasi)),
-        v17PublicStat('Total Setoran',
+        v17PublicStat('Total setoran',
           home.jumlahSetoranTercatat??home.jumlahSetoranTerkonfirmasi),
-        v17PublicStat('Anggota Aktif',home.anggotaAktif)
+        v17PublicStat('Anggota aktif',home.anggotaAktif)
       );
       v17RenderPublicWaste(home.barangDiterima);
       v25RenderTimeline(home.progres||[]);
