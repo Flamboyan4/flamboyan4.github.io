@@ -35,11 +35,11 @@ __f4.window.Papa.parse=(input,config,...args)=>{
   __f4.globals.Promise.race([legacyPhotos(input),new __f4.globals.Promise(resolve=>(0,__f4.globals.setTimeout)(()=>resolve({byTitle:new __f4.globals.Map(),byDate:new __f4.globals.Map()}),3500))])
  ]).then(([d,photos])=>{
   if(d.ok===false||!__f4.globals.Array.isArray(d.meetings))throw (0,__f4.globals.Error)(d.error||'Data rapat D1 tidak siap');
-  const header=['Tanggal','Judul','Deskripsi','Foto','Link Dokumen'];
+  const header=['Tanggal','Judul','Deskripsi','Foto','Link Dokumen','Record ID'];
   const rows=d.meetings.slice().reverse().map(x=>{
    const date=textDate(x.meeting_on);
    const photo=photos.byTitle.get(normalized(x.title))||photos.byDate.get(date)||'';
-   return [date,x.title,x.summary,photo,x.document_ref];
+   return [date,x.title,x.summary,photo,x.document_ref,x.id];
   });
   const source=[header,...rows].map(a=>a.map(csvEscape).join(',')).join('\r\n');
   native(source,{...config,download:false},...args);
