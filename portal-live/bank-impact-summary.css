@@ -5,14 +5,6 @@
 body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar{
  background:#fff;border-bottom:1px solid #e3ece4;color:#174b36
 }
-body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login{
- display:grid;place-items:center;width:auto;min-width:78px;
- min-height:39px;padding:0 14px;border:0;border-radius:12px;
- background:var(--f4-bank-primary,#087c6c);color:#fff;font-size:12px;font-weight:800
-}
-body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login:hover{
- background:var(--f4-bank-primary-dark,#086356);color:#fff
-}
 #v11Public #v18PublicContent .v17-public-main{
  box-sizing:border-box;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
  width:100%;max-width:980px;min-width:0;margin:0 auto;
@@ -83,12 +75,12 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .f4-public-waste{
  box-sizing:border-box;display:flex;flex-direction:column;
  margin:0;padding:18px;
- border:1px solid #dce9e0;border-radius:19px;background:#fff;
- box-shadow:0 6px 18px #103b2710
+ border:1px solid #dce5df;border-radius:16px;background:#fff;
+ box-shadow:none
 }
 #v11Public .f4-public-section-heading{
  display:flex;align-items:flex-start;justify-content:space-between;
- gap:15px;min-width:0;margin:0 0 14px
+ gap:10px;min-width:0;margin:0 0 10px
 }
 #v11Public .f4-public-section-heading>div{min-width:0}
 #v11Public .f4-public-eyebrow{
@@ -96,16 +88,14 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  font-size:10px;font-weight:850;letter-spacing:.095em;line-height:1.3
 }
 #v11Public .f4-public-section-heading h2{
- margin:0;color:#174d36;font-size:clamp(18px,2vw,23px);
- font-weight:850;line-height:1.3;letter-spacing:-.025em
+ margin:0;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
 }
 #v11Public .f4-public-section-heading p{
  margin:5px 0 0;color:#648073;font-size:12px;line-height:1.5
 }
 #v11Public .f4-public-count{
- flex:none;align-self:center;margin:0;padding:6px 10px;
- border-radius:999px;background:#eaf6ec;color:#237349;
- font-size:11px;font-weight:800;white-space:nowrap
+ flex:none;align-self:center;margin:0;padding:0;
+ color:#61736a;font:500 12px/1.4 system-ui,sans-serif;white-space:nowrap
 }
 #v11Public .f4-public-count:empty{display:none}
 #v11Public .f4-public-waste-list{
@@ -143,7 +133,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .f4-public-waste-category-head>strong{
  grid-column:2;grid-row:1;min-width:0;
  align-self:end;color:#164f37;
- font-size:14px;font-weight:850;line-height:1.25
+ font:600 14px/1.35 system-ui,sans-serif
 }
 #v11Public .f4-public-waste-category-head:hover>strong,
 #v11Public .f4-public-waste-category.is-active .f4-public-waste-category-head>strong{
@@ -383,7 +373,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 
 #v11Public .f4-public-info{margin:0;padding:0 0 10px}
 #v11Public .f4-public-info>h2{
- margin:0 0 10px;color:#22543a;font-size:18px;font-weight:850
+ margin:0 0 10px;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
 }
 #v11Public .f4-public-more{
  box-sizing:border-box;min-width:0;margin:0;padding:0;
@@ -391,13 +381,13 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 }
 #v11Public .f4-public-more>summary{
  display:flex;justify-content:space-between;align-items:center;gap:12px;
- min-height:65px;padding:14px 17px;list-style:none;cursor:pointer
+ min-height:48px;padding:12px 14px;list-style:none;cursor:pointer
 }
 #v11Public .f4-public-more>summary::-webkit-details-marker{display:none}
 #v11Public .f4-public-more>summary::marker{content:""}
 #v11Public .f4-public-more>summary span{display:grid;gap:4px;min-width:0}
 #v11Public .f4-public-more>summary strong{
- color:#1e553b;font-size:13px;font-weight:800
+ color:#17452e;font:600 14px/1.35 system-ui,sans-serif
 }
 #v11Public .f4-public-more>summary small{
  color:#718677;font-size:11px;line-height:1.45
@@ -408,7 +398,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
 #v11Public .f4-public-more[open]>summary svg{transform:rotate(180deg)}
 #v11Public .f4-public-more>summary:focus-visible{outline:2px solid var(--f4-bank-primary,#087c6c);outline-offset:-2px}
 #v11Public .f4-public-more-content{
- display:grid;gap:21px;min-width:0;padding:19px 17px 22px;
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px;min-width:0;padding:14px;
  border-top:1px solid #e6efe8
 }
 #v11Public .f4-public-more-content #v17Perkembangan{min-width:0;margin:0}
@@ -416,7 +406,7 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  min-width:0;margin:0;padding:0
 }
 #v11Public .f4-public-more-content #v17Inventaris>h2{
- margin:0 0 10px;color:#1e553b;font-size:15px
+ margin:0 0 6px;color:#17452e;font:650 16px/1.35 system-ui,sans-serif
 }
 @media(max-width:1050px){
  #v11Public .v17-public-main>.f4-public-participation{
@@ -440,16 +430,16 @@ body.f4-direct-bank:has(#v11Public:not(.hidden)) #f4-direct-bar .f4-direct-login
  #v17Dokumentasi #v17Albums.v17-photo-feed{gap:3px}
  #v17Dokumentasi #v17Albums.v17-photo-feed>.v17-feed-photo{border-radius:2px}
  #v11Public .f4-public-section-heading{margin-bottom:12px;gap:9px}
- #v11Public .f4-public-section-heading h2{font-size:19px}
+ #v11Public .f4-public-section-heading h2{font-size:16px}
  #v11Public .f4-public-section-heading p{font-size:11px}
  #v11Public .f4-public-waste-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 9px}
- #v11Public .f4-public-waste-category-head{grid-template-columns:55px minmax(0,1fr);min-height:93px;column-gap:6px;padding:7px 2px}
- #v11Public .f4-public-waste-picture{width:55px;height:65px}
- #v11Public .f4-public-waste-picture svg{height:61px;width:55px}
- #v11Public .f4-public-waste-category-head>strong{font-size:12px}
+ #v11Public .f4-public-waste-category-head{grid-template-columns:48px minmax(0,1fr);min-height:70px;column-gap:7px;padding:5px 2px}
+ #v11Public .f4-public-waste-picture{width:48px;height:56px}
+ #v11Public .f4-public-waste-picture svg{height:52px;width:48px}
+ #v11Public .f4-public-waste-category-head>strong{font-size:13px}
  #v11Public .f4-public-waste-category-meta{font-size:10px}
  #v11Public .f4-public-waste-item strong{font-size:11px}
- #v11Public .f4-public-more-content{padding:15px 12px}
+ #v11Public .f4-public-more-content{grid-template-columns:minmax(0,1fr);padding:12px 14px}
 }
 
 /* Three public outcomes are easier to scan than operational counters. */
