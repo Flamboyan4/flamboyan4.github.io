@@ -210,7 +210,7 @@ function jerseyFinance(data){
  if(groups.some(k=>data[k].length>=200))return null; // source has a 200-row cap
  const rows=groups.flatMap(k=>data[k]);
  if(!rows.length)return null; // source errors can also return empty arrays
- const result={orders:rows.length,tagihan:0,paid:0,remaining:0,credit:0,unknown:0};
+ const result={orders:rows.length,groups:{bapak:data.jerseyBapak.length,ibu:data.jerseyIbu.length,anak:data.jerseyAnak.length},tagihan:0,paid:0,remaining:0,credit:0,unknown:0};
  for(const r of rows){
   const price=Number(r.nominal_rp);
   if(!Number.isSafeInteger(price)||price<0||r.nominal_rp==null)return null;
@@ -341,7 +341,7 @@ async function loadEnvironment(seq){
  async function loadProjects(){
   projects.replaceChildren(el('h2','','Pendanaan Projek'),el('p','rp-empty','Memuat pendanaan projek…'));
   try{
-   const data=await read('/api/v2/public/portal');if(!active())return;if(!Array.isArray(data.projects))throw Error('Data projek belum tersedia.');
+   const [data,treasury]=await Promise.all([read('/api/v2/public/portal'),read('/api/v2/portal/jersey-finance').catch(()=>null)]);if(!active())return;if(!Array.isArray(data.projects))throw Error('Data projek belum tersedia.');
    projects.replaceChildren(el('h2','','Pendanaan Projek'),el('p','rp-finance-caption','Dana setiap projek ditampilkan terpisah dan tidak dijumlahkan dengan saldo kas lorong.'));
    const funded=data.projects.filter(p=>['pesanan','penggalangan','kas'].includes(p.project_kind)&&p.ringkasan);
    if(!funded.length)projects.append(el('p','rp-empty','Belum ada projek dengan ringkasan pendanaan.'));
@@ -351,10 +351,18 @@ async function loadEnvironment(seq){
     if(projectKey==='jersey'||['jersey','pemesananjersey'].includes(projectTitle)){
      const jersey=jerseyFinance(data);
      if(!jersey){item.append(el('p','rp-finance-caption','Rekap pembayaran Jersey belum lengkap atau belum tersedia.'));projects.append(item);continue}
-     for(const [label,value] of [['Jumlah pesanan',jersey.orders],['Total tagihan',jersey.tagihan],['Dana masuk',jersey.paid],['Sisa tagihan',jersey.remaining],...(jersey.credit?[['Titipan kelebihan bayar',jersey.credit]]:[])]){
-      const row=el('div','rp-dues-row');row.append(el('span','',label),el('strong','',label==='Jumlah pesanan'?String(value):money(value)));item.append(row);
-     }
-     item.append(el('small','rp-finance-caption','Sumber: rekap pemesanan Jersey bapak-bapak, ibu-ibu dan anak-anak. Dana masuk bukan saldo kas setelah pengeluaran vendor.'));
+     const countRow=el('div','rp-dues-row');countRow.append(el('span','','Jumlah pesanan'),el('strong','',jersey.orders+' pesanan'));item.append(countRow);
+     const groups=el('div','rp-finance-program-metrics');
+     for(const [key,label] of [['bapak','Bapak-bapak'],['ibu','Ibu-ibu'],['anak','Anak-anak']]){const metric=el('div','rp-cash-metric');metric.append(el('small','',label),el('strong','',String(jersey.groups[key])));groups.append(metric)}
+     item.append(groups);
+     const add=(label,value)=>{const row=el('div','rp-dues-row');row.append(el('span','',label),el('strong','',Number.isSafeInteger(value)?money(value):'—'));item.append(row)};
+     for(const [label,value] of [['Total tagihan',jersey.tagihan],['Dana masuk dari pemesan',jersey.paid],['Sisa tagihan pemesan',jersey.remaining],...(jersey.credit?[['Titipan kelebihan bayar',jersey.credit]]:[])])add(label,value);
+     const ledgerValid=treasury?.source==='pusat-keuangan'&&treasury.hasEntries===true&&[treasury.outgoingRp,treasury.balanceRp].every(v=>Number.isSafeInteger(v)&&v>=0);
+     item.append(el('h3','rp-finance-caption','Pos Jersey · Pusat Keuangan'));
+     add('Pengeluaran Jersey',ledgerValid?treasury.outgoingRp:null);
+     add('Saldo dana Jersey',ledgerValid?treasury.balanceRp:null);
+     if(!ledgerValid)item.append(el('p','rp-finance-caption','Pengeluaran dan saldo Pusat Keuangan belum tersedia.'),btn('Muat ulang pendanaan',loadProjects,'rp-small'));
+     else item.append(el('small','rp-finance-caption','Pengeluaran berasal dari jurnal pos Jersey (termasuk pembayaran vendor yang tercatat). Saldo mengikuti Pusat Keuangan, bukan selisih perkiraan tagihan.'));
      projects.append(item);continue;
     }
     const fields=[...(p.project_kind==='kas'&&!p.fund_source?[]:[['Dana masuk',r.danaMasukRp]]),...(p.project_kind==='kas'&&p.fund_source?[['Pengeluaran tercatat',r.danaKeluarRp]]:[]),...(Number.isSafeInteger(target)&&target>0?[[p.project_kind==='pesanan'?'Total tagihan':'Target dana',target]]:[])];

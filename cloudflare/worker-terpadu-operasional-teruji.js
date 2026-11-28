@@ -1868,6 +1868,29 @@ async function treasuryApproveBankBalance(db,who,catalog,req){
 }
 __name(treasuryApproveBankBalance,"treasuryApproveBankBalance");
 
+// Read-only Jersey fund aggregate for authenticated residents. Do not expose
+// internal treasury events, actors, locations, other funds or write access.
+async function residentJerseyTreasury(db,who){
+  if(!who)return err("Silakan login untuk melihat keuangan Jersey.",401);
+  if(!["anggota","admin","superadmin"].includes(who.role))return err("Akses khusus warga dan pengelola.",403);
+  try{
+    const row=await one(db,`SELECT c.confirmed_at,
+      COUNT(e.id) AS entryCount,
+      COALESCE(SUM(e.amount_rp),0) AS balanceRp,
+      COALESCE(SUM(CASE WHEN t.kind='outgoing' AND e.amount_rp<0 THEN -e.amount_rp ELSE 0 END),0) AS outgoingRp
+      FROM treasury_config c
+      LEFT JOIN treasury_entries e ON e.fund_id='jersey'
+      LEFT JOIN treasury_events t ON t.id=e.event_id
+      WHERE c.id=1 GROUP BY c.id,c.confirmed_at`);
+    if(!row?.confirmed_at)return err("Saldo awal Pusat Keuangan belum disahkan.",409);
+    if(!Number.isSafeInteger(row.entryCount)||row.entryCount<0||
+       !Number.isSafeInteger(row.balanceRp)||row.balanceRp<0||
+       !Number.isSafeInteger(row.outgoingRp)||row.outgoingRp<0)
+      return err("Pos Jersey perlu diperiksa.",409);
+    return ok({balanceRp:row.balanceRp,outgoingRp:row.outgoingRp,hasEntries:row.entryCount>0,source:"pusat-keuangan"});
+  }catch(e){return err("Ringkasan Pusat Keuangan Jersey belum tersedia.",503)}
+}
+__name(residentJerseyTreasury,"residentJerseyTreasury");
 async function treasuryApi(request,env,who,url){
   const denied=superadmin(who);if(denied)return denied;
   const db=env.DB,method=request.method;
@@ -3328,6 +3351,7 @@ async function handleUnifiedApi(request, env, who) {
     return ok({ account: { id: who.id, username: who.username, role: who.role, displayName: accountProfile.profile.nama },
       member: who.member_id ? { id: who.member_id, nama: who.display_name, rumah: who.house_code } : null });
   }
+  if (method === "GET" && path === "/api/v2/portal/jersey-finance") return residentJerseyTreasury(db,who);
   if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
   if (method === "GET" && path === "/api/v2/public/portal/cash") {
     if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
