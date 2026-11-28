@@ -10,6 +10,33 @@ const main=__f4.globals.document.querySelector('body>main');if(!main)return;
 const paymentToggle=__f4.globals.document.getElementById('f4-mobile-payment-toggle');
 const current={panel:'beranda',role:'public'};
 const finance=__f4.globals.document.getElementById('keuangan');
+const publicCash=__f4.globals.document.getElementById('f4-public-cash');
+let publicCashGeneration=0;
+function publicCashState(show){
+ if(!publicCash)return;
+ publicCash.hidden=!show;
+ if(!show){publicCashGeneration++;return}
+ void loadPublicCash();
+}
+async function loadPublicCash(){
+ if(!publicCash||publicCash.hidden)return;
+ const generation=++publicCashGeneration,status=publicCash.querySelector('[data-public-cash-status]'),retry=publicCash.querySelector('[data-public-cash-retry]');
+ status.textContent='Memuat ringkasan kas…';retry.hidden=true;
+ for(const node of publicCash.querySelectorAll('[data-public-cash-value]'))node.textContent='—';
+ try{
+  const response=await (0,__f4.globals.fetch)('https://api.flamboyan4.web.id/api/v2/public/portal/cash-summary',{credentials:'omit',cache:'no-store',headers:{Accept:'application/json'}});
+  const result=await response.json(),data=result?.data;
+  if(generation!==publicCashGeneration||publicCash.hidden)return;
+  if(!response.ok||result?.ok!==true||!data||!['saldoRp','totalMasukRp','totalKeluarRp'].every(k=>__f4.globals.Number.isSafeInteger(data[k]))||data.totalMasukRp<0||data.totalKeluarRp<0||data.saldoRp!==data.totalMasukRp-data.totalKeluarRp)throw (0,__f4.globals.Error)('Ringkasan belum tersedia');
+  const rupiah=new __f4.globals.Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0});
+  for(const node of publicCash.querySelectorAll('[data-public-cash-value]'))node.textContent=rupiah.format(data[node.dataset.publicCashValue]);
+  status.textContent='Akumulasi sejak awal pencatatan · Laporan lengkap tersedia setelah login sebagai warga.';
+ }catch(e){
+  if(generation!==publicCashGeneration||publicCash.hidden)return;
+  status.textContent='Ringkasan kas belum tersedia.';retry.hidden=false;
+ }
+}
+if(publicCash){publicCash.querySelector('[data-public-cash-retry]').onclick=loadPublicCash;void loadPublicCash();}
 let scrollScheduled=false,lastVisible='';
 const sectionTargets={
  beranda:__f4.globals.document.querySelector('body>main>section:first-of-type'),
@@ -105,6 +132,7 @@ __f4.window.addEventListener('message',event=>{
   __f4.globals.document.body.dataset.previewRole=current.role;
   const authenticated=current.role!=='public';
   if(finance){finance.hidden=!authenticated;finance.classList.toggle('hidden',!authenticated);}
+  publicCashState(!authenticated);
   __f4.globals.document.querySelectorAll('[data-f4-private-finance],[data-f4-panel="keuangan"]').forEach(node=>{
    node.hidden=!authenticated;node.classList.toggle('hidden',!authenticated);
   });

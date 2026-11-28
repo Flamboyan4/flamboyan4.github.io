@@ -46,6 +46,19 @@ body>header, body>section:first-of-type { display:none; }
 body {background:#fff;color:var(--f4-portal-text)}
 #f4-portal-home-main {padding:10px 16px 24px;max-width:var(--f4-content-max,1040px)}
 #banner-slider-container {border-radius:var(--f4-portal-card-radius)}
+/* Public cash summary: totals only; private journal remains a separate section. */
+#f4-public-cash[hidden]{display:none}
+#f4-public-cash{min-width:0;margin:0}
+#f4-public-cash h2{margin:0 0 10px;color:#28364d;font-size:clamp(17px,2vw,22px);font-weight:800;line-height:1.3}
+.f4-public-cash-card{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));align-items:center;gap:14px;padding:16px;border-radius:var(--f4-portal-card-radius);background:var(--f4-portal-primary);color:#fff}
+.f4-public-cash-card>div{min-width:0}
+.f4-public-cash-card small{display:block;color:#e6e2ff;font-size:12px;line-height:1.35}
+.f4-public-cash-card strong{display:block;font-weight:800;font-size:clamp(14px,2vw,20px);line-height:1.4;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.f4-public-cash-card>div:first-child strong{font-size:clamp(23px,4vw,32px)}
+.f4-public-cash-note{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:7px 0 0;font-size:11px;line-height:1.5;color:#64748b}
+.f4-public-cash-note button{border:0;background:transparent;color:var(--f4-portal-primary);font:650 12px system-ui;cursor:pointer;padding:0}
+.f4-public-cash-note button[hidden]{display:none}
+@media(max-width:600px){.f4-public-cash-card{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px}.f4-public-cash-card>div:first-child{grid-column:1/-1;border-bottom:1px solid #ffffff45;padding-bottom:9px}}
 /* Compact public legal links; no separate footer block or fixed navigation. */
 #f4-portal-home-main>.f4-legal-links{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 8px;margin:4px 0 0;padding:0;background:transparent;border:0;color:#64748b;font:12px/1.4 system-ui,sans-serif}
 #f4-portal-home-main>.f4-legal-links a{display:inline-flex;align-items:center;min-height:24px;color:inherit;text-decoration:underline;text-underline-offset:2px}

@@ -72,7 +72,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 <script type="application/f4-source" data-f4-id="/portal-live/portal-d1-bridge.js" data-f4-src="/portal-live/portal-d1-bridge.js?v=20261127-first-paint-v5"></script>
 
   
-  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261128-compact-legal-links-v123"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261128-shared-side-v141"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
+  <link rel="stylesheet" href="/portal-live/home-base.css?v=20261128-public-transparency-v142"><script src="/portal-live/loading-state.js?v=786606f"></script><link rel="stylesheet" href="/portal-live/loading-state.css?v=28e10d5"><link rel="stylesheet" href="/portal-live/direct-shell.css?v=20261128-public-transparency-v142"><link rel="icon" type="image/svg+xml" href="/assets/logo-flamboyan.svg?v=official-20261027-v2">
 <link rel="stylesheet" href="/portal-live/portal-polish.css?v=20261127-history-spacing-v39">
 <link rel="stylesheet" href="/portal-live/home-overrides.css?v=20261127-shared-sheet-lifecycle-v119">
 
@@ -88,7 +88,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
 <link rel="stylesheet" href="/portal-live/portal-native-controls.css?v=20261128-clean-calendar-v134"></head>
 
 <body class="f4-direct-portal bg-white text-[#20232D] flex flex-col min-h-screen w-full">
-<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><img class="f4-startup-spinner" src="/portal-live/flamboyan-loader.svg?v=20261127-iuran-resident-panel-v102" width="72" height="72" alt="" aria-hidden="true"><span class="f4-startup-refresh" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261127-iuran-resident-panel-v102"></script>
+<div id="f4-startup-screen" data-f4-persistent="shell" role="status" aria-live="polite"><div class="f4-startup-group"><img class="f4-startup-spinner" src="/portal-live/flamboyan-loader.svg?v=20261127-iuran-resident-panel-v102" width="72" height="72" alt="" aria-hidden="true"><span class="f4-startup-refresh" aria-hidden="true"></span><span class="f4-startup-message">Memuat halaman…</span><button type="button" hidden onclick="location.reload()">Coba lagi</button></div></div><script src="/portal-live/shared-mobile-dock.js?v=20261128-public-transparency-v142"></script>
 
   <!-- Header / Navigation -->
   <header class="bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white border-b border-indigo-800/40 sticky top-0 z-40 w-full transition-all shadow-md">
@@ -185,6 +185,16 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
     </div>
   </section>
     
+    <!-- Public totals only; the original authenticated section is unchanged. -->
+    <section id="f4-public-cash" aria-label="Ringkasan keuangan lingkungan">
+      <h2>Keuangan Lingkungan</h2>
+      <div class="f4-public-cash-card">
+        <div><small>Saldo Kas Lorong</small><strong data-public-cash-value="saldoRp">—</strong></div>
+        <div><small>Total pemasukan</small><strong data-public-cash-value="totalMasukRp">—</strong></div>
+        <div><small>Total pengeluaran</small><strong data-public-cash-value="totalKeluarRp">—</strong></div>
+      </div>
+      <p class="f4-public-cash-note"><span data-public-cash-status role="status">Memuat ringkasan kas…</span><button type="button" data-public-cash-retry hidden>Coba lagi</button></p>
+    </section>
     <!-- SECTION 1: LAPORAN KEUANGAN -->
     <section id="keuangan" class="scroll-mt-20 w-full hidden" aria-label="Keuangan Lingkungan" hidden>
       <h2 class="f4-cash-section-title">Keuangan Lingkungan</h2>
@@ -998,7 +1008,7 @@ html[data-f4-pull-reloading] #f4-startup-screen .f4-startup-refresh{display:bloc
   <!-- SCRIPT KONTROL LOGIKA PORTAL -->
   <script type="application/f4-source" data-f4-id="/portal-live/home-legacy.js" data-f4-src="/portal-live/home-legacy.js?v=20261128-finance-transparency-v120"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/payment-footer.js" data-f4-src="/portal-live/payment-footer.js?v=20261127-desktop-payment-v54" data-f4-defer></script>
-<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261127-iuran-resident-panel-v102"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261128-stable-inbox-v121"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
+<script type="application/f4-source" data-f4-id="/index.html#inline-2" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script><script type="application/f4-source" data-f4-id="/portal-live/portal-panels.js" data-f4-src="/portal-live/portal-panels.js?v=20261128-public-transparency-v142"></script><script type="application/f4-source" data-f4-id="/portal-live/cash-date-picker.js" data-f4-src="/portal-live/cash-date-picker.js?v=20261127-unified-controls-v25"></script><script src="/portal-live/direct-shell.js?v=20261128-public-transparency-v142"></script><script src="/portal-live/unified-account.js?v=20261127-profile-only-v21"></script><script type="application/f4-source" data-f4-id="/index.html#inline-3" data-f4-src="/portal-live/portal-inline.js?v=20261127-desktop-payment-v54"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/home-accessibility.js" data-f4-src="/portal-live/home-accessibility.js?v=20261127-first-paint-v5"></script>
 <script type="application/f4-source" data-f4-id="/portal-live/dokumentasi/media-viewer.js" data-f4-src="/portal-live/dokumentasi/media-viewer.js?v=20261127-sheet-anchor-motion-v113" data-f4-defer></script>
 <script type="application/f4-source" data-f4-id="/portal-live/dokumentasi/community-gallery.js" data-f4-src="/portal-live/dokumentasi/community-gallery.js?v=20261127-single-photo-v49" data-f4-defer></script>

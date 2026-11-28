@@ -369,7 +369,10 @@ const dock=window.F4MobileDock;
 let queuedDockAction=null,bankNavigationObserver=null,bankNavigationTimer=null;
 const validDockRole=value=>dock?.validRole(value)||false;
 const rememberDockHint=value=>dock?.remember(value);
-function updateSharedDock(next=session?.account&&validDockRole(role)?role:''){dock?.update(next);residentTools.syncRole(next)}
+function updateSharedDock(next=session?.account&&validDockRole(role)?role:''){
+ const presentation=next||(!session?.account&&['portal','bank','rapat','dokumentasi'].includes(activePortalKey)?'public':'');
+ dock?.update(presentation);residentTools.syncRole(next);
+}
 function closeDockMenu(focus=false){dock?.closeMenu(focus)}
 function cancelBankNavigation(){
  bankNavigationObserver?.disconnect();bankNavigationObserver=null;
@@ -629,6 +632,12 @@ function openBookRoute(route){
 }
 function dockAction(key){
  if(!session?.account){
+  if(dock?.getRole()==='public'&&['home','bank'].includes(key)){
+   closeDockMenu();
+   if(key==='home'&&portal==='portal'&&typeof window.f4PortalSelectPanel==='function'){window.f4PortalSelectPanel('beranda');dock?.refresh?.();return;}
+   if(key==='bank'&&portal==='bank'){shellScroll.scrollTo({top:0,behavior:'instant'});return;}
+   void navigatePortal(key==='home'?paths.portal:paths.bank);return;
+  }
   const hintedRole=dock?.getRole();
   if(!sessionCheckCompleted&&hintedRole&&dock.allowed(hintedRole,key))queuedDockAction={key,role:hintedRole};
   return;
@@ -656,7 +665,7 @@ function dockAction(key){
 }
 let sessionCheckCompleted=false,sessionRetryTimer=null,sessionRetryCount=0;
 // Only paint non-sensitive navigation labels before re-verifying the session.
-if(dock?.getRole())login.hidden=true;
+if(dock?.getRole()&&dock.getRole()!=='public')login.hidden=true;
 dock?.bind(dockAction);
 let lastSessionRenewed=0,lastRenewAttempt=0,renewalPending=false;
 const SESSION_RENEW_INTERVAL=15*60*1000;

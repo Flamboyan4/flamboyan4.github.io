@@ -121,6 +121,18 @@ async function authenticatedPortalCashBalance(db){
   return ok({data:{saldoRp,totalMasukRp,totalKeluarRp,jumlahTransaksi,source:"cloudflare-d1"},readOnly:true});
 }
 __name(authenticatedPortalCashBalance,"authenticatedPortalCashBalance");
+// Public read-only aggregate. Never return rows, notes, names or payment methods.
+async function publicPortalCashSummary(db){
+  const row=await one(db,`SELECT COUNT(*) AS jumlahTransaksi,
+    COALESCE(SUM(debit_rp),0) AS totalMasukRp,
+    COALESCE(SUM(credit_rp),0) AS totalKeluarRp
+    FROM bookkeeping_cash_transactions_posted WHERE status='aktif'`);
+  const {jumlahTransaksi,totalMasukRp,totalKeluarRp}=row||{};
+  const saldoRp=totalMasukRp-totalKeluarRp;
+  if(![jumlahTransaksi,totalMasukRp,totalKeluarRp,saldoRp].every(Number.isSafeInteger)||jumlahTransaksi<=0||totalMasukRp<0||totalKeluarRp<0)return err("Ringkasan Kas belum tersedia.",503);
+  return ok({data:{saldoRp,totalMasukRp,totalKeluarRp},readOnly:true});
+}
+__name(publicPortalCashSummary,"publicPortalCashSummary");
 /* One publication program for both portals, not duplicate uploads.
    Use the original photo ID for shared D1 reactions and comments. */
 function f4BankGalleryAlbumMatch(a,c){
@@ -3353,6 +3365,10 @@ async function handleUnifiedApi(request, env, who) {
   }
   if (method === "GET" && path === "/api/v2/portal/jersey-finance") return residentJerseyTreasury(db,who);
   if (method === "GET" && path === "/api/v2/public/portal") return publicPortal(db);
+  if (method === "GET" && path === "/api/v2/public/portal/cash-summary") {
+    try { return await publicPortalCashSummary(db); }
+    catch (e) { return err("Ringkasan Kas belum tersedia.",503); }
+  }
   if (method === "GET" && path === "/api/v2/public/portal/cash") {
     if (!who) return err("Silakan login untuk melihat laporan keuangan.", 401);
     return publicPortalCash(db);

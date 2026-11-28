@@ -586,7 +586,7 @@ scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}
  body.f4-shared-dock #f4-direct-bar .f4-nav-links{display:none}
  body.f4-shared-dock:not(.f4-denied) #f4-direct-dock:not([hidden]){
   box-sizing:border-box;position:absolute;inset:0;display:grid;pointer-events:auto;
-  grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:center;gap:2px;
+  grid-template-columns:repeat(var(--f4-dock-columns,5),minmax(0,1fr));grid-template-rows:minmax(0,1fr);align-items:center;gap:2px;
   width:100%;min-width:0;max-width:100%;height:100%;
   padding:3px 5px calc(3px + var(--f4-dock-safe));margin:0;background:#fff;
   border-top:1px solid #e8eceb;box-shadow:none;transform:none;visibility:visible;

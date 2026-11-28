@@ -42,6 +42,7 @@ const dockPaths={
 };
 const dockIcon=key=>dockPaths[key]?'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">'+dockPaths[key]+'</svg>':svg(key);
 const dockItems={
+ public:[['home','Beranda','home'],['bank','Bank Sampah','bank']],
  superadmin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['input','Input','add'],['book','Pembukuan','book'],['superadmin','Superadmin','superadmin']],
  admin:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['deposit','Input','add'],['sale','Penjualan','sale'],['report','Laporan','report']],
  warga:[['home','Beranda','home'],['bank','Bank Sampah','bank'],['finance','Keuangan','cash'],['agenda','Agenda','calendar'],['profile','Profil','user']]
@@ -55,12 +56,12 @@ function readDockHint(){
  try{
   const hint=JSON.parse(sessionStorage.getItem(dockHintKey)||'null');
   const age=Date.now()-Number(hint?.time);
-  return age>=0&&age<15*60*1000&&validDockRole(hint?.role)?hint.role:'';
+  return age>=0&&age<15*60*1000&&validDockRole(hint?.role)&&hint.role!=='public'?hint.role:'';
  }catch{return '';}
 }
 function rememberDockHint(value){
  try{
-  if(validDockRole(value))sessionStorage.setItem(dockHintKey,JSON.stringify({role:value,time:Date.now()}));
+  if(validDockRole(value)&&value!=='public')sessionStorage.setItem(dockHintKey,JSON.stringify({role:value,time:Date.now()}));
   else sessionStorage.removeItem(dockHintKey);
  }catch{}
 }
@@ -119,6 +120,7 @@ function updateSharedDock(next=''){
    }
   }
  }
+ sharedDock.dataset.role=next;sharedDock.style.setProperty('--f4-dock-columns',String(dockItems[next]?.length||5));
  sharedDock.hidden=!next;document.body.classList.toggle('f4-shared-dock',!!next);markSharedDock();
 }
 
@@ -135,5 +137,5 @@ window.F4MobileDock={
  bind(fn){handler=fn;const p=pending;pending=null;if(p&&p.role===dockRole)fn(p.key)},
  setPortal(next){if(!['portal','bank','book','superadmin','simple','finance','agenda','profile'].includes(next))return;portal=next;bankRoute='';bookRoute='';closeDockMenu();markSharedDock()}
 };
-const hint=readDockHint();if(hint)updateSharedDock(hint);
+const hint=readDockHint();if(hint)updateSharedDock(hint);else if(['portal','bank'].includes(portal)||['/rapat/','/dokumentasi/'].includes(location.pathname.replace(/index\.html$/i,'').replace(/\/?$/,'/')))updateSharedDock('public');
 })();
